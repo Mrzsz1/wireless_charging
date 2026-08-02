@@ -14,6 +14,8 @@ isbn: "9780521872829"
 page_count: 775
 chapter_count: 29
 core_reference: true
+paper_keywords: []
+keyword_source: not_found
 chapter_index: "raw/canonical/algorithmic-game-theory/chapter-index.json"
 quality_report: "raw/canonical/core-books-quality.json"
 acquisition_method: manual_upload
@@ -45,7 +47,7 @@ updated: 2026-08-01
 
 - 章节目录：`raw/canonical/algorithmic-game-theory/chapter-index.json`
 - 质量报告：`raw/canonical/core-books-quality.json`
-- 专著检索注册表：[[../../schema/core-references]]
+- 专著检索注册表：[core-references](../../schema/core-references.yaml)
 - 相关综合页：[[../syntheses/syn-core-books-atlas]]
 
 ## 引用要求

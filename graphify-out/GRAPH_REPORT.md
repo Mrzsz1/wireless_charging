@@ -1,13 +1,18 @@
 # Graph Report - wireless_charging  (2026-08-02)
 
 ## Corpus Check
-- 229 files · ~4,820,873 words
+- 236 files · ~4,824,596 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1471 nodes · 2225 edges · 130 communities (126 shown, 4 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
+- 1558 nodes · 2430 edges · 137 communities (129 shown, 8 thin omitted)
+- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
+
+## Graph Freshness
+- Built from commit: `eb331a7d`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - index.md
@@ -107,6 +112,10 @@
 - CompileCenterView.tsx
 - desktop.ts
 - verify-p4.mjs
+- build-signed-release.mjs
+- offline-smoke.mjs
+- gui-smoke.mjs
+- verify-config.mjs
 - novelty-dwpt-ev-scheduling
 - novelty-joint-placement-online-interference
 - novelty-mobile-partial-deadline
@@ -117,6 +126,9 @@
 - solve-online-directional-requests
 - solve-paid-cooperative-service
 - solve-peak-aoi
+- PermissionEntry
+- smoke-installer.mjs
+- verify-p5.mjs
 - Q: 理解当前项目以及架构然后写出架构文档
 - Q: 接入 MinerU API，把本地 PDF 自动解析成 Markdown
 - Q: 增加能够从 arXiv 等来源自动搜索相关领域论文的功能
@@ -137,7 +149,7 @@
 - Wiki 问答回归集
 
 ## God Nodes (most connected - your core abstractions)
-1. `AppState` - 44 edges
+1. `AppState` - 51 edges
 2. `Minimizing the energy depletion in wireless rechargeable sensor networks using bi-level metaheuristic charging schemes` - 37 edges
 3. `Study on charging strategy of wireless rechargeable sensor networks based on dynamic inhomogeneous clustering` - 37 edges
 4. `Infinite Drive: Optimal Urban Location of Dynamic Wireless Charging at Signalized Intersections` - 35 edges
@@ -145,25 +157,25 @@
 6. `Placing Wireless Chargers With Multiple Antennas` - 30 edges
 7. `Cooperative Charging as Service: Scheduling for Mobile Wireless Rechargeable Sensor Networks` - 26 edges
 8. `Planning dynamic wireless charging infrastructure for battery electric bus systems with the joint optimization of charging scheduling` - 25 edges
-9. `Charging Scheduling of Clustered Wireless Rechargeable Sensor Networks Considering Dynamic Selection of Cluster Heads` - 24 edges
-10. `Peak AoI Minimization at Wireless-Powered Network Edge: From the Perspective of Both Charging and Transmitting` - 24 edges
+9. `rebuild_connection()` - 24 edges
+10. `Charging Scheduling of Clustered Wireless Rechargeable Sensor Networks Considering Dynamic Selection of Cluster Heads` - 24 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `AppState` --references--> `RepositoryWatcher`  [EXTRACTED]
+  apps/desktop/src-tauri/src/lib.rs → apps/desktop/src-tauri/src/repository_watcher.rs
 - `App()` --calls--> `isDesktopRuntime()`  [EXTRACTED]
   apps/desktop/src/App.tsx → apps/desktop/src/services/desktop.ts
-- `ComparisonView()` --calls--> `isDesktopRuntime()`  [EXTRACTED]
-  apps/desktop/src/features/comparison/ComparisonView.tsx → apps/desktop/src/services/desktop.ts
+- `CoreBooksView()` --calls--> `isDesktopRuntime()`  [EXTRACTED]
+  apps/desktop/src/features/books/CoreBooksView.tsx → apps/desktop/src/services/desktop.ts
 - `GraphView()` --calls--> `isDesktopRuntime()`  [EXTRACTED]
   apps/desktop/src/features/graph/GraphView.tsx → apps/desktop/src/services/desktop.ts
 - `AskView()` --calls--> `isDesktopRuntime()`  [EXTRACTED]
   apps/desktop/src/features/qa/AskView.tsx → apps/desktop/src/services/desktop.ts
-- `App()` --calls--> `chooseRepository()`  [EXTRACTED]
-  apps/desktop/src/App.tsx → apps/desktop/src/services/desktop.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (130 total, 4 thin omitted)
+## Communities (137 total, 8 thin omitted)
 
 ### Community 0 - "index.md"
 Cohesion: 0.05
@@ -314,12 +326,12 @@ Cohesion: 0.25
 Nodes (7): Cooperative Charging Scheduling（CCS）, 一句话问题, 主要结果, 局限, 方法要点, 系统设定与假设, 链接
 
 ### Community 37 - "package.json"
-Cohesion: 0.08
-Nodes (24): dependencies, lucide-react, react, react-dom, @tauri-apps/api, devDependencies, @tauri-apps/cli, @types/react (+16 more)
+Cohesion: 0.06
+Nodes (32): dependencies, lucide-react, react, react-dom, @tauri-apps/api, @tauri-apps/plugin-process, @tauri-apps/plugin-updater, devDependencies (+24 more)
 
 ### Community 38 - "tauri.conf.json"
-Cohesion: 0.09
-Nodes (22): debugApplicationIdSuffix, app, security, windows, enable, scope, build, beforeBuildCommand (+14 more)
+Cohesion: 0.08
+Nodes (23): debugApplicationIdSuffix, app, security, windows, enable, scope, build, beforeBuildCommand (+15 more)
 
 ### Community 39 - "主题地图：在线调度"
 Cohesion: 0.29
@@ -342,8 +354,8 @@ Cohesion: 0.33
 Nodes (5): TIDE 在线定向控制, 来源, 要点, 输入 / 输出, 适用条件
 
 ### Community 45 - "App.tsx"
-Cohesion: 0.09
-Nodes (21): Icon, navigation, tags, WorkspaceItem, workspaceItems, TabBar(), TabBarProps, WorkTab (+13 more)
+Cohesion: 0.11
+Nodes (25): App(), defaultTab, Icon, MainView, navigation, NavigationItem, readStored(), Theme (+17 more)
 
 ### Community 46 - "definitions"
 Cohesion: 0.15
@@ -354,8 +366,8 @@ Cohesion: 0.40
 Nodes (4): 定义, 对比, 并发充电（Concurrent charging）, 相关问题族
 
 ### Community 48 - "definitions"
-Cohesion: 0.15
-Nodes (13): definitions, Number, PermissionEntry, Target, Value, anyOf, description, anyOf (+5 more)
+Cohesion: 0.14
+Nodes (14): description, required, type, definitions, Capability, Number, Target, Value (+6 more)
 
 ### Community 49 - "properties"
 Cohesion: 0.20
@@ -423,7 +435,7 @@ Nodes (8): description, properties, required, type, CapabilityRemote, urls, desc
 
 ### Community 65 - "无线充电调度研究工作台"
 Cohesion: 0.29
-Nodes (6): Luna 閰嶇疆, 寮€鍙?, 褰撳墠鑼冨洿, 鏁版嵁鏇存柊, 鏃犵嚎鍏呯數璋冨害鐮旂┒宸ヤ綔鍙?, 鏋勫缓
+Nodes (6): Development (offline), Optional Luna configuration, Optional updater contract, Prerequisites, Verification, Windows packaging
 
 ### Community 66 - "default.json"
 Cohesion: 0.33
@@ -458,8 +470,8 @@ Cohesion: 0.50
 Nodes (4): default, description, type, description
 
 ### Community 74 - "Capability"
-Cohesion: 0.50
-Nodes (4): description, required, type, Capability
+Cohesion: 0.17
+Nodes (16): ChangeKind, classifies_wiki_and_schema(), classify_event(), excluded(), IndexChange, RepositoryWatcher, Option, Path (+8 more)
 
 ### Community 75 - "description"
 Cohesion: 0.50
@@ -491,7 +503,7 @@ Nodes (3): Identifier, description, oneOf
 
 ### Community 84 - "lib.rs"
 Cohesion: 0.07
-Nodes (122): AnswerStreamEvent, AppHandle, AppState, ask_luna(), Backlink, body_without_frontmatter(), book_chapters(), BookChapter (+114 more)
+Nodes (127): AnswerStreamEvent, AppHandle, AppState, ask_luna(), Backlink, body_without_frontmatter(), book_chapters(), BookChapter (+119 more)
 
 ### Community 86 - "verify-build.mjs"
 Cohesion: 0.10
@@ -502,20 +514,20 @@ Cohesion: 0.05
 Nodes (39): 10. 实施步骤, 11. 验收标准, 12. 子代理核验分工记录, 1. 阶段目标, 2. 本阶段不做, 3.1 离线优先, 3.2 证据先于生成, 3.3 可重建与可审计 (+31 more)
 
 ### Community 88 - "types.ts"
-Cohesion: 0.11
-Nodes (17): AnswerStreamEvent, AskRequest, AskResult, ChatSessionDetail, ChatSessionSummary, ComparisonCell, ComparisonColumn, CompileArtifact (+9 more)
+Cohesion: 0.08
+Nodes (25): LibraryView(), LibraryViewProps, typeLabels, AnswerStreamEvent, AskRequest, ChatMessage, ChatSessionDetail, ChatSessionSummary (+17 more)
 
 ### Community 89 - "raw/canonical"
 Cohesion: 0.20
 Nodes (9): API 自动解析, frontmatter 示例（写在 md 顶部）, HTML 要不要下？, raw/canonical, 不要这样做, 你怎么从 MinerU 收纳, 推荐目录（一文一夹）, 编译时图怎么用 (+1 more)
 
 ### Community 90 - "desktop.ts"
-Cohesion: 0.16
-Nodes (18): CoreBooksView(), CoreBooksViewProps, pageLabel(), inlineText(), isTableSeparator(), MarkdownReader(), MarkdownReaderProps, safeLocalImagePath() (+10 more)
+Cohesion: 0.23
+Nodes (11): CoreBooksView(), CoreBooksViewProps, pageLabel(), getBookChapter(), listBookChapters(), listCoreBooks(), searchBookChapters(), BookChapter (+3 more)
 
 ### Community 91 - "AskView.tsx"
-Cohesion: 0.18
-Nodes (17): AskView(), AskViewProps, emptySettings, formatTime(), kindIcon(), localMessage(), suggestions, tierLabel() (+9 more)
+Cohesion: 0.16
+Nodes (18): AskView(), AskViewProps, emptySettings, formatTime(), kindIcon(), localMessage(), suggestions, tierLabel() (+10 more)
 
 ### Community 92 - "isDesktopRuntime"
 Cohesion: 0.33
@@ -526,8 +538,8 @@ Cohesion: 0.33
 Nodes (8): GraphView(), GraphViewProps, layoutNodes(), graphNeighbors(), graphOverview(), graphPath(), GraphNode, GraphOverview
 
 ### Community 94 - "ComparisonView.tsx"
-Cohesion: 0.15
-Nodes (36): allowlist_and_input_boundary_are_enforced(), build_task(), capabilities(), command_exists(), CompileArtifact, CompileCapability, CompileRunDetail, CompileRunEvent (+28 more)
+Cohesion: 0.11
+Nodes (55): allowlist_and_input_boundary_are_enforced(), build_pipeline(), build_task(), capabilities(), command_exists(), CompileArtifact, CompileCapability, CompileRunDetail (+47 more)
 
 ### Community 95 - "Value"
 Cohesion: 0.40
@@ -538,12 +550,20 @@ Cohesion: 0.09
 Nodes (22): 10. 自动验收, 11. 实施顺序, 12. 完成定义, 1. 阶段目标, 2. 非目标与硬边界, 3.1 仓库选择与文献库加载, 3.2 “我的空间”树展开, 3. P4-00：阻塞缺陷修复 (+14 more)
 
 ### Community 98 - "CompileCenterView.tsx"
-Cohesion: 0.16
-Nodes (17): CompileCenterView(), formatTime(), Props, statusLabels, taskIcons, cancelCompileRun(), getCompileCapabilities(), getCompileRun() (+9 more)
+Cohesion: 0.14
+Nodes (20): CompileCenterView(), formatTime(), Props, statusLabels, taskIcons, cancelCompileRun(), getCompileCapabilities(), getCompileRun() (+12 more)
 
 ### Community 99 - "desktop.ts"
-Cohesion: 0.20
-Nodes (10): App(), chooseRepository(), getBacklinks(), getPage(), listPages(), openLocalPath(), rebuildIndex(), repositoryInfo() (+2 more)
+Cohesion: 0.22
+Nodes (12): ComparisonView(), ComparisonViewProps, inlineText(), isTableSeparator(), MarkdownReader(), MarkdownReaderProps, safeLocalImagePath(), tableCells() (+4 more)
+
+### Community 101 - "build-signed-release.mjs"
+Cohesion: 0.25
+Nodes (7): base, desktop, endpoint, here, privateKey, pubkey, temporaryConfig
+
+### Community 102 - "offline-smoke.mjs"
+Cohesion: 0.50
+Nodes (3): html, required, root
 
 ### Community 105 - "novelty-dwpt-ev-scheduling"
 Cohesion: 0.33
@@ -584,6 +604,10 @@ Nodes (5): 0. 库水位, 1. 直接可用, 2. 适用前提, 3. 库内未见, solv
 ### Community 114 - "solve-peak-aoi"
 Cohesion: 0.33
 Nodes (5): 0. 库水位, 1. 直接可用, 2. 适用前提, 3. 关系, solve-peak-aoi
+
+### Community 115 - "PermissionEntry"
+Cohesion: 0.67
+Nodes (3): PermissionEntry, anyOf, description
 
 ### Community 121 - "Q: 理解当前项目以及架构然后写出架构文档"
 Cohesion: 0.40
@@ -650,9 +674,9 @@ Cohesion: 0.50
 Nodes (3): DWPT设施—电池—充电调度联合规划, 来源, 要点
 
 ## Knowledge Gaps
-- **858 isolated node(s):** `name`, `private`, `version`, `type`, `dev` (+853 more)
+- **890 isolated node(s):** `probe`, `driverProcess`, `root`, `required`, `html` (+885 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Work-memory lessons
 
@@ -668,14 +692,14 @@ Nodes (3): DWPT设施—电池—充电调度联合规划, 来源, 要点
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Wiki 索引` connect `Wiki 索引` to `index.md`?**
-  _High betweenness centrality (0.002) - this node is a cross-community bridge._
-- **Why does `properties` connect `properties` to `Capability`, `description`, `permissions`, `webviews`?**
-  _High betweenness centrality (0.002) - this node is a cross-community bridge._
-- **Why does `definitions` connect `definitions` to `CapabilityRemote`, `Identifier`, `Capability`, `windows-schema.json`?**
-  _High betweenness centrality (0.002) - this node is a cross-community bridge._
-- **What connects `name`, `private`, `version` to the rest of the system?**
-  _858 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `graph_overview_from_payload()` connect `lib.rs` to `ComparisonView.tsx`?**
+  _High betweenness centrality (0.011) - this node is a cross-community bridge._
+- **Why does `AppState` connect `lib.rs` to `Capability`?**
+  _High betweenness centrality (0.006) - this node is a cross-community bridge._
+- **Why does `execute_compile_request()` connect `lib.rs` to `ComparisonView.tsx`?**
+  _High betweenness centrality (0.004) - this node is a cross-community bridge._
+- **What connects `probe`, `driverProcess`, `root` to the rest of the system?**
+  _890 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `index.md` be split into smaller, more focused modules?**
   _Cohesion score 0.05398110661268556 - nodes in this community are weakly interconnected._
 - **Should `Study on charging strategy of wireless rechargeable sensor networks based on dynamic inhomogeneous clustering` be split into smaller, more focused modules?**

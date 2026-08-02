@@ -2625,7 +2625,7 @@
     "semantic_hash": ""
   },
   "evals/core-book-retrieval-report.json": {
-    "mtime": 1785657218.0123813,
+    "mtime": 1785661345.3017979,
     "ast_hash": "ea3df923d2e6cc09e9393e1287ed0fb0",
     "semantic_hash": ""
   },
@@ -2830,13 +2830,13 @@
     "semantic_hash": ""
   },
   "apps/desktop/package.json": {
-    "mtime": 1785657183.9439397,
-    "ast_hash": "76a5e29d11d40a145157f9872b02f5ca",
+    "mtime": 1785660043.480289,
+    "ast_hash": "920fcd17f37e029eba80555b8c7a2d65",
     "semantic_hash": ""
   },
   "apps/desktop/public/data/library.json": {
-    "mtime": 1785657249.8606164,
-    "ast_hash": "0117f4a1e1ec3f48526b3cdb8b06a1ef",
+    "mtime": 1785661398.8489113,
+    "ast_hash": "ad13b72bc3f445e578865c74bca4c77f",
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/build.rs": {
@@ -2870,8 +2870,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/src/lib.rs": {
-    "mtime": 1785657060.0749686,
-    "ast_hash": "7408acefcda3e2393d99dc4792f13845",
+    "mtime": 1785661254.760162,
+    "ast_hash": "351414d6174dec55c1c917d18594357b",
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/src/main.rs": {
@@ -2880,13 +2880,13 @@
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/tauri.conf.json": {
-    "mtime": 1785655964.8408923,
-    "ast_hash": "05a92f4da443b5f41d91ab9069492e52",
+    "mtime": 1785660060.454494,
+    "ast_hash": "4d2f91382bf78827252a9a2cac6421ba",
     "semantic_hash": ""
   },
   "apps/desktop/src/App.tsx": {
-    "mtime": 1785657159.6419106,
-    "ast_hash": "f662f4fe313a55344b3a1169bdaca75c",
+    "mtime": 1785659502.6695135,
+    "ast_hash": "b50ed6f22a35fdda7e771ca81309e02d",
     "semantic_hash": ""
   },
   "apps/desktop/src/counter.ts": {
@@ -2905,8 +2905,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/README.md": {
-    "mtime": 1785657183.9454548,
-    "ast_hash": "39cf838c9253268b64b52b93489cd3fe",
+    "mtime": 1785660043.4822354,
+    "ast_hash": "c587252469d98524ed119e082f4e88f9",
     "semantic_hash": ""
   },
   "apps/desktop/public/favicon.svg": {
@@ -3005,8 +3005,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/scripts/verify-build.mjs": {
-    "mtime": 1785655984.3331745,
-    "ast_hash": "c5b007cfd601d0df82b46e2ff9d6f536",
+    "mtime": 1785661327.9583433,
+    "ast_hash": "632904b7e3b0512543ceeeb5f547f368",
     "semantic_hash": ""
   },
   "apps/desktop/src/components/TabBar.tsx": {
@@ -3020,13 +3020,13 @@
     "semantic_hash": ""
   },
   "apps/desktop/src/services/desktop.ts": {
-    "mtime": 1785655569.8995426,
-    "ast_hash": "302d76d5a985c6b9e6aa3c012cd8b4e6",
+    "mtime": 1785659211.7385535,
+    "ast_hash": "25a15b94b918881cec22e55983e7b541",
     "semantic_hash": ""
   },
   "apps/desktop/src/types.ts": {
-    "mtime": 1785655569.8985322,
-    "ast_hash": "b01b15bd0c55d5538c6a3087fca4d05c",
+    "mtime": 1785659186.1924849,
+    "ast_hash": "b9e12cc6a382f24096005f0d77b04e82",
     "semantic_hash": ""
   },
   "apps/desktop/dashboard-p2-preview.png": {
@@ -3060,8 +3060,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/src/qa.rs": {
-    "mtime": 1785657042.7916956,
-    "ast_hash": "70861c0bed01e78fd9ebbfa4d04dafa1",
+    "mtime": 1785661294.1793566,
+    "ast_hash": "29931173810e6655e7a7a63a0fd29d61",
     "semantic_hash": ""
   },
   "apps/desktop/src/features/books/CoreBooksView.tsx": {
@@ -3092,6 +3092,26 @@
   "apps/desktop/scripts/verify-p3.mjs": {
     "mtime": 1785657183.9439397,
     "ast_hash": "35dd1f2a941447cb83819868ffd69a57",
+    "semantic_hash": ""
+  },
+  "apps/desktop/scripts/verify-p4.mjs": {
+    "mtime": 1785659725.5189729,
+    "ast_hash": "ce1537337c18bed20b0026221996eabd",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/src/compile_center.rs": {
+    "mtime": 1785661213.7433953,
+    "ast_hash": "506577f31797f3a6808b3c65bc6d255a",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/features/compile/CompileCenterView.tsx": {
+    "mtime": 1785659371.702653,
+    "ast_hash": "b9f33a3e3f8604321288059854add8ec",
+    "semantic_hash": ""
+  },
+  "design/p4-compile-center-plan.md": {
+    "mtime": 1785658008.8115056,
+    "ast_hash": "20f2e0ac99a4d3928f4d25c3de19a646",
     "semantic_hash": ""
   }
 }
