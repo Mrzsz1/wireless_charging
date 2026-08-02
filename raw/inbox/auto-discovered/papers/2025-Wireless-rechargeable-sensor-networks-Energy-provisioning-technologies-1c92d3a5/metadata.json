@@ -1,0 +1,48 @@
+{
+  "title": "Wireless rechargeable sensor networks: Energy provisioning technologies, charging scheduling schemes, and challenges",
+  "authors": [
+    "SA Aziz",
+    "X Wang",
+    "A Hawbani",
+    "B Qureshi…"
+  ],
+  "abstract": "… charging modes, covering both offline and online modes. We present various charging scheduling … Qiao, “J-roc: A joint routing and charging scheme to prolong sensor network lifetime,” …",
+  "published_date": "",
+  "updated_date": "",
+  "year": 2025,
+  "doi": "",
+  "arxiv_id": "",
+  "landing_url": "https://ieeexplore.ieee.org/abstract/document/10918794/",
+  "pdf_url": "https://napier-repository.worktribe.com/OutputFile/4171963",
+  "is_open_access": true,
+  "license": "",
+  "providers": [
+    "serpapi"
+  ],
+  "provider_ids": {
+    "serpapi": "5LVUhG8BpbsJ"
+  },
+  "matched_queries": [
+    "wireless rechargeable sensor networks"
+  ],
+  "score": 17.75,
+  "score_reasons": [
+    "标题命中：charging, energy, rechargeable, scheduling, sensor",
+    "近年文献"
+  ],
+  "local_pdf": "",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "serpapi"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260801-214329",
+  "triage_status": "selected",
+  "selected_by_user": true,
+  "acquired_at": "2026-08-01T13:43:29+00:00",
+  "selected_at": "2026-08-01T13:47:39+00:00",
+  "canonicalized_at": "",
+  "triage_note": "2026-08-01 自动增量：优先选择 2026/2025 最新且直接涉及 WRSN 充电调度、异构移动充电器、UAV/ISAC 或综述的候选；需以全文完成 A 编译。",
+  "candidate_rank": 5,
+  "source_manifest": "raw/inbox/auto-discovered/runs/search-20260801-214329/results.json",
+  "boundary": "selected inbox candidate; not canonical; not wiki evidence"
+}

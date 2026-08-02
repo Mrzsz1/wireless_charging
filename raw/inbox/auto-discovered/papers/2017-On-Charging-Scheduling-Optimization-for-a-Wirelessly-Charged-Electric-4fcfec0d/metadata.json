@@ -1,0 +1,47 @@
+{
+  "title": "On Charging Scheduling Optimization for a Wirelessly Charged Electric Bus System",
+  "authors": [
+    "Chao Yang",
+    "Wei Lou",
+    "Junmei Yao",
+    "Shengli Xie"
+  ],
+  "abstract": "The introduction of wirelessly charged electric buses (WCEBs) into current public transportation system attracts many attentions in recent years. As the wireless charging technology enables energy transfer from power transmitters to electric vehicles (EVs) on road, it provides a promising solution to reduce the huge cost of battery with large size and long charging time, which are two critical impediments for EV applications. However, the system cost of WCEBs is huge. Under the dynamic electricity demands and the fluctuating electricity prices, the system operating electricity cost highly depends on the charging schedule. In this paper, according to the typical day-ahead electricity market, we explore an optimal charging scheduling scheme in a WCEB system to minimize the system operating electricity cost, while the characteristic of WCEBs is considered. The price of electricity fluctuates with the accumulated energy demands in both spatial and temporal domains. We first present a day-ahead reserved wholesale electricity determination algorithm, in which, the average speeds of WCEBs are presumed. Then, we propose an optimal charging scheduling algorithm, in which the WCEB charging schedules in slots are optimized sequentially. Both the reserved electricity and the predicted speeds in the slot are used. Simulation results demonstrate the efficiency of our proposed WCEB charging schedules.",
+  "published_date": "2017-09-07",
+  "updated_date": "",
+  "year": 2017,
+  "doi": "10.1109/tits.2017.2740329",
+  "arxiv_id": "",
+  "landing_url": "https://doi.org/10.1109/tits.2017.2740329",
+  "pdf_url": "",
+  "is_open_access": false,
+  "license": "",
+  "providers": [
+    "openalex"
+  ],
+  "provider_ids": {
+    "openalex": "https://openalex.org/W2751797387"
+  },
+  "matched_queries": [
+    "wireless charging scheduling optimization"
+  ],
+  "score": 10.25,
+  "score_reasons": [
+    "标题命中：charging, optimization, scheduling"
+  ],
+  "local_pdf": "",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "openalex"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+  "triage_status": "selected",
+  "selected_by_user": true,
+  "acquired_at": "2026-07-14T13:40:03+00:00",
+  "selected_at": "2026-07-14T15:49:13+00:00",
+  "canonicalized_at": "",
+  "triage_note": "用户于 2026-07-14 明确要求下载 selected PDF 并继续 MinerU；本动作仍不把未解析候选写成 wiki 事实。",
+  "candidate_rank": 4,
+  "source_manifest": "raw/inbox/auto-discovered/runs/search-20260714-214003/results.json",
+  "boundary": "selected inbox candidate; not canonical; not wiki evidence"
+}

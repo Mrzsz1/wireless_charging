@@ -1,0 +1,21 @@
+import { useMemo, useState } from 'react'
+import { Clipboard, FileSpreadsheet, GitBranch, Plus, X } from 'lucide-react'
+import { buildComparison, isDesktopRuntime } from '../../services/desktop'
+import type { ComparisonMatrix, PageSummary } from '../../types'
+
+type ComparisonViewProps = { candidates: PageSummary[]; onOpenPage: (id: string) => void }
+
+export function ComparisonView({ candidates, onOpenPage }: ComparisonViewProps) {
+  const [selected, setSelected] = useState<PageSummary[]>([])
+  const [matrix, setMatrix] = useState<ComparisonMatrix | null>(null)
+  const [notice, setNotice] = useState('')
+  const [query, setQuery] = useState('')
+  const available = useMemo(() => candidates.filter((item) => !selected.some((chosen) => chosen.id === item.id) && `${item.title} ${item.methodFamily}`.toLowerCase().includes(query.toLowerCase())), [candidates, query, selected])
+
+  const add = (page: PageSummary) => { if (selected.length >= 5) { setNotice('最多同时对比 5 个页面'); return }; setSelected((current) => [...current, page]); setMatrix(null) }
+  const remove = (id: string) => { setSelected((current) => current.filter((item) => item.id !== id)); setMatrix(null) }
+  const run = async () => { if (selected.length < 2) { setNotice('至少选择 2 个页面'); return }; if (!isDesktopRuntime()) { setNotice('对比工作台需要在 Windows 桌面客户端中读取页面详情'); return }; try { setMatrix(await buildComparison(selected.map((item) => item.id))); setNotice('对比矩阵已生成，所有单元格保留来源路径') } catch (error) { setNotice(`对比生成失败：${String(error)}`) } }
+  const exportMarkdown = async () => { if (!matrix) return; const text = [`| 字段 | ${matrix.columns.map((column) => column.title).join(' | ')} |`, `| --- | ${matrix.columns.map(() => '---').join(' | ')} |`, ...matrix.fields.map((field) => `| ${field} | ${matrix.columns.map((column) => column.cells[field]?.value || '本页未记录').join(' | ')} |`)].join('\n'); await navigator.clipboard?.writeText(text); setNotice('Markdown 对比表已复制到剪贴板') }
+
+  return <section className="comparison-view"><div className="library-heading"><div><div className="eyebrow">EVIDENCE COMPARISON</div><h1>对比工作台</h1><p>选择 2–5 个文献或方法，按 Wiki 已记录字段并列比较。</p></div><div className="comparison-count">{selected.length}/5</div></div>{notice && <div className="notice"><GitBranch size={15} /><span>{notice}</span></div>}<div className="comparison-picker"><div className="picker-search"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="筛选可加入的文献或方法…" /></div><div className="picked-list">{selected.map((item) => <span className="picked-chip" key={item.id}>{item.title}<button onClick={() => remove(item.id)} aria-label={`移除${item.title}`}><X size={12} /></button></span>)}{!selected.length && <span className="page-muted">尚未选择对比对象。</span>}</div><div className="candidate-list">{available.slice(0, 12).map((item) => <button className="candidate-item" key={item.id} onClick={() => add(item)}><Plus size={14} /><span><strong>{item.title}</strong><small>{item.pageType} · {item.year || '年份未记录'}</small></span></button>)}</div><button className="refresh-button" disabled={selected.length < 2} onClick={() => void run()}><GitBranch size={14} />生成对比</button></div>{matrix ? <div className="comparison-result"><div className="comparison-result-toolbar"><span>字段均来自已索引 Wiki 页面</span><div><button className="refresh-button" onClick={() => void exportMarkdown()}><Clipboard size={14} />复制 Markdown</button><button className="refresh-button" onClick={() => setMatrix(null)}><FileSpreadsheet size={14} />重新选择</button></div></div><div className="comparison-table-wrap"><table className="comparison-table"><thead><tr><th>字段</th>{matrix.columns.map((column) => <th key={column.id}><button className="comparison-title" onClick={() => onOpenPage(column.id)}>{column.title}</button><small>{column.pageType}</small></th>)}</tr></thead><tbody>{matrix.fields.map((field) => <tr key={field}><th>{field}</th>{matrix.columns.map((column) => <td key={`${column.id}-${field}`} title={column.cells[field]?.sourcePath}>{column.cells[field]?.value || <span className="missing-value">本页未记录</span>}</td>)}</tr>)}</tbody></table></div></div> : <div className="comparison-empty"><FileSpreadsheet size={28} /><strong>选择页面后生成对比矩阵</strong><span>每个字段都带有原始来源路径，不自动补写缺失信息。</span></div>}</section>
+}

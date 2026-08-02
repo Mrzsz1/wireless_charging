@@ -1,0 +1,47 @@
+{
+  "title": "Charging Scheduling of Clustered Wireless Rechargeable Sensor Networks Considering Dynamic Selection of Cluster Heads",
+  "authors": [
+    "M Liu",
+    "H Yao"
+  ],
+  "abstract": "… charging scheduling problem of mobile chargers in clustered wireless rechargeable sensor networks … neural networks, and energyaware routing for enhanced efficiency and longevity in …",
+  "published_date": "",
+  "updated_date": "",
+  "year": 2026,
+  "doi": "10.32604/cmc.2026.078181",
+  "arxiv_id": "",
+  "landing_url": "https://www.sciopen.com/article/10.32604/cmc.2026.078181",
+  "pdf_url": "https://www.sciopen.com/local/article_pdf/10.32604/cmc.2026.078181.pdf",
+  "is_open_access": true,
+  "license": "",
+  "providers": [
+    "serpapi"
+  ],
+  "provider_ids": {
+    "serpapi": "YZWEzyCs-ogJ"
+  },
+  "matched_queries": [
+    "wireless rechargeable sensor networks"
+  ],
+  "score": 20.75,
+  "score_reasons": [
+    "标题命中：charging, dynamic, rechargeable, scheduling, sensor",
+    "摘要命中：charger, energy, mobile",
+    "近年文献"
+  ],
+  "local_pdf": "raw/inbox/auto-discovered/papers/2026-Charging-Scheduling-of-Clustered-Wireless-Rechargeable-Sensor-Networks-0cb745f4/paper.pdf",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "serpapi"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260801-214329",
+  "triage_status": "promoted",
+  "selected_by_user": true,
+  "acquired_at": "2026-08-01T13:43:29+00:00",
+  "selected_at": "2026-08-01T13:47:39+00:00",
+  "canonicalized_at": "2026-08-01T13:49:47+00:00",
+  "triage_note": "PDF 已校验并完成 MinerU canonical 转换，进入 A 编译。",
+  "candidate_rank": 2,
+  "source_manifest": "raw/inbox/auto-discovered/runs/search-20260801-214329/results.json",
+  "boundary": "promoted to canonical; pending wiki ingest"
+}

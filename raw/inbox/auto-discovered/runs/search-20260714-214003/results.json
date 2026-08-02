@@ -1,0 +1,686 @@
+{
+  "kind": "paper_discovery_candidates",
+  "discovery_status": "candidate",
+  "retrieved_at": "2026-07-14T13:40:03+00:00",
+  "boundary": "not canonical; not wiki evidence; human triage required",
+  "providers": [
+    "arxiv",
+    "openalex",
+    "tavily",
+    "serpapi"
+  ],
+  "queries": [
+    {
+      "label": "wireless charging scheduling optimization",
+      "arxiv": "all:\"wireless charging scheduling optimization\"",
+      "openalex": "wireless charging scheduling optimization"
+    }
+  ],
+  "provider_counts": {
+    "arxiv": 0,
+    "openalex": 5,
+    "tavily": 5,
+    "serpapi": 5
+  },
+  "cache_hits": 4,
+  "errors": [],
+  "papers": [
+    {
+      "title": "Planning dynamic wireless charging infrastructure for battery electric bus systems with the joint optimization of charging scheduling",
+      "authors": [
+        "Wenlong Li",
+        "Yi He",
+        "Songhua Hu",
+        "Zhengbing He",
+        "Carlo Ratti",
+        "Carlo Ratti"
+      ],
+      "abstract": "",
+      "published_date": "2024-01-05",
+      "updated_date": "",
+      "year": 2024,
+      "doi": "10.1016/j.trc.2023.104469",
+      "arxiv_id": "",
+      "landing_url": "https://doi.org/10.1016/j.trc.2023.104469",
+      "pdf_url": "https://senseable.mit.edu/papers/pdf/20231226_Li-etal_PlanningDynamic_TR-C.pdf",
+      "is_open_access": true,
+      "license": "",
+      "providers": [
+        "openalex"
+      ],
+      "provider_ids": {
+        "openalex": "https://openalex.org/W4390628442"
+      },
+      "matched_queries": [
+        "wireless charging scheduling optimization"
+      ],
+      "score": 12.0,
+      "score_reasons": [
+        "标题命中：charging, optimization, scheduling",
+        "近年文献"
+      ],
+      "local_pdf": "raw/inbox/auto-discovered/papers/2024-Planning-dynamic-wireless-charging-infrastructure-for-battery-electric-7670ce7f/paper.pdf",
+      "fulltext_resolved_via": "MIT Senseable City Lab public author manuscript",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "openalex"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+      "triage_status": "promoted",
+      "selected_by_user": true,
+      "acquired_at": "2026-07-14T13:40:03+00:00",
+      "selected_at": "2026-07-14T15:49:13+00:00",
+      "canonicalized_at": "2026-07-14T16:03:19+00:00",
+      "triage_note": "用户于 2026-07-14 明确要求下载并使用 MinerU；PDF 已校验，MinerU 7/7 成功，现标记进入 canonical，等待 A 编译。"
+    },
+    {
+      "title": "Spatiotemporal optimization for charging scheduling in wireless rechargeable sensor networks",
+      "authors": [
+        "Y Hong",
+        "Y Yang",
+        "C Luo",
+        "D Li",
+        "Y Lu…"
+      ],
+      "abstract": "… charging model via assigning sensors’ charging priority weights, we introduce the spatio-temporal optimization for charging scheduling … charging requirements and saving the charging …",
+      "published_date": "",
+      "updated_date": "",
+      "year": 2023,
+      "doi": "",
+      "arxiv_id": "",
+      "landing_url": "https://ieeexplore.ieee.org/abstract/document/10177899/",
+      "pdf_url": "",
+      "is_open_access": null,
+      "license": "",
+      "providers": [
+        "serpapi"
+      ],
+      "provider_ids": {
+        "serpapi": "51EtsxGntBYJ"
+      },
+      "matched_queries": [
+        "wireless charging scheduling optimization"
+      ],
+      "score": 11.25,
+      "score_reasons": [
+        "标题命中：charging, optimization, scheduling",
+        "近年文献"
+      ],
+      "local_pdf": "",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "serpapi"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+      "triage_status": "selected",
+      "selected_by_user": true,
+      "acquired_at": "2026-07-14T13:40:03+00:00",
+      "selected_at": "2026-07-14T15:49:13+00:00",
+      "canonicalized_at": "",
+      "triage_note": "用户于 2026-07-14 明确要求下载 selected PDF 并继续 MinerU；本动作仍不把未解析候选写成 wiki 事实。"
+    },
+    {
+      "title": "Joint Scheduling and Trajectory Optimization of Charging UAV in Wireless Rechargeable Sensor Networks",
+      "authors": [
+        "Yanheng Liu",
+        "Hongyang Pan",
+        "Geng Sun",
+        "Aimin Wang",
+        "Jiahui Li",
+        "Shuang Liang"
+      ],
+      "abstract": "Wireless rechargeable sensor networks with a charging unmanned aerial vehicle (CUAV) have broad application prospects in the power supply of the rechargeable sensor nodes (SNs). However, how to schedule a CUAV and design the trajectory to improve the charging efficiency of the entire system is still a vital problem. In this article, we formulate a joint-CUAV scheduling and trajectory optimization problem (JSTOP) to simultaneously minimize the hovering points of CUAV, the number of the repeatedly covered SNs, and the flying distance of CUAV for charging all SNs. Due to the complexity of JSTOP, it is decomposed into two optimization subproblems that are CUAV scheduling optimization problem (CSOP) and CUAV trajectory optimization problem (CTOP). CSOP is a hybrid optimization problem that consists of the continuous and discrete solution space, and the solution dimension in CSOP is not fixed since it should be changed with the number of hovering points of CUAV. Moreover, CTOP is a completely discrete optimization problem. Thus, we propose a particle swarm optimization (PSO) with a flexible dimension mechanism, a <inline-formula xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"> <tex-math notation=\"LaTeX\">$K$ </tex-math></inline-formula> -means operator, and a punishment-compensation mechanism (PSOFKP) and a PSO with a discretization factor, a 2-opt operator, and a path crossover reduction mechanism (PSOD2P) to solve the converted CSOP and CTOP, respectively. Simulation results evaluate the benefits of PSOFKP and PSOD2P under different scales and settings of the network, and the stability of the proposed algorithms is verified.",
+      "published_date": "2021-12-02",
+      "updated_date": "",
+      "year": 2021,
+      "doi": "10.1109/jiot.2021.3132015",
+      "arxiv_id": "2310.00396",
+      "landing_url": "https://doi.org/10.1109/jiot.2021.3132015",
+      "pdf_url": "https://arxiv.org/pdf/2310.00396",
+      "is_open_access": true,
+      "license": "",
+      "providers": [
+        "openalex"
+      ],
+      "provider_ids": {
+        "openalex": "https://openalex.org/W4205594222"
+      },
+      "matched_queries": [
+        "wireless charging scheduling optimization"
+      ],
+      "score": 11.25,
+      "score_reasons": [
+        "标题命中：charging, optimization, scheduling"
+      ],
+      "local_pdf": "raw/inbox/auto-discovered/papers/2021-Joint-Scheduling-and-Trajectory-Optimization-of-Charging-UAV-in-Wirele-c7973d96/paper.pdf",
+      "fulltext_resolved_via": "Semantic Scholar openAccessPdf -> arXiv",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "openalex"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+      "triage_status": "promoted",
+      "selected_by_user": true,
+      "acquired_at": "2026-07-14T13:40:03+00:00",
+      "selected_at": "2026-07-14T15:49:13+00:00",
+      "canonicalized_at": "2026-07-14T16:03:19+00:00",
+      "triage_note": "用户于 2026-07-14 明确要求下载并使用 MinerU；PDF 已校验，MinerU 7/7 成功，现标记进入 canonical，等待 A 编译。"
+    },
+    {
+      "title": "On Charging Scheduling Optimization for a Wirelessly Charged Electric Bus System",
+      "authors": [
+        "Chao Yang",
+        "Wei Lou",
+        "Junmei Yao",
+        "Shengli Xie"
+      ],
+      "abstract": "The introduction of wirelessly charged electric buses (WCEBs) into current public transportation system attracts many attentions in recent years. As the wireless charging technology enables energy transfer from power transmitters to electric vehicles (EVs) on road, it provides a promising solution to reduce the huge cost of battery with large size and long charging time, which are two critical impediments for EV applications. However, the system cost of WCEBs is huge. Under the dynamic electricity demands and the fluctuating electricity prices, the system operating electricity cost highly depends on the charging schedule. In this paper, according to the typical day-ahead electricity market, we explore an optimal charging scheduling scheme in a WCEB system to minimize the system operating electricity cost, while the characteristic of WCEBs is considered. The price of electricity fluctuates with the accumulated energy demands in both spatial and temporal domains. We first present a day-ahead reserved wholesale electricity determination algorithm, in which, the average speeds of WCEBs are presumed. Then, we propose an optimal charging scheduling algorithm, in which the WCEB charging schedules in slots are optimized sequentially. Both the reserved electricity and the predicted speeds in the slot are used. Simulation results demonstrate the efficiency of our proposed WCEB charging schedules.",
+      "published_date": "2017-09-07",
+      "updated_date": "",
+      "year": 2017,
+      "doi": "10.1109/tits.2017.2740329",
+      "arxiv_id": "",
+      "landing_url": "https://doi.org/10.1109/tits.2017.2740329",
+      "pdf_url": "",
+      "is_open_access": false,
+      "license": "",
+      "providers": [
+        "openalex"
+      ],
+      "provider_ids": {
+        "openalex": "https://openalex.org/W2751797387"
+      },
+      "matched_queries": [
+        "wireless charging scheduling optimization"
+      ],
+      "score": 10.25,
+      "score_reasons": [
+        "标题命中：charging, optimization, scheduling"
+      ],
+      "local_pdf": "",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "openalex"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+      "triage_status": "selected",
+      "selected_by_user": true,
+      "acquired_at": "2026-07-14T13:40:03+00:00",
+      "selected_at": "2026-07-14T15:49:13+00:00",
+      "canonicalized_at": "",
+      "triage_note": "用户于 2026-07-14 明确要求下载 selected PDF 并继续 MinerU；本动作仍不把未解析候选写成 wiki 事实。"
+    },
+    {
+      "title": "Wireless Charging Scheduling for Long-term Utility ...",
+      "authors": [],
+      "abstract": "This article designs an optimization model for the long-term scheduling of chargers to maximize the time-averaged charging utility while ensuring its time-",
+      "published_date": "",
+      "updated_date": "",
+      "year": null,
+      "doi": "10.1145/3708990",
+      "arxiv_id": "",
+      "landing_url": "https://dl.acm.org/doi/10.1145/3708990",
+      "pdf_url": "",
+      "is_open_access": null,
+      "license": "",
+      "providers": [
+        "tavily"
+      ],
+      "provider_ids": {
+        "tavily": "5d559bf06421001594b9"
+      },
+      "matched_queries": [
+        "wireless charging scheduling optimization"
+      ],
+      "score": 7.25,
+      "score_reasons": [
+        "标题命中：charging, scheduling",
+        "摘要命中：optimization"
+      ],
+      "local_pdf": "",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "tavily"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+      "triage_status": "selected",
+      "selected_by_user": true,
+      "acquired_at": "2026-07-14T13:40:03+00:00",
+      "selected_at": "2026-07-14T15:49:13+00:00",
+      "canonicalized_at": "",
+      "triage_note": "用户于 2026-07-14 明确要求下载 selected PDF 并继续 MinerU；本动作仍不把未解析候选写成 wiki 事实。"
+    },
+    {
+      "title": "An electric vehicle routing optimization model with hybrid plug-in and wireless charging systems",
+      "authors": [
+        "C Li",
+        "T Ding",
+        "X Liu",
+        "C Huang"
+      ],
+      "abstract": "… optimization model to optimize electric vehicle routing with hybrid wireless and plug-in charging … , linear-programming-based route optimization model for EVs considering CWD systems …",
+      "published_date": "",
+      "updated_date": "",
+      "year": 2018,
+      "doi": "",
+      "arxiv_id": "",
+      "landing_url": "https://ieeexplore.ieee.org/abstract/document/8360095/",
+      "pdf_url": "https://ieeexplore.ieee.org/iel7/6287639/6514899/08360095.pdf",
+      "is_open_access": true,
+      "license": "",
+      "providers": [
+        "serpapi"
+      ],
+      "provider_ids": {
+        "serpapi": "eTzz8iDskHwJ"
+      },
+      "matched_queries": [
+        "wireless charging scheduling optimization"
+      ],
+      "score": 7.0,
+      "score_reasons": [
+        "标题命中：charging, optimization"
+      ],
+      "local_pdf": "",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "serpapi"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+      "triage_status": "rejected",
+      "selected_by_user": false,
+      "acquired_at": "2026-07-14T13:40:03+00:00",
+      "selected_at": "",
+      "canonicalized_at": "",
+      "triage_note": "用户于 2026-07-14 授权 Agent 代为完成首轮 triage；selected 进入人工精读池，rejected 为重复项或当前领域低优先级，均未晋升 canonical。"
+    },
+    {
+      "title": "Multi-antenna mobile charger scheduling optimization ...",
+      "authors": [],
+      "abstract": "by J Li · 2025 · Cited by 1 — To efficiently minimize node failure rate and reduce MC charging costs, we propose a multi-antenna mobile charger scheduling optimization scheme",
+      "published_date": "",
+      "updated_date": "",
+      "year": null,
+      "doi": "",
+      "arxiv_id": "",
+      "landing_url": "https://www.sciencedirect.com/science/article/abs/pii/S0140366425003007",
+      "pdf_url": "",
+      "is_open_access": null,
+      "license": "",
+      "providers": [
+        "tavily"
+      ],
+      "provider_ids": {
+        "tavily": "1f3d7df54a4e089cf4a0"
+      },
+      "matched_queries": [
+        "wireless charging scheduling optimization"
+      ],
+      "score": 6.75,
+      "score_reasons": [
+        "标题命中：optimization, scheduling",
+        "摘要命中：charging"
+      ],
+      "local_pdf": "",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "tavily"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+      "triage_status": "pending",
+      "selected_by_user": false,
+      "acquired_at": "2026-07-14T13:40:03+00:00",
+      "selected_at": "",
+      "canonicalized_at": ""
+    },
+    {
+      "title": "Distributed Mobile Wireless Charging Vehicle Scheduling ...",
+      "authors": [],
+      "abstract": "by Q Chen · 2025 — This paper investigates the scheduling optimization problem for distributed mobile wireless charging piles using deep reinforcement learning.",
+      "published_date": "",
+      "updated_date": "",
+      "year": null,
+      "doi": "",
+      "arxiv_id": "",
+      "landing_url": "https://ieeexplore.ieee.org/iel8/11369028/11369313/11369314.pdf",
+      "pdf_url": "https://ieeexplore.ieee.org/iel8/11369028/11369313/11369314.pdf",
+      "is_open_access": true,
+      "license": "",
+      "providers": [
+        "tavily"
+      ],
+      "provider_ids": {
+        "tavily": "baa3eb5b5ad3b90cfdbe"
+      },
+      "matched_queries": [
+        "wireless charging scheduling optimization"
+      ],
+      "score": 6.75,
+      "score_reasons": [
+        "标题命中：charging, scheduling",
+        "摘要命中：optimization"
+      ],
+      "local_pdf": "",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "tavily"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+      "triage_status": "pending",
+      "selected_by_user": false,
+      "acquired_at": "2026-07-14T13:40:03+00:00",
+      "selected_at": "",
+      "canonicalized_at": ""
+    },
+    {
+      "title": "ROSE: Robustly safe charging for wireless power transfer",
+      "authors": [
+        "H Dai",
+        "Y Xu",
+        "G Chen",
+        "W Dou",
+        "C Tian…"
+      ],
+      "abstract": "… EMR, the optimization of power scheduling for all chargers is … It is a challenging task since both the optimization goal and … radiation constrained scheduling of wireless charging tasks …",
+      "published_date": "2022-06-01",
+      "updated_date": "",
+      "year": 2022,
+      "doi": "10.1109/tmc.2020.3032591",
+      "arxiv_id": "",
+      "landing_url": "https://doi.org/10.1109/tmc.2020.3032591",
+      "pdf_url": "https://cs.nju.edu.cn/tianchen/lunwen/2022/tmc22-haipeng.pdf",
+      "is_open_access": false,
+      "license": "",
+      "providers": [
+        "serpapi"
+      ],
+      "provider_ids": {
+        "serpapi": "wK8r_BWVzQEJ"
+      },
+      "matched_queries": [
+        "wireless charging scheduling optimization"
+      ],
+      "score": 6.0,
+      "score_reasons": [
+        "标题命中：charging",
+        "摘要命中：optimization, scheduling"
+      ],
+      "local_pdf": "raw/inbox/auto-discovered/papers/2020-ROSE-Robustly-safe-charging-for-wireless-power-transfer-2ada4faf/paper.pdf",
+      "fulltext_resolved_via": "Nanjing University author-hosted copy",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "serpapi"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+      "triage_status": "promoted",
+      "selected_by_user": true,
+      "acquired_at": "2026-07-14T13:40:03+00:00",
+      "selected_at": "2026-07-14T15:49:13+00:00",
+      "canonicalized_at": "2026-07-14T16:03:19+00:00",
+      "triage_note": "用户于 2026-07-14 明确要求下载并使用 MinerU；PDF 已校验，MinerU 7/7 成功，现标记进入 canonical，等待 A 编译。"
+    },
+    {
+      "title": "Joint Optimization of Wireless Charging Station Location ...",
+      "authors": [],
+      "abstract": "by J Li · 2025 · Cited by 4 — The model aims to minimize both user travel costs and transit operation costs by jointly optimizing departure schedules across different time ...Read more",
+      "published_date": "",
+      "updated_date": "",
+      "year": null,
+      "doi": "",
+      "arxiv_id": "",
+      "landing_url": "https://ieeexplore.ieee.org/iel8/6287639/10820123/11006711.pdf",
+      "pdf_url": "https://ieeexplore.ieee.org/iel8/6287639/10820123/11006711.pdf",
+      "is_open_access": true,
+      "license": "",
+      "providers": [
+        "tavily"
+      ],
+      "provider_ids": {
+        "tavily": "48d84789a5e1fa3a04de"
+      },
+      "matched_queries": [
+        "wireless charging scheduling optimization"
+      ],
+      "score": 6.0,
+      "score_reasons": [
+        "标题命中：charging, optimization"
+      ],
+      "local_pdf": "",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "tavily"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+      "triage_status": "rejected",
+      "selected_by_user": false,
+      "acquired_at": "2026-07-14T13:40:03+00:00",
+      "selected_at": "",
+      "canonicalized_at": "",
+      "triage_note": "用户于 2026-07-14 授权 Agent 代为完成首轮 triage；selected 进入人工精读池，rejected 为重复项或当前领域低优先级，均未晋升 canonical。"
+    },
+    {
+      "title": "An efficient charging scheme using battery constrained mobile charger in wireless rechargeable sensor networks",
+      "authors": [
+        "R Das",
+        "D Dash",
+        "CBK Yadav"
+      ],
+      "abstract": "… On the other hand, if we can optimize the tour length and the charging schedule then, periodic … [12] exploited multi-node charging feature of a wireless charging vehicle in their periodic …",
+      "published_date": "",
+      "updated_date": "",
+      "year": 2022,
+      "doi": "",
+      "arxiv_id": "",
+      "landing_url": "https://search.proquest.com/openview/82838b302261e5e910c59e69d086ec2a/1?pq-origsite=gscholar&cbl=45633",
+      "pdf_url": "",
+      "is_open_access": null,
+      "license": "",
+      "providers": [
+        "serpapi"
+      ],
+      "provider_ids": {
+        "serpapi": "OSTtskxbYA8J"
+      },
+      "matched_queries": [
+        "wireless charging scheduling optimization"
+      ],
+      "score": 5.0,
+      "score_reasons": [
+        "标题命中：charging",
+        "近年文献"
+      ],
+      "local_pdf": "",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "serpapi"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+      "triage_status": "pending",
+      "selected_by_user": false,
+      "acquired_at": "2026-07-14T13:40:03+00:00",
+      "selected_at": "",
+      "canonicalized_at": ""
+    },
+    {
+      "title": "An efficient scheduling scheme for mobile charger in on-demand wireless rechargeable sensor networks",
+      "authors": [
+        "A Kaswan",
+        "A Tomar",
+        "PK Jana"
+      ],
+      "abstract": "… wireless rechargeable sensor networks (WRSNs). The determination of an optimal order of charging the SNs (ie, charging schedule) … while designing the charging schedule of an MC as …",
+      "published_date": "",
+      "updated_date": "",
+      "year": 2018,
+      "doi": "",
+      "arxiv_id": "",
+      "landing_url": "https://www.sciencedirect.com/science/article/pii/S1084804518300687",
+      "pdf_url": "",
+      "is_open_access": null,
+      "license": "",
+      "providers": [
+        "serpapi"
+      ],
+      "provider_ids": {
+        "serpapi": "hFLF7jutIM0J"
+      },
+      "matched_queries": [
+        "wireless charging scheduling optimization"
+      ],
+      "score": 4.75,
+      "score_reasons": [
+        "标题命中：scheduling",
+        "摘要命中：charging"
+      ],
+      "local_pdf": "",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "serpapi"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+      "triage_status": "pending",
+      "selected_by_user": false,
+      "acquired_at": "2026-07-14T13:40:03+00:00",
+      "selected_at": "",
+      "canonicalized_at": ""
+    },
+    {
+      "title": "Intelligent Reflecting Surface-Aided Wireless Communications: A Tutorial",
+      "authors": [
+        "Qingqing Wu",
+        "Shuowen Zhang",
+        "Beixiong Zheng",
+        "Changsheng You",
+        "Rui Zhang"
+      ],
+      "abstract": "Intelligent reflecting surface (IRS) is an enabling technology to engineer the radio signal propagation in wireless networks. By smartly tuning the signal reflection via a large number of low-cost passive reflecting elements, IRS is capable of dynamically altering wireless channels to enhance the communication performance. It is thus expected that the new IRS-aided hybrid wireless network comprising both active and passive components will be highly promising to achieve a sustainable capacity growth cost-effectively in the future. Despite its great potential, IRS faces new challenges to be efficiently integrated into wireless networks, such as reflection optimization, channel estimation, and deployment from communication design perspectives. In this paper, we provide a tutorial overview of IRS-aided wireless communications to address the above issues, and elaborate its reflection and channel models, hardware architecture and practical constraints, as well as various appealing applications in wireless networks. Moreover, we highlight important directions worthy of further investigation in future work.",
+      "published_date": "2021-02-25",
+      "updated_date": "",
+      "year": 2021,
+      "doi": "10.1109/tcomm.2021.3051897",
+      "arxiv_id": "",
+      "landing_url": "http://hdl.handle.net/10397/107100",
+      "pdf_url": "http://ira.lib.polyu.edu.hk/bitstream/10397/107100/1/Zhang_Intelligent_Reflecting_Surface.pdf",
+      "is_open_access": true,
+      "license": "",
+      "providers": [
+        "openalex"
+      ],
+      "provider_ids": {
+        "openalex": "https://openalex.org/W3129486236"
+      },
+      "matched_queries": [
+        "wireless charging scheduling optimization"
+      ],
+      "score": 3.0,
+      "score_reasons": [
+        "摘要命中：optimization"
+      ],
+      "local_pdf": "",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "openalex"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+      "triage_status": "rejected",
+      "selected_by_user": false,
+      "acquired_at": "2026-07-14T13:40:03+00:00",
+      "selected_at": "",
+      "canonicalized_at": "",
+      "triage_note": "用户于 2026-07-14 授权 Agent 代为完成首轮 triage；selected 进入人工精读池，rejected 为重复项或当前领域低优先级，均未晋升 canonical。"
+    },
+    {
+      "title": "Optimizing Wireless Charging Schedules in Sensor Networks",
+      "authors": [],
+      "abstract": "by SS Mouli · 2023 · Cited by 3 — In this paper, we propose a hybrid Gravitational Search Algorithm-Simulated Annealing (GSA-SA) based recharge schedule for replenishing the sensor nodes which ...Read more",
+      "published_date": "",
+      "updated_date": "",
+      "year": null,
+      "doi": "",
+      "arxiv_id": "",
+      "landing_url": "https://ieeexplore.ieee.org/document/10307570",
+      "pdf_url": "",
+      "is_open_access": null,
+      "license": "",
+      "providers": [
+        "tavily"
+      ],
+      "provider_ids": {
+        "tavily": "b99e48b8e90823586829"
+      },
+      "matched_queries": [
+        "wireless charging scheduling optimization"
+      ],
+      "score": 3.0,
+      "score_reasons": [
+        "标题命中：charging"
+      ],
+      "local_pdf": "",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "tavily"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+      "triage_status": "pending",
+      "selected_by_user": false,
+      "acquired_at": "2026-07-14T13:40:03+00:00",
+      "selected_at": "",
+      "canonicalized_at": ""
+    },
+    {
+      "title": "Integrated Sensing and Communications: Toward Dual-Functional Wireless Networks for 6G and Beyond",
+      "authors": [
+        "Fan Liu",
+        "Yuanhao Cui",
+        "Christos Masouros",
+        "Jie Xu",
+        "Tony Xiao Han",
+        "Yonina C. Eldar",
+        "Stefano Buzzi"
+      ],
+      "abstract": "As the standardization of 5G solidifies, researchers are speculating what 6G will be. The integration of sensing functionality is emerging as a key feature of the 6G Radio Access Network (RAN), allowing for the exploitation of dense cell infrastructures to construct a perceptive network. In this IEEE Journal on Selected Areas in Communications (JSAC) Special Issue overview, we provide a comprehensive review on the background, range of key applications and state-of-the-art approaches of Integrated Sensing and Communications (ISAC). We commence by discussing the interplay between sensing and communications (S&C) from a historical point of view, and then consider the multiple facets of ISAC and the resulting performance gains. By introducing both ongoing and potential use cases, we shed light on the industrial progress and standardization activities related to ISAC. We analyze a number of performance tradeoffs between S&C, spanning from information theoretical limits to physical layer performance tradeoffs, and the cross-layer design tradeoffs. Next, we discuss the signal processing aspects of ISAC, namely ISAC waveform design and receive signal processing. As a step further, we provide our vision on the deeper integration between S&C within the framework of perceptive networks, where the two functionalities are expected to mutually assist each other, i.e., via communication-assisted sensing and sensing-assisted communications. Finally, we identify the potential integration of ISAC with other emerging communication technologies, and their positive impacts on the future of wireless networks.",
+      "published_date": "2022-03-17",
+      "updated_date": "",
+      "year": 2022,
+      "doi": "10.1109/jsac.2022.3156632",
+      "arxiv_id": "",
+      "landing_url": "https://doi.org/10.1109/jsac.2022.3156632",
+      "pdf_url": "https://ieeexplore.ieee.org/ielx7/49/9776000/09737357.pdf",
+      "is_open_access": true,
+      "license": "cc-by",
+      "providers": [
+        "openalex"
+      ],
+      "provider_ids": {
+        "openalex": "https://openalex.org/W3194620979"
+      },
+      "matched_queries": [
+        "wireless charging scheduling optimization"
+      ],
+      "score": 2.5,
+      "score_reasons": [
+        "近年文献"
+      ],
+      "local_pdf": "",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "openalex"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+      "triage_status": "rejected",
+      "selected_by_user": false,
+      "acquired_at": "2026-07-14T13:40:03+00:00",
+      "selected_at": "",
+      "canonicalized_at": "",
+      "triage_note": "用户于 2026-07-14 授权 Agent 代为完成首轮 triage；selected 进入人工精读池，rejected 为重复项或当前领域低优先级，均未晋升 canonical。"
+    }
+  ],
+  "acquisition_method": "auto_discovery",
+  "triage_counts": {
+    "pending": 5,
+    "selected": 3,
+    "rejected": 4,
+    "promoted": 3
+  },
+  "triage_updated_at": "2026-07-14T16:03:19+00:00"
+}

@@ -1,0 +1,1073 @@
+use rusqlite::{params, Connection, OptionalExtension};
+use serde::{Deserialize, Serialize};
+use std::collections::hash_map::DefaultHasher;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::fs;
+use std::hash::{Hash, Hasher};
+use std::io::{BufRead, BufReader};
+use std::path::{Path, PathBuf};
+use std::process::{Command, Stdio};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{mpsc, Arc};
+use std::sync::{Mutex, OnceLock};
+use std::thread;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use tauri::ipc::Channel;
+use uuid::Uuid;
+
+pub const COMPILE_SCHEMA_VERSION: i64 = 5;
+static WRITE_LOCKS: OnceLock<Mutex<HashSet<String>>> = OnceLock::new();
+const MAX_BACKUP_BYTES: u64 = 16 * 1024 * 1024;
+
+fn file_hash(path: &Path) -> String {
+    let data = fs::read(path).unwrap_or_default();
+    let mut h = DefaultHasher::new();
+    data.hash(&mut h);
+    format!("{:016x}", h.finish())
+}
+
+struct RepositoryWriteGuard {
+    key: Option<String>,
+}
+
+impl RepositoryWriteGuard {
+    fn acquire(root: &Path, write: bool) -> Result<Self, String> {
+        if !write {
+            return Ok(Self { key: None });
+        }
+        let key = root.to_string_lossy().to_string();
+        let mut locks = WRITE_LOCKS
+            .get_or_init(|| Mutex::new(HashSet::new()))
+            .lock()
+            .map_err(|_| "write lock poisoned".to_string())?;
+        if !locks.insert(key.clone()) {
+            return Err("repository already has a write task running".into());
+        }
+        Ok(Self { key: Some(key) })
+    }
+}
+
+impl Drop for RepositoryWriteGuard {
+    fn drop(&mut self) {
+        if let Some(key) = self.key.take() {
+            if let Ok(mut locks) = WRITE_LOCKS
+                .get_or_init(|| Mutex::new(HashSet::new()))
+                .lock()
+            {
+                locks.remove(&key);
+            }
+        }
+    }
+}
+
+#[derive(Clone)]
+struct FileSnapshot {
+    hash: String,
+    backup_path: String,
+}
+
+fn visit_files(path: &Path, output: &mut Vec<PathBuf>) -> Result<(), String> {
+    if path.is_file() {
+        output.push(path.to_path_buf());
+        return Ok(());
+    }
+    if !path.exists() {
+        return Ok(());
+    }
+    for entry in fs::read_dir(path).map_err(|error| format!("scan artifact failed: {error}"))? {
+        let entry = entry.map_err(|error| format!("scan artifact failed: {error}"))?;
+        let child = entry.path();
+        if child.is_dir() {
+            visit_files(&child, output)?;
+        } else if child.is_file() {
+            output.push(child);
+        }
+    }
+    Ok(())
+}
+
+fn snapshot_scope(
+    root: &Path,
+    scope: &Path,
+    backup_root: Option<&Path>,
+) -> Result<HashMap<String, FileSnapshot>, String> {
+    let mut files = Vec::new();
+    visit_files(scope, &mut files)?;
+    let mut snapshots = HashMap::new();
+    for file in files {
+        let relative = file
+            .strip_prefix(root)
+            .map_err(|_| "artifact path is outside repository".to_string())?
+            .to_string_lossy()
+            .replace('\\', "/");
+        let mut backup_path = String::new();
+        if let Some(backup_root) = backup_root {
+            let size = file.metadata().map(|value| value.len()).unwrap_or(u64::MAX);
+            if size <= MAX_BACKUP_BYTES {
+                let target = backup_root.join(&relative);
+                if let Some(parent) = target.parent() {
+                    fs::create_dir_all(parent)
+                        .map_err(|error| format!("create rollback backup failed: {error}"))?;
+                }
+                fs::copy(&file, &target)
+                    .map_err(|error| format!("create rollback backup failed: {error}"))?;
+                backup_path = target.to_string_lossy().to_string();
+            }
+        }
+        snapshots.insert(
+            relative,
+            FileSnapshot {
+                hash: file_hash(&file),
+                backup_path,
+            },
+        );
+    }
+    Ok(snapshots)
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CompileCapability {
+    pub task_kind: String,
+    pub label: String,
+    pub description: String,
+    pub available: bool,
+    pub reason: String,
+    pub writes: bool,
+    pub network: bool,
+    pub requires_input: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct StartCompileRequest {
+    pub task_kind: String,
+    #[serde(default)]
+    pub input_path: Option<String>,
+    #[serde(default)]
+    pub dry_run: bool,
+    #[serde(default)]
+    pub download: bool,
+    #[serde(default)]
+    pub force: bool,
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CompileRunSummary {
+    pub id: String,
+    pub task_kind: String,
+    pub display_name: String,
+    pub status: String,
+    pub current_stage: String,
+    pub created_at: String,
+    pub started_at: String,
+    pub finished_at: String,
+    pub exit_code: Option<i32>,
+    pub failure_reason: String,
+    pub retry_of: String,
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CompileRunEvent {
+    pub sequence: i64,
+    pub event_kind: String,
+    pub stage: String,
+    pub message: String,
+    pub created_at: String,
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CompileArtifact {
+    pub id: String,
+    pub artifact_kind: String,
+    pub relative_path: String,
+    pub operation: String,
+    pub rollback_eligible: bool,
+    pub before_hash: String,
+    pub after_hash: String,
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CompileRunDetail {
+    pub summary: CompileRunSummary,
+    pub request: StartCompileRequest,
+    pub events: Vec<CompileRunEvent>,
+    pub artifacts: Vec<CompileArtifact>,
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum CompileStreamEvent {
+    Accepted {
+        run_id: String,
+        sequence: i64,
+        stage: String,
+        message: String,
+        timestamp: String,
+    },
+    StageStarted {
+        run_id: String,
+        sequence: i64,
+        stage: String,
+        message: String,
+        timestamp: String,
+    },
+    Stdout {
+        run_id: String,
+        sequence: i64,
+        stage: String,
+        message: String,
+        timestamp: String,
+    },
+    Stderr {
+        run_id: String,
+        sequence: i64,
+        stage: String,
+        message: String,
+        timestamp: String,
+    },
+    Completed {
+        run_id: String,
+        sequence: i64,
+        stage: String,
+        message: String,
+        timestamp: String,
+    },
+    Failed {
+        run_id: String,
+        sequence: i64,
+        stage: String,
+        message: String,
+        timestamp: String,
+    },
+    Cancelled {
+        run_id: String,
+        sequence: i64,
+        stage: String,
+        message: String,
+        timestamp: String,
+    },
+}
+
+#[derive(Debug)]
+struct TaskSpec {
+    executable: String,
+    args: Vec<String>,
+    label: &'static str,
+    stage: &'static str,
+    artifact: Option<(&'static str, &'static str)>,
+}
+
+fn now() -> String {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs()
+        .to_string()
+}
+
+pub fn db_schema(connection: &Connection) -> Result<(), String> {
+    connection.execute_batch(
+        "PRAGMA foreign_keys=ON;
+         CREATE TABLE IF NOT EXISTS compile_runs(
+           id TEXT PRIMARY KEY, repository_path TEXT NOT NULL, task_kind TEXT NOT NULL,
+           display_name TEXT NOT NULL, status TEXT NOT NULL, current_stage TEXT NOT NULL DEFAULT '',
+           created_at TEXT NOT NULL, started_at TEXT NOT NULL DEFAULT '', finished_at TEXT NOT NULL DEFAULT '',
+           exit_code INTEGER, failure_reason TEXT NOT NULL DEFAULT '', parameters_json TEXT NOT NULL DEFAULT '{}',
+           result_json TEXT NOT NULL DEFAULT '{}', retry_of TEXT NOT NULL DEFAULT '', rollback_of TEXT NOT NULL DEFAULT '');
+         CREATE TABLE IF NOT EXISTS compile_run_events(
+           id INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT NOT NULL, sequence INTEGER NOT NULL,
+           event_kind TEXT NOT NULL, stage TEXT NOT NULL DEFAULT '', message TEXT NOT NULL DEFAULT '',
+           created_at TEXT NOT NULL, UNIQUE(run_id,sequence),
+           FOREIGN KEY(run_id) REFERENCES compile_runs(id) ON DELETE CASCADE);
+         CREATE TABLE IF NOT EXISTS compile_artifacts(
+           id TEXT PRIMARY KEY, run_id TEXT NOT NULL, artifact_kind TEXT NOT NULL,
+           relative_path TEXT NOT NULL, operation TEXT NOT NULL, before_hash TEXT NOT NULL DEFAULT '',
+           after_hash TEXT NOT NULL DEFAULT '', rollback_eligible INTEGER NOT NULL DEFAULT 0,
+           backup_path TEXT NOT NULL DEFAULT '',
+           FOREIGN KEY(run_id) REFERENCES compile_runs(id) ON DELETE CASCADE);
+         CREATE INDEX IF NOT EXISTS idx_compile_repo_created ON compile_runs(repository_path,created_at DESC);
+         CREATE INDEX IF NOT EXISTS idx_compile_status ON compile_runs(status);
+          CREATE INDEX IF NOT EXISTS idx_compile_event_sequence ON compile_run_events(run_id,sequence);",
+    ).map_err(|error| format!("compile schema failed: {error}"))?;
+    let _ = connection.execute(
+        "ALTER TABLE compile_artifacts ADD COLUMN backup_path TEXT NOT NULL DEFAULT ''",
+        [],
+    );
+    connection
+        .pragma_update(None, "user_version", COMPILE_SCHEMA_VERSION)
+        .map_err(|error| format!("compile schema version failed: {error}"))?;
+    Ok(())
+}
+
+pub fn recover_interrupted_runs(connection: &Connection) -> Result<usize, String> {
+    connection
+        .execute(
+            "UPDATE compile_runs SET status='interrupted',finished_at=strftime('%s','now'),
+             failure_reason='Application exited while task was running' WHERE status IN ('queued','running')",
+            [],
+        )
+        .map_err(|error| format!("compile recovery failed: {error}"))
+}
+
+fn command_exists(program: &str) -> bool {
+    Command::new(program)
+        .arg("--version")
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .is_ok()
+}
+
+pub fn capabilities(root: &Path) -> Vec<CompileCapability> {
+    let python = command_exists("py");
+    let graphify = command_exists("graphify");
+    let codex = command_exists("codex");
+    let tool = |name: &str| root.join("tools").join(name).is_file();
+    let definitions = [
+        (
+            "lint",
+            "Knowledge lint",
+            "Read-only health check with a report",
+            python && tool("wiki_lint.py"),
+            "Requires py and tools/wiki_lint.py",
+            true,
+            false,
+            false,
+        ),
+        (
+            "graphify_update",
+            "Update Graphify",
+            "Rebuild the derived knowledge graph",
+            graphify,
+            "Requires graphify CLI",
+            true,
+            false,
+            false,
+        ),
+        (
+            "discover",
+            "Discover papers",
+            "Search candidates into raw/inbox",
+            python && tool("paper_search.py"),
+            "Requires py and paper_search.py",
+            true,
+            true,
+            false,
+        ),
+        (
+            "parse",
+            "Parse PDF",
+            "Convert a repository PDF with MinerU",
+            python && tool("mineru_to_md.py"),
+            "Requires py and mineru_to_md.py",
+            true,
+            true,
+            true,
+        ),
+        (
+            "compile_a",
+            "Compile A pages",
+            "Run the fixed Agent A protocol with Codex",
+            codex,
+            "Requires codex CLI",
+            true,
+            false,
+            false,
+        ),
+    ];
+    definitions
+        .into_iter()
+        .map(
+            |(kind, label, description, available, missing, writes, network, requires_input)| {
+                CompileCapability {
+                    task_kind: kind.into(),
+                    label: label.into(),
+                    description: description.into(),
+                    available,
+                    reason: if available {
+                        "Available".into()
+                    } else {
+                        missing.into()
+                    },
+                    writes,
+                    network,
+                    requires_input,
+                }
+            },
+        )
+        .collect()
+}
+
+fn summary(row: &rusqlite::Row<'_>) -> rusqlite::Result<CompileRunSummary> {
+    Ok(CompileRunSummary {
+        id: row.get(0)?,
+        task_kind: row.get(1)?,
+        display_name: row.get(2)?,
+        status: row.get(3)?,
+        current_stage: row.get(4)?,
+        created_at: row.get(5)?,
+        started_at: row.get(6)?,
+        finished_at: row.get(7)?,
+        exit_code: row.get(8)?,
+        failure_reason: row.get(9)?,
+        retry_of: row.get(10)?,
+    })
+}
+
+pub fn list_runs(
+    connection: &Connection,
+    repository: &str,
+    limit: usize,
+) -> Result<Vec<CompileRunSummary>, String> {
+    let mut statement = connection.prepare("SELECT id,task_kind,display_name,status,current_stage,created_at,started_at,finished_at,exit_code,failure_reason,retry_of FROM compile_runs WHERE repository_path=?1 ORDER BY rowid DESC LIMIT ?2").map_err(|e| e.to_string())?;
+    let rows = statement
+        .query_map(params![repository, limit.min(500) as i64], summary)
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+    Ok(rows)
+}
+
+pub fn get_run(
+    connection: &Connection,
+    repository: &str,
+    run_id: &str,
+) -> Result<CompileRunDetail, String> {
+    let (summary, json): (CompileRunSummary, String) = connection.query_row(
+        "SELECT id,task_kind,display_name,status,current_stage,created_at,started_at,finished_at,exit_code,failure_reason,retry_of,parameters_json FROM compile_runs WHERE repository_path=?1 AND id=?2",
+        params![repository, run_id], |row| Ok((summary(row)?, row.get(11)?)),
+    ).optional().map_err(|e| e.to_string())?.ok_or_else(|| "compile run not found for repository".to_string())?;
+    let request = serde_json::from_str(&json).map_err(|e| e.to_string())?;
+    let mut event_query = connection.prepare("SELECT sequence,event_kind,stage,message,created_at FROM compile_run_events WHERE run_id=?1 ORDER BY sequence").map_err(|e| e.to_string())?;
+    let events = event_query
+        .query_map([run_id], |row| {
+            Ok(CompileRunEvent {
+                sequence: row.get(0)?,
+                event_kind: row.get(1)?,
+                stage: row.get(2)?,
+                message: row.get(3)?,
+                created_at: row.get(4)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+    let mut artifact_query = connection.prepare("SELECT id,artifact_kind,relative_path,operation,rollback_eligible,before_hash,after_hash FROM compile_artifacts WHERE run_id=?1 ORDER BY rowid").map_err(|e| e.to_string())?;
+    let artifacts = artifact_query
+        .query_map([run_id], |row| {
+            Ok(CompileArtifact {
+                id: row.get(0)?,
+                artifact_kind: row.get(1)?,
+                relative_path: row.get(2)?,
+                operation: row.get(3)?,
+                rollback_eligible: row.get::<_, i64>(4)? != 0,
+                before_hash: row.get(5)?,
+                after_hash: row.get(6)?,
+            })
+        })
+        .map_err(|e| e.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| e.to_string())?;
+    Ok(CompileRunDetail {
+        summary,
+        request,
+        events,
+        artifacts,
+    })
+}
+
+fn inside_repository(root: &Path, value: &str) -> Result<PathBuf, String> {
+    let root = fs::canonicalize(root).map_err(|e| format!("repository path invalid: {e}"))?;
+    let value = PathBuf::from(value);
+    let candidate = if value.is_absolute() {
+        value
+    } else {
+        root.join(value)
+    };
+    let candidate = fs::canonicalize(candidate).map_err(|e| format!("input path invalid: {e}"))?;
+    if !candidate.starts_with(&root) {
+        return Err("input path is outside repository".into());
+    }
+    Ok(candidate)
+}
+
+fn build_task(root: &Path, request: &StartCompileRequest) -> Result<TaskSpec, String> {
+    match request.task_kind.as_str() {
+        "lint" => Ok(TaskSpec { executable: "py".into(), args: vec!["-3".into(), "tools/wiki_lint.py".into(), "--write-report".into()], label: "Knowledge lint", stage: "lint", artifact: Some(("report", "logs")) }),
+        "graphify_update" => Ok(TaskSpec { executable: "graphify".into(), args: vec!["update".into(), ".".into(), "--force".into()], label: "Update Graphify", stage: "graphify", artifact: Some(("graph", "graphify-out/graph.json")) }),
+        "discover" => {
+            let mut args = vec!["-3".into(), "tools/paper_search.py".into(), "--preset".into(), "wireless-charging-scheduling".into(), "--new-only".into()];
+            if request.dry_run { args.push("--dry-run".into()); }
+            if request.download { args.push("--download".into()); }
+            Ok(TaskSpec { executable: "py".into(), args, label: "Discover papers", stage: "discover", artifact: Some(("discovery", "raw/inbox/auto-discovered/runs")) })
+        }
+        "parse" => {
+            let input = request.input_path.as_deref().filter(|v| !v.trim().is_empty()).ok_or_else(|| "parse requires inputPath".to_string())?;
+            let input = inside_repository(root, input)?;
+            let mut args = vec!["-3".into(), "tools/mineru_to_md.py".into(), input.to_string_lossy().into_owned(), "--output-root".into(), root.join("raw/canonical").to_string_lossy().into_owned()];
+            if request.dry_run { args.push("--dry-run".into()); }
+            if request.force { args.push("--force".into()); }
+            Ok(TaskSpec { executable: "py".into(), args, label: "Parse PDF", stage: "parse", artifact: Some(("canonical", "raw/canonical")) })
+        }
+        "compile_a" => Ok(TaskSpec { executable: "codex".into(), args: vec!["exec".into(), "-C".into(), root.to_string_lossy().into_owned(), "--sandbox".into(), "workspace-write".into(), "--ask-for-approval".into(), "never".into(), "--skip-git-repo-check".into(), "--ephemeral".into(), "Read AGENTS.md and schema/agent-a-compile.md. Compile every pending_ingest through the Agent A protocol. Never write wiki/problems or wiki/ideas, never edit vocab.yaml, never delete files, and update index, library-status, logs and Graphify.".into()], label: "Compile A pages", stage: "compile_a", artifact: Some(("wiki", "wiki")) }),
+        _ => Err("task kind is not in the compile allowlist".into()),
+    }
+}
+
+fn redact(input: &str) -> String {
+    let mut output = input.to_string();
+    for marker in [
+        "LUNA_API_KEY=",
+        "MINERU_API_KEY=",
+        "OPENALEX_API_KEY=",
+        "TAVILY_API_KEY=",
+        "SERPAPI_API_KEY=",
+        "Authorization: Bearer ",
+        "Bearer ",
+    ] {
+        if let Some(start) = output.find(marker) {
+            let from = start + marker.len();
+            let to = output[from..]
+                .find(|c: char| c.is_whitespace() || c == '&')
+                .map(|n| from + n)
+                .unwrap_or(output.len());
+            if from != to {
+                output.replace_range(from..to, "[REDACTED]");
+            }
+        }
+    }
+    for key in ["token=", "signature=", "sig="] {
+        if let Some(start) = output.to_ascii_lowercase().find(key) {
+            let from = start + key.len();
+            let to = output[from..]
+                .find(|c: char| c == '&' || c.is_whitespace())
+                .map(|n| from + n)
+                .unwrap_or(output.len());
+            if from != to {
+                output.replace_range(from..to, "[REDACTED]");
+            }
+        }
+    }
+    if output.len() > 16_384 {
+        output.truncate(16_384);
+        output.push_str("...[truncated]");
+    }
+    output
+}
+
+fn emit_event(
+    connection: &Connection,
+    channel: &Channel<CompileStreamEvent>,
+    run_id: &str,
+    sequence: &mut i64,
+    kind: &str,
+    stage: &str,
+    message: &str,
+) {
+    *sequence += 1;
+    let timestamp = now();
+    let message = redact(message);
+    let _ = connection.execute("INSERT OR IGNORE INTO compile_run_events(run_id,sequence,event_kind,stage,message,created_at) VALUES(?1,?2,?3,?4,?5,?6)", params![run_id,*sequence,kind,stage,message,timestamp]);
+    let fields = || {
+        (
+            run_id.to_string(),
+            *sequence,
+            stage.to_string(),
+            message.clone(),
+            timestamp.clone(),
+        )
+    };
+    let event = match kind {
+        "accepted" => {
+            let (run_id, sequence, stage, message, timestamp) = fields();
+            CompileStreamEvent::Accepted {
+                run_id,
+                sequence,
+                stage,
+                message,
+                timestamp,
+            }
+        }
+        "stage_started" => {
+            let (run_id, sequence, stage, message, timestamp) = fields();
+            CompileStreamEvent::StageStarted {
+                run_id,
+                sequence,
+                stage,
+                message,
+                timestamp,
+            }
+        }
+        "stdout" => {
+            let (run_id, sequence, stage, message, timestamp) = fields();
+            CompileStreamEvent::Stdout {
+                run_id,
+                sequence,
+                stage,
+                message,
+                timestamp,
+            }
+        }
+        "stderr" => {
+            let (run_id, sequence, stage, message, timestamp) = fields();
+            CompileStreamEvent::Stderr {
+                run_id,
+                sequence,
+                stage,
+                message,
+                timestamp,
+            }
+        }
+        "completed" => {
+            let (run_id, sequence, stage, message, timestamp) = fields();
+            CompileStreamEvent::Completed {
+                run_id,
+                sequence,
+                stage,
+                message,
+                timestamp,
+            }
+        }
+        "cancelled" => {
+            let (run_id, sequence, stage, message, timestamp) = fields();
+            CompileStreamEvent::Cancelled {
+                run_id,
+                sequence,
+                stage,
+                message,
+                timestamp,
+            }
+        }
+        _ => {
+            let (run_id, sequence, stage, message, timestamp) = fields();
+            CompileStreamEvent::Failed {
+                run_id,
+                sequence,
+                stage,
+                message,
+                timestamp,
+            }
+        }
+    };
+    let _ = channel.send(event);
+}
+
+pub fn execute_run(
+    db_path: &Path,
+    root: &Path,
+    run_id: String,
+    request: StartCompileRequest,
+    channel: Channel<CompileStreamEvent>,
+    cancellation: Arc<AtomicBool>,
+    retry_of: Option<String>,
+) -> Result<CompileRunSummary, String> {
+    let spec = build_task(root, &request)?;
+    let write = request.task_kind != "lint";
+    let _write_guard = RepositoryWriteGuard::acquire(root, write)?;
+    let artifact_path = spec.artifact.map(|(_, path)| root.join(path));
+    let backup_root = db_path
+        .parent()
+        .unwrap_or(root)
+        .join("compile-backups")
+        .join(&run_id);
+    let before = match artifact_path.as_ref() {
+        Some(path) => snapshot_scope(root, path, Some(&backup_root))?,
+        None => HashMap::new(),
+    };
+    let connection = Connection::open(db_path).map_err(|e| e.to_string())?;
+    db_schema(&connection)?;
+    let created = now();
+    connection.execute("INSERT INTO compile_runs(id,repository_path,task_kind,display_name,status,current_stage,created_at,parameters_json,retry_of) VALUES(?1,?2,?3,?4,'queued',?5,?6,?7,?8)", params![run_id,root.to_string_lossy(),request.task_kind,spec.label,spec.stage,created,serde_json::to_string(&request).map_err(|e| e.to_string())?,retry_of.unwrap_or_default()]).map_err(|e| e.to_string())?;
+    let mut sequence = 0;
+    emit_event(
+        &connection,
+        &channel,
+        &run_id,
+        &mut sequence,
+        "accepted",
+        spec.stage,
+        "Task accepted",
+    );
+    let started = now();
+    connection
+        .execute(
+            "UPDATE compile_runs SET status='running',started_at=?2 WHERE id=?1",
+            params![run_id, started],
+        )
+        .map_err(|e| e.to_string())?;
+    emit_event(
+        &connection,
+        &channel,
+        &run_id,
+        &mut sequence,
+        "stage_started",
+        spec.stage,
+        spec.label,
+    );
+    let mut child = match Command::new(&spec.executable)
+        .args(&spec.args)
+        .current_dir(root)
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+    {
+        Ok(child) => child,
+        Err(error) => {
+            let reason = format!("failed to start {}: {error}", spec.executable);
+            connection.execute("UPDATE compile_runs SET status='failed',finished_at=?2,failure_reason=?3 WHERE id=?1",params![run_id,now(),reason]).ok();
+            emit_event(
+                &connection,
+                &channel,
+                &run_id,
+                &mut sequence,
+                "failed",
+                spec.stage,
+                &reason,
+            );
+            return get_run(&connection, &root.to_string_lossy(), &run_id).map(|d| d.summary);
+        }
+    };
+    let (sender, receiver) = mpsc::channel::<(&'static str, String)>();
+    if let Some(stdout) = child.stdout.take() {
+        let tx = sender.clone();
+        thread::spawn(move || {
+            for line in BufReader::new(stdout).lines().map_while(Result::ok) {
+                let _ = tx.send(("stdout", line));
+            }
+        });
+    }
+    if let Some(stderr) = child.stderr.take() {
+        let tx = sender.clone();
+        thread::spawn(move || {
+            for line in BufReader::new(stderr).lines().map_while(Result::ok) {
+                let _ = tx.send(("stderr", line));
+            }
+        });
+    }
+    drop(sender);
+    let (final_status, exit_code, reason) = loop {
+        while let Ok((kind, line)) = receiver.try_recv() {
+            emit_event(
+                &connection,
+                &channel,
+                &run_id,
+                &mut sequence,
+                kind,
+                spec.stage,
+                &line,
+            );
+        }
+        if cancellation.load(Ordering::SeqCst) {
+            let _ = child.kill();
+            let _ = child.wait();
+            break ("cancelled", None, "Task cancelled".to_string());
+        }
+        match child.try_wait() {
+            Ok(Some(status)) => {
+                while let Ok((kind, line)) = receiver.recv_timeout(Duration::from_millis(20)) {
+                    emit_event(
+                        &connection,
+                        &channel,
+                        &run_id,
+                        &mut sequence,
+                        kind,
+                        spec.stage,
+                        &line,
+                    );
+                }
+                if status.success() {
+                    break ("succeeded", status.code(), String::new());
+                }
+                break (
+                    "failed",
+                    status.code(),
+                    format!("command exited with {:?}", status.code()),
+                );
+            }
+            Ok(None) => thread::sleep(Duration::from_millis(60)),
+            Err(error) => break ("failed", None, format!("process status failed: {error}")),
+        }
+    };
+    connection.execute("UPDATE compile_runs SET status=?2,finished_at=?3,exit_code=?4,failure_reason=?5,result_json=?6 WHERE id=?1",params![run_id,final_status,now(),exit_code,reason,serde_json::json!({"eventCount":sequence}).to_string()]).map_err(|e|e.to_string())?;
+    if final_status == "succeeded" {
+        if let (Some((kind, _)), Some(path)) = (spec.artifact, artifact_path.as_ref()) {
+            let after = snapshot_scope(root, path, None)?;
+            let mut paths = before
+                .keys()
+                .chain(after.keys())
+                .cloned()
+                .collect::<Vec<_>>();
+            paths.sort();
+            paths.dedup();
+            for relative_path in paths {
+                let previous = before.get(&relative_path);
+                let current = after.get(&relative_path);
+                let (operation, before_hash, after_hash, backup_path, eligible) =
+                    match (previous, current) {
+                        (None, Some(current)) => ("created", "", current.hash.as_str(), "", true),
+                        (Some(previous), None) => (
+                            "deleted",
+                            previous.hash.as_str(),
+                            "",
+                            previous.backup_path.as_str(),
+                            !previous.backup_path.is_empty(),
+                        ),
+                        (Some(previous), Some(current)) if previous.hash != current.hash => (
+                            "modified",
+                            previous.hash.as_str(),
+                            current.hash.as_str(),
+                            previous.backup_path.as_str(),
+                            !previous.backup_path.is_empty(),
+                        ),
+                        _ => continue,
+                    };
+                connection.execute(
+                    "INSERT INTO compile_artifacts(id,run_id,artifact_kind,relative_path,operation,before_hash,after_hash,rollback_eligible,backup_path) VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9)",
+                    params![Uuid::new_v4().to_string(),run_id,kind,relative_path,operation,before_hash,after_hash,if eligible {1} else {0},backup_path],
+                ).map_err(|error| format!("record artifact failed: {error}"))?;
+            }
+        }
+        emit_event(
+            &connection,
+            &channel,
+            &run_id,
+            &mut sequence,
+            "completed",
+            spec.stage,
+            "Task completed",
+        );
+    } else if final_status == "cancelled" {
+        emit_event(
+            &connection,
+            &channel,
+            &run_id,
+            &mut sequence,
+            "cancelled",
+            spec.stage,
+            &reason,
+        );
+    } else {
+        emit_event(
+            &connection,
+            &channel,
+            &run_id,
+            &mut sequence,
+            "failed",
+            spec.stage,
+            &reason,
+        );
+    }
+    get_run(&connection, &root.to_string_lossy(), &run_id).map(|d| d.summary)
+}
+
+pub fn rollback_run(connection: &Connection, root: &Path, run_id: &str) -> Result<String, String> {
+    let _write_guard = RepositoryWriteGuard::acquire(root, true)?;
+    let detail = get_run(connection, &root.to_string_lossy(), run_id)?;
+    if detail.summary.status != "succeeded" {
+        return Err("only succeeded tasks can be rolled back".into());
+    }
+    let mut statement = connection
+        .prepare(
+            "SELECT relative_path,operation,before_hash,after_hash,backup_path
+         FROM compile_artifacts WHERE run_id=?1 AND rollback_eligible=1 ORDER BY rowid DESC",
+        )
+        .map_err(|error| error.to_string())?;
+    let artifacts = statement
+        .query_map([run_id], |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, String>(3)?,
+                row.get::<_, String>(4)?,
+            ))
+        })
+        .map_err(|error| error.to_string())?
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|error| error.to_string())?;
+    if artifacts.is_empty() {
+        return Err("task has no rollback material".into());
+    }
+    for (relative, operation, _, after_hash, _) in &artifacts {
+        let path = root.join(relative);
+        match operation.as_str() {
+            "created" | "modified" => {
+                if !path.is_file() || (!after_hash.is_empty() && file_hash(&path) != *after_hash) {
+                    return Err(format!("hash conflict for {relative}"));
+                }
+            }
+            "deleted" if path.exists() => return Err(format!("hash conflict for {relative}")),
+            _ => {}
+        }
+    }
+    let rollback_id = Uuid::new_v4().to_string();
+    let timestamp = now();
+    connection.execute(
+        "INSERT INTO compile_runs(id,repository_path,task_kind,display_name,status,current_stage,created_at,started_at,parameters_json,rollback_of)
+         VALUES(?1,?2,'rollback','Rollback','running','rollback',?3,?3,'{}',?4)",
+        params![rollback_id,root.to_string_lossy(),timestamp,run_id],
+    ).map_err(|error| error.to_string())?;
+    for (relative, operation, _, _, backup_path) in &artifacts {
+        let path = root.join(relative);
+        match operation.as_str() {
+            "created" => fs::remove_file(&path)
+                .map_err(|error| format!("remove created artifact {relative} failed: {error}"))?,
+            "modified" | "deleted" => {
+                let backup = PathBuf::from(backup_path);
+                if !backup.is_file() {
+                    return Err(format!("rollback backup missing for {relative}"));
+                }
+                if let Some(parent) = path.parent() {
+                    fs::create_dir_all(parent)
+                        .map_err(|error| format!("restore parent failed: {error}"))?;
+                }
+                fs::copy(&backup, &path)
+                    .map_err(|error| format!("restore {relative} failed: {error}"))?;
+            }
+            _ => {}
+        }
+    }
+    connection
+        .execute(
+            "UPDATE compile_runs SET status='succeeded',finished_at=?2,result_json=?3 WHERE id=?1",
+            params![
+                rollback_id,
+                now(),
+                serde_json::json!({"restoredArtifacts":artifacts.len()}).to_string()
+            ],
+        )
+        .map_err(|error| error.to_string())?;
+    connection
+        .execute(
+            "UPDATE compile_runs SET status='rolled_back',finished_at=?2 WHERE id=?1",
+            params![run_id, now()],
+        )
+        .map_err(|error| error.to_string())?;
+    connection.execute(
+        "INSERT INTO compile_run_events(run_id,sequence,event_kind,stage,message,created_at) VALUES(?1,1,'completed','rollback',?2,?3)",
+        params![rollback_id,format!("Restored {} artifact(s) from {run_id}",artifacts.len()),now()],
+    ).map_err(|error| error.to_string())?;
+    Ok(format!("rollback completed: {rollback_id}"))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    fn request(kind: &str) -> StartCompileRequest {
+        StartCompileRequest {
+            task_kind: kind.into(),
+            input_path: None,
+            dry_run: false,
+            download: false,
+            force: false,
+        }
+    }
+
+    #[test]
+    fn schema_version_and_interrupted_recovery() {
+        let connection = Connection::open_in_memory().unwrap();
+        db_schema(&connection).unwrap();
+        connection.execute("INSERT INTO compile_runs(id,repository_path,task_kind,display_name,status,current_stage,created_at) VALUES('x','r','lint','Lint','running','lint','1')",[]).unwrap();
+        db_schema(&connection).unwrap();
+        let running: String = connection
+            .query_row("SELECT status FROM compile_runs WHERE id='x'", [], |r| {
+                r.get(0)
+            })
+            .unwrap();
+        assert_eq!(running, "running");
+        assert_eq!(recover_interrupted_runs(&connection).unwrap(), 1);
+        let status: String = connection
+            .query_row("SELECT status FROM compile_runs WHERE id='x'", [], |r| {
+                r.get(0)
+            })
+            .unwrap();
+        assert_eq!(status, "interrupted");
+        let version: i64 = connection
+            .pragma_query_value(None, "user_version", |r| r.get(0))
+            .unwrap();
+        assert_eq!(version, COMPILE_SCHEMA_VERSION);
+    }
+
+    #[test]
+    fn rollback_restores_modified_file_and_records_run() {
+        let directory = tempdir().unwrap();
+        let root = directory.path().join("repository");
+        fs::create_dir_all(root.join("wiki")).unwrap();
+        let target = root.join("wiki/page.md");
+        fs::write(&target, "after").unwrap();
+        let backup = directory.path().join("backup/page.md");
+        fs::create_dir_all(backup.parent().unwrap()).unwrap();
+        fs::write(&backup, "before").unwrap();
+        let connection = Connection::open_in_memory().unwrap();
+        db_schema(&connection).unwrap();
+        connection.execute(
+            "INSERT INTO compile_runs(id,repository_path,task_kind,display_name,status,current_stage,created_at,parameters_json) VALUES('run',?1,'compile_a','Compile','succeeded','compile_a','1',?2)",
+            params![root.to_string_lossy(),serde_json::to_string(&request("compile_a")).unwrap()],
+        ).unwrap();
+        connection.execute(
+            "INSERT INTO compile_artifacts(id,run_id,artifact_kind,relative_path,operation,before_hash,after_hash,rollback_eligible,backup_path) VALUES('a','run','wiki','wiki/page.md','modified',?1,?2,1,?3)",
+            params![file_hash(&backup),file_hash(&target),backup.to_string_lossy()],
+        ).unwrap();
+        let result = rollback_run(&connection, &root, "run").unwrap();
+        assert!(result.starts_with("rollback completed:"));
+        assert_eq!(fs::read_to_string(&target).unwrap(), "before");
+        let status: String = connection
+            .query_row(
+                "SELECT status FROM compile_runs WHERE id='run'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(status, "rolled_back");
+    }
+
+    #[test]
+    fn history_is_repository_isolated_and_details_load() {
+        let connection = Connection::open_in_memory().unwrap();
+        db_schema(&connection).unwrap();
+        let json = serde_json::to_string(&request("lint")).unwrap();
+        connection.execute("INSERT INTO compile_runs(id,repository_path,task_kind,display_name,status,current_stage,created_at,parameters_json) VALUES('x','repo-a','lint','Lint','succeeded','lint','1',?1)",[json]).unwrap();
+        connection.execute("INSERT INTO compile_run_events(run_id,sequence,event_kind,stage,message,created_at) VALUES('x',1,'completed','lint','ok','2')",[]).unwrap();
+        connection.execute("INSERT INTO compile_artifacts(id,run_id,artifact_kind,relative_path,operation,rollback_eligible) VALUES('a','x','report','logs/report.md','derived',0)",[]).unwrap();
+        assert_eq!(list_runs(&connection, "repo-a", 10).unwrap().len(), 1);
+        assert!(list_runs(&connection, "repo-b", 10).unwrap().is_empty());
+        let detail = get_run(&connection, "repo-a", "x").unwrap();
+        assert_eq!(detail.events.len(), 1);
+        assert_eq!(detail.artifacts.len(), 1);
+        assert!(get_run(&connection, "repo-b", "x").is_err());
+    }
+
+    #[test]
+    fn allowlist_and_input_boundary_are_enforced() {
+        let root = tempdir().unwrap();
+        let outside = tempdir().unwrap();
+        assert!(build_task(root.path(), &request("shell"))
+            .unwrap_err()
+            .contains("allowlist"));
+        let mut parse = request("parse");
+        parse.input_path = Some(outside.path().to_string_lossy().into_owned());
+        assert!(build_task(root.path(), &parse)
+            .unwrap_err()
+            .contains("outside repository"));
+    }
+
+    #[test]
+    fn secrets_are_redacted() {
+        let output = redact(
+            "MINERU_API_KEY=secret Authorization: Bearer token https://x.test?a=1&signature=signed",
+        );
+        assert!(!output.contains("secret"));
+        assert!(!output.contains("Bearer token"));
+        assert!(!output.contains("signed"));
+        assert!(output.contains("[REDACTED]"));
+    }
+}

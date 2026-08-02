@@ -1,0 +1,56 @@
+# Graphify ignore — 合并于 .gitignore 之上，只做额外排除
+# 目标：图以 wiki 正文 + raw md 为主，减少 schema/模板噪声
+
+# 产品与规程（可读但不作为领域节点主源）
+prd.md
+HOME.md
+AGENTS.md
+ARCHITECTURE.md
+使用说明.md
+CLAUDE.md
+
+# Agent 平台注册、代码索引与编辑器配置不是领域知识
+.agents/**
+.claude/**
+.codex/**
+.cursor/**
+.codegraph/**
+tools/**
+tests/**
+
+# schema 几乎全是元规则；references 可保留链接文档则用否定
+schema/**
+!schema/references/**
+!schema/references/**
+
+# 模板不是知识
+templates/**
+
+# 日志噪音
+logs/**
+
+# Graphify 自身输出勿再摄入
+graphify-out/**
+
+# 二进制与缓存
+**/*.pdf
+**/*.html
+**/images/**
+**/.obsidian/**
+**/node_modules/**
+**/__pycache__/**
+**/.git/**
+
+# 可选：inbox 未 triage 先不进图（升级 canonical 并编译后再进 wiki）
+raw/inbox/**
+
+# Core-book chapter corpus has a dedicated graph; keep the main WPT graph compact.
+raw/canonical/algorithmic-game-theory/chapters/**
+raw/canonical/algorithmic-game-theory/mineru/**
+raw/canonical/approximation-algorithms/chapters/**
+raw/canonical/approximation-algorithms/mineru/**
+# MinerU per-part staging and metadata are not main WPT graph sources.
+work/core-books/**
+raw/canonical/*-ch-*/**
+raw/canonical/approximation-algorithms-front-matter-part-*/**
+raw/canonical/algorithmic-game-theory-front-matter-part-*/**

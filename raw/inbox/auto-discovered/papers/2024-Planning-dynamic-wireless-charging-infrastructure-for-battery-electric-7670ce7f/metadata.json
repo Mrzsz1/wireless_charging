@@ -1,0 +1,51 @@
+{
+  "title": "Planning dynamic wireless charging infrastructure for battery electric bus systems with the joint optimization of charging scheduling",
+  "authors": [
+    "Wenlong Li",
+    "Yi He",
+    "Songhua Hu",
+    "Zhengbing He",
+    "Carlo Ratti",
+    "Carlo Ratti"
+  ],
+  "abstract": "",
+  "published_date": "2024-01-05",
+  "updated_date": "",
+  "year": 2024,
+  "doi": "10.1016/j.trc.2023.104469",
+  "arxiv_id": "",
+  "landing_url": "https://doi.org/10.1016/j.trc.2023.104469",
+  "pdf_url": "https://senseable.mit.edu/papers/pdf/20231226_Li-etal_PlanningDynamic_TR-C.pdf",
+  "is_open_access": true,
+  "license": "",
+  "providers": [
+    "openalex"
+  ],
+  "provider_ids": {
+    "openalex": "https://openalex.org/W4390628442"
+  },
+  "matched_queries": [
+    "wireless charging scheduling optimization"
+  ],
+  "score": 12.0,
+  "score_reasons": [
+    "标题命中：charging, optimization, scheduling",
+    "近年文献"
+  ],
+  "local_pdf": "raw/inbox/auto-discovered/papers/2024-Planning-dynamic-wireless-charging-infrastructure-for-battery-electric-7670ce7f/paper.pdf",
+  "fulltext_resolved_via": "MIT Senseable City Lab public author manuscript",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "openalex"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+  "triage_status": "promoted",
+  "selected_by_user": true,
+  "acquired_at": "2026-07-14T13:40:03+00:00",
+  "selected_at": "2026-07-14T15:49:13+00:00",
+  "canonicalized_at": "2026-07-14T16:03:19+00:00",
+  "triage_note": "用户于 2026-07-14 明确要求下载并使用 MinerU；PDF 已校验，MinerU 7/7 成功，现标记进入 canonical，等待 A 编译。",
+  "candidate_rank": 1,
+  "source_manifest": "raw/inbox/auto-discovered/runs/search-20260714-214003/results.json",
+  "boundary": "promoted to canonical; pending wiki ingest"
+}

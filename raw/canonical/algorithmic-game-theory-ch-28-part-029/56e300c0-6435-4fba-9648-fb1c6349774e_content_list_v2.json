@@ -1,0 +1,5219 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Sponsored Search Auctions"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                241,
+                105,
+                754,
+                138
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Sebastien Lahaie, David M. Pennock, Amin Saberi,´ and Rakesh V. Vohra"
+                    }
+                ]
+            },
+            "bbox": [
+                207,
+                186,
+                788,
+                235
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Abstract"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                451,
+                366,
+                546,
+                386
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "One of the more visible means by which the Internet has disrupted traditional activity is the manner in which advertising is sold. Offline, the price for advertising is typically set by negotiation or posted price. Online, much advertising is sold via auction. Most prominently, Web search engines like Google and Yahoo! auction space next to search results, a practice known as sponsored search. This chapter describes the auctions used and how the theory developed in earlier chapters of this book can shed light on their properties. We close with a brief discussion of unresolved issues associated with the sale of advertising on the Internet."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                405,
+                860,
+                534
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "28.1 Introduction"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                403,
+                564,
+                592,
+                582
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Web search engines like Google and Yahoo! monetize their service by auctioning off advertising space next to their standard algorithmic search results. For example, Apple or Best Buy may bid to appear among the advertisements – usually located above or to the right of the algorithmic results – whenever users search for “ipod.” These sponsored results are displayed in a format similar to algorithmic results: as a list of items each containing a title, a text description, and a hyperlink to the advertiser’s Web page. We call each position in the list a slot. Generally, advertisements that appear in a higher ranked slot (higher on the page) garner more attention and more clicks from users. Thus, all else being equal, merchants generally prefer higher ranked slots to lower ranked slots. Figure 28.1(a) shows an example layout of sponsored search results for the query “las vegas travel.” Figure 28.1(b) shows the advertisers’ bids in the corresponding auction."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                602,
+                860,
+                818
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Advertisers bid for placement on the page in an auction-style format where the larger their bid the more likely their listing will appear above other advertisements on the page. By convention, sponsored search advertisers generally pay per click, meaning that they pay only when a user clicks on their advertisement, and do not pay if their advertisement is displayed but not clicked. Overture Services, formerly GoTo.com and now owned by Yahoo! Inc., is credited with pioneering sponsored search advertising. Overture’s success prompted a number of companies to adopt similar business models, most prominently Google, the leading Web search engine today. Sponsored search is one of the fastest growing, most effective, and most profitable forms of advertising, generating roughly $7 billion in revenue in 2005 after nearly doubling every year for the previous 5 years."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                818,
+                860,
+                909
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "CHAPTER 28"
+                    }
+                ]
+            },
+            "bbox": [
+                427,
+                72,
+                568,
+                87
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "699"
+                    }
+                ]
+            },
+            "bbox": [
+                481,
+                920,
+                514,
+                933
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/69b777927a6e347d97e3380cab0b564d00679f13b8f9b3631bc6584fda2136f2.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 28.1. (a) An example display of sponsored search listings above the regular algorithmic listings for the query “las vegas travel.” The ordering of sponsored listings is determined via a continuous auction mechanism. (b) The top advertisers’ bids (maximum willingness to pay per click) in the auction."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                143,
+                43,
+                866,
+                271
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                137,
+                366,
+                862,
+                475
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The sponsored search industry typically runs separate auctions for each search query: for example, the queries “plasma television” and “investment advice” are associated with two distinct auctions. The entity being sold in each auction is the right to appear alongside the results of that search query. As mentioned, bids are expressed as a maximum willingness to pay per click. For example, a 40-cent bid by HostRocket for “Web hosting” means HostRocket is willing to pay up to 40 cents every time a user clicks on their advertisement. Advertisers may also set daily or monthly budget caps. In practice, hundreds of thousands of advertisers compete for positions alongside several millions of search queries every day. Generally the auctions are continuous and dynamic, meaning that advertisers can change their bids at any time, and a new auction clears every time a user enters a search query. In this way advertisers can adapt to changing environments, for instance by boosting their bids for the query “buy flowers” during the week before Valentine’s Day. The search engine evaluates the bids and allocates slots to advertisers. Notice that, although bids are expressed as payments per click, the search engine cannot directly allocate clicks, but rather allocates impressions, or placements on the screen. Clicks relate only stochastically to impressions."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                476,
+                866,
+                765
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Advertising in traditional media is typically sold on a per-impression basis, or according to the (estimated) number of people exposed to the advertisement, in part because of the difficulty of measuring and charging based on the actual effectiveness of the advertisement. Traditional (offline) advertising, and to a large extent banner advertising on the Web, is usually priced via an informal process of estimation and negotiation. The Web’s capability for two-way communication makes it easy to track some measures of effectiveness, in particular user clicks. Many advertisers, especially direct marketers looking to close a sale as opposed to brand advertisers, prefer to pay per click rather than per impression, alleviating some of the uncertainty inherent in an impression. More direct performance-based pricing is possible by charging per “action” or per conversion (sale) on the merchant’s site."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                765,
+                866,
+                910
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "700"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                41,
+                177,
+                57
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "sponsored search auctions"
+                    }
+                ]
+            },
+            "bbox": [
+                363,
+                44,
+                640,
+                57
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                135,
+                78,
+                860,
+                132
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Search engines are an information gateway to many search and decision-making tasks. Industry surveys report that more than 50% of Web users visit a search engine every day, Americans conduct roughly 6 billion Web searches per month, over 13% of traffic to commercial sites is generated by search engines, and over 40% of product searches on the Web are initiated via search engines. As a result, entire niche industries exist touting services to boost a Web page’s ranking on the popular search engines, in part by reverse engineering the search engines’ information retrieval algorithms. Research has shown that good placement on a search page leads to high traffic, and eventually an increased financial payoff. Paying for sponsored slots is an alternative means of obtaining prominent positioning. Sponsored search works because users often tolerate or even welcome targeted advertisements directly related to what they are actively searching for. For example, Majestic Research reports that as many as 17% of Google searches result in a paid click, and that Google earns roughly nine cents on average for every search query they process. Today, Internet giants Google and Yahoo! boast a combined market capitalization of over $150 billion, largely on the strength of sponsored search. PricewaterhouseCoopers and the Interactive Advertising Bureau estimate that in 2005, industry-wide sponsored search revenue in the United States reached $5.1 billion, or 41% of total U.S. Internet advertising revenues and 2% of all U.S. advertising revenues. Roughly 85% of Google’s $4.1 billion in 2005 revenue and roughly 45% of Yahoo!’s $3.7 billion in 2005 revenue is likely attributable to sponsored search. A number of other companies – including eBay (Shopping.com), FindWhat, InterActiveCorp (Ask.com), LookSmart, and Microsoft (MSN.com) – earn hundreds of millions of dollars in sponsored search revenue annually."
+                    }
+                ]
+            },
+            "bbox": [
+                133,
+                133,
+                860,
+                548
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The goal of this chapter is to formally model and analyze various mechanisms used in this domain and to study potential improvements. In Section 28.2, we briefly describe existing mechanisms used to allocate and price sponsored search advertisements. Subsequently in Sections 28.3 and 28.4 we discuss formal models used to analyze the properties of these auctions. Section 28.5 discusses further extensions and open problems."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                548,
+                860,
+                638
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "28.2 Existing Models and Mechanisms"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                297,
+                659,
+                698,
+                677
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Typically, in sponsored search mechanisms, the advertisers specify a list of pairs of keywords and bids as well as a total maximum daily or weekly budget. Then, every time a user searches for a keyword, an auction takes place among the set of interested advertisers who have not exhausted their budgets."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                697,
+                860,
+                768
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Focusing on a single auction, let n be the number of bidders and m < n the number of slots. The search engine estimates "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the probability that a user will click on the ith slot when it is occupied by bidder "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The quantity "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is called a click through rate (CTR). It is usually presumed for all "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { i j } \\geq \\alpha _ { i + 1 , j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i = 1 , \\ldots , m - 1 ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "1"
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                769,
+                860,
+                842
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "existing models and mechanisms"
+                    }
+                ]
+            },
+            "bbox": [
+                333,
+                44,
+                660,
+                57
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "701"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                41,
+                856,
+                55
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>1</sup> The assumption that clickthrough rate decays monotonically with lower slots is a distinguishing feature of keyword auctions; in particular, it implies that all bidders prefer the first slot to the second, the second slot to the third, etc. This allows for more refined equilibrium analyses than in the more general multi-item case."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                863,
+                860,
+                912
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The search engine also assigns a weight "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to each advertiser j. The weight can be thought of as a relevance or quality metric. If agent j bids "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", his corresponding score is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { j } = w _ { j } b _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The search engine allocates slots in decreasing order of scores, so that the agent with highest score is ranked first, and so on. We assume throughout that agents are numbered so that agent j obtains slot j. An agent pays per click the lowest bid necessary to retain his position, so that the agent in slot "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j \\mathrm { \\ p a y s \\ } s _ { j + 1 } / w _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "This weighted bid ranking mechanism includes the two most prominent keyword auction designs that have been used in practice: Overture introduced a “rank by bid” mechanism "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( w _ { j } = 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "whereas Google uses a “rank by revenue” mechanism "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( w _ { j } ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { 1 j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Both variants are sometimes called generalized second price (GSP) auctions. Prior to 2004, Yahoo! used what is now known as a generalized first price (GFP) auction. Agents are ranked by bid but each bidder who secures a slot pays their bid per click."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                78,
+                864,
+                313
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "28.3 A Static Model"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                395,
+                365,
+                606,
+                384
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The most popular model used to analyze keyword auctions is a static one where the private information of bidder "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the expected payoff from a click, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", is one dimensional. The expected payoff to a bidder from not obtaining a slot is assumed to be 0."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                403,
+                862,
+                474
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Four features of the model deserve comment. The first is its static nature: a substantial departure from reality. Since the study of recurrent auctions is rather daunting, one may be disposed to accept this simplification. Second, the expected payoff per click to a bidder is slot independent. This is tied to the assumption that all bidders prefer the top slot to the second slot to the third slot and so on. Some advertisers believe that the probability of a click being converted into a purchase is lower in the top slot than in the second slot because many clicks on the top slot are made in error, or because a searcher who clicks on a lower-ranked slot is more serious in their intent to purchase. Although the story sounds plausible, conversion-tracking data from Isobar Communications and other sources does not substantiate the hypothesis: in reality the top slot appears to convert about as well as other slots. Third, a bidder’s value and CTR for a slot does not depend on the identity of other bidders. It seems plausible that Avis might value the fact that Hertz is not present in any slot when Avis is present. Fourth, CTRs are assumed to be common knowledge. In practice CTRs are estimated by the search engine and can be conditioned on many factors, including user characteristics and page context. Estimating CTRs is a significantly complex machine learning problem for the search engine, including a built-in explore/exploit trade-off. Moreover, bidders’ estimates of CTRs may be less accurate since bidders do not have access to the same contextual information available to the search engine. The dynamic nature of the environment means that CTRs can fluctuate dramatically over small periods."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                476,
+                864,
+                854
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As usual we assume that bidders are risk neutral and that their utility for a slot can be denominated on a common monetary scale. Supplied with copious amounts of salt, let us see where this model takes us."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                854,
+                862,
+                909
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "702"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                41,
+                177,
+                55
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "sponsored search auctions"
+                    }
+                ]
+            },
+            "bbox": [
+                363,
+                44,
+                640,
+                57
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "28.3.1 Revenue Maximization and Efficiency"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                283,
+                78,
+                710,
+                94
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "An auctioneer usually has one of two objectives: revenue maximization or allocative efficiency. In the static model one knows exactly what auction design will achieve either objective."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                105,
+                858,
+                158
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "If the goal is revenue maximization, the classic result of Myerson (described in Chapter 13) applies directly. One simply relabels the allocation variables. In Chapter 13 Section 13.1.12, the allocation variable, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { j } ( b )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", is defined to be the expected quantity received by bidder i who bids b. For our setting, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { j } ( b )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "becomes the expected click through rate for a bidder who bids b. Basically the generalized Vickrey auction is applied not to the actual values, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", but to the corresponding virtual values. The upshot is that the revenue maximizing auction is a generalized Vickrey auction with reserve prices."
+                    }
+                ]
+            },
+            "bbox": [
+                133,
+                158,
+                860,
+                285
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "If the goal is allocative efficiency, the generalized Vickrey auction will do the trick. The auction is described in Chapters 9 and 11 of this book. The underlying problem of finding the efficient allocation in this case is an instance of the maximum weight assignment problem. For each slot i and bidder "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i j } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if bidder "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is assigned to slot i and zero otherwise. The object is to choose "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\boldsymbol { x } _ { i j } \\mathrm { \\widetilde { s } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to solve the following:"
+                    }
+                ]
+            },
+            "bbox": [
+                133,
+                285,
+                860,
+                377
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\max \\sum_ {i = 1} ^ {k} \\sum_ {j = 1} ^ {n} \\alpha_ {i j} v _ {j} x _ {i j}\\tag{28.1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/9709a5eff75c3c50d1a324961d9ccc2c4d8226f338b183c404568a4278bef272.jpg"
+                }
+            },
+            "bbox": [
+                265,
+                382,
+                469,
+                430
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\text { s.t. } \\quad \\sum_ {j = 1} ^ {n} x _ {i j} \\leq 1 \\quad \\forall i = 1, \\dots , k\\tag{28.2}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/d3d4ecef0b90410dcfa8c1f5c13182447b2ad41198e6aa630a31004e1eed5df9.jpg"
+                }
+            },
+            "bbox": [
+                271,
+                436,
+                592,
+                483
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {i = 1} ^ {k} x _ {i j} \\leq 1 \\quad \\forall j = 1, \\dots , n\\tag{28.3}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/14bc21ccc1bb86fa77f42a4b647e67a70b597e9fc477e340c8aa4f8204d06a9f.jpg"
+                }
+            },
+            "bbox": [
+                337,
+                486,
+                596,
+                536
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "x _ {i j} \\geq 0 \\quad \\forall i = 1, \\ldots , k, \\forall j = 1, \\ldots , n\\tag{28.4}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/6076a3ec3c57ae684a0df5764925f6a6fd4a552bc0ee786c1b0d4114fc08977b.jpg"
+                }
+            },
+            "bbox": [
+                353,
+                538,
+                728,
+                557
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This is equivalent to finding a maximum-weight perfect matching in a bipartite graph and hence can be solved in polynomial time. In fact, because the constraint matrix of this linear program is totally unimodular, it will have an optimal solution that is integral. Any feasible integer solution is called an assignment."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                564,
+                858,
+                637
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A single computation of the maximum weight assignment is sufficient to determine both the allocation and the generalized Vickrey payments. This is because the Vickrey payments lie in the dual to the above linear program. To write down the dual, let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the dual variable associated with (28.2) and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "q _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the dual associated with (28.3)."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                637,
+                860,
+                709
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\min \\quad \\sum_ {i = 1} ^ {k} p _ {i} + \\sum_ {j = 1} ^ {n} q _ {j}\\tag{28.5}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/3f5a6828279d9c90714984f82364f08bd9ce614864d076e90e8099ba5ed92fd6.jpg"
+                }
+            },
+            "bbox": [
+                249,
+                716,
+                449,
+                764
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm{s.t.} \\quad p _ {i} + q _ {j} \\geq \\alpha_ {i j} v _ {j} \\quad \\forall i = 1, \\dots , k, \\quad \\forall j = 1, \\dots , n\\tag{28.6}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/50620db1e2773319a6addfddaf755b7919c795896aebf1558bc85d25be4310c5.jpg"
+                }
+            },
+            "bbox": [
+                251,
+                768,
+                746,
+                786
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "p _ {i}, q _ {j} \\geq 0 \\quad \\forall i = 1, \\dots , k, \\quad \\forall j = 1, \\dots , n\\tag{28.7}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/56d93ad3ceb4422850a57336998723ce8d8ccf78e6d9afd6b2f779f27e057198.jpg"
+                }
+            },
+            "bbox": [
+                323,
+                792,
+                746,
+                810
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Here "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "can be interpreted as the expected payment (CTR times price per click) of the bidder obtaining slot i, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "q _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as the profit of bidder "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The objective in this program is to minimize the bidders’ and auctionee "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { \\nabla ^ { \\cdot } s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "profits combined. Among all optimal dual solutions, pick the one that minimizes "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textstyle \\sum _ { i = 1 } ^ { k } p _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The corresponding "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the price that the generalized Vickrey auction would set for slot "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                818,
+                860,
+                909
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "a static model"
+                    }
+                ]
+            },
+            "bbox": [
+                421,
+                44,
+                574,
+                57
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "703"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                41,
+                858,
+                55
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the special case when the CTRs are bidder independent "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\mathrm { i . e . , } \\alpha _ { i j } = \\mu _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "there is a particularly simple algorithm, called the Northwest corner rule, to find the maximum weight assignment. Assign the bidder with the highest value per click to the top slot, the bidder with the second highest value per click to the second slot, and so on. In the Economics literature this is called an assortative assignment."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                78,
+                864,
+                167
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "If one objects to the sealed bid nature of the generalized Vickrey auction there are ascending implementations available."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                168,
+                862,
+                203
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Interestingly, neither of these auctions corresponds to the GFP or GSP auctions. In particular, bidding truthfully is not an equilibrium of either the GFP or GSP auctions. It is interesting to observe that Google’s promotional material touts their auction as a modification of Vickrey’s sealed bid auction for a single item (which it is) and concluding, therefore, that bidding sincerely is the correct thing to do (which it is not). A similar claim was made with respect to their auction used to sell shares of their IPO. They are not the first and quite possibly not the last to make such claims. For example, the financial services firm Hambrecht, which pioneered the use of auctions to sell IPO’s in 1998, says that their auction design is based on the Vickrey auction fo a single good. While the Hambrecht auction does specialize to the Vickrey auction for a single good, it does not inherit the attractive properties of the Vickrey auction when applied to multiple units.<sup>2</sup>"
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                203,
+                864,
+                421
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To see why one must be careful when generalizing the Vickrey auction to the sale of more than one unit, suppose that there are three bidders with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { 1 } > v _ { 2 } > v _ { 3 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and two slots. Also, suppose that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { i j } = \\mu _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mu _ { 1 } > \\mu _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". If one were to auction off the top slot only, by an English ascending auction, each bidder would remain in as long as at the current price their surplus is nonnegative. So, if the current price on the top slot is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "bidder j remains active if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mu _ { 1 } ( v _ { j } - p _ { 1 } ) \\geq 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Hence the auction ends at a price "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mu _ { 1 } ( v _ { 2 } - p _ { 1 } ) = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { 1 } = v _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now suppose that both slots are available but we will auction off the top slot first followed by the second slot. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the current price of slot 1, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { 2 } = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the current price of slot 2. Now bidder "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will remain active in the auction for the top slot provided their surplus from the top slot is at least as large the surplus they could get from the second slot (which is currently priced at zero). That is,"
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                421,
+                864,
+                620
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mu_ {1} (v _ {j} - p _ {1}) \\geq \\mu_ {2} (v _ {j} - 0) \\Rightarrow p _ {1} \\leq \\left(1 - \\frac {\\mu_ {2}}{\\mu_ {1}}\\right) v _ {j}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/3f6d600fa813589217d68dbca6449207f446d003dc07b8efd000b7f46cbaac34.jpg"
+                }
+            },
+            "bbox": [
+                285,
+                627,
+                714,
+                666
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Therefore the auction on the top slot terminates at a price of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { ( 1 - \\frac { \\mu _ { 2 } } { \\mu _ { 1 } } ) v _ { 2 } < v _ { 2 } } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The point is that the presence of a second slot lowers the price at which a bidder on the top slot will drop out of the auction on the top slot. The generalized Vickrey auction incorporates this change in the outside option of a bidder to ensure truthful bidding. The GSP auction does not. The generalized Vickrey auction, however, would allocate the top slot to bidder 1 and charge her "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { ( 1 - \\frac { \\mu _ { 2 } } { \\mu _ { 1 } } ) v _ { 2 } } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the second slot to bidder 2 and charge her "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { 3 }"
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                675,
+                862,
+                800
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As noted above, the GFP and GSP are special cases of what have been called ranking auctions. Bids (the reported "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\boldsymbol { v } _ { j } \\mathbf { \\prime } { \\mathbf { s } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are weighted (weights are independent of the bids) and then ranked in the descending order. The highest ranked bidder gets the top slot, the second highest ranked bidder gets the second slot, and so on. The higher the bid the higher the slot one obtains (other bids held fixed). Since the assignment of bidders to slots is monotonic in the bid (other bids held fixed) it follows from standard results (see Section 9.36 of Chapter 9 for example) that there exists a payment rule that will make truthful bidding an equilibrium of the resulting auction. That payment rule is described, for example, in Section 13.1.2 of Chapter 13. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { j } ( b | b _ { - j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the expected click through rate for agent j when she bids b, given the profile of other bids is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { - j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then the payment "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { j } ( b | b _ { - j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "she must make to ensure incentive compatibility is given by"
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                801,
+                862,
+                856
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "704"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                41,
+                177,
+                55
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "sponsored search auctions"
+                    }
+                ]
+            },
+            "bbox": [
+                363,
+                44,
+                640,
+                57
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "n = 1"
+                    }
+                ]
+            },
+            "bbox": [
+                155,
+                894,
+                195,
+                907
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "n > 2."
+                    }
+                ]
+            },
+            "bbox": [
+                267,
+                894,
+                309,
+                906
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "(a + b)n = an + bn"
+                    }
+                ]
+            },
+            "bbox": [
+                668,
+                877,
+                794,
+                891
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>2</sup> All of this reminds one of what is known as the freshman binomial theorem: (a + b)<sup>n</sup> = a<sup>n</sup> + b<sup>n</sup>. True for but not for"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                875,
+                862,
+                907
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                133,
+                78,
+                860,
+                224
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "P _ {j} (b \\mid b _ {- j}) = b x (b \\mid b _ {- j}) - \\int_ {0} ^ {b} x (t \\mid b _ {- j}) d t.\\tag{28.8}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b1c3e9e164ee0e8003c2eca9236faee7e10a4c91c8afb898590b5b776cc0cde7.jpg"
+                }
+            },
+            "bbox": [
+                307,
+                228,
+                686,
+                269
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "These ranking auctions are, in general, neither efficient nor revenue maximizing. (Though in the exercises, we explore a special case ranking that is efficient.) The payment rules associated with the GFP and GSP are not such as to induce truthful bidding as an equilibrium."
+                    }
+                ]
+            },
+            "bbox": [
+                133,
+                274,
+                860,
+                347
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "28.3.2 Equilibrium Properties"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                351,
+                366,
+                642,
+                387
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The fact that neither the GFP nor GSP is incentive compatible does not imply that they are inefficient or suboptimal in terms of revenue. It is possible that the equilibrium outcomes of both these auctions may be efficient or revenue maximizing. To identify the revenue and efficiency properties of these auctions, it is necessary to determine their equilibria."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                396,
+                860,
+                485
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The GFP auction does not admit a pure strategy full-information equilibrium but does admit a pure strategy Bayes-Nash symmetric equilibrium. The argument is identical to that of the sealed bid first price auction for a single good. The equilibrium bid functions are monotonic in the value. Therefore the equilibrium allocation of bidders to slots is the same as in the efficient allocation. Hence, by the revenue equivalence theorem, the symmetric equilibrium is efficient."
+                    }
+                ]
+            },
+            "bbox": [
+                133,
+                486,
+                860,
+                592
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The efficiency of the GFP (in a Bayesian setting) lends it some appeal but this is where the “static” assumption has bite. In a dynamic setting, the absence of a pure strategy full-information equilibrium encourages bidders to constantly adjust their bids from one period to the next. This produces fluctuations in the bids over time and it has been argued that these fluctuations resulted in significant inefficiencies."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                594,
+                860,
+                684
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To date nothing is known about the Bayesian equilibrium of the GSP auction. Assume for simplicity that CTRs are bidder-independent, so "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { i j } = \\mu _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and that all weights are set to 1. The analysis in this section generalizes straightforwardly to the case where CTRs are separable (i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { i j } = \\mu _ { i } \\beta _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and agents are assigned arbitrary weights "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". These extensions are developed in the exercises."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                684,
+                858,
+                775
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this case one can show that the GSP is efficient under full information and a restricted notion ofequilibrium called locally envy-free. An assignment x is called locally envy-free if there exist prices, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ p _ { i } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "}, one for each slot, such that for all "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i , j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i j } = 1"
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                775,
+                858,
+                829
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mu_ {i} v _ {j} - p _ {i} \\geq \\mu_ {i - 1} v _ {j} - p _ {i - 1}\\tag{28.9}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/243c25691b4b33cb32dd2bdeabc8c6fc199312c1f30d8c36a76c60398b3ed3cb.jpg"
+                }
+            },
+            "bbox": [
+                375,
+                839,
+                616,
+                856
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "and"
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                864,
+                175,
+                880
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mu_ {i} v _ {j} - p _ {i} \\geq \\mu_ {i + 1} v _ {j} - p _ {i + 1}\\tag{28.10}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/ce5a440a6c38b0605f8319e637b23e6f32571362b1879bf3771495def0fc49d8.jpg"
+                }
+            },
+            "bbox": [
+                375,
+                892,
+                616,
+                910
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "a static model"
+                    }
+                ]
+            },
+            "bbox": [
+                419,
+                44,
+                574,
+                57
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "705"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                41,
+                858,
+                55
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In words, if bidder j is assigned to slot i, then she prefers slot i to the slot just above her and the slot just below her."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                78,
+                862,
+                114
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 28.1 An assignment "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is optimal ifand only ifit is locally envy-free."
+                    }
+                ]
+            },
+            "bbox": [
+                159,
+                133,
+                838,
+                153
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "proof Suppose first that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is locally envy-free and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the corresponding price vector. It suffices to prove that the assignment "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is assortative. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i j } ^ { * } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i + 1 , j ^ { \\prime } } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". To show that the assignment is assortative, we must show that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { j } \\geq v _ { j { ' } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". From the property of being locally envy-free, we have"
+                    }
+                ]
+            },
+            "bbox": [
+                159,
+                170,
+                842,
+                260
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mu_ {i} v _ {j} - p _ {i} ^ {*} \\geq \\mu_ {i + 1} v _ {j} - p _ {i + 1} ^ {*}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/2bea5f7729b82e921ce61a41d1a0f61e040673643657fdeb97d6e6bd2ebdef14.jpg"
+                }
+            },
+            "bbox": [
+                377,
+                271,
+                622,
+                290
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "and"
+                    }
+                ]
+            },
+            "bbox": [
+                161,
+                298,
+                201,
+                313
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mu_ {i + 1} v _ {j ^ {\\prime}} - p _ {i + 1} ^ {*} \\geq \\mu_ {i} v _ {j ^ {\\prime}} - p _ {i} ^ {*}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/24c9af5edfcb836efe1acf378d93aae2e2cea600e4e98cdc0e9302a4cff5bc3d.jpg"
+                }
+            },
+            "bbox": [
+                371,
+                324,
+                630,
+                344
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Adding them together yields"
+                    }
+                ]
+            },
+            "bbox": [
+                161,
+                351,
+                409,
+                369
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "(\\mu_ {i} - \\mu_ {i + 1}) (v _ {j} - v _ {j ^ {\\prime}}) \\geq 0.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/250a2726fa30ac9525e5abe6cb8537ae226e80b4eb83e3efddc42eaef04abe73.jpg"
+                }
+            },
+            "bbox": [
+                383,
+                380,
+                616,
+                397
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mu _ { i } > \\mu _ { i + 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "it follows from this inequality that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { j } \\geq v _ { j { ' } }"
+                    }
+                ]
+            },
+            "bbox": [
+                161,
+                405,
+                674,
+                423
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Now let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be an optimal assignment. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( p ^ { * } , q ^ { * } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote an optimal dual solution. It suffices to show that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\boldsymbol { x } ^ { * } , \\boldsymbol { p } ^ { * } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is locally envy-free. Consider a pair "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( r , j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { r j } ^ { * } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Complementary slackness and dual feasibility implies that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mu _ { r } v _ { j } - p _ { r } ^ { * } = \\stackrel { } { q } _ { j } ^ { * } = \\operatorname* { m a x } _ { i } \\{ \\mu _ { i } v _ { j } - p _ { i } ^ { * } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore"
+                    }
+                ]
+            },
+            "bbox": [
+                159,
+                423,
+                842,
+                497
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mu_ {r} v _ {j} - p _ {r} ^ {*} \\geq \\max \\{\\mu_ {r - 1} v _ {j} - p _ {r - 1} ^ {*}, \\mu_ {r + 1} v _ {j} - p _ {r + 1} ^ {*} \\}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/470ade1b6870d0f08f3ef98b928584cf06fecf15fed28371bafcf068ce0423e1.jpg"
+                }
+            },
+            "bbox": [
+                279,
+                506,
+                720,
+                525
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 28.2 The GSP has afull information equilibrium that yields an allocation that is locally envy-free."
+                    }
+                ]
+            },
+            "bbox": [
+                159,
+                546,
+                840,
+                584
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "proof Order the bidders so that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { 1 } \\geq v _ { 2 } \\geq \\cdot \\cdot \\cdot \\geq v _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { i } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the Vickrey price of slot i. Let bidder 1 bid "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { 1 } = v _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and each bidder "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j \\geq 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "bids "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { b _ { j } = \\frac { p _ { j - 1 } ^ { * } } { \\mu _ { j - 1 } } } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "First we show that under the rules of the GSP, bidder 1 is assigned to slot 1, bidder 2 to slot 2, and so on. To do this, it suffices to show that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { j - 1 } \\geq b _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since the optimal assignment is locally envy-free, we have"
+                    }
+                ]
+            },
+            "bbox": [
+                159,
+                602,
+                840,
+                697
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mu_ {j} v _ {j} - p _ {j} ^ {*} \\geq \\mu_ {j - 1} v _ {j} - p _ {j - 1} ^ {*}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/9468b3fca8a94d063d8b04171f7cecd9c3390d714fabca4ffa0b7f6ecf67f99d.jpg"
+                }
+            },
+            "bbox": [
+                371,
+                705,
+                630,
+                725
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Therefore"
+                    }
+                ]
+            },
+            "bbox": [
+                161,
+                733,
+                253,
+                750
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "v _ {j} - \\frac {p _ {j} ^ {*}}{\\mu_ {j}} \\geq \\frac {\\mu_ {j - 1}}{\\mu_ {j}} v _ {j} - \\frac {p _ {j - 1} ^ {*}}{\\mu_ {j}},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/d17c710c4e215622705c0d91da000ffefc1003bdf0ebbaf7948dd09ed8f01c26.jpg"
+                }
+            },
+            "bbox": [
+                375,
+                755,
+                626,
+                794
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "which implies"
+                    }
+                ]
+            },
+            "bbox": [
+                161,
+                801,
+                287,
+                818
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "b _ {j - 1} = \\frac {p _ {j - 1} ^ {*}}{\\mu_ {j - 1}} \\geq \\frac {p _ {j - 1} ^ {*}}{\\mu_ {j}} \\geq \\frac {p _ {j} ^ {*}}{\\mu_ {j}} + \\left(\\frac {\\mu_ {j - 1}}{\\mu_ {j}} - 1\\right) v _ {j} \\geq \\frac {p _ {j} ^ {*}}{\\mu_ {j}} = b _ {j}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/0a2bae4ce0b8ed8a656bd46a1971936583c00eef05b69067cbff6720c64d6e19.jpg"
+                }
+            },
+            "bbox": [
+                243,
+                825,
+                756,
+                866
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hence if each bidder j bids "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the GSP returns the optimal assignment. It is also easy to see that bidder "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j \\leq m"
+                    },
+                    {
+                        "type": "text",
+                        "content": "pays "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { j } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for their slot. Bidder "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j > m"
+                    },
+                    {
+                        "type": "text",
+                        "content": "pays zero."
+                    }
+                ]
+            },
+            "bbox": [
+                159,
+                871,
+                840,
+                910
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "706"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                41,
+                177,
+                55
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "sponsored search auctions"
+                    }
+                ]
+            },
+            "bbox": [
+                361,
+                43,
+                640,
+                57
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since each bidder pays their Vickrey price and receives the slot they would have under the efficient allocation, no bidder has a unilateral incentive to change thei bid. Therefore we have an equilibrium that, from Theorem 1, is envy-free."
+                    }
+                ]
+            },
+            "bbox": [
+                155,
+                78,
+                838,
+                133
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Absent the recurrent nature of keyword auctions, they are similar to what are known as condominium auctions. In a condominium auction, bidders are interested in purchasing a condominium in a building. The condominiums are identical except for their height above the ground, the side of the building they are located on, etc. If all bidders have identical preferences over the condominiums; i.e., everyone prefers to be on a higher floor, they coincide with keyword auctions."
+                    }
+                ]
+            },
+            "bbox": [
+                133,
+                153,
+                860,
+                262
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "28.4 Dynamic Aspects"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                379,
+                285,
+                616,
+                305
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since these auctions are repeated with great frequency, one should properly model them as repeated games of incomplete information. The set of equilibria of such games is quite rich and complicated, even when restricted to the setting considered here. A full treatment of this case will not be given here. Rather we mention two phenomena that arise in this setting."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                323,
+                860,
+                412
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "One is known as bid rotation. This occurs when competing bidders take turns at winning the auction. In our context this might mean bidders take turns at occupying the top slot. If bidders are short lived, this is unlikely to be a problem, if not, this will lower the auctioneers revenue."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                414,
+                860,
+                485
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Another possibility that repetition makes possible is vindictive bidding. In the GSP auction one’s bid determines the payment of the bidder in the slot above and not one’s own. Therefore one can increase the payment of the bidder in the slot above by raising one’s bid without affecting one’s own payment. This may be beneficial if the bidder in the slot above is a competitor with a limited budget for advertising. In a dynamic environment this encourages a bidder to constantly adjust their bids so as to inflict or avoid damage upon or from their competitor."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                486,
+                860,
+                612
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Even if one could ignore strategic considerations, a problem remains. The online nature of the auctions in sponsored search complicates the computation of an efficient allocation. Below we describe one model that addresses this difficulty."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                612,
+                860,
+                666
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "28.4.1 The Online Allocation Problem"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                315,
+                683,
+                680,
+                700
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this model, the search engine receives the bids of advertisers and their maximum budget for a certain period (e.g., a day). As users search for these keywords during the day, the search engine assigns their advertisement space to advertisers and charges them the value of their bid for the impression of the advertisement.<sup>3</sup> For simplicity of notation we assume that each page has only one slot for advertisements. The objective is to maximize total revenue while respecting the budget constraint of the bidders. Note that in this model bidders pay their bid which is counter to practice. On the other hand, budget constraints that apply across a set of keywords, a real-world feature, are part of the model."
+                    }
+                ]
+            },
+            "bbox": [
+                133,
+                711,
+                860,
+                873
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "dynamic aspects"
+                    }
+                ]
+            },
+            "bbox": [
+                413,
+                44,
+                580,
+                57
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "707"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                41,
+                858,
+                55
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>3</sup> If one scales the bids by the CTR, the model would accommodate pay per click."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                892,
+                664,
+                907
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let n be the number of advertisers and m the number of keywords. Suppose that advertiser "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has a bid of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for keyword i and a total budget of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In this context, it is reasonable to assume that bids are small compared to budgets, i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { i j } \\ll B _ { j }"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                78,
+                862,
+                132
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "If the search engine has an accurate estimate of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the number of people searching for keyword i for all "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\leq i \\leq m"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then it is easy to approximate the optimal allocation using a simple linear program. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the total number of queries on keyword i allocated to bidder "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The linear program is"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                133,
+                862,
+                203
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\max & \\sum_ {i = 1} ^ {m} \\sum_ {j = 1} ^ {n} b _ {i j} x _ {i j} \\\\ \\text { s.t. } & \\sum_ {j = 1} ^ {n} x _ {i j} \\leq r _ {i} \\quad \\forall 1 \\leq i \\leq m \\\\ & \\sum_ {i = 1} ^ {m} b _ {i j} x _ {i j} \\leq B _ {j} \\quad \\forall 1 \\leq j \\leq n \\\\ & x _ {i j} \\geq 0 \\quad \\forall 1 \\leq i \\leq m, \\quad \\forall 1 \\leq j \\leq n \\\\ \\min & \\sum_ {j = 1} ^ {n} B _ {j} \\beta_ {j} + \\sum_ {i = 1} ^ {m} r _ {i} \\alpha_ {i} \\\\ \\text { s.t. } & \\alpha_ {i} + b _ {i j} \\beta_ {j} \\geq b _ {i j} \\quad \\forall 1 \\leq i \\leq m, \\forall 1 \\leq j \\leq n \\\\ & \\beta_ {j} \\geq 0 \\quad \\forall 1 \\leq j \\leq n \\\\ & \\alpha_ {i} \\geq 0 \\quad \\forall 1 \\leq i \\leq m \\end{array}\\tag{28.11}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/2fe7363a3c152de9b98f5aff3606075ac9f9471eef5df824465a3272d3abca86.jpg"
+                }
+            },
+            "bbox": [
+                271,
+                209,
+                724,
+                485
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "By complementary slackness, in an optimal solution, advertiser "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is assigned to keyword i if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 1 - \\beta _ { j } ) b _ { i j } = \\mathrm { { m a x } } _ { 1 \\leq k \\leq n } ( 1 - \\beta _ { k } ) b _ { i k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Using this property, the search engine can use the solution of the dual linear program to find the optimum allocation: every time a user searches for keyword i, the search engine allocates its corresponding ad vertisement space to the bidder "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with the highest "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { i j } ( 1 - \\beta _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In other words, the bid of advertiser j will be scaled down by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 - \\beta _ { j }"
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                493,
+                862,
+                602
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Now "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "represents rate of change of the optimal objective function value of (28.11) for a sufficiently small change in the right-hand side of the corresponding constraint. In other words, if advertiser "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ^ { \\circ } \\mathbf { s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "budget were to increase by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\Delta ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the optimal objective function value would increase by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { j } \\Delta"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Equivalently, it is the opportunity cost of consuming agent "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ^ { \\circ } \\mathrm { s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "budget. Hence, if we allocate keyword "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to agent now we obtain an immediate ‘payoff’ of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". However, this consumes "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of the budget, which imposes an opportunity cost of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { j } b _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, it makes sense in the optimal solution to (28.11) to assign keyword i to j provided "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { i j } - \\beta _ { j } b _ { i j } > 0"
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                602,
+                862,
+                746
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In practice, a good estimate of the frequencies of all search queries is unavailable. Queries arrive sequentially and the search engine must instantly decide to allocate thei advertisement space to bidders without knowledge of the future queries. Therefore, what is needed is a dynamic procedure for allocating bidders to keywords that are queried. We describe one such procedure and analyze its performance within the usual competitive ratio framework. Specifically, we compare the revenue achieved by a dynamic procedure that does not know the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r _ { i } \\mathrm { { ' s } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in advance, with the revenue that could be achieved knowing the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "’s advance. The revenue in this second case is given by the optimal objective function value of the program (28.11)."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                746,
+                864,
+                910
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "708"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                41,
+                177,
+                55
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "sponsored search auctions"
+                    }
+                ]
+            },
+            "bbox": [
+                363,
+                43,
+                640,
+                57
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The obvious dynamic procedure to consider is a greedy one: among the bidders whose budgets are not exhausted, allocate the query to the one with the highest bid. It is easy to see that this approach is equivalent to setting all "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { j } \\mathrm { ^ { \\circ } s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to 0."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                78,
+                858,
+                132
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The greedy procedure is not guaranteed to find the optimum solution. It is easy to construct a simple example with two bidders and two keywords in which the revenue of the greedy algorithm is as small as half of the optimum revenue. For example, suppose two bidders each with a budget of $2. Assume that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { 1 1 } = 2 , b _ { 1 2 } = 2 - \\epsilon , b _ { 2 1 } = 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { 2 2 } = \\epsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". If query 1 arrives before query 2, it will be assigned to bidder 1. Then bidder "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 { \\mathrm { : } } { \\mathrm { } } "
+                    },
+                    {
+                        "type": "text",
+                        "content": "budget is exhausted. When query 2 arrives, it is assigned to bidder 2. This produces an objective function value of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 + \\epsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The optimal solution would assign query 2 to bidder 1 and query 1 to bidder 2, yielding an objective function value of 4. The problem with the greedy algorithm is that, unlike the solution to (28.11), it ignores the opportunity cost of assigning a query to a bidder."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                133,
+                860,
+                313
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "One can prove that the revenue of greedy algorithm is at least half of the optimum revenue for any instance. In the standard terminology of online algorithms, the competitive ratio of greedy algorithm is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Can one do better in terms of competitive ratio? Yes. One does so by trying to dynamically estimate the opportunity cost , i.e., the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { j } \\mathrm { ^ { \\prime } s } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of assigning a query to a bidder. This has the effect of spreading the bidders expenditures over time. The effect is called “budget smoothing,” and is a feature that some search engines offer their advertisers."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                313,
+                858,
+                437
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The following modification of the greedy algorithm adaptively updates the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { j } \\mathrm { ^ { \\circ } s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as a function of the bidders spent budget. Let"
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                439,
+                858,
+                475
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\phi (x) = 1 - e ^ {x - 1}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/57833472c2ba644535c1c29811b61a5b9192923ea2823cece675e4b20befd95f.jpg"
+                }
+            },
+            "bbox": [
+                419,
+                493,
+                574,
+                511
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { j } = 1 - \\phi ( f _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the fraction of the budget of bidder "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "which has been spent."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                532,
+                856,
+                569
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 1. Every time a query i arrives, allocate its advertisement space to the bidder "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", who maximizes "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { i j } \\phi ( f _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the fraction of the bidder "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ^ { \\circ } \\mathbf { s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "budget which has been spent so far."
+                    }
+                ]
+            },
+            "bbox": [
+                155,
+                599,
+                838,
+                658
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The revenue of this algorithm is at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 - 1 / e"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of the optimum revenue. It is also possible to prove that no deterministic or randomized algorithm can achieve a better competitive ratio."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                687,
+                860,
+                741
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 28.3 The competitive ratio ofAlgorithm 1 is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 - 1 / e"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                157,
+                772,
+                712,
+                789
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We outline the main ideas in the proof of the theorem. Let k be a sufficiently large number used for discretizing the budgets of the bidders. We say that an advertiser is of type "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if she has spent within "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\frac { \\breve { j } - 1 } { k } , ~ \\frac { j } { k } ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "fraction of her budget so far. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the total budget of type j bidders. For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i = 0 , 1 , \\ldots , k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be the amount of money spent by all the bidders from the interval "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\frac { i - 1 } { k } , \\ : \\frac { i } { k } ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of their budgets.Also define"
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                818,
+                860,
+                910
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "dynamic aspects"
+                    }
+                ]
+            },
+            "bbox": [
+                413,
+                44,
+                580,
+                57
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "709"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                41,
+                858,
+                55
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "the discrete version of function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ","
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                78,
+                429,
+                94
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\Phi (s) = 1 - \\left(1 - \\frac {1}{k}\\right) ^ {k - s}.\\tag{28.12}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/04492cf85dbf4ce8608057ba8c1d19ef081b8745ca2eb3f5c4dc6e0e510fa91b.jpg"
+                }
+            },
+            "bbox": [
+                387,
+                101,
+                614,
+                143
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "It is easy to see that when k tends to infinity "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\Phi ( s ) \\to \\phi ( { \\frac { s } { k } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O P T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the solution of the optimal off-line algorithm (i.e., the solution of the optimization program (28.11)). For simplicity, assume that the optimal algorithm spends all of the budget of the bidders. We have the following lemma."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                150,
+                862,
+                224
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 28.4 At the end ofthe algorithm, this inequality holds:"
+                    }
+                ]
+            },
+            "bbox": [
+                159,
+                244,
+                716,
+                262
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {i = 0} ^ {k} \\Phi (i) s _ {i} \\leq \\sum_ {i = 0} ^ {k}. \\Phi (i) w _ {i}\\tag{28.13}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/590d655f4b6103e2d704a031a49a8d92d59434c5dbcdc1ede0d5f75a3858614b.jpg"
+                }
+            },
+            "bbox": [
+                383,
+                267,
+                604,
+                317
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "proof Consider the time that query "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "q"
+                    },
+                    {
+                        "type": "text",
+                        "content": "arrives. Suppose that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O P T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "allocates q to a bidder of current type t, whose type at the end of the algorithm will be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t ^ { \\prime } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { \\mathrm { o p t } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { \\mathrm { a l g } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the amount of money that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O P T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the algorithm get from bidders for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "q"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let i be the type of the bidder that the algorithm allocates the query. We have"
+                    }
+                ]
+            },
+            "bbox": [
+                159,
+                333,
+                842,
+                422
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\Phi (t ^ {\\prime}) b _ {\\text { opt }} \\leq \\Phi (t) b _ {\\text { opt }} \\leq \\Phi (i) b _ {\\text { alg }}.\\tag{28.14}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/3d3f8747e5e430ac031759f7983b94feee31395946bb7ad44ab8e04d9d1aacbc.jpg"
+                }
+            },
+            "bbox": [
+                361,
+                433,
+                640,
+                451
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Now summing the inequality above over all the queries, the left-hand side of (28.14) contributes to the sum "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sum _ { i } \\Phi ( i ) s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and the right-hand side contributes to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sum \\Phi ( i ) w _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". So the lemma follows."
+                    }
+                ]
+            },
+            "bbox": [
+                161,
+                461,
+                842,
+                516
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Now, we are ready to prove the Theorem 28.3."
+                    }
+                ]
+            },
+            "bbox": [
+                163,
+                535,
+                556,
+                552
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "proof By definition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { w _ { i } \\leq \\frac { 1 } { k } \\sum _ { j = i } ^ { k } s _ { j } } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Using Lemma 28.4,"
+                    }
+                ]
+            },
+            "bbox": [
+                159,
+                569,
+                672,
+                592
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {i = 0} ^ {k} \\Phi (i) s _ {i} \\leq \\frac {1}{k} \\sum_ {i = 0} ^ {k} \\Phi (i) \\sum_ {j = i} ^ {k} s _ {j}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/12c6666e96d7a625b38a9a725e074c5743b9ebc84c36f8c7ff53249b8e05face.jpg"
+                }
+            },
+            "bbox": [
+                365,
+                601,
+                636,
+                651
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Changing the order of the sums and computing the sum of the geometric series, we have"
+                    }
+                ]
+            },
+            "bbox": [
+                161,
+                659,
+                840,
+                694
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l} \\sum_ {i = 0} ^ {k} \\Phi (i) s _ {i} \\leq \\frac {1}{k} \\sum_ {i = 0} ^ {k} \\Phi (i) \\sum_ {j = i} ^ {k} s _ {j} \\\\ \\quad \\leq \\frac {1}{k} \\sum_ {i = 0} ^ {k} \\bigg (\\sum_ {j = 0} ^ {i} \\Phi (i) \\bigg) s _ {i} \\\\ \\quad \\leq \\sum_ {i = 0} ^ {k} \\bigg (\\frac {i}{k} + \\Phi (i) - \\Phi (0) + O \\bigg (\\frac {1}{k} \\bigg) \\bigg) s _ {i} \\\\ \\quad \\leq \\sum_ {i = 0} ^ {k} \\frac {i}{k} s _ {i} - \\bigg (\\Phi (0) - O \\bigg (\\frac {1}{k} \\bigg) \\bigg) \\sum_ {i = 0} ^ {k} s _ {i} + \\sum_ {i = 0} ^ {k} \\Phi (i) s _ {i}, \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/02885464ce7e76256cf88e8a675e4e07099582660e31dda27cde252b428a9f91.jpg"
+                }
+            },
+            "bbox": [
+                233,
+                701,
+                766,
+                910
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "710"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                41,
+                177,
+                55
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "sponsored search auctions"
+                    }
+                ]
+            },
+            "bbox": [
+                363,
+                44,
+                640,
+                57
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "which yields"
+                    }
+                ]
+            },
+            "bbox": [
+                157,
+                78,
+                273,
+                94
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\left(\\Phi (0) - O \\left(\\frac {1}{k}\\right)\\right) \\sum_ {i = 0} ^ {k} s _ {i} \\leq \\sum_ {i = 0} ^ {k} \\frac {i}{k} s _ {i}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/73af819e933eb8011103efe63092e5a98bde14dafc2429edd46b90922a0c6ba4.jpg"
+                }
+            },
+            "bbox": [
+                343,
+                104,
+                652,
+                154
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Note that as k goes to infinity the left-hand side tends to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 1 - \\textstyle { \\frac { 1 } { e } } ) O P T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "The right-hand side is equal to the revenue of the algorithm. So the theorem follows."
+                    }
+                ]
+            },
+            "bbox": [
+                155,
+                165,
+                838,
+                220
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The same algorithm can be applied when multiple advertisement can appear with the result of a query or when advertisers enter at different times. At present, the equilibrium properties of this allocation rule are unknown."
+                    }
+                ]
+            },
+            "bbox": [
+                133,
+                235,
+                860,
+                291
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "28.5 Open Questions"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                385,
+                313,
+                608,
+                333
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We close this chapter with a brief review of important issues not directly addressed in this chapter."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                351,
+                860,
+                387
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "While our discussion has focused on existing mechanisms, one should not conclude that there is no room for improvement in their design. For example, there is debate over the role of the budget constraints in these auction. In many cases they do not appear to be hard constraints as bidders frequently adjust them. A bidder can also “expand” their budget simply by lowering their bid and paying less per click. Some argue that the budget constraint is merely a convenient way to express other desires. For example, limiting one’s exposure or spreading one’s advertising over a longer period. All of this suggests the need for richer bidding models. Ones that might allow bidders to express decreasing marginal value for clicks, or distinct values for traffic from certain geographic regions, demographic profiles, etc., support greater allocative efficiency, though pose a significant burden in terms of computational and elicitation costs."
+                    }
+                ]
+            },
+            "bbox": [
+                133,
+                387,
+                860,
+                587
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "When advertiser payments are based on user clicks, search engines must invest in the task of detecting and ignoring robot clicks, spam clicks as well as clicks from an advertiser trying to impose costs on their competitor or from an affiliate who actually benefits monetarily from additional clicks. For this reason there is interest in exploring alternate pricing conventions. The most compelling is pay per action or conversion. The advertiser pays only if a click results in a sale, for example. This raises new incentive issues associated with tracking sales."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                587,
+                860,
+                712
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The models in this chapter, as do most analyses in the literature, assume a monopoly search engine with a static user base. This would be an appropriate model if switching costs for advertisers and users were high. In fact, switching costs for many advertisers are low; many advertisers work with both Google and Yahoo! simultaneously, or work with third-party search engine marketers to manage their account across multiple search engines. Switching costs for users are essentially zero: to patronize a different search engine, users need merely type a new address into their web browser.<sup>4</sup> The competitive pressures to retain advertisers able to switch advertisement networks or use multiple networks may cause firms to focus less on extracting the maximum revenue from advertisers possible and more on attracting and retaining advertisers. Similarly, search engines must make trade-off decisions between maximizing current period revenue and attracting and retaining users in the long term. For this reason it would be very instructive to understand the properties of keyword auctions in competition with each other."
+                    }
+                ]
+            },
+            "bbox": [
+                133,
+                712,
+                860,
+                839
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "open questions"
+                    }
+                ]
+            },
+            "bbox": [
+                419,
+                44,
+                576,
+                58
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "711"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                41,
+                858,
+                57
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>4</sup> Personalization features may begin to introduce moderate switching costs for users. For now, reputation and branding seem to play a major role in search engine loyalty: blind relevance tests show little or no difference in quality among major search engines."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                859,
+                860,
+                909
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                137,
+                79,
+                864,
+                203
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The major search engines syndicate their advertisements to affiliate search engines and content providers. For example, Google, through its AdSense program, syndicates advertisements to AOL, MySpace, and thousands of other Web sites. The introduction of affiliates greatly complicates the semantics of bidding and allocation."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                205,
+                862,
+                276
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We have assumed that CTRs are given. In practice, CTRs are learned over time and can depend on a variety of factors such as bidder identity; advertisement identity and content; user characteristics, including demographics, location, and history; and/or page context including other advertisements and algorithmic results. Learning CTRs poses an explore/exploit trade-off: the auctioneer can exploit known high-CTR ad vertisements, or explore new advertisements or infrequently shown advertisements to uncover even higher-CTR advertisements. The auctioneer’s CTR estimate may differ from the bidder’s estimate; in particular, the auctioneer usually has more contextual information to learn from."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                277,
+                864,
+                439
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this chapter, we have focused on the auctioneer’s mechanism design problem. The advertiser’s bidding optimization problem is also challenging and the focus of a great deal of commercial and research activity."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                440,
+                862,
+                493
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "28.6 Bibliographic Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                371,
+                528,
+                632,
+                548
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The growth of paid placement has attracted recent research on this topic. Hoffman and Novak (2000) discuss the trend in Internet advertising toward per-click pricing rather than the traditional per-impression model. A good discussion of the practice of sponsored search is available on the Web at http://searchenginewatch.com/ webmasters/paid.html."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                566,
+                864,
+                655
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Computing the explicit form of incentive compatible payments for ranking auctions is carried out in Aggarwal et al. (2006) and Iyengar and Kumar (2006). The Bayesian equilibrium of the GFP is derived in Lahaie (2006). The details of the revenue maximizing auction for (static) slot auctions is derived in Feng (2005) and Iyengar and Kumar (2006). The envy-free analysis of the static model is due to Edelman et al. (in press). A similar analysis can be found in Varian (in press). The latter paper shows how upper and lower bounds on bidders’ actual values can be derived given their bids. Feng et al. (2006) explore four ranking algorithms via simulation. All of these results would apply to condominium auctions as well; see Burguet (2005) for a discussion of condominium auctions."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                656,
+                864,
+                835
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The Northwest corner rule for the assignment problem dates back to Monge (1981). Ascending implementations of the Vickrey auction for the static model can be found in Crawford and Knoer (1981) and Demange, Gale, and Sotomayor (1986) (which is a variant of the Hungarian algorithm for solving the assignment problem). The auction of Demange, Gale, and Sotomayor was dubbed, in Edelman et al. (in press), the generalized English auction."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                836,
+                864,
+                909
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "712"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                41,
+                177,
+                55
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "sponsored search auctions"
+                    }
+                ]
+            },
+            "bbox": [
+                363,
+                44,
+                640,
+                57
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                135,
+                78,
+                858,
+                112
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The online allocation problem studied in Section 28.4.1 is proposed and analyzed by Mehta et al. (2005). This problem is a generalization of the online bipartite matching problem studied by Karp et al. (1990) and Kalyanasundaram and Pruhs (2000). More recently Buchbinder et al. (2006) gave a primal-dual algorithm and analysis for the problem given in Mehta et al. They also extended that framework to scenarios in which additional information is available, yielding improved worst-case competitive factors."
+                    }
+                ]
+            },
+            "bbox": [
+                133,
+                114,
+                860,
+                221
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Mahdian et al. (2006) study the online allocation problem when the search engine has a somewhat reliable estimate of the number of users searching for a keyword everyday. Mahdian and Saberi (2006) study multiunit auctions for perishable goods, in a setting where the supply arrives online. They motivate their model by its application to sponsored search. Abrams (2006) and Borgs et al. (2005) design multiunit auctions for budget-constrained bidders, which can be interpreted as slot auctions, with a focus on revenue optimization and truthfulness. For a discussion of vindictive bidding and some of the dynamic aspects of slot auctions see Asdemir (2006) and Zhou and Lukose (2006)."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                221,
+                860,
+                384
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Weber and Zheng (2006) study the implementation of paid placement strategies, and find that the revenue-maximizing search engine design bases rankings on a weighted average of relative quality performance and bid amount. Hu (2003) uses contract theory to show that performance-based pricing models can give the publisher proper incentives to improve the effectiveness of advertising campaigns. Rolland and Patterson (2003) propose a methodology, using expert systems to improve the matching between advertisers and Web users."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                384,
+                860,
+                511
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Besides the optimal ranking mechanism, the search engine must also choose the number of paid slots by finding the optimal trade-off between sponsorship and user retention. Bhargava and Feng (2002) provide a theoretical model to explain and analyze this trade-off."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                511,
+                860,
+                582
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The problem of learning CTRs is nontrivial and presents an explore/exploit tradeoff. Pandey and Olston (2006) formulate the problem as an appropriate multiarmed bandit optimization; Gonen and Pavlov (2007) derive a bandit optimization algorithm that retains incentive compatibility for bidders."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                584,
+                858,
+                656
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Several authors explore the advertiser’s bidding optimization problem (Borgs et al., 2005; Cary et al., 2007; Kitts et al., 2005; Kitts and LeBlanc, 2004; Rusmevichientong and Williamson, 2006). Kitts et al. (2005) provide evidence that the first slot does not have an appreciably lower conversion rate than the second slot as some advertisers believe."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                656,
+                860,
+                746
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Bibliography"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                427,
+                768,
+                568,
+                786
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Z. Abrams. Revenue maximization when bidders have budgets. In Proc. Symp. on DiscreteAlgorithms, Miami, FL, 2006."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                801,
+                856,
+                832
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "G. Aggarwal, A. Goel, and R. Motwani. Truthful auctions for pricing search keywords. In Proc. 7th ACM Conf. on Electronic Commerce, Ann Arbor, MI, 2006."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                836,
+                856,
+                870
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "K. Asdemir. Bidding patterns in search engine auctions. In Proc. 2nd Workshop on Sponsored Search Auctions, Ann Arbor, MI, 2006."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                873,
+                856,
+                907
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "bibliography"
+                    }
+                ]
+            },
+            "bbox": [
+                429,
+                44,
+                566,
+                57
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "713"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                41,
+                858,
+                55
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "H.K. Bhargava and J. Feng. Preferential placement in internet search engines. In Proc. 11th World Wide Web Conf., Honolulu, HI, 2002."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                79,
+                862,
+                112
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "C. Borgs, J. Chayes, O. Etesami, N. Immorlica, K. Jain, and M. Mahdian. Bid optimization in online advertisement auctions. Preprint, 2005."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                115,
+                862,
+                150
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "C. Borgs, J. Chayes, N. Immorlica, M. Mahdian, and A. Saberi. Multi-unit auctions with budget constrained bidders. In Proc. 6th Conf. Electronic Commerce, Vancouver, British Columbia, Canada, 2005."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                153,
+                862,
+                203
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "N. Buchbinder, K. Jain, and J. Naor. Online primal-dual algorithms for maximizing ad-auction revenue. Preprint, 2006."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                207,
+                862,
+                241
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "R. Burguet. The condominium problem; auctions for substitutes. Rev. Econ. Design, 9, 2005."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                244,
+                810,
+                260
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "M. Cary, A. Das, B. Edelman, I. Giotis, K. Heimerl, A. Karlin, C. Mathieu, and M. Schwarz. Greedy bidding strategies for keyword auctions. Preprint, 2007."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                263,
+                860,
+                297
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "V.P. Crawford and E.M. Knoer. Job matching with heterogeneous firms and workers. Econometrica, 49(2):437–450, 1981."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                299,
+                862,
+                331
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "G. Demange, D. Gale, and M. Sotomayor. Multi-item auctions. J. Political Econ., 94(4):863–872, 1986."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                336,
+                860,
+                369
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "B. Edelman, M. Ostrovsky, and M. Schwarz. Internet advertising and the Generalized Second Price auction: Selling billions of dollars worth of keywords. Amer. Econ. Review, In press."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                373,
+                862,
+                407
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "J. Feng. Optimal mechanism for selling a set of commonly ranked objects. Working paper, University of Florida, February 2005."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                408,
+                860,
+                443
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "J. Feng, H.K. Bhargava, and D.M. Pennock. Implementing sponsored search in Web search engines: Computational evaluation of alternative mechanisms. INFORMS J. Computing, 2006, In press."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                446,
+                860,
+                479
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "R. Gonen and E. Pavlov. An incentive compatible multi armed bandit mechanism. Preprint, 2007."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                482,
+                844,
+                499
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "D.L. Hoffman and T.P. Novak. How to acquire customers on the Web. Harv. Busin. Rev., 78(3), May–June 2000."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                502,
+                860,
+                535
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Y.J. Hu. Performance-based pricing models in online advertising. Technical report, Sloan School of Management, MIT, 2003."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                538,
+                862,
+                571
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "G. Iyengar and A. Kumar. Characterizing optimal keyword auctions. In Proc. 2nd Workshop on Sponsored Search Auctions, Ann Arbor, MI, 2006."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                574,
+                862,
+                608
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "B. Kalyanasundaram and K.R. Pruhs. An optimal deterministic algorithm for online b-matching. Theor. Comp. Sci., 233(1–2):319–325, 2000."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                610,
+                860,
+                645
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "R. Karp, U. Vazirani, and V. Vazirani. An optimal algorithm for online bipartite matching. In Proc. 22nd Symp. Theory ofComputing, Baltimore, MD, 1990."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                648,
+                860,
+                682
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "B. Kitts, P. Laxminarayan, B. LeBlanc, and R. Meech. A formal analysis of search auctions including predictions on click fraud and bidding tactics. In Proc. 1st Workshop on Sponsored Search Auctions at the ACM Conf. on Electronic Commerce, Vancouver, British Columbia, Canada, 2005."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                684,
+                862,
+                737
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "B. Kitts and B. LeBlanc. Optimal bidding on keyword auctions. Electronic Markets, 14(3):186–201, 2004."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                739,
+                860,
+                772
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "S. Lahaie. An analysis of alternative slot auction designs for sponsored search. In Proc. 7th Conf. on Electronic Commerce, Ann Arbor, MI, 2006."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                776,
+                862,
+                810
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "M. Mahdian, H. Nazerzadeh, and A. Saberi. Allocating online advertisement space with unreliable estimates. In Proc. 8th ACM Conf. on Electronic Commerce, San Diego, CA, 2007."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                813,
+                862,
+                847
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "M. Mahdian and A. Saberi. Multiunit auctions with unknown supply. In Proc. 7th ACM Conf. on Electronic Commerce, Ann Arbor, MI, 2006."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                849,
+                862,
+                882
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "714"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                41,
+                177,
+                55
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "sponsored search auctions"
+                    }
+                ]
+            },
+            "bbox": [
+                361,
+                44,
+                640,
+                57
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "A. Mehta, A. Saberi, U. Vazirani, and V. Vazirani. AdWords and generalized on-line matching. In Proc. 46th Annual Symp. on Fdns. ofComp. Sci., 2005."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                79,
+                858,
+                112
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "G. Monge. Sur la theorie des d´ eblais et des remblais´ . Memoires de l’acad´ emie de Paris, 1781.´"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                115,
+                814,
+                132
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "S. Pandey and C. Olston. Handling advertisements of unknown quality in search advertising. In Neural Information Processing Systems, 2006."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                133,
+                858,
+                168
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "E. Rolland and R.A. Patterson. Classification in online pay-for-performance advertising. In Proc. 13th Annual Workshop On Information Technologies and Systems, Seattle, WA, 2003."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                171,
+                856,
+                205
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "P. Rusmevichientong and D.P. Williamson. An adaptive algorithm for selecting profitable keywords for search-based advertising services. In Proc. 7th ACM Conf. on Electronic Commerce, pp. 260– 269, Ann Arbor, MI, 2006."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                207,
+                858,
+                259
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "H.R. Varian. Position auctions. Intl. J. Industrial Organization, in press."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                263,
+                656,
+                278
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "T.A. Weber and Z. Zheng. A model of search intermediaries and paid referrals. OPIM Working Paper 02-12-01, Wharton School, April 2002."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                281,
+                858,
+                315
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "Y. Zhou and R. Lukose. Vindictive bidding in keyword auctions. In Proc. 2nd Workshop on Sponsored Search Auctions"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                317,
+                858,
+                351
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                449,
+                401,
+                548,
+                419
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.1 Consider the model of keyword auctions where the CTR of agent j in slot i is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mu _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Is every full-information equilibrium of the GSP locally envy-free?"
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                437,
+                856,
+                474
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.2 Consider the model of keyword auctions where the CTR of agent j in slot i is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mu _ { i } \\beta _ { j } ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "i.e.; the CTR is separable into a bidder effect "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and a position effect "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mu _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Suppose also that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mu _ { 1 } > \\mu _ { 2 } > \\dots > \\mu _ { m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Give a simple algorithm for determining the efficient allocation of bidders to slots. Derive the payment rule implied by the VCG mechanism for this environment."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                478,
+                858,
+                570
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.3 In the model of the previous exercise, suppose also that the auctioneer assigns a weight "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w _ { j } \\equiv w _ { j } ( \\beta _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to each bidder; weights may depend on the bidder effects, but not on their bids. Suppose bidders are assigned to slots by decreasing order of their scores "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w _ { j } b _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Use formula (28.8) to derive the payment rule that combined with the allocation rule just described would yield an incentive compatible mechanism."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                574,
+                860,
+                666
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.4 Consider the model of keyword auctions where the CTR of agent j in slot i is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mu _ { i } \\beta _ { j } ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "i.e., the CTR is separable into a bidder effect "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and a position effect "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mu _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The auctioneer sets weights "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w _ { j } = \\beta _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and a bidder pays the lowest amount necessary to retain his position."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                670,
+                860,
+                743
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(a) Give the inequalities that characterize a full-information (Nash) equilibrium in this model. Strenghten them to give the inequalities for a locally envy-free equilibrium."
+                    }
+                ]
+            },
+            "bbox": [
+                191,
+                760,
+                858,
+                814
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(b) Show that in a locally envy-free equilibrium, bidders are ranked in order of decreasing "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { j } v _ { j }"
+                    }
+                ]
+            },
+            "bbox": [
+                191,
+                815,
+                858,
+                850
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(c) From among the set of locally envy-free equilibria, exhibit the one that yield the smallest possible revenue to the auctioneer."
+                    }
+                ]
+            },
+            "bbox": [
+                191,
+                852,
+                858,
+                889
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                447,
+                44,
+                548,
+                57
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "715"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                41,
+                858,
+                55
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.5 Consider the model of keyword auctions where the CTR of agent j in slot i is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mu _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Give an example of where the GFP auction does not admit a pure strategy full-information equilibrium. For simplicity, you may assume a discretized set of allowable bids."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                78,
+                864,
+                150
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.6 Consider the online allocation problem discussed in Section 28.4. Show that the competitive ratio of the algorithm remains the same even if the optimum solution does not exhaust all the budgets."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                156,
+                862,
+                210
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "716"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                43,
+                177,
+                55
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "sponsored search auctions"
+                    }
+                ]
+            },
+            "bbox": [
+                363,
+                44,
+                640,
+                57
+            ]
+        }
+    ]
+]

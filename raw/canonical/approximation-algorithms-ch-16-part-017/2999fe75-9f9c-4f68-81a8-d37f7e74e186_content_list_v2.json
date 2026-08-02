@@ -1,0 +1,3005 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "16 Maximum Satisfiability"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                223,
+                109,
+                547,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The maximum satisfiability problem has been a classical problem in approximation algorithms. More recently, its study has led to crucial insights in the area of hardness of approximation (see Chapter 29). In this chapter, we will use LP-rounding, with randomization, to obtain a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 / 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor approximation algorithm. We will derandomize this algorithm using the method of conditional expectation."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                786,
+                341
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 16.1 (Maximum satisfiability (MAX-SAT)) Given a conjunctive normal form formula "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on Boolean variables "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { 1 } , \\ldots , x _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and nonnegative weights, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w _ { c } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "for each clause "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", find a truth assignment to the Boolean variables that maximizes the total weight of satisfied clauses. Let C represent the set of clauses of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f , { \\mathrm { i . e . , ~ } } f = \\bigwedge _ { c \\in { \\mathcal { C } } } c ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Each clause is a disjunction *of literals; each literal being either a Boolean variable or its negation. Let size(c) denote the size of clause "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c , \\ \\mathrm { i . e . }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the number of literals in it. We will assume that the sizes of clauses in f are arbitrary."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                347,
+                786,
+                462
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For any positive integer "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "we will denote by MAX-kSAT the restriction of MAX-SAT to instances in which each clause is of size at most k. MAX-SAT is NP-hard; in fact, even MAX-2SAT is NP-hard (in contrast, 2SAT is in P). We will first present two approximation algorithms for MAX-SAT, having guarantees of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 - 1 / e ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "respectively. The first performs better if the clause sizes are large, and the seconds performs better if they are small. We will then show how an appropriate combination of the two algorithms achieves the promised approximation guarantee."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                462,
+                786,
+                576
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the interest of minimizing notation, let us introduce common terminology for all three algorithms. Random variable W will denote the total weight of satisfied clauses. For each clause "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { c , }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "random variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W _ { c }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denotes the weight contributed by clause c to W. Thus, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { W = \\sum _ { c \\in \\mathcal { C } } W _ { c } } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                575,
+                784,
+                634
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {E} [ W _ {c} ] = w _ {c} \\cdot \\mathbf {P r} [ c \\text {   is   satisfied } ].",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/a52477adf40fe2d017402d0d3f05f25fd4d5121a2075f2c19e85e2913c434472.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                646,
+                489,
+                662
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(Strictly speaking, this is abuse of notation, since the randomization used by the three algorithms is diferent.)"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                674,
+                784,
+                703
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "16.1 Dealing with large clauses"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                223,
+                112,
+                542,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The first algorithm is straightforward. Set each Boolean variable to be True independently with probability "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and output the resulting truth assignment, say τ. For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k \\geq 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { k } = 1 - 2 ^ { - k }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                141,
+                784,
+                185
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 16.2 If size "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { \\nabla } \\cdot ( c ) = k _ { ; }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\bf E } [ W _ { c } ] = \\alpha _ { k } w _ { c }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                193,
+                591,
+                209
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Clause c is not satisfied by τ if all its literals are set to False. The probability of this event is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 ^ { - k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                224,
+                784,
+                253
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k \\geq 1 , \\alpha _ { k } \\geq 1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". By linearity of expectation,"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                260,
+                608,
+                275
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {E} [ W ] = \\sum_ {c \\in \\mathcal {C}} \\mathbf {E} [ W _ {c} ] \\geq \\frac {1}{2} \\sum_ {c \\in \\mathcal {C}} w _ {c} \\geq \\frac {1}{2} \\mathrm{OPT},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/be0bb091a0029ee4ee7489988664548f24888be9a4b81028a35b74157bdeb315.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                287,
+                564,
+                324
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where we have used a trivial upper bound on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T \\mathrm { ~ - ~ } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the total weight of clauses in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { C } ."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                336,
+                786,
+                363
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Instead of converting this into a high probability statement, with a corresponding loss in guarantee, we show how to derandomize this procedure. The resulting algorithm deterministically computes a truth assignment such that the weight of satisfied clauses is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\ge \\mathbf { E } [ W ] \\ge \\mathrm { O P T / 2 }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                363,
+                784,
+                422
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Observe that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "increases with k and the guarantee of this algorithm is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 / 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if each clause has two or more literals. (The next algorithm is designed to deal with unit clauses more efectively.)"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                420,
+                784,
+                464
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "16.2 Derandomizing via the method of conditional expectation"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                492,
+                734,
+                526
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will critically use the self-reducibility of SAT (see Section A.5). Consider the self-reducibility tree "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for formula "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Each internal node at level i corresponds to a setting for Boolean variables "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { 1 } , \\ldots , x _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and each leaf represents a complete truth assignment to the n variables. Let us label each node of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with its conditional expectation as follows. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a _ { 1 } , \\ldots , a _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { a }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "truth assignment to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { 1 } , \\ldots , x _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The node corresponding to this assignment will be labeled with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { E } [ W | x _ { 1 } = a _ { 1 } , \\dots , x _ { i } = a _ { i } ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". If "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i = n ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", this is a leaf node and its conditional expectation is simply the total weight of clauses satisfied by its truth assignment."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                539,
+                786,
+                669
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 16.3 The conditional expectation of any node in T can be computed in polynomial time."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                677,
+                784,
+                706
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Consider a node "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { 1 } = a _ { 1 } , . . . , x _ { i } = a _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the Boolean formula, on variables "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i + 1 } , \\ldots , x _ { n } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "obtained for this node via self-reducibility. Clearly, the expected weight of satisfied clauses of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi"
+                    },
+                    {
+                        "type": "text",
+                        "content": "under a random truth assignment to the variables "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i + 1 } , \\ldots , x _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "can be computed in polynomial time. Adding to this the total weight of clauses of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "already satisfied by the partial assignment "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { 1 } = a _ { 1 } , . . . , x _ { i } = a _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "gives the answer. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                722,
+                784,
+                751
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "132"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "16 Maximum Satisfiability"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                87,
+                472,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                171
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 16.4 We can compute, in polynomial time, a path from the root to a leaf such that the conditional expectation of each node on this path is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\geq \\mathbf { E } [ W ]"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                184,
+                786,
+                227
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: The conditional expectation of a node is the average of the conditional expectations of its two children, i.e.,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                239,
+                784,
+                269
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{c} \\mathbf {E} [ W | x _ {1} = a _ {1},..., x _ {i} = a _ {i} ] = \\mathbf {E} [ W | x _ {1} = a _ {1},..., x _ {i} = a _ {i}, x _ {i + 1} = \\text {True} ] / 2 + \\\\ \\mathbf {E} [ W | x _ {1} = a _ {1},..., x _ {i} = a _ {i}, x _ {i + 1} = \\text {False} ] / 2. \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/a018b5e824b9fd4c16b7437aaed9e952c133c3fe1a022e3296257939afb12393.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                282,
+                781,
+                318
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The reason, of course, is that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i + 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is equally likely to be set to True or False. As a result, the child with the larger value has a conditional expectation at least as large as that of the parent. This establishes the existence of the desired path. As a consequence of Lemma 16.3, it can be computed in polynomial time. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                330,
+                784,
+                401
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The deterministic algorithm follows as a corollary of Theorem 16.4. We simply output the truth assignment on the leaf node of the path computed. The total weight of clauses satisfied by it "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { i s } \\geq \\mathbf { E } [ W ]"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                407,
+                784,
+                450
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us show that the technique outlined above can, in principle, be used to derandomize more complex randomized algorithms. Suppose the algorithm does not set the Boolean variables independently of each other (for instance, see Remark 16.6). Now,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                450,
+                786,
+                507
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{c} \\mathbf {E} [ W | x _ {1} = a _ {1}, \\dots , x _ {i} = a _ {i} ] = \\\\ \\mathbf {E} [ W | x _ {1} = a _ {1}, \\dots , x _ {i} = a _ {i}, x _ {i + 1} = \\text {True} ] \\cdot \\mathbf {P r} [ x _ {i + 1} = \\text {True} | x _ {1} = a _ {1}, \\dots , x _ {i} = a _ {i} ] + \\\\ \\mathbf {E} [ W | x _ {1} = a _ {1}, \\dots , x _ {i} = a _ {i}, x _ {i + 1} = \\text {False} ] \\cdot \\mathbf {P r} [ x _ {i + 1} = \\text {False} | x _ {1} = a _ {1}, \\dots , x _ {i} = a _ {i} ]. \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/51c848895c2d94e0eb17d3384a6ed69a2401f577ea682a2792f7e4141c64abf3.jpg"
+                }
+            },
+            "bbox": [
+                221,
+                520,
+                791,
+                571
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The sum of the two conditional probabilities is again 1, since the two events are exhaustive. So, the conditional expectation of the parent is still a convex combination of the conditional expectations of the two children. If we can determine, in polynomial time, which of the two children has a larger value, we can again derandomize the algorithm. However, computing the conditional expectations may not be easy. Observe how critically independence was used in the proof of Lemma 16.3. It was because of independence that we could assume a random truth assignment on Boolean variables "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i + 1 } , \\ldots , x _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and thereby compute the expected weight of satisfied clauses of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi ."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                582,
+                786,
+                709
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In general, a randomized algorithm may pick from a larger set of choices and not necessarily with equal probability. But once again a convex combination of the conditional expectations of these choices, given by the probabilities of picking them, equals the conditional expectation of the parent. Hence there must be a choice that has at least as large a conditional expectation as the parent."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                709,
+                786,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "16.2 Derandomizing via the method of conditional expectation"
+                    }
+                ]
+            },
+            "bbox": [
+                290,
+                87,
+                731,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "133"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                218,
+                112,
+                786,
+                156
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "16.3 Dealing with small clauses via LP-rounding"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                183,
+                715,
+                200
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Following is an integer program for MAX-SAT. For each clause "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c \\in { \\mathcal { C } } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { c } ^ { + }"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( S _ { c } ^ { - } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the set of Boolean variables occurring nonnegated (negated) in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "The truth assignment is encoded by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { \\nabla } _ { \\mathbf { \\mu } _ { y . } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Picking "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i } = 1 \\ ( y _ { i } = 0 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denotes setting "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to True (False). The constraint for clause c ensures that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "z _ { c }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "can be set to 1 only if at least one of the literals occurring in c is set to True, i.e., if clause c is satisfied by the picked truth assignment."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                211,
+                786,
+                299
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {maximize} & \\sum_ {c \\in \\mathcal {C}} w _ {c} z _ {c} \\\\ \\text {subject to} & \\forall c \\in \\mathcal {C}: \\sum_ {i \\in S _ {c} ^ {+}} y _ {i} + \\sum_ {i \\in S _ {c} ^ {-}} (1 - y _ {i}) \\geq z _ {c} \\\\ & \\forall c \\in \\mathcal {C}: z _ {c} \\in \\{0, 1 \\} \\\\ & \\forall i: y _ {i} \\in \\{0, 1 \\} \\end{array}\\tag{16.1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/f08686fe393f11d583ab300dc2ae5ecba82fa43087051fdbdaa44a9406196060.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                310,
+                631,
+                420
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The LP-relaxation is:"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                432,
+                410,
+                447
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {maximize} & \\sum_ {c \\in \\mathcal {C}} w _ {c} z _ {c} \\\\ \\text {subject to} & \\forall c \\in \\mathcal {C}: \\sum_ {i \\in S _ {c} ^ {+}} y _ {i} + \\sum_ {i \\in S _ {c} ^ {-}} (1 - y _ {i}) \\geq z _ {c} \\\\ & \\forall c \\in \\mathcal {C}: 1 \\geq z _ {c} \\geq 0 \\\\ & \\forall i: 1 \\geq y _ {i} \\geq 0 \\end{array}\\tag{16.2}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/bf4340c6b662f5f694279636bd5a47de821c37967197e62761f3d221ca1f86db.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                460,
+                631,
+                570
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm is again straightforward. Solve LP (16.2). Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( y ^ { * } , z ^ { * } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the optimal solution. Independently set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to True with probability "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\leq i \\leq n"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Output the resulting truth assignment, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau ."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                582,
+                784,
+                625
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will use the random variables "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W _ { c }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "defined in Section 16.1. For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k \\geq 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", define"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                624,
+                786,
+                653
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\beta_ {k} = 1 - \\left(1 - \\frac {1}{k}\\right) ^ {k}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/736b8813f0e1d5fb34f86ad0dfc5e8e512459a1ecb0920e4f34e0352103469e5.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                664,
+                421,
+                699
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {E} [ W _ {c} ] \\geq \\beta_ {k} w _ {c} z _ {c} ^ {*}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/51cb5b29b34fbc4db3826669a11f73a109efbc39c5cd1287b91a466b5663bcd1.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                737,
+                393,
+                753
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 16.5 If "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { s i z e } ( c ) = k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                709,
+                478,
+                725
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "134"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "16 Maximum Satisfiability"
+                    }
+                ]
+            },
+            "bbox": [
+                277,
+                87,
+                472,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: We may assume w.l.o.g. that all literals in c appear nonnegated "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( { \\mathrm { i f ~ } } x _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "appears negated, we can replace "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\overline { { x } } _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "throughout "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and modify LP (16.2) accordingly without afecting "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "z _ { c } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "or "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W _ { c } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Further, by renaming variables, we may assume "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c = ( x _ { 1 } \\vee . . . \\vee x _ { k } )"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                170
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Clause c is satisfied if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { 1 } , \\ldots , x _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are not all set to False. The probability of this event is"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                170,
+                784,
+                199
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{c} 1 - \\prod_ {i = 1} ^ {k} (1 - y _ {i}) \\geq 1 - \\left(\\frac {\\sum_ {i = 1} ^ {k} (1 - y _ {i})}{k}\\right) ^ {k} = 1 - \\left(1 - \\frac {\\sum_ {i = 1} ^ {k} y _ {i}}{k}\\right) ^ {k} \\\\ \\geq 1 - \\left(1 - \\frac {z _ {c} ^ {*}}{k}\\right) ^ {k}, \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/c80151004cea74f457f53bef16f61a4e0c901cd4f39c8372fe90eac17127b5ed.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                208,
+                734,
+                285
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where the first inequality follows from the arithmetic-geometric mean inequality which states that for nonnegative numbers "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a _ { 1 } , \\ldots , a _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "2"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                297,
+                784,
+                326
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\frac {a _ {1} + \\ldots + a _ {k}}{k} \\geq \\sqrt [ k ]{a _ {1} \\times \\ldots \\times a _ {k}}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/859df9aebac7f5dfd767e40ce58462e31a9d91b85c8d54b22985d909f746b9c1.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                337,
+                505,
+                363
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The second inequality uses the constraint in LP (16.2) that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { 1 } + . . . + y _ { k } \\ge z _ { c }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                374,
+                781,
+                388
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/dbd482918c1e9c9a33449faffe5a4cc9ac994aabff12ad3d0c42d130b936dff3.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                265,
+                395,
+                741,
+                573
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Define function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "g"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by:"
+                    }
+                ]
+            },
+            "bbox": [
+                247,
+                583,
+                406,
+                598
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "g (z) = 1 - \\left(1 - \\frac {z}{k}\\right) ^ {k}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/982f02226aa259a8a0952a258e7837e1bd23fa984792d3cc2f562f6e1907a421.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                608,
+                428,
+                637
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This is a concave function with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "g ( 0 ) = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "g ( 1 ) \\ = \\ \\beta _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "z \\in [ 0 , 1 ] , g ( z ) \\geq \\beta _ { k } z"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Hence, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P r } [ c"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is satisfied] "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\ge \\beta _ { k } z _ { c } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The lemma follows. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                646,
+                784,
+                678
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Notice that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a decreasing function of k. Thus, if all clauses are of size at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ","
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                682,
+                784,
+                711
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {E} [ W ] = \\sum_ {c \\in \\mathcal {C}} \\mathbf {E} [ W _ {c} ] \\geq \\beta_ {k} \\sum_ {c \\in \\mathcal {C}} w _ {c} z _ {c} ^ {*} = \\beta_ {k} \\mathrm{OPT} _ {f} \\geq \\beta_ {k} \\mathrm{OPT},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b5a05591b4b86916100bc15f141c5456e9c458180b8da539269a28338bec790e.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                721,
+                677,
+                756
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "16.3 Dealing with small clauses via LP-rounding"
+                    }
+                ]
+            },
+            "bbox": [
+                386,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "135"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { f }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the optimal solution to LP (16.2). Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { f } \\geq \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "This algorithm can also be derandomized using the method of conditional expectation (Exercise 16.3). Hence, for MAX-SAT instances with clause sizes at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "it is a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor approximation algorithm. Since"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                171
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\forall k \\in \\mathbf {Z} ^ {+}: \\left(1 - \\frac {1}{k}\\right) ^ {k} > \\frac {1}{e},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/6438eecfb2bc797ba5a9a53b3ce0dc68976cb9758b14553f8d20a0a24f139fbe.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                181,
+                460,
+                216
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "this is a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 - 1 / e"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor algorithm for MAX-SAT."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                227,
+                583,
+                242
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "16.4 A 3/4 factor algorithm"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                269,
+                512,
+                287
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will combine the two algorithms as follows. Let b be the flip of a fair coin. If "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", run the first randomized algorithm, and if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", run the second randomized algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                299,
+                784,
+                341
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Remark 16.6 Notice that we are efectively setting "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to True with probability "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\frac { 1 } { 4 } + \\frac { 1 } { 2 } y _ { i } ^ { * } ; } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "; however, the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "’s are not set independently!"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                347,
+                784,
+                376
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "z ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the optimal solution of LP (16.2) on the given instance."
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                376,
+                737,
+                391
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 16.7"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                404,
+                331,
+                419
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {E} [ W _ {c} ] \\geq \\frac {3}{4} w _ {c} z _ {c} ^ {*}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/436eef8b5cc53517905c9d0bef22e6a1ac00eeaa1793524936f637bf410cb937.jpg"
+                }
+            },
+            "bbox": [
+                374,
+                397,
+                497,
+                426
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Let s "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { z e } ( c ) = k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". By Lemma 16.2,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                437,
+                529,
+                451
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {E} \\left[ W _ {c} \\mid b = 0 \\right] = \\alpha_ {k} w _ {c} \\geq \\alpha_ {k} w _ {c} z _ {c} ^ {*},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/e5b5d3536078e9947216ffc5b0cc1cf6865a696359ab9a2dc8dce5f741e52f94.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                464,
+                507,
+                480
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where we have used the fact that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "z _ { c } ^ { * } \\leq 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". By Lemma 16.5,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                493,
+                652,
+                508
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {E} [ W _ {c} \\mid b = 1 ] \\geq \\beta_ {k} w _ {c} z _ {c} ^ {*}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/0ef18d44b73513a50e8fe9dbde35377aaeb630eef3dc4c27f9929c864f3663aa.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                520,
+                448,
+                537
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Combining we get"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                548,
+                359,
+                563
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {E} [ W _ {c} ] = \\frac {1}{2} (\\mathbf {E} [ W _ {c} \\mid b = 0 ] + \\mathbf {E} [ W _ {c} \\mid b = 1 ]) \\geq w _ {c} z _ {c} ^ {*} \\frac {(\\alpha_ {k} + \\beta_ {k})}{2}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/038b421d27ac1505e55a0605f1c06665ac3989b2359d3ffd9ef2f37ee68cde1e.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                575,
+                714,
+                602
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Now, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { 1 } + \\beta _ { 1 } = \\alpha _ { 2 } + \\beta _ { 2 } = 3 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k \\ge 3 , \\alpha _ { k } + \\beta _ { k } \\ge 7 / 8 + ( 1 - 1 / e ) \\ge 3 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "The lemma follows. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                613,
+                784,
+                642
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "By linearity of expectation,"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                649,
+                453,
+                664
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {E} [ W ] = \\sum_ {c \\in \\mathcal {C}} \\mathbf {E} [ W _ {c} ] \\geq \\frac {3}{4} \\sum_ {c \\in \\mathcal {C}} w _ {c} z _ {c} ^ {*} = \\frac {3}{4} \\mathrm{OPT} _ {f} \\geq \\frac {3}{4} \\mathrm{OPT},\\tag{16.3}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/1fb652b3214ac5e8035b69d462407ddad4068d012f9986af68294f3da7098a8e.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                674,
+                660,
+                712
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { f }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the optimal solution to LP (16.2). Finally, consider the following deterministic algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                722,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "136"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "16 Maximum Satisfiability"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                87,
+                472,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 16.8 (MAX-SAT - factor  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3/4"
+                    },
+                    {
+                        "type": "text",
+                        "content": ")\n1. Use the derandomized factor  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1/2"
+                    },
+                    {
+                        "type": "text",
+                        "content": " algorithm to get a truth assignment,  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau_1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".\n2. Use the derandomized factor  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 - 1/e"
+                    },
+                    {
+                        "type": "text",
+                        "content": " algorithm to get a truth assignment,  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau_2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".\n3. Output the better of the two assignments."
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                114,
+                783,
+                229
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 16.9 Algorithm 16.8 is a deterministic factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 / 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": "approximation algorithm for MAX-SAT."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                250,
+                784,
+                281
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: One of the two conditional expectations, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { E } [ W \\mid b = 0 ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { E } [ W \\mid b ="
+                    },
+                    {
+                        "type": "text",
+                        "content": "1], is at least as large as E[W]. Hence, the total weight of clauses satisfied by the better of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is at least as large as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf E [ W ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                294,
+                784,
+                338
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "By (16.3), "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { E } [ W ] \\geq { \\frac { 3 } { 4 } } \\mathrm { O P T } _ { f }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The weight of the integral solution produced by Algorithm 16.8 is at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf E [ W ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, the integrality gap of LP (16.2) is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\geq 3 / 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Below we show that this is tight."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                343,
+                784,
+                388
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 16.10 Consider the SAT formula "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f = ( x _ { 1 } \\lor x _ { 2 } ) \\land ( { \\overline { { x } } } _ { 1 } \\lor x _ { 2 } ) \\land ( x _ { 1 } \\lor"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\overline { { x } } _ { 2 } ) \\wedge ( \\overline { { x } } _ { 1 } \\vee \\overline { { x } } _ { 2 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where each clause is of unit weight. It is easy to see that setting "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i } = 1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "z _ { c } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for all i and c is an optimal solution to LP (16.2) for any instance having size 2 clauses. Therefore "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { f } = 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". On the other hand "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } = 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and thus for this instance LP (16.2) has a integrality gap of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "4 / 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                393,
+                786,
+                480
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 16.11 Let us provide a tight example to Algorithm 16.8. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f = ( x \\vee y ) \\wedge ( x \\vee \\overline { { y } } ) \\wedge ( \\overline { { x } } \\vee z )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and let the weights of these three clauses be 1, 1, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 + \\varepsilon ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", respectively. By the remark made in Example 16.10, on this instance the factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 - 1 / e"
+                    },
+                    {
+                        "type": "text",
+                        "content": "algorithm will set each variable to True with probability "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and so will be the same as the factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "algorithm. During derandomization, suppose variable x is set first. The conditional expectations are "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { E } [ W \\mid x = \\mathrm { T r u e } ] = 3 + \\varepsilon / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { E } [ W \\mid x = { \\mathrm { F a l s e } } ] = 3 + \\varepsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Thus, x will be set to False. But this leads to a total weight of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 + \\varepsilon ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "whereas by setting x to True we can get a weight of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "4 + \\varepsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Clearly, we can get an infinite family of such examples by replicating these 3 clauses with new variables. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                491,
+                786,
+                634
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "16.5 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                223,
+                668,
+                376,
+                684
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "16.1 The algorithm of Section 16.1 achieves an approximation guarantee of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if all clauses in the given instance have size at least k. Give a tight example of factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for this algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                709,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "16.5 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                621,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "137"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "16.2 Show that the following is a factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "algorithm for MAX-SAT. Let τ be an arbitrary truth assignment and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be its complement, i.e., a variable is True in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if it is False in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Compute the weight of clauses satisfied by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then output the better assignment."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                171
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "16.3 Use the method of conditional expectation to derandomize the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 - 1 / e"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor algorithm for MAX-SAT."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                181,
+                784,
+                210
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "16.4 Observe that the randomization used in the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 / 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor algorithm does not set Boolean variables independently of each other. As remarked in Section 16.2, the algorithm can still, in principle, be derandomized using the method of conditional expectation. Devise a way of doing so. Observe that the algorithm obtained is diferent from Algorithm 16.8."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                221,
+                786,
+                294
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "16.5 (Goemans and Williamson [104]) Instead of using the solution to LP (16.2), "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", as probability of setting "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to True, consider the more general scheme of using "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "g ( y _ { i } ^ { * } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for a suitable function g. Can this lead to an improvement over the factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 - 1 / e"
+                    },
+                    {
+                        "type": "text",
+                        "content": "algorithm?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                302,
+                784,
+                361
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "16.6 Consider the following randomized algorithm for the maximum cut problem, defined in Exercise 2.1. After the initialization step of Algorithm 2.13, each of the remaining vertices is equally likely to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "_ { \\mathrm { g o } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in sets A or B. Show that the expected size of the cut found is at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Show that the derandomization of this algorithm via the method of conditional expectation is precisely Algorithm 2.13."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                370,
+                786,
+                458
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "16.7 Consider the following generalization of the maximum cut problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                468,
+                769,
+                483
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 16.12 (Linear equations over "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { G F } [ \\mathbf { 2 } ] )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Given m equations over n GF[2] variables, find an assignment for the variables that maximizes the number of satisfied equations."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                488,
+                784,
+                531
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Show that if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m \\leq n ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", this problem is polynomial time solvable."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                537,
+                709,
+                552
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. In general, the problem is NP-hard. Give a factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "randomized algorithm for it, and derandomize using the method of conditional expectation."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                552,
+                784,
+                595
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "16.8 Consider the obvious randomized algorithm for the MAX k-CUT problem, Problem 2.14 in Exercise 2.3, which assigns each vertex randomly to one of the sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { 1 } , \\ldots , S _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Show that the expected number of edges running between these sets is at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T / 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Show that the derandomization of this algorithm, via the method of conditional expectation, gives the greedy algorithm sought in Exercise 2.3."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                613,
+                786,
+                700
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "16.9 Repeat Exercise 16.8 for the maximum directed cut problem, Problem 2.15 in Exercise 2.4, i.e., give a factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": "randomized algorithm, and show that its derandomization gives a greedy algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                709,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "138"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "16 Maximum Satisfiability"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                87,
+                472,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "16.6 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                111,
+                342,
+                127
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The factor 1/2 algorithm, which was also the first approximation algorithm for MAX-SAT, is due to Johnson [150]. The first factor 3/4 algorithm was due to Yannakakis [261]. The (simpler) algorithm given here is due to Goemans and Williamson [104]. The method of conditional expectation is implicit in Erd¨os and Selfridge [74]. Its use for obtaining polynomial time algorithms was pointed out by Spencer [243] (see Raghavan [225] and Alon and Spencer [6] for enhancements to this technique)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                141,
+                786,
+                243
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "16.6 Notes"
+                    }
+                ]
+            },
+            "bbox": [
+                645,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "139"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ]
+]

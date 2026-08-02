@@ -1,0 +1,3500 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4 Multiway Cut and k-Cut"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                109,
+                554,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The theory of cuts occupies a central place in the study of exact algorithms. In this chapter, we will present approximation algorithms for natural generalizations of the minimum cut problem. These generalizations are NP-hard."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                786,
+                298
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Given a connected, undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with an assignment of weights to edges, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w : E \\to \\mathbf { R } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", a cut is defined by a partition of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "into two sets, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V - V ^ { \\prime } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and consists of all edges that have one endpoint in each partition. Clearly, the removal of the cut from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "disconnects "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Given terminals "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s , t \\in V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", consider a partition of V that separates s and t. The cut defined by such a partition will be called an s–t cut. The problems of finding a minimum weight cut and a minimum weight "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { s - t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cut can be eficiently solved using a maximum flow algorithm. Let us generalize these two notions:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                298,
+                786,
+                412
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 4.1 (Multiway cut) Given a set of terminals "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S = \\{ s _ { 1 } , s _ { 2 } , . . . , s _ { k } \\}"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\subseteq V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", a multiway cut is a set of edges whose removal disconnects the terminals from each other. The multiway cut problem asks for the minimum weight such set."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                418,
+                784,
+                476
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 4.2 (Minimum k-cut) A set of edges whose removal leaves k connected components is called a k-cut. The k-cut problem asks for a minimum weight k-cut."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                482,
+                784,
+                525
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The problem of finding a minimum weight multiway cut is NP-hard for any fixed "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k \\geq 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Observe that the case "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k = 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is precisely the minimum "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { s - t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cut problem. The minimum k-cut problem is polynomial time solvable for fixed "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "however, it is NP-hard if k is specified as part of the input. In this chapter, we will obtain factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - 2 / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "approximation algorithms for both problems. In Chapter 19 we will improve the guarantee for the multiway cut problem to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 / 2"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                525,
+                786,
+                626
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.1 The multiway cut problem"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                653,
+                537,
+                670
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Define an isolating cut for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be a set of edges whose removal disconnects "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from the rest of the terminals."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                684,
+                784,
+                713
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 4.3 (Multiway cut)"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                233,
+                121,
+                490,
+                136
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. For each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i = 1 , \\ldots , k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", compute a minimum weight isolating cut for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C _ { i }"
+                    }
+                ]
+            },
+            "bbox": [
+                238,
+                142,
+                759,
+                171
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Discard the heaviest of these cuts, and output the union of the rest, say C."
+                    }
+                ]
+            },
+            "bbox": [
+                238,
+                171,
+                773,
+                199
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Each computation in Step 1 can be accomplished by identifying the terminals in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S - \\{ s _ { i } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "into a single node, and finding a minimum cut separating this node from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "this takes one max-flow computation. Clearly, removing "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from the graph disconnects every pair of terminals, and so is a multiway cut."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                225,
+                786,
+                284
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 4.4 Algorithm "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "4 . 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": "achieves an approximation guarantee "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "o f 2 \\mathrm { - } 2 / k"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                290,
+                781,
+                305
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Let A be an optimal multiway cut in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "We can view "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as the union of k cuts as follows: The removal of A from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will create k connected components, each having one terminal (since A is a minimum weight multiway cut, no more than k components will be created). Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the cut separating the component containing "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from the rest of the graph. Then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textstyle A = \\bigcup _ { i = 1 } ^ { k } A _ { i }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                318,
+                786,
+                392
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since each edge of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is incident at two of these components, each edge will be in two of the cuts "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Hence,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                391,
+                784,
+                420
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {i = 1} ^ {k} w (A _ {i}) = 2 w (A).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/517135d91d774f633240c88004fa3e676e21b674e220f5c67fde0ed515330af3.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                432,
+                413,
+                470
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is an isolating cut for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a minimum weight isolating cut for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } , w ( C _ { i } ) \\leq w ( A _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Notice that this already gives a factor 2 algorithm, by taking the union of all k cuts "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Finally, since C is obtained by discarding the heaviest of the cuts "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "•"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                482,
+                786,
+                539
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "w (C) \\leq \\left(1 - \\frac {1}{k}\\right) \\sum_ {i = 1} ^ {k} w \\left(C _ {i}\\right) \\leq \\left(1 - \\frac {1}{k}\\right) \\sum_ {i = 1} ^ {k} w \\left(A _ {i}\\right) = 2 \\left(1 - \\frac {1}{k}\\right) w (A).\\tag{□}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/f1ebadf0b90eec45257aeec3ebec23682210b91244ef12c55bcd5985398dff78.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                550,
+                774,
+                590
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Once again, Algorithm 4.3 is not based on a lower bounding scheme. Exercise 19.2 gives an algorithm with the same guarantee using an LP-relaxation as the lower bound. The use of LP-relaxations is fruitful for this problem as well. Section 19.1 gives an algorithm with an improved guarantee, using another LP-relaxation."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                618,
+                786,
+                690
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 4.5 A tight example for this algorithm is given by a graph on 2k vertices consisting of a k-cycle and a distinct terminal attached to each vertex of the cycle. The edges of the cycle have weight 1 and edges attaching terminals to the cycle have weight "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - \\varepsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for a small fraction "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon > 0"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                695,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "4.1 The multiway cut problem"
+                    }
+                ]
+            },
+            "bbox": [
+                507,
+                87,
+                729,
+                102
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "39"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For example, the graph corresponding to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k = 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                594,
+                128
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/ae24d953de40d2d132eae085c2ae94f80d551155e1eb7eadd55fcd212c533199.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "For each terminal "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the minimum weight isolating cuts for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is given by the edge incident to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } . \\mathrm { ~ S o } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C"
+                    },
+                    {
+                        "type": "text",
+                        "content": "returned by the algorithm has weight "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( k - 1 ) ( 2 - \\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". On the other hand, the optimal multiway cut is given by the cycle edges, and has weight "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                394,
+                140,
+                615,
+                302
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.2 The minimum k-cut problem"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                405,
+                559,
+                420
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A natural algorithm for finding a k-cut is as follows. Starting with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "compute a minimum cut in each connected component and remove the lightest one; repeat until there are "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "connected components. This algorithm does achieve a guarantee of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - 2 / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", however, the proof is quite involved. Instead we will use the Gomory–Hu tree representation "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "o f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "minimum cuts to give a simpler algorithm achieving the same guarantee."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                435,
+                784,
+                521
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Minimum cuts, as well as sub-optimal cuts, in undirected graphs have several interesting structural properties, as opposed to cuts in directed graphs (the algorithm of Section 28.2 is based on exploiting some of these properties). The existence of Gomory–Hu trees is one of the remarkable consequences of these properties."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                520,
+                784,
+                590
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a tree on vertex set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "need not be in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be an edge in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Its removal from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "creates two connected components. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\overline { S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the vertex sets of these components. The cut defined in graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by the partition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( S , { \\overline { { S } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the cut associated with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Define a weight function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on the edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Tree "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will be said to be a Gomory–Hu tree for G if"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                590,
+                786,
+                677
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. for each pair of vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u , v \\in V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the weight of a minimum "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u - v"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cut in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the same as that in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                684,
+                784,
+                711
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. for each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e \\in T , w ^ { \\prime } ( e )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the weight of the cut associated with e in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                712,
+                784,
+                740
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "40"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "4 Multi<sub>w</sub>a<sub>y</sub> Cut and k<sub>-</sub>Cut"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                475,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will need the following lemma."
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                491,
+                505,
+                505
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A Gomory–Hu tree encodes, in a succinct manner, a minimum u–v cut in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for each pair of vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u , v \\in V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as follows. A minimum u–v cut in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is given by a minimum weight edge on the unique path from u to v in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", say e. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { B y }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the properties stated above, the cut associated with e in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a minimum u–v cut, and has weight "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w ^ { \\prime } ( e )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". So, for the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\binom { n } { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "pairs of vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u , v \\in V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we need only "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "\u0004 \u0005cuts, those encoded by the edges of a Gomory–Hu tree, to give minimum u–v cuts in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                212
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The following figure shows a weighted graph and its associated Gomory– Hu tree. Exercise 4.6 shows how to construct a Gomory–Hu tree for an undirected graph, using only n − 1 max-flow computations."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                212,
+                784,
+                256
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/2c77969beeafbfb3eb663de1e3006edd7d80a5d5f34737c6af90585ba48025d6.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                357,
+                273,
+                648,
+                374
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/55e677dbd5d42d8d54239771ca4b253b8ae9cafbc9e727ff64c9d07c78061168.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                369,
+                420,
+                603,
+                488
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 4.6 Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the union of cuts in G associated with l edges of T. Then, the removal of S from G leaves a graph with at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "components."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                514,
+                783,
+                544
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Removing the corresponding l edges from T leaves exactly l + 1 connected components, say with vertex sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { 1 } , V _ { 2 } , \\dots , V _ { l + 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Clearly, removing S from G will disconnect each pair "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Hence we must get at least l + 1 connected components. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                558,
+                784,
+                615
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As a consequence of Lemma 4.6, the union of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cuts picked from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will form a k-cut in G. The complete algorithm is given below."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                621,
+                784,
+                652
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 4.7 (Minimum k-cut)"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                233,
+                673,
+                507,
+                689
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Compute a Gomory–Hu tree T for G."
+                    }
+                ]
+            },
+            "bbox": [
+                240,
+                694,
+                527,
+                709
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Output the union of the lightest "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cuts of the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cuts associated with edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be this union."
+                    }
+                ]
+            },
+            "bbox": [
+                238,
+                709,
+                771,
+                738
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "4.2 The minimum k-cut problem"
+                    }
+                ]
+            },
+            "bbox": [
+                492,
+                87,
+                729,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "41"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                89,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "By Lemma 4.6, the removal of C from G will leave at least k components. If more than "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "components are created, throw back some of the removed edges until there are exactly k components."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                784,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 4.8 Algorithm 4.7 achieves an approximation factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - 2 / k"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                161,
+                774,
+                177
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Let A be an optimal k-cut in G. As in Theorem 4.4, we can view A as the union of k cuts: Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { 1 } , V _ { 2 } , \\ldots , V _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the k components formed by removing A from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the cut separating "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from the rest of the graph. Then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A = A _ { 1 } \\cup \\ldots \\cup A _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and, since each edge of A lies in two of these cuts,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                186,
+                786,
+                256
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {i = 1} ^ {k} w (A _ {i}) = 2 w (A).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/28824ef2600611a7a1069d8fe95c7ca7adf2fa64f774d56d478d47784f3a63ce.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                268,
+                413,
+                307
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Without loss of generality assume that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the heaviest of these cuts. The idea behind the rest of the proof is to show that there are "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cuts defined by the edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "whose weights are dominated by the weight of the cuts "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A _ { 1 } , A _ { 2 } , \\ldots , A _ { k - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since the algorithm picks the lightest "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cuts defined by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the theorem follows."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                317,
+                784,
+                387
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The k −1 cuts are identified as follows. Let B be the set of edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that connect across two of the sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { 1 } , V _ { 2 } , \\dots , V _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Consider the graph on vertex set V and edge set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and shrink each of the sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { 1 } , V _ { 2 } , \\ldots , V _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to a single vertex. This shrunk graph must be connected (since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "was connected). Throw edges away until a tree remains. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B ^ { \\prime } \\subseteq B"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the left over edges, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| B ^ { \\prime } | = k - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "The edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "define the required "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cuts."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                388,
+                784,
+                473
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Next, root this tree at "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(recall that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "was assumed to be the heaviest cut among the cuts "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This helps in defining a correspondence between the edges in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { 1 } , V _ { 2 } , \\dots , V _ { k - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ": each edge corresponds to the set it comes out of in the rooted tree."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                473,
+                784,
+                530
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/989229c0e4eac19c9448d968c6e4ec6a9a328bda95c6f7597f8bdc6fd865aca9.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                226,
+                543,
+                771,
+                728
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "42"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "4 Multi<sub>w</sub>a<sub>y</sub> Cut and k<sub>-</sub>Cut"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                475,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Suppose edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v ) \\in B ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "corresponds to set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in this manner. The weight of a minimum u–v cut in G is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w ^ { \\prime } ( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a u–v cut in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ","
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                143
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "w (A _ {i}) \\geq w ^ {\\prime} (u, v).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/dc1cd8e5f01ce597b5b37382fb5ed204b4267dcbb064e3605650ccc29b3172e6.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                154,
+                394,
+                170
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Thus each cut among "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A _ { 1 } , A _ { 2 } , \\ldots , A _ { k - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is at least as heavy as the cut defined in G by the corresponding edge of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B ^ { \\prime } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This, together with the fact that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the union of the lightest "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cuts defined by T, gives:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                183,
+                784,
+                227
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "w (C) \\leq \\sum_ {e \\in B ^ {\\prime}} w ^ {\\prime} (e) \\leq \\sum_ {i = 1} ^ {k - 1} w (A _ {i}) \\leq \\left(1 - \\frac {1}{k}\\right) \\sum_ {i = 1} ^ {k} w (A _ {i}) = 2 \\left(1 - \\frac {1}{k}\\right) w (A).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/239364e9b120930f7b382a54022e92ea666596b1968547a53491b409b839be94.jpg"
+                }
+            },
+            "bbox": [
+                245,
+                237,
+                784,
+                278
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 4.9 The tight example given above for multiway cuts on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "vertices also serves as a tight example for the k-cut algorithm (of course, there is no need to mark vertices as terminals). Below we give the example for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k = 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": "together with its Gomory–Hu tree."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                313,
+                784,
+                373
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/92c65b84594683ad7bcc8e8383c7670101a065ac36a93c57fdf3a32d9b143774.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                391,
+                397,
+                615,
+                706
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The lightest "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cuts in the Gomory–Hu tree have weight "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - \\varepsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "each, corresponding to picking edges of weight "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - \\varepsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G . \\ \\mathrm { S o }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the k-cut returned by the algorithm has weight "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( k - 1 ) ( 2 - \\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". On the other hand, the optimal k-cut picks all edges of weight 1, and has weight k. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                722,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "4.2 The minimum k-cut problem"
+                    }
+                ]
+            },
+            "bbox": [
+                492,
+                87,
+                731,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "43"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                142
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.3 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                175,
+                364,
+                191
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4.1 Show that Algorithm 4.3 can be used as a subroutine for finding a k-cut within a factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - 2 / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of the minimum k-cut. How many subroutine calls are needed?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                216,
+                784,
+                259
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4.2 A natural greedy algorithm for computing a multiway cut is the following. Starting with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "compute minimum "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } - s _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cuts for all pairs "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } , s _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that are still connected and remove the lightest of these cuts; repeat this until all pairs "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } , s _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are disconnected. Prove that this algorithm also achieves a guarantee of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - 2 / k"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                271,
+                786,
+                343
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The next 4 exercises provide background and an algorithm for finding Gomory–Hu trees."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                355,
+                784,
+                384
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4.3 Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a graph and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w : E \\to \\mathbf { R } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be an assignment of nonnegative weights to its edges. For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u , v \\in V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the weight of a minimum u–v cut in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                395,
+                784,
+                439
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u , v , w \\in V ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and suppose "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( u , v ) \\leq f ( u , w ) \\leq f ( v , w )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Show that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( u , v ) = f ( u , w )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", i.e., the two smaller numbers are equal."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                444,
+                784,
+                473
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Show that among the <sup>n</sup> values "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for all pairs "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u , v \\in V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", there are at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "\u0004 \u0005distinct values."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                473,
+                784,
+                501
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3. Show that for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u , v , w \\in V"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                502,
+                443,
+                514
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "f (u, v) \\geq \\min \\{f (u, w), f (w, v) \\}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/8c6cbd7d63b64db635157455581a36e6ad352ca16654896df766892783db3ec1.jpg"
+                }
+            },
+            "bbox": [
+                292,
+                527,
+                529,
+                544
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4. Show that for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u , v , w _ { 1 } , \\ldots , w _ { r } \\in V"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                557,
+                505,
+                571
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "f (u, w) \\geq \\min \\{f (u, w _ {1}), f (w _ {1}, w _ {2}), \\dots , f (w _ {r}, v) \\}\\tag{4.1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/8136f8b6c42e413f9ec87466e29f2a2bce742cd25d8380a47b5856d59f6b64e7.jpg"
+                }
+            },
+            "bbox": [
+                290,
+                583,
+                648,
+                600
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4.4 Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a tree on vertex set V with weight function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on its edges. We will say that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a flow equivalent tree if it satisfies the first of the two Gomory–Hu conditions. i.e., for each pair of vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u , v \\in V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the weight of a minimum u–v cut in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the same as that in T. Let K be the complete graph on V . Define the weight of each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in K to be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Show that any maximum weight spanning tree in K is a flow equivalent tree for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { \\ l }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Hint: For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u , v \\in V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u , w _ { 1 } , \\ldots , w _ { r } , "
+                    },
+                    {
+                        "type": "text",
+                        "content": "v be the unique path from u to v in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Use (4.1) and the fact that since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a maximum weight spanning tree, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( u , v ) \\leq \\operatorname* { m i n } \\{ f ( u , w _ { 1 } ) , \\ldots , f ( w _ { r } , v ) \\}"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                624,
+                786,
+                755
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "44"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                242,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "4 Multi<sub>w</sub>a<sub>y</sub> Cut and k<sub>-</sub>Cut"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                475,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4.5 Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( A , { \\bar { A } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a minimum "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { s - t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cut such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s \\in A"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let x and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be any two vertices in A. Consider the graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "obtained by collapsing all vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\bar { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to a single vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { \\bar { A } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The weight of any edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( a , v _ { \\bar { A } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is defined to be the sum of the weights of edges "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( a , b )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b \\in { \\bar { A } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Clearly, any cut in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "defines a cut in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { \\ l }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Show that a minimum x–y cut in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "defines a minimum "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x - y"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cut in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                199
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4.6 Now we are ready to state the Gomory–Hu algorithm. The algorithm maintains a partition of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V , \\ ( S _ { 1 } , S _ { 2 } , \\ldots S _ { t } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and a spanning tree "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on the vertex set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ S _ { 1 } , \\ldots , S _ { t } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the function assigning weights to the edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Tree "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "satisfies the following invariant."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                212,
+                784,
+                269
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Invariant: For any edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( S _ { i } , S _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in T there are vertices a and b in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "respectively, such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w ^ { \\prime } ( S _ { i } , S _ { j } ) = f ( a , b )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and the cut defined by edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( { \\bar { S } } _ { i } , S _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a minimum "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a { - } b"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cut in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                268,
+                784,
+                313
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm starts with the trivial partition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and proceeds in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "iterations. In each iteration, it selects a set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the partition such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| S _ { i } | \\ge 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and refines the partition by splitting "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and finding a tree on the refined partition satisfying the invariant. This is accomplished as follows. Let x and y be two distinct vertices in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Root the current tree "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "at "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and consider the subtrees rooted at the children of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Each of these subtrees is collapsed into a single vertex, to obtain graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(besides these collapsed vertices, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "contains all vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". A minimum x– "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "_ y"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cut is found in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( A , B )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the partition of the vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "defining this cut, with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x \\in A"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y \\in B ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w _ { x y }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the weight of this cut. Compute "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i } ^ { x } = S \\cap A"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i } ^ { y } = S \\cap B"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the two sets into which "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "splits."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                313,
+                784,
+                469
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm updates the partition and the tree as follows. It refines the partition by replacing "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with two sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i } ^ { x }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i } ^ { y }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The new tree has the edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( S _ { i } ^ { x } , S _ { i } ^ { y } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "), with weight "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w _ { x y }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Consider a subtree "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\scriptstyle { \\dot { T } } ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that was incident at "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in T. Assume w.l.o.g. that the node corresponding to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "lies in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is connected by an edge to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i } ^ { x }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The weight of this connecting edge is the same as the weight of the edge connecting "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". All edges in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "retain their weights."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                468,
+                784,
+                568
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Show that the new tree satisfies the invariant. Hence show that the algorithm terminates (when the partition consists of singleton vertices) with a Gomory–Hu tree for G."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                568,
+                784,
+                609
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider the graph:"
+                    }
+                ]
+            },
+            "bbox": [
+                247,
+                611,
+                398,
+                625
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/8dfa86b10795218d8eeb4a63086c515fa8c1da4c7ce31a10b27281e11abec107.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                357,
+                627,
+                648,
+                728
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "4.3 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                628,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "45"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The execution of the Gomory–Hu algorithm is demonstrated below:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                727,
+                128
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/61ab5f61b3241e1d286df449c2b1ab8b7fabc294ea425f5a08908e5ada265f5f.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                225,
+                134,
+                784,
+                510
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4.7 Prove that if the Gomory–Hu tree for an edge-weighted undirected graph G contains all n − 1 distinct weights, then G can have only one minimum weight cut."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                527,
+                786,
+                571
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "4.4 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                598,
+                332,
+                615
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 4.3 is due to Dahlhaus, Johnson, Seymour, Papadimitriou and Yannakakis [57]. Algorithm 4.7 is due to Saran and Vazirani [233]; the proof given here is due to R. Ravi. For Gomory–Hu trees see Gomory and Hu [110]."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                627,
+                788,
+                674
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "46"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "4 Multi<sub>w</sub>a<sub>y</sub> Cut and k<sub>-</sub>Cut"
+                    }
+                ]
+            },
+            "bbox": [
+                273,
+                87,
+                477,
+                101
+            ]
+        }
+    ]
+]

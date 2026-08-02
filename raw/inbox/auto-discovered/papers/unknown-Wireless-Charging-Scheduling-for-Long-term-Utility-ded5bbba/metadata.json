@@ -1,0 +1,43 @@
+{
+  "title": "Wireless Charging Scheduling for Long-term Utility ...",
+  "authors": [],
+  "abstract": "This article designs an optimization model for the long-term scheduling of chargers to maximize the time-averaged charging utility while ensuring its time-",
+  "published_date": "",
+  "updated_date": "",
+  "year": null,
+  "doi": "10.1145/3708990",
+  "arxiv_id": "",
+  "landing_url": "https://dl.acm.org/doi/10.1145/3708990",
+  "pdf_url": "",
+  "is_open_access": null,
+  "license": "",
+  "providers": [
+    "tavily"
+  ],
+  "provider_ids": {
+    "tavily": "5d559bf06421001594b9"
+  },
+  "matched_queries": [
+    "wireless charging scheduling optimization"
+  ],
+  "score": 7.25,
+  "score_reasons": [
+    "标题命中：charging, scheduling",
+    "摘要命中：optimization"
+  ],
+  "local_pdf": "",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "tavily"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+  "triage_status": "selected",
+  "selected_by_user": true,
+  "acquired_at": "2026-07-14T13:40:03+00:00",
+  "selected_at": "2026-07-14T15:49:13+00:00",
+  "canonicalized_at": "",
+  "triage_note": "用户于 2026-07-14 明确要求下载 selected PDF 并继续 MinerU；本动作仍不把未解析候选写成 wiki 事实。",
+  "candidate_rank": 5,
+  "source_manifest": "raw/inbox/auto-discovered/runs/search-20260714-214003/results.json",
+  "boundary": "selected inbox candidate; not canonical; not wiki evidence"
+}

@@ -1,0 +1,50 @@
+{
+  "title": "Study on charging strategy of wireless rechargeable sensor networks based on dynamic inhomogeneous clustering",
+  "authors": [
+    "P Tian",
+    "J Yang",
+    "H Pu",
+    "X Tian",
+    "J Tang",
+    "G Ran",
+    "L Peng"
+  ],
+  "abstract": "… life cycle and stability, and provides an efficient solution for charging scheduling in … by uneven clustering in wireless sensor networks and proposes an improved routing algorithm for …",
+  "published_date": "",
+  "updated_date": "",
+  "year": 2025,
+  "doi": "",
+  "arxiv_id": "",
+  "landing_url": "https://www.nature.com/articles/s41598-025-11569-8",
+  "pdf_url": "https://www.nature.com/articles/s41598-025-11569-8.pdf",
+  "is_open_access": true,
+  "license": "",
+  "providers": [
+    "serpapi"
+  ],
+  "provider_ids": {
+    "serpapi": "AvsW-Lc3yGMJ"
+  },
+  "matched_queries": [
+    "wireless rechargeable sensor networks"
+  ],
+  "score": 15.5,
+  "score_reasons": [
+    "标题命中：charging, dynamic, rechargeable, sensor",
+    "摘要命中：scheduling",
+    "近年文献"
+  ],
+  "local_pdf": "raw/inbox/auto-discovered/runs/search-20260801-214329/papers/013-Study-on-charging-strategy-of-wireless-rechargeable-sensor-networks-based-on-dynamic-inhom/paper.pdf",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "serpapi"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260801-214329",
+  "triage_status": "pending",
+  "selected_by_user": false,
+  "acquired_at": "2026-08-01T13:43:29+00:00",
+  "selected_at": "",
+  "canonicalized_at": "",
+  "discovery_status": "candidate",
+  "retrieved_at": "2026-08-01T13:43:56+00:00"
+}

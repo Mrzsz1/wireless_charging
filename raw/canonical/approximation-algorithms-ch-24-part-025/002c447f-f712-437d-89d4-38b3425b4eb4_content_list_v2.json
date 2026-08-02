@@ -1,0 +1,4184 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "24 Facility Location"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                109,
+                470,
+                129
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The facility location problem has occupied a central place in operations research since the early 1960’s. It models design situations such as deciding placements of factories, warehouses, schools, and hospitals. Modern day applications include placement of proxy servers on the web."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                786,
+                313
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this chapter, we will present a primal–dual schema based factor 3 approximation algorithm for the special case when connection costs satisfy the triangle inequality. The algorithm difers in two respects from previous primal–dual algorithms. First, the primal and dual pair of LPs have negative coeficients and do not form a covering-packing pair. Second, we will relax primal complementary slackness conditions rather than the dual ones. Also, the idea of synchronization, introduced in the primal–dual schema in Chapter 22, is developed further, with an explicit timing of events playing a role."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                313,
+                786,
+                426
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 24.1 (Metric uncapacitated facility location) Let G be a bipartite graph with bipartition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( F , C )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the set of facilities and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the set of cities. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the cost of opening facility "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the cost of connecting city j to (opened) facility i. The connection costs satisfy the triangle inequality. The problem is to find a subset "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I \\subseteq F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of facilities that should be opened, and a function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi : { \\cal C }  I"
+                    },
+                    {
+                        "type": "text",
+                        "content": "assigning cities to open facilities in such a way that the total cost of opening facilities and connecting cities to open facilities is minimized."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                432,
+                786,
+                545
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider the following integer program for this problem. In this program, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is an indicator variable denoting whether facility i is open, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is an indicator variable denoting whether city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is connected to the facility i. The first set of constraints ensures that each city is connected to at least one facility, and the second ensures that this facility must be open."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                545,
+                786,
+                618
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l l} \\text {minimize} & \\sum_ {i \\in F, j \\in C} c _ {i j} x _ {i j} + \\sum_ {i \\in F} f _ {i} y _ {i} \\\\ \\text {subject to} & \\sum_ {i \\in F} x _ {i j} \\geq 1, & j \\in C \\\\ & y _ {i} - x _ {i j} \\geq 0, & i \\in F, j \\in C \\\\ & x _ {i j} \\in \\{0, 1 \\}, & i \\in F, j \\in C \\\\ & y _ {i} \\in \\{0, 1 \\}, & i \\in F \\end{array}\\tag{24.1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/164fa3b696deb4559baf6e1cf56d00052c4f01d52765913b1556c57327c44a93.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                629,
+                660,
+                755
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The LP-relaxation of this program is:"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                112,
+                529,
+                128
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l l} \\text {minimize} & \\sum_ {i \\in F, j \\in C} c _ {i j} x _ {i j} + \\sum_ {i \\in F} f _ {i} y _ {i} \\\\ \\text {subject to} & \\sum_ {i \\in F} x _ {i j} \\geq 1, & j \\in C \\\\ & y _ {i} - x _ {i j} \\geq 0, & i \\in F, j \\in C \\\\ & x _ {i j} \\geq 0, & i \\in F, j \\in C \\\\ & y _ {i} \\geq 0, & i \\in F \\end{array}\\tag{24.2}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b73bd65bf1f286d80edb98ae1b40c25d3e699c8194898e053b77a03dd0154784.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                139,
+                660,
+                267
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The dual program is:"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                278,
+                410,
+                293
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "maximize"
+                    }
+                ]
+            },
+            "bbox": [
+                263,
+                309,
+                341,
+                324
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {j \\in C} \\alpha_ {j}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/ac8ecc0a457b4fbfae71d060446462ff1d40ea0693ed3a1daf71f590eb1a0838.jpg"
+                }
+            },
+            "bbox": [
+                357,
+                306,
+                411,
+                338
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "subject to"
+                    }
+                ]
+            },
+            "bbox": [
+                262,
+                343,
+                344,
+                359
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\alpha_ {j} - \\beta_ {i j} \\leq c _ {i j}, & i \\in F, j \\in C \\\\ \\sum_ {j \\in C} \\beta_ {i j} \\leq f _ {i}, & i \\in F \\\\ \\alpha_ {j} \\geq 0, & j \\in C \\\\ \\beta_ {i j} \\geq 0, & i \\in F, j \\in C \\end{array}\\tag{24.3}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/d264697b699eae9154ec3e46226f385e38c8386f1b8aa48c37a4040a2388eb52.jpg"
+                }
+            },
+            "bbox": [
+                354,
+                343,
+                591,
+                431
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "24.1 An intuitive understanding of the dual"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                456,
+                668,
+                473
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us first give the reader some feel for how the dual variables "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { \\Delta ^ { 6 6 } p a y ^ { 5 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for a primal solution by considering the following simple setting. Suppose LP (24.2) has an optimal solution that is integral, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I \\subseteq F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi : C \\to I ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Thus, under this solution, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i \\in I ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i j } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i = \\phi ( j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\alpha , \\beta )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote an optimal dual solution."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                487,
+                786,
+                558
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The primal and dual complementary slackness conditions are:"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                558,
+                705,
+                573
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(i)"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                581,
+                245,
+                596
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\forall i \\in F, j \\in C: x _ {i j} > 0 \\Rightarrow \\alpha_ {j} - \\beta_ {i j} = c _ {i j}\\tag{ii}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/44eab9b5c3a6699822a442516352d53ee51f264bd2de33112972adc48a78dd5d.jpg"
+                }
+            },
+            "bbox": [
+                290,
+                581,
+                588,
+                598
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\forall i \\in F: y _ {i} > 0 \\Rightarrow \\sum_ {j \\in C} \\beta_ {i j} = f _ {i}\\tag{iii}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b1fd95344cfc5d07e70c233776d265ce429798c0b2fae59dae93a78ebe17c27d.jpg"
+                }
+            },
+            "bbox": [
+                290,
+                598,
+                517,
+                626
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\forall j \\in C: \\alpha_ {j} > 0 \\Rightarrow \\sum_ {i \\in F} x _ {i j} = 1\\tag{iv}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b3c6cc1cd2a6058c2538be1fd4a3fdbec78734623ca1690476a319a53f8c4797.jpg"
+                }
+            },
+            "bbox": [
+                290,
+                627,
+                517,
+                655
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\forall i \\in F, j \\in C: \\beta_ {i j} > 0 \\Rightarrow y _ {i} = x _ {i j}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/7238ab36ddbe80fe622cc1b14ab1026a1484a68ab704b18368cfd5f0a65ba501.jpg"
+                }
+            },
+            "bbox": [
+                290,
+                653,
+                542,
+                671
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "By condition (ii), each open facility must be fully paid for, i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathrm { i f ~ } } i \\in I ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "then"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                678,
+                784,
+                708
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {j \\colon \\phi (j) = i} \\beta_ {i j} = f _ {i}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/c34bbce8aa3761095da399c1c2720a337b27c20e2b6282f71bfec344a097dd70.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                718,
+                389,
+                752
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "24.1 An intuitive understanding of the dual"
+                    }
+                ]
+            },
+            "bbox": [
+                418,
+                87,
+                731,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "233"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider condition (iv). Now, if facility i is open, but "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi ( j ) \\neq i ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i } \\neq x _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and so "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { i j } = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", i.e., city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "does not contribute to opening any facility besides the one it is connected to."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                784,
+                155
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "By condition (i), if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi ( j ) = i"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } - \\beta _ { i j } = c _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Thus, we can think of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as the total price paid by city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of this, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "goes towards the use of edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i , j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the contribution of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "towards opening facility i."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                155,
+                786,
+                200
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "24.2 Relaxing primal complementary slackness conditions"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                227,
+                697,
+                260
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Suppose the primal complementary slackness conditions were relaxed as follows, while maintaining the dual conditions:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                274,
+                784,
+                303
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\forall j \\in C: (1 / 3) c _ {\\phi (j) j} \\leq \\alpha_ {j} - \\beta_ {\\phi (j) j} \\leq c _ {\\phi (j) j},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/1eebff1a13bbb08cee83e079f3107157875af2e1d7d35c7066d57c5191bc4bf3.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                317,
+                601,
+                334
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "and"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                344,
+                255,
+                359
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\forall i \\in I: (1 / 3) f _ {i} \\leq \\sum_ {j: \\phi (j) = i} \\beta_ {i j} \\leq f _ {i}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/1b34a92a8dff570d514431dbbcc393d3f26056ae37b38235f8be541f2b479efd.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                370,
+                556,
+                403
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Then, the cost of the (integral) solution found would be within thrice the dual found, thus leading to a factor 3 approximation algorithm. However, we would like to obtain the stronger inequality stated in Theorem 24.7. Now, the dual pays at least one-third the connection cost, but must pay completely for opening facilities. This stronger inequality will be needed in order to use this algorithm to solve the k-median problem in Chapter 25."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                416,
+                786,
+                501
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For this reason, we will relax the primal conditions as follows. The cities are partitioned into two sets, directly connected and indirectly connected. Only directly connected cities will pay for opening facilities, i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "can be nonzero only "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { i f } \\ j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a directly connected city and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i = \\phi ( j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For an indirectly connected city j, the primal condition is relaxed as follows:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                501,
+                786,
+                574
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "(1 / 3) c _ {\\phi (j) j} \\leq \\alpha_ {j} \\leq c _ {\\phi (j) j}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/470d957385a9cd211f0fded2dce39bc2262cd78f7c28b3809d50e3043ca059ba.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                586,
+                453,
+                602
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "All other primal conditions are maintained, i.e., for a directly connected city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "9"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                614,
+                784,
+                644
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\alpha_ {j} - \\beta_ {\\phi (j) j} = c _ {\\phi (j) j},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/117c5cc7351feb3948fc545727e823cd603e6e9690934e5291d8adef0d5b533f.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                658,
+                415,
+                674
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "and for each open facility "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                686,
+                428,
+                701
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {j: \\phi (j) = i} \\beta_ {i j} = f _ {i}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/7f64479ec95decaaf143e3cda9144ddc644aff6b1c1c356e6a05ffd01e330654.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                712,
+                389,
+                746
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "234"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "24 Facility Location"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                426,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "24.3 Primal–dual schema based algorithm"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                112,
+                650,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm consists of two phases. In Phase 1, the algorithm operates in a primal–dual fashion. It finds a dual feasible solution and also determines a set of tight edges and temporarily open facilities, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F _ { t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Phase 2 consists of choosing a subset I of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F _ { t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to open, and finding a mapping, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from cities to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I ."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                141,
+                786,
+                200
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 24.2"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                205,
+                356,
+                219
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Phase 1"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                227,
+                294,
+                240
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We would like to find as large a dual solution as possible. This motivates the following underlying process for dealing with the non-covering-packing pair of LPs. Each city j raises its dual variable, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", until it gets connected to an open facility. All other primal and dual variables simply respond to this change, trying to maintain feasibility or satisfying complementary slackness conditions."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                241,
+                786,
+                326
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A notion of time is defined in this phase, so that each event can be associated with the time at which it happened; the phase starts at time 0. Initially, each city is defined to be unconnected. Throughout this phase, the algorithm raises the dual variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for each unconnected city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "uniformly at unit rate, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { i . e . , } \\alpha _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will grow by 1 in unit time. When "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } = c _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for some edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i , j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the algorithm will declare this edge to be tight. Henceforth, dual variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will be raised uniformly, thus ensuring that the first constraint in LP (24.3) is not violated. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "goes towards paying for facility i. Each edge (i, j) such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { i j } > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is declared special."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                326,
+                784,
+                454
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Facility i is said to be paid for if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textstyle \\sum _ { i } \\beta _ { i j } = f _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". If so, the algorithm de-\u0001clares this facility temporarily open. Furthermore, all unconnected cities having tight edges to this facility are declared connected and facility i is declared the connecting witness for each of these cities. (Notice that the dual variables "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of these cities are not raised anymore.) In the future, as soon as an unconnected city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "gets a tight edge to i, j will also be declared connected and i will be declared the connecting witness for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(notice that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { i j } = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and thus edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i , j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is not special). When all cities are connected, the first phase terminates. If several events happen simultaneously, the algorithm executes them in arbitrary order."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                454,
+                786,
+                598
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Remark 24.3 At the end of Phase 1, a city may have paid towards temporarily opening several facilities. However, we want to ensure that a city pays only for the facility that it is eventually connected to. This is ensured in Phase 2, which chooses a subset of temporarily open facilities for opening permanently."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                604,
+                786,
+                676
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Phase 2"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                682,
+                295,
+                695
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F _ { t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the set of temporarily open facilities and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the subgraph of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "consisting of all special edges. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the graph that has edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if there is a path of length at most 2 between u and v in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and let H be the subgraph of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "induced on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F _ { t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Find any maximal independent set in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", say I. All facilities in the set I are declared open."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                696,
+                786,
+                740
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "24.3 Primal–dual schema based algorithm"
+                    }
+                ]
+            },
+            "bbox": [
+                431,
+                87,
+                729,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "235"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                221,
+                112,
+                784,
+                141
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { F } _ { j } = \\{ i \\in F _ { t } ~ | ~ ( i , j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is special}. Since I is an independent set, at most one of the facilities in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathcal { F } } _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is opened. If there is a facility "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i \\in"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathcal { F } } _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that is opened, then set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi ( j ) = i"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and declare city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "directly connected. Otherwise, consider tight edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i ^ { \\prime } , j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "was the connecting witness for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j , \\mathrm { H } i ^ { \\prime } \\in I ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "again set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi ( j ) = i \\prime"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and declare city j directly connected (notice that in this case "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { i ^ { \\prime } j } = 0 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In the remaining case that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ^ { \\prime } \\notin I ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "let i be any neighbor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in graph H such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i \\in I ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi ( j ) = i"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and declare city j indirectly connected."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                141,
+                784,
+                255
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "I and φ define a primal integral solution: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i j } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi ( j ) = i"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i } = 1"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { i f } \\ i \\in I"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The values of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "obtained at the end of Phase 1 form a dua feasible solution."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                255,
+                784,
+                298
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "24.4 Analysis"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                326,
+                366,
+                343
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will show how the dual variables "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } \\mathrm { ^ { * } s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "pay for the primal costs of opening facilities and connecting cities to facilities. Denote by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } ^ { f }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } ^ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the contributions of city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to these two costs respectively; "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } = \\alpha _ { j } ^ { f } + \\alpha _ { j } ^ { e } . \\mathrm { ~ I f ~ } j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is indirectly connected, then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } ^ { f } = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } ^ { e } = \\alpha _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". If j is directly connected, then the following must hold:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                356,
+                784,
+                438
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\alpha_ {j} = c _ {i j} + \\beta_ {i j},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/1186d9eb7accdaf9fb98d2573bcb688006324e1fee648bcee894841c787e47e4.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                451,
+                374,
+                466
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i = \\phi ( j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now, let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } ^ { f } = \\beta _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } ^ { e } = c _ { i j }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                479,
+                576,
+                498
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 24.4 Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i \\in I"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                505,
+                455,
+                518
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {j: \\phi (j) = i} \\alpha_ {j} ^ {f} = f _ {i}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/fa09cca345161f164d949aed59d946b3397ebff9d957b3ad16d847ca71bdd796.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                531,
+                386,
+                564
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Since i is temporarily open at the end of Phase 1, it is completely paid for, i.e.,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                583,
+                784,
+                613
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {j: (i, j) \\text { is   special }} \\beta_ {i j} = f _ {i}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b76472348d250af45dff37eb7972f6448a88c5442620c9d3d7ed39cf4be48b02.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                625,
+                442,
+                659
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The critical observation is that each city j that has contributed to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must be directly connected to i. For each such city, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } ^ { f } = \\beta _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Any other city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that is connected to facility i must satisfy "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j ^ { \\prime } } ^ { f } = \\dot { 0 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The lemma follows. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                671,
+                784,
+                720
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Corollary 24.5 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\sum _ { i \\in I } f _ { i } = \\sum _ { j \\in C } \\alpha _ { j } ^ { f } } \\end{array}"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                736,
+                502,
+                755
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "236"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "24 Facility Location"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                426,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Recall that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } ^ { f }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "was defined to be 0 for indirectly connected cities. Thus, only the directly connected cities pay for the cost of opening facilities."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                142
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 24.6 For an indirectly connected city j, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { i j } \\leq 3 \\alpha _ { j } ^ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i = \\phi ( j )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                149,
+                779,
+                166
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the connecting witness for city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is indirectly connected to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i , \\ ( i , i ^ { \\prime } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must be an edge in H. In turn, there must be a city, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i , j ^ { \\prime } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i ^ { \\prime } , j ^ { \\prime } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are both special edges. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the times at which i and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "were declared temporarily open during Phase 1."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                181,
+                784,
+                239
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/67ed21fbc6255c89201925b740ac1c98eb0d00140edd14d1f806ebcd441ce113.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                410,
+                240,
+                596,
+                338
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i ^ { \\prime } , j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is tight, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } \\ \\geq \\ c _ { i ^ { \\prime } j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We will show that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } \\ \\geq \\ c _ { i j ^ { \\prime } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } \\geq c _ { i ^ { \\prime } j ^ { \\prime } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then, the lemma will follow by using the triangle inequality."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                350,
+                784,
+                379
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since edges "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i ^ { \\prime } , j ^ { \\prime } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i , j ^ { \\prime } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are tight, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j ^ { \\prime } } \\geq c _ { i j ^ { \\prime } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j ^ { \\prime } } \\geq c _ { i ^ { \\prime } j ^ { \\prime } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since both these edges are special, they must both have gone tight before either i or "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is declared temporarily open. Consider the time min "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( t _ { 1 } , t _ { 2 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j ^ { \\prime } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cannot be growing beyond this time. Therefore, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j ^ { \\prime } } \\leq"
+                    },
+                    {
+                        "type": "text",
+                        "content": "min "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( t _ { 1 } , t _ { 2 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Fina "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { l y , }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the connecting witness for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j , \\alpha _ { j } \\geq t _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } \\geq \\alpha _ { j ^ { \\prime } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and the required inequalities follow. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                378,
+                784,
+                464
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 24.7 The primal and dual solutions constructed by the algorithm satisfy:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                480,
+                784,
+                508
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {i \\in F, j \\in C} c _ {i j} x _ {i j} + 3 \\sum_ {i \\in F} f _ {i} y _ {i} \\leq 3 \\sum_ {j \\in C} \\alpha_ {j}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/65b531e3f8ff53974eb596748da33a98f74b543d93508b17fb7d1357bcd21e04.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                521,
+                539,
+                552
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: For a directly connected city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j , c _ { i j } = \\alpha _ { j } ^ { e } \\leq 3 \\alpha _ { j } ^ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi ( j ) = i"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Combining with Lemma 24.6 we get"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                571,
+                781,
+                601
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {i \\in F, j \\in C} c _ {i j} x _ {i j} \\leq 3 \\sum_ {j \\in C} \\alpha_ {j} ^ {e}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/162d9832b0ab8a369d9665ea5d929bacef49a56bd4b9186b27cbfa6b1798f054.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                613,
+                448,
+                645
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Adding to this the equality stated in Corollary 24.5 multiplied by 3 gives the theorem. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                657,
+                784,
+                686
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "24.4 Analysis"
+                    }
+                ]
+            },
+            "bbox": [
+                625,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "237"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "24.4.1 Running time"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                112,
+                411,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A special feature of the primal–dual schema is that it yields algorithms with good running times. Since this is especially so for the current algorithm, we will provide some implementation details. We will adopt the following notation: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n _ { c } = | C |"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n _ { f } = | \\boldsymbol { F } |"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The total number of vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n _ { c } + n _ { f } = n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the total number of edges "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n _ { c } \\times n _ { f } = m"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                139,
+                784,
+                210
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Sort all the edges by increasing cost – this gives the order and the times at which edges go tight. For each facility, i, we maintain the number of cities that are currently contributing towards it, and the anticipated time, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { i } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "at which it would be completely paid for if no other event happens on the way. Initially all "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { i } \\mathrm { \\ ' } \\mathrm { s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are infinite, and each facility has 0 cities contributing to it. The "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { i } \\mathrm { \\ ' } \\mathrm { s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are maintained in a binary heap so we can update each one and find the current minimum in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log n _ { f } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "time. Two types of events happen, and they lead to the following updates."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                210,
+                786,
+                325
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• An edge (i, j) goes tight."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                334,
+                425,
+                348
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "– If facility i is not temporarily open, then it gets one more city contributing towards its cost. The amount contributed towards its cost at the current time can be easily computed. Therefore, the anticipated time for facility i to be paid for can be recomputed in constant time. The heap can be updated in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log n _ { f } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "time."
+                    }
+                ]
+            },
+            "bbox": [
+                236,
+                350,
+                784,
+                422
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "– If facility i is already temporarily open, city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is declared connected, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is not raised anymore. For each facility "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that was counting j as a contributor, we need to decrease the number of contributors by 1 and recompute the anticipated time at which it gets paid for."
+                    }
+                ]
+            },
+            "bbox": [
+                236,
+                420,
+                784,
+                478
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Facility i is completely paid for. In this event, i will be declared temporarily open, and all cities contributing to i will be declared connected. For each of these cities, we will execute the second case of the previous event, i.e., update facilities that they were contributing towards."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                480,
+                784,
+                539
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The next theorem follows by observing that each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i , j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will be considered at most twice. First, when it goes tight. Second, when city j is declared connected. For each consideration of this edge, we will do "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log n _ { f } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "work."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                546,
+                784,
+                590
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 24.8 Algorithm 24.2 achieves an approximation factor of 3 for the facility location problem and has a running time of O(m log m)."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                598,
+                786,
+                629
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "24.4.2 Tight example"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                646,
+                416,
+                662
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The following infinite family of examples shows that the analysis of our algorithm is tight: The graph has n cities, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { 1 } , c _ { 2 } , \\ldots , c _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and two facilities "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Each city is at a distance of 1 from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". City c<sub>1</sub> is at a distance of 1 from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { 2 } , \\ldots , c _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are at a distance of 3 from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The opening cost of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are ε and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( n + 1 ) \\varepsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", respectively, for a small number ε."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                673,
+                784,
+                746
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "238"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "24 Facility Location"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                426,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/ec172788b1a2adae834444062317ee16f44ab7f1f93bf42a12c37d609f9e79d5.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "The optimal solution is to open "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and connect all cities to it, at a total cost of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( n + 1 ) \\varepsilon + n"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Algorithm 24.2 will however open facility "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and connect all cities to it, at a total cost of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon + 1 + 3 ( n - 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ")."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                337,
+                107,
+                667,
+                281
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "24.5 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                367,
+                376,
+                382
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "24.1 Consider the general uncapacitated facility location problem in which the connection costs are not required to satisfy the triangle inequality. Give a reduction from the set cover problem to show that approximating this problem is as hard as approximating set cover and therefore cannot be done better than O(log n) factor unless "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { \\tilde { N P } } \\subseteq \\tilde { \\mathbf { P } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Also, give an O(log n) factor algorithm for this problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                411,
+                786,
+                498
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "24.2 In Phase 2, instead of picking all special edges in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T _ { : }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", pick all tight edges. Show that now Lemma 24.6 does not hold. Give a suitable modification to the algorithm that restores Lemma 24.6."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                510,
+                784,
+                554
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Order facilities in H in the order in which they were temporarily opened, and pick I to be the lexicographically first maximal independent set."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                552,
+                784,
+                583
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "24.3 Give a factor 3 tight example for Algorithm 24.2 in which the set of cities and facilities is the same, i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C = F"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                609,
+                786,
+                640
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "24.4 Consider the proof of Lemma 24.6. Give an example in which "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } > t _ { 2 }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                652,
+                781,
+                668
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "24.5 The vector α found by Algorithm 24.2 is maximal in the sense that if we increase any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in this vector, then there is no way of setting the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { i j } \\mathrm { ^ { * } s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to get a feasible dual solution. Is every maximal solution α within 3 times the optimal solution to dual program for facility location?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                681,
+                786,
+                739
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "24.5 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                620,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "239"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: It is easy to construct a maximal solution that is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 / n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "times the optimal. Consider n facilities with an opening cost of 1 each and n cities connected to distinct facilities by edges of cost ε each. In addition, there is another city that is connected to each facility with an edge of cost 1."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                171
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "24.6 Consider the following modification to the metric uncapacitated facility location problem. Define the cost of connecting city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to facility i to be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { i j } ^ { 2 } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "The "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { i j } \\mathrm { ^ { \\circ } s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "still satisfy the triangle inequality (but the new connection costs, of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { i j } ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", do not). Show that Algorithm 24.2 achieves an approximation guarantee of factor 9 for this case."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                184,
+                786,
+                256
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "24.7 Consider the following generalization to arbitrary demands. For each city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "a nonnegative demand "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is specified, and any open facility can serve this demand. The cost of serving this demand via facility i is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { i j } d _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Give an IP and LP-relaxation for this problem, and extend Algorithm 24.2 to get a factor 3 algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                269,
+                786,
+                340
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Raise "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "at rate "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d _ { j }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                340,
+                426,
+                356
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "24.8 In the capacitated facility location problem, we are given a number "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for each facility "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and facility i can serve at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cities. Show that the modification of LP (24.2) to this problem has an unbounded integrality gap."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                369,
+                784,
+                413
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "24.9 Consider the variant of the capacitated metric facility location problem in which each facility can be opened an unbounded number of times. If facility i is opened "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "times, it can serve at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u _ { i } y _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cities. Give an IP and LPrelaxation for this problem, and extend Algorithm 24.2 to obtain a constant factor algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                425,
+                784,
+                498
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "24.10 (Charikar, Khuller, Mount, and Narshimhan [40]) Consider the prizecollecting variant of the facility location problem, in which there is a specified penalty for not connecting a city to an open facility. The objective is to minimize the sum of the connection costs, facility opening costs, and penalties. Give a factor 3 approximation algorithm for this problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                510,
+                786,
+                583
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "24.11 (Jain and Vazirani [140]) Consider the fault tolerant variant of the facility location problem, in which the additional input is a connection requirement "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for each city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "In the solution, city j needs to be connected to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "distinct open facilities. The objective, as before, is to minimize the sum of the connection costs and the facility opening costs."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                596,
+                786,
+                667
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Decompose the problem into k phases, numbered k down to 1, as in Exercise 23.7. In phase "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", all cities having a residual requirement of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are provided one more connection to an open facility. In phase "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the facility location algorithm of this chapter is run on the following modified graph, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { p }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "The cost of each facility that is opened in an earlier phase is set to 0. If city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is connected to facility i in an earlier phase, then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is set to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\infty"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                667,
+                786,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "240"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "24 Facility Location"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                426,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Show that even though "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { p }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "violates the triangle inequality at some places, the algorithm gives a solution within factor 3 of the optimal solution for this graph."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                112,
+                784,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Every time short-cutting is needed; the triangle inequality holds."
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                155,
+                783,
+                170
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Show that the solution found in phase "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is of cost at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 \\cdot \\mathrm { O P T } / p ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "where OPT is the cost of the solution to the entire problem. Hint: Remove ∞ cost edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { p }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from the optimal solution and divide the rest by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Show that this is a feasible fractional solution for phase "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                168,
+                784,
+                227
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3. Show that this algorithm achieves an approximation factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 \\cdot H _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for the fault tolerant facility location problem."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                227,
+                784,
+                256
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "24.12 (Mahdian, Markakis, Saberi, and Vazirani [201]) This exercise develops a factor 3 greedy algorithm for the metric uncapacitated facility location problem, together with an analysis using the method of dual fitting."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                275,
+                784,
+                319
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider the following modification to Algorithm 24.2. As before, dual variables, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", of all unconnected cities, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", are raised uniformly. If edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i , j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is tight, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is raised. As soon as a facility, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is paid for, it is declared open. Let S be the set of unconnected cities having tight edges to i. Each city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is declared connected and stops raising its "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". So far, the new algorithm is the same as Algorithm 24.2. The main diference appears at this stage: Each city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "withdraws its contribution from other facilities, i.e., for each facility "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ^ { \\prime } \\neq i ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { i ^ { \\prime } j } = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". When all cities have been declared connected, the algorithm terminates. Observe that each city contributes towards the opening cost of at most one facility – the facility it gets connected to."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                319,
+                786,
+                463
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. This algorithm actually has a simpler description as a greedy algorithm. Provide this description."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                470,
+                784,
+                499
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Use the notion of cost–efectiveness defined for the greedy set cover algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                499,
+                784,
+                527
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. The next 3 parts use the method of dual fitting to analyze this algorithm. First observe that the primal solution found is fully paid for by the dual computed."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                527,
+                784,
+                570
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3. Let i be an open facility and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ 1 , \\ldots , k \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the set of cities that contributed to opening i at some point in the algorithm. Assume w.l.o.g. that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { 1 } \\leq \\alpha _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j \\le k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Show that for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j \\le k , \\alpha _ { j } - c _ { i j } \\le 2 \\alpha _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Also, show that"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                569,
+                784,
+                627
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {j = 1} ^ {k} \\alpha_ {j} \\leq 3 \\sum_ {j = 1} ^ {k} c _ {i j} + f _ {i}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/65f2b414d83df1da34906d930ee568d922ff02a2b73c0a4e9fc61f621218cff7.jpg"
+                }
+            },
+            "bbox": [
+                289,
+                637,
+                462,
+                678
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Use the triangle inequality and the following inequality which is a consequence of the fact that at any point, the total amount contributed for opening facility i is at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ":"
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                690,
+                784,
+                734
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "24.5 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                620,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "241"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {j: c _ {i j} \\leq \\alpha_ {1}} \\alpha_ {1} - c _ {i j} \\leq f _ {i}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/df20e6cc874bba642fac7438cbecfdbdea54657f49f7a06371a0a903d841b1d7.jpg"
+                }
+            },
+            "bbox": [
+                289,
+                110,
+                458,
+                143
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4. Hence show that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha / 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a dual feasible solution."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                155,
+                608,
+                168
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "5. How can the analysis be improved – a factor 1.86 analysis is known for this algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                168,
+                784,
+                198
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "6. Give a time eficient implementation of this algorithm, matching the running time of Algorithm 24.2"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                198,
+                783,
+                225
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "7. Do you see room for improving the algorithm?"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                225,
+                600,
+                241
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Suppose city "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is connected to open facility i at some point in the algorithm. Later, facility "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is opened, and suppose that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { i j } > c _ { i ^ { \\prime } j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then, connecting j to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will reduce the cost of the solution."
+                    }
+                ]
+            },
+            "bbox": [
+                233,
+                239,
+                784,
+                285
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "24.13 (Mahdian, Markakis, Saberi, and Vazirani [201]) Consider the following variant of the metric uncapacitated facility location problem. Instead of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { i } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the opening cost for each facility "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i \\in F"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we are provided a startup cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and an incremental cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { i } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Define the new opening cost for connecting "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cities to facility i to be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } + k t _ { i } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Connection costs are specified by a metric, as before. The object again is to connect each city to an open facility so as to minimize the sum of connection costs and opening costs. Give an approximation factor preserving reduction from this problem to the metric uncapacitated facility location problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                307,
+                786,
+                435
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Modify the metric appropriately."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                435,
+                522,
+                451
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "24.6 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                479,
+                342,
+                495
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The first approximation algorithm for the metric uncapacitated facility location problem, due to Hochbaum [124], achieved an approximation guarantee of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The first constant factor approximation algorithm, achieving a guarantee of 3.16, was due to Shmoys, Tardos, and Aardal [239]. It was based on LP-rounding. The current best algorithm, achieving an approximation guarantee of 1.61, is due to Jain, Mahdian, and Saberi [138]. This algorithm, a small modification of the greedy algorithm presented in Exercise 24.12, is analyzed using the method of dual fitting. The primal–dual schema based Algorithm 24.2 is due to Jain and Vazirani [141]."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                508,
+                786,
+                639
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "242"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "24 Facility Location"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                428,
+                101
+            ]
+        }
+    ]
+]

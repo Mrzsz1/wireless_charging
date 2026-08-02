@@ -1,0 +1,50 @@
+{
+  "title": "Collaborative Charging Optimization for Wireless Rechargeable Sensor Networks via Heterogeneous Mobile Chargers",
+  "authors": [
+    "Jianhang Yao",
+    "Hui Kang",
+    "Geng Sun",
+    "Jiahui Li",
+    "Hongjuan Li",
+    "Jiacheng Wang",
+    "Yinqiu Liu"
+  ],
+  "abstract": "Despite the rapid proliferation of Internet of Things applications driving widespread wireless sensor network (WSN) deployment, traditional WSNs remain fundamentally constrained by persistent energy limitations that severely restrict network lifetime and operational sustainability. Wireless rechargeable sensor networks (WRSNs) integrated with wireless power transfer (WPT) technology emerge as a transformative paradigm, theoretically enabling unlimited operational lifetime. In this paper, we investigate a heterogeneous mobile charging architecture that strategically combines an automated aerial vehicle (AAV) and a ground smart vehicle (SV) in heterogeneous deployment scenarios to collaboratively exploit the superior mobility of the AAV and extended endurance of the SV for energy distribution. We formulate a multi-objective optimization problem that simultaneously addresses the dynamic balance of heterogeneous charger advantages, charging efficiency versus mobility energy consumption trade-offs, and real-time adaptive coordination under time-varying network conditions. This problem presents significant computational challenges due to its high-dimensional continuous action space, non-convex optimization landscape, and dynamic environmental constraints. To address these challenges, we propose the improved heterogeneous agent trust region policy optimization (IHATRPO) algorithm that integrates a self-attention mechanism for enhanced complex environmental state processing and employs a Beta sampling strategy to achieve unbiased gradient computation in continuous action spaces. Simulation results demonstrate that IHATRPO achieves a 51% performance improvement over the original HATRPO, significantly outperforming state-of-the-art baseline algorithms while substantially decreasing sensor node mortality rate and improving charging system efficiency.",
+  "published_date": "2025-11-16",
+  "updated_date": "2026-06-25",
+  "year": 2025,
+  "doi": "10.1109/jiot.2026.3696627",
+  "arxiv_id": "2511.12501",
+  "landing_url": "https://arxiv.org/abs/2511.12501v2",
+  "pdf_url": "https://arxiv.org/pdf/2511.12501v2",
+  "is_open_access": true,
+  "license": "",
+  "providers": [
+    "arxiv"
+  ],
+  "provider_ids": {
+    "arxiv": "2511.12501"
+  },
+  "matched_queries": [
+    "wireless rechargeable sensor networks"
+  ],
+  "score": 19.75,
+  "score_reasons": [
+    "标题命中：charger, charging, mobile, rechargeable, sensor",
+    "摘要命中：dynamic, energy",
+    "近年文献"
+  ],
+  "local_pdf": "raw/inbox/auto-discovered/runs/search-20260801-214329/papers/003-Collaborative-Charging-Optimization-for-Wireless-Rechargeable-Sensor-Networks-via-Heteroge/paper.pdf",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "arxiv"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260801-214329",
+  "triage_status": "pending",
+  "selected_by_user": false,
+  "acquired_at": "2026-08-01T13:43:29+00:00",
+  "selected_at": "",
+  "canonicalized_at": "",
+  "discovery_status": "candidate",
+  "retrieved_at": "2026-08-01T13:43:43+00:00"
+}

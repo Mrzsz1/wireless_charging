@@ -1,0 +1,4331 @@
+[
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "PART THREE Quantifying the Inefficiency of Equilibria"
+                    }
+                ]
+            },
+            "bbox": [
+                193,
+                76,
+                800,
+                195
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                0,
+                0,
+                998,
+                998
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Introduction to the Inefficiency of Equilibria"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                205,
+                101,
+                790,
+                168
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Tim Roughgarden and Eva Tardos<sup>´</sup>"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                305,
+                214,
+                690,
+                235
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Abstract"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                449,
+                365,
+                546,
+                384
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This chapter presents motivation and definitions for quantifying the inefficiency of equilibria in noncooperative games. We illustrate the basic concepts in four fundamental network models, which are studied in depth in subsequent chapters. We also discuss how measures of the inefficiency of equilibria can guide mechanism and network design."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                403,
+                860,
+                470
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.1 Introduction"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                405,
+                520,
+                592,
+                536
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.1.1 The Inefficiency of Equilibria"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                325,
+                556,
+                670,
+                574
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The previous two parts of this book provided numerous examples demonstrating that the outcome of rational behavior by self-interested players can be inferior to a centrally designed outcome. This part of the book is devoted to the question: by how much?"
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                584,
+                858,
+                638
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To begin, recall the Prisoner’s Dilemma (Example 1.1). Both players suffer a cost of 4 in the unique Nash equilibrium of this game, while both could incur a cost of 2 by coordinating. There are several ways to formalize the fact that the Nash equilibrium in the Prisoner’s Dilemma is inefficient. A qualitative observation is that the equilibrium is strictly Pareto inefficient, in the sense that there is another outcome in which all of the players achieve a smaller cost. This qualitative perspective is particularly appropriate in applications where the “cost” or “payoff” to a player is an abstract quantity that only expresses the player’s preferences between different outcomes. However, payoffs and costs have concrete interpretations in many applications, such as money or the delay incurred in a network. We can proceed more quantitatively in such applications and posit a specific objective function, defined on the outcomes of the game, that numerically expresses the “social good” or “social cost” of an outcome. Two prominent objective functions are the utilitarian and egalitarian functions, defined as the sum of the players’ costs and the maximum player cost, respectively. The Nash equilibrium in the Prisoner’s Dilemma does not minimize either of these objective functions."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                638,
+                860,
+                909
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "CHAPTER 17"
+                    }
+                ]
+            },
+            "bbox": [
+                427,
+                72,
+                568,
+                87
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "443"
+                    }
+                ]
+            },
+            "bbox": [
+                481,
+                920,
+                514,
+                934
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Introducing an objective function enables us to quantify the inefficiency of equilib ria, and in particular to deem certain outcomes of a game optimal or approximately optimal. The primary goal of this part of the book is to understand when, and in what senses, game-theoretic equilibria are guaranteed to approximately optimize natural ob jective functions. Such a guarantee implies that selfish behavior does not have severe consequences, and thus the benefit of imposing additional control over players’ actions is relatively small. Guarantees of this sort are particularly useful in many computer science applications, especially those involving the Internet, where implementing an optimal solution can be impossible or prohibitively expensive."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                78,
+                864,
+                239
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the remainder of this section, we discuss different measures that quantify the inefficiency of equilibria. In Section 17.2, we illustrate these concepts and motivate Chapters 18–21 via several examples in network games. Section 17.3 demonstrates how these same concepts provide a comparative framework for mechanism and network design. Section 17.4 concludes with bibliographic notes and suggestions for furthe reading."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                241,
+                864,
+                348
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.1.2 Measures of Inefficiency"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                353,
+                376,
+                650,
+                394
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Several measures of “the inefficiency of the equilibria of a game” have been considered. All of these measures are defined, roughly, as the ratio between the objective function value of an equilibrium of the game and that of an optimal outcome. To specify such a measure precisely, we must answer the following basic modeling questions."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                403,
+                862,
+                476
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(1) How are the payoffs or costs of players expressed?"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                485,
+                584,
+                502
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(2) What objective function do we use to compare different outcomes of the game?"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                503,
+                810,
+                520
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(3) What is our definition of “approximately optimal”?"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                521,
+                588,
+                538
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(4) What is our definition of an “equilibrium”?"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                539,
+                524,
+                555
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(5) When there are multiple equilibria, which one do we consider?"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                557,
+                680,
+                574
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We next discuss, at a high level, the most commonly studied answers to all of these questions. We give several examples in Section 17.2."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                584,
+                862,
+                619
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The answer to the first question will be some concrete payoff that players seek to maximize (such as money earned), or a cost that players aim to minimize (such as network delay). Both cases arise naturally in the applications studied in this book."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                620,
+                862,
+                673
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Second, we focus primarily on the utilitarian objective function, where the goal is to maximize the sum of players’ payoffs or minimize the sum of players’ costs. However, we also study the egalitarian objective function in Section 17.2.3 and Chapter 20. We call an outcome of a game optimal if it optimizes the chosen objective function. For example, in the Prisoner’s Dilemma, the coordinated outcome is optimal for both the utilitarian and egalitarian objective functions. While in principle the measures of inefficiency below make sense for most objective functions, we can only expect the outcome of selfish behavior to approximate an optimal outcome when the objective function is related to the players’ objectives."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                675,
+                864,
+                836
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Third, we quantify the extent to which a given outcome approximates an optima one according to the ratio between the objective function values of the two outcomes. We consider only nonnegative objective functions, so this ratio is always nonnegative. (By convention, we interpret the ratio "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c / 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as 1 if c = 0 and as +∞ if c > 0.) This ratio is at least 1 for minimization objectives and at most 1 for maximization objectives. In either case, a value close to 1 indicates that the given outcome is approximately optimal. For example, in the Prisoner’s Dilemma, the sum of the players’ costs in the Nash equilibrium is 8; since the minimum-possible sum of costs is 4, the corresponding ratio for the equilibrium outcome is 2. As Section 17.4 discusses, this use of a ratio is directly inspired by many similar notions of approximation that have been widely studied in theoretical computer science. While other notions of approximation are possible, almost all work on quantifying the inefficiency of equilibria has followed the approach taken here."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                836,
+                864,
+                909
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "444"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                43,
+                177,
+                55
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "introduction to the inefficiency of equilibria"
+                    }
+                ]
+            },
+            "bbox": [
+                261,
+                43,
+                740,
+                58
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                135,
+                78,
+                860,
+                239
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Several equilibrium concepts have been studied in different applications. In this chapter, we confine our attention to Nash equilibria and their analogues in games where the set of players or strategies is not finite. One particularly important issue not addressed in this chapter is the relationship between the inefficiency of equilibria and the ability of players to reach an equilibrium. In other words, a bound on the inefficiency of the equilibria of a game is much more compelling if we expect players to learn or converge to one of these equilibria. In many of the games discussed in this part of the book, relatively weak assumptions imply that local, uncoordinated optimization by players leads to an equilibrium outcome in a reasonable amount of time (see Sections 4.7 and 29.3). Some important classes of network games, however, do not admit such convergence results. This fact motivated researchers to define novel notions of “equilibrium outcomes,” which include all Nash equilibria but also allow players to wander among a set of unstable outcomes. In some applications, all such equilibria, and not just the Nash equilibria, are guaranteed to be approximately optimal. Chapter 19 briefly discusses some results of this type. See Section 17.4 for further details."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                241,
+                860,
+                511
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finally, given a choice of an objective function and an equilibrium concept, a game may have different equilibria with different objective function values; recall, for example, the coordination games of Section 1.1.3. In such games, it is not clear which equilibrium should be compared to an optimal outcome. Section 17.1.3 discusses the two most popular approaches."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                513,
+                860,
+                603
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.1.3 The Price of Anarchy and the Price of Stability"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                243,
+                647,
+                752,
+                665
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The price of anarchy, the most popular measure of the inefficiency of equilibria, resolves the issue of multiple equilibria by adopting a worst-case approach. Precisely, the price of anarchy of a game is defined as the ratio between the worst objective function value of an equilibrium of the game and that of an optimal outcome. Note that the price of anarchy of a game is defined with respect to a choice of objective function and a choice of equilibrium concept. For example, as shown in Section 17.2.3 below, the price of anarchy of a game is generally different for different choices of an objective function."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                673,
+                860,
+                818
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We are interested in identifying games in which the price of anarchy is close to 1; in these games, all equilibria are good approximations of an optimal outcome. We view selfish behavior as benign in such games. Put differently, the benefit provided by (possibly costly or infeasible) dictatorial control over the players’ actions is reasonably small."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                818,
+                860,
+                907
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "introduction"
+                    }
+                ]
+            },
+            "bbox": [
+                427,
+                44,
+                568,
+                57
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "445"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                43,
+                858,
+                55
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A game with multiple equilibria has a large price of anarchy even if only one of its equilibria is highly inefficient. The price of stability is a measure of inefficiency designed to differentiate between games in which all equilibria are inefficient and those in which some equilibrium is inefficient. Formally, the price of stability of a game is the ratio between the best objective function value of one of its equilibria and that of an optimal outcome. Of course, in a game with a unique equilibrium, its price of anarchy and price of stability are identical. For a game with multiple equilibria, its price of stability is at least as close to 1 as its price of anarchy, and it can be much closer (see Example 17.2 below)."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                78,
+                864,
+                239
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A bound on the price of stability, which ensures only that one equilibrium is ap proximately optimal, provides a significantly weaker guarantee than a bound on the price of anarchy. Nevertheless, there are two reasons to study the price of stability. First, in some applications, a nontrivial bound is possible only for the price of stability (see Section 17.2.2). Second, the price of stability has a natural interpretation in many network games – if we envision the outcome as being initially designed by a central authority for subsequent use by selfish players, then the best equilibrium is an obvious solution to propose. Indeed, in many networking applications, it is not the case that agents are completely independent; rather, they interact with an underlying protocol that essentially proposes a collective solution to all participants, who can either accept it or defect from it. The price of stability measures the benefit of such protocols. Because of this interpretation, the price of stability is typically studied only for equilibrium concepts that involve no randomization, such as pure-strategy Nash equilibria. For ex ample, since a mixed-strategy Nash equilibrium might randomize only over outcomes that are not (pure-strategy) Nash equilibria, it is not clear how to interpret it as a single proposed outcome for future use by selfish players."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                241,
+                864,
+                529
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The price of stability thus quantifies the necessary degradation in solution quality caused by imposing the game-theoretic constraint of stability. The goal of seeking a good equilibrium is reminiscent of the general motives of mechanism design (Part II) – designing a game outcome that (approximately) optimizes a social objective function and is also consistent with self-interested behavior."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                529,
+                862,
+                619
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this book, we will only quantify the inefficiency of the worst or the best equilib rium of a game. A third interesting approach is to analyze a “typical” equilibrium. Such “average-case analyses” are notoriously difficult to define in a meaningful and analyt ically tractable way, however, and this approach has not yet been used successfully to study the inefficiency of equilibria."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                620,
+                864,
+                711
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.2 Fundamental Network Examples"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                305,
+                744,
+                698,
+                764
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Even in very simple games, equilibria can be arbitrarily inefficient. For example, consider the Prisoner’s Dilemma, and let the players’ costs in the Nash equilibrium tend to infinity. For every reasonable objective function, the objective function value of the unique Nash equilibrium is arbitrarily larger than that of the optimal outcome."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                782,
+                862,
+                854
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since the inefficiency of equilibria cannot be bounded in general, a natural goal is to identify classes of games in which equilibria are guaranteed to be approximately optimal. Fortunately, this is the case for a wide array of fundamental network models."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                854,
+                864,
+                909
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "446"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                43,
+                177,
+                55
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "introduction to the inefficiency of equilibria"
+                    }
+                ]
+            },
+            "bbox": [
+                261,
+                43,
+                740,
+                58
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/5b75fd6238615c1a8071d9721ed336e193dde4452f1052e5e856867083d73fcc.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 17.1. Pigou’s example. The cost function c(x) describes the cost incurred by users of an edge, as a function of the amount of traffic routed on the edge."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                305,
+                82,
+                688,
+                213
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This section illustrates the concepts defined in Section 17.1 by informally introducing four such models. Chapters 18–21 study these and related models in greater depth."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                298,
+                858,
+                334
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.2.1 Selfish Routing"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                391,
+                377,
+                606,
+                396
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We begin with a model of “selfish routing” that is discussed extensively in Chapter 18. We introduce the model via Pigou’s example, which was first discussed in 1920 by the economist Pigou."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                404,
+                858,
+                458
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 17.1 (Pigou’s Example) Consider the simple network shown in Figure 17.1. Two disjoint edges connect a source vertex s to a destination vertex t. Each edge is labeled with a costfunction c(·), which describes the cost (e.g., travel time) incurred by users of the edge, as a function of the amount of traffic routed on the edge. The upper edge has the constant cost function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( x ) = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and thus represents a route that is relatively long but immune to congestion. The cost of the lower edge, which is governed by the function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( x ) = x"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", increases as the edge gets more congested. In particular, the lower edge is cheaper than the upper edge if and only if less than one unit of traffic uses it. We are interested in the price of anarchy of this game."
+                    }
+                ]
+            },
+            "bbox": [
+                155,
+                493,
+                838,
+                673
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Suppose that there is one unit of traffic, representing a very large population of players, and that each player chooses independently between the two routes from s to t. Assuming that each player aims to minimize its cost, the lower route is a dominant strategy. In the unique equilibrium, all players follow this strategy, and all of them incur one unit of cost."
+                    }
+                ]
+            },
+            "bbox": [
+                155,
+                675,
+                838,
+                764
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To define the optimal outcome, we assume that the objective function is to minimize the average cost incurred by players. In the above equilibrium, this average cost is 1. A simple calculation shows that splitting the traffic equally between the two links is the optimal outcome. In this outcome, halfofthe traffic (on the upper link) incurs cost 1, while the other half (on the lower link) experiences only 1/2 units of cost. Since the average cost of traffic in this optimal outcome is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 / 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", both the price of anarchy and the price of stability in this game equal the ratio "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / ( 3 / 4 ) = 4 / 3"
+                    }
+                ]
+            },
+            "bbox": [
+                155,
+                765,
+                838,
+                909
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "fundamental network examples"
+                    }
+                ]
+            },
+            "bbox": [
+                333,
+                44,
+                662,
+                57
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "447"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                41,
+                858,
+                55
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "General selfish routing games are conceptually similar to Pigou’s example, but are more complex in several respects: the network can be an arbitrarily large directed graph, different players can have different source and destination vertices, and edge cost functions can be arbitrary nonnegative, continuous, and nondecreasing functions."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                78,
+                862,
+                167
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "One property of Pigou’s example that holds more generally is that the price of anarchy and the price of stability are equal – that is, the average cost incurred by traffic is the same in all equilibria of the game. Chapter 18 proves this “essential uniqueness” property using a powerful and flexible technique called the potentialfunction method. Roughly, a potential function for a game is a real-valued function, defined on the set of possible outcomes of the game, such that the equilibria of the game are precisely the local optima of the potential function. Not all games admit natural potential functions, but most of the ones discussed in this part of the book do. As we will see in Chapters 18 and 19, when a game admits a potential function, there are typically consequences fo the existence, uniqueness, and inefficiency of equilibria"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                168,
+                864,
+                348
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "One of the goals of Chapter 18 is to understand how the price of anarchy of a selfish routing game depends on different properties of the network. For example, recall that the price of anarchy in Pigou’s example is precisely "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "4 / 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Does this bound degrade as the network size grows? As the number of distinct source and destination vertices increases? As the edge cost functions become increasingly nonlinear? If players control a nonnegligible fraction of the overall traffic? Chapter 18 provides answers to all of these questions. For example, in every network with affine cost functions (of the form "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a x + b )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", no matter how large and complex, the price of anarchy is at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "4 / 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". With arbitrary cost functions, even with the simple network structure shown in Figure 17.1, the price of anarchy can be arbitrarily large (Exercise 17.1)."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                348,
+                864,
+                531
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.2.2 Network Design and Formation Games"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                285,
+                574,
+                720,
+                592
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Chapter 19 studies a diverse set of models of network formation and network de sign with selfish players. Here we discuss only one, with the goal of illustrating the differences between the price of anarchy and the price of stability."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                602,
+                862,
+                656
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We define a Shapley network design game as follows. Like selfish routing games, such a network design game occurs in a directed graph G. Each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of the graph has a fixed, nonnegative cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". There are k players, and each player i is associated with a source vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and a destination vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Player i wants to establish connectivity from its source to its destination, and its strategies are therefore the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } - t _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "paths of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Given a choice of a path "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by each player i, we assume that the formed network is simply the union "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\cup _ { i } P _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of these. The cost of this network is the sum "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textstyle \\sum _ { e \\in \\cup _ { i } P _ { i } } c _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of the costs of these edges, and we assume that this cost is passed on to the players in a natural way: the cost of each edge of the formed network is shared equally by the players who use it. More formally, each player i incurs cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { e } / f _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of its path "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denotes the number of players selecting paths that contain the edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This defines a finite noncooperative game, and we are interested in the inefficiency of the pure-strategy Nash equilibria of this game. We assume that the social objective is to minimize the cost of the formed network."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                656,
+                864,
+                909
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "448"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                43,
+                177,
+                55
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "introduction to the inefficiency of equilibria"
+                    }
+                ]
+            },
+            "bbox": [
+                261,
+                44,
+                740,
+                57
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/314b9e243e6a50f1ac34b6009f4f34c5d7c249faf98eb232d53661c61e79b65a.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 17.2. Multiple Nash equilibria in Shapley network design games (Example 17.2)."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                305,
+                79,
+                690,
+                206
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 17.2 Consider the network shown in Figure 17.2. There are k players, each with the same source s and destination t. The edge costs are k and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 + \\epsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\epsilon > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is arbitrarily small. In the optimal outcome, all players choose the lower edge. This outcome is also a Nash equilibrium. On the other hand, suppose that all of the players choose the upper edge. Each player then incurs cost 1, and if a player deviates to the lower edge, it pays the larger cost of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 + \\epsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This outcome is thus a second Nash equilibrium, and it has cost k."
+                    }
+                ]
+            },
+            "bbox": [
+                155,
+                263,
+                838,
+                391
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The price of anarchy of the game in Example 17.2 is roughly the number of players, and we view this as unacceptably large. This example motivates the study of the price of stability of Shapley network design games. Recall from Section 17.1.3 that the price of stability has a natural interpretation in network formation games – it measures the inefficiency of the network that a designer would propose to selfish players (i.e., the best equilibrium)."
+                    }
+                ]
+            },
+            "bbox": [
+                133,
+                408,
+                860,
+                517
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The price of stability in Example 17.2 is 1. The next example shows that this is not always the case."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                518,
+                858,
+                553
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 17.3 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\mathcal { H } _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "example) Consider the network shown in Figure 17.3. There are k players, all with the same sink t, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\epsilon > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is arbitrarily small. For each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i \\in \\{ 1 , 2 , \\ldots , k \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( s _ { i } , t )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / i"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In the optimal outcome, each player i chooses the path "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }  v  t"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the cost of the formed network is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 + \\epsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This is not a Nash equilibrium, as player k can decrease its cost from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 1 + \\epsilon ) / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by switching to the direct path "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { k } \\to t"
+                    },
+                    {
+                        "type": "text",
+                        "content": "– indeed, this direct path is a dominant strategy for the kth player. Arguing inductively about the players "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k - 1 , k - 2 , \\ldots , 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "shows that the unique Nash equilibrium is the outcome in which each player chooses its direct path to the sink. The cost of this outcome is exactly the kth harmonic number "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\mathcal { H } _ { k } = \\sum _ { i = 1 } ^ { k } ( 1 / i ) } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", which is roughly ln k. The price of stability can therefore be (arbitrarily close to) "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { H } _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in Shapley network design games."
+                    }
+                ]
+            },
+            "bbox": [
+                155,
+                571,
+                838,
+                645
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/aecd52d229dbd5a00c47c743a2a2e5621e2bf72519382fc0f72b3483746a7582.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Figure 17.3. The price of stability in Shapley network design games can be at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { H } _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(Example 17.3)."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                297,
+                663,
+                696,
+                864
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "fundamental network examples"
+                    }
+                ]
+            },
+            "bbox": [
+                331,
+                44,
+                662,
+                57
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "449"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                41,
+                858,
+                55
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                159,
+                78,
+                842,
+                223
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our emphasis on pure-strategy Nash equilibria and Example 17.3 motivate the following two questions."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                239,
+                862,
+                277
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(1) Does every Shapley network design game possess at least one pure-strategy Nash equilibrium? (Recall from Example 1.7 that not all games have such equilibria.)"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                285,
+                862,
+                320
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(2) What is the largest-possible price of stability in Shapley network design games?"
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                322,
+                814,
+                340
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Chapter 19 uses the potential function method discussed in Section 17.2.1 to resolve both of these questions. This method answers the first question in the affirmative, and also shows that the price of stability in every k-player Shapley network design game is at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { H } _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In other words, for each value of k, the game in Example 17.3 has the largest-possible price of stability."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                348,
+                862,
+                439
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Chapter 19 also discusses the price of anarchy and stability in other models of selfish network design and formation."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                439,
+                862,
+                475
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.2.3 Scheduling Games"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                379,
+                502,
+                624,
+                520
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Our next example is a load-balancing scenario, where the goal is to spread several identical “jobs” evenly across a number of identical “machines.” This is a very simple type of scheduling problem; this and much more general scheduling models have been extensively studied and have numerous applications (see Chapter 20). We focus on this special case to illustrate a nonutilitarian objective function, mixed-strategy Nash equilibria, and the interaction between the two."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                529,
+                862,
+                638
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Concretely, we assume that there are m jobs and m machines for some integer "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m \\geq 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Players correspond to jobs. The strategy set of each player is the set of machines. Each player i seeks to minimize the total number of players (including i itself) that select its machine. This defines a noncooperative game. The pure-strategy Nash equilibria of this game are precisely the m! outcomes in which each player selects a distinct machine. There are additional mixed-strategy Nash equilibria, as we discuss below."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                638,
+                862,
+                746
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To study the price of anarchy, we require an objective function. Thus far, we have studied only utilitarian objective functions, where the goal is to minimize the sum of the players’ costs. Here, motivated by the goal of load-balancing, we focus primarily on the egalitarian objective of minimizing the number of jobs on the most crowded machine. This objective is called makespan minimization in the scheduling literature. The set of optimal outcomes under this objective coincides with the set of pure-strategy Nash equilibria, and these outcomes all have makespan equal to 1."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                746,
+                864,
+                871
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the previous two examples, we studied only pure-strategy equilibria, where the objective function value of an equilibrium is clear. In the present application, we also consider mixed-strategy Nash equilibria. Such an equilibrium naturally induces a probability distribution on the set of game outcomes. Specifically, since we assume that the random choices made by distinct players are independent, the probability of a given strategy profile is the product of the probabilities that each player selects its prescribed strategy."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                873,
+                864,
+                909
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "450"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                43,
+                177,
+                55
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "introduction to the inefficiency of equilibria"
+                    }
+                ]
+            },
+            "bbox": [
+                261,
+                43,
+                740,
+                58
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                135,
+                78,
+                860,
+                168
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We define the objective function value of a mixed-strategy Nash equilibrium as the expectation, over this induced distribution on the game outcomes, of the objective function value of an outcome. Thus the objective function value of a mixed-strategy Nash equilibrium is its “expected objective function value.” As we now show, allowing mixed-strategy Nash equilibria can increase the price of anarchy in scheduling games."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                168,
+                860,
+                260
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 17.4 (Balls and Bins) In the above example with m jobs and m machines, suppose that every player selects a machine uniformly at random. We claim that this defines a mixed-strategy Nash equilibrium. To prove it, adopt the first player’s viewpoint. Since each of the other "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "players chooses a machine uniformly at random, all m machines appear equally loaded. More formally, let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "X _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the indicator random variable for the event that player i selects the machine "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". If the first player selects machine "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then it incurs a cost of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 + \\textstyle \\sum _ { i > 1 } X _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". By linearity of expectation, its expected cost on this machine is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { 1 + \\sum _ { i > 1 } \\mathbf { E } [ X _ { i j } ] = 2 - 1 / m } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since this expected cost is independent of the machine "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", every pure strategy of the first player is a best response to the mixed strategies chosen by the other players. As a consequence, every mixed strategy of the first player is also a best response (recall Section 1.3.4). This argument clearly applies to the other players as well, and hence this set of mixed strategies forms a Nash equilibrium."
+                    }
+                ]
+            },
+            "bbox": [
+                155,
+                277,
+                838,
+                529
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "What is the objective function value of this mixed-strategy Nash equilibrium – the expected value of the most heavily loaded machine? We emphasize that this expectation "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbb { E } [ \\operatorname* { m a x } _ { j } \\{ \\sum _ { i } X _ { i j } \\} ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is not the same as the maximum expected load, max "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "_ j \\{ { \\bf E } [ \\sum _ { i } X _ { i j } ] \\} ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", which is only 1. Intuitively, the expected number of jobs on the most crowded machine is governed by the severity of the “collisions” that occur when the players select machines in a randomized and uncoordinated way. This nontrivial problem, typically called the balls into bins problem, is classical and has been thoroughly analyzed. In particular, the objective function value of the above mixed-strategy Nash equilibrium is -(log m/ log log m) as m grows large. (See Chapter 20.)"
+                    }
+                ]
+            },
+            "bbox": [
+                155,
+                529,
+                838,
+                709
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Collisions due to independent random choices therefore give rise to significant inefficiency: the price of anarchy with respect to pure-strategy Nash equilibria in this example is 1 for every "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m \\geq 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", whereas the price of anarchy with respect to mixed-strategy Nash equilibria is \u0003(log "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m /"
+                    },
+                    {
+                        "type": "text",
+                        "content": "log log m) as m grows large."
+                    }
+                ]
+            },
+            "bbox": [
+                155,
+                709,
+                838,
+                783
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 17.4 shows that the price of anarchy can depend fundamentally on the choice of equilibrium concept; recall the fourth question of Section 17.1.2. As an aside, we note that it also illustrates the dependence of the price of anarchy on the choice of objective function. Specifically, consider the utilitarian objective function, where the goal is to minimize the sum of the players’ costs. The optimal outcomes again coincide with the pure-strategy Nash equilibria, and all of these have objective function value equal to m. The objective function value of the mixed-strategy Nash equilibrium in Example 17.4 is defined as the expected sum of the players’ costs, which by linearity of expectation is the same as the sum of the players’ expected costs. The calculation in Example 17.4 shows that each player’s expected cost equals "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - 1 / m"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and thus the objective function value of this mixed-strategy Nash equilibrium is precisely "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 m - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "This is in fact the worst equilibrium of the game (Exercise 17.3), and hence the price of anarchy for the utilitarian objective in this example is only "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - 1 / m"
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                800,
+                860,
+                910
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "fundamental network examples"
+                    }
+                ]
+            },
+            "bbox": [
+                333,
+                44,
+                662,
+                57
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "451"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                41,
+                856,
+                55
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                137,
+                78,
+                862,
+                203
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We could also consider the objective of minimizing the maximum expected load, instead ofthe expected maximum load, experienced by a player. Both ofthese objectives can be viewed as egalitarian objectives, and they assign the same objective function value to every pure strategy profile. In particular, these objective functions have identical optimal values. However, they typically assign different values to a profile of mixed strategies. For example, the maximum expected load experienced by a player in the mixed-strategy Nash equilibrium in Example 17.4 is only "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - 1 / m"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This is the worst equilibrium (as in Exercise 17.3), and the price of anarchy with respect to the maximum expected load of a player is therefore only "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - 1 / m"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". An arguably undesirable feature of this objective is that the price of anarchy is small even though, with high probability, the players’ random strategy selections produce a pure strategy profile with objective function value \u0003(log m/ log log m) times that of optimal."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                203,
+                862,
+                421
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Returning to the makespan minimization objective considered in Example 17.4, Chapter 20 proves that the price of anarchy is bounded above by O(log m/ log log m) in load-balancing games with n jobs and m machines, even when the machines are “nonuniform” in a certain precise sense. Chapter 20 also studies the price of anarchy in several variants of this scheduling game."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                421,
+                862,
+                513
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.2.4 Resource Allocation Games"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                337,
+                553,
+                666,
+                570
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We next study a game that is induced by a natural protocol for allocating resources to players with heterogeneous utility functions. Chapter 21 studies such games in much greater depth."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                581,
+                862,
+                635
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We consider a single divisible resource – the bandwidth of a single network link, say – to be allocated to a finite number "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n > 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of competing players. We assume that each player i has a concave, strictly increasing, and continuously differentiable utility function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". A resource allocation game is defined by the n utility functions "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U _ { 1 } , \\dots , U _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the link capacity "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". An outcome of such a game is a nonnegative allocation vector "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( x _ { 1 } , \\ldots , x _ { n } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textstyle \\sum _ { i } x _ { i } = C"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denotes the amount of band width allocated to player i. We study the utilitarian objective, and are thus interested in maximizing the sum "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textstyle \\sum _ { i } U _ { i } ( x _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ") of the players’ utilities."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                635,
+                862,
+                779
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The proportional sharing protocol allocates bandwidth as follows. Each user expresses its interest in receiving bandwidth by submitting a nonnegative bid "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The protocol then allocates all of the bandwidth in proportion to the bids, so that each user i receives"
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                779,
+                862,
+                850
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "x _ {i} = \\frac {b _ {i}}{\\sum_ {j = 1} ^ {n} b _ {j}} \\cdot C\\tag{17.1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/1d4dd768ac60443f84e89c08f4036b8cf877a3d53b6b517effa77336e2cd0aca.jpg"
+                }
+            },
+            "bbox": [
+                419,
+                868,
+                580,
+                910
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "452"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                43,
+                177,
+                55
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "introduction to the inefficiency of equilibria"
+                    }
+                ]
+            },
+            "bbox": [
+                261,
+                43,
+                740,
+                58
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "units of bandwidth. Player i is then charged its bid "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". See Section 17.3 and Chapter 21 for a discussion of alternative protocols that have a similar flavor."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                76,
+                858,
+                112
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We assume that player payoffs are quasilinear in the sense of Section 9.3. In other words, the payoff "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Q _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to a player i is defined as its utility for the bandwidth it receives, minus the price that it has to pay:"
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                114,
+                858,
+                168
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "Q _ {i} (b _ {1}, \\ldots , b _ {n}) = U _ {i} (x _ {i}) - b _ {i} = U _ {i} \\left(\\frac {b _ {i}}{\\sum_ {j = 1} ^ {n} b _ {j}} \\cdot C\\right) - b _ {i}.\\tag{17.2}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/401134885cfc88aa3988fe358e3e0366165fce7c5ebbd655e564a794d2a83c96.jpg"
+                }
+            },
+            "bbox": [
+                251,
+                177,
+                742,
+                223
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Assume that if all players bid zero, then all users receive zero payoff. Our restrictions on the utility function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "ensure that the payoff function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Q _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is continuously differentiable and strictly concave in the bid "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for every fixed vector "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { - i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with at least one strictly positive component (Exercise 17.4). (As usual, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { - i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denotes the vector of bids of players other than i.)"
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                231,
+                860,
+                320
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "An equilibrium is a bid vector in which every user bids optimally, given the bids of the other users."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                322,
+                860,
+                357
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Definition 17.5 A bid vector "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( b _ { 1 } , \\ldots , b _ { n } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is an equilibrium of the resource allocation game "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( U _ { 1 } , \\dots , U _ { n } , C )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if for every user "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i \\in \\{ 1 , 2 , \\ldots , n \\}"
+                    }
+                ]
+            },
+            "bbox": [
+                155,
+                377,
+                836,
+                414
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "Q _ {i} (b _ {i}, b _ {- i}) = \\sup _ {\\tilde {b} _ {i} \\geq 0} Q _ {i} (\\tilde {b} _ {i}, b _ {- i}).\\tag{17.3}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/ab3393d05ed48ea04565f4ef08ba4a244c6b2c1538569530452c5a4eb6a612f1.jpg"
+                }
+            },
+            "bbox": [
+                367,
+                423,
+                626,
+                456
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The potential function method also applies to resource allocation games. This method can be used to show that, for every resource allocation game, every equilibrium bid vector induces the same allocation. Thus, every equilibrium has equal objective function value. The next example shows that equilibria in resource allocation games can be inefficient."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                472,
+                860,
+                563
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 17.6 Consider a resource allocation game in which the capacity C is 1, the first user has the utility function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U _ { 1 } ( x _ { 1 } ) = 2 x _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and the other "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "users have the utility function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U _ { i } ( x _ { i } ) = x _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In the optimal allocation, the first player receives all of the bandwidth and the corresponding objective function value is 2. This allocation does not, however, arise from an equilibrium. To see why, observe that (17.1) implies that the only bid vectors that induce this allocation are those in which only the first player submits a positive bid. Such a bid vector cannot be an equilibrium, as the first player can bid a smaller positive amount and continue to receive all of the bandwidth. (See also Exercise 17.5.)"
+                    }
+                ]
+            },
+            "bbox": [
+                155,
+                582,
+                838,
+                744
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A similar argument holds whenever the first player’s bid is a sufficiently large fraction of the sum of the players’ bids: if the first player lowers its bid, its allocation diminishes, but the effective “price per unit of bandwidth” that it pays decreases by a large enough amount to increase its overall payoff. More formally, suppose that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( b _ { 1 } , \\ldots , b _ { n } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is an equilibrium, and let B denote the sum of the bids. By Exercise 17.5, at least two of the bids are strictly positive. By definition, the bid "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "satisfies (17.3). Since the payoff function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Q _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is continuously differentiable and strictly concave in the bid "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "fixed (Exercise 17.4), we can compute "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by differentiating the right-hand side of (17.3) and setting this derivative to zero. Starting from the defining equation (17.2) of the function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Q _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "using that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U _ { 1 } ( x _ { 1 } ) = 2 x _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and calculating, we obtain the condition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 ( B - b _ { 1 } ) / B ^ { 2 } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For a player "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i > 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the same calculation yields the condition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( B - b _ { i } ) / B ^ { 2 } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Subtracting the second equation from the first implies that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 b _ { 1 } - b _ { i } = B"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for every "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i = 2 , 3 , \\ldots , n"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Adding these "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "equations together gives "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 ( n - 1 ) b _ { 1 } - ( B - b _ { 1 } ) = ( n - 1 ) B"
+                    },
+                    {
+                        "type": "text",
+                        "content": "; solving, we find that the first player’s bid is only an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n / ( 2 n - 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "fraction of the sum of the bids: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { 1 } = n B / ( 2 n - 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "). In the resulting allocation, the first player obtains only an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n / ( 2 n - 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "fraction of the bandwidth. As n grows large, roughly half of the bandwidth is allocated to the first player, while the rest is split equally between the other "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "players. The objective function value of this allocation is roughly "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", which is only a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 / 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": "fraction of the value of the optimal allocation."
+                    }
+                ]
+            },
+            "bbox": [
+                155,
+                746,
+                838,
+                910
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "fundamental network examples"
+                    }
+                ]
+            },
+            "bbox": [
+                333,
+                43,
+                662,
+                57
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "453"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                41,
+                858,
+                55
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                159,
+                78,
+                842,
+                295
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Intuitively, inefficiency arises in Example 17.6 because of “market power” – the fact that a single player receives the lion’s share of the total bandwidth in the optimal allo cation. Indeed, resource allocation games were initially studied under the assumption that no users have nontrivial market power; in this case, equilibria are fully efficient and the price of anarchy is 1. Details are discussed in Chapter 21. Chapter 21 also uses the price of anarchy as a criterion for mechanism and protocol design; we foreshadow this work in the next section."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                317,
+                864,
+                444
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.3 Inefficiency of Equilibria as a Design Metric"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                249,
+                483,
+                754,
+                503
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.3.1 Motivation"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                413,
+                520,
+                588,
+                536
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the previous section, we studied four natural network examples. The game was given and immutable in all of these examples, and the only question involved the quality of its equilibria. While most work on the inefficiency of equilibria has been of this form, the flexibility of the framework presented in Section 17.1.2 begs a more general question: how can we design a game, or modify an existing game, to minimize the inefficiency of its equilibria? This question is especially crucial in settings where equilibria are unacceptably inefficient, but directly imposing an optimal solution is impractical."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                548,
+                862,
+                673
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example questions of this type include the following. Among a given class of mech anisms, which one induces a game with the best price of anarchy? Quantitatively, what is this best-possible price of anarchy? Given a game and a restricted set of op tions for influencing its equilibria, which option improves the price of anarchy by the maximum-possible amount? How large is the improvement? Using the measures of inefficiency described in Section 17.1.2, we can rigorously compare the perfor mance of different solutions, and quantify the efficiency loss obtained by an optimal solution."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                675,
+                864,
+                817
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "These goals are conceptually the same as those of algorithmic mechanism design, studied in Part II of this book. However, much of the work we describe below and in the notes (Section 17.4) differs from the bulk of the material in Part II in three technical respects. First, while Part II largely concerns the design of strategyproof mechanisms in which truthful revelation is a dominant strategy for every player, we study the equilibria of mechanisms that are not generally strategyproof. For example, in the proportional sharing mechanism described in Section 17.2.4, the strategy space of a player (nonnegative bids) does not coincide with its type space (utility functions), and no player has a dominant strategy. These differences are typically motivated by practical considerations, as we discuss in Section 17.3.2. Second, some of the research described in Section 17.4 considers games without private preferences. In these cases, the design problem is nontrivial because the mechanism designer lacks full control over the allocation of resources. Optimally influencing traffic in a selfish routing network by pricing the network edges is one example of such a problem. Third, in much of the work discussed in Section 17.4, the problem is not to design a good mechanism from scratch, but rather to leverage a limited amount of power to improve the equilibria of a given game as much as possible."
+                    }
+                ]
+            },
+            "bbox": [
+                139,
+                818,
+                864,
+                910
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "454"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                43,
+                177,
+                55
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "introduction to the inefficiency of equilibria"
+                    }
+                ]
+            },
+            "bbox": [
+                261,
+                43,
+                740,
+                58
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                135,
+                78,
+                860,
+                295
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.3.2 An Example: The Proportional Sharing Mechanism"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                219,
+                320,
+                776,
+                340
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We now informally describe one example of how the inefficiency of equilibria can serve as a design metric. Chapter 21 discusses the following result in greater detail, and Section 17.4 discusses additional examples."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                348,
+                858,
+                403
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Recall the resource allocation games of Section 17.2.4, where n players compete for a divisible link with capacity C. We studied the proportional sharing mechanism, in which each player i submits a bid "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to the mechanism, the mechanism allocates all of the bandwidth to the players in proportion to their bids, and every player then pays its bid. This mechanism induces a noncooperative game; as proved in Chapter 21, the price of anarchy of every such game is at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 / 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We next strive to surpass this efficiency guarantee and ask: how can we modify the mechanism so that the price of anarchy is always even closer to 1?"
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                404,
+                860,
+                546
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The answer to this question depends crucially on the class of mechanisms that we are willing to consider. If we impose no restrictions on the allowable mechanisms, then a version of the VCG mechanism (see Chapter 9) always induces a game for which the price of anarchy equals 1. However, this solution is “more complicated” than the proportional sharing mechanism in two ways. First, the communication from the players to the mechanism is more involved; each player must submit a representation of its entire utility function, as opposed to a single bid. Second, the communication from the mechanism back to the players is also more complicated in the following sense. In the proportional sharing mechanism, allocations can be completely summarized by the bids and a single additional parameter, the price of bandwidth. To see this, consider a bid vector "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( b _ { 1 } , \\ldots , b _ { n } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for a link with capacity C. Set a price "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "equal to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B / C"
+                    },
+                    {
+                        "type": "text",
+                        "content": "where B is the sum of the bids. The (proportional) allocation to each player i is then simply its bid "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "divided by this price. While the allocations of the VCG mechanism can be similarly interpreted in terms of prices, different players are generally allocated bandwidth according to different prices."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                548,
+                860,
+                818
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The simplicity of the proportional sharing mechanism – that the communication both to and from the mechanism is limited – makes it particularly suitable for implementation in large communication networks. Is there a mechanism that retains these appealing properties and has strictly smaller worst-case efficiency loss? Chap ter 21 shows that the answer is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\" \\mathrm { n o } ^ { \\mathrm { , 9 } } \\mathrm { ~ - ~ }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for an appropriate definition of “bounded communication,” every equally simple mechanism can induce a game that has a price of anarchy of at most 3/4. The proportional sharing mechanism is therefore optimal among all mechanisms meeting natural, desirable implementation constraints."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                818,
+                860,
+                909
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "inefficiency of equilibria as a design metric"
+                    }
+                ]
+            },
+            "bbox": [
+                269,
+                43,
+                726,
+                58
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "455"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                41,
+                858,
+                55
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                137,
+                78,
+                862,
+                133
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.4 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                443,
+                167,
+                560,
+                185
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The observation that self-interested behavior can lead to a socially inefficient outcome is an old one; see, for example, Dubey (1986), Rapoport and Chammah (1965), and the references therein. The idea of quantifying the inefficiency of equilibria using an objective function and an approximation measure is much newer. The concept of the price of anarchy originated in Koutsoupias and Papadimitriou (1999), where it was called the coordination ratio. Koutsoupias and Papadimitriou studied a generalization of the scheduling games described in Section 17.2.3. Papadimitriou (2001) introduced the term “the price ofanarchy.” The price ofstability was first studied in Schulz and Stier Moses (2003); the terminology is from Anshelevich et al. (2004). Several earlier works, and in particular Mason (1985), anticipated these concepts. See also Satterthwaite and Williams (1989) and Moulin and Shenker (2001), who studied additive notions of efficiency loss in mechanism design applications."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                205,
+                864,
+                421
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The measures of inefficiency discussed in Section 17.1 are similar to and motivated by several well-established concepts in theoretical computer science. One example is the approximation ratio of a heuristic for a (typically NP-hard) optimization problem, defined as the worst ratio between the objective function value of the solution produced by the heuristic and that of an optimal solution (Vazirani, 2001). While the approximation ratio measures the worst-case loss in solution quality due to insufficient computational effort, the price of anarchy measures the worst-case loss arising from insufficient ability (or willingness) to control and coordinate the actions of selfish individuals."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                421,
+                864,
+                582
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The novel notions of “equilibrium outcomes” alluded to in Section 17.1.2 are described in Mirrokni and Vetta (2004) and Goemans et al. (2005). Tennenholtz (2002) also proposed relaxing the assumption that players reach a Nash equilibrium, and examining the consequences for the players’ payoffs. The inefficiency of other equilibrium concepts has also been studied; see work by Christodoulou and Koutsoupias (2005) on correlated equilibria (Section 1.5), Andelman et al. (2007) on strong Nash equilibria (Section 1.6), and Hayrapetyan et al. (2006) on equilibria in the presence of coalitions of players."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                582,
+                864,
+                728
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Pigou’s example (Example 17.1) is from Pigou (1920). Selfish routing networks and their equilibria were defined formally by Wardrop (1952) and Beckmann et al. (1956). The potential function method originates in Beckmann et al. (1956) and was later developed by Rosenthal (1973), Monderer and Shapley (1996), Roughgarden and Tardos (2002), and Anshelevich et al. (2004). Shapley network design games were first studied by Anshelevich et al. (2004), and Example 17.3 is from Anshelevich et al. (2004). Example 17.2 was given in an earlier paper by Anshelevich et al. (2003). The scheduling games of Section 17.2.3 and Example 17.4 are due to Koutsoupias and Papadimitriou (1999). See Motwani and Raghavan (1995) for a discussion of the balls into bins problem. The proportional sharing mechanism is due to Kelly (1997), and"
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                728,
+                866,
+                910
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "456"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                43,
+                177,
+                55
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "introduction to the inefficiency of equilibria"
+                    }
+                ]
+            },
+            "bbox": [
+                261,
+                43,
+                740,
+                58
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 17.6 is from Johari and Tsitsiklis (2004). For further references on the four network models of Section 17.2, see Chapters 18–21."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                78,
+                858,
+                112
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The results mentioned in Section 17.3.2 are from Johari and Tsitsiklis (2006), and are discussed in further detail in Chapter 21. Chapter 21 also covers variants of the VCG mechanism in which users submit only a single bid, rather than an entire utility function. These mechanisms are not (and cannot be) single-price in the sense of Section 17.3.2, however."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                114,
+                860,
+                203
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We conclude these notes with examples of how measures of inefficiency have been used to compare different mechanisms and different strategies for influencing equilibria in the network models explored in Section 17.2. Several approaches to improving the equilibria of a selfish routing network have been considered, including pricing the network edges, and routing a small fraction of the traffic in a centralized manner. The goal is then to leverage the limited amount of design power to minimize the price of anarchy. For details on this literature, see Roughgarden (2005, Chapters 5–6) and the references therein."
+                    }
+                ]
+            },
+            "bbox": [
+                135,
+                203,
+                860,
+                348
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Motivated by the network design games of Section 17.2.2 and Example 17.3, Chen et al. (2007) studied how to design cost-sharing methods to minimize the inefficiency of equilibria in the resulting network game. One of the contributions in Chen et al. (2007) is an analogue of the result described in Section 17.3.2 for resource allocation mechanisms: among all cost-sharing methods that are “oblivious” to the network structure in a certain precise sense, the Shapley cost-sharing method of Section 17.2.2 minimizes the worst-case price of stability. On the other hand, cost-sharing methods that can leverage information about the network topology can outperform Shapley cost-sharing methods (Chen et al., 2007)."
+                    }
+                ]
+            },
+            "bbox": [
+                133,
+                348,
+                860,
+                511
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finally, for the scheduling games of Section 17.2.3, Christodoulou et al. (2004) and Immorlica et al. (2005) design machine scheduling policies to improve the inefficiency of equilibria. Informally, such a policy can be used to prioritize one player over another, thereby causing different players to incur different costs on a common machine. As shown in Christodoulou et al. (2004) and Immorlica et al. (2005), even very simple scheduling policies reduce the price of anarchy from logarithmic in the number of machines (Example 17.4) to a small constant."
+                    }
+                ]
+            },
+            "bbox": [
+                133,
+                511,
+                860,
+                638
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Bibliography"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                427,
+                677,
+                568,
+                697
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "N. Andelman, M. Feldman, and Y. Mansour. Strong price of anarchy. In Proc. 18th Symp. Discrete Algorithms, pp. 189–198, 2007."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                709,
+                858,
+                740
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "E. Anshelevich, A. Dasgupta, J. Kleinberg, E. Tardos, T. Wexler, and T. Roughgarden. The price<sup>´</sup> of stability for network design with fair cost allocation. In Proc. 45th Annual Symp. on Fdns. of Computer Science, pp. 295–304, 2004."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                741,
+                858,
+                790
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "E. Anshelevich, A. Dasgupta, E. Tardos, and T. Wexler. Near-optimal network design with selfish<sup>´</sup> agents. In Proc. 35th Annual ACM Symp. Theory ofComputing, pp. 511–520, 2003."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                792,
+                856,
+                824
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "M.J. Beckmann, C.B. McGuire, and C.B. Winsten. Studies in the Economics ofTransportation. Yale University Press, 1956."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                825,
+                858,
+                857
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "H. Chen, T. Roughgarden, and G. Valiant. Designing networks with good equilibria. Manuscript, 2007."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                857,
+                856,
+                875
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "G. Christodoulou and E. Koutsoupias. On the price of anarchy and stability of correlated equilibria of linear congestion games. In Proc. 13th Annual Euro. Symp. Alg., pp. 59–70, 2005."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                875,
+                856,
+                907
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "bibliography"
+                    }
+                ]
+            },
+            "bbox": [
+                429,
+                44,
+                566,
+                57
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "457"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                41,
+                858,
+                55
+            ]
+        }
+    ],
+    [
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "G. Christodoulou, E. Koutsoupias, and A. Nanavati. Coordination mechanisms. In Proc. 31st Annual Intl. Colloq. on Automata, Languages, and Programming, volume 3142 of Lecture Notes in Computer Science, pp. 345–357, 2004."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                79,
+                862,
+                128
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "P. Dubey. Inefficiency of Nash equilibria. Math. Operat. Res., 11(1):1–8, 1986."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                129,
+                712,
+                145
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "M.X. Goemans, V.S. Mirrokni, and A. Vetta. Sink equilibria and convergence. In Proc. 46th Annual Symp. on Fdns. ofComputer Science, pp. 142–151, 2005."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                146,
+                862,
+                178
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "A. Hayrapetyan, E. Tardos, and T. Wexler. The effect of collusion in congestion games. In<sup>´</sup> Proc. 38th Annual ACM Symp. on Theory ofComputing, pp. 89–98, 2006."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                179,
+                862,
+                211
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "N. Immorlica, L. Li, V.S. Mirrokni, and A.S. Schulz. Coordination mechanisms for selfish scheduling. In Proc. First Annual Intl. Workshop on Internet and Network Economics (WINE), LNCS 3828:55–69, 2005."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                213,
+                862,
+                260
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "R. Johari and J.N. Tsitsiklis. Efficiency loss in a network resource allocation game. Math. Operat. Res., 29(3):407–435, 2004."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                263,
+                860,
+                294
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "R. Johari and J.N. Tsitsiklis. Characterization theorems for smooth market-clearing mechanisms. Submitted, 2006."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                295,
+                862,
+                327
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "F.P. Kelly. Charging and rate control for elastic traffic. Euro. Trans. Telecommunications, 8(1):33–37, 1997."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                329,
+                862,
+                359
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "E. Koutsoupias and C.H. Papadimitriou. Worst-case equilibria. In Proc. 16th Symp. Theoretical Aspects ofComputer Science, LNCS 1563:404–413, 1999."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                362,
+                862,
+                394
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "L.G. Mason. Equilibrium flows, routing patterns and algorithms for store-and-forward networks. Large Scale Systems, 8:187–209, 1985."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                396,
+                860,
+                428
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "V.S. Mirrokni and A. Vetta. Convergence issues in competitive games. In Proc. 7th Intl. Workshop on Approximation Algorithms for Combinatorial Optimization Problems (APPROX), pp. 183–194, 2004."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                430,
+                862,
+                476
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "D. Monderer and L.S. Shapley. Potential games. Games Econ. Behav., 14(1):124–143, 1996."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                479,
+                808,
+                495
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "R. Motwani and P. Raghavan. Randomized Algorithms. Cambridge University Press, 1995."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                496,
+                796,
+                511
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "H. Moulin and S. Shenker. Strategyproof sharing of submodular costs: Budget balance versu efficiency. Economic Theory, 18(3):511–533, 2001"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                514,
+                862,
+                545
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "C.H. Papadimitriou. Algorithms, games, and the Internet. In Proc. 33rd Symp. Theory ofComputing, pp. 749–753, 2001."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                546,
+                860,
+                577
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "A.C. Pigou. The Economics ofWelfare. Macmillan, 1920."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                578,
+                558,
+                595
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "A. Rapoport and A.M. Chammah. Prisoner’s Dilemma. University of Michigan Press, 1965."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                596,
+                806,
+                612
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "R.W. Rosenthal. A class of games possessing pure-strategy Nash equilibria. Intl. J. Game Theory, 2(1):65–67, 1973."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                613,
+                860,
+                644
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "T. Roughgarden. Selfish Routing and the Price ofAnarchy. MIT Press, 2005."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                645,
+                696,
+                662
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "T. Roughgarden and E. Tardos. How bad is selfish routing?<sup>´</sup> J. ACM, 49(2):236–259, 2002"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                663,
+                790,
+                679
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "M.A. Satterthwaite and S.R. Williams. The rate of convergence to efficiency in the buyer’s bid double auction as the market becomes large. Rev. Econ. Stud., 56(4):477–498, 1989."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                680,
+                862,
+                711
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "A.S. Schulz and N.S. Moses. On the performance of user equilibria in traffic networks. In Proc. 14th Symp. Discrete Algorithms, pp. 86–87, 2003."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                712,
+                862,
+                744
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "M. Tennenholtz. Competitive safety analysis: Robust decision-making in multi-agent systems. J. Artificial Intelligence Res., 17:363–378, 2002."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                746,
+                862,
+                778
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "V.V. Vazirani. Approximation Algorithms. Springer, 2001."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                779,
+                558,
+                794
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "J.G. Wardrop. Some theoretical aspects of road traffic research. In Proc. Institute ofCivil Engineers, Pt. II, volume 1, pp. 325–378, 1952."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                796,
+                862,
+                828
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "458"
+                    }
+                ]
+            },
+            "bbox": [
+                141,
+                43,
+                177,
+                55
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "introduction to the inefficiency of equilibria"
+                    }
+                ]
+            },
+            "bbox": [
+                261,
+                44,
+                740,
+                58
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "17.1 Suppose that we modify Pigou’s example (Example 17.1) so that the lower edge has the cost function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C ( \\boldsymbol x ) = \\boldsymbol x ^ { d }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for some "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d \\geq 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". What is the price of anarchy of the resulting selfish routing network, as a function of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d ?"
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                115,
+                858,
+                168
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "17.2 Suppose we modify the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { H } _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "example (Example 17.3) so that all of the network edges are undirected. In other words, each player i can choose a path from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to t that traverses each edge in either direction. What is the price of stability in the resulting Shapley network design game?"
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                170,
+                860,
+                239
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "17.3 Recall the scheduling game in Example 17.4, with m players and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m"
+                    },
+                    {
+                        "type": "text",
+                        "content": "machines. Prove that the price of anarchy of this game with respect to the utilitarian objective function is precisely "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - 1 / m"
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                241,
+                858,
+                292
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "17.4 Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a concave, strictly increasing, and continuously differentiable univariate function. Define the function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Q _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as in (17.2). Prove that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Q _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is continuously differentiable and strictly concave in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for every fixed nonnegative vector "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { - }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "<sub>−</sub> with at least one strictly positive component."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                295,
+                860,
+                362
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "17.5 Prove that every equilibrium of a resource allocation game (Definition 17.5) has at least two strictly positive components."
+                    }
+                ]
+            },
+            "bbox": [
+                137,
+                366,
+                860,
+                401
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                447,
+                44,
+                548,
+                57
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "459"
+                    }
+                ]
+            },
+            "bbox": [
+                822,
+                41,
+                858,
+                55
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                449,
+                82,
+                546,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                0,
+                0,
+                998,
+                998
+            ]
+        }
+    ]
+]

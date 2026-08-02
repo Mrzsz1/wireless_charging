@@ -1,0 +1,297 @@
+{
+  "generated_at": "2026-07-14T15:41:33.955120+00:00",
+  "nodes": {
+    "raw_canonical_readme": {
+      "code_fingerprint": "0fb346155168466e5dc111d130d453a48544df9511c27c47ac1d4ce4c0812ceb",
+      "label": "raw/canonical README",
+      "last": "2026-07-14T14:40:43.845666+00:00",
+      "provenance": [
+        {
+          "date": "2026-07-14T14:40:43.845666+00:00",
+          "outcome": "useful",
+          "q": "优化这些缺点，同时优化llmwiki的结构"
+        },
+        {
+          "date": "2026-07-14T13:48:13.032845+00:00",
+          "outcome": "useful",
+          "q": "对当前的结构进行理解并且说明其优点和缺点。因为我希望能做成llm wiki，同时需要对当前发现文献做一个区别，一个是自动发现的文献放一半，另一个是我手动放置的文献"
+        },
+        {
+          "date": "2026-07-14T13:41:37.622476+00:00",
+          "outcome": "useful",
+          "q": "我新增的key添加进去搜索源，openalex的apikey也添加进去了；Google scholar 也有吗"
+        },
+        {
+          "date": "2026-07-14T12:49:05.256921+00:00",
+          "outcome": "useful",
+          "q": "增加能够从 arXiv 等来源自动搜索相关领域论文的功能"
+        },
+        {
+          "date": "2026-07-14T12:30:09.962051+00:00",
+          "outcome": "useful",
+          "q": "接入 MinerU API，把本地 PDF 自动解析成 Markdown"
+        }
+      ],
+      "score": 5.986133038,
+      "source_file": "raw/canonical/README.md",
+      "status": "preferred",
+      "uses": 6
+    },
+    "raw_canonical_readme_canonical_corpus": {
+      "code_fingerprint": "0fb346155168466e5dc111d130d453a48544df9511c27c47ac1d4ce4c0812ceb",
+      "label": "canonical formal literature corpus",
+      "last": "2026-07-14T14:54:39.553728+00:00",
+      "provenance": [
+        {
+          "date": "2026-07-14T14:54:39.553728+00:00",
+          "outcome": "useful",
+          "q": "针对现在这个个人知识库采用llmwiki，你有什么建议吗？"
+        },
+        {
+          "date": "2026-07-14T13:48:13.032845+00:00",
+          "outcome": "useful",
+          "q": "对当前的结构进行理解并且说明其优点和缺点。因为我希望能做成llm wiki，同时需要对当前发现文献做一个区别，一个是自动发现的文献放一半，另一个是我手动放置的文献"
+        },
+        {
+          "date": "2026-07-14T13:41:37.622476+00:00",
+          "outcome": "useful",
+          "q": "我新增的key添加进去搜索源，openalex的apikey也添加进去了；Google scholar 也有吗"
+        },
+        {
+          "date": "2026-07-14T12:49:05.256921+00:00",
+          "outcome": "useful",
+          "q": "增加能够从 arXiv 等来源自动搜索相关领域论文的功能"
+        }
+      ],
+      "score": 3.992744447,
+      "source_file": "raw/canonical/README.md",
+      "status": "preferred",
+      "uses": 4
+    },
+    "raw_canonical_readme_ingest_status": {
+      "code_fingerprint": "0fb346155168466e5dc111d130d453a48544df9511c27c47ac1d4ce4c0812ceb",
+      "label": "pending_ingest ingested convert_failed status",
+      "last": "2026-07-14T13:48:13.032845+00:00",
+      "provenance": [
+        {
+          "date": "2026-07-14T13:48:13.032845+00:00",
+          "outcome": "useful",
+          "q": "对当前的结构进行理解并且说明其优点和缺点。因为我希望能做成llm wiki，同时需要对当前发现文献做一个区别，一个是自动发现的文献放一半，另一个是我手动放置的文献"
+        },
+        {
+          "date": "2026-07-14T13:41:37.622476+00:00",
+          "outcome": "useful",
+          "q": "我新增的key添加进去搜索源，openalex的apikey也添加进去了；Google scholar 也有吗"
+        },
+        {
+          "date": "2026-07-14T12:49:05.256921+00:00",
+          "outcome": "useful",
+          "q": "增加能够从 arXiv 等来源自动搜索相关领域论文的功能"
+        },
+        {
+          "date": "2026-07-14T12:30:09.962051+00:00",
+          "outcome": "useful",
+          "q": "接入 MinerU API，把本地 PDF 自动解析成 Markdown"
+        }
+      ],
+      "score": 3.990430471,
+      "source_file": "raw/canonical/README.md",
+      "status": "preferred",
+      "uses": 4
+    },
+    "raw_canonical_readme_mineru_conversion": {
+      "code_fingerprint": "0fb346155168466e5dc111d130d453a48544df9511c27c47ac1d4ce4c0812ceb",
+      "label": "MinerU PDF to markdown conversion",
+      "last": "2026-07-14T14:40:43.845666+00:00",
+      "provenance": [
+        {
+          "date": "2026-07-14T14:40:43.845666+00:00",
+          "outcome": "useful",
+          "q": "优化这些缺点，同时优化llmwiki的结构"
+        },
+        {
+          "date": "2026-07-14T13:41:37.622476+00:00",
+          "outcome": "useful",
+          "q": "我新增的key添加进去搜索源，openalex的apikey也添加进去了；Google scholar 也有吗"
+        },
+        {
+          "date": "2026-07-14T12:49:05.256921+00:00",
+          "outcome": "useful",
+          "q": "增加能够从 arXiv 等来源自动搜索相关领域论文的功能"
+        },
+        {
+          "date": "2026-07-14T12:30:09.962051+00:00",
+          "outcome": "useful",
+          "q": "接入 MinerU API，把本地 PDF 自动解析成 Markdown"
+        }
+      ],
+      "score": 3.991271878,
+      "source_file": "raw/canonical/README.md",
+      "status": "preferred",
+      "uses": 4
+    },
+    "wiki_index": {
+      "code_fingerprint": "e0e454e3abbccafcee0d8cdf2dcd8d3656bd13690a605d8fe1cb9f3df560540b",
+      "label": "Wiki 索引 index",
+      "last": "2026-07-14T15:41:28.682207+00:00",
+      "provenance": [
+        {
+          "date": "2026-07-14T15:41:28.682207+00:00",
+          "outcome": "useful",
+          "q": "这两件事交给你，同时我发现可以利用论文的关键词来扩展知识库作为领域的关键词"
+        },
+        {
+          "date": "2026-07-14T15:17:28.416375+00:00",
+          "outcome": "useful",
+          "q": "现在开始完成上面的"
+        },
+        {
+          "date": "2026-07-14T14:54:39.553728+00:00",
+          "outcome": "useful",
+          "q": "针对现在这个个人知识库采用llmwiki，你有什么建议吗？"
+        },
+        {
+          "date": "2026-07-14T14:51:56.080595+00:00",
+          "outcome": "useful",
+          "q": "生成快捷方式用于启动这个程序"
+        },
+        {
+          "date": "2026-07-14T14:40:43.845666+00:00",
+          "outcome": "useful",
+          "q": "优化这些缺点，同时优化llmwiki的结构"
+        }
+      ],
+      "score": 6.991949275,
+      "source_file": "wiki/index.md",
+      "status": "preferred",
+      "uses": 7
+    },
+    "wiki_maps_library_status": {
+      "code_fingerprint": "18487b50763c3b2bf908686949fcffbeab043d8f8b6094f69575722ab59770ab",
+      "label": "库水位 Library Status",
+      "last": "2026-07-14T15:41:28.682207+00:00",
+      "provenance": [
+        {
+          "date": "2026-07-14T15:41:28.682207+00:00",
+          "outcome": "useful",
+          "q": "这两件事交给你，同时我发现可以利用论文的关键词来扩展知识库作为领域的关键词"
+        },
+        {
+          "date": "2026-07-14T15:17:28.416375+00:00",
+          "outcome": "useful",
+          "q": "现在开始完成上面的"
+        },
+        {
+          "date": "2026-07-14T14:54:39.553728+00:00",
+          "outcome": "useful",
+          "q": "针对现在这个个人知识库采用llmwiki，你有什么建议吗？"
+        },
+        {
+          "date": "2026-07-14T14:40:43.845666+00:00",
+          "outcome": "useful",
+          "q": "优化这些缺点，同时优化llmwiki的结构"
+        },
+        {
+          "date": "2026-07-14T13:48:13.032845+00:00",
+          "outcome": "useful",
+          "q": "对当前的结构进行理解并且说明其优点和缺点。因为我希望能做成llm wiki，同时需要对当前发现文献做一个区别，一个是自动发现的文献放一半，另一个是我手动放置的文献"
+        }
+      ],
+      "score": 5.992745295,
+      "source_file": "wiki/maps/library-status.md",
+      "status": "preferred",
+      "uses": 6
+    },
+    "wiki_maps_map_home": {
+      "code_fingerprint": "31af6af45c0191e85dccffaaaf4176cfcb9e8bdd79b2dd6a9cd676fc9c26ce11",
+      "label": "知识库总图 无线充电调度",
+      "last": "2026-07-14T15:41:28.682207+00:00",
+      "provenance": [
+        {
+          "date": "2026-07-14T15:41:28.682207+00:00",
+          "outcome": "useful",
+          "q": "这两件事交给你，同时我发现可以利用论文的关键词来扩展知识库作为领域的关键词"
+        },
+        {
+          "date": "2026-07-14T14:51:56.080595+00:00",
+          "outcome": "useful",
+          "q": "生成快捷方式用于启动这个程序"
+        },
+        {
+          "date": "2026-07-14T12:14:11.503934+00:00",
+          "outcome": "useful",
+          "q": "理解当前项目以及架构然后写出架构文档"
+        }
+      ],
+      "score": 2.995880765,
+      "source_file": "wiki/maps/map-home.md",
+      "status": "preferred",
+      "uses": 3
+    },
+    "wiki_maps_map_models_and_objectives_objective": {
+      "code_fingerprint": "4a1ee80acaa2ec22478293bbe2466d2184fb3df3d5a5ece0bab9e45974d1fd42",
+      "label": "objective pages hub",
+      "last": "2026-07-14T14:54:39.553728+00:00",
+      "provenance": [
+        {
+          "date": "2026-07-14T14:54:39.553728+00:00",
+          "outcome": "useful",
+          "q": "针对现在这个个人知识库采用llmwiki，你有什么建议吗？"
+        }
+      ],
+      "score": 0.999247662,
+      "source_file": "wiki/maps/map-models-and-objectives.md",
+      "status": "tentative",
+      "uses": 1
+    },
+    "wiki_maps_map_models_and_objectives_system_model": {
+      "code_fingerprint": "4a1ee80acaa2ec22478293bbe2466d2184fb3df3d5a5ece0bab9e45974d1fd42",
+      "label": "system-model pages hub",
+      "last": "2026-07-14T14:54:39.553728+00:00",
+      "provenance": [
+        {
+          "date": "2026-07-14T14:54:39.553728+00:00",
+          "outcome": "useful",
+          "q": "针对现在这个个人知识库采用llmwiki，你有什么建议吗？"
+        }
+      ],
+      "score": 0.999247662,
+      "source_file": "wiki/maps/map-models-and-objectives.md",
+      "status": "tentative",
+      "uses": 1
+    },
+    "wiki_maps_map_online_scheduling": {
+      "code_fingerprint": "21ab74e478695084255c67968313802f56f7958ca645cb81a9ffe791e8c156ba",
+      "label": "主题 在线调度",
+      "last": "2026-07-14T15:17:28.416375+00:00",
+      "provenance": [
+        {
+          "date": "2026-07-14T15:17:28.416375+00:00",
+          "outcome": "useful",
+          "q": "现在开始完成上面的"
+        }
+      ],
+      "score": 0.999613512,
+      "source_file": "wiki/maps/map-online-scheduling.md",
+      "status": "tentative",
+      "uses": 1
+    },
+    "wiki_maps_map_power_allocation": {
+      "code_fingerprint": "ecb8b342d4c3062336a5761b176fba88237b88a4f8c08c6f90575f6ff38512db",
+      "label": "主题 功率分配",
+      "last": "2026-07-14T15:17:28.416375+00:00",
+      "provenance": [
+        {
+          "date": "2026-07-14T15:17:28.416375+00:00",
+          "outcome": "useful",
+          "q": "现在开始完成上面的"
+        }
+      ],
+      "score": 0.999613512,
+      "source_file": "wiki/maps/map-power-allocation.md",
+      "status": "tentative",
+      "uses": 1
+    }
+  },
+  "version": 1
+}

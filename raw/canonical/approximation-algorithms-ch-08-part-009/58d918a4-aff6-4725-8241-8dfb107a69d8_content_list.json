@@ -1,0 +1,744 @@
+[
+    {
+        "type": "text",
+        "text": "8 Knapsack",
+        "text_level": 2,
+        "bbox": [
+            221,
+            109,
+            371,
+            128
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "In Chapter 1 we mentioned that some NP-hard optimization problems allow approximability to any required degree. In this chapter, we will formalize this notion and will show that the knapsack problem admits such an approximability.",
+        "bbox": [
+            220,
+            255,
+            784,
+            312
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Let Π be an NP-hard optimization problem with objective function $f _ { \\pi }$ We will say that algorithm A is an approximation scheme for Π if on input $( I , \\varepsilon )$ , where I is an instance of Π and $\\varepsilon > 0$ is an error parameter, it outputs a solution s such that:",
+        "bbox": [
+            221,
+            312,
+            784,
+            368
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "$f _ { \\pi } ( I , s ) \\leq ( 1 + \\varepsilon ) \\cdot \\mathrm { O P T }$ if Π is a minimization problem.",
+        "bbox": [
+            221,
+            376,
+            660,
+            390
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "$f _ { \\pi } ( I , s ) \\geq ( 1 - \\varepsilon )$ · OPT if Π is a maximization problem.",
+        "bbox": [
+            221,
+            391,
+            663,
+            405
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "A will be said to be a polynomial time approximation scheme, abbreviated PTAS, if for each fixed $\\varepsilon > 0$ , its running time is bounded by a polynomial in the size of instance I.",
+        "bbox": [
+            221,
+            411,
+            784,
+            454
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "The definition given above allows the running time of A to depend arbitrarily on ε. This is rectified in the following more stringent notion of approximability. If the previous definition is modified to require that the running time of A be bounded by a polynomial in the size of instance I and $1 / \\varepsilon$ , then A will be said to be a fully polynomial approximation scheme, abbreviated FPTAS.",
+        "bbox": [
+            220,
+            454,
+            784,
+            539
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "In a very technical sense, an FPTAS is the best one can hope for an NPhard optimization problem, assuming $\\mathbf { P } \\neq \\mathbf { N P } ;$ see Section 8.3.1 for a short discussion on this issue. The knapsack problem admits an FPTAS.",
+        "bbox": [
+            220,
+            539,
+            784,
+            583
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Problem 8.1 (Knapsack) Given a set $S = \\{ a _ { 1 } , \\ldots , a _ { n } \\}$ of objects, with specified sizes and profits, size $( a _ { i } ) \\in \\mathbf { Z } ^ { + }$ and profi ${ \\bf \\Xi } ( a _ { i } ) \\in { \\bf Z } ^ { + }$ , and a “knapsack capacity” $B \\in \\mathbf { Z } ^ { + }$ , find a subset of objects whose total size is bounded by B and total profit is maximized.",
+        "bbox": [
+            221,
+            589,
+            784,
+            646
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "An obvious algorithm for this problem is to sort the objects by decreasing ratio of profit to size, and then greedily pick objects in this order. It is easy to see that as such this algorithm can be made to perform arbitrarily badly (Exercise 8.1).",
+        "bbox": [
+            221,
+            646,
+            784,
+            703
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "8.1 A pseudo-polynomial time algorithm for knapsack",
+        "text_level": 2,
+        "bbox": [
+            221,
+            112,
+            769,
+            128
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Before presenting an FPTAS for knapsack, we need one more concept. For any optimization problem Π, an instance consists of objects, such as sets or graphs, and numbers, such as cost, profit, size, etc. So far, we have assumed that all numbers occurring in a problem instance I are written in binary. The size of the instance, denoted $| \\bar { I | } .$ was defined as the number of bits needed to write I under this assumption. Let us say that $I _ { u }$ will denote instance I with all numbers occurring in it written in unary. The unary size of instance $I ,$ denoted $\\left| I _ { u } \\right|$ , is defined as the number of bits needed to write $I _ { u }$",
+        "bbox": [
+            220,
+            141,
+            786,
+            256
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "An algorithm for problem Π is said to be eficient if its running time on instance I is bounded by a polynomial in |I|. Let us consider the following weaker definition. An algorithm for problem Π whose running time on instance I is bounded by a polynomial in $| I _ { u } |$ will be called a pseudo-polynomial time algorithm.",
+        "bbox": [
+            220,
+            256,
+            786,
+            326
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "The knapsack problem, being NP-hard, does not admit a polynomial time algorithm; however, it does admit a pseudo-polynomial time algorithm. This fact is used critically in obtaining an FPTAS for it. All known pseudopolynomial time algorithms for NP-hard problems are based on dynamic programming.",
+        "bbox": [
+            220,
+            326,
+            786,
+            397
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Let P be the profit of the most profitable object, i.e., $P = \\operatorname* { m a x } _ { a \\in S }$ profit $( a )$ Then $n P$ is a trivial upperbound on the profit that can be achieved by any solution. For each $i \\in \\{ 1 , \\ldots , n \\}$ and $p \\in \\{ 1 , \\ldots , n P \\}$ , let $S _ { i , p }$ denote a subset of $\\{ a _ { 1 } , \\ldots , a _ { i } \\}$ whose total profit is exactly p and whose total size is minimized. Let $A ( i , p )$ denote the size of the set $S _ { i , p } \\ ( A ( i , p ) = \\infty$ if no such set exists). Clearly $A ( 1 , p )$ is known for every $p \\in \\{ 1 , \\ldots , n P \\}$ . The following recurrence helps compute all values $A ( i , p )$ in $O ( n ^ { 2 } P )$ time:",
+        "bbox": [
+            220,
+            397,
+            788,
+            498
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{l} A (i + 1, p) = \\\\ \\left\\{ \\begin{array}{l l} \\min \\left\\{A (i, p), \\text {size} (a _ {i + 1}) + A (i, p - \\text {profit} (a _ {i + 1})) \\right\\} & \\text {if profit} (a _ {i + 1}) <   p \\\\ A (i + 1, p) = A (i, p) & \\text {otherwise} \\end{array} \\right. \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            270,
+            513,
+            786,
+            561
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "The maximum profit achievable by objects of total size bounded by B is max {p| $A ( n , p ) \\leq B \\}$ . We thus get a pseudo-polynomial algorithm for knapsack.",
+        "bbox": [
+            220,
+            573,
+            784,
+            615
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "8.2 An FPTAS for knapsack",
+        "text_level": 2,
+        "bbox": [
+            221,
+            645,
+            515,
+            661
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Notice that if the profits of objects were small numbers, i.e., they were bounded by a polynomial in n, then this would be a regular polynomial time algorithm, since its running time would be bounded by a polynomial in $| I |$ . The key idea behind obtaining an FPTAS is to exploit precisely this fact: we will ignore a certain number of least significant bits of profits of objects (depending on the error parameter $\\varepsilon )$ , so that the modified profits can be viewed as numbers bounded by a polynomial in n and $1 / \\varepsilon .$ . This will enable us to find a solution whose profit is at least (1 − ε) · OPT in time bounded by a polynomial in n and $1 / \\varepsilon$",
+        "bbox": [
+            220,
+            675,
+            786,
+            747
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "header",
+        "text": "8.2 An FPTAS for knapsack",
+        "bbox": [
+            522,
+            87,
+            732,
+            101
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_number",
+        "text": "69",
+        "bbox": [
+            764,
+            87,
+            784,
+            99
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            220,
+            112,
+            786,
+            172
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [],
+        "code_body": "<div class=\"mineru-algorithm\" style=\"white-space: pre-wrap; font-family:monospace;\">\nAlgorithm 8.2 (FPTAS for knapsack)\n1. Given $\\varepsilon &gt; 0$, let $K = \\frac{\\varepsilon P}{n}$.\n2. For each object $a_i$, define $\\text{profit}'(a_i) = \\left\\lfloor \\frac{\\text{profit}(a_i)}{K} \\right\\rfloor$.\n3. With these as profits of objects, using the dynamic programming algorithm, find the most profitable set, say $S'$.\n4. Output $S'$.\n</div>",
+        "bbox": [
+            233,
+            187,
+            727,
+            307
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Lemma 8.3 Let A denote the set output by the algorithm. Then,",
+        "text_level": 2,
+        "bbox": [
+            221,
+            334,
+            707,
+            349
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\operatorname{profit} (A) \\geq (1 - \\varepsilon) \\cdot \\mathrm{OPT}.\n$$",
+        "text_format": "latex",
+        "bbox": [
+            263,
+            362,
+            458,
+            378
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Proof: Let O denote the optimal set. For any object $^ { a , }$ because of rounding down, K · profit<sup>\u0001</sup>(a) can be smaller than profit(a), but by not more than $K$ Therefore,",
+        "bbox": [
+            221,
+            397,
+            784,
+            441
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\operatorname{profit} (O) - K \\cdot \\operatorname{profit} ^ {\\prime} (O) \\leq n K.\n$$",
+        "text_format": "latex",
+        "bbox": [
+            262,
+            454,
+            505,
+            470
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "The dynamic programming step must return a set at least as good as O under the new profits. Therefore,",
+        "bbox": [
+            220,
+            483,
+            784,
+            512
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{c} \\operatorname{profit} (S ^ {\\prime}) \\geq K \\cdot \\operatorname{profit} ^ {\\prime} (O) \\geq \\operatorname{profit} (O) - n K = \\operatorname{OPT} - \\varepsilon P \\\\ \\geq (1 - \\varepsilon) \\cdot \\operatorname{OPT}, \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            262,
+            527,
+            692,
+            563
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "where the last inequality follows from the observation that ${ \\mathrm { O P T } } \\geq P .$ ✷",
+        "bbox": [
+            221,
+            575,
+            784,
+            590
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Theorem 8.4 Algorithm 8.2 is a fully polynomial approximation scheme $f o r$ knapsack.",
+        "bbox": [
+            221,
+            606,
+            786,
+            636
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Proof: By Lemma 8.3, the solution found is within $( 1 - \\varepsilon )$ factor of $\\mathrm { O P T }$ Since the running time of the algorithm is $O \\left( n ^ { 2 } \\left\\lfloor { \\frac { P } { K } } \\right\\rfloor \\right) = O \\left( n ^ { 2 } \\left\\lfloor { \\frac { n } { \\varepsilon } } \\right\\rfloor \\right)$ , which is polynomial in n and $1 / \\varepsilon$ \u0004, the theorem follows. ✷",
+        "bbox": [
+            220,
+            651,
+            784,
+            695
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_number",
+        "text": "70",
+        "bbox": [
+            223,
+            87,
+            243,
+            99
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "header",
+        "text": "8 Knapsack",
+        "bbox": [
+            275,
+            87,
+            371,
+            101
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "8.3 Strong NP-hardness and the existence of FPTAS’s",
+        "text_level": 2,
+        "bbox": [
+            221,
+            111,
+            776,
+            128
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "In this section, we will prove in a formal sense that very few of the known NPhard problems admit an FPTAS. First, here is a strengthening of the notion of NP-hardness in a similar sense in which a pseudo-polynomial algorithm is a weakening of the notion of an eficient algorithm. A problem Π is strongly NP-hard if every problem in NP can be polynomially reduced to Π in such a way that numbers in the reduced instance are always written in unary.",
+        "bbox": [
+            220,
+            141,
+            786,
+            227
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "The restriction automatically forces the transducer to use polynomially bounded numbers only. Most known NP-hard problems are in fact strongly NP-hard; this includes all the problems in previous chapters for which approximation algorithms were obtained. A strongly NP-hard problem cannot have a pseudo-polynomial time algorithm, assuming $\\mathbf { P } \\neq \\mathbf { N P }$ (Exercise 8.4). Thus, knapsack is not strongly NP-hard, assuming $\\mathbf { P } \\neq \\mathbf { N P }$",
+        "bbox": [
+            220,
+            227,
+            784,
+            312
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "We will show below that under some very weak restrictions, any NPhard problem admitting an FPTAS must admit a pseudo-polynomial time algorithm. Theorem 8.5 is proven for a minimization problem; a similar proof holds for a maximization problem.",
+        "bbox": [
+            220,
+            311,
+            786,
+            370
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Theorem 8.5 Let p be a polynomial and Π be an NP-hard minimization problem such that the objective function $f _ { \\pi }$ is integer valued and on any instance $I , \\mathrm { O P T } ( I ) < p ( | I _ { u } | )$ . If Π admits an $F P T A S$ , then it also admits a pseudo-polynomial time algorithm.",
+        "bbox": [
+            220,
+            376,
+            786,
+            436
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Proof: Suppose there is an FPTAS for Π whose running time on instance I and error parameter $\\varepsilon { \\mathrm { ~ i s ~ } } q ( | I | , 1 / \\varepsilon )$ , where q is a polynomial.",
+        "bbox": [
+            221,
+            450,
+            784,
+            480
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "On instance $I ,$ set the error parameter to $\\varepsilon = 1 / p ( | I _ { u } | )$ , and run the FPTAS. Now, the solution produced will have objective function value less than or equal to:",
+        "bbox": [
+            221,
+            479,
+            784,
+            521
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "text": "$$\n(1 + \\varepsilon) \\mathrm{OPT} (I) <   \\mathrm{OPT} (I) + \\varepsilon p (| I _ {u} |) = \\mathrm{OPT} (I) + 1.\n$$",
+        "text_format": "latex",
+        "bbox": [
+            263,
+            535,
+            645,
+            551
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "In fact, with this error parameter, the FPTAS will be forced to produce an optimal solution. The running time will be $q ( | I | , p ( | I _ { u } | ) )$ , i.e., polynomial in $\\left| I _ { u } \\right|$ . Therefore, we have obtained a pseudo-polynomial time algorithm for Π. ✷",
+        "bbox": [
+            220,
+            564,
+            784,
+            619
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "The following corollary applies to most known NP-hard problems.",
+        "bbox": [
+            245,
+            627,
+            741,
+            643
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Corollary 8.6 Let Π be an NP-hard optimization problem satisfying the restrictions of Theorem 8.5. If Π is strongly NP-hard, then Π does not admit an FPTAS, assuming $\\mathbf { P } \\neq \\mathbf { N P }$",
+        "bbox": [
+            221,
+            651,
+            786,
+            695
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Proof: If Π admits an FPTAS, then it admits a pseudo-polynomial time algorithm by Theorem 8.5. But then it is not strongly NP-hard, assuming $\\mathbf { P } \\neq \\mathbf { N P }$ , leading to a contradiction. ✷",
+        "bbox": [
+            221,
+            709,
+            786,
+            753
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "header",
+        "text": "8<sub>.</sub>3 St<sub>rong</sub> NP<sub>-</sub>h<sub>ar</sub>d<sub>ness an</sub>d th<sub>e ex</sub>i<sub>s</sub>t<sub>ence o</sub>f FPTAS’<sub>s</sub>",
+        "bbox": [
+            342,
+            87,
+            732,
+            101
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_number",
+        "text": "71",
+        "bbox": [
+            764,
+            87,
+            784,
+            99
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "The stronger assumption that $\\mathrm { O P T } < p ( | I | )$ in Theorem 8.5 would have enabled us to prove that there is a polynomial time algorithm for Π. However, this stronger assumption is less widely applicable. For instance, it is not satisfied by the minimum makespan problem, which we will study in Chapter 10.",
+        "bbox": [
+            220,
+            112,
+            786,
+            184
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "8.3.1 Is an FPTAS the most desirable approximation algorithm?",
+        "text_level": 2,
+        "bbox": [
+            221,
+            204,
+            781,
+            219
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "The design of almost all known FPTAS’s and PTAS’s is based on the idea of trading accuracy for running time – the given problem instance is mapped to a coarser instance, depending on the error parameter $\\varepsilon ,$ which is solved optimally by a dynamic programming approach. The latter ends up being an exhaustive search of polynomially many diferent possibilities (for instance, for knapsack, this involves computing $A ( i , p )$ for all i and $p )$ . In most such algorithms, the running time is prohibitive even for reasonable n and ε. Further, if the algorithm had to resort to exhaustive search, does the problem really ofer “footholds” to home in on a solution eficiently? Is an FPTAS or PTAS the best one can hope for for an NP-hard problem? Clearly, the issue is complex and there is no straightforward answer.",
+        "bbox": [
+            220,
+            229,
+            786,
+            388
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "8.4 Exercises",
+        "text_level": 2,
+        "bbox": [
+            221,
+            414,
+            364,
+            431
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "8.1 Consider the greedy algorithm for the knapsack problem. Sort the objects by decreasing ratio of profit to size, and then greedily pick objects in this order. Show that this algorithm can be made to perform arbitrarily badly.",
+        "bbox": [
+            220,
+            458,
+            786,
+            502
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "8.2 Consider the following modification to the algorithm given in Exercise 8.1. Let the sorted order of objects be $a _ { 1 } , \\ldots , a _ { n }$ . Find the lowest k such that the size of the first k objects exceeds B. Now, pick the more profitable of $\\{ a _ { 1 } , \\dotsc , a _ { k - 1 } \\}$ and $\\{ a _ { k } \\}$ (we have assumed that the size of each object is at most $B )$ . Show that this algorithm achieves an approximation factor of 2.",
+        "bbox": [
+            221,
+            514,
+            786,
+            588
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "8.3 (Bazgan, Santha, and Tuza [22]) Obtain an FPTAS for the following problem.",
+        "bbox": [
+            221,
+            600,
+            784,
+            629
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Problem 8.7 (Subset-sum ratio problem) Given n positive integers, $a _ { 1 } < \\ldots < a _ { n }$ , find two disjoint nonempty subsets $S _ { 1 } , S _ { 2 } \\subseteq \\{ 1 , \\dots , n \\}$ with $\\textstyle \\sum _ { i \\in S _ { 1 } } a _ { i } \\geq \\sum _ { i \\in S _ { 2 } } a _ { i }$ , such that the ratio",
+        "bbox": [
+            221,
+            634,
+            784,
+            681
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\frac {\\sum_ {i \\in S _ {1}} a _ {i}}{\\sum_ {i \\in S _ {2}} a _ {i}}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            265,
+            692,
+            336,
+            727
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "is minimized.",
+        "bbox": [
+            221,
+            738,
+            324,
+            752
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_number",
+        "text": "72",
+        "bbox": [
+            223,
+            87,
+            243,
+            99
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "header",
+        "text": "8 Knapsack",
+        "bbox": [
+            275,
+            87,
+            371,
+            101
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Hint: First, obtain a pseudo-polynomial time algorithm for this problem. Then, scale and round appropriately.",
+        "bbox": [
+            220,
+            112,
+            784,
+            143
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "8.4 Show that a strongly NP-hard problem cannot have a pseudo-polynomia time algorithm, assuming $\\mathbf { P } \\neq \\mathbf { N P }$",
+        "bbox": [
+            221,
+            155,
+            784,
+            186
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "8.5 Notes",
+        "text_level": 2,
+        "bbox": [
+            221,
+            212,
+            331,
+            229
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Algorithm 8.2 is due to Ibarra and Kim [134]. Theorem 8.5 is due to Garey and Johnson [92].",
+        "bbox": [
+            221,
+            242,
+            784,
+            272
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "header",
+        "text": "8.5 Notes",
+        "bbox": [
+            650,
+            87,
+            732,
+            99
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_number",
+        "text": "73",
+        "bbox": [
+            764,
+            87,
+            784,
+            99
+        ],
+        "page_idx": 5
+    }
+]

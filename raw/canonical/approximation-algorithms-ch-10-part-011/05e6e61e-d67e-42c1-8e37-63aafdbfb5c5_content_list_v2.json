@@ -1,0 +1,1564 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "10 Minimum Makespan Scheduling"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                223,
+                109,
+                652,
+                129
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A central problem in scheduling theory is the following."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                255,
+                635,
+                269
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 10.1 (Minimum makespan scheduling) Given processing times for n jobs, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { 1 } , p _ { 2 } , \\ldots , p _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and an integer m, find an assignment of the jobs to m identical machines so that the completion time, also called the makespan, is minimized."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                275,
+                784,
+                332
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will give a simple factor 2 algorithm for this problem before presenting a PTAS for it."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                332,
+                784,
+                362
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "10.1 Factor 2 algorithm"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                223,
+                391,
+                468,
+                407
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm is very simple: schedule the jobs one by one, in an arbitrary order, each job being assigned to a machine with least amount of work so far. This algorithm is based on the following two lower bounds on the optimal makespan, OPT:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                420,
+                784,
+                478
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. The average time for which a machine has to run, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\left( \\sum _ { i } p _ { i } \\right) / m ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                483,
+                744,
+                499
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. The largest processing time."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                498,
+                462,
+                513
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let LB denote the combined lower bound, i.e.,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                519,
+                568,
+                533
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm{LB} = \\max \\left\\{\\frac {1}{m} \\sum_ {i} p _ {i}, \\max _ {i} \\{p _ {i} \\} \\right\\}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/76088137ea70b8553dac7fb08cf67f293e93ca5cb8163fe3a5fdf33b948e31c2.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                545,
+                519,
+                583
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 10.2 (Minimum makespan scheduling)"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                235,
+                621,
+                650,
+                637
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Order the jobs arbitrarily."
+                    }
+                ]
+            },
+            "bbox": [
+                240,
+                642,
+                443,
+                657
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Schedule jobs on machines in this order, scheduling the next job on the machine that has been assigned the least amount of work so far."
+                    }
+                ]
+            },
+            "bbox": [
+                240,
+                657,
+                769,
+                686
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 10.3 Algorithm 10.2 achieves an approximation guarantee of 2 for the minimum makespan problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                724,
+                786,
+                753
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the machine that completes its jobs last in the schedule produced by the algorithm, and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the index of the last job scheduled on this machine."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                156
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/0e061d1d933a37e473fd3e988b5b7c9f60afab7b78f753cefc782465ee70a3db.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                280,
+                164,
+                705,
+                304
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s t a r t _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the time at which job "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "starts execution on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M _ { i } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Since the algorithm assigns a job to the least loaded machine, it follows that all machines are busy until start<sub>j</sub>. This implies that"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                315,
+                784,
+                359
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "s t a r t _ {j} \\leq \\frac {1}{m} \\sum_ {i} p _ {i} \\leq \\mathrm{OPT}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/342c3978b7b45f42fedc079064e285b77ea16b3ad4c14dd13c24cae87f737afb.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                370,
+                458,
+                405
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Further, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { j } \\ \\leq \\ \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Thus, the makespan of the schedule is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s t a r t _ { j } + p _ { j } \\ \\leq"
+                    },
+                    {
+                        "type": "text",
+                        "content": "2 · OPT. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                416,
+                784,
+                445
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 10.4 A tight example for this algorithm is provided by a sequence of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "jobs with unit processing time, followed by a single job of length m. The schedule obtained by the algorithm has a makespan of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 m ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "while "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T = }"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                460,
+                784,
+                517
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "10.2 A PTAS for minimum makespan"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                552,
+                608,
+                569
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The minimum makespan problem is strongly NP-hard; thus, by Corollary 8.6, it does not admit an FPTAS, assuming "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } \\neq \\mathbf { N P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We will obtain a PTAS for it. The minimum makespan problem is closely related to the bin packing problem by the following observation. There exists a schedule with makespan t if n objects of sizes "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { 1 } , p _ { 2 } , \\ldots , p _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "can be packed into m bins of capacity t each. This suggests a reduction from minimum makespan to bin packing as follows. Denoting the sizes of the n objects, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { 1 } , \\ldots , p _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "let bins(I, t) represent the minimum number of bins of size t required to pack these n objects. Then, the minimum makespan is given by"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                582,
+                786,
+                712
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\min \\{t: \\text {   bins } (I, t) \\leq m \\}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/7fa972133b845236f5198a3f0c66c31b7e4d3ec76c14fecbfc8745553a3d77dc.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                724,
+                445,
+                741
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "80"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "10 Minimum Makespan Scheduling"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                87,
+                531,
+                102
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As shown above, LB and 2 · LB are lower and upper bounds on the minimum makespan. Thus, we can determine the minimum makespan by a binary search in this interval. At first sight, this reduction may not seem very useful since the bin packing problem is also NP-hard. However, it turns out that this problem is polynomial time solvable if the object sizes are drawn from a set of fixed cardinality. We will use this fact critically for solving the minimum makespan problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                214
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "10.2.1 Bin packing with fixed number of object sizes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                233,
+                680,
+                247
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We first present a dynamic programming algorithm for the restricted bin packing problem, thereby improving on the result of Lemma 9.4 in two ways. We will not require a lower bound on item sizes and will improve on the running time. Let k be the fixed number of object sizes, and assume that bins have capacity 1. Fix an ordering on the object sizes. Now, an instance of the bin packing problem can be described by a k-tuple, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i _ { 1 } , i _ { 2 } , \\ldots , i _ { k } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "2 specifying the number of objects of each size. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { B I N S } ( i _ { 1 } , i _ { 2 } , \\dots , i _ { k } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the minimum number of bins needed to pack these objects."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                259,
+                784,
+                372
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For a given instance, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( n _ { 1 } , n _ { 2 } , . . . , n _ { k } ) , \\sum _ { i = 1 } ^ { k } n _ { i } = n"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we first compute "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { Q } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the set of all k-tuples "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( q _ { 1 } , q _ { 2 } , \\ldots , q _ { k } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "\u0001such that BINS "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( q _ { 1 } , q _ { 2 } , \\ldots , q _ { k } ) = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 \\leq q _ { i } \\leq n _ { i } , 1 \\leq i \\leq k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { Q }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "contains at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( n ^ { k } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "elements. Next, we compute all entries of the k-dimensional table BINS "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i _ { 1 } , i _ { 2 } , \\ldots , i _ { k } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for every "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i _ { 1 } , i _ { 2 } , \\ldots , i _ { k } ) \\in \\{ 0 , \\ldots , n _ { 1 } \\} \\times \\{ 0 , \\ldots , n _ { 2 } \\} \\times \\ldots \\times \\{ 0 , \\ldots , n _ { k } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The table is initialized by setting "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { B I N S } ( q ) = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for every "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "q \\in \\mathcal { Q }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then, we use the following recurrence to compute the remaining entries:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                372,
+                786,
+                472
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\operatorname{BINS} (i _ {1}, i _ {2}, \\dots , i _ {k}) = 1 + \\min _ {q \\in \\mathcal {Q}} \\operatorname{BINS} (i _ {1} - q _ {1}, \\dots , i _ {k} - q _ {k}).\\tag{10.1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b54493c44854b0b67b896de4e38635606b51bf189861c2ec1fba4d0ac5ea080c.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                486,
+                680,
+                508
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Computing each entry takes "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( n ^ { k } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "time. Thus, the entire table can be computed in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\bar { O } } ( n ^ { 2 k } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "time, thereby determining "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { B I N S } ( n _ { 1 } , n _ { 2 } , \\dots , n _ { k } )"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                521,
+                784,
+                552
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "10.2.2 Reducing makespan to restricted bin packing"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                571,
+                675,
+                586
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The basic idea is that if we can tolerate some error in computing the minimum makespan, then we can reduce this problem to the restricted version of bin packing in polynomial time. There will be two sources of error:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                596,
+                784,
+                640
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• rounding object sizes so that there are a bounded number of diferent sizes, and"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                646,
+                784,
+                674
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• terminating the binary search to ensure polynomial running time."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                675,
+                726,
+                690
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Each error can be made as small as needed, at the expense of running time. Moreover, for any fixed error bound, the running time is polynomial in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n _ { \\mathrm { : } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and thus we obtain a polynomial approximation scheme."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                696,
+                784,
+                740
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "10.2 A PTAS for minimum makespan"
+                    }
+                ]
+            },
+            "bbox": [
+                460,
+                87,
+                729,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "81"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                89,
+                783,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let ε be an error parameter and t be in the interval [LB, 2 · LB]. We say that an object is small if its size is less than "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t \\varepsilon ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "small objects are discarded for now. The rest of the objects are rounded down as follows: each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the interval "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\lceil t \\varepsilon ( 1 + \\varepsilon ) ^ { i } , t \\varepsilon ( 1 + \\stackrel { \\sim } { \\varepsilon } ) ^ { i + 1 } \\rceil"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is replaced by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { i } ^ { \\prime } = t \\varepsilon ( 1 + \\varepsilon ) ^ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i \\geq 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The \u0017<sub>resulting</sub> "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { j } ^ { \\prime } \\mathrm { { ' s } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "can assume at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k = \\lceil \\log _ { 1 + \\varepsilon } \\frac { 1 } { \\varepsilon } \\rceil"
+                    },
+                    {
+                        "type": "text",
+                        "content": "distinct values. Determine an optimal packing for the rounded objects in bins of size t using the dynamic programming algorithm. Since rounding reduces the size of each object by a factor of at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 + \\varepsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", if we consider the original sizes of the objects, then the packing determined is valid for a bin size of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t ( 1 + \\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Keeping this as the bin size, pack the small objects greedily in leftover spaces in the bins; open new bins only if needed. Clearly, any time a new bin is opened, all previous bins must be full to the extent of at least t. Denote with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ( I , t , \\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the number of bins used by this algorithm; recall that these bins are of size "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t ( 1 + \\varepsilon )"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                300
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us call the algorithm presented above the core algorithm since it will form the core of the PTAS for computing makespan. As shown in Lemma 10.5 and its corollary, the core algorithm also helps establish a lower bound on the optimal makespan."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                300,
+                786,
+                357
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 10.5"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                366,
+                331,
+                380
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\alpha (I, t, \\varepsilon) \\leq \\operatorname{bins} (I, t).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/767927c1f28c4dc3fa796ecc8541c09140da93d9945fa4ffde36d3d08c19a82f.jpg"
+                }
+            },
+            "bbox": [
+                374,
+                366,
+                532,
+                381
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: If the algorithm does not open any new bins for the small objects, then the assertion clearly holds since the rounded down pieces have been packed optimally in bins of size t. In the other case, all but the last bin are packed at least to the extent of t. Hence, the optimal packing of I in bins of size t must also use at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ( I , t , \\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "bins. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                395,
+                786,
+                468
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since OPT = min{t : bins "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( I , t ) \\leq m \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", Lemma 10.5 gives:"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                474,
+                672,
+                489
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Corollary 10.6 min "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ t : \\ \\alpha ( I , t , \\varepsilon ) \\leq m \\} \\leq \\mathrm { O P T } ."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                495,
+                628,
+                511
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "If min "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ t : ~ \\alpha ( I , t , \\varepsilon ) \\leq m \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "could be determined with no additional error during the binary search, then clearly we could use the core algorithm to obtain a schedule with a makespan of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 1 + \\varepsilon ) \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Next, we will specify the details of the binary search and show how to control the error it introduces. The binary search is performed on the interval [LB, 2 · LB]. Thus, the length of the available interval is LB at the start of the search, and it reduces by a factor of 2 in each iteration. We continue the search until the available interval drops to a length of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon \\cdot \\mathrm { L B }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This will require "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\left\\lceil \\log _ { 2 } \\frac { 1 } { \\varepsilon } \\right\\rceil"
+                    },
+                    {
+                        "type": "text",
+                        "content": "iterations. Let T be the right endpoint of the interval we terminate with."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                517,
+                786,
+                646
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 10.7"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                655,
+                329,
+                669
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "T \\leq (1 + \\varepsilon) \\cdot \\text { OPT }.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/7778891970da9923704ca96d6499341e66fa4ef6325c2c4efceb001e44bfd764.jpg"
+                }
+            },
+            "bbox": [
+                374,
+                653,
+                515,
+                669
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Clearly, min "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ t : \\alpha ( I , t , \\varepsilon ) \\leq m \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must be in the interval "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "[ T - \\varepsilon \\cdot L B , T ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Hence,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                684,
+                789,
+                714
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "T \\leq \\min \\{t: \\alpha (I, t, \\varepsilon) \\leq m \\} + \\varepsilon \\cdot \\mathrm{LB}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/c23ca7f1e093f658eab413e3820b2675c243a1502faa6eb3569f0a60199a2560.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                728,
+                539,
+                744
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "82"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "10 Minimum Makespan Scheduling"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                87,
+                529,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Now, using Corollary 10.6 and the fact that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L B } \\leq \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the lemma follows. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                784,
+                141
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finally, the output of the core algorithm for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t = T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "gives a schedule whose makespan is at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T \\cdot ( 1 + \\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We get:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                149,
+                784,
+                178
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 10.8 The algorithm produces a valid schedule having makespan at most"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                186,
+                786,
+                215
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "(1 + \\varepsilon) ^ {2} \\cdot \\mathrm{OPT} \\leq (1 + 3 \\varepsilon) \\cdot \\mathrm{OPT}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/2507077778a644bdd2a55793b3b0f85dd8fabbeae7b22cb071b8c6f9f0e25d39.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                227,
+                509,
+                244
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The running time of the entire algorithm is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O \\left( n ^ { 2 k } \\lceil \\log _ { 2 } \\frac { 1 } { \\varepsilon } \\rceil \\right)"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\lceil \\log _ { 1 + \\varepsilon } \\frac { 1 } { \\varepsilon } \\rceil"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                256,
+                784,
+                288
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "10.3 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                315,
+                376,
+                331
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "10.1 (Graham [114]) The tight example for the factor 2 algorithm, Example 10.4, involves scheduling a very long job last. This suggests sorting the jobs by decreasing processing times before scheduling them. Show that this leads to a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "4 / 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor algorithm. Provide a tight example for this algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                359,
+                786,
+                418
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "10.2 (Horowitz and Sahni [131]) Give an FPTAS for the variant of the minimum makespan scheduling problem in which the number of machines, m, is a fixed constant."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                430,
+                786,
+                474
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "10.4 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                223,
+                502,
+                342,
+                518
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 10.2 is due to Graham [113]. The PTAS is due to Hochbaum and Shmoys [128]."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                532,
+                784,
+                562
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "10.4 Notes"
+                    }
+                ]
+            },
+            "bbox": [
+                643,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "83"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ]
+]

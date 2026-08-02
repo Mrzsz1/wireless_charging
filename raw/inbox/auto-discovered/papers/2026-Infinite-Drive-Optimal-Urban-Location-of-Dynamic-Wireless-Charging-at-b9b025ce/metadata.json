@@ -1,0 +1,51 @@
+{
+  "title": "Infinite Drive: Optimal Urban Location of Dynamic Wireless Charging at Signalized Intersections",
+  "authors": [
+    "Yudai Honma",
+    "Daisuke Hasegawa",
+    "Katsuhiro Hata",
+    "Xuesong",
+    "Zhou",
+    "Michael J. Kuby",
+    "Takashi Oguchi"
+  ],
+  "abstract": "Dynamic Wireless Power Transfer (DWPT) could eliminate plug-in charging in cities, but optimal urban deployment is complex. This paper develops a mixed-integer programming model that optimizes DWPT location under signalized intersection dynamics -- acceleration, deceleration, and queue-position-dependent dwell time -- through probabilistic signal patterns and saturation headway-based modeling. A case study of Kawagoe City, Japan, shows that electrifying 1.5% of the road network is sufficient to sustain continuous urban EV operation without plug-in charging for the baseline scenario, and at most 2.9% suffices across all tested assumptions. Monte Carlo simulations of continuous trip chains averaging approximately 600 km and reaching up to approximately 800 km confirm that optimized 12 kWh-battery deployments sustain operation in all simulated runs, revealing an infrastructure-battery tradeoff corresponding to roughly 1.7-3.0 tonnes CO2e of avoided battery manufacturing emissions per vehicle relative to a conventional 40 kWh urban EV. These findings position DWPT deployment as an environmentally efficient pathway for sustainable urban mobility when deployed optimally.",
+  "published_date": "2026-07-06",
+  "updated_date": "2026-07-06",
+  "year": 2026,
+  "doi": "",
+  "arxiv_id": "2607.04585",
+  "landing_url": "https://arxiv.org/abs/2607.04585v1",
+  "pdf_url": "https://arxiv.org/pdf/2607.04585v1",
+  "is_open_access": true,
+  "license": "",
+  "providers": [
+    "arxiv"
+  ],
+  "provider_ids": {
+    "arxiv": "2607.04585"
+  },
+  "matched_queries": [
+    "dynamic wireless charging"
+  ],
+  "score": 9.5,
+  "score_reasons": [
+    "标题命中：charging, dynamic",
+    "近年文献"
+  ],
+  "local_pdf": "raw/inbox/auto-discovered/papers/2026-Infinite-Drive-Optimal-Urban-Location-of-Dynamic-Wireless-Charging-at-b9b025ce/paper.pdf",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "arxiv"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-204713",
+  "triage_status": "promoted",
+  "selected_by_user": true,
+  "acquired_at": "2026-07-14T12:47:13+00:00",
+  "selected_at": "2026-07-14T15:49:13+00:00",
+  "canonicalized_at": "2026-07-14T16:03:19+00:00",
+  "triage_note": "用户于 2026-07-14 明确要求下载并使用 MinerU；PDF 已校验，MinerU 7/7 成功，现标记进入 canonical，等待 A 编译。",
+  "candidate_rank": 12,
+  "source_manifest": "raw/inbox/auto-discovered/runs/search-20260714-204713/results.json",
+  "boundary": "promoted to canonical; pending wiki ingest"
+}

@@ -1,0 +1,52 @@
+{
+  "title": "Optimal 3D Directional WPT Charging via UAV for 3D Wireless Rechargeable Sensor Networks",
+  "authors": [
+    "Zhenguo Gao",
+    "Hui Li",
+    "Yiqin Chen",
+    "Qingyu Gao",
+    "Zhufang Kuang",
+    "Shih-Hau Fang",
+    "Hsiao-Chun Wu"
+  ],
+  "abstract": "The high mobility and flexible deployment capability of UAVs make them an impressive option for charging nodes in Wireless Rechargeable Sensor Networks (WRSNs) using Directional Wireless Power Transfer (WPT) technology. However, existing studies largely focus on 2D-WRSNs, lacking designs catering to real 3D-WRSNs. The spatial distribution characteristics of nodes in a 3D-WRSN further increase the complexity of the charging scheduling task, thus requiring a systematic framework to solve this problem. In this paper, we investigated the Directional UAV Charging Scheduling problem for 3D-WRSNs (DCS-3D) and established its NP-hard property, and then proposed a three-step framework named as directional charging scheduling algorithm using Functional Equivalent (FuncEqv) direction set and Lin-Kernighan heuristic (LKH) for 3D-WRSNs (FELKH-3D) to solve it. In FELKH-3D, the challenge of infinite charging direction space is solved by designing an algorithm generating a minimum-size direction set guaranteed to be FuncEqv to the infinite set of whole sphere surface, and the optimaility of the method was proved.To determine the optimal charging tour for the UAV, the LKH algorithm is employed.Simulation experiments demonstrated the superiority of FELKH-3D over other classical algorithms.",
+  "published_date": "2025-12-22",
+  "updated_date": "2025-12-22",
+  "year": 2025,
+  "doi": "",
+  "arxiv_id": "2512.19075",
+  "landing_url": "https://arxiv.org/abs/2512.19075v1",
+  "pdf_url": "https://arxiv.org/pdf/2512.19075v1",
+  "is_open_access": true,
+  "license": "",
+  "providers": [
+    "arxiv"
+  ],
+  "provider_ids": {
+    "arxiv": "2512.19075"
+  },
+  "matched_queries": [
+    "wireless rechargeable sensor networks"
+  ],
+  "score": 13.0,
+  "score_reasons": [
+    "标题命中：charging, rechargeable, sensor",
+    "摘要命中：scheduling",
+    "近年文献"
+  ],
+  "local_pdf": "raw/inbox/auto-discovered/papers/2025-Optimal-3D-Directional-WPT-Charging-via-UAV-for-3D-Wireless-Rechargeab-ade40006/paper.pdf",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "arxiv"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-204713",
+  "triage_status": "promoted",
+  "selected_by_user": true,
+  "acquired_at": "2026-07-14T12:47:13+00:00",
+  "selected_at": "2026-07-14T15:49:13+00:00",
+  "canonicalized_at": "2026-07-14T16:03:19+00:00",
+  "triage_note": "用户于 2026-07-14 明确要求下载并使用 MinerU；PDF 已校验，MinerU 7/7 成功，现标记进入 canonical，等待 A 编译。",
+  "candidate_rank": 8,
+  "source_manifest": "raw/inbox/auto-discovered/runs/search-20260714-204713/results.json",
+  "boundary": "promoted to canonical; pending wiki ingest"
+}

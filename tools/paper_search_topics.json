@@ -1,0 +1,32 @@
+{
+  "wireless-charging-scheduling": {
+    "description": "无线充电调度、资源分配、移动充电器与能量采集的项目默认主题",
+    "queries": [
+      {
+        "label": "wireless power transfer scheduling",
+        "arxiv": "all:\"wireless power transfer\" AND (all:scheduling OR all:optimization OR all:\"resource allocation\")",
+        "openalex": "wireless power transfer scheduling optimization resource allocation"
+      },
+      {
+        "label": "wireless rechargeable sensor networks",
+        "arxiv": "all:\"wireless rechargeable sensor network\" AND (all:charging OR all:scheduling OR all:routing)",
+        "openalex": "wireless rechargeable sensor network charging scheduling routing"
+      },
+      {
+        "label": "mobile charger scheduling",
+        "arxiv": "(all:\"mobile charger\" OR all:\"mobile charging\") AND (all:scheduling OR all:path OR all:trajectory)",
+        "openalex": "mobile charger scheduling path planning trajectory wireless sensor network"
+      },
+      {
+        "label": "dynamic wireless charging",
+        "arxiv": "all:\"dynamic wireless power transfer\" AND (all:scheduling OR all:optimization OR all:control)",
+        "openalex": "dynamic wireless power transfer scheduling optimization control"
+      },
+      {
+        "label": "RF energy harvesting scheduling",
+        "arxiv": "all:\"RF energy harvesting\" AND (all:scheduling OR all:optimization OR all:\"age of information\")",
+        "openalex": "RF energy harvesting scheduling optimization age of information"
+      }
+    ]
+  }
+}

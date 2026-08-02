@@ -1,0 +1,3926 @@
+[
+    {
+        "type": "text",
+        "text": "Computation of Market Equilibria by Convex Programming",
+        "text_level": 1,
+        "bbox": [
+            273,
+            101,
+            724,
+            202
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Bruno Codenotti and Kasturi Varadarajan",
+        "text_level": 1,
+        "bbox": [
+            263,
+            248,
+            730,
+            270
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Abstract",
+        "text_level": 2,
+        "bbox": [
+            449,
+            365,
+            546,
+            384
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "We introduce convex programming techniques to compute market equilibria in general equilibrium models. We show that this approach provides an effective arsenal of tools for several restricted, yet important, classes of markets. We also point out its intrinsic limitations.",
+        "bbox": [
+            135,
+            403,
+            858,
+            454
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "6.1 Introduction",
+        "text_level": 2,
+        "bbox": [
+            409,
+            492,
+            584,
+            510
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "The market equilibrium problem consists of finding a set of prices and allocations of goods to economic agents such that each agent maximizes her utility, subject to her budget constraints, and the market clears. Since the nineteenth century, economists have introduced models that capture the notion of market equilibrium. In 1874, Walras published the “Elements ofPure Economics,” in which he describes a model for the state of an economic system in terms of demand and supply, and expresses the supply equal demand equilibrium conditions (Walras, 1954). In 1936, Wald gave the first proof of the existence of an equilibrium for the Walrasian system, albeit under severe restrictions (Wald, 1951). In 1954, Nobel laureates Arrow and Debreu proved the existence of an equilibrium under much milder assumptions (Arrow and Debreu, 1954).",
+        "bbox": [
+            135,
+            529,
+            860,
+            709
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "The market equilibrium problem can be stated as a fixed point problem, and indeed the proofs of existence of a market equilibrium are based on either Brouwer’s or Kakutani’s fixed point theorem, depending on the setting (see, e.g., the beautiful monograph (Border, 1985) for a friendly exposition of the main results in this vein).",
+        "bbox": [
+            135,
+            709,
+            858,
+            782
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Under a capitalistic economic system, the prices and production of all goods are interrelated, so that the equilibrium price of one good may depend on all the different markets of goods that are available. Equilibrium models must therefore take into account a multitude ofdifferent markets ofgoods. This intrinsic large-scale nature ofthe problem calls for algorithmic investigations and shows the central role of computation.",
+        "bbox": [
+            135,
+            783,
+            860,
+            871
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Starting from the 60’s, the intimate connection between the notions offixed-point and market equilibrium was exploited for computational goals by Scarf and some coauthors, who employed path-following techniques to compute approximate equilibrium prices (Eaves and Scarf, 1976; Hansen and Scarf, 1973; Scarf, 1967, 1982). In their simplest form these methods are based upon a decomposition of the price simplex into a large number of small regions and on the use of information about the problem instance to construct a path that can be shown to terminate close to a fixed point. While the appropriate termination is guaranteed by the fixpoint theorems, the worst case running time of these algorithms turns out to be exponential.",
+        "bbox": [
+            135,
+            873,
+            860,
+            909
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "header",
+        "text": "CHAPTER 6",
+        "bbox": [
+            433,
+            72,
+            562,
+            87
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_number",
+        "text": "135",
+        "bbox": [
+            481,
+            919,
+            514,
+            933
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            137,
+            78,
+            862,
+            203
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Over the last few years, the problem of computing market equilibria has received significant attention within the theoretical computer science community. Inspired by Papadimitriou (2001), and starting with the work of Deng, Papadim itriou, and Safra (2003), theoretical computer scientists have developed polynomial time algorithms for several restricted versions of the market equilibrium problem.",
+        "bbox": [
+            137,
+            205,
+            862,
+            312
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "In this chapter we focus on algorithms based on convex programming techniques. Elsewhere in this book (Vazirani, 2007), algorithms of a combinatorial nature are presented.",
+        "bbox": [
+            139,
+            313,
+            862,
+            366
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "6.1.1 Definitions: Models and Equilibrium",
+        "text_level": 2,
+        "bbox": [
+            299,
+            408,
+            702,
+            426
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "We start by describing a model of the so-called exchange economy, an important special case of the model considered by Arrow and Debreu (1954). The more general one, which we will call the Arrow-Debreu model, includes the production of goods. We will deal with models with production in Section 6.6.",
+        "bbox": [
+            139,
+            436,
+            862,
+            507
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Let us consider m economic agents that represent traders of n goods. Let $\\mathbf { R } _ { + } ^ { n }$ denote the subset of $\\mathbf { R } ^ { n }$ with all nonnegative coordinates. The -th coordinate in $\\mathbf { R } ^ { n }$ will stand for good j. Each trader i has a concave utility function $u _ { i } : \\mathbf { R } _ { + } ^ { n }  \\mathbf { R } _ { + }$ , which represents her preferences for the different bundles of goods, and an initial endowment of goods $w _ { i } = ( w _ { i 1 } , \\ldots , w _ { i n } ) \\in \\mathbf { R } _ { + } ^ { n }$ . We make the standard assumption that $u _ { i }$ is nonsatiable, that is, for any $x \\in \\mathbf { R } _ { + } ^ { n }$ , there is a $y \\in \\mathbf { R } _ { + } ^ { n }$ such that $u _ { i } ( y ) > u _ { i } ( x )$ ). We also assume that $u _ { i }$ is monotone, that is, $u _ { i } ( y ) \\geq u _ { i } ( x ) { \\mathrm { ~ i f ~ } } y \\geq x$ . For the initial endowment of trader i, we assume that $w _ { i j } > 0$ for at least one j. At given prices $\\pi \\in \\mathbf { R } _ { + } ^ { n }$ , trader i will sell her endowment, and ask for the bundle of goods $x _ { i } = ( x _ { i 1 } , \\ldots , x _ { i n } ) \\in \\mathbf { R } _ { + } ^ { n }$ which maximizes $u _ { i } ( x )$ subject to the budget constraint<sup>1</sup> $\\pi \\cdot x \\leq \\pi \\cdot w _ { i }$ . The budget constraint simply says that the bundles of goods that are available to trader i are the ones that cost no more than her income $\\pi \\cdot w _ { i }$",
+        "bbox": [
+            137,
+            509,
+            862,
+            723
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "An equilibrium is a vector of prices $\\pi = ( \\pi _ { 1 } , \\ldots , \\pi _ { n } ) \\in \\mathbf { R } _ { + } ^ { n }$ at which, for each trader i, there is a bundle $\\bar { x } _ { i } = ( \\bar { x } _ { i 1 } , \\ldots , \\bar { x } _ { i n } ) \\in \\mathbf { R } _ { + } ^ { n }$ of goods such that the following two conditions hold:",
+        "bbox": [
+            139,
+            725,
+            862,
+            778
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "(i) For each trader i, the vector ${ \\bar { x } } _ { i }$ maximizes $u _ { i } ( x )$ subject to the constraints π $\\cdot x \\leq \\pi \\cdot w _ { i }$ and $\\boldsymbol { x } \\in \\mathbf { R } _ { + } ^ { n }$",
+        "bbox": [
+            149,
+            803,
+            860,
+            836
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "(ii) For each good $j , \\sum _ { i } \\bar { x } _ { i j } \\le \\sum _ { i } w _ { i j }$",
+        "bbox": [
+            147,
+            839,
+            465,
+            857
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_number",
+        "text": "136",
+        "bbox": [
+            143,
+            43,
+            177,
+            55
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "header",
+        "text": "computation of market equilibria by convex programming",
+        "bbox": [
+            203,
+            43,
+            798,
+            57
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_footnote",
+        "text": "y, x · y",
+        "bbox": [
+            315,
+            895,
+            363,
+            907
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>1</sup> Given two vectors x and y, x · y denotes their inner product.",
+        "bbox": [
+            139,
+            892,
+            544,
+            907
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Let $\\mathbf { R } _ { + + } ^ { n }$ be the set of vectors in $R ^ { n }$ , whose components are strictly positive. For purposes of exposition, we will generally restrict our attention to price vectors in $\\mathbf { R } _ { + + } ^ { n }$ When we violate this convention, we will be explicit about it.",
+        "bbox": [
+            135,
+            78,
+            858,
+            132
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "For any price vector π, a vector $x _ { i } ( \\pi )$ , which maximizes $u _ { i } ( x )$ subject to the budge constraint $\\pi \\cdot x \\leq \\pi \\cdot w _ { i }$ and $x \\in \\mathbf { R } _ { + } ^ { n }$ , is called a demand of trader i at prices π. Observe that there is at least one demand vector, and that there can be multiple demand vectors. We will usually assume that there is exactly one demand vector at price π; that is, we have a demand function. This assumption holds if the utility function satisfies a condition known as strict quasi-concavity. Once again, we will be explicit when we will deal with exceptions, since for some common utility functions such as the linear ones, the demand is not a function but a correspondence or a set valued function.",
+        "bbox": [
+            133,
+            133,
+            860,
+            294
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "The vector $z _ { i } ( \\pi ) = x _ { i } ( \\pi ) - w _ { i }$ is called the individual excess demand of trader i. Then $\\begin{array} { r } { X ^ { k } ( \\pi ) = \\sum _ { i } x _ { i k } ( \\pi ) } \\end{array}$ denotes the market demand of good k at prices $\\pi$ , and $\\begin{array} { r } { Z ^ { k } ( \\pi ) = X ^ { k } ( \\pi ) - \\sum _ { i } w _ { i k } } \\end{array}$ the market excess demand of good k at prices $\\pi$ . The vectors $X ( \\pi ) = ( X ^ { 1 } ( \\pi ) , \\ldots , X ^ { n } ( \\pi ) )$ ) and $Z ( \\pi ) = ( Z ^ { 1 } ( \\pi ) , \\ldots , Z ^ { n } ( \\pi ) )$ are called market demand (or aggregate demand) and market excess demand, respectively. Observe that the economy satisfies positive homogeneity, i.e., for any price vector π and any $\\lambda > 0$ we have $Z ( \\pi ) = Z ( \\lambda \\pi )$ . The assumptions on the utility functions imply that for any price π, we have $\\pi \\cdot x _ { i } ( \\pi ) = \\pi \\cdot w _ { i }$ . Thus the economy satisfies Walras’ Law: for any price π, we have $\\pi \\cdot Z ( \\pi ) = 0 $",
+        "bbox": [
+            135,
+            295,
+            860,
+            457
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "In terms of the aggregate excess demand function, the equilibrium can be equivalently defined as a vector of prices $\\pi = ( \\pi _ { 1 } , \\ldots , \\pi _ { n } ) \\in \\mathbf { R } _ { + } ^ { n }$ such that $Z ^ { j } ( \\pi ) \\leq 0$ for each $j$ .",
+        "bbox": [
+            135,
+            458,
+            858,
+            511
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "6.1.2 The Tatonnement Processˆ",
+        "text_level": 2,
+        "bbox": [
+            345,
+            548,
+            650,
+            564
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "The model of an economy and the definition of the market equilibrium fail to predict any kind of dynamics leading to an equilibrium, although they convey the intuition that, in any process leading to a stable state where demand equals supply, a disequilibrium price of a good will have to increase if the demand for such a good exceeds its supply, and vice versa.",
+        "bbox": [
+            133,
+            574,
+            858,
+            663
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Walras (1954) introduced a price-adjustment mechanism, which he called taton-ˆ nement. He took inspiration from the workings of the stock-exchange in Paris, and suggested a trial-and-error process run by a fictitious auctioneer. The economic agents receive a price signal, and report their demands at these prices to the auctioneer. The auctioneer then adjusts the prices in proportion to the magnitude of the aggregate de mands, and announces the new prices. In each round, agents recalculate their demands upon receiving the newly adjusted price signal and report these new demands to the auctioneer. The process continues until prices converge to an equilibrium. In its contin uous version, as formalized by Samuelson (1947), the tatonnement process is governedˆ by the differential equation system:",
+        "bbox": [
+            135,
+            666,
+            860,
+            847
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\frac {d \\pi_ {k}}{d t} = G _ {k} (Z _ {k} (\\pi)), k = 1, 2, \\ldots , n,\\tag{6.1}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            337,
+            875,
+            656,
+            912
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "header",
+        "text": "introduction",
+        "bbox": [
+            427,
+            44,
+            568,
+            57
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_number",
+        "text": "137",
+        "bbox": [
+            824,
+            41,
+            858,
+            55
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "where $G _ { k } ( )$ denotes some continuous and differentiable, sign-preserving function, and $Z _ { k } ( )$ is the market excess demand function for good k.",
+        "bbox": [
+            139,
+            78,
+            862,
+            114
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "6.1.3 Approximate Equilibria",
+        "text_level": 2,
+        "bbox": [
+            357,
+            147,
+            644,
+            165
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Since a price equilibrium vector that is rational exists only in very special cases, most algorithms actually compute an approximate equilibrium.",
+        "bbox": [
+            139,
+            175,
+            862,
+            211
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Definition 6.1 A bundle $x _ { i } \\in \\mathbf { R } _ { + } ^ { n }$ is a µ-approximate demand, for $\\mu \\geq 1$ of trader i at prices π if $\\begin{array} { r } { u _ { i } ( x _ { i } ) \\geq \\frac { 1 } { \\mu } u ^ { * } } \\end{array}$ and $\\pi \\cdot x _ { i } \\leq \\mu \\pi \\cdot w _ { i }$ , where $u ^ { * } =$ max $\\{ u _ { i } ( x ) | x \\in \\mathbf { R } _ { + } ^ { n } , \\pi \\cdot x \\leq \\pi \\cdot w _ { i } \\}$",
+        "bbox": [
+            159,
+            235,
+            840,
+            291
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "A price vector π is a strong µ-approximate equilibrium $( \\mu \\geq 1 )$ if there are bundles $x _ { i }$ such that (1) for each trader $i , x _ { i }$ is the demand of trader i at prices π, and $( 2 ) \\textstyle \\sum _ { i } x _ { i j } \\leq$ $\\mu \\sum _ { i } w _ { i j }$ for each good j. A price vector π is a weak µ-approximate equilibrium $( \\mu \\geq 1 )$ if there are bundles $x _ { i }$ such that (1) for each trader $i , x _ { i }$ is a µ-approximate demand of trader i at prices π, and $\\begin{array} { r } { ( 2 ) \\sum _ { i } x _ { i j } \\le \\mu \\sum _ { i } w _ { i j } } \\end{array}$ for each good $j$ .",
+        "bbox": [
+            139,
+            315,
+            862,
+            407
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Definition 6.2 An algorithm that computes an approximate equilibrium, for any $\\varepsilon > 0$ , in time that is polynomial in the input size and $1 / \\varepsilon$ (resp., log $1 / \\varepsilon )$ is called polynomial time approximation scheme (resp., polynomial time algorithm).",
+        "bbox": [
+            159,
+            430,
+            840,
+            486
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "6.1.4 Gross Substitutability",
+        "text_level": 2,
+        "bbox": [
+            367,
+            518,
+            634,
+            536
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "In general, not only equilibria are not unique, but the set of equilibrium points may be disconnected. Yet many real markets do work, and economists have struggled to capture realistic restrictions on markets, where the equilibrium problem exhibits some structure, like uniqueness or convexity. The general approach has been to impose restrictions either at the level of individuals (by restricting the utility functions considered and/or by making assumptions on the initial endowments) or at the level of the aggregate market (by assuming that the composition of the individual actions is particularly well behaved).",
+        "bbox": [
+            137,
+            546,
+            862,
+            688
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "The property of gross substitutability (GS) plays a significant role in the theory of equilibrium and in related computational results based on convex programming.",
+        "bbox": [
+            139,
+            690,
+            862,
+            726
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "The market excess demand is said to satisfy gross substitutability (resp., weak gross substitutability [WGS]) if for any two sets of prices $\\pi$ and $\\pi ^ { \\prime }$ such that $0 < \\pi _ { j } \\leq \\pi _ { j } ^ { \\prime }$ , for each $j ,$ , and $\\pi _ { j } < \\pi _ { j } ^ { \\prime }$ for some $j .$ , we have that $\\pi _ { k } = \\pi _ { k } ^ { \\prime }$ for any good k implies $Z ^ { k } ( \\pi ) < Z ^ { k } ( \\pi ^ { \\prime } )$ (resp., $Z ^ { k } ( \\pi ) \\leq Z ^ { k } ( \\pi ^ { \\prime } ) )$ . In words, GS means that increasing the price of some of the goods while keeping some others fixed can only cause an increase in the demand for the goods whose price is fixed.",
+        "bbox": [
+            137,
+            726,
+            862,
+            853
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "It is easy to see that WGS implies that the equilibrium prices are unique up to scaling (Varian, 1992, p. 395) and that the market excess demand satisfies WGS when each individual excess demand does.",
+        "bbox": [
+            139,
+            854,
+            862,
+            907
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_number",
+        "text": "138",
+        "bbox": [
+            141,
+            41,
+            177,
+            55
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "header",
+        "text": "computation of market equilibria by convex programming",
+        "bbox": [
+            203,
+            43,
+            798,
+            58
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "6.1.5 Special Forms of the Utility Functions",
+        "text_level": 2,
+        "bbox": [
+            289,
+            78,
+            706,
+            94
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "A utility function $u ( \\cdot )$ is homogeneous (of degree 1) if it satisfies $u ( \\alpha x ) = \\alpha u ( x )$ , for all $\\alpha > 0$",
+        "bbox": [
+            135,
+            104,
+            858,
+            140
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "A utility function $u ( \\cdot )$ is log-homogeneous if it satisfies $u ( \\alpha x ) = \\log \\alpha + u ( x )$ , for all $\\alpha > 0$",
+        "bbox": [
+            135,
+            140,
+            858,
+            175
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Three popular examples of homogeneous utility functions are as follows.",
+        "bbox": [
+            159,
+            177,
+            776,
+            195
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "\u0001 The linear utility function, which has the form $\\begin{array} { r } { u _ { i } ( x ) = \\sum _ { j } a _ { i j } x _ { i j } } \\end{array}$",
+        "bbox": [
+            135,
+            213,
+            688,
+            230
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "\u0001 The Cobb–Douglas function, which has the form $\\begin{array} { r } { u _ { i } ( x ) = \\prod _ { j } ( x _ { i j } ) ^ { a _ { i j } } } \\end{array}$ , where $\\textstyle \\sum _ { j } a _ { i j } = 1$",
+        "bbox": [
+            135,
+            231,
+            854,
+            249
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "\u0001 The Leontief (or fixed-proportions) utility function, which has the form $u _ { i } ( x ) =$ min<sub>j</sub> $a _ { i j } x _ { i j }$",
+        "bbox": [
+            135,
+            249,
+            858,
+            285
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We now define the constant elasticity of substitution functional form (CES, for short), which is a family of homogeneous utility functions of particular importance in applications. A CES function is a concave function defined as",
+        "bbox": [
+            135,
+            302,
+            860,
+            357
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "text": "$$\nu (x _ {1}, \\ldots , x _ {n}) = \\left(\\sum_ {i = 1} ^ {n} \\alpha_ {i} x _ {i} ^ {\\rho}\\right) ^ {\\frac {1}{\\rho}},\n$$",
+        "text_format": "latex",
+        "bbox": [
+            353,
+            368,
+            626,
+            422
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "where the $\\alpha _ { i } \\mathrm { ^ { * } s }$ are the utility parameters, and $- \\infty < \\rho < 1 , \\rho \\neq 0$ , is a parameter representing the elasticity ofsubstitution $1 / 1 - \\rho$ (see Varian, 1992, p. 13).",
+        "bbox": [
+            135,
+            436,
+            858,
+            472
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "CES functions have been thoroughly analyzed in Arrow et al. (1961), where it has also been shown how to derive, in the limit, their special cases, i.e., linear, Cobb– Douglas, and Leontief functions (see Arrow et al., 1961, p. 231). For $\\rho \\to 1$ , CES take the linear form, and the goods are perfect substitutes, so that there is no preference for variety. For $\\rho > 0$ , the goods are partial substitutes, and different values of σ in this range allow us to express different levels of preference for variety. For $\\rho \\to 0$ , CES become Cobb–Douglas functions, and express a perfect balance between substitution and complementarity effects. Indeed it is not difficult to show that a trader with a Cobb–Douglas utility spends a fixed fraction of her income on each good.",
+        "bbox": [
+            135,
+            472,
+            860,
+            652
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "For $\\rho < 0$ , CES functions model markets with significant complementarity effects between goods. This feature reaches its extreme (perfect complementarity) as $\\rho $ $- \\infty , \\mathrm { i . e . }$ , when CES take the form of Leontief functions.",
+        "bbox": [
+            135,
+            652,
+            858,
+            707
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "6.1.6 Equilibrium vs Optimization",
+        "text_level": 2,
+        "bbox": [
+            331,
+            746,
+            662,
+            765
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "In 1960, Negishi showed that equilibrium allocations ofgoods for an exchange economy can be determined by solving a convex program where the weights of the function to be maximized are unknown (Negishi, 1960).",
+        "bbox": [
+            135,
+            774,
+            858,
+            827
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Negishi proved the following theorem.",
+        "bbox": [
+            159,
+            829,
+            489,
+            846
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Theorem 6.3 Suppose that the initial endowment of each trader includes a positive amount ofeach good.",
+        "bbox": [
+            155,
+            871,
+            838,
+            909
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "header",
+        "text": "introduction",
+        "bbox": [
+            427,
+            44,
+            568,
+            57
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_number",
+        "text": "139",
+        "bbox": [
+            824,
+            41,
+            858,
+            55
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Given positive welfare weights $\\alpha _ { i } , i = 1 , \\ldots , m$ , consider the convex program",
+        "bbox": [
+            185,
+            78,
+            840,
+            94
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{l l} \\text { Maximize } & \\sum_ {i} \\alpha_ {i} u _ {i} (x _ {i}) \\\\ \\text { Subject   to } & \\sum_ {i} x _ {i j} \\leq \\sum_ {i} w _ {i j}, \\text { for } 1 \\leq j \\leq n. \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            305,
+            105,
+            702,
+            182
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "There exist $\\alpha _ { i } > 0 , i = 1 , . . . , m$ , such that the optimal solutions ${ \\bar { x } } _ { i }$ to the program above with these $\\alpha _ { i }$ are equilibrium allocations. That is,for some price vector $\\pi , \\bar { x } _ { i } = x _ { i } ( \\pi ) f o r$ each i.",
+        "bbox": [
+            159,
+            193,
+            840,
+            249
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "In the proofofNegishi’s theorem, the price vector π for a given set ofwelfare weights $\\alpha _ { i }$ is obtained from the dual variables in the Karush–Kuhn–Tucker characterization of the optimal solution to the convex program. Whenever the utility functions are loghomogeneous, the Karush–Kuhn–Tucker characterization implies that $\\alpha _ { i }$ is always equal to $\\pi \\cdot { \\bar { x } } _ { i }$ . For the welfare weights that correspond to equilibrium, we must then have $\\alpha _ { i } = \\pi \\cdot w _ { i }$",
+        "bbox": [
+            137,
+            271,
+            862,
+            380
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Negishi’s characterization of the equilibrium has inspired certain algorithmic approaches to compute it (Rutherford, 1999). It is also connected to some recent theoretical computer science work (Jain et al., 2003; Ye, in press).",
+        "bbox": [
+            139,
+            380,
+            862,
+            435
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "6.1.7 The Fisher Model",
+        "text_level": 2,
+        "bbox": [
+            387,
+            465,
+            616,
+            482
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "A special case of the exchange model occurs when the initial endowments are $p r o \\AA { - }$ portional; i.e., when $w _ { i } = \\delta _ { i } w , \\delta _ { i } > 0$ , so that the relative incomes of the traders are independent of the prices. This special case is equivalent to Fisher model, which is a market of n goods desired by m utility maximizing buyers with fixed incomes. In the standard account of Fisher model, each buyer has a concave utility function $u _ { i } : \\mathbf { R } _ { + } ^ { n }  \\mathbf { R } _ { + }$ and an endowment $e _ { i } > 0$ of money. There is a seller with an amount $q _ { j } > 0$ of good j. An equilibrium in this setting is a nonnegative vector of prices $\\pi = ( \\pi _ { 1 } , \\ldots , \\pi _ { n } ) \\in \\mathbf { R } _ { + } ^ { G }$ at which there is a bundle $\\bar { x } _ { i } = ( x _ { i 1 } , \\ldots , x _ { i n } ) \\in \\mathbf { R } _ { + } ^ { G }$ of goods for each trader i such that the following two conditions hold:",
+        "bbox": [
+            137,
+            493,
+            862,
+            656
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "(i) The vector x¯ maximizes $u _ { i } ( x )$ subject to the constraints $\\pi \\cdot x \\leq e _ { i }$ and $x \\in \\mathbf { R } _ { + } ^ { n }$",
+        "bbox": [
+            149,
+            669,
+            818,
+            687
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "(ii) For each good $j , \\sum _ { i } \\bar { x } _ { i j } = q _ { j }$",
+        "bbox": [
+            147,
+            687,
+            427,
+            705
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "6.1.8 Overview",
+        "text_level": 2,
+        "bbox": [
+            425,
+            736,
+            576,
+            754
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "The rest of this chapter is organized as follows.",
+        "bbox": [
+            139,
+            764,
+            540,
+            781
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "In Section 6.2, we analyze the Fisher model under the assumption that the traders are endowed with homogeneous utility functions, and present Eisenberg’s convex program for computing an equilibrium in such models.",
+        "bbox": [
+            139,
+            782,
+            862,
+            836
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "In Section 6.3, we consider exchange economies that satisfy weak gross substi tutability, and show that, under such conditions, an important inequality holds, which implicitly gives a convex feasibility formulation for the equilibrium. We discuss algo rithmic work that exploits this formulation.",
+        "bbox": [
+            137,
+            836,
+            864,
+            909
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_number",
+        "text": "140",
+        "bbox": [
+            141,
+            41,
+            177,
+            55
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "header",
+        "text": "computation of market equilibria by convex programming",
+        "bbox": [
+            203,
+            43,
+            798,
+            58
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "In Section 6.4, we discuss convex feasibility formulations for exchange economies with some special and widely used utility functions, more precisely, linear and CES functions.",
+        "bbox": [
+            135,
+            78,
+            858,
+            131
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "In Section 6.5, we expose the limitations of convex programming techniques, by presenting examples where convexity is violated (the equilibria are multiple and disconnected), and relating some of these examples to other equilibrium problems and to recently proven hardness results.",
+        "bbox": [
+            133,
+            132,
+            858,
+            203
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "In Section 6.6, we discuss convex feasibility formulations for economies that gen eralize the exchange model by including production technologies.",
+        "bbox": [
+            135,
+            203,
+            858,
+            239
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Finally, in Section 6.7, we guide the reader through the bibliography.",
+        "bbox": [
+            157,
+            239,
+            740,
+            259
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "6.2 Fisher Model with Homogeneous Consumers",
+        "text_level": 2,
+        "bbox": [
+            243,
+            299,
+            750,
+            317
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Whenever the traders have homogeneous utility functions, the equilibrium conditions for Fisher model can be rewritten as the solution to the following convex program (Eisenberg’s program), on nonnegative variables $x _ { i j }$ :",
+        "bbox": [
+            135,
+            336,
+            858,
+            391
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\text { Maximize } \\sum_ {i} e _ {i} \\log u _ {i} (x _ {i})\n$$",
+        "text_format": "latex",
+        "bbox": [
+            377,
+            418,
+            614,
+            454
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\text { Subject   to } \\quad \\sum_ {i} x _ {i j} \\leq q _ {j} \\quad \\text { for   each } j.\n$$",
+        "text_format": "latex",
+        "bbox": [
+            337,
+            481,
+            654,
+            518
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Recall that $u _ { i }$ is the i-th trader’s utility function, $e _ { i }$ is the i-th trader’s endowment of money, and $q _ { j }$ is the amount of the j-th good.",
+        "bbox": [
+            135,
+            531,
+            858,
+            567
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Notice that the program does not have variables corresponding to prices. The optimal solution to this program yields allocations for each trader that, at prices given by the Lagrangian dual variables corresponding to the optimal solution, are exactly the individual demands of the traders. We present a proof of this result for the case where the utility functions are differentiable.",
+        "bbox": [
+            135,
+            567,
+            860,
+            656
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Let x¯ be an optimal solution to Eisenberg’s program. Observe that $u _ { i } ( \\bar { x } _ { i } ) > 0$ for each i. The Karush–Kuhn–Tucker necessary optimality theorem (Mangasarian, 1969, Chapter 7.7) says that there exist $\\pi _ { j } \\geq 0$ , for each good $j .$ , and $\\lambda _ { i j } \\geq 0$ , for each trader i and good j, such that",
+        "bbox": [
+            135,
+            656,
+            860,
+            730
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\pi_ {j} \\left(\\left(\\sum_ {i} x _ {i j}\\right) - q _ {j}\\right) = 0 \\quad \\text { for   each   good } j,\\tag{6.2}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            301,
+            739,
+            688,
+            788
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\lambda_ {i j} x _ {i j} = 0 \\quad \\text { for   each } i, j,\\tag{6.3}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            387,
+            814,
+            606,
+            832
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "and",
+        "bbox": [
+            135,
+            847,
+            175,
+            861
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\frac {e _ {i}}{u _ {i} (\\bar {x} _ {i})} \\times \\frac {\\partial u _ {i} (\\bar {x} _ {i})}{\\partial x _ {i j}} = \\pi_ {j} - \\lambda_ {i j} \\quad \\text { for   each } i, j.\\tag{6.4}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            309,
+            871,
+            684,
+            910
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "header",
+        "text": "fisher model with homogeneous consumers",
+        "bbox": [
+            275,
+            44,
+            718,
+            57
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "page_number",
+        "text": "141",
+        "bbox": [
+            824,
+            43,
+            856,
+            55
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "For trader i, let us multiply the j-th equality in (6.4) by $\\bar { x } _ { i j }$ , and add the resulting equalities. We obtain",
+        "bbox": [
+            139,
+            78,
+            862,
+            112
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\frac {e _ {i}}{u _ {i} (\\bar {x} _ {i})} \\sum_ {j} \\bar {x} _ {i j} \\frac {\\partial u _ {i} (\\bar {x} _ {i})}{\\partial x _ {i j}} = \\sum_ {j} (\\pi_ {j} - \\lambda_ {i j}) \\bar {x} _ {i j}.\n$$",
+        "text_format": "latex",
+        "bbox": [
+            323,
+            124,
+            678,
+            168
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Using 6.3 and Euler’s identity $\\begin{array} { r } { u _ { i } ( x _ { i } ) = \\sum _ { j } x _ { i j } \\frac { \\partial u _ { i } } { \\partial x _ { i j } } } \\end{array}$ for the homogeneous $u _ { i }$ , this equality becomes",
+        "bbox": [
+            139,
+            181,
+            860,
+            217
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "equation",
+        "text": "$$\ne _ {i} = \\sum_ {j} \\pi_ {j} \\bar {x} _ {i j}.\n$$",
+        "text_format": "latex",
+        "bbox": [
+            433,
+            225,
+            568,
+            266
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "At the price vector $\\pi$ , the bundle ${ \\bar { x } } _ { i }$ thus exhausts the budget of trader i. Let $y _ { i } \\in \\mathbf { R } _ { + } ^ { n }$ be any bundle such that $\\pi \\cdot y _ { i } \\leq e _ { i }$ . We proceed along the lines of the Karush–Kuhn– Tucker sufficient optimality theorem (Mangasarian, 1969, Chapter 7.2) to show that $u _ { i } ( { \\bar { x } } _ { i } ) \\geq u _ { i } ( y _ { i } )$ . Using the concavity of $u _ { i }$ ,",
+        "bbox": [
+            139,
+            277,
+            862,
+            350
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{l} u _ {i} (y _ {i}) - u _ {i} (\\bar {x} _ {i}) \\leq \\nabla u (\\bar {x} _ {i}) \\cdot (y _ {i} - \\bar {x} _ {i}) \\\\ = \\frac {u _ {i} (\\bar {x} _ {i})}{e _ {i}} \\sum_ {j} (\\pi_ {j} - \\lambda_ {i j}) (y _ {i j} - \\bar {x} _ {i j}) \\\\ = \\frac {u _ {i} (\\bar {x} _ {i})}{e _ {i}} \\left(\\sum_ {j} (\\pi_ {j} y _ {i j} - \\lambda_ {i j} y _ {i j}) - e _ {i}\\right) \\\\ \\leq \\frac {u _ {i} (\\bar {x} _ {i})}{e _ {i}} \\left(\\sum_ {j} \\pi_ {j} y _ {i j} - e _ {i}\\right) \\\\ \\leq 0. \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            273,
+            362,
+            720,
+            562
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "We have shown that that ${ \\bar { x } } _ { i }$ is a demand of trader i at price π. Turning now to market clearance, observe that (6.2) implies that $\\begin{array} { r } { \\sum _ { i } \\bar { x } _ { i j } = q _ { j } } \\end{array}$ for any good $j$ such that $\\pi _ { j } > 0$ For each good $j$ such that $\\pi _ { j } = 0$ , feasibility tells us that $\\textstyle \\sum _ { i } { \\bar { x } } _ { i j } \\leq q _ { j } $ ; let us allocate the excess of any such good to trader 1. Slightly abusing notation, let $\\bar { x } _ { 1 }$ still denote the first trader’s allocation. The bundle $\\bar { x } _ { 1 }$ continues to be a demand of trader 1 at price $\\pi$ , since the newly allocated goods have price zero and adding positive quantities of a certain good cannot decrease $u _ { 1 }$ . We have now satisfied all the requirements of an equilibrium.",
+        "bbox": [
+            137,
+            576,
+            862,
+            721
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "6.3 Exchange Economies Satisfying WGS",
+        "text_level": 2,
+        "bbox": [
+            285,
+            758,
+            716,
+            779
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "We now consider exchange economies that satisfy WGS. In this scenario the following important Lemma holds.",
+        "bbox": [
+            139,
+            797,
+            862,
+            832
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Lemma 6.4 Let πˆ be an equilibrium price vector for an exchange economy that satisfies gross substitutability, and π be any nonequilibrium price vector. We then have πˆ $Z ( \\pi ) > 0$",
+        "bbox": [
+            159,
+            854,
+            840,
+            907
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "page_number",
+        "text": "142",
+        "bbox": [
+            141,
+            41,
+            177,
+            55
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "header",
+        "text": "computation of market equilibria by convex programming",
+        "bbox": [
+            203,
+            43,
+            798,
+            58
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "This lemma implies that the set of equilibrium prices forms a convex set by providing for any positive price vector π that is not an equilibrium price vector, a separating hyperplane, i.e., a hyperplane that separates π from the set of equilibrium prices. This is the hyperplane $\\{ x \\in \\Re ^ { n } \\mid x \\cdot Z ( \\pi ) = 0 \\}$ : indeed we have $\\hat { \\pi } \\cdot Z ( \\pi ) > 0$ , whereas $\\pi \\cdot Z ( \\pi ) = 0 $ , by Walras’ law. To compute this separating hyperplane, we need to compute the demands $Z _ { j } ( \\pi )$ at the prices π.",
+        "bbox": [
+            135,
+            78,
+            860,
+            186
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "6.3.1 Computational Results",
+        "text_level": 2,
+        "bbox": [
+            359,
+            223,
+            634,
+            241
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Lemma 6.4 tells us that if we start at price π, and move in the direction $Z ( \\pi )$ , the Euclidean distance to the equilibrium ˆπ decreases. This observation is in fact the crux of the proof that a certain tatonnement process converges to the equilibrium.ˆ",
+        "bbox": [
+            135,
+            251,
+            858,
+            305
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "We now present a simple algorithm, which is a discrete version of the tatonnementˆ process, and prove that it converges to an approximate equilibrium in polynomial time for exchange markets satisfying WGS. For this, however, we will need to work with a transformed market.",
+        "bbox": [
+            135,
+            306,
+            860,
+            377
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Two Useful Transformations",
+        "text_level": 2,
+        "bbox": [
+            361,
+            414,
+            634,
+            430
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "We now describe a transformation that, given the exchange market M, produces a new market M<sup>\u0006</sup> in which the total amount of each good is 1. The new utility function of the i-th trader is given by $u _ { i } ^ { \\prime } ( x _ { 1 } , \\ldots , x _ { n } ) = u _ { i } ( W _ { 1 } x _ { 1 } , \\ldots , W _ { n } x _ { n } )$ , where $W _ { j }$ denotes $\\sum _ { i } w _ { i j }$ . It can be verified that, if $u _ { i } ( \\boldsymbol { \\mathbf { \\rho } } )$ is concave, then $u _ { i } ^ { \\prime } ( \\boldsymbol { \\mathbf { \\rho } } )$ is concave. The new initial endowment of the j-th good held by the i-th trader is $w _ { i j } ^ { \\prime } = w _ { i j } / W _ { j }$ . Let $w _ { i } ^ { \\prime }$ denote $( w _ { i 1 } ^ { \\prime } , \\ldots , w _ { i n } ^ { \\prime } ) \\in { \\bf R } _ { + } ^ { n }$ . Clearly, $\\begin{array} { r } { W _ { j } ^ { \\prime } = \\sum _ { i } w _ { i j } ^ { \\prime } = 1 } \\end{array}$",
+        "bbox": [
+            135,
+            440,
+            858,
+            552
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "The following lemma summarizes some key properties of the transformation.",
+        "bbox": [
+            157,
+            550,
+            810,
+            567
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Lemma 6.5",
+        "bbox": [
+            157,
+            596,
+            267,
+            613
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "(i) For any $\\mu \\geq 1 , ( x _ { i 1 } , \\ldots , x _ { i n } )$ is a µ-approximate demand at prices $( \\pi _ { 1 } , \\ldots , \\pi _ { n } )$ for trader i in M<sup>\u0006</sup> ifand only ifthe vector $( W _ { 1 } x _ { i 1 } , \\dots , W _ { n } x _ { i n } )$ is a µ-approximate demand at prices $\\big ( \\frac { \\pi _ { 1 } } { W _ { 1 } } , \\ldots , \\frac { \\pi _ { n } } { W _ { n } } \\big )$ for trader i in M.",
+        "bbox": [
+            157,
+            619,
+            836,
+            673
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "(ii) For any $\\mu \\geq 1 , ( \\pi _ { 1 } , \\ldots , \\pi _ { n } )$ is a weak µ-approximate equilibrium for M<sup>\u0006</sup> if and only $\\begin{array} { r } { i f ( \\frac { \\pi _ { 1 } } { W _ { 1 } } , \\ldots , \\frac { \\pi _ { n } } { W _ { n } } ) } \\end{array}$ is a weak µ-approximate equilibriumfor M.",
+        "bbox": [
+            149,
+            677,
+            838,
+            715
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "(iii) The excess demand ofM<sup>\u0006</sup> satisfies WGS ifthe excess demand ofM does.",
+        "bbox": [
+            147,
+            718,
+            768,
+            735
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "We transform $M ^ { \\prime }$ into another market $\\hat { M }$ as follows. Let $0 < \\eta \\leq 1$ be a parameter. For each trader i, the new utility function and initial endowments are the same, i.e., $\\hat { u } _ { i } ( ) = u _ { i } ^ { \\prime } ( )$ , and $\\hat { w } _ { i } = w _ { i } ^ { \\prime }$ . The new market $\\hat { M }$ has one extra trader, whose initial endowment is given by $\\hat { w } _ { m + 1 } = ( \\eta , \\dots , \\eta )$ , and whose utility function is the Cobb– Douglas function $\\begin{array} { r } { u _ { m + 1 } ( x _ { m + 1 } ) = \\prod _ { j } x _ { m + 1 , j } ^ { 1 / n } } \\end{array}$ . A trader with this Cobb–Douglas utility function spends $1 / n \\mathrm { - t h }$ of her budget on each good. Stated precisely, $\\pi _ { j } x _ { m + 1 , j } ( \\pi ) =$ $\\pi \\cdot \\hat { w } _ { m + 1 } / n$",
+        "bbox": [
+            135,
+            762,
+            858,
+            889
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Note that the total amount of good j in the market M<sup>ˆ</sup> is $\\begin{array} { r } { \\hat { W } _ { j } = \\sum _ { i = 1 } ^ { m + 1 } \\hat { w } _ { i j } = 1 + \\eta } \\end{array}$",
+        "bbox": [
+            157,
+            889,
+            852,
+            909
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "header",
+        "text": "exchange economies satisfying wgs",
+        "bbox": [
+            317,
+            43,
+            678,
+            57
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "page_number",
+        "text": "143",
+        "bbox": [
+            824,
+            41,
+            858,
+            55
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Lemma 6.6 (1) The market $\\hat { M }$ has an equilibrium. (2) Every equilibrium π of $\\hat { M }$ satisfies the condition $\\begin{array} { r } { \\frac { \\operatorname* { m a x } _ { j } \\pi _ { j } } { \\operatorname* { m i n } _ { j } \\pi _ { j } } \\leq 2 n / \\eta } \\end{array}$ . (3) For any $\\mu \\geq 1$ , a weak µ-approx equilibriumfor $\\hat { M }$ is a weak $\\mu ( 1 + \\eta )$ -approx equilibriumfor M<sup>\u0006</sup>. (4) M<sup>ˆ</sup> satisfies WGS ifM<sup>\u0006</sup> does.",
+        "bbox": [
+            159,
+            80,
+            842,
+            158
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "proof Statement (1) follows from arguments that are standard in microeconomic theory. Briefly, a quasi-equilibrium $\\pi \\in \\mathbf { R } _ { + } ^ { n }$ with $\\textstyle \\sum _ { j } \\pi _ { j } = 1$ always exists (Mas-Colell et al., 1995, Chapter 17, Proposition 17.BB.2). At price π the income $\\boldsymbol { \\pi } \\cdot \\hat { \\boldsymbol { w } } _ { m + 1 }$ of the $( m + 1 )$ -th trader is strictly positive. This ensures that that $\\pi _ { j } > 0$ for each good $j .$ . But this implies (Mas-Colell et al., 1995, Chapter 17, Proposition 17.BB.1) that π is an equilibrium.",
+        "bbox": [
+            159,
+            179,
+            840,
+            287
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "The proofs of the remaining statements are left as Exercise 6.4. The proof of (2) illustrates one crucial role that the extra trader plays.",
+        "bbox": [
+            161,
+            288,
+            840,
+            324
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "We define $\\Delta = \\{ \\pi \\in \\mathbf { R } _ { + } ^ { n } | \\eta / 2 n \\leq \\pi _ { j } \\leq 1$ for each $j \\}$ . Note that Lemma 6.6 implies that $\\hat { M }$ has an equilibrium price in $\\Delta$ . We define $\\Delta ^ { + } = \\{ \\pi \\in \\mathbf { R } _ { + } ^ { n } | \\eta / 4 n \\leq \\pi _ { j } \\leq 1 +$ $\\eta / 4 n$ for each $j \\}$ . For any $\\pi \\in \\Delta ^ { + }$ , we have $\\begin{array} { r } { \\frac { \\operatorname* { m a x } _ { j } \\pi _ { j } } { \\operatorname* { m i n } _ { j } \\pi _ { j } } \\leq \\frac { 1 + \\eta / 4 n } { \\eta / 4 n } \\leq \\frac { 5 n } { \\eta } } \\end{array}$",
+        "bbox": [
+            139,
+            345,
+            860,
+            403
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Abusing notation slightly, we henceforth let $\\scriptstyle { \\vec { Z } } ( \\pi )$ and $X ( \\pi )$ denote, respectively, the excess demand vector and the aggregate demand vector in the market $\\hat { M }$",
+        "bbox": [
+            139,
+            403,
+            860,
+            437
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "The Discrete Tatonnement Processˆ",
+        "text_level": 2,
+        "bbox": [
+            347,
+            468,
+            654,
+            486
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "We now state an algorithm for computing a weak $( 1 + \\varepsilon )$ -approximate equilibrium for $\\hat { M }$ . From Lemma 6.5 and Lemma 6.6 (applied with $\\eta = \\varepsilon )$ , this $( 1 + \\varepsilon )$ )-approximate equilibrium for $\\hat { M }$ will then be a $( 1 + O ( \\varepsilon ) )$ )-approximate equilibrium for M. The algorithm assumes access to an oracle that can compute the excess demand vector of $\\hat { M }$ at any given price vector in $\\Delta ^ { + }$ . Such an oracle is readily constructed from an oracle for computing the excess demand for $M$",
+        "bbox": [
+            139,
+            496,
+            862,
+            603
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Let $\\pi ^ { 0 }$ , the initial price, be any point in $\\Delta$ . Suppose that we have computed a sequence of prices $\\pi ^ { 0 } , \\ldots , \\pi ^ { i - 1 }$ . We compute $\\pi ^ { i }$ as follows. If $\\pi ^ { i - 1 } \\notin \\Delta ^ { + }$ , we let $\\pi ^ { i }$ be the point in $\\Delta$ closest to $\\pi ^ { i - 1 }$ . In other words, $\\pi _ { j } ^ { i } = \\pi _ { j } ^ { i - 1 }$ if $\\eta / 2 n \\leq \\pi _ { j } ^ { i - 1 } \\leq 1 ;$ $\\pi _ { j } ^ { i } = 1 \\mathrm { { i f } } \\pi _ { j } ^ { i - 1 } > 1 ; \\pi _ { j } ^ { i } = \\eta / 2 n \\mathrm { { i f } } \\pi _ { j } ^ { i - 1 } < \\eta / 2 n$",
+        "bbox": [
+            139,
+            603,
+            862,
+            682
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "I $\\bar { \\cdot } \\pi ^ { i - 1 } \\in \\Delta ^ { + }$ , we let",
+        "bbox": [
+            163,
+            680,
+            345,
+            697
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\pi^ {i} = \\pi^ {i - 1} + \\frac {\\delta}{(1 2 n ^ {2} / \\eta) ^ {2}} Z (\\pi^ {i - 1}).\n$$",
+        "text_format": "latex",
+        "bbox": [
+            357,
+            707,
+            642,
+            744
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Analysis ofConvergence",
+        "text_level": 2,
+        "bbox": [
+            391,
+            774,
+            610,
+            790
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Lemma 6.4 is the building block upon which the proof of convergence of the (continuous) tatonnement process is based. To prove the (fast) convergence of the discreteˆ process just described, we need a more general result (Lemma 6.7 below). Together with Lemma 6.8, it says that if a vector $\\pi \\in \\Delta ^ { + }$ is not a weak (1 + ε)-approx equilib rium for $\\hat { M }$ , then the hyperplane normal to $Z ( \\pi )$ and passing through π separates π from all points within a certain distance of any equilibrium of $\\hat { M }$ in $\\Delta$",
+        "bbox": [
+            137,
+            800,
+            862,
+            910
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "page_number",
+        "text": "144",
+        "bbox": [
+            141,
+            41,
+            177,
+            55
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "header",
+        "text": "computation of market equilibria by convex programming",
+        "bbox": [
+            201,
+            43,
+            798,
+            58
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Lemma 6.7 Let $\\pi \\in \\Delta ^ { + }$ be a price vector that is not a weak $( 1 + \\varepsilon ) \\cdot$ approximate equilibriumfor $\\hat { M }$ ,for some $\\varepsilon > 0$ . Thenfor any equilibrium πˆ $\\in \\Delta$ we have ${ \\hat { \\pi } } \\cdot Z ( \\pi ) \\geq \\delta > 0$ , where $1 / \\delta$ is bounded by a polynomial in $n , \\textstyle { \\frac { 1 } { \\varepsilon } }$ , and $\\frac { 1 } { \\eta }$ .",
+        "bbox": [
+            155,
+            78,
+            836,
+            136
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "proof We can assume that the goods are ordered so that $\\begin{array} { r } { \\frac { \\pi _ { 1 } } { \\hat { \\pi } _ { 1 } } \\leq \\frac { \\pi _ { 2 } } { \\hat { \\pi } _ { 2 } } \\leq \\cdots \\leq \\frac { \\pi _ { n } } { \\hat { \\pi } _ { n } } } \\end{array}$ Let $\\alpha _ { s }$ denote the quantity $\\frac { \\pi _ { s } } { \\hat { \\pi } _ { s } }$ . For $1 \\leq s \\leq n$ , let $q ^ { s }$ denote the price vector min $\\{ \\alpha _ { s } \\hat { \\pi } , \\pi \\}$ , i.e., the componentwise minimum of $\\alpha _ { s } \\hat { \\pi }$ and $\\pi$ . Note that",
+        "bbox": [
+            155,
+            154,
+            836,
+            209
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "equation",
+        "text": "$$\nq ^ {s} = (\\pi_ {1}, \\dots , \\pi_ {s - 1}, \\pi_ {s} = \\alpha_ {s} \\hat {\\pi} _ {s}, \\alpha_ {s} \\hat {\\pi} _ {s + 1}, \\dots , \\alpha_ {s} \\hat {\\pi} _ {n}).\n$$",
+        "text_format": "latex",
+        "bbox": [
+            277,
+            221,
+            716,
+            239
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "The first price $q _ { 1 }$ in the sequence is an equilibrium price vector, being a scaling of ˆπ by $\\alpha _ { 1 }$ , and the last price vector $q _ { n }$ is $\\pi$ . For $1 \\leq s \\leq n - 1$ , let $G _ { s } ^ { h }$ denote the set of goods $\\{ 1 , \\ldots , s \\}$ and $G _ { s } ^ { t }$ denote the set of goods $\\{ s + 1 , \\ldots , n \\}$ }. If $\\alpha _ { s } < \\alpha _ { s + 1 } , G _ { s } ^ { h }$ is the subset of goods whose prices remain fixed during the s-th step, where we move from $q ^ { s }$ to $q ^ { s + 1 }$ , and $G _ { s } ^ { t }$ is the complement set.",
+        "bbox": [
+            155,
+            252,
+            836,
+            341
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Focusing on the s-th step, we have",
+        "bbox": [
+            179,
+            343,
+            477,
+            359
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{l} 0 = q ^ {s + 1} \\cdot Z (q ^ {s + 1}) - q ^ {s} \\cdot Z (q ^ {s}) \\\\ \\quad = \\sum_ {j \\in G _ {s} ^ {h}} \\pi_ {j} \\left(Z _ {j} (q ^ {s + 1}) - Z _ {j} (q ^ {s})\\right) + \\sum_ {j \\in G _ {s} ^ {t}} \\left(\\alpha_ {s + 1} \\hat {\\pi} _ {j} Z _ {j} (q ^ {s + 1}) - \\alpha_ {s} \\hat {\\pi} _ {j} Z _ {j} (q ^ {s})\\right) \\\\ \\quad = \\alpha_ {s + 1} \\sum_ {j} \\hat {\\pi} _ {j} \\left(Z _ {j} (q ^ {s + 1}) - Z _ {j} (q ^ {s})\\right) + \\sum_ {j \\in G _ {s} ^ {t}} (\\alpha_ {s + 1} - \\alpha_ {s}) \\hat {\\pi} _ {j} Z _ {j} (q ^ {s}) \\\\ \\quad - \\sum_ {j \\in G _ {s} ^ {h}} (\\alpha_ {s + 1} \\hat {\\pi} _ {j} - \\pi_ {j}) \\left(Z _ {j} (q ^ {s + 1}) - Z _ {j} (q ^ {s})\\right). \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            183,
+            370,
+            804,
+            518
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Applying weak GS to the price vectors $q ^ { s }$ and $\\alpha _ { s } \\hat { \\pi }$ , we see that $Z _ { j } ( q ^ { s } ) \\leq 0$ for $j \\in G _ { s } ^ { t }$ . Applying weak GS to the price vectors $q ^ { s }$ and $q ^ { s + 1 }$ , we see that $Z _ { j } ( q ^ { s + 1 } ) \\geq Z _ { j } ( q ^ { s } )$ for $j \\in G _ { s } ^ { h }$ . Noting that $\\pi _ { j } \\leq \\alpha _ { s } \\hat { \\pi } _ { j } \\leq \\alpha _ { s + 1 } \\hat { \\pi } _ { j }$ for $j \\in G _ { s } ^ { h }$ , we have",
+        "bbox": [
+            157,
+            531,
+            838,
+            602
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{l} \\alpha_ {s + 1} \\sum_ {j} \\hat {\\pi} _ {j} \\left(Z _ {j} (q ^ {s + 1}) - Z _ {j} (q ^ {s})\\right) \\\\ = \\sum_ {j \\in G _ {s} ^ {h}} (\\alpha_ {s + 1} \\hat {\\pi} _ {j} - \\pi_ {j}) \\left(Z _ {j} (q ^ {s + 1}) - Z _ {j} (q ^ {s})\\right) \\\\ - \\sum_ {j \\in G _ {s} ^ {t}} (\\alpha_ {s + 1} - \\alpha_ {s}) \\hat {\\pi} _ {j} Z _ {j} (q ^ {s}) \\\\ \\geq \\sum_ {j \\in G _ {s} ^ {h}} (\\alpha_ {s + 1} \\hat {\\pi} _ {j} - \\pi_ {j}) \\left(Z _ {j} (q ^ {s + 1}) - Z _ {j} (q ^ {s})\\right) \\\\ \\geq (\\alpha_ {s + 1} - \\alpha_ {s}) \\sum_ {j \\in G _ {s} ^ {h}} \\hat {\\pi} _ {j} \\left(Z _ {j} (q ^ {s + 1}) - Z _ {j} (q ^ {s})\\right). \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            305,
+            610,
+            686,
+            824
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "That is,",
+        "bbox": [
+            181,
+            836,
+            251,
+            852
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\hat {\\pi} \\cdot (Z _ {j} (q ^ {s + 1}) - Z _ {j} (q ^ {s})) \\geq \\left(1 - \\frac {\\alpha_ {s}}{\\alpha_ {s + 1}}\\right) \\sum_ {j \\in G _ {s} ^ {h}} \\hat {\\pi} _ {j} \\left(Z _ {j} (q ^ {s + 1}) - Z _ {j} (q ^ {s})\\right)\\tag{6.5}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            183,
+            861,
+            768,
+            907
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "header",
+        "text": "exchange economies satisfying wgs",
+        "bbox": [
+            317,
+            44,
+            678,
+            57
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "page_number",
+        "text": "145",
+        "bbox": [
+            824,
+            43,
+            858,
+            55
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Since the right-hand side is nonnegative, we have, for each $1 \\leq s \\leq n - 1$",
+        "bbox": [
+            185,
+            78,
+            812,
+            94
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\hat {\\pi} \\cdot (Z _ {j} (q ^ {s + 1}) - Z _ {j} (q ^ {s})) \\geq 0.\\tag{6.6}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            373,
+            105,
+            626,
+            125
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Because $\\pi = q ^ { n }$ is not a weak ε-approximate equilibrium for $\\hat { M }$ , we must have $\\begin{array} { r } { \\frac { \\alpha _ { n } } { \\alpha _ { 1 } } \\ge 1 + \\varepsilon / 3 } \\end{array}$ . (See Exercise 6.5.) So there is some value $1 \\leq k \\leq n - 1$ so that $\\textstyle \\frac { \\widehat { \\alpha } _ { k + 1 } ^ { \\mathtt { i } } } { \\alpha _ { k } } \\geq 1 + \\varepsilon / 6 n$ . We will show that the right-hand side of equation (6.5) is large for k.",
+        "bbox": [
+            161,
+            135,
+            840,
+            205
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "We have $\\textstyle 1 - { \\frac { \\alpha _ { k } } { \\alpha _ { k + 1 } } } \\geq { \\frac { \\varepsilon / 6 n } { 1 + \\varepsilon / 6 n } } \\geq { \\frac { \\varepsilon } { 1 2 n } }$",
+        "bbox": [
+            185,
+            206,
+            477,
+            228
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "We can lower bound that the increase in income of the $( m + 1 )$ -th trader when we move from $q ^ { k }$ to $q ^ { k + 1 }$ :",
+        "bbox": [
+            161,
+            225,
+            840,
+            260
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{c} q ^ {k + 1} \\cdot \\hat {w} _ {m + 1} - q ^ {k} \\cdot \\hat {w} _ {m + 1} \\geq (q _ {n} ^ {k + 1} - q _ {n} ^ {k}) \\hat {w} _ {m + 1, n} = (\\alpha_ {k + 1} - \\alpha_ {k}) \\hat {\\pi} _ {n} \\hat {w} _ {m + 1, n} \\\\ \\geq \\frac {\\varepsilon \\alpha_ {k}}{6 n} \\hat {\\pi} _ {n} \\hat {w} _ {m + 1, n}. \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            195,
+            270,
+            804,
+            324
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Recall that the $( m + 1 )$ -th trader is a Cobb–Douglas trader with a utility function that ensures that she spends $\\frac { 1 } { n }$ th of her income on each good. As a result, we have",
+        "bbox": [
+            159,
+            331,
+            840,
+            384
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{l} x _ {m + 1, 1} (q ^ {k + 1}) - x _ {m + 1, 1} (q ^ {k}) = \\frac {q ^ {k + 1} \\cdot \\hat {w} _ {m + 1}}{n q _ {1} ^ {k + 1}} - \\frac {q ^ {k} \\cdot \\hat {w} _ {m + 1}}{n q _ {1} ^ {k}} \\\\ \\qquad = \\frac {1}{n \\pi_ {1}} (q ^ {k + 1} \\cdot \\hat {w} _ {m + 1} - q ^ {k} \\cdot \\hat {w} _ {m + 1}) \\\\ \\qquad \\geq \\frac {\\varepsilon \\alpha_ {k} \\hat {\\pi} _ {n} \\hat {w} _ {m + 1 , n}}{6 n ^ {2} \\pi_ {1}}. \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            243,
+            390,
+            758,
+            509
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Since the market $M ^ { \\prime }$ (the one without the $( m + 1 )$ -th trader) satisfies weak GS and $1 \\in G _ { s } ^ { h }$ , we have",
+        "bbox": [
+            161,
+            518,
+            840,
+            553
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\sum_ {i = 1} ^ {m} x _ {i, 1} (q ^ {k + 1}) - \\sum_ {i = 1} ^ {m} x _ {i, 1} (q ^ {k}) \\geq 0.\n$$",
+        "text_format": "latex",
+        "bbox": [
+            355,
+            562,
+            644,
+            610
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Adding the two inequalities, we get $\\begin{array} { r } { Z _ { 1 } ( q ^ { k + 1 } ) - Z _ { 1 } ( q ^ { k } ) \\ge \\frac { \\varepsilon \\alpha _ { k } \\hat { \\pi } _ { n } \\hat { w } _ { m + 1 , n } } { 6 n ^ { 2 } \\pi _ { 1 } } } \\end{array}$ . Plugging this into equation (6.5), and recalling that $Z _ { j } ( q ^ { k + 1 } ) - Z _ { j } ( q ^ { k } ) \\geq 0$ <sup>1</sup> for $j \\in G _ { k } ^ { h }$ , we have",
+        "bbox": [
+            159,
+            620,
+            840,
+            677
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{l} \\hat {\\pi} \\cdot (Z _ {j} (q ^ {k + 1}) - Z _ {j} (q ^ {k})) \\geq \\left(1 - \\frac {\\alpha_ {k}}{\\alpha_ {k + 1}}\\right) \\sum_ {j \\in G _ {k} ^ {h}} \\hat {\\pi} _ {j} \\left(Z _ {j} (q ^ {k + 1}) - Z _ {j} (q ^ {k})\\right) \\\\ \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\\\ \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qquad \\qend{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            203,
+            684,
+            792,
+            772
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Adding this inequality and the inequalities (6.6) for each $s \\neq k$ , we get",
+        "bbox": [
+            185,
+            781,
+            784,
+            797
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\hat {\\pi} \\cdot Z (\\pi) = \\hat {\\pi} \\cdot (Z (q ^ {n}) - Z (q ^ {1})) \\geq \\frac {\\varepsilon^ {2} \\alpha_ {k} \\hat {\\pi} _ {n} \\hat {w} _ {m + 1 , n}}{7 2 n ^ {3} \\pi_ {1}} = \\delta .\n$$",
+        "text_format": "latex",
+        "bbox": [
+            261,
+            807,
+            736,
+            845
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "It is easily verified that $1 / \\delta$ is bounded by a polynomial in $n , 1 / \\varepsilon$ , and $1 / \\eta$ .",
+        "bbox": [
+            161,
+            853,
+            824,
+            871
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Lemma 6.8 For any $\\pi \\in \\Delta ^ { + } , | | Z ( \\pi ) | | _ { 2 } \\leq 1 2 n ^ { 2 } / \\eta$",
+        "bbox": [
+            159,
+            889,
+            608,
+            907
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "page_number",
+        "text": "146",
+        "bbox": [
+            141,
+            43,
+            177,
+            55
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "header",
+        "text": "computation of market equilibria by convex programming",
+        "bbox": [
+            201,
+            44,
+            798,
+            57
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "proof",
+        "bbox": [
+            157,
+            80,
+            227,
+            94
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{l} | | Z (\\pi) | | _ {2} \\leq \\sum_ {j} | Z _ {j} (\\pi) | \\\\ \\quad \\leq \\sum_ {j} X _ {j} (\\pi) + \\sum_ {j} \\hat {W} _ {j} \\\\ \\quad \\leq \\frac {\\max _ {k} \\pi_ {k}}{\\min _ {k} \\pi_ {k}} \\sum_ {j} \\hat {W} _ {j} + \\sum_ {j} \\hat {W} _ {j} \\\\ \\quad \\leq \\frac {5 n}{\\eta} \\sum_ {j} \\hat {W} _ {j} + \\sum_ {j} \\hat {W} _ {j} \\\\ \\quad \\leq \\frac {1 0 n ^ {2}}{\\eta} + 2 n \\\\ \\quad \\leq \\frac {1 2 n ^ {2}}{\\eta}, \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            329,
+            100,
+            662,
+            358
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "where the third inequality follows from a simple calculation, the fourth inequal ity holds because $\\pi \\in \\Delta ^ { + }$ , and the fifth inequality holds because $\\hat { W } _ { j } \\le 2$ for each $\\begin{array} { r l } { j . } & { { } \\square } \\end{array}$",
+        "bbox": [
+            155,
+            365,
+            836,
+            419
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "We are now ready for the proof of correctness of the discrete tatonnement process.ˆ",
+        "bbox": [
+            159,
+            439,
+            852,
+            457
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Theorem 6.9 Let µ denote min $\\{ \\frac { \\delta ^ { 2 } } { ( 1 2 n ^ { 2 } / \\eta ) ^ { 2 } } , ( \\eta / 4 n ) ^ { 2 } \\}$ . Within $n / \\mu$ iterations, the algorithm computes a price in $\\Delta ^ { + }$ which is a weak $( 1 + \\varepsilon )$ -approximate equi librium for $\\hat { M }$ . (Note that the bound on $\\mu$ is polynomial in the input size of the original market M, $1 / \\varepsilon _ { \\ast }$ , and $1 / \\eta . \\jmath$ 1",
+        "bbox": [
+            155,
+            475,
+            838,
+            552
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "proof Let us fix an equilibrium $\\pi ^ { * }$ of $\\hat { M }$ in $\\Delta$ . We argue that in each iteration, the distance to $\\pi ^ { * }$ falls significantly so long as we do not encounter an approximate equilibrium in $\\Delta ^ { + } . \\operatorname { I f } \\pi ^ { i - 1 } \\notin \\Delta ^ { + }$ , we have $| \\pi _ { j } ^ { i - 1 } - \\pi _ { j } ^ { * } | - | \\pi _ { j } ^ { i } - \\pi _ { j } ^ { * } | \\geq 0$ for each $j ,$ , while $| \\pi _ { j } ^ { i - 1 } - \\pi _ { j } ^ { * } | - | \\pi _ { j } ^ { i } - \\pi _ { j } ^ { * } | \\geq \\eta / 4 n$ for some $j .$ . From this it follows that",
+        "bbox": [
+            155,
+            569,
+            836,
+            648
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "equation",
+        "text": "$$\n| | \\pi^ {*} - \\pi^ {i - 1} | | ^ {2} - | | \\pi^ {*} - \\pi^ {i} | | ^ {2} \\geq (\\eta / 4 n) ^ {2}.\n$$",
+        "text_format": "latex",
+        "bbox": [
+            319,
+            655,
+            672,
+            675
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Now suppose that $\\pi ^ { i - 1 } \\in \\Delta ^ { + }$ and that $\\pi ^ { i - 1 }$ is not a weak $( 1 + \\varepsilon )$ )-approx equilibrium for $\\hat { M }$ . By Lemma $6 . 7 , \\pi ^ { * } \\cdot Z ( \\pi ^ { i - 1 } ) \\geq \\delta$ . Since $\\pi ^ { i - 1 } \\cdot Z ( \\pi ^ { i - 1 } ) = 0$ by Walras’ Law, we have $( \\pi ^ { * } - \\pi ^ { i - 1 } ) \\cdot Z ( \\pi ^ { i - 1 } ) \\geq \\delta$",
+        "bbox": [
+            157,
+            684,
+            836,
+            739
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Let $q$ denote the vector $\\begin{array} { r } { \\pi ^ { i } - \\pi ^ { i - 1 } = \\frac { \\delta } { ( 1 2 n ^ { 2 } / \\eta ) ^ { 2 } } Z ( \\pi ^ { i - 1 } ) } \\end{array}$ . We have",
+        "bbox": [
+            179,
+            737,
+            716,
+            761
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{l} (\\pi^ {*} - \\pi^ {i - 1} - q) \\cdot q \\\\ = (\\pi^ {*} - \\pi^ {i - 1}) \\cdot q - q \\cdot q \\\\ = \\frac {\\delta}{(1 2 n ^ {2} / \\eta) ^ {2}} \\left((\\pi^ {*} - \\pi^ {i - 1}) \\cdot Z (\\pi^ {i - 1}) - \\frac {\\delta}{(1 2 n ^ {2} / \\eta) ^ {2}} | | Z (\\pi^ {i - 1}) | | _ {2} ^ {2}\\right) \\\\ \\geq \\frac {\\delta}{(1 2 n ^ {2} / \\eta) ^ {2}} \\left(\\delta - \\frac {\\delta}{(1 2 n ^ {2} / \\eta) ^ {2}} 1 2 n ^ {2} / \\eta\\right) \\geq 0. \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            191,
+            767,
+            772,
+            889
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "header",
+        "text": "exchange economies satisfying wgs",
+        "bbox": [
+            317,
+            43,
+            678,
+            57
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "page_number",
+        "text": "147",
+        "bbox": [
+            824,
+            41,
+            858,
+            55
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Thus,",
+        "bbox": [
+            185,
+            69,
+            241,
+            85
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{l} | | \\pi^ {*} - \\pi^ {i - 1} | | ^ {2} - | | \\pi^ {*} - \\pi^ {i} | | ^ {2} \\\\ = | | \\pi^ {*} - \\pi^ {i - 1} | | ^ {2} - | | \\pi^ {*} - \\pi^ {i - 1} - q | | ^ {2} \\\\ = (\\pi^ {*} - \\pi^ {i - 1}) \\cdot q + (\\pi^ {*} - \\pi^ {i - 1} - q) \\cdot q \\\\ \\geq (\\pi^ {*} - \\pi^ {i - 1}) \\cdot q \\\\ = \\frac {\\delta}{(1 2 n ^ {2} / \\eta) ^ {2}} (\\pi^ {*} - \\pi^ {i - 1}) \\cdot Z (\\pi^ {i - 1}) \\\\ \\geq \\frac {\\delta^ {2}}{(1 2 n ^ {2} / \\eta) ^ {2}}, \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            299,
+            97,
+            678,
+            267
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Suppose that every vector in the sequence $\\pi ^ { 0 } , \\ldots , \\pi ^ { k }$ is either not in $\\Delta ^ { + }$ or not a weak (1 + ε)-approx equilibrium. We then have",
+        "bbox": [
+            161,
+            278,
+            840,
+            316
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\left. \\right.\\left|\\left| \\pi^ {*} - \\pi^ {i - 1} \\right|\\right| ^ {2} - \\left|\\left| \\pi^ {*} - \\pi^ {i} \\right|\\right| ^ {2} \\geq \\min \\left\\{\\frac {\\delta^ {2}}{(1 2 n ^ {2} / \\eta) ^ {2}}, (\\eta / 4 n) ^ {2} \\right\\} = \\mu ,\n$$",
+        "text_format": "latex",
+        "bbox": [
+            221,
+            324,
+            778,
+            364
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "for $1 \\leq i \\leq k$ . Adding these inequalities, we get",
+        "bbox": [
+            185,
+            375,
+            594,
+            393
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "equation",
+        "text": "$$\nk \\mu \\leq | | \\pi^ {*} - \\pi^ {0} | | ^ {2} - | | \\pi^ {*} - \\pi^ {k} | | ^ {2} \\leq n.\n$$",
+        "text_format": "latex",
+        "bbox": [
+            331,
+            404,
+            670,
+            423
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Putting everything together, we can state the main result of this section.",
+        "bbox": [
+            163,
+            479,
+            766,
+            497
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Theorem 6.10 Let M be an exchange market whose excess demand function satisfies WGS, and suppose that M is equipped with an oraclefor computing the excess demand at any given price vector. For any $\\varepsilon > 0$ , the tatonnement-basedˆ algorithm computes, in timepolynomial in the input size ofM and $1 / \\varepsilon ,$ , a sequence ofprices one ofwhich is a weak (1 + ε)-approx equilibriumfor M.",
+        "bbox": [
+            159,
+            520,
+            842,
+            612
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "In order to actually pick the approximate equilibrium price from the sequence of prices, we need an efficient algorithm that recognizes an approximate equilibrium of M. In fact, it is sufficient for this algorithm to assert that a given price π is a weak $( 1 + 2 \\varepsilon )$ approximate equilibrium provided π is a weak (1 + ε)-approximate equilibrium. Since the problem of recognizing an approximate equilibrium is an explicitly presented convex programming problem, such an algorithm is generally quite easy to construct.",
+        "bbox": [
+            137,
+            633,
+            862,
+            743
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "6.4 Specific Utility Functions",
+        "text_level": 2,
+        "bbox": [
+            349,
+            781,
+            652,
+            800
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "In many economic scenarios, the market is modeled by consumers having some specific utility functions. While in some cases this does not lead to a simplified computationa problem, in other instances, the specific utility functions might expose a computation ally useful structure. This turns out to be the case for linear utility functions, as well as for certain CES utility functions.",
+        "bbox": [
+            137,
+            818,
+            864,
+            909
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "page_number",
+        "text": "148",
+        "bbox": [
+            141,
+            41,
+            177,
+            55
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "header",
+        "text": "computation of market equilibria by convex programming",
+        "bbox": [
+            201,
+            43,
+            798,
+            57
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "6.4.1 Convex Programs for Linear Exchange Economies",
+        "text_level": 2,
+        "bbox": [
+            231,
+            78,
+            764,
+            96
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "The equilibrium conditions for an exchange economy with linear utilities can be written as a finite convex feasibility problem. Suppose that the linear utility function of the i-th trader is $\\sum _ { j } a _ { i j } x _ { i j }$ , and suppose that $w _ { i j } > 0$ for each $i , j$",
+        "bbox": [
+            135,
+            104,
+            858,
+            160
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Consider now the problem of finding $\\psi _ { j }$ and nonnegative $x _ { i j }$ such that",
+        "bbox": [
+            159,
+            160,
+            756,
+            177
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{l} \\sum_ {k} a _ {i k} x _ {i k} \\geq a _ {i j} \\sum_ {k} w _ {i k} e ^ {\\psi_ {k} - \\psi_ {j}}, \\text {   for   each   } 1 \\leq i \\leq m, 1 \\leq j \\leq n. \\\\ \\sum_ {i} x _ {i} = \\sum_ {i} w _ {i}. \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            225,
+            186,
+            766,
+            264
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Any solution to this program corresponds to an equilibrium obtained by setting $\\pi _ { j } = e ^ { \\psi _ { j } }$ . The converse also holds, i.e., any equilibrium corresponds to a solution to this program.",
+        "bbox": [
+            135,
+            276,
+            858,
+            329
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "We will discuss the ideas behind the derivation of the convex program above in the context of economies with production (Section 6.6).",
+        "bbox": [
+            135,
+            329,
+            858,
+            366
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "6.4.2 Convex Programs for CES Exchange Economies",
+        "text_level": 2,
+        "bbox": [
+            241,
+            397,
+            754,
+            415
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Demand of CES Consumers. We start by characterizing the demand function of traders with CES utility functions. Consider a setting where trader i has an initial endowment $w _ { i } = ( w _ { i 1 } , \\ldots , w _ { i n } ) \\in \\mathbf { R } _ { + } ^ { n }$ of goods, and the CES utility function $\\begin{array} { r } { u _ { i } ( x _ { i 1 } , \\dots , x _ { i n } ) = ( \\sum _ { j = 1 } ^ { n } \\alpha _ { i j } x _ { i j } ^ { \\rho _ { i } } ) ^ { \\frac { 1 } { \\rho _ { i } } } } \\end{array}$ , where $\\alpha _ { i j } > 0 , w _ { i j } > 0$ , and $- \\infty < \\rho _ { i } < 1$ , but $\\rho _ { i } \\neq 0 . \\mathrm { I f } \\rho _ { i } < 0$ , we define $u _ { i } ( x _ { i 1 } , \\dots , x _ { i n } ) = 0$ if there is $\\textbf { a } j$ such that $x _ { i j } = 0$ . Note that this ensures that $u _ { i }$ is continuous over $\\mathbf { R } _ { + } ^ { n }$",
+        "bbox": [
+            135,
+            425,
+            860,
+            536
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "The demand vector for the i-th consumer is unique and is given by the expression",
+        "bbox": [
+            157,
+            539,
+            848,
+            556
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "equation",
+        "text": "$$\nx _ {i j} (\\pi) = \\frac {\\alpha_ {i j} ^ {1 / 1 - \\rho_ {i}}}{\\pi_ {j} ^ {1 / 1 - \\rho_ {i}}} \\times \\frac {\\sum_ {k} \\pi_ {k} w _ {i k}}{\\sum_ {k} \\alpha_ {k} ^ {1 / 1 - \\rho_ {i}} \\pi_ {k} ^ {- \\rho_ {i} / 1 - \\rho_ {i}}}.\\tag{6.7}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            315,
+            582,
+            676,
+            631
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "The formula above can be derived using the Karush–Kuhn–Tucker conditions.",
+        "bbox": [
+            159,
+            642,
+            818,
+            659
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Efficient Computation by Convex Programming. Consider an economy in which each trader i has a CES utility function with $- 1 \\le \\rho _ { i } < 0$ . We show that the equilibria of such an economy can be characterized as the solutions of a convex feasibility problem.",
+        "bbox": [
+            135,
+            683,
+            858,
+            754
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Since the demand of every trader is well-defined and unique at any price, we may write the equilibria as the set $\\pi \\in \\mathbf { R } _ { + + }$ such that for each good $j$ , we have $\\begin{array} { r } { \\sum _ { i } x _ { i j } ( \\pi ) \\le } \\end{array}$ $\\sum _ { i } w _ { i j }$ . Let $\\rho = - 1$ , and note that $\\rho \\leq \\rho _ { i }$ , for each i. Let $f _ { i j } ( \\pi ) = \\pi _ { j } ^ { 1 / ( 1 - \\rho ) } x _ { i j } ( \\pi )$ , and $\\sigma _ { j } = \\pi _ { i } ^ { 1 / ( 1 - \\rho ) }$ . In terms of the $\\sigma _ { j } { \\mathrm {  ~ s } } _ { : }$ , we obtain the set of $\\sigma = ( \\sigma _ { 1 } , \\ldots , \\sigma _ { n } ) \\in \\mathbf { R } _ { + + }$ such that for each good $j$ ,",
+        "bbox": [
+            135,
+            755,
+            858,
+            852
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\sum_ {i} f _ {i j} (\\sigma) \\leq \\sigma_ {j} \\left(\\sum_ {i} w _ {i j}\\right).\n$$",
+        "text_format": "latex",
+        "bbox": [
+            373,
+            861,
+            618,
+            910
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "header",
+        "text": "specific utility functions",
+        "bbox": [
+            363,
+            43,
+            630,
+            57
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "page_number",
+        "text": "149",
+        "bbox": [
+            824,
+            41,
+            858,
+            55
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "We now show that these inequalities give rise to a convex feasibility program. Since the right-hand side of each inequality is a linear function, it suffices to argue that the left-hand side is a convex function. The latter claim is established by the following proposition.",
+        "bbox": [
+            137,
+            78,
+            864,
+            150
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "Proposition 6.11 Thefunction $f _ { i j } ( \\sigma )$ is a convexfunction over $\\mathbf { R } _ { + + }$",
+        "bbox": [
+            159,
+            168,
+            756,
+            186
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "proof Clearly, it suffices to show that the constraint $f _ { i j } \\leq t$ defines a convex set for positive t. Using formula (6.7) for the demand, this constraint can be written as",
+        "bbox": [
+            159,
+            205,
+            840,
+            258
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\frac {\\alpha_ {i j} ^ {\\frac {1}{1 - \\rho_ {i}}}}{\\sigma_ {j} ^ {\\frac {\\rho_ {i} - \\rho}{1 - \\rho_ {i}}}} \\times \\frac {\\sum_ {k} \\sigma_ {k} ^ {1 - \\rho} w _ {i k}}{\\sum_ {k} \\alpha_ {i k} ^ {\\frac {1}{1 - \\rho_ {i}}} \\sigma_ {k} ^ {\\frac {- \\rho_ {i} (1 - \\rho)}{1 - \\rho_ {i}}}} \\leq t.\n$$",
+        "text_format": "latex",
+        "bbox": [
+            367,
+            278,
+            634,
+            341
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "Rewriting, and raising both sides to the power $1 / ( 1 - \\rho )$ , we obtain",
+        "bbox": [
+            185,
+            347,
+            756,
+            365
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\alpha_ {i j} ^ {\\frac {1}{(1 - \\rho) (1 - \\rho_ {i})}} \\times \\left(\\sum_ {k} \\sigma_ {k} ^ {1 - \\rho} w _ {i k}\\right) ^ {\\frac {1}{1 - \\rho}} \\leq t ^ {\\frac {1}{1 - \\rho}} \\sigma_ {j} ^ {\\frac {\\rho_ {i} - \\rho}{(1 - \\rho_ {i}) (1 - \\rho)}} v _ {i} ^ {\\frac {- \\rho_ {i}}{1 - \\rho_ {i}}},\\tag{6.8}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            273,
+            373,
+            726,
+            423
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "where",
+        "bbox": [
+            161,
+            430,
+            221,
+            447
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "equation",
+        "text": "$$\nv _ {i} = \\left(\\sum_ {k} \\alpha_ {i k} ^ {\\frac {1}{1 - \\rho_ {i}}} \\sigma_ {k} ^ {\\frac {- \\rho_ {i} (1 - \\rho)}{1 - \\rho_ {i}}}\\right) ^ {\\frac {1 - \\rho_ {i}}{- \\rho_ {i} (1 - \\rho)}}.\\tag{6.9}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            361,
+            468,
+            640,
+            524
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "The left-hand side of inequality 6.8 is a convex function, and the right-hand side is a concave function that is nondecreasing in each argument when viewed as a function of $t , \\sigma _ { j }$ , and $v _ { i }$ , since the exponents are nonnegative and add up to one. Since $\\begin{array} { r } { 0 < \\frac { - \\rho _ { i } ( 1 - \\dot { \\rho } ) } { 1 - \\rho _ { i } } \\le 1 } \\end{array}$ , the right-hand side of equality $6 . 9$ is a concave function, in fact a CES function. It follows that the right-hand side of inequality 6.8 remains a concave function when $v _ { i }$ is replaced by the right-hand side of equality 6.9. This completes the proof.",
+        "bbox": [
+            159,
+            529,
+            842,
+            658
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "It is not hard to verify that the demand generated by an economy with CES util ities as above need not satisfy WGS. Indeed, the connectedness of the equilibria that is a corollary of the above convex feasibility formulation is an interesting new consequence.",
+        "bbox": [
+            137,
+            673,
+            862,
+            747
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "6.5 Limitations",
+        "text_level": 2,
+        "bbox": [
+            417,
+            781,
+            584,
+            799
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "So far, we have presented efficient algorithms for restricted versions of the market equilibrium problem, which take advantage of the convexity of the set of equilibria. However, the set of equilibria in a general exchange economy does not even need to be connected. This implies that it is not possible to characterize the set of equilibria by a convex formulation.",
+        "bbox": [
+            137,
+            818,
+            864,
+            909
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "page_number",
+        "text": "150",
+        "bbox": [
+            141,
+            41,
+            177,
+            55
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "header",
+        "text": "computation of market equilibria by convex programming",
+        "bbox": [
+            201,
+            43,
+            800,
+            58
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "In Section 6.5.1 we report an example that shows that CES exchange economies may present multiple disconnected equilibria, whenever $\\rho < - 1$ . This suggests that it is unlikely that the results shown in Section 6.4.2 can be extended to encompass markets where some traders have CES utility functions with $\\rho < - 1$",
+        "bbox": [
+            135,
+            78,
+            858,
+            150
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "In Section 6.5.2 we outline some more general obstacles to the efficient solvabil ity of the market equilibrium problem. More precisely, we give a tour of a number of recent computational complexity results which imply that Leontief exchange economies are hard for PPAD, a complexity class that contains a wealth of equilibrium problems. This shows that it is unlikely that the market equilibrium problem, even when restricted to exchange economies with Leontief consumers, can be solved in polynomial time.",
+        "bbox": [
+            135,
+            150,
+            860,
+            278
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "6.5.1 Multiple Disconnected Equilibria",
+        "text_level": 2,
+        "bbox": [
+            311,
+            302,
+            682,
+            320
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "We describe a simple market with two traders and two goods that has multiple disconnected equilibria. The first trader has an initial bundle $w _ { 1 } = ( 1 , 0 )$ and the CES utility function $u _ { 1 } ( x , y ) = ( ( a x ) ^ { \\rho } + y ^ { \\rho } ) ^ { 1 / \\rho }$ , where $a > 0$ . The second trader has an initial bundle $w _ { 2 } = ( 0 , 1 )$ and the CES utility function $u _ { 2 } ( x , y ) = ( ( x / a ) ^ { \\rho } + y ^ { \\rho } ) ^ { 1 / \\rho }$ . It is possible to show that for each $\\rho < - 1$ there is a sufficiently small value of a for which",
+        "bbox": [
+            135,
+            331,
+            858,
+            437
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "(i) the vector $( 1 / 2 , 1 / 2 )$ is an equilibrium price and",
+        "bbox": [
+            147,
+            447,
+            568,
+            465
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "(ii) the vector $( p , 1 - p )$ is an equilibrium price for some $p < 1 / 2$ , and the vector $( q , 1 -$ $q )$ is not an equilibrium price for any $p < q < 1 / 2$",
+        "bbox": [
+            141,
+            467,
+            856,
+            503
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "This economy therefore does not admit a convex programming formulation in terms of some “relative” of the prices (such as the one given in Section 6.4.2 in terms of the $\\sigma _ { k } )$ that captures all the price equilibria. Such a formulation implies that if $( p _ { 1 } , 1 - p _ { 1 } )$ is a price equilibrium and $( p _ { 2 } , 1 - p _ { 2 } )$ is a price equilibrium for some $p _ { 1 } < p _ { 2 }$ , then $( p _ { 3 } , 1 - p _ { 3 } )$ is also a price equilibrium for every $p _ { 1 } < p _ { 3 } < p _ { 2 }$",
+        "bbox": [
+            135,
+            511,
+            858,
+            602
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "This example suggests that it may not be possible to extend convex programming techniques to encompass markets where some traders have a CES utility function with $\\rho < - 1$",
+        "bbox": [
+            135,
+            603,
+            858,
+            656
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "6.5.2 Hardness for the Class PPAD",
+        "text_level": 2,
+        "bbox": [
+            321,
+            682,
+            672,
+            700
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "The context of computation of equilibria calls for a complexity analysis conducted within the class TFNP of total search problems, i.e., problems whose set of solutions is guaranteed to be non empty. Nash Theorem guarantees that the problem of finding a Nash equilibrium in a noncooperative game in normal form is a total search problem. Arrow and Debreu Theorem gives sufficient conditions under which an exchange economy has an equilibrium. Therefore, under suitable sufficient conditions, the problem of finding a market equilibrium is a total search problem.",
+        "bbox": [
+            135,
+            709,
+            860,
+            836
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "An important subclass of $T F N P$ is the class $P P A D$ , which is the class of total functions whose totality is proven by the following simple combinatorial argument: if a directed graph whose nodes have in-degree and out-degree at most one has a source, it must have a sink (see Chapter 2 ofthis book for more background, Papadimitriou, 2007).",
+        "bbox": [
+            135,
+            836,
+            860,
+            909
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "header",
+        "text": "limitations",
+        "bbox": [
+            437,
+            44,
+            558,
+            57
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "page_number",
+        "text": "151",
+        "bbox": [
+            824,
+            41,
+            856,
+            55
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "This class captures a wealth of equilibrium problems, e.g., the market equilibrium problem as well as Nash equilibria for n-player games. Problems complete for this class include a (suitably defined) computational version of the Brouwer Fixed Point Theorem.",
+        "bbox": [
+            137,
+            78,
+            862,
+            149
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "Consider exchange economies where m, the number of traders, is equal to the number of goods, and the i-th trader has an initial endowment given by one unit of the i-th good. The traders have a Leontief (or fixed-proportion) utility function, which describes their goal of getting a bundle of goods in proportions determined by m given parameters.",
+        "bbox": [
+            137,
+            150,
+            862,
+            239
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "Given an arbitrary bimatrix game, specified by a pair of $n \\times m$ matrices A and B, with positive entries, one can construct a Leontief exchange economy with $n + m$ traders and $n + m$ goods as follows.",
+        "bbox": [
+            139,
+            241,
+            862,
+            294
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "Trader i has an initial endowment consisting of one unit of good i, for $i = 1 , \\ldots , n +$ m. Traders indexed by any $j \\in \\{ 1 , \\ldots , n \\}$ receive some utility only from goods $j \\in$ $\\{ n + 1 , \\ldots , n + m \\}$ , and this utility is specified by parameters corresponding to the entries of the matrix B. More precisely the proportions in which the j-th trader wants the goods are specified by the entries on the jth row of B. Vice versa, traders indexed by any $j \\in \\{ n + 1 , \\ldots , n + m \\}$ receive some utility only from goods $j \\in \\{ 1 , \\ldots , n \\}$ In this case, the proportions in which the j-th trader wants the goods are specified by the entries on the jth column of A.",
+        "bbox": [
+            139,
+            295,
+            862,
+            439
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "In the economy above, one can partition the traders in two groups, which bring to the market disjoint sets of goods, and are interested only in the goods brought by the group they do not belong to.",
+        "bbox": [
+            139,
+            440,
+            862,
+            493
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "It is possible to show that the Nash equilibria of any bimatrix game $( A , B )$ are in one-to-one correspondence with the market equilibria of such an economy, and that the correspondence can be computed in polynomial time. (For the Leontief economies under consideration, we need to get rid of the assumption – see the Introduction – that we will be concerned only with positive price equilibria. It is only then that they capture the complexity of bimatrix games.)",
+        "bbox": [
+            137,
+            493,
+            864,
+            601
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "The problem of computing a Nash equilibrium for two-player nonzero sum games have been proven PPAD-complete. Combined with the game-market correspondence mentioned above, these hardness results imply that the problem of computing a market equilibrium, even when confined to the restrictive scenario of a special family of Leontief economies, is PPAD-complete.",
+        "bbox": [
+            137,
+            602,
+            864,
+            693
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "6.6 Models with Production",
+        "text_level": 2,
+        "bbox": [
+            355,
+            726,
+            646,
+            744
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "In this section, we derive convex programs for certain economies that generalize the exchange model by including constant returns to scale technologies. The ideas for deriving these convex programs build on the ones developed for exchange economies with special utility functions. In a constant returns economy M, there are \f producers, as well as the m consumers and n goods of the exchange model. The k-th producer is equipped with a technology that is capable of producing some good, say $o _ { k }$ , using the n goods as input. The technology is specified by a concave function $f _ { k } : \\mathbf { R } _ { + } ^ { n } \\to \\mathbf { R } _ { + }$ that is assumed to be homogeneous of degree 1. The interpretation is that given quantity $z _ { j } \\geq 0$ of good $j$ , for $1 \\leq j \\leq n$ , the technology can produce up to $f _ { k } ( z _ { 1 } , \\ldots , z _ { n } )$ units of good $o _ { k }$ .",
+        "bbox": [
+            137,
+            764,
+            864,
+            910
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "page_number",
+        "text": "152",
+        "bbox": [
+            143,
+            43,
+            177,
+            55
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "header",
+        "text": "computation of market equilibria by convex programming",
+        "bbox": [
+            203,
+            44,
+            800,
+            57
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            135,
+            76,
+            858,
+            112
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "At a given price vector $\\pi = ( \\pi _ { 1 } , \\ldots , \\pi _ { n } ) \\in \\mathbf { R } _ { + } ^ { n }$ , the producer will choose a technologically feasible production plan that maximizes her profit. That is, she will choose $z _ { 1 } , \\ldots , z _ { n } \\geq 0$ that maximizes the profit $\\begin{array} { r } { \\pi _ { o _ { k } } f _ { k } ( z _ { 1 } , . . . , z _ { n } ) - \\sum _ { j = 1 } ^ { n } \\pi _ { j } z _ { j } } \\end{array}$ . Now if there is a choice of nonnegative $z _ { 1 } , \\ldots , z _ { n }$ such that $\\begin{array} { r } { \\pi _ { o _ { k } } f _ { k } ( z _ { 1 } , . . . , \\bar { z } _ { n } ) - \\sum _ { j = 1 } ^ { n } \\pi _ { j } z _ { j } > 0 } \\end{array}$ then using inputs $\\alpha z _ { 1 } , \\ldots , \\alpha z _ { n }$ , for $\\alpha > 1$ , she can obtain a profit of",
+        "bbox": [
+            135,
+            114,
+            858,
+            205
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\pi_ {o _ {k}} f _ {k} (\\alpha z _ {1}, \\dots , \\alpha z _ {n}) - \\sum_ {j = 1} ^ {n} \\pi_ {j} \\alpha z _ {j} = \\alpha \\left(\\pi_ {o _ {k}} f _ {k} (z _ {1}, \\dots , z _ {n}) - \\sum_ {j = 1} ^ {n} \\pi_ {j} z _ {j}\\right).\n$$",
+        "text_format": "latex",
+        "bbox": [
+            187,
+            214,
+            804,
+            267
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Thus a profit-maximizing plan is not defined in this case. A profit-maximizing plan is defined if and only if no feasible plan can make a strictly positive profit. In such a case, a profit-maximizing plan is one that makes zero profit. In particular, the trivial choice $z _ { j } = 0$ , for $1 \\leq j \\leq n$ , for which $f _ { k } ( z _ { 1 } , \\dots , z _ { n } ) = 0$ is always a profit-maximizing plan whenever profit maximization is well defined.",
+        "bbox": [
+            135,
+            276,
+            858,
+            366
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "It is useful to restate the above in terms of the unit cost function $c _ { k } : \\mathbf { R } _ { + } ^ { n } \\to \\mathbf { R } _ { + }$ This is defined, at any given price vector $( \\pi _ { 1 } , \\ldots , \\pi _ { n } ) \\in \\mathbf { R } _ { + } ^ { n }$ , to be the minimum cost for producing one unit of good $o _ { k }$ . That is,",
+        "bbox": [
+            135,
+            366,
+            858,
+            421
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "equation",
+        "text": "$$\nc _ {k} (\\pi) = \\min \\left\\{\\sum_ {j = 1} ^ {n} \\pi_ {j} z _ {j} | z _ {j} \\geq 0, f _ {k} (z _ {1}, \\dots , z _ {n}) \\geq 1 \\right\\}.\n$$",
+        "text_format": "latex",
+        "bbox": [
+            247,
+            428,
+            708,
+            483
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "If $\\pi _ { o _ { k } } > c _ { k } ( \\pi )$ , then profit maximization is undefined. If $\\pi _ { o _ { k } } < c _ { k } ( \\pi )$ , then the only profit-maximizing plan is the trivial plan. If $\\pi _ { o _ { k } } = c _ { k } ( \\pi )$ , the trivial plan, as well as any $( x _ { 1 } , \\ldots , x _ { n } )$ such that $\\begin{array} { r } { f _ { k } ( z _ { 1 } , . . . , z _ { n } ) c _ { k } ( \\pi ) = \\sum _ { i = 1 } ^ { n } \\pi _ { j } z _ { j } } \\end{array}$ , is a profit-maximizing plan. Each consumer is identical to the one in the exchange model: she has an initial endowment $w _ { i } \\in \\mathbf { R } _ { + } ^ { n }$ and a utility function $u _ { i }$ , which we now assume to be homogeneous. An equilibrium is a price vector $\\pi = ( \\pi _ { 1 } , \\ldots , \\pi _ { n } )$ at which there is a bundle $x _ { i } = ( x _ { i 1 } , \\ldots , x _ { i n } ) \\in \\mathbf { R } _ { + } ^ { n }$ of goods for each trader i and a bundle $z _ { k } = ( z _ { k 1 } , \\dots , z _ { k n } ) \\in$ $\\mathbf { R } _ { + } ^ { n }$ for each producer $k$ such that the following three conditions hold: (i) For each firm $k ,$ profit maximization is well-defined at $\\pi$ and the inputs $z _ { k } = ( z _ { k 1 } , \\dots , z _ { k n } )$ and output $q _ { k o _ { k } } = f _ { k } ( z _ { k 1 } , . . . , z _ { k n } )$ is a profit-maximizing plan; (ii) for each consumer $i ,$ , the vector $x _ { i }$ is her demand at price $\\pi .$ ; and (iii) for each good $j ,$ , the total demand is no more than the total supply; i.e., the market clears:",
+        "bbox": [
+            135,
+            490,
+            858,
+            708
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\sum_ {i} x _ {i j} + \\sum_ {k} z _ {k j} \\leq \\sum_ {i} w _ {i j} + \\sum_ {k: j = o _ {k}} q _ {k j}.\n$$",
+        "text_format": "latex",
+        "bbox": [
+            325,
+            716,
+            666,
+            755
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Note that requirement (i) means that there is no feasible plan that makes positive profit. This rules out the trivial approach of ignoring the production units and computing an equilibrium for the resulting exchange model.",
+        "bbox": [
+            135,
+            764,
+            858,
+            818
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "We now derive a convex program for certain kinds ofutility and production functions. We first transform the economy M into an economy $M ^ { \\prime }$ with m consumers, $n + m$ goods, and $l + m$ producers. For each consumer i, an additional good, which will be the $( n + i )$ -th good, is added. The new utility function of the i-th consumer is $u _ { i } ^ { \\prime } ( x _ { 1 } , \\ldots , x _ { n + m } ) = x _ { n + i }$ ; that is, the i-th consumer wants only good $n + i$ . The new initial endowment $w _ { i } ^ { \\prime }$ is the same as the old one; that is $w _ { i j } ^ { \\prime } = w _ { i j } \\mathrm { i f } j \\le n$ , and $w _ { i j } ^ { \\prime } = 0$ if $j > n$ . The first $l$ producers stay the same. That is, for $k \\leq l .$ , the k-th producer outputs good $o _ { k }$ using the technology described by the function $f _ { k } ^ { \\prime } ( z _ { 1 } , \\ldots , z _ { n + m } ) =$ $f _ { k } ( z _ { 1 } , \\ldots , z _ { n } )$ . For $1 \\leq i \\leq m$ , the $( l + i )$ )-th producer outputs good $n + i$ using the technology described by the function $f _ { l + i } ^ { \\prime } ( z _ { 1 } , \\ldots , z _ { n + m } ) = u _ { i } ( z _ { 1 } , \\ldots , z _ { n } )$ . It can be shown that there is a one-to-one correspondence between the equilibria of M and $M ^ { \\prime }$ We will therefore focus on characterizing the equilibria of $M ^ { \\prime } -$ the simplicity of its consumption side will be of considerable help in this task.",
+        "bbox": [
+            135,
+            818,
+            858,
+            910
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "header",
+        "text": "models with production",
+        "bbox": [
+            371,
+            44,
+            624,
+            57
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "page_number",
+        "text": "153",
+        "bbox": [
+            824,
+            41,
+            858,
+            55
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            139,
+            78,
+            862,
+            223
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "6.6.1 Inequalities Characterizing Equilibrium",
+        "text_level": 2,
+        "bbox": [
+            281,
+            266,
+            720,
+            285
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "We begin by characterizing the equilibria for the market $M ^ { \\prime }$ in terms of a system G of inequalities, in the following sets of nonnegative variables: (1) $\\pi _ { 1 } , \\ldots , \\pi _ { n + m }$ for the prices; $( 2 ) \\ x _ { i , n + i }$ , for the demand of consumer i for the $( n + i )$ )-th good; (3) $z _ { k } = ( z _ { k 1 } , \\ldots , z _ { k n } ) \\in \\mathbf { R } _ { + } ^ { n }$ , standing for the inputs used by the k-th production sector; and $( 4 ) q _ { k o _ { k } }$ , for the output of the good $o _ { k }$ by the k-th producer.",
+        "bbox": [
+            137,
+            294,
+            862,
+            386
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\pi_ {n + i} x _ {i, n + i} \\geq \\sum_ {j = 1} ^ {n} \\pi_ {j} w _ {i j}, \\text {   for   } 1 \\leq i \\leq m\\tag{6.10}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            295,
+            405,
+            630,
+            451
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "equation",
+        "text": "$$\nq _ {k o _ {k}} \\leq f _ {k} (z _ {k}), \\text {   for   } 1 \\leq k \\leq l + m\\tag{6.11}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            345,
+            454,
+            634,
+            474
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\pi_ {o _ {k}} \\leq c _ {k} (\\pi_ {1}, \\dots , \\pi_ {n}), \\text {   for   } 1 \\leq k \\leq l + m\\tag{6.12}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            351,
+            478,
+            706,
+            496
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\sum_ {k} z _ {k j} \\leq \\sum_ {i} w _ {i j} + \\sum_ {k: o _ {k} = j} q _ {k j}, \\text {   for   } 1 \\leq j \\leq n\\tag{6.13}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            323,
+            497,
+            706,
+            536
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "equation",
+        "text": "$$\nx _ {i, n + i} \\leq q _ {l + i, n + i} \\mathrm{for} 1 \\leq i \\leq m\\tag{6.14}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            333,
+            541,
+            600,
+            557
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Here, $c _ { k } ( )$ denotes the k-th producer’s unit cost function, which depends only on the prices of the first n goods. Evidently, any equilibrium is a feasible solution to the system of inequalities G. What is not so evident is that any feasible solution of G is an equilibrium. To see this, we first note that the sets of inequalities (6.12) and (6.13) imply that no producer can make positive profit: we have $\\begin{array} { r } { \\sum _ { j \\leq n } \\pi _ { j } z _ { k j } \\geq \\pi _ { o _ { k } } q _ { k o _ { k } } } \\end{array}$ for each producer k. Adding up these inequalities, as well as the inequalities (6.10), we get a certain inequality that says that the cost of the consumer and producer demands is greater than or equal to the cost of the initial endowments and producer outputs. Whereas by multiplying each inequality in (6.13) and (6.14) by the corresponding price and adding up these inequalities, we get that the cost of the consumer and producer demands is less than or equal to the cost of the initial endowments and producer outputs.",
+        "bbox": [
+            137,
+            584,
+            862,
+            800
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "This implies that the two costs must be equal. From this it follows that $\\begin{array} { r } { \\sum _ { j \\leq n } \\pi _ { j } z _ { k j } = } \\end{array}$ $\\pi _ { o _ { k } } q _ { k o _ { k } }$ for each producer k. Each production plan makes zero profit. Since (6.12) ensures that profit maximization is well defined, these are optimal production plans. Furthermore, we must have equality in (6.10): $x _ { i , n + i }$ is the demand of good $n + i$ at price π. Since conservation of goods is guaranteed by (6.13) and (6.14), we conclude that any solution of G is an equilibrium.",
+        "bbox": [
+            137,
+            800,
+            862,
+            909
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "page_number",
+        "text": "154",
+        "bbox": [
+            141,
+            43,
+            177,
+            55
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "header",
+        "text": "computation of market equilibria by convex programming",
+        "bbox": [
+            203,
+            43,
+            798,
+            57
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "6.6.2 Convex Programs for Specific Functions",
+        "text_level": 2,
+        "bbox": [
+            279,
+            78,
+            716,
+            94
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Let us make the substitution $\\pi _ { j } = e ^ { \\psi _ { j } }$ in the system of inequalities above. This makes all the constraints convex, except possibly for the ones in (6.12). Whenever each inequality in the set (6.13) also becomes a convex constraint, we get a convex feasibility characterization of the equilibrium prices.",
+        "bbox": [
+            135,
+            105,
+            858,
+            177
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Let us first consider what happens to the constraint in (6.12) corresponding to a CES production function $\\begin{array} { r } { f _ { k } ( z _ { 1 } , . . . , z _ { n } ) = ( \\sum _ { j } a _ { k j } x _ { j } ^ { \\rho } ) ^ { 1 / \\rho } } \\end{array}$ , where $0 < \\rho < 1$ . The corresponding constraint is $\\begin{array} { r } { \\pi _ { o _ { k } } \\leq c _ { k } ( \\pi ) = ( \\sum _ { i } a _ { k i } ^ { \\sigma } \\pi _ { i } ^ { 1 - \\sigma } ) ^ { 1 / 1 - \\sigma } } \\end{array}$ , where $\\sigma = 1 / ( 1 - \\rho )$ (we use a standard expression for the cost function corresponding to the CES production function $f _ { k } )$ . Raising both sides to the power $( 1 - \\sigma )$ , and noting that $1 - \\sigma < 0$ , this constraint becomes",
+        "bbox": [
+            135,
+            177,
+            860,
+            288
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\pi_ {o _ {k}} ^ {1 - \\sigma} \\geq \\left(\\sum_ {j} a _ {k j} ^ {\\sigma} \\pi_ {j} ^ {1 - \\sigma}\\right).\n$$",
+        "text_format": "latex",
+        "bbox": [
+            383,
+            311,
+            606,
+            366
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "It is now easy to see that the substitution $\\pi _ { j } = e ^ { \\psi _ { j } }$ turns this inequality into a convex constraint.",
+        "bbox": [
+            135,
+            377,
+            858,
+            412
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "It is also easy to verify, using standard formulas for the cost functions, that the constraint in (6.12) corresponding to a linear or a Cobb–Douglas production function also becomes convex after the substitution $\\pi _ { j } = e ^ { \\psi _ { j } }$",
+        "bbox": [
+            135,
+            414,
+            858,
+            467
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Thus, we obtain convex programs characterizing the equilibria in constant returns economies where the utility and production functions are linear, Cobb–Douglas, or CES with $\\rho > 0$ . The approach also works for a certain family of nested CES functions. Interestingly, the use of production technologies to simplifying the consumption side plays a key role in obtaining convex programs for pure exchange economies with nested CES utility functions.",
+        "bbox": [
+            135,
+            467,
+            860,
+            576
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "6.7 Bibliographic Notes",
+        "text_level": 2,
+        "bbox": [
+            373,
+            612,
+            622,
+            631
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "The convex program of Section 6.2 is due to Eisenberg (1961). Generalizing an approach due to Eisenberg and Gale (1959) and Gale (1960) for linear utilities, Eisenberg (1961) shows how to write the equilibrium conditions for the Fisher model as the solution to a convex program whenever the traders have homogeneous utility functions.",
+        "bbox": [
+            135,
+            649,
+            858,
+            721
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Eisenberg’s program can also be seen as following from Negishi’s theorem. However Eisenberg establishes an arguably stronger result. Without loss of generality, assume $\\textstyle \\sum _ { i } e _ { i } = 1$ . Consider the social utilityfunction u : ${ \\bf R } _ { + } ^ { n }  R$ that assigns to each $s \\in \\mathbf { R } _ { + } ^ { n }$ the value",
+        "bbox": [
+            135,
+            722,
+            858,
+            792
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\max \\left\\{\\prod_ {i = 1} ^ {m} u _ {i} (x _ {i}) ^ {e _ {i}} \\mid x _ {i} \\in \\mathbf {R} _ {+} ^ {n}, \\sum_ {i} x _ {i} \\leq s \\right\\}.\n$$",
+        "text_format": "latex",
+        "bbox": [
+            313,
+            797,
+            678,
+            847
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Eisenberg shows that u is homogeneous and concave, and that at any price vector π the market demand generated by the Fisher economy with m traders is identical to the demand of a single trader with utility function u and income 1.",
+        "bbox": [
+            135,
+            854,
+            858,
+            909
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "header",
+        "text": "bibliographic notes",
+        "bbox": [
+            393,
+            44,
+            602,
+            57
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "page_number",
+        "text": "155",
+        "bbox": [
+            824,
+            41,
+            858,
+            55
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Polterovich (1973) extends Eisenberg’s program to a generalization of the Fisher model that includes production. Jain et al. (2005) generalize this result to quasi-concave, homothetic, utilities, and also consider economies of scale in production.",
+        "bbox": [
+            137,
+            78,
+            862,
+            131
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "Lemma 6.4 of Section 6.3 has been proven by Arrow et al. (1959) under the stronger assumption of GS. It was later shown to generalize to markets which satisfy only WGS (Arrow and Hurwicz, 1960a, 1960b).",
+        "bbox": [
+            139,
+            133,
+            862,
+            185
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "Polterovich and Spivak (1983) extended the characterization of Lemma 6.4 to scenarios where the demand is a set-valued function of the prices, which includes in particular the exchange model with linear utilities. This extension says that for any equilibrium price ˆπ, and nonequilibrium price π, and any vector $z \\in \\mathbf { R } ^ { n }$ that is chosen from the set of aggregate excess demands of the market at π, we have $\\hat { \\pi } \\cdot z > 0$",
+        "bbox": [
+            137,
+            186,
+            862,
+            276
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "The simple algorithm of Section 6.3.1, which is a discrete version of the tatonnementˆ process, is introduced and analyzed in Codenotti et al. (2005). Lemma 6.7 can also be used with the Ellipsoid method, as shown by Codenotti et al. (2005), to compute a weak (1 + ε)-approximate equilibrium in polynomial time. That is, the dependence of the running time on $\\frac { 1 } { \\varepsilon }$ can be made polynomial in log $\\frac { 1 } { \\varepsilon }$ .",
+        "bbox": [
+            139,
+            277,
+            862,
+            366
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "The simple algorithm of Section 6.3.1, which is a discrete version of the tatonnementˆ process, is introduced and analyzed in Codenotti et al. (2005).",
+        "bbox": [
+            139,
+            366,
+            862,
+            403
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "The convex feasibility program ofSection 6.4.1 is due to Nenakov and Primak (1983) and Jain (2004). For linear utilities, an equilibrium price vector whose components are small rational numbers exists. Jain (2004) proposes a variant of the Ellipsoid algorithm that, exploiting this, uses the separation hyperplane implied by the convex program to compute the equilibrium exactly in polynomial time. Ye (in press) presents an efficient interior-point algorithm that computes the exact equilibrium in polynomial time. The convex program of Section 6.4.2 has been introduced in Codenotti et al. (2005).",
+        "bbox": [
+            139,
+            403,
+            862,
+            529
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "Section 6.5.1 describes a market with two traders and two goods that has multiple disconnected equilibria. Such example has been proposed by Gjerstad (1996).",
+        "bbox": [
+            139,
+            529,
+            862,
+            564
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "The class PPAD introduced in Section 6.5.2 was defined by Papadimitriou (1994). The game-market correspondence was shown in Codenotti et al. (2006). The PPAD completeness of the computation of a Nash equilibrium for a bimatrix game is due to Chen and Deng (2005b). Chen and Deng’s result came after a sequence of works, where first the PPAD-completeness of 4-player games (Daskalakis et al., 2005), and then of 3-player games (Chen and Deng, 2005a; Daskalakis and Papadimitriou, 2005) were proven.",
+        "bbox": [
+            137,
+            566,
+            862,
+            691
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "The convex program of Section 6.6 has been introduced in Jain and Varadarajan (2006). We have not mentioned several other results on convex programs for production models. We refer the interested reader to Jain and Varadarajan (2006) and the references therein.",
+        "bbox": [
+            137,
+            691,
+            862,
+            764
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "Bibliography",
+        "text_level": 2,
+        "bbox": [
+            431,
+            811,
+            570,
+            831
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "ref_text",
+        "text": "K.J. Arrow, H.D. Block, and L. Hurwicz. On the stability of the competitive equilibrium, ii. Econo metrica, 27(1):82–109, 1959.",
+        "bbox": [
+            141,
+            842,
+            860,
+            873
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "ref_text",
+        "text": "K.J. Arrow, H.B. Chenery, B.S. Minhas, and R.M. Solow. Capital–labor substitution and economic efficiency. Rev. Econ. Stat., 43(3):225–250, 1961.",
+        "bbox": [
+            141,
+            875,
+            860,
+            907
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "page_number",
+        "text": "156",
+        "bbox": [
+            143,
+            43,
+            177,
+            55
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "header",
+        "text": "computation of market equilibria by convex programming",
+        "bbox": [
+            203,
+            44,
+            800,
+            58
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "ref_text",
+        "text": "K.J. Arrow and G. Debreu. Existence of an equilibrium for a competitive economy. Econometrica, 22(3):265–290, 1954.",
+        "bbox": [
+            137,
+            79,
+            858,
+            111
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "K.J. Arrow and L. Hurwicz. Competitive stability under weak gross substitutability: The euclidean distance approach. Intl. Econ. Rev., 1:38–49, 1960a.",
+        "bbox": [
+            137,
+            112,
+            858,
+            145
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "K.J. Arrow and L. Hurwicz. Some remarks on the equilibria of economic systems. Econometrica, 28:640–646, 1960b.",
+        "bbox": [
+            137,
+            146,
+            858,
+            177
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "K.C. Border. Fixed point Theorems with Applications to Economics and Game Theory. Cambridge University Press, 1985.",
+        "bbox": [
+            137,
+            179,
+            858,
+            211
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "X. Chen and X. Deng. 3-NASH is PPAD-complete. Electronic Collog. Computational Complexity, 2005a.",
+        "bbox": [
+            137,
+            211,
+            858,
+            242
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "X. Chen and X. Deng. Settling the complexity of 2-player Nash-Equilibrium. Electronic Collog. Computational Complexity, 2005b.",
+        "bbox": [
+            137,
+            245,
+            858,
+            278
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "B. Codenotti, B. McCune, S. Penumatcha, and K. Varadarajan. Market equilibrium for CES exchange economies: Existence, multiplicity, and computation. In Proc. 25th Intl. Conf. Fdns. Software Tech. Theoretical Comp. Sci., pp. 505–516, 2005.",
+        "bbox": [
+            137,
+            280,
+            858,
+            327
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "B. Codenotti, B. McCune, and K. Varadarajan. Market equilibrium via the excess demand function. In Proc. 37th Annual ACM Symp. Theo. Comp., pp. 74–83, 2005.",
+        "bbox": [
+            137,
+            329,
+            858,
+            361
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "B. Codenotti, S. Pemmaraju, and K. Varadarajan. On the polynomial time computation of equilibria for certain exchange economies. In Proc. 16th Annual ACM-SIAM Symp. Disc. Algo., pp. 72–81, 2005.",
+        "bbox": [
+            137,
+            362,
+            858,
+            410
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "B. Codenotti, A. Saberi, K. Varadarajan, and Y. Ye. Leontief economies encode nonzero sum two player games. In Proc. 17th Annual ACM-SIAM Symp. Disc. Algo., pp. 659–667, 2006.",
+        "bbox": [
+            137,
+            412,
+            858,
+            446
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "C. Daskalakis, P. Goldberg, and C. Papadimitriou. The complexity of computing a Nash equilibrium. Electronic Collog. Computational Complexity, 2005.",
+        "bbox": [
+            137,
+            446,
+            858,
+            478
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "C. Daskalakis and C. Papadimitriou. Three-player games are hard. Electronic Collog. Computational Complexity, 2005.",
+        "bbox": [
+            137,
+            479,
+            858,
+            511
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "X. Deng, C. Papadimitriou, and S. Safra. On the complexity of price equilibrium. J. Comp. Syst. Sci., 67(2):311–324, 2003. (Special Issue on Symp. Theory of Computing, 2002).",
+        "bbox": [
+            137,
+            513,
+            858,
+            545
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "B.C. Eaves and H. Scarf. The solution of systems of piecewise linear equations. Math. Oper. Res., 1(1):1–27, 1976.",
+        "bbox": [
+            137,
+            546,
+            858,
+            577
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "E. Eisenberg. Aggregation of utility functions. Mgmt. Sci., 7(4):337–350, 1961.",
+        "bbox": [
+            137,
+            578,
+            710,
+            595
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "E. Eisenberg and D. Gale. Consensus of subjective probabilities: The pari-mutuel method. Annals Math. Stat., 30:165–168, 1959.",
+        "bbox": [
+            137,
+            596,
+            858,
+            627
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "D. Gale. The Theory ofLinear Economic Models. McGraw Hill, 1960.",
+        "bbox": [
+            137,
+            630,
+            646,
+            645
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "S. Gjerstad. Multiple equilibria in exchange economies with homothetic, nearly identical preference. University of Minnesota, Center for Economic Research, Discussion Paper 288, 1996.",
+        "bbox": [
+            137,
+            645,
+            856,
+            679
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "T. Hansen and H. Scarf. The Computation of Economic Equilibria. Cowles Foundation Monograph No. 24., New Haven: Yale University Press, 1973.",
+        "bbox": [
+            137,
+            680,
+            858,
+            711
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "K. Jain. A polynomial time algorithm for computing the Arrow–Debreu market equilibrium for linear utilities. In Proc. 45th Annual Symp. Fdns. Comp. Sci., pp. 286–294, 2004.",
+        "bbox": [
+            137,
+            712,
+            858,
+            744
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "K. Jain, M. Mahdian, and A. Saberi. Approximating market equilibria. In Proc. RANDOM-APPROX, pp. 98–108, 2003.",
+        "bbox": [
+            137,
+            746,
+            858,
+            778
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "K. Jain and K. Varadarajan. Equilibria for economies with production: Constant-returns technologies and production planning constraints. In SODA 06: Proc. 17th Annual ACM-SIAM Symp. Disc. Algo., pp. 688–697, 2006.",
+        "bbox": [
+            137,
+            779,
+            858,
+            828
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "K. Jain, V.V. Vazirani, and Y. Ye. Market equilibria for homothetic, quasi-concave utilities and economies of scale in production. In SODA 05: Proc. 16th Annual ACM-SIAM Symp. on Discrete Algorithms, pp. 63–71, 2005.",
+        "bbox": [
+            137,
+            829,
+            858,
+            878
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "O.L. Mangasarian. Nonlinear Programming. McGraw-Hill, 1969.",
+        "bbox": [
+            137,
+            880,
+            612,
+            896
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "header",
+        "text": "bibliography",
+        "bbox": [
+            427,
+            44,
+            566,
+            57
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "page_number",
+        "text": "157",
+        "bbox": [
+            822,
+            41,
+            858,
+            55
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "ref_text",
+        "text": "A. Mas-Colell, M.D. Whinston, and J.R. Green. Microeconomic Theory. Oxford University Press, 1995.",
+        "bbox": [
+            141,
+            79,
+            860,
+            110
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "T. Negishi. Welfare economics and existence of an equilibrium for a competitive economy. Metroe conomica, 12:92–97, 1960",
+        "bbox": [
+            141,
+            112,
+            860,
+            143
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "E.I. Nenakov and M.E. Primak. One algorithm for finding solutions of the Arrow-Debreu model. Kibernetica, 3:127–128, 1983.",
+        "bbox": [
+            141,
+            146,
+            860,
+            177
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "C.H. Papadimitriou. On the complexity of the parity argument and other inefficient proofs of existence. J. Comp. Syst. Sci., 48:498–532, 1994.",
+        "bbox": [
+            141,
+            179,
+            860,
+            211
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "C.H. Papadimitriou. Algorithms, games, and the Internet. In Proc. 33rd Annual ACM Symp. Theo. Comp., pp. 749–753, 2001.",
+        "bbox": [
+            141,
+            211,
+            860,
+            244
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "C.H. Papadimitriou. Algorithms for equilibria. In Algorithmic Game Theory, Chapter 2. Cambridge University Press, 2007.",
+        "bbox": [
+            141,
+            245,
+            860,
+            278
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "V.M. Polterovich. Economic equilibrium and the optimum. Matekon, 5:3–20, 1973.",
+        "bbox": [
+            141,
+            278,
+            742,
+            295
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "V.M. Polterovich and V.A. Spivak. Gross substitutability of point to set correspondences. J. Math. Econ., 11(2):117–140, 1983.",
+        "bbox": [
+            141,
+            295,
+            860,
+            327
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "T. Rutherford. Sequential joint maximization. In J. Weyant Ed. Energy and Environmental Policy Modeling. Intl. Series Oper. Res. Mgmt. Sci., 18, 1999.",
+        "bbox": [
+            141,
+            329,
+            860,
+            361
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "P.A. Samuelson. Foundations ofEconomic Analysis. Harvard University Press, 1947.",
+        "bbox": [
+            141,
+            362,
+            754,
+            377
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "H. Scarf. The approximation of fixed points of a continuous mapping. SIAM J. Appl. Math., 15(1):1328–1343,1967",
+        "bbox": [
+            141,
+            380,
+            860,
+            411
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "H. Scarf. The computation of equilibrium prices: An exposition. In Handbook of Mathematical Economics, Volume II, pp. 1008–1061, 1982.",
+        "bbox": [
+            141,
+            412,
+            860,
+            444
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "H. Varian. Microeconomic Analysis. W.W. Norton, 1992.",
+        "bbox": [
+            141,
+            446,
+            554,
+            461
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "V. Vazirani. Combinatorial algorithms for market equilibria. In Algorithmic Game Theory, Chapte 5. Cambridge University Press, 2007.",
+        "bbox": [
+            141,
+            461,
+            860,
+            493
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "A. Wald. On some systems of equations of mathematical economics. Econometrica, 19(4):368–403, 1951. Original version: Zeitschrift fur National¨ okonomie, Vol. 7 (1936).¨",
+        "bbox": [
+            141,
+            496,
+            860,
+            528
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "L. Walras. Elements ofPure Economics, or the Theory ofSocial Wealth. Richard Irwin, 1954. (Origina version published in French in 1874).",
+        "bbox": [
+            141,
+            529,
+            860,
+            560
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "Y. Ye. A path to the Arrow–Debreu competitive market equilibrium. Math Progr.. In press.",
+        "bbox": [
+            141,
+            562,
+            792,
+            578
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "text",
+        "text": "Exercises",
+        "text_level": 2,
+        "bbox": [
+            453,
+            619,
+            550,
+            637
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "text",
+        "text": "6.1 Use the Karush–Kuhn–Tucker conditions to derive an explicit expression for the demand of a consumer with a Cobb–Douglas utility function. Also derive formula 6.7, the expression for the demand with a CES function.",
+        "bbox": [
+            139,
+            654,
+            860,
+            705
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "text",
+        "text": "6.2 Show that for an exchange economy with Cobb–Douglas utility functions, the positive equilirbium prices can be characterized as solutions to a linear feasibility program with variables for the prices. The number of constraints of the program must be polynomial in the number of traders and goods.",
+        "bbox": [
+            139,
+            708,
+            862,
+            776
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "text",
+        "text": "6.3 Prove that Lemma 6.4 implies that the set of equilibrium prices is convex.",
+        "bbox": [
+            139,
+            779,
+            786,
+            796
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "text",
+        "text": "6.4 Prove parts (2), (3), and (4) of Lemma 6.5.",
+        "bbox": [
+            139,
+            800,
+            528,
+            817
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "text",
+        "text": "6.5 Suppose that π and ˆπ are two price vectors such that max $\\begin{array} { r } { \\frac { \\pi _ { j } } { \\hat { \\pi } _ { j } } \\leq ( 1 + \\varepsilon / 3 ) \\operatorname* { m i n } _ { j } \\frac { \\pi _ { j } } { \\hat { \\pi } _ { j } } } \\end{array}$ and ˆπ is an equilibrium. Show that π is a weak (1 + ε)-approximate equilibrium.",
+        "bbox": [
+            139,
+            820,
+            858,
+            857
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "page_number",
+        "text": "158",
+        "bbox": [
+            141,
+            43,
+            177,
+            55
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "header",
+        "text": "computation of market equilibria by convex programming",
+        "bbox": [
+            203,
+            44,
+            800,
+            57
+        ],
+        "page_idx": 23
+    }
+]

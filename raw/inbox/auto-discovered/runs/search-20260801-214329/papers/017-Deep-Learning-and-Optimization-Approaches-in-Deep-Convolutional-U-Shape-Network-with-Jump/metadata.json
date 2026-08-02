@@ -1,0 +1,44 @@
+{
+  "title": "Deep Learning and Optimization Approaches in Deep Convolutional U-Shape Network with Jump Attention-Based Vision Transformer for Integrated Sequence Scheduling and Trajectory Planning with Obstacle Avoidance in Wireless Rechargeable Sensor Networks: A Rev",
+  "authors": [
+    "Soraya Fernandes-Pereira"
+  ],
+  "abstract": "Wireless Rechargeable Sensor Networks (WRSNs) have emerged as an effective solution to address the energy limitations of traditional Wireless Sensor Networks by incorporating mobile chargers and intelligent energy management strategies. However, efficient sequence scheduling and trajectory planning for mobile chargers remain significant challenges, especially in dynamic environments with obstacles. Recent advancements in deep learning and optimization techniques have provided promising solutions to these problems. This review highlights deep convolutional U-shape networks (U-Net) integrated with jump attention-based Vision Transformers (ViTs) for optimizing scheduling and trajectory planning in WRSNs. U-Net models are effective for spatial feature extraction due to their encoder–decoder structure, while Vision Transformers enhance global context modelling through self-attention mechanisms. The integration of convolutional and transformer-based approaches improves both local and global feature learning, leading to better performance in path planning and obstacle avoidance. Additionally, attention-based spatial–temporal models improve trajectory prediction by capturing complex interactions in dynamic environments. Despite these advancements, challenges such as energy constraints, computational complexity, scalability, and real-time deployment persist, indicating the need for efficient and adaptive solutions.",
+  "published_date": "2025-04-12",
+  "updated_date": "",
+  "year": 2025,
+  "doi": "10.65521/ijeecs.v14i1.1941",
+  "arxiv_id": "",
+  "landing_url": "https://doi.org/10.65521/ijeecs.v14i1.1941",
+  "pdf_url": "https://journals.mriindia.com/index.php/ijeecs/article/download/1941/1868",
+  "is_open_access": true,
+  "license": "cc-by-nd",
+  "providers": [
+    "openalex"
+  ],
+  "provider_ids": {
+    "openalex": "https://openalex.org/W7162445936"
+  },
+  "matched_queries": [
+    "mobile charger scheduling"
+  ],
+  "score": 15.25,
+  "score_reasons": [
+    "标题命中：rechargeable, scheduling, sensor",
+    "摘要命中：charger, dynamic, energy, mobile",
+    "近年文献"
+  ],
+  "local_pdf": "raw/inbox/auto-discovered/runs/search-20260801-214329/papers/017-Deep-Learning-and-Optimization-Approaches-in-Deep-Convolutional-U-Shape-Network-with-Jump/paper.pdf",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "openalex"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260801-214329",
+  "triage_status": "pending",
+  "selected_by_user": false,
+  "acquired_at": "2026-08-01T13:43:29+00:00",
+  "selected_at": "",
+  "canonicalized_at": "",
+  "discovery_status": "candidate",
+  "retrieved_at": "2026-08-01T13:44:02+00:00"
+}

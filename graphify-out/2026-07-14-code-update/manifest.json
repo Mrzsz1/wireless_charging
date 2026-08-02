@@ -1,0 +1,667 @@
+{
+  ".claude/settings.json": {
+    "mtime": 1783616075.730772,
+    "ast_hash": "6dafa34fd63b3bd82be41764116fa309",
+    "semantic_hash": "6dafa34fd63b3bd82be41764116fa309"
+  },
+  ".codex/hooks.json": {
+    "mtime": 1783616383.4934106,
+    "ast_hash": "d0c2aafa0942644f3e9c907eac0efbe6",
+    "semantic_hash": "d0c2aafa0942644f3e9c907eac0efbe6"
+  },
+  ".agents/skills/graphify/SKILL.md": {
+    "mtime": 1783616383.61189,
+    "ast_hash": "7f89f9fef0c3007df59814ab17706bce",
+    "semantic_hash": "7f89f9fef0c3007df59814ab17706bce"
+  },
+  ".agents/skills/graphify/references/add-watch.md": {
+    "mtime": 1783615955.7885568,
+    "ast_hash": "d59d027fe449f06aa03905a01184e779",
+    "semantic_hash": "d59d027fe449f06aa03905a01184e779"
+  },
+  ".agents/skills/graphify/references/exports.md": {
+    "mtime": 1783615955.789531,
+    "ast_hash": "9da2a2152e60a22f07f05fed5158f287",
+    "semantic_hash": "9da2a2152e60a22f07f05fed5158f287"
+  },
+  ".agents/skills/graphify/references/extraction-spec.md": {
+    "mtime": 1783615955.789531,
+    "ast_hash": "42fef56a01698118f7fd722acdadea34",
+    "semantic_hash": "42fef56a01698118f7fd722acdadea34"
+  },
+  ".agents/skills/graphify/references/github-and-merge.md": {
+    "mtime": 1783615955.7905047,
+    "ast_hash": "cde13df085e4c492aeb7ba298a996d0d",
+    "semantic_hash": "cde13df085e4c492aeb7ba298a996d0d"
+  },
+  ".agents/skills/graphify/references/hooks.md": {
+    "mtime": 1783615955.7914774,
+    "ast_hash": "aea24fe86e18fe8aeb304403032cfce7",
+    "semantic_hash": "aea24fe86e18fe8aeb304403032cfce7"
+  },
+  ".agents/skills/graphify/references/query.md": {
+    "mtime": 1783615955.7914774,
+    "ast_hash": "3c46f8ad006874260614ed8657d02307",
+    "semantic_hash": "3c46f8ad006874260614ed8657d02307"
+  },
+  ".agents/skills/graphify/references/transcribe.md": {
+    "mtime": 1783615955.7914774,
+    "ast_hash": "67b6a5fa6c0974e18f60db9f8932fbd8",
+    "semantic_hash": "67b6a5fa6c0974e18f60db9f8932fbd8"
+  },
+  ".agents/skills/graphify/references/update.md": {
+    "mtime": 1783615955.7924516,
+    "ast_hash": "c698309979460d0f02ba616417844399",
+    "semantic_hash": "c698309979460d0f02ba616417844399"
+  },
+  ".claude/CLAUDE.md": {
+    "mtime": 1783616075.729286,
+    "ast_hash": "c232166e6492ba1ed955030b16979b05",
+    "semantic_hash": "c232166e6492ba1ed955030b16979b05"
+  },
+  ".claude/skills/graphify/SKILL.md": {
+    "mtime": 1783616075.7286172,
+    "ast_hash": "60dae20a917d4f50294ef7f88470cf53",
+    "semantic_hash": "60dae20a917d4f50294ef7f88470cf53"
+  },
+  ".claude/skills/graphify/references/add-watch.md": {
+    "mtime": 1783615955.833405,
+    "ast_hash": "d59d027fe449f06aa03905a01184e779",
+    "semantic_hash": "d59d027fe449f06aa03905a01184e779"
+  },
+  ".claude/skills/graphify/references/exports.md": {
+    "mtime": 1783615955.8343785,
+    "ast_hash": "9da2a2152e60a22f07f05fed5158f287",
+    "semantic_hash": "9da2a2152e60a22f07f05fed5158f287"
+  },
+  ".claude/skills/graphify/references/extraction-spec.md": {
+    "mtime": 1783615955.8343785,
+    "ast_hash": "42fef56a01698118f7fd722acdadea34",
+    "semantic_hash": "42fef56a01698118f7fd722acdadea34"
+  },
+  ".claude/skills/graphify/references/github-and-merge.md": {
+    "mtime": 1783615955.8353553,
+    "ast_hash": "cde13df085e4c492aeb7ba298a996d0d",
+    "semantic_hash": "cde13df085e4c492aeb7ba298a996d0d"
+  },
+  ".claude/skills/graphify/references/hooks.md": {
+    "mtime": 1783615955.8353553,
+    "ast_hash": "3f545db6ce646650bb9de588f5512a27",
+    "semantic_hash": "3f545db6ce646650bb9de588f5512a27"
+  },
+  ".claude/skills/graphify/references/query.md": {
+    "mtime": 1783615955.8363285,
+    "ast_hash": "3c46f8ad006874260614ed8657d02307",
+    "semantic_hash": "3c46f8ad006874260614ed8657d02307"
+  },
+  ".claude/skills/graphify/references/transcribe.md": {
+    "mtime": 1783615955.8363285,
+    "ast_hash": "67b6a5fa6c0974e18f60db9f8932fbd8",
+    "semantic_hash": "67b6a5fa6c0974e18f60db9f8932fbd8"
+  },
+  ".claude/skills/graphify/references/update.md": {
+    "mtime": 1783615955.8363285,
+    "ast_hash": "c698309979460d0f02ba616417844399",
+    "semantic_hash": "c698309979460d0f02ba616417844399"
+  },
+  ".codex/skills/graphify/SKILL.md": {
+    "mtime": 1783616383.4914553,
+    "ast_hash": "addc33b2f59fe59c9213f773287d1987",
+    "semantic_hash": "addc33b2f59fe59c9213f773287d1987"
+  },
+  ".codex/skills/graphify/references/add-watch.md": {
+    "mtime": 1783615955.8031921,
+    "ast_hash": "d59d027fe449f06aa03905a01184e779",
+    "semantic_hash": "d59d027fe449f06aa03905a01184e779"
+  },
+  ".codex/skills/graphify/references/exports.md": {
+    "mtime": 1783615955.8031921,
+    "ast_hash": "9da2a2152e60a22f07f05fed5158f287",
+    "semantic_hash": "9da2a2152e60a22f07f05fed5158f287"
+  },
+  ".codex/skills/graphify/references/extraction-spec.md": {
+    "mtime": 1783615955.8041663,
+    "ast_hash": "bf895ec4d4e40f5f66f7d31c2a9bd4a7",
+    "semantic_hash": "bf895ec4d4e40f5f66f7d31c2a9bd4a7"
+  },
+  ".codex/skills/graphify/references/github-and-merge.md": {
+    "mtime": 1783615955.8041663,
+    "ast_hash": "cde13df085e4c492aeb7ba298a996d0d",
+    "semantic_hash": "cde13df085e4c492aeb7ba298a996d0d"
+  },
+  ".codex/skills/graphify/references/hooks.md": {
+    "mtime": 1783615955.8041663,
+    "ast_hash": "3f545db6ce646650bb9de588f5512a27",
+    "semantic_hash": "3f545db6ce646650bb9de588f5512a27"
+  },
+  ".codex/skills/graphify/references/query.md": {
+    "mtime": 1783615955.8051388,
+    "ast_hash": "3c46f8ad006874260614ed8657d02307",
+    "semantic_hash": "3c46f8ad006874260614ed8657d02307"
+  },
+  ".codex/skills/graphify/references/transcribe.md": {
+    "mtime": 1783615955.8051388,
+    "ast_hash": "67b6a5fa6c0974e18f60db9f8932fbd8",
+    "semantic_hash": "67b6a5fa6c0974e18f60db9f8932fbd8"
+  },
+  ".codex/skills/graphify/references/update.md": {
+    "mtime": 1783615955.8051388,
+    "ast_hash": "c698309979460d0f02ba616417844399",
+    "semantic_hash": "c698309979460d0f02ba616417844399"
+  },
+  "CLAUDE.md": {
+    "mtime": 1783616075.7297924,
+    "ast_hash": "8a6643a420fdad6bfb583523bc6cef16",
+    "semantic_hash": "8a6643a420fdad6bfb583523bc6cef16"
+  },
+  "raw/canonical/README.md": {
+    "mtime": 1784039483.4056444,
+    "ast_hash": "9ebbd1a81f7420a32342d189c47924c2",
+    "semantic_hash": ""
+  },
+  "wiki/index.md": {
+    "mtime": 1784039740.0728314,
+    "ast_hash": "f990c2af0269a652b48a65910ff4f88e",
+    "semantic_hash": ""
+  },
+  "wiki/maps/library-status.md": {
+    "mtime": 1784039739.443837,
+    "ast_hash": "c515fb80bcd3882a8d801b14d75fe042",
+    "semantic_hash": ""
+  },
+  "wiki/maps/map-home.md": {
+    "mtime": 1783618479.3293765,
+    "ast_hash": "fa66fa2b1b24fcf9ab6b9a73c46b04a9",
+    "semantic_hash": ""
+  },
+  "wiki/maps/map-models-and-objectives.md": {
+    "mtime": 1783618266.217109,
+    "ast_hash": "d34e72149c8a0e778ada71f519debe38",
+    "semantic_hash": ""
+  },
+  "wiki/maps/map-multi-device-wpt.md": {
+    "mtime": 1783618266.217109,
+    "ast_hash": "d4e7327f4a41725e1f6829b12b4cfb6f",
+    "semantic_hash": ""
+  },
+  "wiki/maps/map-online-scheduling.md": {
+    "mtime": 1783618266.217109,
+    "ast_hash": "9319e72bd638d65514e09405ca9babef",
+    "semantic_hash": ""
+  },
+  "wiki/maps/map-power-allocation.md": {
+    "mtime": 1783618266.217109,
+    "ast_hash": "39bf4872f41fda10ed725aacbb6cb6f3",
+    "semantic_hash": ""
+  },
+  ".obsidian/app.json": {
+    "mtime": 1783662145.921195,
+    "ast_hash": "99914b932bd37a50b983c5e7c90ae93b",
+    "semantic_hash": ""
+  },
+  ".obsidian/appearance.json": {
+    "mtime": 1783662145.9217038,
+    "ast_hash": "99914b932bd37a50b983c5e7c90ae93b",
+    "semantic_hash": ""
+  },
+  ".obsidian/core-plugins.json": {
+    "mtime": 1783662145.4341235,
+    "ast_hash": "7c877bea49eaeabb100563bd157b9051",
+    "semantic_hash": ""
+  },
+  "raw/canonical/3-D_Placement_of_an_Unmanned_Aerial_Vehicle_Base_Station_for_Maximum_Coverage_of_Users_With_Different_QoS_Requirements.pdf-22862a8f-519b-48c9-a820-695a0df5d5e5/8708a601-cd53-41c7-82f8-a15ea406ccbc_content_list.json": {
+    "mtime": 1783617255.4064302,
+    "ast_hash": "972582f15251c29b2c9c005ca43e300d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/3-D_Placement_of_an_Unmanned_Aerial_Vehicle_Base_Station_for_Maximum_Coverage_of_Users_With_Different_QoS_Requirements.pdf-22862a8f-519b-48c9-a820-695a0df5d5e5/8708a601-cd53-41c7-82f8-a15ea406ccbc_content_list_v2.json": {
+    "mtime": 1783617255.405193,
+    "ast_hash": "56d0c0b9cf2939fa952505a942a4fa01",
+    "semantic_hash": ""
+  },
+  "raw/canonical/3-D_Placement_of_an_Unmanned_Aerial_Vehicle_Base_Station_for_Maximum_Coverage_of_Users_With_Different_QoS_Requirements.pdf-22862a8f-519b-48c9-a820-695a0df5d5e5/8708a601-cd53-41c7-82f8-a15ea406ccbc_model.json": {
+    "mtime": 1783617255.4021802,
+    "ast_hash": "86e1f9f55d11495dfdd0d1b68d8f63f3",
+    "semantic_hash": ""
+  },
+  "raw/canonical/3-D_Placement_of_an_Unmanned_Aerial_Vehicle_Base_Station_for_Maximum_Coverage_of_Users_With_Different_QoS_Requirements.pdf-22862a8f-519b-48c9-a820-695a0df5d5e5/block_list.json": {
+    "mtime": 1783617660.8852773,
+    "ast_hash": "fedaaf3553c886f19b7fb5c308183657",
+    "semantic_hash": ""
+  },
+  "raw/canonical/3-D_Placement_of_an_Unmanned_Aerial_Vehicle_Base_Station_for_Maximum_Coverage_of_Users_With_Different_QoS_Requirements.pdf-22862a8f-519b-48c9-a820-695a0df5d5e5/layout.json": {
+    "mtime": 1783617255.4198866,
+    "ast_hash": "9ea92fbdc2dd7c1bd1dd82089ff63f8d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_on_the_Move_Scheduling_Static_Chargers_with_Tunable_Power_for_Mobile_Devices.pdf-b04f915c-4c38-444c-8103-1c9d81579ab7/block_list.json": {
+    "mtime": 1783617663.887969,
+    "ast_hash": "6247c02a26f832465415588638e09687",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_on_the_Move_Scheduling_Static_Chargers_with_Tunable_Power_for_Mobile_Devices.pdf-b04f915c-4c38-444c-8103-1c9d81579ab7/c5f6bda9-dccb-4ca4-86ac-02a5ceb80107_content_list.json": {
+    "mtime": 1783617276.698676,
+    "ast_hash": "312f32bb3584fe41c900b2784b07ec7a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_on_the_Move_Scheduling_Static_Chargers_with_Tunable_Power_for_Mobile_Devices.pdf-b04f915c-4c38-444c-8103-1c9d81579ab7/c5f6bda9-dccb-4ca4-86ac-02a5ceb80107_content_list_v2.json": {
+    "mtime": 1783617276.6675777,
+    "ast_hash": "4975fd39b4c314805e9dda4af7cb353f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_on_the_Move_Scheduling_Static_Chargers_with_Tunable_Power_for_Mobile_Devices.pdf-b04f915c-4c38-444c-8103-1c9d81579ab7/c5f6bda9-dccb-4ca4-86ac-02a5ceb80107_model.json": {
+    "mtime": 1783617276.6717281,
+    "ast_hash": "a70d71834cfcd990273be6302eedb877",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_on_the_Move_Scheduling_Static_Chargers_with_Tunable_Power_for_Mobile_Devices.pdf-b04f915c-4c38-444c-8103-1c9d81579ab7/layout.json": {
+    "mtime": 1783617276.7167597,
+    "ast_hash": "633f2ccb65b9c2902b674fb8baef92bd",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrent_Charging_with_Wave_Interference.pdf-a984b0a6-dc76-4283-951d-f75a915cd6eb/a6ab8e09-7c37-4a2c-a543-02f2c5ef9429_content_list.json": {
+    "mtime": 1783617271.7287984,
+    "ast_hash": "f55cb77f98a81e8ff22f3427bfe2b2bb",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrent_Charging_with_Wave_Interference.pdf-a984b0a6-dc76-4283-951d-f75a915cd6eb/a6ab8e09-7c37-4a2c-a543-02f2c5ef9429_content_list_v2.json": {
+    "mtime": 1783617271.726432,
+    "ast_hash": "74aa4863d22a23257c2251a5fb8d2513",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrent_Charging_with_Wave_Interference.pdf-a984b0a6-dc76-4283-951d-f75a915cd6eb/a6ab8e09-7c37-4a2c-a543-02f2c5ef9429_model.json": {
+    "mtime": 1783617271.7328744,
+    "ast_hash": "ed63cd5dac3099193039f122a7c6d503",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrent_Charging_with_Wave_Interference.pdf-a984b0a6-dc76-4283-951d-f75a915cd6eb/block_list.json": {
+    "mtime": 1783617667.1565819,
+    "ast_hash": "c1c4089648aa5c0bf6a0bb418f148420",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrent_Charging_with_Wave_Interference.pdf-a984b0a6-dc76-4283-951d-f75a915cd6eb/layout.json": {
+    "mtime": 1783617271.8358085,
+    "ast_hash": "cebb6747d8603d5941b2e820fd6e1afe",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrently_Wireless_Charging_Sensor_Networks_with_Efficient_Scheduling.pdf-ab89513d-dd68-4bde-843f-8060d98fba2e/block_list.json": {
+    "mtime": 1783617629.5037339,
+    "ast_hash": "c672330267ef94f667ab8fea171c312d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrently_Wireless_Charging_Sensor_Networks_with_Efficient_Scheduling.pdf-ab89513d-dd68-4bde-843f-8060d98fba2e/f07e7b42-687a-445a-a065-fde715cbeda1_content_list.json": {
+    "mtime": 1783617271.4355924,
+    "ast_hash": "2572708bd0d226a5b291418ebf2c9035",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrently_Wireless_Charging_Sensor_Networks_with_Efficient_Scheduling.pdf-ab89513d-dd68-4bde-843f-8060d98fba2e/f07e7b42-687a-445a-a065-fde715cbeda1_content_list_v2.json": {
+    "mtime": 1783617271.4144666,
+    "ast_hash": "31cdc83dbf875fbf3c843d32d7e1c857",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrently_Wireless_Charging_Sensor_Networks_with_Efficient_Scheduling.pdf-ab89513d-dd68-4bde-843f-8060d98fba2e/f07e7b42-687a-445a-a065-fde715cbeda1_model.json": {
+    "mtime": 1783617271.4406815,
+    "ast_hash": "ca89e86d4fb02be00ab9361b66ee86cf",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrently_Wireless_Charging_Sensor_Networks_with_Efficient_Scheduling.pdf-ab89513d-dd68-4bde-843f-8060d98fba2e/layout.json": {
+    "mtime": 1783617271.4748755,
+    "ast_hash": "767c34711fb670f836f225f61f2d0a19",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Cooperative_Charging_as_Service_Scheduling_for_Mobile_Wireless_Rechargeable_Sensor_Networks.pdf-8bd73c94-27f3-4b2a-aafb-4d318e567433/block_list.json": {
+    "mtime": 1783617670.8361409,
+    "ast_hash": "1d40489993818936b418eccd796a9b1b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Cooperative_Charging_as_Service_Scheduling_for_Mobile_Wireless_Rechargeable_Sensor_Networks.pdf-8bd73c94-27f3-4b2a-aafb-4d318e567433/d1295364-c752-47ab-bf3e-e2f99bf3ff1a_content_list.json": {
+    "mtime": 1783617255.923089,
+    "ast_hash": "d62bc40eef788c7154fd8a0e8400a61a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Cooperative_Charging_as_Service_Scheduling_for_Mobile_Wireless_Rechargeable_Sensor_Networks.pdf-8bd73c94-27f3-4b2a-aafb-4d318e567433/d1295364-c752-47ab-bf3e-e2f99bf3ff1a_content_list_v2.json": {
+    "mtime": 1783617255.9280107,
+    "ast_hash": "b7490dfb2af0f7e5a44430de4dbae6aa",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Cooperative_Charging_as_Service_Scheduling_for_Mobile_Wireless_Rechargeable_Sensor_Networks.pdf-8bd73c94-27f3-4b2a-aafb-4d318e567433/d1295364-c752-47ab-bf3e-e2f99bf3ff1a_model.json": {
+    "mtime": 1783617255.932878,
+    "ast_hash": "88fd94de4c116924bb871fbc7afcf1cc",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Cooperative_Charging_as_Service_Scheduling_for_Mobile_Wireless_Rechargeable_Sensor_Networks.pdf-8bd73c94-27f3-4b2a-aafb-4d318e567433/layout.json": {
+    "mtime": 1783617255.9533932,
+    "ast_hash": "e1db71d29b295d7be8fa89e97c83a918",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Dynamic_Power_Distribution_Controlling_for_Directional_Chargers.pdf-c51176d4-83bc-464b-8fc3-befdb45d519e/6efbd3e9-a11c-475c-b0bd-03e61a8e0a3a_content_list.json": {
+    "mtime": 1783617277.186844,
+    "ast_hash": "bf9d732f45fd95bb7f76efb766dc74fd",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Dynamic_Power_Distribution_Controlling_for_Directional_Chargers.pdf-c51176d4-83bc-464b-8fc3-befdb45d519e/6efbd3e9-a11c-475c-b0bd-03e61a8e0a3a_content_list_v2.json": {
+    "mtime": 1783617277.0619698,
+    "ast_hash": "f6a67cdce05516a8216bfe1db8ac86f8",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Dynamic_Power_Distribution_Controlling_for_Directional_Chargers.pdf-c51176d4-83bc-464b-8fc3-befdb45d519e/6efbd3e9-a11c-475c-b0bd-03e61a8e0a3a_model.json": {
+    "mtime": 1783617277.158702,
+    "ast_hash": "0fab8f7a46dd7e25f53b9105eb7625a0",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Dynamic_Power_Distribution_Controlling_for_Directional_Chargers.pdf-c51176d4-83bc-464b-8fc3-befdb45d519e/block_list.json": {
+    "mtime": 1783617673.6122262,
+    "ast_hash": "226fd88d9ef263424e392470a2e6d39d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Dynamic_Power_Distribution_Controlling_for_Directional_Chargers.pdf-c51176d4-83bc-464b-8fc3-befdb45d519e/layout.json": {
+    "mtime": 1783617277.185749,
+    "ast_hash": "431a52c6ca272196d6f7baf6065a2147",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Peak_AoI_Minimization_at_Wireless-Powered_Network_Edge_From_the_Perspective_of_Both_Charging_and_Transmitting.pdf-a84be74f-fb17-427c-9f09-73ff009d6e42/0de7a251-8609-441b-9567-63baa9007152_content_list.json": {
+    "mtime": 1783617272.6140945,
+    "ast_hash": "9eb3465698c703599db3fd8bde99129a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Peak_AoI_Minimization_at_Wireless-Powered_Network_Edge_From_the_Perspective_of_Both_Charging_and_Transmitting.pdf-a84be74f-fb17-427c-9f09-73ff009d6e42/0de7a251-8609-441b-9567-63baa9007152_content_list_v2.json": {
+    "mtime": 1783617272.6121483,
+    "ast_hash": "6abd903015725d17bc4a183773b7bf1f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Peak_AoI_Minimization_at_Wireless-Powered_Network_Edge_From_the_Perspective_of_Both_Charging_and_Transmitting.pdf-a84be74f-fb17-427c-9f09-73ff009d6e42/0de7a251-8609-441b-9567-63baa9007152_model.json": {
+    "mtime": 1783617272.608253,
+    "ast_hash": "9d57d4f61f33fedbb56e60befece9fe5",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Peak_AoI_Minimization_at_Wireless-Powered_Network_Edge_From_the_Perspective_of_Both_Charging_and_Transmitting.pdf-a84be74f-fb17-427c-9f09-73ff009d6e42/block_list.json": {
+    "mtime": 1783617659.7549489,
+    "ast_hash": "3966119940b856ae137632cd289f848a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Peak_AoI_Minimization_at_Wireless-Powered_Network_Edge_From_the_Perspective_of_Both_Charging_and_Transmitting.pdf-a84be74f-fb17-427c-9f09-73ff009d6e42/layout.json": {
+    "mtime": 1783617272.6464288,
+    "ast_hash": "74f7a80b493f366e3f7d6aee7439ad83",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Placing_Wireless_Chargers_With_Multiple_Antennas.pdf-bafca2d9-e008-4ed3-9747-5a6b9783c669/a0b2506c-ac82-42ff-924f-ddb2ec0d6b59_content_list.json": {
+    "mtime": 1783617271.907494,
+    "ast_hash": "163c9801a719a947748b2cde2fbee8de",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Placing_Wireless_Chargers_With_Multiple_Antennas.pdf-bafca2d9-e008-4ed3-9747-5a6b9783c669/a0b2506c-ac82-42ff-924f-ddb2ec0d6b59_content_list_v2.json": {
+    "mtime": 1783617271.9111986,
+    "ast_hash": "458689692d677908f40bc8abfe595757",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Placing_Wireless_Chargers_With_Multiple_Antennas.pdf-bafca2d9-e008-4ed3-9747-5a6b9783c669/a0b2506c-ac82-42ff-924f-ddb2ec0d6b59_model.json": {
+    "mtime": 1783617271.8216298,
+    "ast_hash": "39c05d49e0731f603a65273b2363f9aa",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Placing_Wireless_Chargers_With_Multiple_Antennas.pdf-bafca2d9-e008-4ed3-9747-5a6b9783c669/block_list.json": {
+    "mtime": 1783617321.979195,
+    "ast_hash": "ef8909e3df9e955be84c4f107d0d9e38",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Placing_Wireless_Chargers_With_Multiple_Antennas.pdf-bafca2d9-e008-4ed3-9747-5a6b9783c669/layout.json": {
+    "mtime": 1783617271.9396522,
+    "ast_hash": "2ad7110a7892f22bae988e2bcefb6d12",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Practical_Heterogeneous_Wireless_Charger_Placement_with_Obstacles.pdf-9d3d72a1-5370-40da-8eac-87463b92da63/74433dca-96dc-4752-8529-b2628a5683ce_content_list.json": {
+    "mtime": 1783617277.1158214,
+    "ast_hash": "0baaad2d4116a87fddd3217fa56683f7",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Practical_Heterogeneous_Wireless_Charger_Placement_with_Obstacles.pdf-9d3d72a1-5370-40da-8eac-87463b92da63/74433dca-96dc-4752-8529-b2628a5683ce_content_list_v2.json": {
+    "mtime": 1783617277.124143,
+    "ast_hash": "514915d023b9a75c006498cdb107aa79",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Practical_Heterogeneous_Wireless_Charger_Placement_with_Obstacles.pdf-9d3d72a1-5370-40da-8eac-87463b92da63/74433dca-96dc-4752-8529-b2628a5683ce_model.json": {
+    "mtime": 1783617277.0348337,
+    "ast_hash": "52d7f48e70b71c2b59cdcfb7ae3281b1",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Practical_Heterogeneous_Wireless_Charger_Placement_with_Obstacles.pdf-9d3d72a1-5370-40da-8eac-87463b92da63/block_list.json": {
+    "mtime": 1783617622.9194396,
+    "ast_hash": "94aa8e6f17c78fa1f17ea219dc57185b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Practical_Heterogeneous_Wireless_Charger_Placement_with_Obstacles.pdf-9d3d72a1-5370-40da-8eac-87463b92da63/layout.json": {
+    "mtime": 1783617277.1657453,
+    "ast_hash": "0a9891b2a8ac379e91fb4bb6e648a52a",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260714_121411_\u7406\u89e3\u5f53\u524d\u9879\u76ee\u4ee5\u53ca\u67b6\u6784\u7136\u540e\u5199\u51fa\u67b6\u6784\u6587\u6863.md": {
+    "mtime": 1784031251.5039344,
+    "ast_hash": "4f646e06d9c03c66c76a31068f8a43fb",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260714_123009_\u63a5\u5165_mineru_api_\u628a\u672c\u5730_pdf_\u81ea\u52a8\u89e3\u6790\u6210_markdown.md": {
+    "mtime": 1784032209.9620519,
+    "ast_hash": "8229489aafa8eb236bebd21312dcef1d",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260714_124905_\u589e\u52a0\u80fd\u591f\u4ece_arxiv_\u7b49\u6765\u6e90\u81ea\u52a8\u641c\u7d22\u76f8\u5173\u9886\u57df\u8bba\u6587\u7684\u529f\u80fd.md": {
+    "mtime": 1784033345.2578945,
+    "ast_hash": "c93bd104b5bc3fc96517127ccf2f208c",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260714_134137_\u6211\u65b0\u589e\u7684key\u6dfb\u52a0\u8fdb\u53bb\u641c\u7d22\u6e90_openalex\u7684apikey\u4e5f\u6dfb\u52a0\u8fdb\u53bb\u4e86_google_schola.md": {
+    "mtime": 1784036497.6229825,
+    "ast_hash": "a69799b7a83f008bcebdcd4c5301287a",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260714_134813_\u5bf9\u5f53\u524d\u7684\u7ed3\u6784\u8fdb\u884c\u7406\u89e3\u5e76\u4e14\u8bf4\u660e\u5176\u4f18\u70b9\u548c\u7f3a\u70b9_\u56e0\u4e3a\u6211\u5e0c\u671b\u80fd\u505a\u6210llm_wiki_\u540c\u65f6\u9700\u8981\u5bf9\u5f53\u524d\u53d1\u73b0\u6587\u732e\u505a.md": {
+    "mtime": 1784036893.033817,
+    "ast_hash": "4f0435e8571ba254cf48cd34d8e9cf7e",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_on_the_Move_Scheduling_Static_Chargers_with_Tunable_Power_for_Mobile_Devices.pdf-b04f915c-4c38-444c-8103-1c9d81579ab7/Charging_on_the_Move_Scheduling_Static_Chargers_with_Tunable_Power_for_Mobile_.md": {
+    "mtime": 1783617665.9154892,
+    "ast_hash": "22aa6cb12ba72d640e90801a2bc05e41",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_on_the_Move_Scheduling_Static_Chargers_with_Tunable_Power_for_Mobile_Devices.pdf-b04f915c-4c38-444c-8103-1c9d81579ab7/full.md": {
+    "mtime": 1784039554.7664557,
+    "ast_hash": "d09a0f6b5509efde3269e9057eac933f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Cooperative_Charging_as_Service_Scheduling_for_Mobile_Wireless_Rechargeable_Sensor_Networks.pdf-8bd73c94-27f3-4b2a-aafb-4d318e567433/Cooperative_Charging_as_Service_Scheduling_for_Mobile_Wireless_Rechargea.md": {
+    "mtime": 1783617672.3020737,
+    "ast_hash": "e3cb8a62233719c767c3af8892b18585",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Cooperative_Charging_as_Service_Scheduling_for_Mobile_Wireless_Rechargeable_Sensor_Networks.pdf-8bd73c94-27f3-4b2a-aafb-4d318e567433/full.md": {
+    "mtime": 1784039556.592793,
+    "ast_hash": "662b163ce390964991e45fc8cae0523d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Peak_AoI_Minimization_at_Wireless-Powered_Network_Edge_From_the_Perspective_of_Both_Charging_and_Transmitting.pdf-a84be74f-fb17-427c-9f09-73ff009d6e42/Peak_AoI_Minimization_at_Wireless-Powered_Network_Edge.md": {
+    "mtime": 1783617678.698202,
+    "ast_hash": "d12337ed3c45d17a98a085b15bd0eeb1",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Peak_AoI_Minimization_at_Wireless-Powered_Network_Edge_From_the_Perspective_of_Both_Charging_and_Transmitting.pdf-a84be74f-fb17-427c-9f09-73ff009d6e42/full.md": {
+    "mtime": 1784039557.822954,
+    "ast_hash": "457e02b7077c920975b31fe49700f4ac",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Placing_Wireless_Chargers_With_Multiple_Antennas.pdf-bafca2d9-e008-4ed3-9747-5a6b9783c669/Placing_Wireless_Chargers_With_Multiple_Antennas.md": {
+    "mtime": 1783617536.8296947,
+    "ast_hash": "e9ea3c50659b156e779446535e80a0b7",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Placing_Wireless_Chargers_With_Multiple_Antennas.pdf-bafca2d9-e008-4ed3-9747-5a6b9783c669/full.md": {
+    "mtime": 1784039558.4302497,
+    "ast_hash": "af54c1422ca90e03a896e19d18eefca5",
+    "semantic_hash": ""
+  },
+  "wiki/concepts/cpt-aoi-peak.md": {
+    "mtime": 1783618160.5532117,
+    "ast_hash": "66cc2fd07d564bb54928ff6364419c40",
+    "semantic_hash": ""
+  },
+  "wiki/concepts/cpt-charging-utility.md": {
+    "mtime": 1783618160.5527053,
+    "ast_hash": "b60a529a218d7d0df3efd22f77a56ec8",
+    "semantic_hash": ""
+  },
+  "wiki/concepts/cpt-concurrent-charging.md": {
+    "mtime": 1783618160.5513277,
+    "ast_hash": "bd29293c3f074df4ac8b2553c57bca69",
+    "semantic_hash": ""
+  },
+  "wiki/concepts/cpt-directional-charging.md": {
+    "mtime": 1783618160.5518665,
+    "ast_hash": "e6ca18276d5311216b8c16457e8efb0b",
+    "semantic_hash": ""
+  },
+  "wiki/concepts/cpt-wave-interference.md": {
+    "mtime": 1783618160.550823,
+    "ast_hash": "5b10384797d9770bf6b15ff5dc7294bb",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-ccs-cooperative-service.md": {
+    "mtime": 1783618160.5527053,
+    "ast_hash": "d481c34217266ec5275addf950665998",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-ccsp-greedy-scheduling.md": {
+    "mtime": 1783618160.5518665,
+    "ast_hash": "b8e8e0ffc65a39f301022e5ebe8ffb49",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-gain-placement-interference.md": {
+    "mtime": 1783618160.5532117,
+    "ast_hash": "edee06b34f8bcab3d40f3b87e27031e3",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-hipo-placement-obstacles.md": {
+    "mtime": 1783618160.5532117,
+    "ast_hash": "2255a615eeec5d988b5f64fb0c86c22d",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-peak-aoi-joint-charge-tx.md": {
+    "mtime": 1783618160.5527053,
+    "ast_hash": "fa5cde6d37e2aecf33b4d7ff62d2f59e",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-tide-online-orientation.md": {
+    "mtime": 1783618160.5527053,
+    "ast_hash": "ef2f4f1acdf07f0bdde3fb2fa8ab6964",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-tunable-power-mobile-traj.md": {
+    "mtime": 1783618160.5518665,
+    "ast_hash": "a036fe221204e9776a46bc22b6b9e3c0",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-wanda-multi-antenna-placement.md": {
+    "mtime": 1783618160.5518665,
+    "ast_hash": "791fc1b7eb135f69bcd9191c56271fdc",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-alzenad-uav-bs-qos.md": {
+    "mtime": 1784039851.5323884,
+    "ast_hash": "d0c0787f8664980f8e2417246b555021",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-chen-peak-aoi-wpt.md": {
+    "mtime": 1784039852.126622,
+    "ast_hash": "9e9fba77944de5290420687d8da92100",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-dai-wanda-multi-antenna.md": {
+    "mtime": 1784039852.739666,
+    "ast_hash": "32b1fa03b5e146193608eb7239db9fe9",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-guo-concurrent-ccsp.md": {
+    "mtime": 1784039853.3367727,
+    "ast_hash": "568a4952fc3e2414d4fc637459a86fa2",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-ma-concurrent-gain.md": {
+    "mtime": 1784039853.9446383,
+    "ast_hash": "8736878f896c48e5e9cf2a43610976e4",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-ma-tide-dynamic-power.md": {
+    "mtime": 1784039854.5556357,
+    "ast_hash": "6ce27cfd41508e15e0634855b6259439",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-wang-hipo-obstacles.md": {
+    "mtime": 1784039855.1733072,
+    "ast_hash": "09e4a757f919b3dfb76a8d6dfba7cad2",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-wu-charging-on-the-move.md": {
+    "mtime": 1784039855.7742572,
+    "ast_hash": "0ad2c15d3dc99299f153fb90c4958ef6",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-xu-cooperative-ccs.md": {
+    "mtime": 1784039856.3726897,
+    "ast_hash": "88f23e1b33dcc2ab7c94cfe4353600d3",
+    "semantic_hash": ""
+  },
+  "wiki/syntheses/syn-wrsn-scheduling-placement.md": {
+    "mtime": 1783618231.9472077,
+    "ast_hash": "28549b02913ea3e6a9d417a5feb8d784",
+    "semantic_hash": ""
+  },
+  "raw/canonical/3-D_Placement_of_an_Unmanned_Aerial_Vehicle_Base_Station_for_Maximum_Coverage_of_Users_With_Different_QoS_Requirements.pdf-22862a8f-519b-48c9-a820-695a0df5d5e5/3-D_Placement_of_an_Unmanned_Aerial_Vehicle_Base_Station_for_Maximum_C.md": {
+    "mtime": 1783617662.5462034,
+    "ast_hash": "14beaf6235fea6aec8a84fa5145f6780",
+    "semantic_hash": ""
+  },
+  "raw/canonical/3-D_Placement_of_an_Unmanned_Aerial_Vehicle_Base_Station_for_Maximum_Coverage_of_Users_With_Different_QoS_Requirements.pdf-22862a8f-519b-48c9-a820-695a0df5d5e5/full.md": {
+    "mtime": 1784039554.155626,
+    "ast_hash": "32acf18e95e088785b1480c81af7c913",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrent_Charging_with_Wave_Interference.pdf-a984b0a6-dc76-4283-951d-f75a915cd6eb/Concurrent_Charging_with_Wave_Interference.md": {
+    "mtime": 1783617669.6638002,
+    "ast_hash": "f4ca83489597ad0acad840d43aa1686f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrent_Charging_with_Wave_Interference.pdf-a984b0a6-dc76-4283-951d-f75a915cd6eb/full.md": {
+    "mtime": 1784039555.9898427,
+    "ast_hash": "66ef6a170176ae6660e8452769f78340",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrently_Wireless_Charging_Sensor_Networks_with_Efficient_Scheduling.pdf-ab89513d-dd68-4bde-843f-8060d98fba2e/Concurrently_Wireless_Charging_Sensor_Networks_with_Efficient_Scheduling.md": {
+    "mtime": 1783617651.7648916,
+    "ast_hash": "c361c6f205b4ecf05442b89c51bf78c6",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrently_Wireless_Charging_Sensor_Networks_with_Efficient_Scheduling.pdf-ab89513d-dd68-4bde-843f-8060d98fba2e/full.md": {
+    "mtime": 1784039555.3676958,
+    "ast_hash": "5d0a6fd52a2c1a732b21ff5f9b7de49a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Dynamic_Power_Distribution_Controlling_for_Directional_Chargers.pdf-c51176d4-83bc-464b-8fc3-befdb45d519e/Dynamic_Power_Distribution_Controlling_for_Directional_Chargers.md": {
+    "mtime": 1783617675.007835,
+    "ast_hash": "a6a4519cdee0526d7dc150108dbde762",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Dynamic_Power_Distribution_Controlling_for_Directional_Chargers.pdf-c51176d4-83bc-464b-8fc3-befdb45d519e/full.md": {
+    "mtime": 1784039557.2134795,
+    "ast_hash": "a6c4737b1fc91a2d828bb345a5c7fb61",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Practical_Heterogeneous_Wireless_Charger_Placement_with_Obstacles.pdf-9d3d72a1-5370-40da-8eac-87463b92da63/Practical_Heterogeneous_Wireless_Charger_Placement_with_Obstacles.md": {
+    "mtime": 1783617625.2724452,
+    "ast_hash": "4638fc4bc8e6f81db80071dbfa379238",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Practical_Heterogeneous_Wireless_Charger_Placement_with_Obstacles.pdf-9d3d72a1-5370-40da-8eac-87463b92da63/full.md": {
+    "mtime": 1784039559.0345259,
+    "ast_hash": "0459120fc3ff275928adbcd82d5d4c84",
+    "semantic_hash": ""
+  }
+}

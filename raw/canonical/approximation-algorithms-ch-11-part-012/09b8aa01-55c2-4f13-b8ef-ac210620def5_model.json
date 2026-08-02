@@ -1,0 +1,4190 @@
+[
+    [
+        {
+            "type": "paragraph_title",
+            "bbox": [
+                0.224,
+                0.11,
+                0.449,
+                0.128
+            ],
+            "angle": 0,
+            "content": "11 Euclidean TSP"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.256,
+                0.787,
+                0.343
+            ],
+            "angle": 0,
+            "content": "In this chapter, we will give a PTAS for the special case of the traveling salesman problem in which the points are given in a d-dimensional Euclidean space. As before, the central idea of the PTAS is to define a “coarse solution”, depending on the error parameter  \\( \\varepsilon \\) , and to find it using dynamic programming. A feature this time is that we do not know a deterministic way of specifying the coarse solution – it is specified probabilistically.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.347,
+                0.787,
+                0.415
+            ],
+            "angle": 0,
+            "content": "Problem 11.1 (Euclidean TSP) For fixed d, given n points in  \\( R^{d} \\) , the problem is to find the minimum length tour of the n points. The distance between any two points x and y is defined to be the Euclidean distance between them, i.e.,  \\( \\left(\\sum_{i=1}^{d}(x_{i}-y_{i})^{2}\\right)^{1/2} \\) .",
+            "merge_prev": false
+        },
+        {
+            "type": "paragraph_title",
+            "bbox": [
+                0.224,
+                0.441,
+                0.428,
+                0.457
+            ],
+            "angle": 0,
+            "content": "11.1 The algorithm"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.469,
+                0.786,
+                0.525
+            ],
+            "angle": 0,
+            "content": "We will give the algorithm for points on the plane, i.e., d = 2. The extension to arbitrary d is straightforward. The algorithm involves numerous details. In the interest of highlighting the main ideas, some of these details will be left as exercises.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.526,
+                0.786,
+                0.611
+            ],
+            "angle": 0,
+            "content": "Define the bounding box of the instance to be the smallest axis-parallel square that contains all n points. Via a simple perturbation of the instance, we may assume that the length of this square, L, is  \\( 4n^{2} \\)  and that there is a unit grid defined on the square such that each point lies on a gridpoint (see Exercise 11.1). Further, assume w.l.o.g. that n is a power of 2, and let  \\( L = 2^{k}, k = 2 + \\log_{2} n \\) .",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.612,
+                0.788,
+                0.754
+            ],
+            "angle": 0,
+            "content": "The basic dissection of the bounding box is a recursive partitioning into smaller squares. Thus, the  \\( L \\times L \\)  square is divided into four  \\( L/2 \\times L/2 \\)  squares, and so on. It will be convenient to view this dissection as a 4-ary tree, T, whose root is the bounding box. The four children of the root are the four  \\( L/2 \\times L/2 \\)  squares, and so on. The nodes of T are assigned levels. The root is at level 0, its children at level 1, and so on. The squares represented by nodes get levels accordingly. Thus, squares at level i have dimensions  \\( L/2^{i} \\times L/2^{i} \\) . The dissection is continued until we obtain unit squares. Clearly, T has depth  \\( k = O(\\log n) \\) . By a useful square we mean a square represented by a node in T.",
+            "merge_prev": false
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.724,
+                0.347,
+                0.75,
+                0.361
+            ],
+            "latex": "",
+            "score": 0.8903
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.37,
+                0.389,
+                0.524,
+                0.415
+            ],
+            "latex": "",
+            "score": 0.9408
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.629,
+                0.47,
+                0.673,
+                0.482
+            ],
+            "latex": "",
+            "score": 0.5952
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.582,
+                0.555,
+                0.598,
+                0.568
+            ],
+            "latex": "",
+            "score": 0.5591
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.622,
+                0.554,
+                0.65,
+                0.567
+            ],
+            "latex": "",
+            "score": 0.8891
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.225,
+                0.597,
+                0.387,
+                0.611
+            ],
+            "latex": "",
+            "score": 0.9156
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.417,
+                0.626,
+                0.456,
+                0.638
+            ],
+            "latex": "",
+            "score": 0.7182
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.65,
+                0.626,
+                0.721,
+                0.639
+            ],
+            "latex": "",
+            "score": 0.9184
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.225,
+                0.668,
+                0.301,
+                0.682
+            ],
+            "latex": "",
+            "score": 0.9216
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.28,
+                0.683,
+                0.296,
+                0.696
+            ],
+            "latex": "",
+            "score": 0.7006
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.764,
+                0.64,
+                0.783,
+                0.653
+            ],
+            "latex": "",
+            "score": 0.6954
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.224,
+                0.725,
+                0.318,
+                0.739
+            ],
+            "latex": "",
+            "score": 0.8886
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.543,
+                0.668,
+                0.56,
+                0.681
+            ],
+            "latex": "",
+            "score": 0.5062
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.224,
+                0.739,
+                0.24,
+                0.751
+            ],
+            "latex": "",
+            "score": 0.6154
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.69,
+                0.696,
+                0.779,
+                0.71
+            ],
+            "latex": "",
+            "score": 0.9271
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.111,
+                0.446,
+                0.128
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.258,
+                0.784,
+                0.269
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.272,
+                0.785,
+                0.284
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.286,
+                0.783,
+                0.297
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.3,
+                0.784,
+                0.313
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.315,
+                0.786,
+                0.326
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.329,
+                0.681,
+                0.34
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.348,
+                0.724,
+                0.362
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.751,
+                0.348,
+                0.785,
+                0.362
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.364,
+                0.785,
+                0.375
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.378,
+                0.785,
+                0.389
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.398,
+                0.365,
+                0.41
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.441,
+                0.425,
+                0.457
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.47,
+                0.629,
+                0.483
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.673,
+                0.471,
+                0.784,
+                0.482
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.485,
+                0.783,
+                0.496
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.499,
+                0.784,
+                0.511
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.513,
+                0.343,
+                0.524
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.249,
+                0.527,
+                0.784,
+                0.539
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.542,
+                0.783,
+                0.554
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.555,
+                0.581,
+                0.568
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.599,
+                0.555,
+                0.621,
+                0.568
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.65,
+                0.555,
+                0.783,
+                0.568
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.571,
+                0.783,
+                0.582
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.227,
+                0.585,
+                0.783,
+                0.595
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.25,
+                0.612,
+                0.785,
+                0.624
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.627,
+                0.416,
+                0.638
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.457,
+                0.627,
+                0.647,
+                0.638
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.723,
+                0.629,
+                0.784,
+                0.638
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.64,
+                0.76,
+                0.653
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.656,
+                0.784,
+                0.667
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.303,
+                0.67,
+                0.543,
+                0.681
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.56,
+                0.67,
+                0.785,
+                0.681
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.683,
+                0.279,
+                0.695
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.296,
+                0.683,
+                0.784,
+                0.695
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.698,
+                0.687,
+                0.71
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.712,
+                0.784,
+                0.723
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.319,
+                0.727,
+                0.784,
+                0.738
+            ],
+            "text": "",
+            "score": 1.0
+        }
+    ],
+    [
+        {
+            "type": "header",
+            "bbox": [
+                0.586,
+                0.089,
+                0.731,
+                0.102
+            ],
+            "angle": 0,
+            "content": "11.1 The algorithm"
+        },
+        {
+            "type": "page_number",
+            "bbox": [
+                0.766,
+                0.089,
+                0.786,
+                0.101
+            ],
+            "angle": 0,
+            "content": "85"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.114,
+                0.788,
+                0.214
+            ],
+            "angle": 0,
+            "content": "Next, let us define levels for the horizontal and vertical lines that accomplish the basic dissection (these are all the lines of the grid defined on the bounding box). The two lines that divide the bounding box into four squares have level 1. In general, the  \\( 2^{i} \\)  lines that divide the level i - 1 squares into level i squares each have level i. Therefore, a line of level i forms the edge of useful squares at levels  \\( i, i + 1, \\ldots \\) , i.e., the largest useful square on it has dimensions  \\( L/2^{i} \\times L/2^{i} \\) :",
+            "merge_prev": false
+        },
+        {
+            "type": "image",
+            "bbox": [
+                0.338,
+                0.214,
+                0.674,
+                0.386
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.391,
+                0.788,
+                0.519
+            ],
+            "angle": 0,
+            "content": "Each line will have a special set of points called portals. The coarse solution we will be seeking is allowed to cross a line only at a portal. The portals on each line are equidistant points. On a line of level i, these points are  \\( L/(2^{i}m) \\)  apart, where the parameter m is fixed to be a power of 2 in the range  \\( [k/\\varepsilon, 2k/\\varepsilon] \\) . Clearly,  \\( m = O(\\log n/\\varepsilon) \\) . Since the largest useful square on a level i line has dimensions  \\( L/2^{i} \\times L/2^{i} \\) , each useful square has a total of at most 4m portals on its four sides and corners. We have chosen m to be a power of 2 so that a portal in a lower level square is a portal for all higher level squares it lies in.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.519,
+                0.788,
+                0.618
+            ],
+            "angle": 0,
+            "content": "We will say that a tour  \\( \\tau \\)  is well behaved w.r.t. the basic dissection if it is a tour on the n points and any subset of the portals. In addition, this tour is allowed to visit portals multiple times, but other than that it must be non-self-intersecting. The key structural fact to be established is that there is such a tour of length at most  \\( (1+\\varepsilon)\\cdot\\text{OPT} \\) . This requires a probabilistic argument, and we will return to it. First let us show why a PTAS follows from this fact.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.619,
+                0.788,
+                0.663
+            ],
+            "angle": 0,
+            "content": "We will say that tour  \\( \\tau \\)  is well behaved w.r.t. the basic dissection and has limited crossings if it is well behaved w.r.t. the basic dissection, and furthermore, it visits each portal at most twice.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.669,
+                0.787,
+                0.713
+            ],
+            "angle": 0,
+            "content": "Lemma 11.2 Let tour  \\( \\tau \\)  be well behaved w.r.t. the basic dissection. Then there must be a tour that is well behaved with limited crossings, whose length is at most that of  \\( \\tau \\) .",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.724,
+                0.787,
+                0.755
+            ],
+            "angle": 0,
+            "content": "Proof: The basic reason is that removing self-intersections by “short-cutting” can only result in a shorter tour, since Euclidean distance satisfies",
+            "merge_prev": false
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.435,
+                0.156,
+                0.454,
+                0.169
+            ],
+            "latex": "",
+            "score": 0.5946
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.311,
+                0.199,
+                0.401,
+                0.213
+            ],
+            "latex": "",
+            "score": 0.9217
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.224,
+                0.433,
+                0.286,
+                0.448
+            ],
+            "latex": "",
+            "score": 0.8908
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.271,
+                0.448,
+                0.347,
+                0.463
+            ],
+            "latex": "",
+            "score": 0.8167
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.416,
+                0.448,
+                0.53,
+                0.462
+            ],
+            "latex": "",
+            "score": 0.8293
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.44,
+                0.463,
+                0.531,
+                0.476
+            ],
+            "latex": "",
+            "score": 0.9246
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.25,
+                0.116,
+                0.783,
+                0.127
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.131,
+                0.784,
+                0.141
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.143,
+                0.785,
+                0.156
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.157,
+                0.434,
+                0.17
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.454,
+                0.157,
+                0.785,
+                0.17
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.173,
+                0.784,
+                0.184
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.187,
+                0.784,
+                0.199
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.201,
+                0.309,
+                0.213
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.25,
+                0.393,
+                0.784,
+                0.404
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.407,
+                0.785,
+                0.419
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.421,
+                0.785,
+                0.433
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.292,
+                0.436,
+                0.785,
+                0.447
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.451,
+                0.269,
+                0.463
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.348,
+                0.45,
+                0.413,
+                0.462
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.531,
+                0.451,
+                0.784,
+                0.461
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.465,
+                0.437,
+                0.475
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.532,
+                0.465,
+                0.785,
+                0.475
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.478,
+                0.785,
+                0.49
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.493,
+                0.784,
+                0.505
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.507,
+                0.388,
+                0.518
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.251,
+                0.521,
+                0.785,
+                0.532
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.536,
+                0.785,
+                0.546
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.549,
+                0.784,
+                0.56
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.564,
+                0.785,
+                0.575
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.579,
+                0.784,
+                0.589
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.592,
+                0.785,
+                0.604
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.606,
+                0.33,
+                0.617
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.25,
+                0.62,
+                0.785,
+                0.631
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.635,
+                0.785,
+                0.645
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.649,
+                0.575,
+                0.66
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.671,
+                0.785,
+                0.682
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.684,
+                0.785,
+                0.697
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.7,
+                0.373,
+                0.71
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.726,
+                0.783,
+                0.739
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.741,
+                0.783,
+                0.752
+            ],
+            "text": "",
+            "score": 1.0
+        }
+    ],
+    [
+        {
+            "type": "page_number",
+            "bbox": [
+                0.224,
+                0.089,
+                0.244,
+                0.1
+            ],
+            "angle": 0,
+            "content": "86"
+        },
+        {
+            "type": "header",
+            "bbox": [
+                0.279,
+                0.089,
+                0.417,
+                0.101
+            ],
+            "angle": 0,
+            "content": "11 Euclidean TSP"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.114,
+                0.787,
+                0.158
+            ],
+            "angle": 0,
+            "content": "the triangle inequality. If  \\( \\tau \\)  uses a portal on line l more than twice, we can keep “short-cutting” on the two sides of l until the portal is used at most twice. If this introduces additional self-intersections, they can also be removed. ☐",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.171,
+                0.787,
+                0.201
+            ],
+            "angle": 0,
+            "content": "Lemma 11.3 The optimal well behaved tour w.r.t. the basic dissection, having limited crossings, can be computed in time  \\( 2^{O(m)} = n^{O(1/\\varepsilon)} \\) .",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.213,
+                0.786,
+                0.256
+            ],
+            "angle": 0,
+            "content": "Proof: We will build a table, using dynamic programming, that contains, for each useful square, the cost of each valid visit. We will sketch the main ideas, leaving details as Exercise 11.2.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.256,
+                0.788,
+                0.357
+            ],
+            "angle": 0,
+            "content": "Let  \\( \\tau \\)  be the optimal tour we wish to find. Clearly, the total number of times  \\( \\tau \\)  can enter and exit a useful square, S, is at most 8m. The part of  \\( \\tau \\)  inside S is simply a set of at most 4m paths, each entering and exiting S at portals, and together covering all the points inside the square. Furthermore, the paths must be internally non-self-intersecting, i.e., two paths can intersect only at their entrance or exit points. This means that the pairing of entrance and exit points of the paths must form a balanced arrangement of parentheses.",
+            "merge_prev": false
+        },
+        {
+            "type": "image",
+            "bbox": [
+                0.227,
+                0.359,
+                0.448,
+                0.388
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "image",
+            "bbox": [
+                0.502,
+                0.359,
+                0.779,
+                0.387
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.413,
+                0.786,
+                0.441
+            ],
+            "angle": 0,
+            "content": "Let us call such a listing of portals, together with their pairing as entrance and exit points, a valid visit.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.441,
+                0.786,
+                0.483
+            ],
+            "angle": 0,
+            "content": "The number of useful squares is clearly  \\( \\text{poly}(n) \\) . Let us first show that the number of valid visits in a useful square is at most  \\( n^{O(1/\\varepsilon)} \\) , thereby showing that the number of entries in the table is bounded by  \\( n^{O(1/\\varepsilon)} \\) .",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.484,
+                0.788,
+                0.597
+            ],
+            "angle": 0,
+            "content": "Consider a useful square S. Each of its portals is used 0, 1, or 2 times, a total of  \\( 3^{4m} = n^{O(1/\\varepsilon)} \\)  possibilities. Of these, retain only those possibilities that involve an even number of portal usages. Consider one such possibility, and suppose that it uses 2r portals. Next, we need to consider all possible pairings of these portals that form a balanced arrangement of parentheses. The number of such arrangements is the rth Catalan number, and is bounded by  \\( 2^{2r} = n^{O(1/\\varepsilon)} \\) . Hence, the total number of valid visits in S is bounded by  \\( n^{O(1/\\varepsilon)} \\) .",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.597,
+                0.788,
+                0.755
+            ],
+            "angle": 0,
+            "content": "For each entry in the table, we need to compute the optimal length of this valid visit. The table is built up the decomposition tree, starting at its leaves. Consider a valid visit V in a square S. Let S be a level i square. We have already fixed the entrances and exits on the boundary of S. Square S has four children at level  \\( i + 1 \\) , which have four sides internal to S, with a total of at most 4m more portals. Each of these portals is used 0, 1, or 2 times, giving rise again to  \\( n^{O(1/\\varepsilon)} \\)  possibilities. Consider one such possibility, and consider all its portal usages together with portal usages of a valid visit V. Obtain all possible valid pairings of these portals that are consistent with those of visit V. Again, using Catalan numbers, their number is bounded by  \\( n^{O(1/\\varepsilon)} \\) . Each such pairing will give rise to valid visits in the four squares.",
+            "merge_prev": false
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.567,
+                0.184,
+                0.684,
+                0.198
+            ],
+            "latex": "",
+            "score": 0.9185
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.601,
+                0.454,
+                0.654,
+                0.467
+            ],
+            "latex": "",
+            "score": 0.8887
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.622,
+                0.468,
+                0.675,
+                0.481
+            ],
+            "latex": "",
+            "score": 0.8425
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.284,
+                0.496,
+                0.391,
+                0.51
+            ],
+            "latex": "",
+            "score": 0.9159
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.247,
+                0.567,
+                0.345,
+                0.58
+            ],
+            "latex": "",
+            "score": 0.9223
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.224,
+                0.582,
+                0.277,
+                0.595
+            ],
+            "latex": "",
+            "score": 0.8565
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.224,
+                0.738,
+                0.278,
+                0.751
+            ],
+            "latex": "",
+            "score": 0.9088
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.416,
+                0.68,
+                0.469,
+                0.695
+            ],
+            "latex": "",
+            "score": 0.8911
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.116,
+                0.783,
+                0.127
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.129,
+                0.783,
+                0.142
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.143,
+                0.785,
+                0.156
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.173,
+                0.784,
+                0.184
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.187,
+                0.564,
+                0.199
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.214,
+                0.783,
+                0.227
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.229,
+                0.784,
+                0.241
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.244,
+                0.503,
+                0.255
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.25,
+                0.258,
+                0.785,
+                0.269
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.272,
+                0.783,
+                0.282
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.287,
+                0.784,
+                0.297
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.301,
+                0.783,
+                0.312
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.315,
+                0.784,
+                0.326
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.33,
+                0.784,
+                0.341
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.344,
+                0.783,
+                0.354
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.414,
+                0.784,
+                0.426
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.429,
+                0.435,
+                0.439
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.249,
+                0.442,
+                0.784,
+                0.454
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.456,
+                0.598,
+                0.469
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.655,
+                0.457,
+                0.784,
+                0.468
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.472,
+                0.617,
+                0.482
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.25,
+                0.484,
+                0.785,
+                0.497
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.499,
+                0.283,
+                0.51
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.397,
+                0.499,
+                0.785,
+                0.511
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.513,
+                0.783,
+                0.525
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.528,
+                0.784,
+                0.54
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.542,
+                0.783,
+                0.553
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.555,
+                0.784,
+                0.568
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.223,
+                0.568,
+                0.247,
+                0.584
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.345,
+                0.57,
+                0.783,
+                0.582
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.25,
+                0.599,
+                0.785,
+                0.61
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.612,
+                0.785,
+                0.625
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.627,
+                0.784,
+                0.638
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.641,
+                0.784,
+                0.652
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.656,
+                0.785,
+                0.667
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.671,
+                0.785,
+                0.681
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.685,
+                0.414,
+                0.696
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.474,
+                0.685,
+                0.783,
+                0.696
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.699,
+                0.784,
+                0.709
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.712,
+                0.785,
+                0.724
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.727,
+                0.783,
+                0.738
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.279,
+                0.742,
+                0.783,
+                0.752
+            ],
+            "text": "",
+            "score": 1.0
+        }
+    ],
+    [
+        {
+            "type": "header",
+            "bbox": [
+                0.55,
+                0.089,
+                0.733,
+                0.101
+            ],
+            "angle": 0,
+            "content": "11.2 Proof of correctness"
+        },
+        {
+            "type": "page_number",
+            "bbox": [
+                0.766,
+                0.089,
+                0.785,
+                0.1
+            ],
+            "angle": 0,
+            "content": "87"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.113,
+                0.787,
+                0.158
+            ],
+            "angle": 0,
+            "content": "The cost of the optimal way of executing these valid visits in the four squares has already been computed. Compute their sum. The smallest of these sums is the optimal way of executing visit V in square S. □",
+            "merge_prev": false
+        },
+        {
+            "type": "paragraph_title",
+            "bbox": [
+                0.223,
+                0.193,
+                0.484,
+                0.208
+            ],
+            "angle": 0,
+            "content": "11.2 Proof of correctness"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.222,
+                0.787,
+                0.308
+            ],
+            "angle": 0,
+            "content": "For the proof of correctness, it suffices to show that there is a well behaved tour w.r.t. the basic dissection whose length is bounded by  \\( (1 + \\varepsilon) \\) OPT. It turns out that this is not always the case (see Exercise 11.3). Instead, we will construct a larger family of dissections and will show that, for any placement of the n points, at least half these dissections have short well behaved tours with limited crossings. So, picking a random dissection from this set suffices.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.307,
+                0.788,
+                0.395
+            ],
+            "angle": 0,
+            "content": "Let us define  \\( L^{2} \\)  different dissections of the bounding box, which are shifts of the basic dissection. Given integers a, b with  \\( 0 \\leq a \\) , b < L, the  \\( (a, b) \\) -shifted dissection is obtained by moving each vertical line from its original location x to  \\( (a + x) \\mod L \\) , and moving each horizontal line from its original location y to  \\( (b + y) \\mod L \\) . Thus, the middle lines of the shifted dissection are located at  \\( (a + L/2) \\mod L \\)  and  \\( (b + L/2) \\mod L \\) , respectively.",
+            "merge_prev": false
+        },
+        {
+            "type": "chart",
+            "bbox": [
+                0.369,
+                0.4,
+                0.638,
+                0.592
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "image_caption",
+            "bbox": [
+                0.221,
+                0.602,
+                0.786,
+                0.673
+            ],
+            "angle": 0,
+            "content": "The entire bounding box is thought of as being “wrapped around”. Useful squares that extend beyond L in their x or y coordinates will thus be thought of as “wrapped around”, and will still be thought of as a single square. Of course, the positions of the given n points remains unchanged; only the dissection is shifted."
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.673,
+                0.787,
+                0.73
+            ],
+            "angle": 0,
+            "content": "Let \\( \\pi \\) be the optimal tour, and \\( N(\\pi) \\) be the total number of times \\( \\pi \\) crosses horizontal and vertical grid lines. If \\( \\pi \\) uses a point at the intersection of two grid lines, then we will count it as two crossings. The following fact is left as Exercise 11.4.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.223,
+                0.739,
+                0.503,
+                0.754
+            ],
+            "angle": 0,
+            "content": "Lemma 11.4 \\(N(\\pi)\\leq 2\\cdot \\mathrm{OPT}.\\)",
+            "merge_prev": false
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.587,
+                0.143,
+                0.603,
+                0.155
+            ],
+            "latex": "",
+            "score": 0.4991
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.672,
+                0.236,
+                0.76,
+                0.25
+            ],
+            "latex": "",
+            "score": 0.8451
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.346,
+                0.307,
+                0.367,
+                0.32
+            ],
+            "latex": "",
+            "score": 0.8487
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.502,
+                0.323,
+                0.528,
+                0.335
+            ],
+            "latex": "",
+            "score": 0.8451
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.567,
+                0.322,
+                0.659,
+                0.335
+            ],
+            "latex": "",
+            "score": 0.908
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.246,
+                0.351,
+                0.293,
+                0.365
+            ],
+            "latex": "",
+            "score": 0.5504
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.335,
+                0.35,
+                0.353,
+                0.364
+            ],
+            "latex": "",
+            "score": 0.7275
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.694,
+                0.322,
+                0.73,
+                0.335
+            ],
+            "latex": "",
+            "score": 0.8587
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.246,
+                0.365,
+                0.293,
+                0.378
+            ],
+            "latex": "",
+            "score": 0.6325
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.336,
+                0.365,
+                0.351,
+                0.377
+            ],
+            "latex": "",
+            "score": 0.6601
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.246,
+                0.379,
+                0.316,
+                0.393
+            ],
+            "latex": "",
+            "score": 0.8558
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.359,
+                0.379,
+                0.374,
+                0.392
+            ],
+            "latex": "",
+            "score": 0.5373
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.41,
+                0.378,
+                0.477,
+                0.393
+            ],
+            "latex": "",
+            "score": 0.8506
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.52,
+                0.378,
+                0.538,
+                0.392
+            ],
+            "latex": "",
+            "score": 0.5242
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.429,
+                0.616,
+                0.443,
+                0.629
+            ],
+            "latex": "",
+            "score": 0.4929
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.497,
+                0.674,
+                0.536,
+                0.686
+            ],
+            "latex": "",
+            "score": 0.8439
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.115,
+                0.784,
+                0.128
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.131,
+                0.784,
+                0.141
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.144,
+                0.585,
+                0.155
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.77,
+                0.144,
+                0.785,
+                0.154
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.193,
+                0.481,
+                0.208
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.224,
+                0.784,
+                0.235
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.239,
+                0.666,
+                0.249
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.761,
+                0.237,
+                0.786,
+                0.249
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.252,
+                0.783,
+                0.263
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.267,
+                0.784,
+                0.279
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.281,
+                0.784,
+                0.292
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.296,
+                0.783,
+                0.306
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.25,
+                0.309,
+                0.345,
+                0.32
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.368,
+                0.309,
+                0.784,
+                0.32
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.323,
+                0.501,
+                0.335
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.529,
+                0.323,
+                0.566,
+                0.335
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.66,
+                0.323,
+                0.693,
+                0.335
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.73,
+                0.323,
+                0.785,
+                0.335
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.337,
+                0.785,
+                0.35
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.223,
+                0.352,
+                0.243,
+                0.364
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.296,
+                0.351,
+                0.335,
+                0.364
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.353,
+                0.351,
+                0.785,
+                0.364
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.223,
+                0.366,
+                0.244,
+                0.378
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.296,
+                0.366,
+                0.335,
+                0.377
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.352,
+                0.366,
+                0.785,
+                0.377
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.223,
+                0.38,
+                0.243,
+                0.392
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.321,
+                0.38,
+                0.358,
+                0.392
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.374,
+                0.38,
+                0.407,
+                0.392
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.479,
+                0.38,
+                0.52,
+                0.392
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.539,
+                0.38,
+                0.632,
+                0.392
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.249,
+                0.675,
+                0.492,
+                0.685
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.543,
+                0.675,
+                0.784,
+                0.685
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.689,
+                0.783,
+                0.7
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.703,
+                0.784,
+                0.715
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.718,
+                0.376,
+                0.728
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.741,
+                0.33,
+                0.753
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.377,
+                0.74,
+                0.501,
+                0.754
+            ],
+            "text": "",
+            "score": 1.0
+        }
+    ],
+    [
+        {
+            "type": "page_number",
+            "bbox": [
+                0.224,
+                0.089,
+                0.244,
+                0.101
+            ],
+            "angle": 0,
+            "content": "88"
+        },
+        {
+            "type": "header",
+            "bbox": [
+                0.278,
+                0.088,
+                0.417,
+                0.102
+            ],
+            "angle": 0,
+            "content": "11 Euclidean TSP"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.247,
+                0.113,
+                0.619,
+                0.129
+            ],
+            "angle": 0,
+            "content": "Following is the central fact leading to the PTAS.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.136,
+                0.788,
+                0.181
+            ],
+            "angle": 0,
+            "content": "Theorem 11.5 Pick a and b uniformly at random from  \\( [0,L) \\) . Then, the expected increase in cost in making  \\( \\pi \\)  well behaved w.r.t. the  \\( (a,b) \\) -shifted dissection is bounded by  \\( 2\\varepsilon\\cdotOPT \\) .",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.193,
+                0.787,
+                0.266
+            ],
+            "angle": 0,
+            "content": "Proof: Given any dissection, consider the process of making  \\( \\pi \\)  well behaved w.r.t. it. This involves replacing a segment of  \\( \\pi \\)  that does not cross a line l at a portal by two segments so that the crossing is at the closest portal on l. The corresponding increase in the length of the tour is bounded by the interportal distance on line l.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.265,
+                0.788,
+                0.337
+            ],
+            "angle": 0,
+            "content": "Consider the expected increase in length due to one of the crossings of tour  \\( \\pi \\)  with a line. Let l be this line. l will be a level i line in the randomly picked dissection with probability  \\( 2^{i}/L \\) . If l is a level i line, then the interportal distance on it is  \\( L/(2^{i}m) \\) . Thus, the expected increase in the length of the tour due to this crossing is at most",
+            "merge_prev": false
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.263,
+                0.348,
+                0.425,
+                0.383
+            ],
+            "angle": 0,
+            "content": "\\[\n\\sum_ {i} \\frac {L}{2 ^ {i} m} \\frac {2 ^ {i}}{L} = \\frac {k}{m} \\leq \\varepsilon ,\n\\]"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.395,
+                0.787,
+                0.426
+            ],
+            "angle": 0,
+            "content": "where we have used the fact that m lies in  \\( [k/\\varepsilon, 2k/\\varepsilon] \\) . The theorem follows by summing over all  \\( N(\\pi) \\)  crossings and using Lemma 11.4. ☐",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.437,
+                0.788,
+                0.552
+            ],
+            "angle": 0,
+            "content": "Remark 11.6 The ideas leading up to Theorem 11.5 can be summarized as follows. Since lower level lines have bigger useful squares incident at them, we had to place portals on them further apart to ensure that any useful square had at most \\(4m\\) portals on it (thereby ensuring that dynamic programming could be carried out in polynomial time). But this enabled us to construct instances for which there was no short well behaved tour w.r.t. the basic dissection (Exercise 11.3). On the other hand, there are fewer lines having lower levels - Theorem 11.5 exploits this fact.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.247,
+                0.551,
+                0.543,
+                0.566
+            ],
+            "angle": 0,
+            "content": "Now, using Markov's inequality we get:",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.571,
+                0.786,
+                0.616
+            ],
+            "angle": 0,
+            "content": "Corollary 11.7 Pick a and b uniformly at random from  \\( [0,L) \\) . Then, the probability that there is a well behaved tour of length at most  \\( 4\\varepsilon\\cdot OPT \\)  w.r.t. the  \\( (a,b) \\) -shifted dissection is greater or equal to 1/2.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.62,
+                0.788,
+                0.721
+            ],
+            "angle": 0,
+            "content": "Notice that Lemma 11.2 holds in the setting of an  \\( (a,b) \\) -shifted dissection as well. The PTAS is now straightforward. Simply pick a random dissection, and find an optimal well behaved tour with limited crossings w.r.t. this dissection using the dynamic programming procedure of Lemma 11.3. Notice that the same procedure holds even for a shifted dissection. The algorithm can be derandomized by trying all possible shifts and outputting the shortest tour obtained. Thus, we get:",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.727,
+                0.76,
+                0.744
+            ],
+            "angle": 0,
+            "content": "Theorem 11.8 There is a PTAS for the Euclidean TSP problem in \\(\\mathbf{R}^2\\).",
+            "merge_prev": false
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.658,
+                0.137,
+                0.698,
+                0.151
+            ],
+            "latex": "",
+            "score": 0.6627
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.694,
+                0.151,
+                0.73,
+                0.166
+            ],
+            "latex": "",
+            "score": 0.4847
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.429,
+                0.293,
+                0.466,
+                0.308
+            ],
+            "latex": "",
+            "score": 0.7696
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.351,
+                0.307,
+                0.413,
+                0.322
+            ],
+            "latex": "",
+            "score": 0.9014
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.379,
+                0.409,
+                0.417,
+                0.424
+            ],
+            "latex": "",
+            "score": 0.8443
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.546,
+                0.395,
+                0.624,
+                0.41
+            ],
+            "latex": "",
+            "score": 0.8847
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.659,
+                0.572,
+                0.699,
+                0.586
+            ],
+            "latex": "",
+            "score": 0.5202
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.583,
+                0.599,
+                0.61,
+                0.614
+            ],
+            "latex": "",
+            "score": 0.6634
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.673,
+                0.586,
+                0.74,
+                0.599
+            ],
+            "latex": "",
+            "score": 0.7981
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.616,
+                0.621,
+                0.653,
+                0.635
+            ],
+            "latex": "",
+            "score": 0.7822
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.733,
+                0.727,
+                0.757,
+                0.742
+            ],
+            "latex": "",
+            "score": 0.8605
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.25,
+                0.116,
+                0.615,
+                0.127
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.138,
+                0.655,
+                0.15
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.699,
+                0.139,
+                0.785,
+                0.149
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.227,
+                0.153,
+                0.689,
+                0.164
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.73,
+                0.152,
+                0.786,
+                0.164
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.227,
+                0.167,
+                0.476,
+                0.178
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.196,
+                0.785,
+                0.208
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.211,
+                0.784,
+                0.221
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.226,
+                0.784,
+                0.236
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.223,
+                0.238,
+                0.784,
+                0.251
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.253,
+                0.44,
+                0.264
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.25,
+                0.267,
+                0.783,
+                0.278
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.28,
+                0.785,
+                0.293
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.296,
+                0.425,
+                0.307
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.467,
+                0.294,
+                0.785,
+                0.307
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.31,
+                0.347,
+                0.32
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.414,
+                0.309,
+                0.785,
+                0.321
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.323,
+                0.484,
+                0.335
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.398,
+                0.541,
+                0.409
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.624,
+                0.398,
+                0.784,
+                0.408
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.411,
+                0.375,
+                0.422
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.423,
+                0.412,
+                0.664,
+                0.423
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.769,
+                0.411,
+                0.785,
+                0.422
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.438,
+                0.785,
+                0.451
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.452,
+                0.785,
+                0.465
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.468,
+                0.785,
+                0.478
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.481,
+                0.785,
+                0.493
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.496,
+                0.783,
+                0.507
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.51,
+                0.784,
+                0.521
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.524,
+                0.784,
+                0.535
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.538,
+                0.561,
+                0.549
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.249,
+                0.552,
+                0.54,
+                0.564
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.572,
+                0.655,
+                0.585
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.699,
+                0.573,
+                0.786,
+                0.585
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.588,
+                0.67,
+                0.599
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.743,
+                0.588,
+                0.785,
+                0.599
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.227,
+                0.602,
+                0.578,
+                0.613
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.25,
+                0.622,
+                0.613,
+                0.633
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.653,
+                0.623,
+                0.783,
+                0.632
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.635,
+                0.784,
+                0.649
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.651,
+                0.783,
+                0.662
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.665,
+                0.785,
+                0.677
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.679,
+                0.785,
+                0.69
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.693,
+                0.785,
+                0.705
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.708,
+                0.434,
+                0.719
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.729,
+                0.731,
+                0.742
+            ],
+            "text": "",
+            "score": 1.0
+        }
+    ],
+    [
+        {
+            "type": "header",
+            "bbox": [
+                0.645,
+                0.089,
+                0.733,
+                0.101
+            ],
+            "angle": 0,
+            "content": "11.4 Notes"
+        },
+        {
+            "type": "page_number",
+            "bbox": [
+                0.766,
+                0.089,
+                0.786,
+                0.101
+            ],
+            "angle": 0,
+            "content": "89"
+        },
+        {
+            "type": "paragraph_title",
+            "bbox": [
+                0.223,
+                0.113,
+                0.377,
+                0.128
+            ],
+            "angle": 0,
+            "content": "11.3 Exercises"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.148,
+                0.787,
+                0.19
+            ],
+            "angle": 0,
+            "content": "11.1 Show that we may assume that the length of the bounding square can be taken to be  \\( L = 4n^{2} \\)  and that there is a unit grid defined on the square such that each point lies on a gridpoint.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.191,
+                0.787,
+                0.234
+            ],
+            "angle": 0,
+            "content": "Hint: Since we started with the smallest axis-parallel bounding square, its length is a lower bound on OPT. Therefore, moving each point to a grid point can increase the length of the tour by at most  \\( OPT/n^{2} \\) .",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.243,
+                0.684,
+                0.258
+            ],
+            "angle": 0,
+            "content": "11.2 Provide the missing details in the proof of Lemma 11.3.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.267,
+                0.786,
+                0.31
+            ],
+            "angle": 0,
+            "content": "11.3 Give an instance of the Euclidean TSP problem for which, w.r.t. the basic dissection, the process of making the optimal tour well behaved increases its length by a fixed constant factor.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.31,
+                0.786,
+                0.339
+            ],
+            "angle": 0,
+            "content": "Hint: Make the optimal tour cross the middle line of the dissection that has the largest interportal distance numerous times.",
+            "merge_prev": false
+        },
+        {
+            "type": "paragraph_title",
+            "bbox": [
+                0.223,
+                0.347,
+                0.416,
+                0.362
+            ],
+            "angle": 0,
+            "content": "11.4 Prove Lemma 11.4."
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.362,
+                0.787,
+                0.406
+            ],
+            "angle": 0,
+            "content": "Hint: Notice that the left-hand side simply measures the  \\( \\ell_{1} \\)  length of tour  \\( \\pi \\) . The bound of  \\( 2\\sqrt{2}\\cdot OPT \\)  is easier to prove, since this applies to single edges as well. This bound suffices for the PTAS.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.414,
+                0.786,
+                0.444
+            ],
+            "angle": 0,
+            "content": "11.5 Extend the arguments given to obtain a PTAS for the Euclidean TSP problem in \\(\\mathbf{R}^d\\).",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.453,
+                0.764,
+                0.468
+            ],
+            "angle": 0,
+            "content": "11.6 Generalize the algorithm to norms other than the Euclidean norm.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.476,
+                0.787,
+                0.535
+            ],
+            "angle": 0,
+            "content": "11.7 (Arora [10]) Obtain a PTAS for the Euclidean Steiner tree problem. Given n points in  \\( R^{d} \\) , find the minimum length tree containing all n points and any other subset of points. The latter points are called Steiner. The distance between two points is assumed to be their Euclidean distance.",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.543,
+                0.788,
+                0.602
+            ],
+            "angle": 0,
+            "content": "11.8 Consider the Euclidean Steiner tree problem in  \\( R^{2} \\) . Show that in any optimal Steiner tree each Steiner point has degree 3 and the three angles so formed are of  \\( 120^{\\circ} \\)  each. (See Gauss' figures on cover for an illustration of this fact.)",
+            "merge_prev": false
+        },
+        {
+            "type": "paragraph_title",
+            "bbox": [
+                0.223,
+                0.625,
+                0.344,
+                0.641
+            ],
+            "angle": 0,
+            "content": "11.4 Notes"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.22,
+                0.65,
+                0.788,
+                0.752
+            ],
+            "angle": 0,
+            "content": "The first PTAS for Euclidean TSP was given by Arora [9], following a PTAS for the planar graph TSP problem due to Grigni, Koutsoupias, and Papadimitriou [115]. Subsequently, Mitchell [207] independently obtained the same result. Later, Arora [10] went on to give an \\( n(\\log n)^{O(1/\\varepsilon)} \\) algorithm for the problem for any fixed \\( d \\). For a PTAS with an improved running time see Rao and Smith [229]. This chapter is based on Arora [10] and Arora, Raghavan, and Rao [13].",
+            "merge_prev": false
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.339,
+                0.161,
+                0.404,
+                0.175
+            ],
+            "latex": "",
+            "score": 0.9097
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.568,
+                0.218,
+                0.632,
+                0.232
+            ],
+            "latex": "",
+            "score": 0.8302
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.355,
+                0.376,
+                0.391,
+                0.389
+            ],
+            "latex": "",
+            "score": 0.5249
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.66,
+                0.363,
+                0.677,
+                0.377
+            ],
+            "latex": "",
+            "score": 0.8153
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.309,
+                0.428,
+                0.333,
+                0.442
+            ],
+            "latex": "",
+            "score": 0.6233
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.359,
+                0.491,
+                0.384,
+                0.504
+            ],
+            "latex": "",
+            "score": 0.4747
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.623,
+                0.543,
+                0.647,
+                0.557
+            ],
+            "latex": "",
+            "score": 0.7843
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.551,
+                0.691,
+                0.65,
+                0.708
+            ],
+            "latex": "",
+            "score": 0.7477
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.112,
+                0.375,
+                0.128
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.149,
+                0.784,
+                0.162
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.164,
+                0.335,
+                0.175
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.406,
+                0.163,
+                0.785,
+                0.176
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.177,
+                0.519,
+                0.19
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.191,
+                0.784,
+                0.204
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.206,
+                0.783,
+                0.219
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.221,
+                0.564,
+                0.232
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.244,
+                0.681,
+                0.256
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.267,
+                0.784,
+                0.28
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.283,
+                0.784,
+                0.295
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.297,
+                0.492,
+                0.309
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.312,
+                0.783,
+                0.323
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.326,
+                0.577,
+                0.336
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.349,
+                0.414,
+                0.36
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.363,
+                0.659,
+                0.376
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.678,
+                0.363,
+                0.784,
+                0.376
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.377,
+                0.355,
+                0.39
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.391,
+                0.377,
+                0.784,
+                0.39
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.392,
+                0.58,
+                0.403
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.415,
+                0.783,
+                0.427
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.43,
+                0.307,
+                0.443
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.454,
+                0.761,
+                0.466
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.478,
+                0.782,
+                0.49
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.493,
+                0.358,
+                0.505
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.385,
+                0.493,
+                0.785,
+                0.505
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.507,
+                0.785,
+                0.519
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.522,
+                0.747,
+                0.533
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.544,
+                0.622,
+                0.558
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.648,
+                0.544,
+                0.784,
+                0.558
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.559,
+                0.783,
+                0.57
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.573,
+                0.786,
+                0.585
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.587,
+                0.298,
+                0.599
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.626,
+                0.342,
+                0.641
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.653,
+                0.784,
+                0.665
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.667,
+                0.784,
+                0.679
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.681,
+                0.785,
+                0.693
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.694,
+                0.547,
+                0.708
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.656,
+                0.696,
+                0.784,
+                0.707
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.709,
+                0.783,
+                0.72
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.723,
+                0.783,
+                0.736
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.738,
+                0.325,
+                0.75
+            ],
+            "text": "",
+            "score": 1.0
+        }
+    ],
+    [],
+    [
+        {
+            "type": "text",
+            "bbox": [
+                0.706,
+                0.209,
+                0.79,
+                0.231
+            ],
+            "angle": 0,
+            "content": "Part II",
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.521,
+                0.252,
+                0.79,
+                0.276
+            ],
+            "angle": 0,
+            "content": "LP-Based Algorithms",
+            "merge_prev": false
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.708,
+                0.211,
+                0.786,
+                0.23
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.526,
+                0.254,
+                0.784,
+                0.273
+            ],
+            "text": "",
+            "score": 1.0
+        }
+    ],
+    []
+]

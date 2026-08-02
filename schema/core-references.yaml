@@ -1,0 +1,18 @@
+version: 1
+description: "核心专著检索注册表；查询模型、算法、近似比、博弈解概念时必须优先检索。"
+books:
+  - id: algorithmic-game-theory
+    source_page: wiki/sources/src-book-algorithmic-game-theory.md
+    chapter_index: raw/canonical/algorithmic-game-theory/chapter-index.json
+    retrieval_md: raw/canonical/algorithmic-game-theory/chapters
+    index_terms: [game, mechanism, equilibrium, Nash, utility, incentive, price of anarchy, computational complexity]
+  - id: approximation-algorithms
+    source_page: wiki/sources/src-book-approximation-algorithms.md
+    chapter_index: raw/canonical/approximation-algorithms/chapter-index.json
+    retrieval_md: raw/canonical/approximation-algorithms/chapters
+    index_terms: [approximation, ratio, approximation factor, LP, SDP, rounding, primal-dual, greedy, hardness, set cover, scheduling]
+retrieval_policy:
+  order: [core-books, wiki, raw-literature]
+  require_page_anchor: true
+  require_chapter_anchor: true
+  answer_rule: "若核心专著命中，先给出书名、章节、PDF页码，再说明与问题的对应关系；未命中不得声称书中存在该方法。"

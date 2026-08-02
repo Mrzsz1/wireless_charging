@@ -1,0 +1,183 @@
+{
+  "kind": "paper_discovery_candidates",
+  "discovery_status": "candidate",
+  "retrieved_at": "2026-07-14T12:47:21+00:00",
+  "boundary": "not canonical; not wiki evidence; human triage required",
+  "providers": [
+    "arxiv"
+  ],
+  "queries": [
+    {
+      "label": "wireless power transfer scheduling",
+      "arxiv": "all:\"wireless power transfer\" AND (all:scheduling OR all:optimization OR all:\"resource allocation\")",
+      "openalex": "wireless power transfer scheduling optimization resource allocation"
+    },
+    {
+      "label": "wireless rechargeable sensor networks",
+      "arxiv": "all:\"wireless rechargeable sensor network\" AND (all:charging OR all:scheduling OR all:routing)",
+      "openalex": "wireless rechargeable sensor network charging scheduling routing"
+    },
+    {
+      "label": "mobile charger scheduling",
+      "arxiv": "(all:\"mobile charger\" OR all:\"mobile charging\") AND (all:scheduling OR all:path OR all:trajectory)",
+      "openalex": "mobile charger scheduling path planning trajectory wireless sensor network"
+    },
+    {
+      "label": "dynamic wireless charging",
+      "arxiv": "all:\"dynamic wireless power transfer\" AND (all:scheduling OR all:optimization OR all:control)",
+      "openalex": "dynamic wireless power transfer scheduling optimization control"
+    },
+    {
+      "label": "RF energy harvesting scheduling",
+      "arxiv": "all:\"RF energy harvesting\" AND (all:scheduling OR all:optimization OR all:\"age of information\")",
+      "openalex": "RF energy harvesting scheduling optimization age of information"
+    }
+  ],
+  "provider_counts": {
+    "arxiv": 25
+  },
+  "cache_hits": 5,
+  "errors": [],
+  "papers": [
+    {
+      "title": "Frequency-Domain Characterization of Load Demand from Electrified Highways",
+      "authors": [
+        "Ashutossh Gupta",
+        "Vassilis Kekatos",
+        "Ruoyu Yang",
+        "Dionysios Aliprantis",
+        "Steve Pekarek"
+      ],
+      "abstract": "Electrified roadways (ER) equipped with dynamic wireless power transfer (DWPT) capabilities can patently extend the driving range and reduce the battery size of electric vehicles (EVs). However, due to the spatial arrangement of the transmitter coils in the ER, the DWPT load exhibits frequency content that could excite power system frequency dynamics. In this context, this work aims to study the spectrum of DWPT loads under different traffic conditions. Under simplifying assumptions, we develop statistical models to identify the location and relative magnitude of DWPT load harmonics. Our analysis reveals that the fundamental frequency depends on ER coil spacing and average EV speed. In the worst-case yet unlikely scenario that EVs move in a synchronized fashion, the amplitude of harmonics scales with the EV count. On the contrary, when EVs move freely, harmonics scale with the square root of the EV count. Platoon formations can accentuate harmonics. The spectral content around harmonics decreases in magnitude and increases in bandwidth with the harmonic index. The load of a single EV moving at a time-varying speed can be modeled as a frequency-modulated (FM) signal. Despite the simplifying assumptions, the derived models offer valuable insights for ER planners and grid operators. Dynamic simulations of a modified WECC model with DWPT loads synthesized from realistic EV trajectories and ER specifications corroborate some of these insights.",
+      "published_date": "2025-09-02",
+      "updated_date": "2026-06-12",
+      "year": 2025,
+      "doi": "",
+      "arxiv_id": "2509.02426",
+      "landing_url": "https://arxiv.org/abs/2509.02426v3",
+      "pdf_url": "https://arxiv.org/pdf/2509.02426v3",
+      "is_open_access": true,
+      "license": "",
+      "providers": [
+        "arxiv"
+      ],
+      "provider_ids": {
+        "arxiv": "2509.02426"
+      },
+      "matched_queries": [
+        "dynamic wireless charging"
+      ],
+      "score": 4.0,
+      "score_reasons": [
+        "摘要命中：dynamic",
+        "近年文献"
+      ],
+      "local_pdf": "",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "arxiv"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-204721",
+      "triage_status": "rejected",
+      "selected_by_user": false,
+      "acquired_at": "2026-07-14T12:47:21+00:00",
+      "selected_at": "",
+      "canonicalized_at": "",
+      "triage_note": "用户于 2026-07-14 授权 Agent 代为完成首轮 triage；selected 进入人工精读池，rejected 为重复项或当前领域低优先级，均未晋升 canonical。"
+    },
+    {
+      "title": "A Fundamental Analysis of the Impact on Traffic Assignment by Toll System of Electric Road System",
+      "authors": [
+        "Wataru Nakanishi",
+        "Noriko Kaneko"
+      ],
+      "abstract": "Electric road system (ERS) is expected to make electric vehicles (EVs) more popular as EVs with Dynamic Wireless Power Transfer (DWPT) system can be charged while driving on ERS. Although some studies dealt with ERS implementation, its toll system has not been explored yet. This paper aims at a fundamental analysis on impact of ERS toll system on a traffic assignment. We conduct assignments on a simple network where two vehicle types (EVs with DWPT and others) are co-existing. The results under two toll systems showed some undesirable situations, such as total travel time was not minimised, total charged volume was not optimised, and ERS was not utilised. The occurrence of them depended on the ratio of EVs, battery level, value of electricity, and toll price. The difficulty to control such situations by toll price was discussed as the battery level and value of electricity may vary over time.",
+      "published_date": "2024-02-11",
+      "updated_date": "2024-02-11",
+      "year": 2024,
+      "doi": "",
+      "arxiv_id": "2402.07144",
+      "landing_url": "https://arxiv.org/abs/2402.07144v1",
+      "pdf_url": "https://arxiv.org/pdf/2402.07144v1",
+      "is_open_access": true,
+      "license": "",
+      "providers": [
+        "arxiv"
+      ],
+      "provider_ids": {
+        "arxiv": "2402.07144"
+      },
+      "matched_queries": [
+        "dynamic wireless charging"
+      ],
+      "score": 3.75,
+      "score_reasons": [
+        "摘要命中：dynamic",
+        "近年文献"
+      ],
+      "local_pdf": "",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "arxiv"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-204721",
+      "triage_status": "rejected",
+      "selected_by_user": false,
+      "acquired_at": "2026-07-14T12:47:21+00:00",
+      "selected_at": "",
+      "canonicalized_at": "",
+      "triage_note": "用户于 2026-07-14 授权 Agent 代为完成首轮 triage；selected 进入人工精读池，rejected 为重复项或当前领域低优先级，均未晋升 canonical。"
+    },
+    {
+      "title": "Implementation of a Misalignment-Tolerant MIMO Near Field Wireless Power Transfer System",
+      "authors": [
+        "Taroh Hijikata",
+        "Allan Jr Mesa",
+        "Charleston Dale Ambatali"
+      ],
+      "abstract": "The efficiency of reactive near-field wireless power transfer (WPT) systems degrades rapidly with increasing separation distance and is highly sensitive to misalignment between transmitting and receiving coils. These limitations restrict the mobility of powered devices and confine many near-field WPT applications to static scenarios. To address these challenges, a multiple-input multiple-output (MIMO) WPT configuration is investigated due to its capability to shape the magnetic field distribution between the transmitter and receiver. Maximum power transfer efficiency can be achieved by appropriately setting the amplitude and phase of each transmitting coil; however, determining these optimal settings requires accurate knowledge of the system's S-parameters. This paper presents the use of the Nelder-Mead iterative optimization algorithm to estimate the input amplitude and phase settings that maximize transfer efficiency in a near-field WPT system. The implementation comprises a four-element transmitter and a two-element receiver. Based on measured S-parameters, the proposed approach significantly improves WPT efficiency under both aligned and misaligned conditions.",
+      "published_date": "2026-06-03",
+      "updated_date": "2026-06-03",
+      "year": 2026,
+      "doi": "",
+      "arxiv_id": "2606.04565",
+      "landing_url": "https://arxiv.org/abs/2606.04565v1",
+      "pdf_url": "https://arxiv.org/pdf/2606.04565v1",
+      "is_open_access": true,
+      "license": "",
+      "providers": [
+        "arxiv"
+      ],
+      "provider_ids": {
+        "arxiv": "2606.04565"
+      },
+      "matched_queries": [
+        "wireless power transfer scheduling"
+      ],
+      "score": 3.5,
+      "score_reasons": [
+        "近年文献"
+      ],
+      "local_pdf": "",
+      "acquisition_method": "auto_discovery",
+      "discovered_via": [
+        "arxiv"
+      ],
+      "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-204721",
+      "triage_status": "rejected",
+      "selected_by_user": false,
+      "acquired_at": "2026-07-14T12:47:21+00:00",
+      "selected_at": "",
+      "canonicalized_at": "",
+      "triage_note": "用户于 2026-07-14 授权 Agent 代为完成首轮 triage；selected 进入人工精读池，rejected 为重复项或当前领域低优先级，均未晋升 canonical。"
+    }
+  ],
+  "acquisition_method": "auto_discovery",
+  "triage_counts": {
+    "pending": 0,
+    "selected": 0,
+    "rejected": 3,
+    "promoted": 0
+  },
+  "triage_updated_at": "2026-07-14T15:29:16+00:00"
+}

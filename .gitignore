@@ -1,0 +1,38 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.tmp
+.obsidian/workspace*
+.obsidian/cache
+
+# Python
+__pycache__/
+.venv/
+*.pyc
+
+# Build products and dependency caches
+**/node_modules/
+**/target/
+apps/desktop/dist/
+apps/desktop/public/data/library.json
+
+# Local analysis/runtime state
+.codegraph/
+work/
+
+# Graphify local-only (可选提交 graph.json 供团队；cost/cache 本地)
+graphify-out/cost.json
+graphify-out/cache/
+
+# 大体积 PDF 可选忽略（若用 Git LFS 可删掉下列规则）
+raw/**/*.pdf
+raw/**/*.png
+raw/**/*.jpg
+raw/**/*.jpeg
+
+# MinerU / 转换临时
+**/auto/
+**/.mineru*
+
+# Paper discovery response cache (reports remain visible for triage)
+raw/inbox/auto-discovered/.paper-search-cache/

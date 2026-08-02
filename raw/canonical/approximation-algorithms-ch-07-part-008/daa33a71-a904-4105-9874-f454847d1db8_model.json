@@ -1,0 +1,5146 @@
+[
+    [
+        {
+            "type": "paragraph_title",
+            "bbox": [
+                0.223,
+                0.11,
+                0.506,
+                0.13
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.255,
+                0.788,
+                0.313
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "paragraph_title",
+            "bbox": [
+                0.223,
+                0.338,
+                0.479,
+                0.355
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.365,
+                0.786,
+                0.409
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "image",
+            "bbox": [
+                0.223,
+                0.435,
+                0.788,
+                0.584
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "image_caption",
+            "bbox": [
+                0.221,
+                0.593,
+                0.787,
+                0.666
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.263,
+                0.678,
+                0.715,
+                0.713
+            ],
+            "angle": 0,
+            "content": "\\begin{array}{l} \\text {OPT} = | \\text {prefix} (s _ {1}, s _ {2}) | + | \\text {prefix} (s _ {2}, s _ {3}) | + \\ldots + | \\text {prefix} (s _ {n}, s _ {1}) | \\\\ \\qquad + | \\text {overlap} (s _ {n}, s _ {1}) |. \\end{array}\\tag{7.1}"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.725,
+                0.786,
+                0.754
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.308,
+                0.257,
+                0.322,
+                0.27
+            ],
+            "latex": "2",
+            "score": 0.5263
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.224,
+                0.382,
+                0.318,
+                0.394
+            ],
+            "latex": "s _ { 1 } , s _ { 2 } , \\ldots , s _ { n }",
+            "score": 0.8767
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.333,
+                0.594,
+                0.383,
+                0.608
+            ],
+            "latex": "\\textstyle ( s _ { i } , s _ { j } )",
+            "score": 0.8637
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.243,
+                0.624,
+                0.259,
+                0.636
+            ],
+            "latex": "s _ { i }",
+            "score": 0.8576
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.367,
+                0.611,
+                0.383,
+                0.621
+            ],
+            "latex": "s _ { i }",
+            "score": 0.8107
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.675,
+                0.596,
+                0.691,
+                0.607
+            ],
+            "latex": "s _ { i }",
+            "score": 0.7749
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.511,
+                0.61,
+                0.527,
+                0.622
+            ],
+            "latex": "s _ { j }",
+            "score": 0.8452
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.312,
+                0.638,
+                0.329,
+                0.65
+            ],
+            "latex": "s _ { i } \\mathrm { : }",
+            "score": 0.8057
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.729,
+                0.596,
+                0.748,
+                0.608
+            ],
+            "latex": "s _ { j } .",
+            "score": 0.8444
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.543,
+                0.625,
+                0.56,
+                0.637
+            ],
+            "latex": "s _ { j }",
+            "score": 0.8533
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.641,
+                0.609,
+                0.689,
+                0.623
+            ],
+            "latex": "( s _ { i } , s _ { j } )",
+            "score": 0.746
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.533,
+                0.653,
+                0.548,
+                0.664
+            ],
+            "latex": "s _ { i }",
+            "score": 0.8298
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.466,
+                0.728,
+                0.482,
+                0.739
+            ],
+            "latex": "s _ { 1 }",
+            "score": 0.8146
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.11,
+                0.503,
+                0.129
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.258,
+                0.307,
+                0.27
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.323,
+                0.258,
+                0.785,
+                0.27
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.272,
+                0.784,
+                0.284
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.285,
+                0.784,
+                0.298
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.223,
+                0.3,
+                0.241,
+                0.312
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.338,
+                0.476,
+                0.354
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.366,
+                0.784,
+                0.378
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.324,
+                0.381,
+                0.783,
+                0.392
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.396,
+                0.332,
+                0.408
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.249,
+                0.594,
+                0.332,
+                0.607
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.387,
+                0.594,
+                0.675,
+                0.607
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.691,
+                0.594,
+                0.728,
+                0.607
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.749,
+                0.594,
+                0.784,
+                0.607
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.609,
+                0.367,
+                0.622
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.384,
+                0.609,
+                0.511,
+                0.622
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.528,
+                0.609,
+                0.64,
+                0.622
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.69,
+                0.609,
+                0.784,
+                0.621
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.623,
+                0.242,
+                0.635
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.26,
+                0.623,
+                0.543,
+                0.635
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.56,
+                0.623,
+                0.785,
+                0.635
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.638,
+                0.311,
+                0.65
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.33,
+                0.638,
+                0.785,
+                0.65
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.652,
+                0.532,
+                0.663
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.549,
+                0.652,
+                0.784,
+                0.663
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.25,
+                0.727,
+                0.465,
+                0.738
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.483,
+                0.727,
+                0.783,
+                0.738
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.741,
+                0.783,
+                0.752
+            ],
+            "text": "",
+            "score": 1.0
+        }
+    ],
+    [
+        {
+            "type": "page_number",
+            "bbox": [
+                0.224,
+                0.089,
+                0.244,
+                0.1
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "header",
+            "bbox": [
+                0.277,
+                0.089,
+                0.446,
+                0.102
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.114,
+                0.787,
+                0.227
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.228,
+                0.787,
+                0.298
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.299,
+                0.787,
+                0.412
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.246,
+                0.412,
+                0.709,
+                0.427
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.263,
+                0.441,
+                0.709,
+                0.457
+            ],
+            "angle": 0,
+            "content": "\\[\n\\alpha (c) = \\operatorname{prefix} \\left(s _ {i _ {1}}, s _ {i _ {2}}\\right) \\circ \\dots \\circ \\operatorname{prefix} \\left(s _ {i _ {l - 1}}, s _ {i _ {l}}\\right) \\circ \\operatorname{prefix} \\left(s _ {i _ {l}}, s _ {i _ {1}}\\right).\n\\]"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.469,
+                0.766,
+                0.484
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.264,
+                0.499,
+                0.394,
+                0.513
+            ],
+            "angle": 0,
+            "content": "\\[\n\\sigma (c) = \\alpha (c) \\circ s _ {i _ {1}}.\n\\]"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.525,
+                0.787,
+                0.584
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "paragraph_title",
+            "bbox": [
+                0.235,
+                0.606,
+                0.637,
+                0.622
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.24,
+                0.627,
+                0.664,
+                0.642
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.241,
+                0.642,
+                0.771,
+                0.657
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.241,
+                0.656,
+                0.453,
+                0.671
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "page_footnote",
+            "bbox": [
+                0.276,
+                0.727,
+                0.307,
+                0.74
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "page_footnote",
+            "bbox": [
+                0.548,
+                0.714,
+                0.579,
+                0.727
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "page_footnote",
+            "bbox": [
+                0.513,
+                0.74,
+                0.543,
+                0.753
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "page_footnote",
+            "bbox": [
+                0.759,
+                0.742,
+                0.78,
+                0.753
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "page_footnote",
+            "bbox": [
+                0.228,
+                0.712,
+                0.785,
+                0.754
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.225,
+                0.128,
+                0.259,
+                0.142
+            ],
+            "latex": "o f S",
+            "score": 0.7882
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.261,
+                0.143,
+                0.304,
+                0.156
+            ],
+            "latex": "i  j",
+            "score": 0.8211
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.379,
+                0.142,
+                0.478,
+                0.157
+            ],
+            "latex": "| \\mathrm { p r e f i x } ( s _ { i } , s _ { j } ) |",
+            "score": 0.8863
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.586,
+                0.128,
+                0.656,
+                0.142
+            ],
+            "latex": "\\{ 1 , \\ldots , n \\}",
+            "score": 0.9149
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.544,
+                0.142,
+                0.569,
+                0.157
+            ],
+            "latex": "i , j",
+            "score": 0.6948
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.284,
+                0.157,
+                0.604,
+                0.172
+            ],
+            "latex": "^ { \\mathfrak { j } _ { 1 } , s _ { 2 } ) | + | \\mathrm { p r e f i x } ( s _ { 2 } , s _ { 3 } ) | + . . . + | \\mathrm { p r e f i x } ( s _ { n } , s _ { 1 } ) | }",
+            "score": 0.6414
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.292,
+                0.172,
+                0.457,
+                0.184
+            ],
+            "latex": "1 \\to 2 \\to \\dots \\to n \\to 1",
+            "score": 0.8894
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.497,
+                0.256,
+                0.661,
+                0.27
+            ],
+            "latex": "1 \\to 2 \\to \\ldots \\to n \\to 1",
+            "score": 0.9138
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.225,
+                0.356,
+                0.275,
+                0.371
+            ],
+            "latex": "( u _ { i } , v _ { j } )",
+            "score": 0.8995
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.374,
+                0.327,
+                0.504,
+                0.341
+            ],
+            "latex": "U = \\{ u _ { 1 } , \\ldots , u _ { n } \\}",
+            "score": 0.8753
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.353,
+                0.356,
+                0.455,
+                0.37
+            ],
+            "latex": "| \\mathrm { p r e f i x } ( s _ { i } , s _ { j } ) |",
+            "score": 0.9132
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.544,
+                0.327,
+                0.671,
+                0.341
+            ],
+            "latex": "V = \\{ v _ { 1 } , \\ldots , v _ { n } \\}",
+            "score": 0.9361
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.59,
+                0.342,
+                0.71,
+                0.356
+            ],
+            "latex": "i , j \\in \\{ 1 , \\ldots , n \\}",
+            "score": 0.9278
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.264,
+                0.413,
+                0.461,
+                0.426
+            ],
+            "latex": "c = ( i _ { 1 } \\to i _ { 2 } \\to \\dots i _ { l } \\to i _ { 1 } )",
+            "score": 0.8937
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.398,
+                0.472,
+                0.502,
+                0.484
+            ],
+            "latex": "s _ { i _ { 1 } } , s _ { i _ { 2 } } , \\ldots , s _ { i _ { l } }",
+            "score": 0.9216
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.63,
+                0.469,
+                0.689,
+                0.484
+            ],
+            "latex": "( \\alpha ( c ) ) ^ { \\infty }",
+            "score": 0.8787
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.27,
+                0.527,
+                0.303,
+                0.54
+            ],
+            "latex": "\\sigma ( c )",
+            "score": 0.8619
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.288,
+                0.557,
+                0.309,
+                0.57
+            ],
+            "latex": "s _ { i _ { 1 } }",
+            "score": 0.8484
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.457,
+                0.526,
+                0.546,
+                0.54
+            ],
+            "latex": "s _ { i _ { 1 } } , \\ldots , s _ { i _ { l } } . ^ { 1 }",
+            "score": 0.9219
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.514,
+                0.543,
+                0.533,
+                0.555
+            ],
+            "latex": "s _ { i _ { 1 } }",
+            "score": 0.8182
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.652,
+                0.642,
+                0.769,
+                0.657
+            ],
+            "latex": "{ \\mathcal { C } } = \\{ c _ { 1 } , \\ldots , c _ { k } \\}",
+            "score": 0.897
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.319,
+                0.657,
+                0.449,
+                0.671
+            ],
+            "latex": "\\sigma ( c _ { 1 } ) \\circ \\dots \\circ \\sigma ( c _ { k } )",
+            "score": 0.9055
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.09,
+                0.243,
+                0.101
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.277,
+                0.089,
+                0.445,
+                0.103
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.116,
+                0.784,
+                0.127
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.26,
+                0.129,
+                0.582,
+                0.142
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.657,
+                0.13,
+                0.784,
+                0.141
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.143,
+                0.261,
+                0.157
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.306,
+                0.144,
+                0.374,
+                0.156
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.481,
+                0.143,
+                0.543,
+                0.156
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.57,
+                0.143,
+                0.783,
+                0.156
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.157,
+                0.283,
+                0.171
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.607,
+                0.159,
+                0.785,
+                0.169
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.173,
+                0.288,
+                0.184
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.458,
+                0.172,
+                0.785,
+                0.184
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.187,
+                0.784,
+                0.198
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.202,
+                0.783,
+                0.212
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.215,
+                0.49,
+                0.226
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.25,
+                0.229,
+                0.785,
+                0.241
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.227,
+                0.244,
+                0.784,
+                0.256
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.258,
+                0.492,
+                0.269
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.665,
+                0.258,
+                0.783,
+                0.27
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.223,
+                0.271,
+                0.785,
+                0.285
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.285,
+                0.269,
+                0.297
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.249,
+                0.3,
+                0.784,
+                0.312
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.315,
+                0.784,
+                0.326
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.329,
+                0.37,
+                0.341
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.506,
+                0.329,
+                0.541,
+                0.341
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.672,
+                0.329,
+                0.784,
+                0.34
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.344,
+                0.587,
+                0.354
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.716,
+                0.343,
+                0.785,
+                0.355
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.276,
+                0.357,
+                0.349,
+                0.368
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.456,
+                0.357,
+                0.784,
+                0.368
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.372,
+                0.785,
+                0.383
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.386,
+                0.784,
+                0.397
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.401,
+                0.522,
+                0.411
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.248,
+                0.413,
+                0.264,
+                0.426
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.466,
+                0.414,
+                0.707,
+                0.426
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.47,
+                0.396,
+                0.483
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.507,
+                0.471,
+                0.628,
+                0.483
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.69,
+                0.471,
+                0.765,
+                0.483
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.527,
+                0.269,
+                0.539
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.307,
+                0.527,
+                0.454,
+                0.54
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.553,
+                0.527,
+                0.784,
+                0.539
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.227,
+                0.542,
+                0.513,
+                0.554
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.534,
+                0.542,
+                0.785,
+                0.554
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.555,
+                0.287,
+                0.569
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.31,
+                0.555,
+                0.785,
+                0.569
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.57,
+                0.302,
+                0.582
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.238,
+                0.608,
+                0.635,
+                0.62
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.243,
+                0.629,
+                0.663,
+                0.641
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.243,
+                0.643,
+                0.649,
+                0.656
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.242,
+                0.656,
+                0.318,
+                0.671
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.276,
+                0.726,
+                0.31,
+                0.744
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.547,
+                0.712,
+                0.581,
+                0.732
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.512,
+                0.739,
+                0.546,
+                0.758
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.76,
+                0.744,
+                0.777,
+                0.753
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.229,
+                0.713,
+                0.785,
+                0.727
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.244,
+                0.728,
+                0.784,
+                0.739
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.244,
+                0.742,
+                0.783,
+                0.752
+            ],
+            "text": "",
+            "score": 1.0
+        }
+    ],
+    [
+        {
+            "type": "image_caption",
+            "bbox": [
+                0.442,
+                0.473,
+                0.537,
+                0.487
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "header",
+            "bbox": [
+                0.551,
+                0.089,
+                0.731,
+                0.102
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "page_number",
+            "bbox": [
+                0.766,
+                0.089,
+                0.786,
+                0.101
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.114,
+                0.787,
+                0.2
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.223,
+                0.208,
+                0.787,
+                0.252
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.267,
+                0.788,
+                0.34
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.354,
+                0.786,
+                0.384
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.265,
+                0.396,
+                0.502,
+                0.412
+            ],
+            "angle": 0,
+            "content": "\\[\n| \\mathrm{overlap} (r, r ^ {\\prime}) | <   \\mathrm{wt} (c) + \\mathrm{wt} (c ^ {\\prime}).\n\\]"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.431,
+                0.783,
+                0.462
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "chart",
+            "bbox": [
+                0.22,
+                0.478,
+                0.768,
+                0.563
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.574,
+                0.785,
+                0.631
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.264,
+                0.643,
+                0.439,
+                0.659
+            ],
+            "angle": 0,
+            "content": "\\[\n\\alpha^ {k} \\circ (\\alpha^ {\\prime}) ^ {k} = (\\alpha^ {\\prime}) ^ {k} \\circ \\alpha^ {k}.\n\\]"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.223,
+                0.673,
+                0.786,
+                0.701
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.701,
+                0.787,
+                0.745
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.348,
+                0.17,
+                0.406,
+                0.185
+            ],
+            "latex": "( \\alpha ( c ) ) ^ { \\infty }",
+            "score": 0.91
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.606,
+                0.142,
+                0.665,
+                0.155
+            ],
+            "latex": "2 \\cdot \\mathrm { O P T }",
+            "score": 0.698
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.455,
+                0.208,
+                0.515,
+                0.222
+            ],
+            "latex": "S ^ { \\prime } \\subseteq S",
+            "score": 0.9026
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.648,
+                0.208,
+                0.671,
+                0.221
+            ],
+            "latex": "t ^ { \\infty }",
+            "score": 0.7255
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.486,
+                0.237,
+                0.505,
+                0.249
+            ],
+            "latex": "S ^ { \\prime }",
+            "score": 0.7873
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.77,
+                0.21,
+                0.783,
+                0.222
+            ],
+            "latex": "t ,",
+            "score": 0.5284
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.244,
+                0.281,
+                0.266,
+                0.294
+            ],
+            "latex": "t ^ { \\infty }",
+            "score": 0.8321
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.42,
+                0.267,
+                0.44,
+                0.28
+            ],
+            "latex": "S ^ { \\prime }",
+            "score": 0.8527
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.77,
+                0.282,
+                0.785,
+                0.294
+            ],
+            "latex": "S",
+            "score": 0.5288
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.402,
+                0.354,
+                0.419,
+                0.367
+            ],
+            "latex": "c ^ { \\prime }",
+            "score": 0.6362
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.545,
+                0.355,
+                0.561,
+                0.368
+            ],
+            "latex": "{ \\mathcal { C } } ,",
+            "score": 0.8358
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.625,
+                0.355,
+                0.656,
+                0.368
+            ],
+            "latex": "r , r ^ { \\prime }",
+            "score": 0.8631
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.281,
+                0.446,
+                0.325,
+                0.46
+            ],
+            "latex": "\\alpha \\left( \\alpha ^ { \\prime } \\right)",
+            "score": 0.8722
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.489,
+                0.446,
+                0.564,
+                0.461
+            ],
+            "latex": "( c ) \\ ( \\mathrm { w t } ( c ^ { \\prime } )",
+            "score": 0.4602
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.585,
+                0.432,
+                0.748,
+                0.446
+            ],
+            "latex": "( r , r ^ { \\prime } ) | \\geq \\mathrm { w t } ( c ) + \\mathrm { w t } ( c ^ { \\prime } )",
+            "score": 0.518
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.685,
+                0.446,
+                0.778,
+                0.46
+            ],
+            "latex": "\\mathrm { o v e r l a p } ( r , r ^ { \\prime } )",
+            "score": 0.503
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.37,
+                0.575,
+                0.405,
+                0.588
+            ],
+            "latex": "( r , r ^ { \\prime } )",
+            "score": 0.4983
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.305,
+                0.588,
+                0.348,
+                0.602
+            ],
+            "latex": "( \\alpha ^ { \\prime } ) ^ { \\infty }",
+            "score": 0.8956
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.384,
+                0.588,
+                0.404,
+                0.6
+            ],
+            "latex": "\\alpha ^ { \\prime }",
+            "score": 0.8355
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.364,
+                0.602,
+                0.383,
+                0.615
+            ],
+            "latex": "\\alpha ^ { \\prime }",
+            "score": 0.8559
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.545,
+                0.575,
+                0.573,
+                0.587
+            ],
+            "latex": "\\alpha ^ { \\infty }",
+            "score": 0.8767
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.502,
+                0.589,
+                0.528,
+                0.6
+            ],
+            "latex": "\\alpha ^ { \\infty }",
+            "score": 0.868
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.61,
+                0.574,
+                0.655,
+                0.588
+            ],
+            "latex": "( \\alpha ^ { \\prime } ) ^ { \\infty }",
+            "score": 0.8952
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.419,
+                0.616,
+                0.462,
+                0.629
+            ],
+            "latex": "k > 0",
+            "score": 0.8561
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.508,
+                0.602,
+                0.603,
+                0.616
+            ],
+            "latex": "\\circ \\alpha ^ { \\prime } = \\alpha ^ { \\prime } \\circ \\alpha",
+            "score": 0.8263
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.629,
+                0.588,
+                0.763,
+                0.602
+            ],
+            "latex": "\\mathfrak { z } ( r , r ^ { \\prime } ) \\geq | \\alpha | + | \\alpha ^ { \\prime } |",
+            "score": 0.8411
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.687,
+                0.602,
+                0.779,
+                0.616
+            ],
+            "latex": "\\alpha ^ { \\infty } = ( \\alpha ^ { \\prime } ) ^ { \\infty }",
+            "score": 0.9071
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.339,
+                0.673,
+                0.39,
+                0.686
+            ],
+            "latex": "N > 0",
+            "score": 0.8488
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.226,
+                0.687,
+                0.269,
+                0.701
+            ],
+            "latex": "( \\alpha ^ { \\prime } ) ^ { \\infty }",
+            "score": 0.8931
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.589,
+                0.674,
+                0.615,
+                0.685
+            ],
+            "latex": "\\alpha ^ { \\infty }",
+            "score": 0.8778
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.689,
+                0.702,
+                0.73,
+                0.716
+            ],
+            "latex": "\\mathrm { w t } ( c )",
+            "score": 0.6976
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.529,
+                0.716,
+                0.547,
+                0.729
+            ],
+            "latex": "c ^ { \\prime } ,",
+            "score": 0.8344
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.442,
+                0.472,
+                0.538,
+                0.488
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.553,
+                0.089,
+                0.73,
+                0.102
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.766,
+                0.09,
+                0.785,
+                0.102
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.251,
+                0.116,
+                0.783,
+                0.127
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.131,
+                0.784,
+                0.141
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.145,
+                0.604,
+                0.155
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.665,
+                0.144,
+                0.784,
+                0.155
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.158,
+                0.785,
+                0.17
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.172,
+                0.345,
+                0.184
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.407,
+                0.173,
+                0.785,
+                0.184
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.187,
+                0.669,
+                0.198
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.209,
+                0.452,
+                0.222
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.52,
+                0.21,
+                0.647,
+                0.222
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.672,
+                0.21,
+                0.766,
+                0.222
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.224,
+                0.785,
+                0.237
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.227,
+                0.239,
+                0.485,
+                0.25
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.268,
+                0.42,
+                0.281
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.44,
+                0.268,
+                0.785,
+                0.281
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.223,
+                0.282,
+                0.244,
+                0.296
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.267,
+                0.282,
+                0.768,
+                0.296
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.297,
+                0.785,
+                0.309
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.311,
+                0.783,
+                0.323
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.326,
+                0.499,
+                0.337
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.769,
+                0.326,
+                0.785,
+                0.336
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.356,
+                0.402,
+                0.368
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.42,
+                0.356,
+                0.544,
+                0.368
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.562,
+                0.356,
+                0.624,
+                0.368
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.656,
+                0.356,
+                0.785,
+                0.368
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.227,
+                0.371,
+                0.455,
+                0.382
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.433,
+                0.584,
+                0.446
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.748,
+                0.432,
+                0.786,
+                0.446
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.447,
+                0.281,
+                0.46
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.328,
+                0.447,
+                0.488,
+                0.46
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.564,
+                0.448,
+                0.684,
+                0.46
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.249,
+                0.574,
+                0.369,
+                0.588
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.405,
+                0.574,
+                0.544,
+                0.588
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.574,
+                0.574,
+                0.609,
+                0.588
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.656,
+                0.576,
+                0.784,
+                0.587
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.59,
+                0.303,
+                0.601
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.349,
+                0.589,
+                0.384,
+                0.602
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.405,
+                0.589,
+                0.501,
+                0.602
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.529,
+                0.589,
+                0.629,
+                0.602
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.763,
+                0.59,
+                0.785,
+                0.602
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.603,
+                0.364,
+                0.616
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.384,
+                0.603,
+                0.508,
+                0.616
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.603,
+                0.604,
+                0.683,
+                0.616
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.618,
+                0.416,
+                0.629
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.462,
+                0.625,
+                0.466,
+                0.63
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.674,
+                0.335,
+                0.687
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.391,
+                0.674,
+                0.588,
+                0.686
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.615,
+                0.674,
+                0.786,
+                0.686
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.25,
+                0.703,
+                0.684,
+                0.714
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.735,
+                0.703,
+                0.785,
+                0.714
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.717,
+                0.529,
+                0.729
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.548,
+                0.717,
+                0.785,
+                0.729
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.732,
+                0.451,
+                0.743
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.769,
+                0.732,
+                0.785,
+                0.742
+            ],
+            "text": "",
+            "score": 1.0
+        }
+    ],
+    [
+        {
+            "type": "page_number",
+            "bbox": [
+                0.224,
+                0.089,
+                0.243,
+                0.1
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "header",
+            "bbox": [
+                0.279,
+                0.089,
+                0.446,
+                0.103
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.114,
+                0.786,
+                0.143
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.157,
+                0.773,
+                0.176
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.263,
+                0.187,
+                0.482,
+                0.227
+            ],
+            "angle": 0,
+            "content": "\\[\n\\sum_ {i = 1} ^ {k} | \\sigma (c _ {i}) | = \\mathrm{wt} (\\mathcal {C}) + \\sum_ {i = 1} ^ {k} | r _ {i} |,\n\\]"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.238,
+                0.786,
+                0.28
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.281,
+                0.786,
+                0.324
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.263,
+                0.333,
+                0.731,
+                0.374
+            ],
+            "angle": 0,
+            "content": "\\[\n\\mathrm{OPT} \\geq \\sum_ {i = 1} ^ {k} | r _ {i} | - \\sum_ {i = 1} ^ {k - 1} | \\text { overlap } (r _ {i}, r _ {i + 1}) | \\geq \\sum_ {i = 1} ^ {k} | r _ {i} | - 2 \\sum_ {i = 1} ^ {k} \\operatorname{wt} (c _ {i}).\n\\]"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.223,
+                0.385,
+                0.277,
+                0.4
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.263,
+                0.412,
+                0.565,
+                0.453
+            ],
+            "angle": 0,
+            "content": "\\[\n\\sum_ {i = 1} ^ {k} \\left| r _ {i} \\right| \\leq \\mathrm{OPT} + 2 \\sum_ {i = 1} ^ {k} \\mathrm{wt} (c _ {i}) \\leq 3 \\cdot \\mathrm{OPT}.\n\\]"
+        },
+        {
+            "type": "paragraph_title",
+            "bbox": [
+                0.223,
+                0.511,
+                0.488,
+                0.528
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.541,
+                0.786,
+                0.598
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.598,
+                0.788,
+                0.727
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.318,
+                0.157,
+                0.471,
+                0.174
+            ],
+            "latex": "\\begin{array} { r } { \\mathrm { w t } ( \\mathcal { C } ) = \\sum _ { i = 1 } ^ { k } \\mathrm { w t } ( c _ { i } ) } \\end{array}",
+            "score": 0.9324
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.272,
+                0.241,
+                0.287,
+                0.252
+            ],
+            "latex": "r _ { i }",
+            "score": 0.8289
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.225,
+                0.252,
+                0.327,
+                0.267
+            ],
+            "latex": "\\mathrm { w t } ( \\mathcal { C } ) \\leq \\mathrm { O P T }",
+            "score": 0.8911
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.613,
+                0.241,
+                0.628,
+                0.252
+            ],
+            "latex": "c _ { i }",
+            "score": 0.8007
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.345,
+                0.283,
+                0.414,
+                0.295
+            ],
+            "latex": "r _ { 1 } , \\ldots , r _ { k }",
+            "score": 0.9063
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.533,
+                0.541,
+                0.665,
+                0.555
+            ],
+            "latex": "\\sigma ( c _ { i } ) , i = 1 , \\ldots , k",
+            "score": 0.9117
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.225,
+                0.64,
+                0.349,
+                0.656
+            ],
+            "latex": "| s | , \\mathrm { i . e . , } | | S | | - | s |",
+            "score": 0.8071
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.09,
+                0.244,
+                0.102
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.277,
+                0.089,
+                0.445,
+                0.103
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.115,
+                0.785,
+                0.128
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.227,
+                0.131,
+                0.436,
+                0.141
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.16,
+                0.315,
+                0.172
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.472,
+                0.161,
+                0.77,
+                0.172
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.241,
+                0.272,
+                0.251
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.288,
+                0.241,
+                0.612,
+                0.251
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.629,
+                0.241,
+                0.783,
+                0.251
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.328,
+                0.255,
+                0.783,
+                0.265
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.269,
+                0.419,
+                0.279
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.25,
+                0.282,
+                0.344,
+                0.294
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.414,
+                0.283,
+                0.784,
+                0.294
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.297,
+                0.784,
+                0.309
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.311,
+                0.342,
+                0.322
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.387,
+                0.275,
+                0.4
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.512,
+                0.486,
+                0.527
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.542,
+                0.531,
+                0.555
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.666,
+                0.543,
+                0.783,
+                0.555
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.557,
+                0.784,
+                0.569
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.572,
+                0.784,
+                0.584
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.223,
+                0.585,
+                0.268,
+                0.599
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.249,
+                0.599,
+                0.785,
+                0.611
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.614,
+                0.785,
+                0.626
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.627,
+                0.785,
+                0.64
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.35,
+                0.643,
+                0.785,
+                0.655
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.656,
+                0.784,
+                0.668
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.671,
+                0.784,
+                0.682
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.685,
+                0.784,
+                0.697
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.699,
+                0.785,
+                0.711
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.714,
+                0.484,
+                0.725
+            ],
+            "text": "",
+            "score": 1.0
+        }
+    ],
+    [
+        {
+            "type": "header",
+            "bbox": [
+                0.545,
+                0.089,
+                0.733,
+                0.103
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "page_number",
+            "bbox": [
+                0.766,
+                0.089,
+                0.785,
+                0.101
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "code",
+            "bbox": [
+                0.234,
+                0.119,
+                0.78,
+                0.211
+            ],
+            "angle": 0,
+            "content": "Algorithm 7.5 (Shortest superstring - factor 3)  \n1. Construct the prefix graph corresponding to strings in \\( S \\).  \n2. Find a minimum cycle cover of the prefix graph, \\( \\mathcal{C} = \\{c_1, \\ldots, c_k\\} \\).  \n3. Run the greedy superstring algorithm on \\( \\{\\sigma(c_1), \\ldots, \\sigma(c_k)\\} \\) and output the resulting string, say \\( \\tau \\)."
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.223,
+                0.229,
+                0.785,
+                0.259
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.223,
+                0.266,
+                0.525,
+                0.282
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.297,
+                0.786,
+                0.34
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.263,
+                0.352,
+                0.473,
+                0.391
+            ],
+            "angle": 0,
+            "content": "\\[\n\\sum_ {i = 1} ^ {k - 1} | \\mathrm{overlap} (\\sigma (c _ {i}), \\sigma (c _ {i + 1})) |.\n\\]"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.403,
+                0.761,
+                0.418
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.264,
+                0.431,
+                0.594,
+                0.447
+            ],
+            "angle": 0,
+            "content": "\\[\n\\left| \\operatorname{overlap} \\left(\\sigma \\left(c _ {i}\\right), \\sigma \\left(c _ {i + 1}\\right)\\right) \\right| \\leq \\operatorname{wt} \\left(c _ {i}\\right) + \\operatorname{wt} \\left(c _ {i + 1}\\right).\n\\]"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.223,
+                0.459,
+                0.783,
+                0.489
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.488,
+                0.783,
+                0.517
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.264,
+                0.528,
+                0.503,
+                0.555
+            ],
+            "angle": 0,
+            "content": "\\[\n| | S _ {\\sigma} | | - | \\tau | \\geq \\frac {1}{2} (| | S _ {\\sigma} | | - \\mathrm{OPT} _ {\\sigma}).\n\\]"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.223,
+                0.566,
+                0.303,
+                0.58
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.263,
+                0.593,
+                0.59,
+                0.61
+            ],
+            "angle": 0,
+            "content": "\\[\n2 (| \\tau | - \\mathrm{OPT} _ {\\sigma}) \\leq | | S _ {\\sigma} | | - \\mathrm{OPT} _ {\\sigma} \\leq 2 \\cdot \\operatorname{wt} (\\mathcal {C}).\n\\]"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.223,
+                0.622,
+                0.37,
+                0.636
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.247,
+                0.643,
+                0.497,
+                0.658
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.223,
+                0.666,
+                0.322,
+                0.68
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.365,
+                0.666,
+                0.54,
+                0.681
+            ],
+            "angle": 0,
+            "content": "\\[\n\\mathrm{OPT} _ {\\sigma} \\leq \\mathrm{OPT} + \\operatorname{wt} (\\mathcal {C}).\n\\]"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.696,
+                0.786,
+                0.754
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.645,
+                0.144,
+                0.662,
+                0.156
+            ],
+            "latex": "S .",
+            "score": 0.5871
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.607,
+                0.158,
+                0.725,
+                0.172
+            ],
+            "latex": "{ \\mathcal { C } } = \\{ c _ { 1 } , \\ldots , c _ { k } \\}",
+            "score": 0.912
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.554,
+                0.172,
+                0.684,
+                0.187
+            ],
+            "latex": "\\{ \\sigma ( c _ { 1 } ) , \\ldots , \\sigma ( c _ { k } ) \\}",
+            "score": 0.9186
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.28,
+                0.23,
+                0.325,
+                0.243
+            ],
+            "latex": "\\mathrm { O P T } _ { \\sigma }",
+            "score": 0.9134
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.224,
+                0.243,
+                0.384,
+                0.258
+            ],
+            "latex": "{ \\cal { S } } _ { \\sigma } = \\{ \\sigma ( c _ { 1 } ) \\ldots \\sigma ( c _ { k } ) \\}",
+            "score": 0.9441
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.451,
+                0.246,
+                0.466,
+                0.258
+            ],
+            "latex": "r _ { i }",
+            "score": 0.8421
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.696,
+                0.246,
+                0.711,
+                0.258
+            ],
+            "latex": "c _ { i }",
+            "score": 0.8585
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.366,
+                0.267,
+                0.521,
+                0.282
+            ],
+            "latex": "| \\tau | \\leq \\mathrm { O P T } _ { \\sigma } + \\mathrm { w t } ( \\mathcal { C } ) .",
+            "score": 0.5781
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.225,
+                0.326,
+                0.246,
+                0.338
+            ],
+            "latex": "S _ { \\sigma }",
+            "score": 0.8852
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.44,
+                0.297,
+                0.555,
+                0.311
+            ],
+            "latex": "\\sigma ( c _ { 1 } ) , \\ldots , \\sigma ( c _ { k } )",
+            "score": 0.9276
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.361,
+                0.312,
+                0.381,
+                0.324
+            ],
+            "latex": "S _ { \\sigma }",
+            "score": 0.878
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.353,
+                0.404,
+                0.391,
+                0.418
+            ],
+            "latex": "\\sigma ( c _ { i } )",
+            "score": 0.8446
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.424,
+                0.406,
+                0.44,
+                0.417
+            ],
+            "latex": "r _ { i }",
+            "score": 0.8573
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.224,
+                0.473,
+                0.414,
+                0.488
+            ],
+            "latex": "| | S _ { \\sigma } | | - \\mathrm { O P T } _ { \\sigma } \\leq 2 \\cdot \\mathrm { w t } ( \\mathcal { C } )",
+            "score": 0.9394
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.582,
+                0.46,
+                0.602,
+                0.473
+            ],
+            "latex": "S _ { \\sigma }",
+            "score": 0.8904
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.684,
+                0.46,
+                0.747,
+                0.473
+            ],
+            "latex": "2 \\cdot \\mathrm { w t } ( { \\mathcal { C } } )",
+            "score": 0.7223
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.745,
+                0.489,
+                0.766,
+                0.501
+            ],
+            "latex": "S _ { \\sigma }",
+            "score": 0.8965
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.381,
+                0.644,
+                0.426,
+                0.657
+            ],
+            "latex": "\\mathrm { O P T } _ { \\sigma }",
+            "score": 0.8995
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.315,
+                0.697,
+                0.356,
+                0.709
+            ],
+            "latex": "\\mathrm { O P T } _ { \\ l }",
+            "score": 0.513
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.244,
+                0.711,
+                0.368,
+                0.725
+            ],
+            "latex": "S _ { r } = \\{ r _ { 1 } , \\ldots , r _ { k } \\}",
+            "score": 0.9372
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.262,
+                0.728,
+                0.277,
+                0.739
+            ],
+            "latex": "r _ { i }",
+            "score": 0.6163
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.623,
+                0.711,
+                0.661,
+                0.724
+            ],
+            "latex": "\\sigma ( c _ { i } )",
+            "score": 0.8967
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.426,
+                0.739,
+                0.475,
+                0.753
+            ],
+            "latex": "S _ { r } , \\mathrm { i . e . }",
+            "score": 0.5985
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.668,
+                0.726,
+                0.688,
+                0.739
+            ],
+            "latex": "S _ { \\sigma }",
+            "score": 0.8809
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.546,
+                0.09,
+                0.731,
+                0.101
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.766,
+                0.09,
+                0.785,
+                0.102
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.247,
+                0.23,
+                0.279,
+                0.243
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.326,
+                0.23,
+                0.784,
+                0.243
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.384,
+                0.245,
+                0.451,
+                0.258
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.467,
+                0.245,
+                0.695,
+                0.258
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.711,
+                0.245,
+                0.714,
+                0.258
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.268,
+                0.319,
+                0.28
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.298,
+                0.438,
+                0.31
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.56,
+                0.298,
+                0.784,
+                0.31
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.312,
+                0.36,
+                0.324
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.381,
+                0.312,
+                0.783,
+                0.324
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.247,
+                0.327,
+                0.33,
+                0.338
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.405,
+                0.352,
+                0.417
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.393,
+                0.405,
+                0.423,
+                0.417
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.441,
+                0.405,
+                0.759,
+                0.417
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.461,
+                0.581,
+                0.472
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.603,
+                0.461,
+                0.681,
+                0.472
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.748,
+                0.46,
+                0.786,
+                0.475
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.25,
+                0.489,
+                0.745,
+                0.502
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.766,
+                0.489,
+                0.786,
+                0.502
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.503,
+                0.6,
+                0.516
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.567,
+                0.302,
+                0.581
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.623,
+                0.368,
+                0.636
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.25,
+                0.645,
+                0.379,
+                0.657
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.427,
+                0.644,
+                0.495,
+                0.657
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.668,
+                0.319,
+                0.68
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.698,
+                0.315,
+                0.709
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.357,
+                0.697,
+                0.784,
+                0.71
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.223,
+                0.711,
+                0.243,
+                0.724
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.369,
+                0.712,
+                0.623,
+                0.724
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.661,
+                0.712,
+                0.783,
+                0.724
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.727,
+                0.261,
+                0.738
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.278,
+                0.727,
+                0.667,
+                0.738
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.688,
+                0.727,
+                0.784,
+                0.738
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.742,
+                0.422,
+                0.752
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.476,
+                0.748,
+                0.482,
+                0.753
+            ],
+            "text": "",
+            "score": 1.0
+        }
+    ],
+    [
+        {
+            "type": "page_number",
+            "bbox": [
+                0.224,
+                0.089,
+                0.244,
+                0.1
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "header",
+            "bbox": [
+                0.276,
+                0.089,
+                0.447,
+                0.102
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.265,
+                0.113,
+                0.502,
+                0.129
+            ],
+            "angle": 0,
+            "content": "\\[\n\\left| \\left| S _ {\\sigma} \\right| \\right| - \\mathrm{OPT} _ {\\sigma} \\geq \\left| \\left| S _ {r} \\right| \\right| - \\mathrm{OPT} _ {r}.\n\\]"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.248,
+                0.142,
+                0.558,
+                0.157
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.264,
+                0.17,
+                0.448,
+                0.186
+            ],
+            "angle": 0,
+            "content": "\\[\n\\mathrm{OPT} _ {\\sigma} \\leq \\mathrm{OPT} _ {r} + \\mathrm{wt} (\\mathcal {C}).\n\\]"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.199,
+                0.601,
+                0.214
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.247,
+                0.22,
+                0.579,
+                0.235
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.223,
+                0.243,
+                0.786,
+                0.273
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "paragraph_title",
+            "bbox": [
+                0.223,
+                0.292,
+                0.619,
+                0.308
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.318,
+                0.786,
+                0.376
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.264,
+                0.388,
+                0.433,
+                0.427
+            ],
+            "angle": 0,
+            "content": "\\[\n\\sum_ {i = 1} ^ {n - 1} | \\mathrm{overlap} (\\sigma_ {i}, \\sigma_ {i + 1}) |.\n\\]"
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.222,
+                0.439,
+                0.787,
+                0.496
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.496,
+                0.788,
+                0.639
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "paragraph_title",
+            "bbox": [
+                0.223,
+                0.667,
+                0.365,
+                0.682
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.223,
+                0.71,
+                0.625,
+                0.725
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "equation",
+            "bbox": [
+                0.264,
+                0.738,
+                0.537,
+                0.755
+            ],
+            "angle": 0,
+            "content": "\\[\n\\left| \\operatorname{overlap} \\left(r, r ^ {\\prime}\\right) \\right| <   \\max \\left\\{\\operatorname{wt} (c), \\operatorname{wt} \\left(c ^ {\\prime}\\right) \\right\\}.\n\\]"
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.312,
+                0.142,
+                0.471,
+                0.157
+            ],
+            "latex": "\\lvert \\lvert S _ { \\sigma } \\rvert \\rvert = \\lvert \\lvert S _ { r } \\rvert \\rvert + \\mathrm { w t } ( \\mathcal { C } )",
+            "score": 0.8978
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.492,
+                0.199,
+                0.597,
+                0.213
+            ],
+            "latex": "\\mathrm { O P T } _ { r } \\leq \\mathrm { O P T }",
+            "score": 0.9191
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.606,
+                0.335,
+                0.678,
+                0.347
+            ],
+            "latex": "s _ { 1 } , \\cdots , s _ { n }",
+            "score": 0.898
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.283,
+                0.454,
+                0.353,
+                0.467
+            ],
+            "latex": "g r a p h , H",
+            "score": 0.4948
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.275,
+                0.47,
+                0.291,
+                0.481
+            ],
+            "latex": "v _ { i }",
+            "score": 0.6905
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.279,
+                0.482,
+                0.388,
+                0.496
+            ],
+            "latex": "| \\mathrm { o v e r l a p } ( s _ { i } , s _ { j } ) |",
+            "score": 0.8989
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.463,
+                0.454,
+                0.56,
+                0.467
+            ],
+            "latex": "s _ { 1 } , \\cdots , s _ { n } . \\ H",
+            "score": 0.6507
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.597,
+                0.44,
+                0.734,
+                0.452
+            ],
+            "latex": "1 \\to 2 \\to \\ldots \\to n",
+            "score": 0.9093
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.509,
+                0.47,
+                0.527,
+                0.481
+            ],
+            "latex": "s _ { i } .",
+            "score": 0.7312
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.456,
+                0.481,
+                0.59,
+                0.495
+            ],
+            "latex": "i \\neq j , 1 \\leq i , j \\leq n",
+            "score": 0.9302
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.695,
+                0.468,
+                0.763,
+                0.481
+            ],
+            "latex": "( v _ { i }  v _ { j } )",
+            "score": 0.9136
+        },
+        {
+            "type": "inline_formula",
+            "bbox": [
+                0.537,
+                0.597,
+                0.609,
+                0.609
+            ],
+            "latex": "s _ { 1 } , \\cdots , s _ { n }",
+            "score": 0.9
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.09,
+                0.243,
+                0.101
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.277,
+                0.089,
+                0.445,
+                0.103
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.249,
+                0.141,
+                0.31,
+                0.159
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.471,
+                0.142,
+                0.557,
+                0.158
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.2,
+                0.488,
+                0.213
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.252,
+                0.223,
+                0.576,
+                0.233
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.244,
+                0.785,
+                0.257
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.26,
+                0.437,
+                0.273
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.293,
+                0.616,
+                0.306
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.32,
+                0.783,
+                0.331
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.335,
+                0.601,
+                0.346
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.678,
+                0.335,
+                0.784,
+                0.346
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.349,
+                0.784,
+                0.361
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.363,
+                0.396,
+                0.374
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.439,
+                0.593,
+                0.452
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.738,
+                0.44,
+                0.785,
+                0.451
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.454,
+                0.281,
+                0.467
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.353,
+                0.454,
+                0.46,
+                0.467
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.562,
+                0.454,
+                0.785,
+                0.467
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.468,
+                0.275,
+                0.481
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.292,
+                0.468,
+                0.509,
+                0.481
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.528,
+                0.468,
+                0.692,
+                0.481
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.763,
+                0.468,
+                0.788,
+                0.481
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.483,
+                0.276,
+                0.496
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.388,
+                0.483,
+                0.454,
+                0.495
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.595,
+                0.483,
+                0.754,
+                0.495
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.249,
+                0.496,
+                0.785,
+                0.509
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.511,
+                0.785,
+                0.524
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.525,
+                0.785,
+                0.538
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.54,
+                0.784,
+                0.551
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.555,
+                0.784,
+                0.565
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.568,
+                0.785,
+                0.581
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.584,
+                0.785,
+                0.594
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.598,
+                0.533,
+                0.608
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.615,
+                0.598,
+                0.784,
+                0.608
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.224,
+                0.611,
+                0.785,
+                0.623
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.626,
+                0.575,
+                0.637
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.666,
+                0.364,
+                0.682
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.712,
+                0.622,
+                0.724
+            ],
+            "text": "",
+            "score": 1.0
+        }
+    ],
+    [
+        {
+            "type": "header",
+            "bbox": [
+                0.653,
+                0.089,
+                0.733,
+                0.101
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "page_number",
+            "bbox": [
+                0.766,
+                0.089,
+                0.785,
+                0.101
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.113,
+                0.788,
+                0.157
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "paragraph_title",
+            "bbox": [
+                0.223,
+                0.185,
+                0.333,
+                0.202
+            ],
+            "angle": 0,
+            "content": null
+        },
+        {
+            "type": "text",
+            "bbox": [
+                0.221,
+                0.215,
+                0.786,
+                0.245
+            ],
+            "angle": 0,
+            "content": null,
+            "merge_prev": false
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.653,
+                0.089,
+                0.731,
+                0.102
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.766,
+                0.09,
+                0.785,
+                0.102
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.116,
+                0.783,
+                0.128
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.223,
+                0.128,
+                0.785,
+                0.143
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.223,
+                0.143,
+                0.263,
+                0.156
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.186,
+                0.33,
+                0.202
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.226,
+                0.217,
+                0.784,
+                0.23
+            ],
+            "text": "",
+            "score": 1.0
+        },
+        {
+            "type": "ocr_text",
+            "bbox": [
+                0.225,
+                0.231,
+                0.344,
+                0.244
+            ],
+            "text": "",
+            "score": 1.0
+        }
+    ]
+]

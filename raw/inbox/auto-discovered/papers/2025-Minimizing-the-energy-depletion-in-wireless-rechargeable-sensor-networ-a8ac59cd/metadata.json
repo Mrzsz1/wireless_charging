@@ -1,0 +1,48 @@
+{
+  "title": "Minimizing the energy depletion in wireless rechargeable sensor networks using bi-level metaheuristic charging schemes",
+  "authors": [
+    "Huynh Thi Thanh Binh",
+    "Le Van Cuong",
+    "Dang Hai Dang",
+    "Le Trong Vinh"
+  ],
+  "abstract": "Recently, Wireless Rechargeable Sensor Networks (WRSNs) that leveraged the advantage of wireless energy transfer technology have opened a promising opportunity in solving the limited energy issue. However, an ineffective charging strategy may reduce the charging performance. Although many practical charging algorithms have been introduced, these studies mainly focus on optimizing the charging path with a fully charging approach. This approach may lead to the death of a series of sensors due to their extended charging latency. This paper introduces a novel partial charging approach that follows a bi-level optimized scheme to minimize energy depletion in WRSNs. We aim at optimizing simultaneously two factors: the charging path and time. To accomplish this, we first formulate a mathematical model of the investigated problem. We then propose two approximate algorithms in which the optimization of the charging path and the charging time are considered as the upper and lower level, respectively. The first algorithm combines a Multi-start Local Search method and a Genetic Algorithm to find a solution. The second algorithm adopts a nested approach that utilizes the advantages of the Multitasking and Covariance Matrix Adaptation Evolutionary Strategies. Experimental validations on various network scenarios demonstrate that our proposed algorithms outperform the existing works.",
+  "published_date": "2025-05-22",
+  "updated_date": "2025-05-22",
+  "year": 2025,
+  "doi": "",
+  "arxiv_id": "2505.16482",
+  "landing_url": "https://arxiv.org/abs/2505.16482v1",
+  "pdf_url": "https://arxiv.org/pdf/2505.16482v1",
+  "is_open_access": true,
+  "license": "",
+  "providers": [
+    "arxiv"
+  ],
+  "provider_ids": {
+    "arxiv": "2505.16482"
+  },
+  "matched_queries": [
+    "wireless rechargeable sensor networks"
+  ],
+  "score": 15.25,
+  "score_reasons": [
+    "标题命中：charging, energy, rechargeable, sensor",
+    "近年文献"
+  ],
+  "local_pdf": "raw/inbox/auto-discovered/papers/2025-Minimizing-the-energy-depletion-in-wireless-rechargeable-sensor-networ-a8ac59cd/paper.pdf",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "arxiv"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-204713",
+  "triage_status": "promoted",
+  "selected_by_user": true,
+  "acquired_at": "2026-07-14T12:47:13+00:00",
+  "selected_at": "2026-07-14T15:49:13+00:00",
+  "canonicalized_at": "2026-07-14T16:03:19+00:00",
+  "triage_note": "用户于 2026-07-14 明确要求下载并使用 MinerU；PDF 已校验，MinerU 7/7 成功，现标记进入 canonical，等待 A 编译。",
+  "candidate_rank": 3,
+  "source_manifest": "raw/inbox/auto-discovered/runs/search-20260714-204713/results.json",
+  "boundary": "promoted to canonical; pending wiki ingest"
+}

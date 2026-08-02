@@ -1,0 +1,1698 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "8 Knapsack"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                109,
+                371,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In Chapter 1 we mentioned that some NP-hard optimization problems allow approximability to any required degree. In this chapter, we will formalize this notion and will show that the knapsack problem admits such an approximability."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                784,
+                312
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let Π be an NP-hard optimization problem with objective function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { \\pi }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "We will say that algorithm A is an approximation scheme for Π if on input "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( I , \\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where I is an instance of Π and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is an error parameter, it outputs a solution s such that:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                312,
+                784,
+                368
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { \\pi } ( I , s ) \\leq ( 1 + \\varepsilon ) \\cdot \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if Π is a minimization problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                376,
+                660,
+                390
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { \\pi } ( I , s ) \\geq ( 1 - \\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "· OPT if Π is a maximization problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                391,
+                663,
+                405
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A will be said to be a polynomial time approximation scheme, abbreviated PTAS, if for each fixed "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", its running time is bounded by a polynomial in the size of instance I."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                411,
+                784,
+                454
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The definition given above allows the running time of A to depend arbitrarily on ε. This is rectified in the following more stringent notion of approximability. If the previous definition is modified to require that the running time of A be bounded by a polynomial in the size of instance I and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / \\varepsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then A will be said to be a fully polynomial approximation scheme, abbreviated FPTAS."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                454,
+                784,
+                539
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In a very technical sense, an FPTAS is the best one can hope for an NPhard optimization problem, assuming "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } \\neq \\mathbf { N P } ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "see Section 8.3.1 for a short discussion on this issue. The knapsack problem admits an FPTAS."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                539,
+                784,
+                583
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 8.1 (Knapsack) Given a set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S = \\{ a _ { 1 } , \\ldots , a _ { n } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of objects, with specified sizes and profits, size "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( a _ { i } ) \\in \\mathbf { Z } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and profi "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\bf \\Xi } ( a _ { i } ) \\in { \\bf Z } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and a “knapsack capacity” "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B \\in \\mathbf { Z } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", find a subset of objects whose total size is bounded by B and total profit is maximized."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                589,
+                784,
+                646
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "An obvious algorithm for this problem is to sort the objects by decreasing ratio of profit to size, and then greedily pick objects in this order. It is easy to see that as such this algorithm can be made to perform arbitrarily badly (Exercise 8.1)."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                646,
+                784,
+                703
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "8.1 A pseudo-polynomial time algorithm for knapsack"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                112,
+                769,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Before presenting an FPTAS for knapsack, we need one more concept. For any optimization problem Π, an instance consists of objects, such as sets or graphs, and numbers, such as cost, profit, size, etc. So far, we have assumed that all numbers occurring in a problem instance I are written in binary. The size of the instance, denoted "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| \\bar { I | } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "was defined as the number of bits needed to write I under this assumption. Let us say that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I _ { u }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will denote instance I with all numbers occurring in it written in unary. The unary size of instance "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denoted "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\left| I _ { u } \\right|"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", is defined as the number of bits needed to write "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I _ { u }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                141,
+                786,
+                256
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "An algorithm for problem Π is said to be eficient if its running time on instance I is bounded by a polynomial in |I|. Let us consider the following weaker definition. An algorithm for problem Π whose running time on instance I is bounded by a polynomial in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| I _ { u } |"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will be called a pseudo-polynomial time algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                256,
+                786,
+                326
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The knapsack problem, being NP-hard, does not admit a polynomial time algorithm; however, it does admit a pseudo-polynomial time algorithm. This fact is used critically in obtaining an FPTAS for it. All known pseudopolynomial time algorithms for NP-hard problems are based on dynamic programming."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                326,
+                786,
+                397
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let P be the profit of the most profitable object, i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P = \\operatorname* { m a x } _ { a \\in S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "profit "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( a )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n P"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a trivial upperbound on the profit that can be achieved by any solution. For each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i \\in \\{ 1 , \\ldots , n \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p \\in \\{ 1 , \\ldots , n P \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i , p }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote a subset of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ a _ { 1 } , \\ldots , a _ { i } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "whose total profit is exactly p and whose total size is minimized. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A ( i , p )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the size of the set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i , p } \\ ( A ( i , p ) = \\infty"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if no such set exists). Clearly "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A ( 1 , p )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is known for every "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p \\in \\{ 1 , \\ldots , n P \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The following recurrence helps compute all values "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A ( i , p )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( n ^ { 2 } P )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "time:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                397,
+                788,
+                498
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l} A (i + 1, p) = \\\\ \\left\\{ \\begin{array}{l l} \\min \\left\\{A (i, p), \\text {size} (a _ {i + 1}) + A (i, p - \\text {profit} (a _ {i + 1})) \\right\\} & \\text {if profit} (a _ {i + 1}) <   p \\\\ A (i + 1, p) = A (i, p) & \\text {otherwise} \\end{array} \\right. \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/fe8110b92448106f7238cab5f6c9182d9e7148a3c878df1ab00b1982e2d9590e.jpg"
+                }
+            },
+            "bbox": [
+                270,
+                513,
+                786,
+                561
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The maximum profit achievable by objects of total size bounded by B is max {p| "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A ( n , p ) \\leq B \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We thus get a pseudo-polynomial algorithm for knapsack."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                573,
+                784,
+                615
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "8.2 An FPTAS for knapsack"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                645,
+                515,
+                661
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Notice that if the profits of objects were small numbers, i.e., they were bounded by a polynomial in n, then this would be a regular polynomial time algorithm, since its running time would be bounded by a polynomial in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| I |"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The key idea behind obtaining an FPTAS is to exploit precisely this fact: we will ignore a certain number of least significant bits of profits of objects (depending on the error parameter "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", so that the modified profits can be viewed as numbers bounded by a polynomial in n and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / \\varepsilon ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This will enable us to find a solution whose profit is at least (1 − ε) · OPT in time bounded by a polynomial in n and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / \\varepsilon"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                675,
+                786,
+                747
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "8.2 An FPTAS for knapsack"
+                    }
+                ]
+            },
+            "bbox": [
+                522,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "69"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                172
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 8.2 (FPTAS for knapsack)\n1. Given  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", let  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K = \\frac{\\varepsilon P}{n}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".\n2. For each object  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a_i"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", define  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\text{profit}'(a_i) = \\left\\lfloor \\frac{\\text{profit}(a_i)}{K} \\right\\rfloor"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".\n3. With these as profits of objects, using the dynamic programming algorithm, find the most profitable set, say  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S'"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".\n4. Output  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S'"
+                    },
+                    {
+                        "type": "text",
+                        "content": "."
+                    }
+                ]
+            },
+            "bbox": [
+                233,
+                187,
+                727,
+                307
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 8.3 Let A denote the set output by the algorithm. Then,"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                334,
+                707,
+                349
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\operatorname{profit} (A) \\geq (1 - \\varepsilon) \\cdot \\mathrm{OPT}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/f6b0ec8d3aefaff439b747cf5da2fef1d43aa059208de12866d57bc8b66b5b1c.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                362,
+                458,
+                378
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Let O denote the optimal set. For any object "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { a , }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "because of rounding down, K · profit<sup>\u0001</sup>(a) can be smaller than profit(a), but by not more than "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Therefore,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                397,
+                784,
+                441
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\operatorname{profit} (O) - K \\cdot \\operatorname{profit} ^ {\\prime} (O) \\leq n K.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/19deac3bd530b6768edcfff5a9095fef70138a326099a7f8b79981194b4369ca.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                454,
+                505,
+                470
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The dynamic programming step must return a set at least as good as O under the new profits. Therefore,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                483,
+                784,
+                512
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{c} \\operatorname{profit} (S ^ {\\prime}) \\geq K \\cdot \\operatorname{profit} ^ {\\prime} (O) \\geq \\operatorname{profit} (O) - n K = \\operatorname{OPT} - \\varepsilon P \\\\ \\geq (1 - \\varepsilon) \\cdot \\operatorname{OPT}, \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/cfd9bf03cadfe2312ac4615b0635e2437db9602a358214b0aceed43e8d475fd3.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                527,
+                692,
+                563
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where the last inequality follows from the observation that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathrm { O P T } } \\geq P ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                575,
+                784,
+                590
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 8.4 Algorithm 8.2 is a fully polynomial approximation scheme "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f o r"
+                    },
+                    {
+                        "type": "text",
+                        "content": "knapsack."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                606,
+                786,
+                636
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: By Lemma 8.3, the solution found is within "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 1 - \\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Since the running time of the algorithm is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O \\left( n ^ { 2 } \\left\\lfloor { \\frac { P } { K } } \\right\\rfloor \\right) = O \\left( n ^ { 2 } \\left\\lfloor { \\frac { n } { \\varepsilon } } \\right\\rfloor \\right)"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", which is polynomial in n and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / \\varepsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "\u0004, the theorem follows. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                651,
+                784,
+                695
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "70"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "8 Knapsack"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                371,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "8.3 Strong NP-hardness and the existence of FPTAS’s"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                111,
+                776,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this section, we will prove in a formal sense that very few of the known NPhard problems admit an FPTAS. First, here is a strengthening of the notion of NP-hardness in a similar sense in which a pseudo-polynomial algorithm is a weakening of the notion of an eficient algorithm. A problem Π is strongly NP-hard if every problem in NP can be polynomially reduced to Π in such a way that numbers in the reduced instance are always written in unary."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                141,
+                786,
+                227
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The restriction automatically forces the transducer to use polynomially bounded numbers only. Most known NP-hard problems are in fact strongly NP-hard; this includes all the problems in previous chapters for which approximation algorithms were obtained. A strongly NP-hard problem cannot have a pseudo-polynomial time algorithm, assuming "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } \\neq \\mathbf { N P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(Exercise 8.4). Thus, knapsack is not strongly NP-hard, assuming "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } \\neq \\mathbf { N P }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                227,
+                784,
+                312
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will show below that under some very weak restrictions, any NPhard problem admitting an FPTAS must admit a pseudo-polynomial time algorithm. Theorem 8.5 is proven for a minimization problem; a similar proof holds for a maximization problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                311,
+                786,
+                370
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 8.5 Let p be a polynomial and Π be an NP-hard minimization problem such that the objective function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { \\pi }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is integer valued and on any instance "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I , \\mathrm { O P T } ( I ) < p ( | I _ { u } | )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". If Π admits an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F P T A S"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then it also admits a pseudo-polynomial time algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                376,
+                786,
+                436
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Suppose there is an FPTAS for Π whose running time on instance I and error parameter "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon { \\mathrm { ~ i s ~ } } q ( | I | , 1 / \\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where q is a polynomial."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                450,
+                784,
+                480
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "On instance "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "set the error parameter to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon = 1 / p ( | I _ { u } | )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and run the FPTAS. Now, the solution produced will have objective function value less than or equal to:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                479,
+                784,
+                521
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "(1 + \\varepsilon) \\mathrm{OPT} (I) <   \\mathrm{OPT} (I) + \\varepsilon p (| I _ {u} |) = \\mathrm{OPT} (I) + 1.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/a125cad95a2cafcd9e71d19b1005cb39cf2aa2da9ffae23f3986c93c669115da.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                535,
+                645,
+                551
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In fact, with this error parameter, the FPTAS will be forced to produce an optimal solution. The running time will be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "q ( | I | , p ( | I _ { u } | ) )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", i.e., polynomial in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\left| I _ { u } \\right|"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, we have obtained a pseudo-polynomial time algorithm for Π. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                564,
+                784,
+                619
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The following corollary applies to most known NP-hard problems."
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                627,
+                741,
+                643
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Corollary 8.6 Let Π be an NP-hard optimization problem satisfying the restrictions of Theorem 8.5. If Π is strongly NP-hard, then Π does not admit an FPTAS, assuming "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } \\neq \\mathbf { N P }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                651,
+                786,
+                695
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: If Π admits an FPTAS, then it admits a pseudo-polynomial time algorithm by Theorem 8.5. But then it is not strongly NP-hard, assuming "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } \\neq \\mathbf { N P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", leading to a contradiction. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                709,
+                786,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "8<sub>.</sub>3 St<sub>rong</sub> NP<sub>-</sub>h<sub>ar</sub>d<sub>ness an</sub>d th<sub>e ex</sub>i<sub>s</sub>t<sub>ence o</sub>f FPTAS’<sub>s</sub>"
+                    }
+                ]
+            },
+            "bbox": [
+                342,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "71"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The stronger assumption that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } < p ( | I | )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in Theorem 8.5 would have enabled us to prove that there is a polynomial time algorithm for Π. However, this stronger assumption is less widely applicable. For instance, it is not satisfied by the minimum makespan problem, which we will study in Chapter 10."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                184
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "8.3.1 Is an FPTAS the most desirable approximation algorithm?"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                204,
+                781,
+                219
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The design of almost all known FPTAS’s and PTAS’s is based on the idea of trading accuracy for running time – the given problem instance is mapped to a coarser instance, depending on the error parameter "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "which is solved optimally by a dynamic programming approach. The latter ends up being an exhaustive search of polynomially many diferent possibilities (for instance, for knapsack, this involves computing "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A ( i , p )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for all i and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In most such algorithms, the running time is prohibitive even for reasonable n and ε. Further, if the algorithm had to resort to exhaustive search, does the problem really ofer “footholds” to home in on a solution eficiently? Is an FPTAS or PTAS the best one can hope for for an NP-hard problem? Clearly, the issue is complex and there is no straightforward answer."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                229,
+                786,
+                388
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "8.4 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                414,
+                364,
+                431
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "8.1 Consider the greedy algorithm for the knapsack problem. Sort the objects by decreasing ratio of profit to size, and then greedily pick objects in this order. Show that this algorithm can be made to perform arbitrarily badly."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                458,
+                786,
+                502
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "8.2 Consider the following modification to the algorithm given in Exercise 8.1. Let the sorted order of objects be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a _ { 1 } , \\ldots , a _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Find the lowest k such that the size of the first k objects exceeds B. Now, pick the more profitable of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ a _ { 1 } , \\dotsc , a _ { k - 1 } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ a _ { k } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(we have assumed that the size of each object is at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Show that this algorithm achieves an approximation factor of 2."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                514,
+                786,
+                588
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "8.3 (Bazgan, Santha, and Tuza [22]) Obtain an FPTAS for the following problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                600,
+                784,
+                629
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 8.7 (Subset-sum ratio problem) Given n positive integers, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a _ { 1 } < \\ldots < a _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", find two disjoint nonempty subsets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { 1 } , S _ { 2 } \\subseteq \\{ 1 , \\dots , n \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textstyle \\sum _ { i \\in S _ { 1 } } a _ { i } \\geq \\sum _ { i \\in S _ { 2 } } a _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", such that the ratio"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                634,
+                784,
+                681
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\frac {\\sum_ {i \\in S _ {1}} a _ {i}}{\\sum_ {i \\in S _ {2}} a _ {i}}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/8654e6e10427ac1881ae7cc89cb1b53fb53afc62460497a8137f2264b9050fba.jpg"
+                }
+            },
+            "bbox": [
+                265,
+                692,
+                336,
+                727
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "is minimized."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                738,
+                324,
+                752
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "72"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "8 Knapsack"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                371,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: First, obtain a pseudo-polynomial time algorithm for this problem. Then, scale and round appropriately."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                143
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "8.4 Show that a strongly NP-hard problem cannot have a pseudo-polynomia time algorithm, assuming "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } \\neq \\mathbf { N P }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                155,
+                784,
+                186
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "8.5 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                212,
+                331,
+                229
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 8.2 is due to Ibarra and Kim [134]. Theorem 8.5 is due to Garey and Johnson [92]."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                242,
+                784,
+                272
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "8.5 Notes"
+                    }
+                ]
+            },
+            "bbox": [
+                650,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "73"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ]
+]

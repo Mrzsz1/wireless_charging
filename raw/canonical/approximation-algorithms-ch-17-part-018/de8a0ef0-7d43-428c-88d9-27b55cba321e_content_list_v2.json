@@ -1,0 +1,1940 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17 Scheduling on Unrelated Parallel Machines"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                109,
+                784,
+                129
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "LP-rounding has yielded approximation algorithms for a large number of NP-hard problems in scheduling theory (see Section 17.6). As a illustrative example, we present a factor 2 algorithm for the problem of scheduling on unrelated parallel machines. We will apply the technique of parametric pruning, introduced in Chapter 5, together with LP-rounding, to obtain the algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                786,
+                328
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 17.1 (Scheduling on unrelated parallel machines) Given a set J of jobs, a set M of machines, and for each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j \\in J"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i \\in M , p _ { i j } \\in { \\bf Z } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the time taken to process job j on machine i, the problem is to schedule the jobs on the machines so as to minimize the makespan, i.e., the maximum processing time of any machine. We will denote the number of jobs by n and the number of machines by m."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                334,
+                784,
+                419
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The reason for the name “unrelated” is that we have not assumed any relation between the processing times of a job on the diferent machines. If each job j has the same running time, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", on each of the machines, then the machines are said to be identical. This problem was studied in Chapter 10 under the name minimum makespan scheduling, and we had derived a PTAS for it. A generalization of minimum makespan, that also admits a PTAS, is that of uniform parallel machines (see Exercise 17.5). In this case there is a speed "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "associated with each machine "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the processing time for job j on machine i is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { j } / s _ { i }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                419,
+                786,
+                548
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.1 Parametric pruning in an LP setting"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                223,
+                576,
+                648,
+                592
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "An obvious integer program for this problem is the following. In this program "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\boldsymbol { x } _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is an indicator variable denoting whether job "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is scheduled on machine i. The objective is to minimize t, the makespan. The first set of constraints ensures that each job is scheduled on one of the machines, and the second set ensures that each machine has a processing time of at most t."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                606,
+                786,
+                678
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text { minimize } & t \\\\ \\text { subject   to } & \\sum_ {i \\in M} x _ {i j} = 1, \\qquad j \\in J \\end{array}\\tag{17.1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/5bc4f5e984e3b65e3dc5ac68b6a79b50dc37463f2a946132f380e38590a94bbd.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                693,
+                534,
+                746
+            ]
+        }
+    ],
+    [
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\sum_ {j \\in J} x _ {i j} p _ {i j} \\leq t, & i \\in M \\\\ x _ {i j} \\in \\{0, 1 \\}, & i \\in M, j \\in J \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/fa2d0153620123c4287d0c74f03133619b3064fcb78a41a5b72626bf49e047fb.jpg"
+                }
+            },
+            "bbox": [
+                356,
+                109,
+                591,
+                161
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We show below that this integer program has unbounded integrality gap."
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                172,
+                784,
+                187
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 17.2 Suppose we have only one job, which has a processing time of m on each of the m machines. Clearly, the minimum makespan is m. However, the optimal solution to the linear relaxation is to schedule the job to the extent of 1/m on each machine, thereby leading to an objective function value of 1, and giving an integrality gap of m. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                193,
+                786,
+                266
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This example is exploiting an “unfair” advantage that we have given to the linear relaxation. The integer program automatically sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to 0 if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { i j } > t ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "On the other hand, the linear relaxation is allowed to set these variables to nonzero values, and thereby obtain a cheaper solution. The situation could be rectified if we could add the following constraint to the linear relaxation:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                272,
+                786,
+                344
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\forall i \\in M j \\in J: \\text {   if   } p _ {i j} > t \\text {   then   } x _ {i j} = 0.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b77fb03d16267c90bf029e5d113ab21fdc63aead148f0c2ed2c7325922391252.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                357,
+                554,
+                373
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "However, this is not a linear constraint."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                385,
+                517,
+                400
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will use the technique of parametric pruning to get around this dificulty. The parameter will be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T \\in \\mathbf { Z } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", which is our guess for a lower bound on the optimal makespan. The parameter will enable us to prune away all job–machine pairs such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { i j } > T"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { T } = \\{ ( i , j ) \\mid p _ { i j } \\leq T \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We will define a family of linear programs, LP(T), one for each value of parameter "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T \\in { \\bf Z } ^ { + } . \\ \\mathrm { L P } ( T )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "uses the variables "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i , j ) \\in S _ { T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "only, and asks if there is a feasible, fractional schedule of makespan ≤ T using the restricted possibilities."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                400,
+                786,
+                514
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\sum_ {i: (i, j) \\in S _ {T}} x _ {i j} = 1, & j \\in J \\\\ \\sum_ {j: (i, j) \\in S _ {T}} x _ {i j} p _ {i j} \\leq T, & i \\in M \\\\ x _ {i j} \\geq 0, & (i, j) \\in S _ {T} \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/96b86f18ca29f3efb554f283f0c5f6422a13069d329845c436e703c04b62f005.jpg"
+                }
+            },
+            "bbox": [
+                277,
+                527,
+                534,
+                615
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.2 Properties of extreme point solutions"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                669,
+                655,
+                686
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Via an appropriate binary search, we will find the smallest value of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( { \\cal T } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has a feasible solution. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be this value. Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a lower bound on OPT. The algorithm will round an extreme point solution to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( T ^ { * } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to find a schedule having makespan "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\leq 2 T ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Extreme point solutions to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( { \\cal T } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "have several useful properties."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                699,
+                786,
+                744
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "17.2 Properties of extreme point solutions"
+                    }
+                ]
+            },
+            "bbox": [
+                430,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "141"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                143
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 17.3 Any extreme point solution to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( { \\cal T } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n + m"
+                    },
+                    {
+                        "type": "text",
+                        "content": "nonzero variables."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                149,
+                784,
+                179
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r = | S _ { T } |"
+                    },
+                    {
+                        "type": "text",
+                        "content": "represent the number of variables on which "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( { \\cal T } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is defined. Recall that a feasible solution to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( { \\cal T } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is an extreme point solution if it corresponds to setting r linearly independent constraints of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( { \\cal T } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to equality. Of these r linearly independent constraints, at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r - ( n + m )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must be chosen from the third set of constraints (of the form "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i j } \\geq 0 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The corresponding variables are set to 0. So, any extreme point solution has at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n + m"
+                    },
+                    {
+                        "type": "text",
+                        "content": "nonzero variables. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                192,
+                786,
+                293
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let x be an extreme point solution to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( { \\cal T } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We will say that job "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is integrally set in x if it is entirely assigned to one machine. Otherwise, we will say that job j is fractionally set."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                299,
+                784,
+                343
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Corollary 17.4 Any extreme point solution to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( { \\cal T } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must set at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n { - } m"
+                    },
+                    {
+                        "type": "text",
+                        "content": "jobs integrally."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                349,
+                784,
+                379
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Let x be an extreme point solution to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( { \\cal T } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and let α and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the number of jobs that are integrally and fractionally set by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathbf { } } ^ { \\mathbf { } } \\mathbf { { \\mathbf { x } } } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "respectively. Each job of the latter kind is assigned to at least 2 machines and therefore results in at least 2 nonzero entries in x. Hence we get"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                393,
+                786,
+                451
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\alpha + \\beta = n \\text { and } \\alpha + 2 \\beta \\leq n + m.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/0fcd4573336c2edf1c1be21f1654bc7181fdead2e1ac47cc6fd929386d21f445.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                463,
+                504,
+                476
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Therefore, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta \\leq m"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha \\ge n - m"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                491,
+                475,
+                506
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The LP-rounding algorithm is based on several interesting combinatorial properties of extreme point solutions to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( { \\cal T } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Some of these are established in Section 17.4. Corresponding to an extreme point solution x to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( { \\cal T } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( J , M , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be the bipartite graph on vertex set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "J \\cup M"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( j , i ) \\in E"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i j } \\neq 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F \\subset J"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the set of jobs that are fractionally set in x, and let H be the subgraph of G induced on vertex set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F \\cup M"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i , j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is an edge in H if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 < x _ { i j } < 1 ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". A matching in H will be called a perfect matching if it matches every job "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j \\in F"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The rounding procedure uses the fact that graph H has a perfect matching (see Lemma 17.7)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                511,
+                786,
+                640
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.3 The algorithm"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                667,
+                426,
+                684
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm starts by computing the range in which it finds the right value of T. For this, it constructs the greedy schedule, in which each job is assigned to the machine on which it has the smallest processing time. Let α be the makespan of this schedule. Then the range is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "[ \\alpha / m , \\alpha ]"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                695,
+                786,
+                755
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "142"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "17 Scheduling on Unrelated Parallel Machines"
+                    }
+                ]
+            },
+            "bbox": [
+                277,
+                87,
+                605,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 17.5 (Scheduling on unrelated parallel machines)\n1. By a binary search in the interval   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "[\\alpha/m, \\alpha]"
+                    },
+                    {
+                        "type": "text",
+                        "content": " , find the smallest value of   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T \\in Z^{+}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "  for which   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm{LP}(T)"
+                    },
+                    {
+                        "type": "text",
+                        "content": "  has a feasible solution. Let this value be   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T^{*}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n2. Find an extreme point solution, say x, to   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm{LP}(T^{*})"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n3. Assign all integrally set jobs to machines as in x.\n4. Construct graph H and find a perfect matching M in it (e.g., using the procedure of Lemma 17.7).\n5. Assign fractionally set jobs to machines according to matching M."
+                    }
+                ]
+            },
+            "bbox": [
+                233,
+                118,
+                781,
+                247
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.4 Additional properties of extreme point solutions"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                300,
+                764,
+                317
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will say that a connected graph on vertex set V is a pseudo-tree if it contains at most |V| edges. Since the graph is connected, it must have at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| V | - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "edges. So, it is either a tree or a tree plus a single edge. In the latter case it has a unique cycle. Let us say that a graph is a pseudo-forest if each of its connected components is a pseudo-tree. Recall that in Section 17.2 we defined two graphs, G and H, corresponding to an extreme point solution x to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( T )"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                330,
+                786,
+                431
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 17.6 Graph G is a pseudo-forest."
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                439,
+                539,
+                454
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: We will show that the number of edges in each connected component of G is bounded by the number of vertices in it. Hence, each connected component is a pseudo-tree."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                470,
+                784,
+                513
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider a connected component "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { c } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Restrict LP(T) and x to the jobs and machines of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { c }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "only, to obtain "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } _ { c } ( T )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { \\delta _ { x } } _ { c }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let x represent the rest of x. The important observation is that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { \\delta _ { x } } _ { c }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must be an extreme point solution to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } _ { c } ( T )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Suppose that this is not the case. Then, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { \\delta _ { x } } _ { c }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a convex combination of two feasible solutions to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } _ { c } ( T )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Each of these, together with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } } { \\mathbf { } \\mathbf { } } { \\mathbf { } } { \\mathbf } { \\mathbf { } } { \\mathbf } { \\mathbf { } } \\mathbf { } \\mathbf { } { \\Sigma } \\mathbf { } \\mathbf { } \\mathbf { } \\mathbf { } \\Sigma  { \\mathbf } { \\mathbf } { \\mathbf } { \\Sigma } \\mathbf { } \\mathbf { } \\mathbf { } \\mathbf \\Sigma \\Sigma  { \\Sigma \\Sigma } \\mathbf { \\Sigma } \\Sigma \\Sigma \\Sigma \\Sigma \\Sigma \\Sigma \\Sigma \\Sigma \\Sigma \\Sigma \\Sigma \\Sigma \\Sigma \\Sigma \\Sigma \\Sigma \\Sigma \\Sigma "
+                    },
+                    {
+                        "type": "text",
+                        "content": "form a feasible solution to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( T )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, x is a convex combination of two feasible solutions to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( { \\cal T } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", leading to a contradiction."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                513,
+                786,
+                612
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Now, applying Lemma 17.3, we get that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { c }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a pseudo-tree."
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                613,
+                697,
+                627
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 17.7 Graph H has a perfect matching."
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                643,
+                579,
+                658
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Each job that is integrally set in x has exactly one edge incident at it in G. Remove these jobs, together with their incident edges, from G. Clearly, the remaining graph is H. Since an equal number of edges and vertices were removed, H is also a pseudo-forest."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                674,
+                784,
+                732
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "17.4 Additional properties of extreme point solutions"
+                    }
+                ]
+            },
+            "bbox": [
+                357,
+                87,
+                732,
+                102
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "143"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/c23bede5279317035ca1d501fff7c580fc94af8e83cfc00042318fc22e5885d2.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                226,
+                110,
+                778,
+                225
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In H, each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { j o b }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has a degree of at least 2. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathrm { S o } } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "all leaves in H must be machines. Keep matching a leaf with the job it is incident to, and remove them both from the graph. (At each stage all leaves must be machines.) In the end we will be left with even cycles (since we started with a bipartite graph). Match of alternate edges of each cycle. This gives a perfect matching in H. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                241,
+                786,
+                326
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 17.8 Algorithm 17.5 achieves an approximation guarantee of factor 2 for the problem of scheduling on unrelated parallel machines."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                343,
+                784,
+                373
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ^ { \\ast } \\leq \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P ( O P T ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has a feasible solution. The extreme point solution, x, to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( T ^ { * } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has a fractional makespan of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\leq T ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Therefore, the restriction of x to integrally set jobs has a (integral) makespan of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\leq T ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i , j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of H satisfies "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { i j } \\leq T ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The perfect matching found in H schedules at most one extra job on each machine. Hence, the total makespan is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\leq 2 T ^ { * } \\leq 2 \\cdot \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The algorithm clearly runs in polynomial time. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                388,
+                784,
+                488
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 17.9 Let us provide a family of tight examples. The mth instance consists of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m ^ { 2 } - m + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "jobs that need to be scheduled on m machines. The first job has a processing time of m on all machines, and all the remaining jobs have unit processing time on each machine. The optimal schedule assigns the first job to one machine, and m of the remaining jobs to each of the remaining "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "machines. Its makespan is m. It is easy to see that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( T )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has no feasible solutions for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T < m"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                501,
+                786,
+                601
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Now suppose the following extreme point solution to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( m )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is picked. It assigns "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / m"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of the first job and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "other jobs to each of the m machines. Rounding will produce a schedule having a makespan of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 m - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                601,
+                784,
+                645
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.5 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                680,
+                376,
+                696
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "17.1 Give an alternative proof of Lemma 17.7 by using Hall’s Theorem. (This theorem states that a bipartite graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( U , V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has a matching that matches all vertices of U if for every set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U ^ { \\prime } \\subseteq U"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the neighborhood of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is at least as large as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U ^ { \\prime } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "The neighborhood of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ v \\in V \\mid"
+                    },
+                    {
+                        "type": "text",
+                        "content": "∃u "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\in"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v ) \\in E \\} . \\quad"
+                    },
+                    {
+                        "type": "text",
+                        "content": ")"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                722,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "144"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "17 Scheduling on Unrelated Parallel Machines"
+                    }
+                ]
+            },
+            "bbox": [
+                277,
+                87,
+                605,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: For any set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ^ { \\prime } \\subset F"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be its neighborhood. Show that the graph induced on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ^ { \\prime } \\cup M ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must have at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\vert F ^ { \\prime } \\vert + \\vert M ^ { \\prime } \\vert"
+                    },
+                    {
+                        "type": "text",
+                        "content": "edges. On the other hand, since each vertex in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has a degree of at least 2, this graph must have at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 | F ^ { \\prime } |"
+                    },
+                    {
+                        "type": "text",
+                        "content": "edges."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                155,
+                786,
+                214
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "17.2 Prove that the solution given to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( m )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in Example 17.9 is an extreme point solution."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                227,
+                784,
+                256
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "17.3 Does Algorithm 17.5 achieve a better factor than 2 for the special case that the machines are identical?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                269,
+                784,
+                299
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "17.4 Prove the following strengthening of Lemma 17.6. There is an extreme point solution to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ( { \\cal T } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that its corresponding bipartite graph, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a forest."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                312,
+                786,
+                355
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "17.5 (Hochbaum and Shmoys [129]) Give a PTAS for the problem of minimizing makespan on uniform parallel machines. In this problem there is a speed "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "associated with each machine "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the processing time for job j on machine i is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { j } / s _ { i }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                368,
+                786,
+                426
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "17.6 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                455,
+                342,
+                470
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The result of this chapter is due to Lenstra, Shmoys, and Tardos [184]. For other LP-rounding based scheduling algorithms, see the survey by Hall [120]."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                483,
+                784,
+                514
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "17.6 Notes"
+                    }
+                ]
+            },
+            "bbox": [
+                645,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "145"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ]
+]

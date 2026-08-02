@@ -1,0 +1,13 @@
+{
+  "schema": "core-book-retrieval-eval-v1",
+  "target": "人工复核集仍可扩展；当前已由章节标题生成 295 条确定性回归查询，人工语义查询应继续追加。",
+  "regression_report": "evals/core-book-retrieval-report.json",
+  "queries": [
+    {"id": "agt-model-001", "query": "Nash equilibrium utility incentives", "expected_books": ["algorithmic-game-theory"]},
+    {"id": "agt-mechanism-001", "query": "mechanism design truthful auction", "expected_books": ["algorithmic-game-theory"]},
+    {"id": "approx-ratio-001", "query": "approximation ratio LP rounding", "expected_books": ["approximation-algorithms"]},
+    {"id": "approx-schedule-001", "query": "scheduling approximation algorithm", "expected_books": ["approximation-algorithms"]},
+    {"id": "cross-001", "query": "wireless charging allocation game approximation", "expected_books": ["algorithmic-game-theory", "approximation-algorithms"]}
+  ],
+  "acceptance": {"recall_at_5": 0.95, "citation_anchor_rate": 1.0, "minimum_queries_per_book": 100}
+}

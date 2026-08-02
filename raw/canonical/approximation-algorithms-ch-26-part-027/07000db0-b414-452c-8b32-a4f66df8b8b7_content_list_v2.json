@@ -1,0 +1,5170 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "26 Semidefinite Programming"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                221,
+                109,
+                589,
+                130
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the previous chapters of Part II of this book we have shown how linear programs provide a systematic way of placing a good upper bound on OPT (assuming a minimization problem), for numerous NP-hard problems. As stated earlier, this is a key step in the design of an approximation algorithm for an NP-hard problem. It is natural, then, to ask if there are other widely applicable ways of doing this."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                786,
+                341
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this chapter we provide another class of relaxations, called vector programs. These serve as relaxations for several NP-hard problems, in particular, for problems that can be expressed as strict quadratic programs (see Section 26.1 for a definition). Vector programs are equivalent to a powerful and well-studied generalization of linear programs, called semidefinite programs. Semidefinite programs, and consequently vector programs, can be solved within an additive error of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", in time polynomial in n and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\log ( 1 / \\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", using the ellipsoid algorithm (see Section 26.3)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                341,
+                786,
+                454
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will illustrate the use of vector programs by deriving a 0.87856 factor algorithm for the following problem (see Exercises 2.1 and 16.6 for a factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "algorithm)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                454,
+                786,
+                498
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 26.1 (Maximum cut (MAX-CUT)) Given an undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", with edge weights "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w : E \\to \\mathbf { Q } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", find a partition (S, S) of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "so as to maximize the total weight of edges in this cut, i.e., edges that have one endpoint in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and one endpoint in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\overline { S }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                502,
+                784,
+                562
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "26.1 Strict quadratic programs and vector programs"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                590,
+                752,
+                607
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A quadratic program is the problem of optimizing (minimizing or maximizing) a quadratic function of integer valued variables, subject to quadratic constraints on these variables. If each monomial in the objective function, as well as in each of the constraints, is of degree 0 (i.e., is a constant) or "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "then we will say that this is a strict quadratic program."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                620,
+                786,
+                690
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us give a strict quadratic program for MAX-CUT. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be an indicator variable for vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "which will be constrained to be either +1 or "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "- 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The partition (S, S) will be defined as follows. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S = \\{ v _ { i } \\mid y _ { i } = 1 \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\overline { { S } } ~ = ~ \\{ v _ { i } ~ \\mid ~ y _ { i } ~ = ~ - 1 \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". If "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are on opposite sides of this partition, then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i } y _ { j } = - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( v _ { i } , v _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "contributes "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to the objective function. On the other hand, if they are on the same side, then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i } y _ { j } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( v _ { i } , v _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "makes no contribution. Hence, an optimal solution to this program is a maximum cut in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                690,
+                784,
+                750
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                168
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l l} \\text {maximize} & \\frac {1}{2} \\sum_ {1 \\leq i <   j \\leq n} w _ {i j} (1 - y _ {i} y _ {j}) \\\\ \\text {subject to} & y _ {i} ^ {2} = 1, & v _ {i} \\in V \\\\ & y _ {i} \\in \\mathbf {Z}, & v _ {i} \\in V \\end{array}\\tag{26.1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/141d6c63da8fa5ae537294b82975d8e975fc6e37e5bacbd8a48da6c5038a31cb.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                181,
+                611,
+                260
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will relax this program to a vector program. A vector program is defined over n vector variables in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { R } ^ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { v } _ { 1 } , \\ldots , \\pmb { v } _ { n } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "and is the problem of optimizing (minimizing or maximizing) a linear function of the inner products "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\pmb v } _ { i } \\cdot { \\pmb v } _ { j } , 1 \\le i \\le j \\le n"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", subject to linear constraints on these inner products. Thus, a vector program can be thought of as being obtained from a linear program by replacing each variable with an inner product of a pair of these vectors."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                272,
+                786,
+                370
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A strict quadratic program over n integer variables defines a vector program over n vector variables in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { R } ^ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as follows. Establish a correspondence between the n integer variables and the n vector variables, and replace each degree 2 term with the corresponding inner product. For instance, the term y<sub>i</sub>y<sub>j</sub> in (26.1) is replaced with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { i } \\cdot v _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In this manner, we obtain the following vector program for MAX-CUT."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                372,
+                786,
+                458
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text { maximize } & \\frac {1}{2} \\sum_ {1 \\leq i <   j \\leq n} w _ {i j} (1 - \\boldsymbol {v} _ {i} \\cdot \\boldsymbol {v} _ {j}) \\\\ \\text { subject   to } & \\boldsymbol {v} _ {i} \\cdot \\boldsymbol {v} _ {i} = 1, \\quad v _ {i} \\in V \\\\ & \\boldsymbol {v} _ {i} \\in \\mathbf {R} ^ {n}, \\quad v _ {i} \\in V \\end{array}\\tag{26.2}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/a4767d61129020556edb04e792c1c4550ffc303889f80f05cca496ea15095f2e.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                470,
+                628,
+                546
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Because of the constraint "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { v } _ { i } \\pmb { \\cdot v } _ { i } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the vectors "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { v } _ { 1 } , \\ldots , \\pmb { v } _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are constrained to lie on the n-dimensional sphere, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { n - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Any feasible solution to (26.1) yields a solution to (26.2) having the same objective function value, by assigning the vector "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( y _ { i } , 0 , \\ldots , 0 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathbf { } } v _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". (Notice that under this assignment, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { } v _ { i } \\cdot \\mathbf { } v _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is simply "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i } y _ { j } . )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Therefore, the vector program (26.2) is a relaxation of the strict quadratic program (26.1). Clearly, this holds in general as well; the vector program corresponding to a strict quadratic program is a relaxation of the quadratic program."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                558,
+                786,
+                673
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Interestingly enough, vector programs are approximable to any desired degree of accuracy in polynomial time, and thus relaxation (26.2) provides an upper bound on OPT for MAX-CUT. To show this, we need to recall some interesting and powerful properties of positive semidefinite matrices."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                673,
+                786,
+                732
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "256"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "26 Semidefinite Programming"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                494,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Remark 26.2 Vector programs do not always come about as relaxations of strict quadratic programs. Exercise 26.13 gives an NP-hard problem that has vector program relaxation; however, we do not know of a strict quadratic program for it."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                171
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "26.2 Properties of positive semidefinite matrices"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                199,
+                714,
+                216
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let A be a real, symmetric n×n matrix. Then A has real eigenvalues and has n linearly independent eigenvectors (even if the eigenvalues are not distinct). We will say that A is positive semidefinite if"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                229,
+                784,
+                272
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\forall \\boldsymbol {x} \\in \\mathbf {R} ^ {n}, \\boldsymbol {x} ^ {T} \\boldsymbol {A} \\boldsymbol {x} \\geq 0.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/73b9d2815347450897fc42181aa399362b80432388d427c1a8260dd5244b3348.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                284,
+                428,
+                300
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will use the following two equivalent conditions crucially. We provide a proof sketch for completeness."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                313,
+                784,
+                343
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 26.3 Let A be a real symmetric n×n matrix. Then, the following are equivalent:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                351,
+                786,
+                381
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\forall x \\in \\mathbf { R } ^ { n } , \\ x ^ { T } A x \\geq 0 ."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                388,
+                415,
+                401
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. All eigenvalues of A are nonnegative."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                401,
+                531,
+                416
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3. There is an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n \\times n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "real matrix W, such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { A } = \\pmb { W } ^ { T } \\pmb { W }"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                416,
+                675,
+                430
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 1 \\Rightarrow 2 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ": Let λ be an eigenvalue of A, and let v be a corresponding eigenvector. Therefore, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A v \\ = \\ \\lambda v"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Pre-multiplying by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v ^ { T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "we get "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\pmb v } ^ { T } { \\pmb A } { \\pmb v } ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\lambda \\boldsymbol { v } ^ { T } \\boldsymbol { v }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now, by (1), "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\pmb v } ^ { T } { \\pmb A } { \\pmb v } \\geq 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\lambda \\bar { v } ^ { T } v \\ge 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { v } ^ { T } \\pmb { v } > 0 , \\lambda \\geq 0"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 2 \\Rightarrow 3 ) \\Rightarrow { }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ": Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\lambda _ { 1 } , \\ldots , \\lambda _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the n eigenvalues of A, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { v } _ { 1 } , \\ldots , \\pmb { v } _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the corresponding complete collection of orthonormal eigenvectors. Let Q be the matrix whose columns are "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { v } _ { 1 } , \\ldots , \\pmb { v } _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and Λ be the diagonal matrix with entries "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\lambda _ { 1 } , \\ldots , \\lambda _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since for each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i , A { \\pmb v } _ { i } = \\lambda _ { i } { \\pmb v } _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we have "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A \\mathbf { Q } = \\mathbf { Q } A"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since Q is orthogonal, i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { Q Q } ^ { T } = I { \\boldsymbol { \\mathbf { \\mathit { a } } } } "
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we get that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { Q } ^ { T } = \\mathbf { Q } ^ { - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                447,
+                784,
+                563
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\boldsymbol {A} = \\mathbf {Q} \\boldsymbol {\\Lambda} \\mathbf {Q} ^ {T}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b2179cf429e41fb54c4be6db2f7ccf02e8cd69e8f8c3ffbc845fb6b752382eaa.jpg"
+                }
+            },
+            "bbox": [
+                265,
+                573,
+                363,
+                589
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let D be the diagonal matrix whose diagonal entries are the positive square roots of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\lambda _ { 1 } , \\ldots , \\lambda _ { n } { \\mathrm { ~ ( b y ~ ( 2 ) , ~ } } \\lambda _ { 1 } , \\ldots , \\lambda _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are nonnegative, and thus their square roots are real). Then, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { \\varLambda } = \\pmb { D } \\pmb { D } ^ { T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Substituting, we get"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                602,
+                784,
+                646
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\boldsymbol {A} = \\mathbf {Q} \\boldsymbol {D} \\boldsymbol {D} ^ {T} \\mathbf {Q} ^ {T} = (\\mathbf {Q} \\boldsymbol {D}) (\\mathbf {Q} \\boldsymbol {D}) ^ {T}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/a42261744063a9c596f93e8b2d84f7f6799ef04b44dec6383170de61d589caaf.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                658,
+                512,
+                675
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Now, (3) follows by letting "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W = ( \\mathbf { Q } D ) ^ { T }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                687,
+                527,
+                703
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "equation_inline",
+                        "content": "( 3 \\Rightarrow 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ": For any"
+                    }
+                ]
+            },
+            "bbox": [
+                247,
+                703,
+                374,
+                717
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\boldsymbol {x} \\in \\mathbf {R} ^ {n}, \\boldsymbol {x} ^ {T} \\boldsymbol {A} \\boldsymbol {x} = \\boldsymbol {x} ^ {T} \\boldsymbol {W} ^ {T} \\boldsymbol {W} \\boldsymbol {x} = (\\boldsymbol {W} \\boldsymbol {x}) ^ {T} (\\boldsymbol {W} \\boldsymbol {x}) \\geq 0.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/60d3efb06a27cbff688308d41edce58d8c9c71193b195d204a7056eb70355cdd.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                728,
+                650,
+                746
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "26.2 Properties of positive semidefinite matrices"
+                    }
+                ]
+            },
+            "bbox": [
+                389,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "257"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Using Cholesky decomposition (see Section "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 6 . 7 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", a real symmetric matrix can be decomposed, in polynomial time, as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { A } = \\pmb { U } \\mathbf { A } \\pmb { U } ^ { T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where Λ is a diagonal matrix whose diagonal entries are the eigenvalues of A. Now A is positive semidefinite if all the entries of Λ are nonnegative, thus giving a polynomial time test for positive semidefiniteness. The decomposition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W W ^ { T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is not polynomial time computable because in general it may contain irrational entries. However, it can be approximated to any desired degree by approximating the square roots of the entries of Λ. In the rest of this chapter we will assume that we have an exact decomposition, since the inaccuracy resulting from an approximate decomposition can be absorbed into the approximation factor (see Exercise 26.6)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                269
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "It is easy to see that the sum of two "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n \\times n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "positive semidefinite matrices is also positive semidefinite (e.g., using characterization (1) of Theorem 26.3). This is also true of any convex combination of such matrices."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                269,
+                784,
+                313
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "26.3 The semidefinite programming problem"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                340,
+                677,
+                357
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let Y be an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n \\times n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "matrix of real valued variables whose "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i , j ) \\mathrm { t h }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "entry is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "The problem of maximizing a linear function of the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i j } \\mathrm { \\ ' s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", subject to linear constraints on them, and the additional constraint that Y be symmetric and positive semidefinite, is called the semidefinite programming problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                370,
+                784,
+                426
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us introduce some notation to state this formally. Denote by R<sup>n×n</sup> the space of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n \\times n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "real matrices. Recall that the trace of a matrix "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { A } \\in \\mathbf { R } ^ { n \\times n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the sum of its diagonal entries and is denoted by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname { t r } ( A )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The Frobenius inner product of matrices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { A } , \\pmb { B } \\in \\mathbf { R } ^ { n \\times n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", denoted "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbfcal { A } \\bullet \\mathbfcal { B }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", is defined to be"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                426,
+                784,
+                485
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\boldsymbol {A} \\bullet \\boldsymbol {B} = \\operatorname{tr} (\\boldsymbol {A} ^ {T} \\boldsymbol {B}) = \\sum_ {i = 1} ^ {n} \\sum_ {j = 1} ^ {n} a _ {i j} b _ {i j},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/e440617e46dfb8c90bc6024fd980d0476f784f78b45fc0012ecf2a7fc9e803b4.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                495,
+                524,
+                533
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i , j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "th entries of A and B, respectively. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the cone of symmetric n×n real matrices. For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A \\in M _ { n } , A \\succeq 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denotes the fact that matrix A is positive semidefinite."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                546,
+                784,
+                589
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C , D _ { 1 } , \\ldots , D _ { k } \\in M _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d _ { 1 } , \\dotsc . . . d _ { k } \\in \\mathbf { R }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Following is a statement of the general semidefinite programming problem. Let us denote it by S."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                590,
+                786,
+                619
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "maximize C • Y"
+                    }
+                ]
+            },
+            "bbox": [
+                263,
+                634,
+                411,
+                648
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text { subject   to } & D _ {i} \\bullet Y = d _ {i}, \\quad 1 \\leq i \\leq k \\\\ & Y \\succeq 0, \\\\ & Y \\in M _ {n}. \\end{array}\\tag{26.3}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/a3ad7dcfc9f9fccc8aa32b3b6a755ce60fc8debf77780c252829c1acfbc0b9f8.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                656,
+                556,
+                709
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Observe that if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C , D _ { 1 } , \\ldots , D _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are all diagonal matrices, this is simply a linear programming problem. As in the case of linear programs, it is easy to see that allowing linear inequalities, in addition to equalities, does not make the problem more general."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                724,
+                786,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "258"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "26 Semidefinite Programming"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                494,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                141
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us call a matrix in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { R } ^ { n \\times n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "satisfying all the constraints of S a feasible solution. Since a convex combination of positive semidefinite matrices is positive semidefinite, it is easy to see that the set of feasible solutions is convex, i.e., if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { A } \\in \\mathbf { R } ^ { n \\times n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\ b { B } \\in \\mathbf { R } ^ { n \\times n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are feasible solutions then so is any convex combination of these solutions."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                141,
+                784,
+                211
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\ b { A } \\in \\ b { \\mathrm { \\bf ~ R } } ^ { n \\times n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be an infeasible point. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C \\in \\mathbf { R } ^ { n \\times n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". A hyperplane "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C \\bullet Y \\leq b"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is called a separating hyperplane for A if all feasible points satisfy it and point A does not satisfy it. In the next theorem we show how to find a separating hyperplane in polynomial time. As a consequence, for any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "semidefinite programs can be solved within an additive error of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in time polynomial in n and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\log ( 1 / \\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", using the ellipsoid algorithm (see Section 26.7 for more eficient methods)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                212,
+                784,
+                313
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 26.4 Let S be a semidefinite programming problem, and A be a point in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { R } ^ { n \\times n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We can determine, in polynomial time, whether A is feasible for S and, if it is not, find a separating hyperplane."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                321,
+                786,
+                366
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Testing for feasibility involves ensuring that A is symmetric and positive semidefinite and that it satisfies all the linear constraints. By remarks made in Section 26.2, this can be done in polynomial time. If A is infeasible, a separating hyperplane is obtained as follows."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                379,
+                784,
+                438
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• If A is not symmetric, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a _ { i j } > a _ { j i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for some "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i , j"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i j } \\le y _ { j i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a separating hyperplane."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                444,
+                784,
+                470
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• If A is not positive semidefinite, then it has a negative eigenvalue, say λ. Let v be the corresponding eigenvector. Now "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( { \\pmb v } { \\pmb v } ^ { \\hat { T } } ) { \\bullet \\pmb Y } = \\bar { { \\pmb v } ^ { T } } \\pmb Y { \\pmb v } \\geq 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a separating hyperplane."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                473,
+                784,
+                514
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• If any of the linear constraints is violated, it directly yields a separating hyperplane."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                514,
+                784,
+                543
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Next, let us show that vector programs are equivalent to semidefinite programs, thereby showing that the former can be solved eficiently to any desired degree of accuracy. Let V be a vector program on n n-dimensional vector variables "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { v } _ { 1 } , \\ldots , \\pmb { v } _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Define the corresponding semidefinite program, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "over "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "variables "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i j } , 1 \\leq i , j \\leq n ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "as follows. Replace each inner product "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathbf { } } v _ { i } { \\cdot } v _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "occurring in V by the variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The objective function and constraints are now linear in the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i j } \\mathrm { \\ ' s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Additionally, require that matrix "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { Y }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", whose "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i , j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "th entry is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", be symmetric and positive semidefinite."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                571,
+                784,
+                687
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 26.5 Vector program V is equivalent to semidefinite program "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathcal { S } } ."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                694,
+                761,
+                709
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: We will show that corresponding to each feasible solution to V, there is a feasible solution to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of the same objective function value, and vice versa. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { a } _ { 1 } , \\ldots , \\pmb { a } _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a feasible solution to V. Let W be the matrix whose columns are "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { a } _ { 1 } , \\ldots , \\pmb { a } _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then, it is easy to see that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { A } = \\pmb { W } ^ { T } \\pmb { W }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a feasible solution to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s"
+                    },
+                    {
+                        "type": "text",
+                        "content": "having the same objective function value."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                724,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "26.3 The semidefinite programming problem"
+                    }
+                ]
+            },
+            "bbox": [
+                413,
+                87,
+                729,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "259"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                155
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For the other direction, let A be a feasible solution to S. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { B y }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Theorem 26.3, there is an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n \\times n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "matrix W such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { A } = \\pmb { W } ^ { T } \\pmb { W }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { a } _ { 1 } , \\ldots , \\pmb { a } _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the columns of W. Then, it is easy to see that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { a } _ { 1 } , \\ldots , \\pmb { a } _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a feasible solution to V having the same objective function value. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                155,
+                784,
+                212
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finally, we give the semidefinite programming relaxation to MAX-CUT that is equivalent to vector program 26.2."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                219,
+                784,
+                249
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {maximize} & \\frac {1}{2} \\sum_ {1 \\leq i <   j \\leq n} w _ {i j} (1 - y _ {i} y _ {j}) \\\\ \\text {subject to} & y _ {i} ^ {2} = 1, \\qquad v _ {i} \\in V \\\\ & \\boldsymbol {Y} \\succeq 0, \\\\ & \\boldsymbol {Y} \\in M _ {n}. \\end{array}\\tag{26.4}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/54b00032e8a80723e86ffcb25d4225ce5010ab2e087b17482818904710ca7f9d.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                261,
+                611,
+                357
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "26.4 Randomized rounding algorithm"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                386,
+                606,
+                403
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We now present the algorithm for MAX-CUT. For convenience, let us assume that we have an optimal solution to the vector program (26.2). The slight inaccuracy in solving it can be absorbed into the approximation factor (see Exercise 26.6). Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { } a _ { 1 } , \\ldots , \\mathbf { } a _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be an optimal solution, and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { v }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote its objective function value. These vectors lie on the n-dimensional unit sphere "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { n - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We need to obtain a cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( S , { \\overline { { S } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "whose weight is a large fraction of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { v }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                416,
+                786,
+                514
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\theta _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the angle between vectors "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { a } _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\pmb a } _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The contribution of this pair of vectors to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { v }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                514,
+                786,
+                545
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\frac {w _ {i j}}{2} (1 - \\cos \\theta_ {i j}).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b503361342f61c8a7ef110b14e176281c989bfaeba2952eff90dd251d1ff49fa.jpg"
+                }
+            },
+            "bbox": [
+                265,
+                556,
+                388,
+                582
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Clearly, the closer "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\theta _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pi _ { \\mathrm { : } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the larger this contribution will be. In turn, we would like vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be separated if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\theta _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is large. The following method accomplishes precisely this. Pick r to be a uniformly distributed vector on the unit sphere "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { n - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S = \\{ v _ { i } \\mid { \\pmb a } _ { i } \\cdot { \\pmb r } \\geq 0 \\}"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                592,
+                784,
+                651
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 26.6"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                665,
+                331,
+                678
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ v _ {i} a n d v _ {j} a r e s e p a r a t e d ] = \\frac {\\theta_ {i j}}{\\pi}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/3d294867f8b404582520944b9b1b62bfd34faef36c3ccf158685be00a074201d.jpg"
+                }
+            },
+            "bbox": [
+                374,
+                658,
+                628,
+                686
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Project r onto the plane containing "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathbf { } } v _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\pmb v } _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now, vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will be separated if the projection lies in one of the two arcs of angle "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\theta _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "shown below."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                699,
+                784,
+                741
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "260"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "26 Semidefinite Programming"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                494,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/72db202b59f128d43a32721ed053bdff6ebad14f07ec6c4423dd2cdb7a8c2281.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                394,
+                109,
+                611,
+                272
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since r has been picked from a spherically symmetric distribution, its projection will be a random direction on this plane. The lemma follows. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                275,
+                784,
+                305
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The next lemma shows how to generate vectors that are uniformly distributed on the unit sphere "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { n - 1 }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                311,
+                784,
+                340
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 26.7 Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { 1 } , \\ldots , x _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be picked independently from the normal distribution with mean 0 and unit standard deviation. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\dot { d } = ( x _ { 1 } ^ { 2 } + \\ldots + x _ { n } ^ { 2 } ) ^ { 1 / 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Then, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( x _ { 1 } / d , \\ldots , x _ { n } / d )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a random vector on the unit sphere "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { n - 1 }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                347,
+                784,
+                392
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Consider the vector "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { r } = ( x _ { 1 } , \\dots , x _ { n } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The distribution function for r has density"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                404,
+                784,
+                434
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "f (y _ {1}, \\ldots , y _ {n}) = \\prod_ {i = 1} ^ {n} \\frac {1}{\\sqrt {2 \\pi}} e ^ {- y _ {i} ^ {2} / 2} = \\frac {1}{(2 \\pi) ^ {n / 2}} e ^ {- \\frac {1}{2} \\sum_ {i} y _ {i} ^ {2}}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/c6d71c417fe63a784d2023106c6b30063d502e1c611c5e060e3f339ef3122e4c.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                445,
+                645,
+                482
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Notice that the density function depends only on the distance of the point from the origin. Therefore, the distribution of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { r }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is spherically symmetric. Hence, dividing by the length of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r , \\mathrm { i . e . , } d ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "we get a random vector on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { n - 1 }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                493,
+                784,
+                539
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm is summarized below."
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                556,
+                519,
+                571
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 26.8 (MAX-CUT)  \n1. Solve vector program (26.2). Let  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb{a}_1, \\dots, \\pmb{a}_n"
+                    },
+                    {
+                        "type": "text",
+                        "content": " be an optimal solution.  \n2. Pick  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb{r}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " to be a uniformly distributed vector on the unit sphere  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S_{n-1}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".  \n3. Let  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S = \\{v_i \\mid \\pmb{a}_i \\cdot \\pmb{r} \\geq 0\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "."
+                    }
+                ]
+            },
+            "bbox": [
+                236,
+                590,
+                747,
+                659
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let W be the random variable denoting the weight of edges in the cut picked by Algorithm 26.8, and let"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                686,
+                784,
+                715
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\alpha = \\frac {2}{\\pi} \\min _ {0 \\leq \\theta \\leq \\pi} \\frac {\\theta}{1 - \\cos \\theta}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/601030a06f6e3bc2704b35f956bafe962737a88808291bf180c932910c3ee67b.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                725,
+                436,
+                756
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "26.4 Randomized rounding algorithm"
+                    }
+                ]
+            },
+            "bbox": [
+                462,
+                87,
+                729,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "261"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                783,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "One can show that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha > 0 . 8 7 8 5 6"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(see Exercise 26.3)."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                605,
+                127
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 26.9 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { E } [ W ] \\geq \\alpha \\cdot \\mathrm { O P T } _ { v }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                136,
+                473,
+                151
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: By the definition of α we have that for any θ, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 \\leq \\theta \\leq \\pi"
+                    },
+                    {
+                        "type": "text",
+                        "content": "2"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                166,
+                707,
+                181
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\frac {\\theta}{\\pi} \\geq \\alpha \\left(\\frac {1 - \\cos \\theta}{2}\\right).\\tag{26.5}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/22b1522c58b37d01c10047c12cc4ea6b8f1661c6ca817be0d9c6ce1ae6c0e2bf.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                192,
+                418,
+                224
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Using this and Lemma 26.6, we get"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                235,
+                487,
+                250
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l} \\mathbf {E} [ W ] = \\sum_ {1 \\leq i <   j \\leq n} w _ {i j} \\mathbf {P r} [ \\boldsymbol {v} _ {i} \\text {and} \\boldsymbol {v} _ {j} \\text {are separated} ] \\\\ = \\sum_ {1 \\leq i <   j \\leq n} w _ {i j} \\frac {\\theta_ {i j}}{\\pi} \\geq \\alpha \\cdot \\sum_ {1 \\leq i <   j \\leq n} \\frac {1}{2} w _ {i j} (1 - \\cos \\theta_ {i j}) = \\alpha \\cdot \\mathrm{OPT} _ {v}. \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/d95a59cb1b58a9984bcda1326463dd044fe9e3cd8466dc8ac2dcbfd8d8131fff.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                263,
+                717,
+                343
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us define the integrality gap for relaxation (26.2) to be"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                372,
+                682,
+                387
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\inf _ {I} \\frac {\\operatorname{OPT} (I)}{\\operatorname{OPT} _ {v} (I)},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/141218b5ba41b006691ed6d305196a9444fa9cd1a123355a557878e74df5a024.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                398,
+                366,
+                430
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where the infimum is over all instances I of MAX-CUT."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                441,
+                638,
+                456
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Corollary 26.10 The integrality gap for relaxation "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 2 6 . 2 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha \\mathrm { ~ > ~ }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "0.87856."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                464,
+                784,
+                493
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 26.11 There is a randomized approximation algorithm for MAX-CUT achieving an approximation factor of 0.87856."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                502,
+                784,
+                532
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Let us first obtain a “high probability” statement using the bound on expectation established in Lemma 26.9. Let T denote the sum of weights of all edges in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and define a so that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { E } [ W ] = a T"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                546,
+                786,
+                590
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "p = \\mathbf {P r} [ W <   (1 - \\varepsilon) a T ],",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/4b2ca28c4af253efa75e1530ba396e539f8eef9ba17491c2e85af83f7668b4c2.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                602,
+                447,
+                618
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a constant. Since the random variable W is always bounded by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T _ { \\cdot }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we get"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                631,
+                784,
+                661
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "a T \\leq p (1 - \\varepsilon) a T + (1 - p) T.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/5d0195f19a2af3ec56e8cc35de305abe13d4ae0ccc4b88fd4e2171fdd4f2d059.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                673,
+                478,
+                689
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Therefore,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                702,
+                302,
+                715
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "p \\leq \\frac {1 - a}{1 - a + a \\varepsilon}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/602b61e1cbaedbccdfde61659632f91732bedcf95ab19c54a00dfde23e2a142f.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                728,
+                384,
+                757
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "262"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "26 Semidefinite Programming"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                495,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Now,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                265,
+                127
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "T \\geq \\mathbf {E} [ W ] = a T \\geq \\alpha \\cdot \\mathrm{OPT} _ {v} \\geq \\alpha \\cdot \\mathrm{OPT} \\geq \\frac {\\alpha T}{2},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/3de3136dbdb9c5830888b2b03bcaefc83cac70f4e0fb89db0643ae140988323e.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                139,
+                613,
+                168
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where the last inequality follows from the fact that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } \\geq T / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(see Exercise 2.1). Therefore, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\ge a \\ge \\alpha / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Using this upper and lower bound on a, we get"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                179,
+                784,
+                209
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "p \\leq 1 - \\frac {\\varepsilon \\alpha / 2}{1 + \\varepsilon - \\alpha / 2} \\leq 1 - c,",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/52f2374c79c9217f884d9b395b5093c422a477febdc41e4739168d800622009c.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                219,
+                482,
+                250
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                263,
+                272,
+                277
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "c = \\frac {\\varepsilon \\alpha / 2}{1 + \\varepsilon - \\alpha / 2}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/79f6ce06de629e04b5b4f25e525ee3cb19cd7d5286861aa715105efe611edcca.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                287,
+                393,
+                319
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Run Algorithm 26.8 1/c times, and output the heaviest cut found in these runs. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the weight of this cut. Then,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                331,
+                784,
+                361
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ W ^ {\\prime} \\geq (1 - \\varepsilon) a T ] \\geq 1 - (1 - c) ^ {1 / c} \\geq 1 - \\frac {1}{e}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/dc36dfd0dcca882d1611392d9479f5343a2f68827d5df3b0ab26c792308d5e77.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                370,
+                606,
+                400
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a T \\ge \\alpha \\cdot \\mathrm { O P T } > 0 . 8 7 8 5 6 ~ \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we can pick a value of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "so that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 1 - \\varepsilon ) a T \\ge 0 . 8 7 8 5 6 ~ \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                410,
+                784,
+                439
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 26.12 The following example shows that the bound on the integrality gap of relaxation (26.2) given in Corollary 26.10 is almost tight. Consider a graph which is a 5-cycle "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { 1 } , v _ { 2 } , v _ { 3 } , v _ { 4 } , v _ { 5 } , v _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then, an optimal solution to relaxation (26.2) is to place the five vectors in a 2-dimensional subspace within which they are given by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { v } _ { i } = ( \\cos ( \\frac { 4 i \\pi } { 5 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", sin "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\left( { \\frac { 4 i \\pi } { 5 } } \\right) )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "), for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\leq i \\leq 5"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(see Exercise 26.5). The cost of this solution is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\mathrm { O P T } _ { v } = \\frac { 5 } { 2 } ( 1 + \\cos \\frac { \\pi } { 5 } ) = \\frac { 2 5 + 5 \\sqrt { 5 } } { 8 } } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { { O P T } = 4 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for this graph, the integrality gap for this example is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textstyle { \\frac { 3 2 } { 2 5 + 5 { \\sqrt { 5 } } } } = 0 . 8 8 4 4 5 . . ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                451,
+                786,
+                575
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "26.5 Improving the guarantee for MAX-2SAT"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                606,
+                690,
+                623
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "MAX-2SAT is the restriction of MAX-SAT (Problem 16.1) to formulae in which each clause contains at most two literals. In Chapter 16 we obtained a factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 / 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": "algorithm for this problem using randomization, followed by the method of conditional expectation. We will give an improved algorithm using semidefinite programming."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                636,
+                786,
+                708
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The key new idea needed is a way of converting the obvious quadratic program (see Exercise 26.8) for this problem into a strict quadratic program. We will accomplish this as follows. Corresponding to each Boolean variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", introduce variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "which is constrained to be either "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "+ 1 \\mathrm { o r } \\mathrm { - } 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\leq i \\leq n"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In addition, introduce another variable, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { 0 } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "which is also constrained to be +1 or −1. Let us impose the convention that Boolean variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is true if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i } = y _ { 0 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and false otherwise. Under this convention we can write the value of a clause in terms of the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i } \\mathrm { \\dot { s } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where the value, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v ( C )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", of clause C is defined to be 1 if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is satisfied and 0 otherwise. Thus, for clauses containing only one literal,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                707,
+                786,
+                752
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "26.5 Improving the guarantee for MAX-2SAT"
+                    }
+                ]
+            },
+            "bbox": [
+                403,
+                87,
+                732,
+                102
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "263"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                218,
+                112,
+                786,
+                212
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "v (x _ {i}) = \\frac {1 + y _ {0} y _ {i}}{2} \\mathrm{and} v (\\overline {{x _ {i}}}) = \\frac {1 - y _ {0} y _ {i}}{2}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/d83395c313861457c6728b2a79fdfb8d3970b82aff4c8f76d40799dc50573933.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                224,
+                554,
+                253
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider a clause containing 2 literals, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { e . g . } , ( x _ { i } \\vee x _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Its value is"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                263,
+                705,
+                279
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{c} v (x _ {i} \\vee x _ {j}) = 1 - v (\\overline {{x _ {i}}}) v (\\overline {{x _ {j}}}) = 1 - \\frac {1 - y _ {0} y _ {i}}{2} \\frac {1 - y _ {0} y _ {j}}{2} \\\\ = \\frac {1}{4} \\left(3 + y _ {0} y _ {i} + y _ {0} y _ {j} - y _ {0} ^ {2} y _ {i} y _ {j}\\right) \\\\ = \\frac {1 + y _ {0} y _ {i}}{4} + \\frac {1 + y _ {0} y _ {j}}{4} + \\frac {1 - y _ {i} y _ {j}}{4}. \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b5608293beaa4e113d15a9bf4217825ef59bf769fec5922f3c6210ac56651fa2.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                292,
+                642,
+                376
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Observe that in this derivation we have used the fact that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { 0 } ^ { 2 } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In all the remaining cases as well, it is easy to check that the value of a 2 literal clause consists of a linear combination of terms of the form "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 1 + y _ { i } y _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "or "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 1 - y _ { i } y _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, a MAX-2SAT instance can be written as the following strict quadratic program, where the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "’s and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { i j } ` { : }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "s are computed by collecting terms appropriately."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                388,
+                786,
+                476
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {maximize} & \\sum_ {0 \\leq i <   j \\leq n} a _ {i j} (1 + y _ {i} y _ {j}) + b _ {i j} (1 - y _ {i} y _ {j}) \\\\ \\text {subject to} & y _ {i} ^ {2} = 1, \\quad 0 \\leq i \\leq n \\\\ & y _ {i} \\in \\mathbf {Z}, \\quad 0 \\leq i \\leq n \\end{array}\\tag{26.6}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b3cc9be48030f5df817159687ad8bb3c73408ea3e7d535a6227902c63a2c155a.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                489,
+                724,
+                564
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Following is the vector program relaxation for (26.6), where vector variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathbf { } } v _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "corresponds to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                576,
+                784,
+                606
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text { maximize } & \\sum_ {0 \\leq i <   j \\leq n} a _ {i j} (1 + \\boldsymbol {v} _ {i} \\cdot \\boldsymbol {v} _ {j}) + b _ {i j} (1 - \\boldsymbol {v} _ {i} \\cdot \\boldsymbol {v} _ {j}) \\\\ \\text { subject   to } & \\boldsymbol {v} _ {i} \\cdot \\boldsymbol {v} _ {i} = 1, \\\\ & \\boldsymbol {v} _ {i} \\in \\mathbf {R} ^ {n + 1}, \\end{array} \\quad \\begin{array}{l l} (2) \\\\ 0 \\leq i \\leq n \\\\ 0 \\leq i \\leq n \\end{array}\\tag{26.7}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/cb4f203a04cc5a7340744f03e2b566732fb33e77b6d3225075548129d8bb906b.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                619,
+                756,
+                690
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm is similar to that for MAX-CUT. We solve vector program (26.7). Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { a } _ { 0 } , \\ldots , \\pmb { a } _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be an optimal solution. Pick a vector r uniformly distributed on the unit sphere in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( n + 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "dimensions, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { n } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { i } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { r } \\cdot { \\pmb { a } } _ { i } \\geq 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 \\leq i \\leq n"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This gives a truth assignment for the Boolean variables. Let W be the random variable denoting the weight of this truth assignment."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                703,
+                786,
+                747
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "264"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "26 Semidefinite Programming"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                495,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 26.13 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { E } [ W ] \\geq \\alpha \\cdot \\mathrm { O P T } _ { v }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                164,
+                482,
+                179
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                193,
+                280,
+                206
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {E} [ W ] = 2 \\sum_ {0 \\leq i <   j \\leq n} a _ {i j} \\mathbf {P r} [ y _ {i} = y _ {j} ] + b _ {i j} \\mathbf {P r} [ y _ {i} \\neq y _ {j} ].",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/fc19fcf03916b42bc96b2734dbab8c7fe9ba3eb69d0f93669900cf7634841abc.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                219,
+                631,
+                249
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\theta _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the angle between "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { a } _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { \\delta } _ { \\mathbf { \\alpha } \\mathbf { \\beta } _ { \\mathcal { I } } } ^ { \\mathbf { \\alpha } \\mathbf { \\alpha } \\mathbf { \\alpha } \\mathbf { \\alpha } \\mathbf { \\alpha } \\mathbf { \\alpha } \\mathbf { \\alpha } \\mathbf { \\alpha } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". By inequality (26.5),"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                262,
+                707,
+                278
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ y _ {i} \\neq y _ {j} ] = \\frac {\\theta_ {i j}}{\\pi} \\geq \\frac {\\alpha}{2} (1 - \\cos \\theta_ {i j}).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/923c3478a5f31088cfb5123c786c5a5e3083c7e678b50dd58cabae108a9ad98e.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                288,
+                524,
+                318
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "By Exercise 26.4,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                326,
+                354,
+                342
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ y _ {i} = y _ {j} ] = 1 - \\frac {\\theta_ {i j}}{\\pi} \\geq \\frac {\\alpha}{2} (1 + \\cos \\theta_ {i j}).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/c93c6afe602d2dbc2fac9ebb2b0f0a760105962ee8ae1767d6ffd0bd025e8182.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                353,
+                554,
+                382
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Therefore,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                392,
+                302,
+                406
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {E} [ W ] \\geq \\alpha \\cdot \\sum_ {0 \\leq i <   j \\leq n} a _ {i j} (1 + \\cos \\theta_ {i j}) + b _ {i j} (1 - \\cos \\theta_ {i j}) = \\alpha \\cdot \\mathrm{OPT} _ {v}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/bce53695d2f9b1de29b1154fe995452b959688268506efe21f9c5afd4f37a732.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                419,
+                742,
+                451
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "26.6 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                507,
+                376,
+                523
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "26.1 Is matrix W in Theorem 26.3 unique (up to multiplication "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { b y - 1 ) ? }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Hint: Consider the matrix "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { Q } D \\mathbf { Q } ^ { T }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                549,
+                771,
+                579
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "26.2 Let B be obtained from matrix A by throwing away a set of columns and the corresponding set of rows. We will say that B is a principal submatrix of A. Show that the following is another equivalent condition for a real symmetric matrix to be positive semidefinite: that all of its principal submatrices have nonnegative determinants. (See Theorem 26.3 for other conditions.)"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                590,
+                786,
+                664
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "26.3 Show, using elementary calculus, that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha > 0 . 8 7 8 5 6"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                675,
+                648,
+                690
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "26.4 Show that for any φ, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 \\le \\phi \\le \\pi"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                703,
+                507,
+                717
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "1 - \\frac {\\phi}{\\pi} \\geq \\frac {\\alpha}{2} (1 + \\cos \\phi).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/02cd5f04d60fb7989d445ac3119bbf3eb15ede79af54b4b9f62ade1834ca423f.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                730,
+                431,
+                757
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "26.6 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                620,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "265"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "26 Semidefinite Programming"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                275,
+                87,
+                495,
+                101
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Substitute "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\theta = \\pi - \\phi"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in inequality (26.5)."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                586,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "26.5 Show that for a 5-cycle, the solution given in Example 26.12 is indeed an optimal solution to the vector program relaxation for MAX-CUT."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                141,
+                784,
+                171
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "26.6 Show that the inaccuracies resulting from the fact we do not have an optimal solution to the vector program (26.2) and that matrix A is not exactly decomposed as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W W ^ { T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(see end of Section 26.2) can be absorbed into the approximation factor for MAX-CUT."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                184,
+                786,
+                241
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Use the idea behind the proof of Theorem 26.11 and the fact that the solution to program (26.2) lies in the range [T/2, T], where T is the sum of weights of all edges in G."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                241,
+                786,
+                285
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "26.7 Theorem 26.11 shows how to obtain a “high probability” statement from Lemma 26.9. Obtain a similar statement for MAX-2SAT, using Lemma 26.13, thereby obtaining a 0.87856 factor algorithm for MAX-2SAT."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                298,
+                784,
+                342
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "26.8 Give a quadratic program for MAX-2SAT."
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                354,
+                584,
+                370
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "26.9 (Linial, London, and Rabinovich [190]) Let G be the complete undirected graph on n vertices, V , and let w be a function assigning nonnegative weights to the edges of G. The object is to find an optimal distortion "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\ell _ { 2 } ^ { 2 } -"
+                    },
+                    {
+                        "type": "text",
+                        "content": "embedding of the vertices of G. Let vertex i be mapped to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { v } _ { i } \\in \\mathbf { R } ^ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by such an embedding. The embedding should satisfy:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                382,
+                784,
+                455
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. no edge is overstretched, i.e., for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\leq i < j \\leq n , | | \\pmb { v } _ { i } - \\pmb { v } _ { j } | | ^ { 2 } \\leq w _ { ( } i j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and 2. the maximum shrinkage is minimized, i.e.,"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                461,
+                784,
+                491
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\text { maximize } \\min _ {(i, j): w _ {i j} \\neq 0} (| | \\boldsymbol {v} _ {i} - \\boldsymbol {v} _ {j} | | ^ {2} / w _ {i j}).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/f06d5653d50d856358f14b8e10f10d6212501e912fc1b1f8d4332202927a0d0f.jpg"
+                }
+            },
+            "bbox": [
+                290,
+                502,
+                569,
+                527
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Give a vector program for finding such an optimal embedding and give the equivalent semidefinite program. Hint: The vector program is:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                539,
+                784,
+                582
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text { minimize } & c \\\\ \\text { subject   to } & \\boldsymbol {v} _ {i} \\cdot \\boldsymbol {v} _ {i} + \\boldsymbol {v} _ {j} \\cdot \\boldsymbol {v} _ {j} - 2 \\boldsymbol {v} _ {i} \\cdot \\boldsymbol {v} _ {j} \\leq w _ {i j}, \\quad 1 \\leq i <   j \\leq n \\\\ & \\boldsymbol {v} _ {i} \\cdot \\boldsymbol {v} _ {i} + \\boldsymbol {v} _ {j} \\cdot \\boldsymbol {v} _ {j} - 2 \\boldsymbol {v} _ {i} \\cdot \\boldsymbol {v} _ {j} \\geq c w _ {i j}, \\quad 1 \\leq i <   j \\leq n \\\\ & \\boldsymbol {v} _ {i} \\in \\mathbf {R} ^ {n}, \\quad 1 \\leq i \\leq n \\end{array}\\tag{26.8}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/d4c7671727074dbb8e2d2ef91d3e5ddc9331adcf1c6b5385fbd54cfea88d97a0.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                600,
+                732,
+                676
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "26.10 (Knuth [174]) Give an eficient algorithm for sampling from the normal distribution with mean 0 and unit standard deviation, given a source of unbiased random bits."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                702,
+                786,
+                746
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "266"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "26.11 Give a strict quadratic program for the MAX k-CUT and maximum directed cut problems, Problems 2.14 and 2.15 stated in Exercises 2.3 and 2.4. Give a vector program relaxation and an equivalent semidefinite program as well."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                170
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "26.12 (Goemans and Williamson [106]) Consider MAX-CUT with the additional constraint that specified pairs of vertices be on the same/opposite sides of the cut. Formally, we are specified two sets of pairs of vertices, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "The pairs in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "need to be separated, and those in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "need to be on the same side of the cut sought. Under these constraints, the problem is to find a maximum weight cut. Assume that the constraints provided by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are not inconsistent. Give a strict quadratic program and vector program relaxation for this problem. Show how Algorithm 26.8 can be adapted to this problem so as to maintain the same approximation factor."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                183,
+                786,
+                313
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "26.13 (Karger, Motwani, and Sudan [158]) Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be an undirected graph. Consider a vector program with n n-dimensional vectors corresponding to the vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and constraints that the vectors lie on the unit sphere, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { n - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and that for each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( i , j ) \\in G"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                324,
+                786,
+                382
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\pmb {v} _ {i} \\cdot \\pmb {v} _ {j} \\leq - \\frac {1}{k - 1}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/e709251cc2540bd50f0b2c771d73bedded1fd6822f8c3b2292540fdd1c5e451a.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                393,
+                396,
+                423
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Show that this vector program is a relaxation of the k-coloring problem, i.e., if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is k-colorable, then this vector program has a feasible solution. Hint: Consider the following k vectors in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { R } ^ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Each vector has 0 in the last "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "positions. Vector i has "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "- \\sqrt { \\frac { k - 1 } { k } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the ith position and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / \\sqrt { k ( k - 1 ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the remaining positions."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                432,
+                784,
+                512
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "26.14 (Chor and Sudan [43]) Consider the following problem:"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                523,
+                687,
+                539
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 26.14 (Betweenness) We are given a set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S = \\{ x _ { 1 } , x _ { 2 } , \\ldots , x _ { n } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of n items and a set T of m triplets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T \\subseteq S \\times S \\times S"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Each triplet consists of three distinct items. A total ordering (permutation) of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S , x _ { \\pi _ { 1 } } < x _ { \\pi _ { 2 } } < . . . < x _ { \\pi _ { r } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "n satisfies a triplet "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( x _ { i } , x _ { j } , x _ { k } ) \\in { \\textit { T } } \\operatorname { i f } \\ x _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "occurs between "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the ordering, i.e., if either "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i } < x _ { j } < x _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "holds or "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { k } \\ < \\ x _ { j } \\ < \\ x _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "holds. The problem is to find a total ordering that maximizes the number of satisfied triplets."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                543,
+                786,
+                645
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Show that a random ordering (i.e., a permutation chosen uniformly at random among all possible permutations) will satisfy in expectation one third of all triplets in T."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                652,
+                784,
+                696
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Use the method of conditional expectation to derandomize the above algorithm, thereby obtaining a factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": "approximation algorithm. What upper bound on OPT is this algorithm using? Give an example showing that with this upper bound a better algorithm is not possible."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                695,
+                786,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "26.6 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                620,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "267"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3. The rest of the exercise develops an algorithm based on semidefinite programming. The ideas can be illustrated more simply by assuming that the instance is satisfiable, i.e., that all m triplets can be satisfied simultaneously. Note that checking for this condition is NP-hard, so the restriction of the betweenness problem to such instances is not an NP-optimization problem (see Exercise 1.9). Show that an instance is satisfiable if the following strict quadratic program in variables "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { i } \\in \\mathbf { R } , i = 1 , \\ldots , n"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", has a solution:"
+                    }
+                ]
+            },
+            "bbox": [
+                226,
+                112,
+                786,
+                227
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{r l} (p _ {i} - p _ {j}) ^ {2} \\geq 1 & \\text {for all i,j}, \\\\ (p _ {i} - p _ {j}) (p _ {k} - p _ {j}) \\leq 0 & \\text {for all (x_{i} , x_{j} , x_{k})\\in T}. \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/5092a0485e51e5cf7303b0f8a4f0c2b2538bcfe33e5e32d0fd4abb8a4aa121e3.jpg"
+                }
+            },
+            "bbox": [
+                290,
+                240,
+                640,
+                278
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4. Obtain the vector programming relaxation of this strict quadratic program as well as the equivalent semidefinite program."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                287,
+                784,
+                317
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "5. Give an instance where the above semidefinite program is satisfiable but the instance itself is not satisfiable."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                316,
+                784,
+                344
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "6. Let us assume that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n \\times n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "matrix Y is a feasible solution to the above semidefinite program, and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { i } \\in \\mathbf { R } ^ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i = 1 , \\cdots , n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be vectors such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Y _ { i j } = v _ { i } ^ { T } v _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now select r uniformly at random on the unit sphere "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { n - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Consider the random ordering obtained by sorting "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r ^ { T } v _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Show that, in expectation, this random ordering satisfies at least half of the constraints in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                344,
+                784,
+                429
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: What is the probability that a single triplet is satisfied? What is the angle between "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { i } - v _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { k } - v _ { j } ?"
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                429,
+                786,
+                458
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "26.7 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                483,
+                342,
+                499
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The results of this chapter are based on the seminal work of Goemans and Williamson [106] that introduced the use of semidefinite programs in approximation algorithms. Experimental results reported in their paper show that Algorithm 26.8 performs much better on typical instances than the worst case guarantee. Mahajan and Ramesh [200] give a derandomization of Algorithm 26.8, as well as the MAX-2SAT algorithm, using the method of conditional expectation. Karlof [161] provides a family of tight examples for Algorithm 26.8, for which the expected weight of the cut produced is arbitrarily close to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha \\cdot \\mathrm { O P T } _ { v }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Feige and Schechtman [84] strengthen this to showing that there are graphs such that even the best hyperplane (rather than a random one, as prescribed in Algorithm 26.8) gives a cut of weight only "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha \\cdot \\mathrm { O P T } _ { v }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". They also show that the integrality gap of the semidefinite relaxation (26.2) for MAX-CUT is α."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                510,
+                786,
+                696
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For eficient algorithms, using interior point methods, for approximating semidefinite programs, see Alizadeh [4], Nesterov and Nemirovskii [214] and Overton [215]. For a duality theory for semidefinite programs, see Wolkowitz [260] and Vandeberghe and Boyd [250]."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                695,
+                786,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "268"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "26 Semidefinite Programming"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                494,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lov´asz and Schrijver [196] use semidefinite programming to provide an automatic way of strengthening any convex relaxation (having a convex feasible region) of a 0/1 integer program. They also show that if the original relaxation can be optimized in polynomial time, then so can the strengthened relaxation (however, in order to guarantee polynomial running time, this process can be applied only a constant number of times)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                199
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Feige and Goemans [81] improve the approximation factor for MAX-2SAT to 0.931. They also give a 0.859 factor for the maximum directed cut problem (see Exercise 26.11). For semidefinite-programming-based algorithms for the MAX k-CUT problem see Frieze and Jerrum [90]. Karger, Motwani, and Sudan [158] use the relaxation in Exercise 26.13 to obtain an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( n ^ { 1 - 3 / ( k + 1 ) } \\log ^ { 1 / 2 } n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "coloring for k-colorable graphs."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                198,
+                786,
+                287
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "26.7 Notes"
+                    }
+                ]
+            },
+            "bbox": [
+                643,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "269"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                0,
+                0,
+                996,
+                998
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Part III"
+                    }
+                ]
+            },
+            "bbox": [
+                695,
+                206,
+                789,
+                231
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Other Topics"
+                    }
+                ]
+            },
+            "bbox": [
+                621,
+                250,
+                789,
+                275
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                0,
+                0,
+                996,
+                998
+            ]
+        }
+    ]
+]

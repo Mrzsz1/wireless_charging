@@ -1,0 +1,50 @@
+{
+  "title": "Joint Scheduling and Trajectory Optimization of Charging UAV in Wireless Rechargeable Sensor Networks",
+  "authors": [
+    "Yanheng Liu",
+    "Hongyang Pan",
+    "Geng Sun",
+    "Aimin Wang",
+    "Jiahui Li",
+    "Shuang Liang"
+  ],
+  "abstract": "Wireless rechargeable sensor networks with a charging unmanned aerial vehicle (CUAV) have broad application prospects in the power supply of the rechargeable sensor nodes (SNs). However, how to schedule a CUAV and design the trajectory to improve the charging efficiency of the entire system is still a vital problem. In this article, we formulate a joint-CUAV scheduling and trajectory optimization problem (JSTOP) to simultaneously minimize the hovering points of CUAV, the number of the repeatedly covered SNs, and the flying distance of CUAV for charging all SNs. Due to the complexity of JSTOP, it is decomposed into two optimization subproblems that are CUAV scheduling optimization problem (CSOP) and CUAV trajectory optimization problem (CTOP). CSOP is a hybrid optimization problem that consists of the continuous and discrete solution space, and the solution dimension in CSOP is not fixed since it should be changed with the number of hovering points of CUAV. Moreover, CTOP is a completely discrete optimization problem. Thus, we propose a particle swarm optimization (PSO) with a flexible dimension mechanism, a <inline-formula xmlns:mml=\"http://www.w3.org/1998/Math/MathML\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"> <tex-math notation=\"LaTeX\">$K$ </tex-math></inline-formula> -means operator, and a punishment-compensation mechanism (PSOFKP) and a PSO with a discretization factor, a 2-opt operator, and a path crossover reduction mechanism (PSOD2P) to solve the converted CSOP and CTOP, respectively. Simulation results evaluate the benefits of PSOFKP and PSOD2P under different scales and settings of the network, and the stability of the proposed algorithms is verified.",
+  "published_date": "2021-12-02",
+  "updated_date": "",
+  "year": 2021,
+  "doi": "10.1109/jiot.2021.3132015",
+  "arxiv_id": "2310.00396",
+  "landing_url": "https://doi.org/10.1109/jiot.2021.3132015",
+  "pdf_url": "https://arxiv.org/pdf/2310.00396",
+  "is_open_access": true,
+  "license": "",
+  "providers": [
+    "openalex"
+  ],
+  "provider_ids": {
+    "openalex": "https://openalex.org/W4205594222"
+  },
+  "matched_queries": [
+    "wireless charging scheduling optimization"
+  ],
+  "score": 11.25,
+  "score_reasons": [
+    "标题命中：charging, optimization, scheduling"
+  ],
+  "local_pdf": "raw/inbox/auto-discovered/papers/2021-Joint-Scheduling-and-Trajectory-Optimization-of-Charging-UAV-in-Wirele-c7973d96/paper.pdf",
+  "fulltext_resolved_via": "Semantic Scholar openAccessPdf -> arXiv",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "openalex"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+  "triage_status": "promoted",
+  "selected_by_user": true,
+  "acquired_at": "2026-07-14T13:40:03+00:00",
+  "selected_at": "2026-07-14T15:49:13+00:00",
+  "canonicalized_at": "2026-07-14T16:03:19+00:00",
+  "triage_note": "用户于 2026-07-14 明确要求下载并使用 MinerU；PDF 已校验，MinerU 7/7 成功，现标记进入 canonical，等待 A 编译。",
+  "candidate_rank": 3,
+  "source_manifest": "raw/inbox/auto-discovered/runs/search-20260714-214003/results.json",
+  "boundary": "promoted to canonical; pending wiki ingest"
+}

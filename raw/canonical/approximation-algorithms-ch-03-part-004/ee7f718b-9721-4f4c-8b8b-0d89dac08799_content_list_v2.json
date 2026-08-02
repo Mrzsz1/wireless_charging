@@ -1,0 +1,3731 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3 Steiner Tree and TSP"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                109,
+                517,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this chapter, we will present constant factor algorithms for two fundamental problems, metric Steiner tree and metric TSP. The reasons for considering the metric case of these problems are quite diferent. For Steiner tree, this is the core of the problem – the rest of the problem reduces to this case. For TSP, without this restriction, the problem admits no approximation factor, assuming "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } \\neq \\mathbf { N P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The algorithms, and their analyses, are similar in spirit, which is the reason for presenting these problems together."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                786,
+                357
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.1 Metric Steiner tree"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                384,
+                463,
+                400
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The Steiner tree problem was defined by Gauss in a letter he wrote to Schumacher (reproduced on the cover of this book). Today, this problem occupies a central place in the field of approximation algorithms. The problem has a wide range of applications, all the way from finding minimum length interconnection of terminals in VLSI design to constructing phylogeny trees in computational biology. This problem and its generalizations will be studied extensively in this book, see Chapters 22 and 23."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                414,
+                786,
+                514
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 3.1 (Steiner tree) Given an undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with nonnegative edge costs and whose vertices are partitioned into two sets, required and Steiner, find a minimum cost tree in G that contains all the required vertices and any subset of the Steiner vertices."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                520,
+                786,
+                577
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will first show that the core of this problem lies in its restriction to instances in which the edge costs satisfy the triangle inequality, i.e., G is a complete undirected graph, and for any three vertices u, v, and w, cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v ) \\leq"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { c o s t } ( u , w ) + \\mathrm { c o s t } ( v , w )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let us call this restriction the metric Steiner tree problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                577,
+                786,
+                649
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 3.2 There is an approximation factor preserving reduction from the Steiner tree problem to the metric Steiner tree problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                658,
+                786,
+                687
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: We will transform, in polynomial time, an instance I of the Steiner tree problem, consisting of graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", to an instance I<sup>\u0001</sup> of the metric Steiner tree problem as follows. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the complete undirected graph on vertex set V. Define the cost of edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be the cost of a shortest u–v path in G. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is called the metric closure of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { \\ l }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The partition of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "into required and Steiner vertices in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the same as in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I ."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                702,
+                786,
+                747
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                155
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For any edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v ) \\in E"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", its cost in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is no more than its cost in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Therefore, the cost of an optimal solution in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "does not exceed the cost of an optimal solution in I."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                155,
+                786,
+                198
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Next, given a Steiner tree "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I ^ { \\prime } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "we will show how to obtain, in polynomial time, a Steiner tree "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in I of at most the same cost. The cost of an edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "corresponds to the cost of a path in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Replace each edge of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by the corresponding path to obtain a subgraph of G. Clearly, in this subgraph, all the required vertices are connected. However, this subgraph may, in general, contain cycles. If so, remove edges to obtain tree T. This completes the approximation factor preserving reduction. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                198,
+                786,
+                299
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As a consequence of Theorem 3.2, any approximation factor established for the metric Steiner tree problem carries over to the entire Steiner tree problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                305,
+                786,
+                348
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.1.1 MST-based algorithm"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                367,
+                468,
+                382
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let R denote the set of required vertices. Clearly, a minimum spanning tree (MST) on R is a feasible solution for this problem. Since the problem of finding an MST is in P and the metric Steiner tree problem is NP-hard, we cannot expect the MST on R to always give an optimal Steiner tree; below is an example in which the MST is strictly costlier."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                394,
+                786,
+                466
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/1725c1d998f9bba137c768678a6d571d1d1edf03ecf8f4c3e035367ee305c10c.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Even "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathrm { s o } } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "an MST on R is not much more costly than an optimal Steiner tree:"
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                436,
+                470,
+                573,
+                552
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 3.3 The cost of an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M S T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on R is within "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 \\cdot \\mathrm { O P T }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                582,
+                668,
+                596
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Consider a Steiner tree of cost OPT. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { B y }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "doubling its edges we obtain an Eulerian graph connecting all vertices of R and, possibly, some Steiner vertices. Find an Euler tour of this graph, for example by traversing the edges in DFS (depth first search) order:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                613,
+                786,
+                671
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "28"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "Steiner Tree and TSP"
+                    }
+                ]
+            },
+            "bbox": [
+                300,
+                87,
+                453,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/d9bbcc5c0467b87eddc5ae74f7e26a99a6466778a744eac4a44101405555650f.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                352,
+                109,
+                655,
+                239
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The cost of this Euler tour is 2 · OPT. Next obtain a Hamiltonian cycle on the vertices of R by traversing the Euler tour and “short-cutting” Steiner vertices and previously visited vertices of R:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                247,
+                786,
+                291
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/7421bdb1b76158f21bc60ba98e8a19d0282cc6e3f218fb99b2d5959bfd754b52.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                349,
+                294,
+                655,
+                439
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Because of triangle inequality, the shortcuts do not increase the cost of the tour. If we delete one edge of this Hamiltonian cycle, we obtain a path that spans R and has cost at most 2 · OPT. This path is also a spanning tree on R. Hence, the MST on R has cost at most 2 · OPT. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                450,
+                786,
+                508
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 3.3 gives a straightforward factor 2 algorithm for the metric Steiner tree problem: simply find an MST on the set of required vertices. As in the case of set cover, the “correct” way of viewing this algorithm is in the setting of LP-duality theory. In Chapters 22 and 23 we will see that LP-duality provides the lower bound on which this algorithm is based and also helps solve generalizations of this problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                514,
+                786,
+                601
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 3.4 For a tight example, consider a graph with n required vertices and one Steiner vertex. An edge between the Steiner vertex and a required vertex has cost 1, and an edge between two required vertices has cost 2 (not all edges of cost 2 are shown below). In this graph, any MST on R has cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 ( n - 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", while "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } = n"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                607,
+                786,
+                678
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "3.1 Metric Steiner tree"
+                    }
+                ]
+            },
+            "bbox": [
+                561,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "29"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/5e6ba2cd0cf222e9116483ce9f5c01e6930735711dcaf0e0d34253df050f53ca.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                411,
+                129,
+                594,
+                260
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.2 Metric TSP"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                319,
+                391,
+                336
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The following is a well-studied problem in combinatorial optimization."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                349,
+                742,
+                365
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 3.5 (Traveling salesman problem (TSP)) Given a complete graph with nonnegative edge costs, find a minimum cost cycle visiting every vertex exactly once."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                370,
+                784,
+                413
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In its full generality, TSP cannot be approximated, assuming "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } \\neq \\mathbf { N P }"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                414,
+                771,
+                429
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 3.6 For any polynomial time computable function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ( n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", TSP cannot be approximated within a factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ( n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", unless "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } = \\mathbf { N P }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                438,
+                784,
+                467
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Assume, for a contradiction, that there is a factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ( n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "polynomial time approximation algorithm, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathcal { A } } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for the general TSP problem. We will show that A can be used for deciding the Hamiltonian cycle problem (which is NPhard) in polynomial time, thus implying "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } = \\mathbf { N P }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                482,
+                784,
+                539
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The central idea is a reduction from the Hamiltonian cycle problem to TSP, that transforms a graph G on n vertices to an edge-weighted complete graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on n vertices such that"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                539,
+                786,
+                583
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• if G has a Hamiltonian cycle, then the cost of an optimal TSP tour in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                588,
+                784,
+                617
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "does not have a Hamiltonian cycle, then an optimal TSP tour in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is of cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "> \\alpha ( n ) \\cdot n"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                617,
+                784,
+                646
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Observe that when run on graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", algorithm "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must return a solution of cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\leq \\alpha ( n ) \\cdot n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the first case, and a solution of cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "> \\alpha ( n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "· n in the second case. Thus, it can be used for deciding whether "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "contains a Hamiltonian cycle."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                652,
+                786,
+                709
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The reduction is simple. Assign a weight of 1 to edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and a weight of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ( n ) \\cdot n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to nonedges, to obtain "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now, if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has a Hamiltonian cycle, then the corresponding tour in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has cost n. On the other hand, if G has no Hamiltonian cycle, any tour in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must use an edge of cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ( n ) \\cdot n ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and therefore has cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "> \\alpha ( n ) \\cdot n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                709,
+                786,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "30"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "3 Steiner Tree and TSP"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                453,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                142
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Notice that in order to obtain such a strong nonapproximability result, we had to assign edge costs that violate triangle inequality. If we restrict ourselves to graphs in which edge costs satisfy triangle inequality, i.e., consider metric TSP, the problem remains NP-complete, but it is no longer hard to approximate."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                147,
+                786,
+                219
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.2.1 A simple factor 2 algorithm"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                234,
+                519,
+                249
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will first present a simple factor 2 algorithm. The lower bound we will use for obtaining this factor is the cost of an MST in G. This is a lower bound because deleting any edge from an optimal solution to TSP gives us a spanning tree of G."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                256,
+                786,
+                316
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 3.7 (Metric TSP - factor 2)  \n1. Find an MST,  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", of  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".  \n2. Double every edge of the MST to obtain an Eulerian graph.  \n3. Find an Eulerian tour,  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal{T}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", on this graph.  \n4. Output the tour that visits vertices of  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": " in the order of their first appearance in  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal{T}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal{C}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " be this tour."
+                    }
+                ]
+            },
+            "bbox": [
+                231,
+                326,
+                739,
+                443
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Notice that Step 4 is similar to the “short-cutting” step in Theorem 3.3."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                453,
+                757,
+                469
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 3.8 Algorithm 3.7 is a factor 2 approximation algorithm for metric TSP."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                474,
+                784,
+                502
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: As noted above, cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( T ) \\leq \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since T contains each edge of T twice, cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\tau ) = 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "· cost(T). Because of triangle inequality, after the “shortcutting” step, cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( { \\mathcal { C } } ) \\leq \\mathrm { c o s t } ( { \\mathcal { T } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Combining these inequalities we get that cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( { \\mathcal { C } } ) \\leq 2 \\cdot \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                514,
+                786,
+                574
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 3.9 A tight example for this algorithm is given by a complete graph on n vertices with edges of cost 1 and 2. We present the graph for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n = 6"
+                    },
+                    {
+                        "type": "text",
+                        "content": "below, where thick edges have cost 1 and remaining edges have cost 2. For arbitrary n the graph has 2n−2 edges of cost 1, with these edges forming the union of a star and an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cycle; all remaining edges have cost 2. The optimal TSP tour has cost n, as shown below for n = 6:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                583,
+                786,
+                670
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/f56c1ef9b1426ffdbb388db958b7343aee49e790b24b136bddb99614beef0ba0.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                373,
+                671,
+                635,
+                750
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "3.2 Metric TSP"
+                    }
+                ]
+            },
+            "bbox": [
+                608,
+                87,
+                731,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "31"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Suppose that the MST found by the algorithm is the spanning star created by edges of cost 1. Moreover, suppose that the Euler tour constructed in Step 3 visits vertices in order shown below for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n = 6 \\mathrm { : }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                156
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/b41c355bc3c8fe6efdd6c9663bcfe87608726bf4ded6354803150e8c35eb8d20.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Then the tour obtained after short-cutting contains "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "edges of cost 2 and has a total cost of 2n − 2. Asymptotically, this is twice the cost of the optimal TSP tour. ✷"
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                371,
+                158,
+                636,
+                239
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.2.2 Improving the factor to 3/2"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                315,
+                519,
+                331
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 3.7 first finds a low cost Euler tour spanning the vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and then short-cuts this tour to find a traveling salesman tour. Is there a cheaper Euler tour than that found by doubling an MST? Recall that a graph has an Euler tour if all its vertices have even degrees. Thus, we only need to be concerned about the vertices of odd degree in the MST. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote this set of vertices. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\vert V ^ { \\prime } \\vert"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must be even since the sum of degrees of all vertices in the MST is even. Now, if we add to the MST a minimum cost perfect matching on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", every vertex will have an even degree, and we get an Eulerian graph. With this modification, the algorithm achieves an approximation guarantee of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 / 2"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                341,
+                786,
+                483
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 3.10 (Metric TSP – factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 / 2 )"
+                    }
+                ]
+            },
+            "bbox": [
+                233,
+                506,
+                591,
+                521
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Find an MST of G, say T."
+                    }
+                ]
+            },
+            "bbox": [
+                240,
+                527,
+                453,
+                542
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Compute a minimum cost perfect matching, M, on the set of odd-degree vertices of T. Add M to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and obtain an Eulerian graph."
+                    }
+                ]
+            },
+            "bbox": [
+                238,
+                542,
+                752,
+                571
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3. Find an Euler tour, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of this graph."
+                    }
+                ]
+            },
+            "bbox": [
+                240,
+                570,
+                524,
+                585
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4. Output the tour that visits vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in order of their first appearance in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let C be this tour."
+                    }
+                ]
+            },
+            "bbox": [
+                238,
+                583,
+                700,
+                614
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Interestingly, the proof of this algorithm is based on a second lower bound on OPT."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                642,
+                784,
+                671
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 3.11 Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V ^ { \\prime } \\subseteq V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| V ^ { \\prime } |"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is even, and let M be a minimum cost perfect matching on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then, cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( M ) \\leq \\mathrm { O P T / 2 }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                678,
+                784,
+                709
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Consider an optimal TSP tour of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", say τ . Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the tour on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "obtained by short-cutting τ . By the triangle inequality, cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\left( \\tau ^ { \\prime } \\right) \\ \\leq"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cos "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathrm { ; } } ( \\tau )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the union of two perfect matchings on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", each consisting of alternate edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Thus, the cheaper of these matchings has cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\leq"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\tau ^ { \\prime } ) / 2 \\le \\mathrm { O P T / 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Hence the optimal matching also has cost at most OPT/2. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                722,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "32"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "3 Steiner Tree and TSP"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                453,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                170
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 3.12 Algorithm 3.10 achieves an approximation guarantee "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "o f 3 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for metric TSP."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                186,
+                784,
+                215
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: The cost of the Euler tour,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                230,
+                489,
+                244
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\operatorname{cost} (\\mathcal {T}) \\leq \\operatorname{cost} (T) + \\operatorname{cost} (M) \\leq \\mathrm{OPT} + \\frac {1}{2} \\mathrm{OPT} = \\frac {3}{2} \\mathrm{OPT},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/be32f345a7f0866542af29935c399f398b863c3180f5229857d2926b6e251d03.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                255,
+                685,
+                284
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where the first inequality follows by using the two lower bounds on OPT. Using the triangle inequality, cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( { \\mathcal { C } } ) \\leq \\mathrm { c o s t } ( { \\mathcal { T } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and the theorem follows. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                294,
+                784,
+                325
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 3.13 A tight example for this algorithm is given by the following graph on n vertices, with n odd:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                337,
+                786,
+                366
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/ac07c3a115b814b4f129dfde4daae88d1633ac86f9cfe2d6cf6b6c979a445597.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Thick edges represent the MST found in step 1. This MST has only two odd vertices, and by adding the edge joining them we obtain a traveling salesman tour of cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\left( n - 1 \\right) + \\left\\lceil n / 2 \\right\\rceil"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In contrast, the optimal tour has cost n. ✷"
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                287,
+                366,
+                719,
+                450
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finding a better approximation algorithm for metric TSP is currently one of the outstanding open problems in this area. Many researchers have conjectured that an approximation factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "4 / 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": "may be achievable."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                510,
+                786,
+                554
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.3 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                582,
+                364,
+                596
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3.1 The hardness of the Steiner tree problem lies in determining the optimal subset of Steiner vertices that need to be included in the tree. Show this by proving that if this set is provided, then the optimal Steiner tree can be computed in polynomial time."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                625,
+                786,
+                682
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Find an MST on the union of this set and the set of required vertices."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                682,
+                784,
+                696
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3.2 Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a graph with nonnegative edge costs. S, the senders and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { : }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the receivers, are disjoint subsets of V. The problem is to find a minimum cost subgraph of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that has a path connecting each receiver to a sender (any sender sufices). Partition the instances into two cases: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\cup R = V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\cup R \\neq V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Show that these two cases are in P and NP-hard, respectively. For the second case, give a factor 2 approximation algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                709,
+                786,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "3.3 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                628,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "33"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Add a new vertex which is connected to each sender by a zero cost edge. Consider the new vertex and all receivers as required and the remaining vertices as Steiner, and find a minimum cost Steiner tree."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                156,
+                786,
+                200
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3.3 Give an approximation factor preserving reduction from the set cover problem to the following problem, thereby showing that it is unlikely to have a better approximation guarantee than "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log n )"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                212,
+                786,
+                256
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 3.14 (Directed Steiner tree) "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a directed graph with nonnegative edge costs. The vertex set V is partitioned into two sets, required and Steiner. One of the required vertices, r, is special. The problem is to find a minimum cost tree in G rooted into r that contains all the required vertices and any subset of the Steiner vertices."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                262,
+                784,
+                334
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Construct a three layer graph: layer 1 contains a required vertex corresponding to each element, layer 2 contains a Steiner vertex corresponding to each set, and layer 3 contains r."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                334,
+                786,
+                376
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3.4 (Hoogeveen [130]) Consider variants on the metric TSP problem in which the object is to find a simple path containing all the vertices of the graph. Three diferent problems arise, depending on the number "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 , 1 , \\mathrm { o r } 2 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of endpoints of the path that are specified. Obtain the following approximation algorithms."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                390,
+                786,
+                462
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• If zero or one endpoints are specified, obtain a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                468,
+                742,
+                483
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• If both endpoints are specified, obtain a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "5 / 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                483,
+                697,
+                497
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Use the idea behind Algorithm 3.10."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                502,
+                549,
+                518
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3.5 (Papadimitriou and Yannakakis [219]) Let G be a complete undirected graph in which all edge lengths are either 1 or 2 (clearly, G satisfies the triangle inequality). Give a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "4 / 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor algorithm for TSP in this special class of graphs."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                532,
+                784,
+                589
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Start by finding a minimum 2-matching in G. A 2-matching is a subset S of edges so that every vertex has exactly 2 edges of S incident at it."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                589,
+                784,
+                619
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3.6 (Frieze, Galbiati, and Mafioli [89]) Give an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor approximation algorithm for the following problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                631,
+                784,
+                662
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 3.15 (Asymmetric TSP) We are given a directed graph G on vertex set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { : }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with a nonnegative cost specified for edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u  v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for each pair "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u , v \\in V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The edge costs satisfy the directed triangle inequality, i.e., for any three vertices u, v, and w, cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u \\to v ) \\leq \\mathrm { c o s t } ( u \\to w ) + \\mathrm { c o s t } ( w \\to v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The problem is to find a minimum cost cycle visiting every vertex exactly once."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                667,
+                786,
+                740
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "34"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                242,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "3 Steiner Tree and TSP"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                453,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Use the fact that a minimum cost cycle cover "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\mathrm { i . e . }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", disjoint cycles covering all the vertices) can be found in polynomial time. Shrink the cycles and recurse."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3.7 Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a graph with edge costs satisfying the triangle inequality, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V ^ { \\prime } \\subseteq V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a set of even cardinality. Prove or disprove: The cost of a minimum cost perfect matching on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is bounded above by the cost of a minimum cost perfect matching on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                168,
+                786,
+                227
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3.8 Given n points in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { R } ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", define the optimal Euclidean Steiner tree to be a minimum length tree containing all n points and any other subset of points from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { R } ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Prove that each of the additional points must have degree three, with all three angles being 120<sup>◦</sup>."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                241,
+                786,
+                299
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3.9 (Rao, Sadayappan, Hwang, and Shor [230]) This exercise develops a factor 2 approximation algorithm for the following problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                312,
+                784,
+                342
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 3.16 (Rectilinear Steiner arborescence) Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { 1 } , \\ldots , p _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be points given in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { R } ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the positive quadrant. A path from the origin to point "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is said to be monotone if it consists of segments traversing in the positive x direction or the positive y direction (informally, going right or up). The problem is to find a minimum length tree containing monotone paths from the origin to each of the n points; such a tree is called rectilinear Steiner arborescence."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                347,
+                786,
+                447
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For point "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { p }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { p }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be its x and y coordinates, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| p | _ { 1 } ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| x _ { p } | + | y _ { p } |"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Say that point "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "dominates point q if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { p } \\leq x _ { q }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { p } \\le y _ { q }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For sets of points "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "we will say that A dominates B if for each point "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b \\in B ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "there is a point "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a \\in A"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that a dominates b. For points "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and q, define dom "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\displaystyle ( p , q ) = ( x , y )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x = \\operatorname* { m i n } ( x _ { p } , x _ { q } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y = \\operatorname* { m i n } ( y _ { p } , y _ { q } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "If "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "dominates "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "q ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "define segments "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( p , q )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be a monotone path from p to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "q ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Consider the following algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                447,
+                784,
+                548
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 3.17 (Rectilinear Steiner arborescence)\n1.   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T \\leftarrow \\emptyset"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n2.   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P \\leftarrow \\{p_{1}, \\ldots, p_{n}\\} \\cup \\{(0,0)\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n3. while   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "|P| > 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "  do:\n    Pick   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p, q = \\arg\\max_{p, q \\in P} (|\\text{dom}(p, q)|_{1})"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n     "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P \\leftarrow (P - \\{p, q\\}) \\cup \\{\\text{dom}(p, q)\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n     "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T \\leftarrow T \\cup \\text{segments}(\\text{dom}(p, q), p) \\cup \\text{segments}(\\text{dom}(p, q), q)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n4. Output T."
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                563,
+                736,
+                703
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "3.3 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                628,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "35"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "z \\geq 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\ell _ { z }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be the line "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x + y = z"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For a rectilinear Steiner arborescence "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T _ { \\cdot }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ( z ) = | T \\cap \\ell _ { z } |"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Prove that the length of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                142
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\int_ {z = 0} ^ {\\infty} T (z) \\mathrm{d} z.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/911cad37acb51af337b3171d64b34d8f67164567ab0dc1448e8989d13b36e345.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                154,
+                366,
+                186
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Also, for every "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x \\geq 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { z } = \\{ p \\in P \\ s . t . \\ | p | _ { 1 } > z \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                197,
+                662,
+                212
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "equation_inline",
+                        "content": "N ( z ) = \\operatorname* { m i n } \\{ | C | : C \\subset \\ell _ { z }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and C dominates "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { z } \\}"
+                    }
+                ]
+            },
+            "bbox": [
+                263,
+                225,
+                628,
+                241
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Prove that"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                254,
+                305,
+                268
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\int_ {z = 0} ^ {\\infty} N (z) \\mathrm{d} z",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/d9bd2005ad7c45a2b4db94088bc7d8ff9bd57dae6f13bd6933ce5405dcd0cd06.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                277,
+                366,
+                310
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "is a lower bound on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                321,
+                416,
+                335
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Use these facts to show that Algorithm 3.17 achieves an approximation guarantee of 2."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                335,
+                784,
+                365
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3.10 (I. M˘andoiu) This exercise develops a factor 9 approximation algorithm for the following problem, which finds applications in VLSI clock routing."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                376,
+                784,
+                407
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 3.18 (Rectilinear zero-skew tree) Given a set S of points in the rectilinear plane, find a minimum length zero-skew tree (ZST) for S, i.e., a rooted tree "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "embedded in the rectilinear plane such that points in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are leaves of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and all root-to-leaf paths in T have equal length. By length of a path we mean the sum of the lengths of edges on it."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                413,
+                786,
+                486
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be an arbitrary zero-skew tree, and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the common length of all root-to-leaf paths. For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r \\geq 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ( r )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the number of points of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that are at a length of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R ^ { \\prime } - r"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from the root. Prove that the length of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                493,
+                786,
+                551
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\int_ {0} ^ {R ^ {\\prime}} T (r) \\mathrm{d} r",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/62977cff24a3b8f36b1bc9f16bcc2d06c82f5079dd2c79d4013a2f534324e919.jpg"
+                }
+            },
+            "bbox": [
+                292,
+                563,
+                384,
+                598
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. A closed "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\ell _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "ball of radius r centered at point "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the set of all points whose "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\ell _ { 1 } { \\mathrm { - d i s t a n c e } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p { \\mathrm { ~ i s ~ } } \\leq r"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let R denote the radius of the smallest "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\ell _ { 1 } \\cdot"
+                    },
+                    {
+                        "type": "text",
+                        "content": "-ball that contains all points of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r \\geq 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "N ( r )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the minimum number of closed \u0006<sub>1</sub>-balls of radius r needed to cover all points of S. Prove that"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                608,
+                786,
+                680
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\int_ {0} ^ {R} N (r) \\mathrm{d} r",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/78c6f70728cd2e6eca981d2f0306673139ce785334e09f6f224105d00cb9b9f2.jpg"
+                }
+            },
+            "bbox": [
+                292,
+                689,
+                383,
+                722
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "is a lower bound on the length of the optimum ZST."
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                733,
+                640,
+                749
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "36"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "3 Steiner Tree and TSP"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                453,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3. Consider the following algorithm. First, compute R and find a radius R "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\ell _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "-ball enclosing all points of S. The center of this ball is chosen as the root of the resulting ZST. This ball can be partitioned into 4 balls, called its quadrants, of radius "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "each. The root can be connected to the center of any of these balls by an edge of length "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". These balls can be further partitioned into 4 balls each of radius "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R / 4 ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and so on."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                112,
+                786,
+                199
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The ZST is constructed recursively, starting with the ball of radius R. The center of the current ball is connected to the centers of each of its quadrants that has a point of S. The algorithm then recurses on each of these quadrants. If the current ball contains exactly one point of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "then this ball is not partitioned into quadrants. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the radius of this ball, c its center, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the point in it. Clearly, the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\ell _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "distance between c and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\leq r ^ { \\prime } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Connect c to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by a rectilinear path of length exactly "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r ^ { \\prime } ."
+                    }
+                ]
+            },
+            "bbox": [
+                247,
+                198,
+                784,
+                313
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Show that for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 \\leq r \\leq R , T ( r ) \\leq 9 N ( r )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Hence, show that this is a factor 9 approximation algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                311,
+                784,
+                341
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3.4 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                370,
+                331,
+                385
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The Steiner tree problem has its origins in a problem posed by Fermat, and was defined by Gauss in a letter he wrote to his student Schumacher on March 21, 1836. Parts of the letter are reproduced on the cover of this book. Courant and Robbins [55] popularized this problem under the name of Steiner, a well known 19th century geometer. See Hwang, Richards, and Winter [133] and Schreiber [236] for the fascinating history of this problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                400,
+                784,
+                486
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The factor 2 Steiner tree algorithm was discovered independently by Choukhmane [44], Iwainsky, Canuto, Taraszow, and Villa [136], Kou, Markowsky, and Berman [177], and Plesn´ık [221]. The factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "metric TSP algorithm is due to Christofides [45], and Theorem 3.6 is due to Sahni and Gonzalez [232]. The lower bound in Exercise 3.10 is from Charikar, Kleinberg, Kumar, Rajagopalan, Sahai, and Tomkins [41]. The best factor known for the rectilinear zero-skew tree problem, due to Zelikovsky and M˘andoiu [263], is 3."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                485,
+                786,
+                599
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Given n points on the Euclidean plane, the minimum spanning tree on these points is within a factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 / \\sqrt { 3 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of the minimum Steiner tree (which is allowed to use any set of points on the plane as Steiner points). This was shown by Du and Hwang [63], thereby settling the conjecture of Gilbert and Pollak [100]."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                599,
+                786,
+                671
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "3.4 Notes"
+                    }
+                ]
+            },
+            "bbox": [
+                650,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "37"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ]
+]

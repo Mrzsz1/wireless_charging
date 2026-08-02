@@ -1,0 +1,626 @@
+{
+  "schema": "core-book-chapters-v1",
+  "book_id": "approximation-algorithms",
+  "chapters": [
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "front-matter",
+      "chapter_number": 0,
+      "chapter_title": "Front matter",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 1,
+      "source_page_end": 18,
+      "printed_page_start": null,
+      "printed_page_end": null,
+      "part_ids": [
+        "approximation-algorithms-front-matter-part-001"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/front-matter-front-matter.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/front-matter-front-matter.md",
+      "char_count": 39542
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-01",
+      "chapter_number": 1,
+      "chapter_title": "Introduction",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 19,
+      "source_page_end": 32,
+      "printed_page_start": 1,
+      "printed_page_end": 14,
+      "part_ids": [
+        "approximation-algorithms-ch-01-part-002"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-01-introduction.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-01-introduction.md",
+      "char_count": 28434
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-02",
+      "chapter_number": 2,
+      "chapter_title": "Set Cover",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 33,
+      "source_page_end": 44,
+      "printed_page_start": 15,
+      "printed_page_end": 26,
+      "part_ids": [
+        "approximation-algorithms-ch-02-part-003"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-02-set-cover.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-02-set-cover.md",
+      "char_count": 27253
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-03",
+      "chapter_number": 3,
+      "chapter_title": "Steiner Tree and TSP",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 45,
+      "source_page_end": 55,
+      "printed_page_start": 27,
+      "printed_page_end": 37,
+      "part_ids": [
+        "approximation-algorithms-ch-03-part-004"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-03-steiner-tree-and-tsp.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-03-steiner-tree-and-tsp.md",
+      "char_count": 27639
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-04",
+      "chapter_number": 4,
+      "chapter_title": "Multiway Cut and k-Cut",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 56,
+      "source_page_end": 64,
+      "printed_page_start": 38,
+      "printed_page_end": 46,
+      "part_ids": [
+        "approximation-algorithms-ch-04-part-005"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-04-multiway-cut-and-k-cut.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-04-multiway-cut-and-k-cut.md",
+      "char_count": 22035
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-05",
+      "chapter_number": 5,
+      "chapter_title": "k-Center",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 65,
+      "source_page_end": 71,
+      "printed_page_start": 47,
+      "printed_page_end": 53,
+      "part_ids": [
+        "approximation-algorithms-ch-05-part-006"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-05-k-center.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-05-k-center.md",
+      "char_count": 19321
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-06",
+      "chapter_number": 6,
+      "chapter_title": "Feedback Vertex Set",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 72,
+      "source_page_end": 78,
+      "printed_page_start": 54,
+      "printed_page_end": 60,
+      "part_ids": [
+        "approximation-algorithms-ch-06-part-007"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-06-feedback-vertex-set.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-06-feedback-vertex-set.md",
+      "char_count": 25526
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-07",
+      "chapter_number": 7,
+      "chapter_title": "Shortest Superstring",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 79,
+      "source_page_end": 85,
+      "printed_page_start": 61,
+      "printed_page_end": 67,
+      "part_ids": [
+        "approximation-algorithms-ch-07-part-008"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-07-shortest-superstring.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-07-shortest-superstring.md",
+      "char_count": 14446
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-08",
+      "chapter_number": 8,
+      "chapter_title": "Knapsack",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 86,
+      "source_page_end": 91,
+      "printed_page_start": 68,
+      "printed_page_end": 73,
+      "part_ids": [
+        "approximation-algorithms-ch-08-part-009"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-08-knapsack.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-08-knapsack.md",
+      "char_count": 12267
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-09",
+      "chapter_number": 9,
+      "chapter_title": "Bin Packing",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 92,
+      "source_page_end": 96,
+      "printed_page_start": 74,
+      "printed_page_end": 78,
+      "part_ids": [
+        "approximation-algorithms-ch-09-part-010"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-09-bin-packing.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-09-bin-packing.md",
+      "char_count": 10403
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-10",
+      "chapter_number": 10,
+      "chapter_title": "Minimum Makespan Scheduling",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 97,
+      "source_page_end": 101,
+      "printed_page_start": 79,
+      "printed_page_end": 83,
+      "part_ids": [
+        "approximation-algorithms-ch-10-part-011"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-10-minimum-makespan-scheduling.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-10-minimum-makespan-scheduling.md",
+      "char_count": 10655
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-11",
+      "chapter_number": 11,
+      "chapter_title": "Euclidean TSP",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 102,
+      "source_page_end": 110,
+      "printed_page_start": 84,
+      "printed_page_end": 92,
+      "part_ids": [
+        "approximation-algorithms-ch-11-part-012"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-11-euclidean-tsp.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-11-euclidean-tsp.md",
+      "char_count": 18681
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-12",
+      "chapter_number": 12,
+      "chapter_title": "Introduction to LP-Duality",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 111,
+      "source_page_end": 125,
+      "printed_page_start": 93,
+      "printed_page_end": 107,
+      "part_ids": [
+        "approximation-algorithms-ch-12-part-013"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-12-introduction-to-lp-duality.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-12-introduction-to-lp-duality.md",
+      "char_count": 39302
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-13",
+      "chapter_number": 13,
+      "chapter_title": "Set Cover via Dual Fitting",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 126,
+      "source_page_end": 136,
+      "printed_page_start": 108,
+      "printed_page_end": 118,
+      "part_ids": [
+        "approximation-algorithms-ch-13-part-014"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-13-set-cover-via-dual-fitting.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-13-set-cover-via-dual-fitting.md",
+      "char_count": 25450
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-14",
+      "chapter_number": 14,
+      "chapter_title": "Rounding Applied to Set Cover",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 137,
+      "source_page_end": 142,
+      "printed_page_start": 119,
+      "printed_page_end": 124,
+      "part_ids": [
+        "approximation-algorithms-ch-14-part-015"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-14-rounding-applied-to-set-cover.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-14-rounding-applied-to-set-cover.md",
+      "char_count": 14075
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-15",
+      "chapter_number": 15,
+      "chapter_title": "Set Cover via the Primal–Dual Schema",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 143,
+      "source_page_end": 148,
+      "printed_page_start": 125,
+      "printed_page_end": 130,
+      "part_ids": [
+        "approximation-algorithms-ch-15-part-016"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-15-set-cover-via-the-primal-dual-schema.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-15-set-cover-via-the-primal-dual-schema.md",
+      "char_count": 12355
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-16",
+      "chapter_number": 16,
+      "chapter_title": "Maximum Satisﬁability",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 149,
+      "source_page_end": 157,
+      "printed_page_start": 131,
+      "printed_page_end": 139,
+      "part_ids": [
+        "approximation-algorithms-ch-16-part-017"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-16-maximum-satis-ability.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-16-maximum-satis-ability.md",
+      "char_count": 19861
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-17",
+      "chapter_number": 17,
+      "chapter_title": "Scheduling on Unrelated Parallel Machines",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 158,
+      "source_page_end": 163,
+      "printed_page_start": 140,
+      "printed_page_end": 145,
+      "part_ids": [
+        "approximation-algorithms-ch-17-part-018"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-17-scheduling-on-unrelated-parallel-machines.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-17-scheduling-on-unrelated-parallel-machines.md",
+      "char_count": 13624
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-18",
+      "chapter_number": 18,
+      "chapter_title": "Multicut and Integer Multicommodity Flow in Trees",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 164,
+      "source_page_end": 172,
+      "printed_page_start": 146,
+      "printed_page_end": 154,
+      "part_ids": [
+        "approximation-algorithms-ch-18-part-019"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-18-multicut-and-integer-multicommodity-flow-in-trees.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-18-multicut-and-integer-multicommodity-flow-in-trees.md",
+      "char_count": 20501
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-19",
+      "chapter_number": 19,
+      "chapter_title": "Multiway Cut",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 173,
+      "source_page_end": 185,
+      "printed_page_start": 155,
+      "printed_page_end": 167,
+      "part_ids": [
+        "approximation-algorithms-ch-19-part-020"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-19-multiway-cut.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-19-multiway-cut.md",
+      "char_count": 32053
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-20",
+      "chapter_number": 20,
+      "chapter_title": "Multicut in General Graphs",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 186,
+      "source_page_end": 197,
+      "printed_page_start": 168,
+      "printed_page_end": 179,
+      "part_ids": [
+        "approximation-algorithms-ch-20-part-021"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-20-multicut-in-general-graphs.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-20-multicut-in-general-graphs.md",
+      "char_count": 30322
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-21",
+      "chapter_number": 21,
+      "chapter_title": "Sparsest Cut",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 198,
+      "source_page_end": 215,
+      "printed_page_start": 180,
+      "printed_page_end": 197,
+      "part_ids": [
+        "approximation-algorithms-ch-21-part-022"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-21-sparsest-cut.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-21-sparsest-cut.md",
+      "char_count": 44910
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-22",
+      "chapter_number": 22,
+      "chapter_title": "Steiner Forest",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 216,
+      "source_page_end": 230,
+      "printed_page_start": 198,
+      "printed_page_end": 212,
+      "part_ids": [
+        "approximation-algorithms-ch-22-part-023"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-22-steiner-forest.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-22-steiner-forest.md",
+      "char_count": 38051
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-23",
+      "chapter_number": 23,
+      "chapter_title": "Steiner Network",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 231,
+      "source_page_end": 249,
+      "printed_page_start": 213,
+      "printed_page_end": 231,
+      "part_ids": [
+        "approximation-algorithms-ch-23-part-024"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-23-steiner-network.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-23-steiner-network.md",
+      "char_count": 46188
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-24",
+      "chapter_number": 24,
+      "chapter_title": "Facility Location",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 250,
+      "source_page_end": 260,
+      "printed_page_start": 232,
+      "printed_page_end": 242,
+      "part_ids": [
+        "approximation-algorithms-ch-24-part-025"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-24-facility-location.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-24-facility-location.md",
+      "char_count": 27605
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-25",
+      "chapter_number": 25,
+      "chapter_title": "k-Median",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 261,
+      "source_page_end": 272,
+      "printed_page_start": 243,
+      "printed_page_end": 254,
+      "part_ids": [
+        "approximation-algorithms-ch-25-part-026"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-25-k-median.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-25-k-median.md",
+      "char_count": 33245
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-26",
+      "chapter_number": 26,
+      "chapter_title": "Semideﬁnite Programming",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 273,
+      "source_page_end": 290,
+      "printed_page_start": 255,
+      "printed_page_end": 272,
+      "part_ids": [
+        "approximation-algorithms-ch-26-part-027"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-26-semide-nite-programming.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-26-semide-nite-programming.md",
+      "char_count": 35642
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-27",
+      "chapter_number": 27,
+      "chapter_title": "Shortest Vector",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 291,
+      "source_page_end": 311,
+      "printed_page_start": 273,
+      "printed_page_end": 293,
+      "part_ids": [
+        "approximation-algorithms-ch-27-part-028"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-27-shortest-vector.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-27-shortest-vector.md",
+      "char_count": 47405
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-28",
+      "chapter_number": 28,
+      "chapter_title": "Counting Problems",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 312,
+      "source_page_end": 323,
+      "printed_page_start": 294,
+      "printed_page_end": 305,
+      "part_ids": [
+        "approximation-algorithms-ch-28-part-029"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-28-counting-problems.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-28-counting-problems.md",
+      "char_count": 30533
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-29",
+      "chapter_number": 29,
+      "chapter_title": "Hardness of Approximation",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 324,
+      "source_page_end": 351,
+      "printed_page_start": 306,
+      "printed_page_end": 333,
+      "part_ids": [
+        "approximation-algorithms-ch-29-part-030"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-29-hardness-of-approximation.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-29-hardness-of-approximation.md",
+      "char_count": 74372
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "chapter_id": "ch-30",
+      "chapter_number": 30,
+      "chapter_title": "Open Problems",
+      "source_pdf": "raw/inbox/manual-drop/PDF_A.pdf",
+      "source_page_start": 352,
+      "source_page_end": 396,
+      "printed_page_start": 334,
+      "printed_page_end": 378,
+      "part_ids": [
+        "approximation-algorithms-ch-30-part-031"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-30-open-problems.md",
+      "mineru_path": "raw/canonical/approximation-algorithms/mineru/ch-30-open-problems.md",
+      "char_count": 127284
+    }
+  ]
+}

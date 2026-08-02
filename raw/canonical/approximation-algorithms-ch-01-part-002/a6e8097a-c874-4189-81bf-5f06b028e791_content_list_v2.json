@@ -1,0 +1,2994 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1 Introduction"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                223,
+                110,
+                406,
+                127
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "NP-hard optimization problems exhibit a rich set of possibilities, all the way from allowing approximability to any required degree, to essentially not allowing approximability at all. Despite this diversity, underlying the process of design of approximation algorithms are some common principles. We will explore these in the current chapter."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                786,
+                326
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "An optimization problem is polynomial time solvable only if it has the algorithmically relevant combinatorial structure that can be used as “footholds” to eficiently home in on an optimal solution. The process of designing an exact polynomial time algorithm is a two-pronged attack: unraveling this structure in the problem and finding algorithmic techniques that can exploit this structure."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                326,
+                786,
+                411
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Although NP-hard optimization problems do not ofer footholds for finding optimal solutions eficiently, they may still ofer footholds for finding near-optimal solutions eficiently. So, at a high level, the process of design of approximation algorithms is not very diferent from that of design of exact algorithms. It still involves unraveling the relevant structure and finding algorithmic techniques to exploit it. Typically, the structure turns out to be more elaborate, and often the algorithmic techniques result from generalizing and extending some of the powerful algorithmic tools developed in the study of exact algorithms."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                411,
+                786,
+                539
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "On the other hand, looking at the process of designing approximation algorithms a little more closely, one can see that it has its own general principles. We illustrate some of these principles in Section 1.1, using the following simple setting."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                539,
+                786,
+                598
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 1.1 (Vertex cover) Given an undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and a cost function on vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c : V \\to \\mathbf { Q } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", find a minimum cost vertex cover, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { i . e . }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", a set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V ^ { \\prime } \\subseteq V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that every edge has at least one endpoint incident at "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The special case, in which all vertices are of unit cost, will be called the cardinality vertex cover problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                602,
+                786,
+                675
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since the design of an approximation algorithm involves delicately attacking NP-hardness and salvaging from it an eficient approximate solution, it will be useful for the reader to review some key concepts from complexity theory. Appendix A and some exercises in Section 1.3 have been provided for this purpose."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                675,
+                786,
+                747
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "It is important to give precise definitions of an NP-optimization problem and an approximation algorithm for it "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\mathrm { e . g . }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", see Exercises 1.9 and 1.10). Since these definitions are quite technical, we have moved them to Appendix A. We provide essentials below to quickly get started."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                170
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "An NP-optimization problem Π is either a minimization or a maximization problem. Each valid instance I of Π comes with a nonempty set of feasible solutions, each of which is assigned a nonnegative rational number called its objective function value. There exist polynomial time algorithms for determining validity, feasibility, and the objective function value. A feasible solution that achieves the optimal objective function value is called an optimal solution. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { \\pi } ( I )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will denote the objective function value of an optimal solution to instance I. We will shorten this to OPT when there is no ambiguity. For the problems studied in this book, computing "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { \\pi } ( I )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is NP-hard."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                170,
+                786,
+                312
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For example, valid instances of the vertex cover problem consist of an undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and a cost function on vertices. A feasible solution is a set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\subseteq V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that is a cover for G. Its objective function value is the sum of costs of all vertices in S. A minimum cost such set is an optimal solution."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                313,
+                786,
+                382
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "An approximation algorithm, A, for Π produces, in polynomial time, a feasible solution whose objective function value is “close” to the optimal; by “close” we mean within a guaranteed factor of the optimal. In the next section, we will present a factor 2 approximation algorithm for the cardinality vertex cover problem, i.e., an algorithm that finds a cover of cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\leq 2 \\cdot \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in time polynomial in |V |."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                382,
+                786,
+                470
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1.1 Lower bounding OPT"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                498,
+                487,
+                514
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "When designing an approximation algorithm for an NP-hard NP-optimization problem, one is immediately faced with the following dilemma. In order to establish the approximation guarantee, the cost of the solution produced by the algorithm needs to be compared with the cost of an optimal solution. However, for such problems, not only is it NP-hard to find an optimal solution, but it is also NP-hard to compute the cost of an optimal solution (see Appendix A). In fact, in Section A.5 we show that computing the cost of an optimal solution (or even solving its decision version) is precisely the dificult core of such problems. So, how do we establish the approximation guarantee? Interestingly enough, the answer to this question provides a key step in the design of approximation algorithms."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                527,
+                786,
+                684
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us demonstrate this in the context of the cardinality vertex cover problem. We will get around the dificulty mentioned above by coming up with a “good” polynomial time computable lower bound on the size of the optimal cover."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                684,
+                786,
+                741
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "2"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                235,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "1 Introduction"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                87,
+                389,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1.1.1 An approximation algorithm for cardinality vertex cover"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                112,
+                761,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We provide some definitions first. Given a graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H = ( U , F )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", a subset of the edges "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M \\subseteq F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is said to be a matching if no two edges of M share an endpoint. A matching of maximum cardinality in H is called a maximum matching, and a matching that is maximal under inclusion is called a maximal matching. A maximal matching can clearly be computed in polynomial time by simply greedily picking edges and removing endpoints of picked edges. More sophisticated means lead to polynomial time algorithms for finding a maximum matching as well."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                139,
+                786,
+                253
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us observe that the size of a maximal matching in G provides a lower bound. This is so because any vertex cover has to pick at least one endpoint of each matched edge. This lower bounding scheme immediately suggests the following simple algorithm:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                253,
+                786,
+                311
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 1.2 (Cardinality vertex cover)"
+                    }
+                ]
+            },
+            "bbox": [
+                233,
+                332,
+                581,
+                348
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Find a maximal matching in G and output the set of matched vertices."
+                    }
+                ]
+            },
+            "bbox": [
+                260,
+                354,
+                764,
+                370
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 1.3 Algorithm 1.2 is a factor 2 approximation algorithm for the cardinality vertex cover problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                407,
+                784,
+                438
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: No edge can be left uncovered by the set of vertices picked – otherwise such an edge could have been added to the matching, contradicting its maximality. Let M be the matching picked. As argued above, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| M | \\leq \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "The approximation factor follows from the observation that the cover picked by the algorithm has cardinality 2 |M|, which is at most 2 · OPT. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                453,
+                784,
+                526
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Observe that the approximation algorithm for vertex cover was very much related to, and followed naturally from, the lower bounding scheme. This is in fact typical in the design of approximation algorithms. In Part II of this book, we show how linear programming provides a unified way of obtaining lower bounds for several fundamental problems. The algorithm itself is designed around the LP that provides the lower bound."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                531,
+                786,
+                618
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1.1.2 Can the approximation guarantee be improved?"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                637,
+                687,
+                652
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The following questions arise in the context of improving the approximation guarantee for cardinality vertex cover:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                663,
+                784,
+                693
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Can the approximation guarantee of Algorithm 1.2 be improved by a better analysis?"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                700,
+                784,
+                728
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "1.1 Lower bounding OPT"
+                    }
+                ]
+            },
+            "bbox": [
+                542,
+                87,
+                731,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "3"
+                    }
+                ]
+            },
+            "bbox": [
+                773,
+                89,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Can an approximation algorithm with a better guarantee be designed using the lower bounding scheme of Algorithm 1.2, i.e., size of a maximal matching in G?"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                112,
+                784,
+                155
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3. Is there some other lower bounding method that can lead to an improved approximation guarantee for vertex cover?"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                155,
+                784,
+                186
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 1.4 shows that the answer to the first question is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { 6 } \\mathrm { n o } ^ { \\mathrm { 3 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", i.e., the analysis presented above for Algorithm 1.2 is tight. It gives an infinite family of instances in which the solution produced by Algorithm 1.2 is twice the optimal. An infinite family of instances of this kind, showing that the analysis of an approximation algorithm is tight, will be referred to as a tight example. The importance of finding tight examples for an approximation algorithm one has designed cannot be overemphasized. They give critical insight into the functioning of the algorithm and have often led to ideas for obtaining algorithms with improved guarantees. (The reader is advised to run algorithms on the tight examples presented in this book.)"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                193,
+                786,
+                338
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 1.4 Consider the infinite family of instances given by the complete bipartite graphs "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K _ { n , n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                343,
+                784,
+                373
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/b270cb10b0b32357a6e19076a48c3523e2f25ff32fd8406457db32a9946e1b72.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                431,
+                380,
+                574,
+                512
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "When run on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K _ { n , n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", Algorithm 1.2 will pick all 2n vertices, whereas picking one side of the bipartition gives a cover of size n. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                524,
+                784,
+                554
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us assume that we will establish the approximation factor for an algorithm by simply comparing the cost of the solution it finds with the lower bound. Indeed, almost all known approximation algorithms operate in this manner. Under this assumption, the answer to the second question is also “no”. This is established in Example 1.5, which gives an infinite family of instances on which the lower bound, of size of a maximal matching, is in fact half the size of an optimal vertex cover. In the case of linear-programmingbased approximation algorithms, the analogous question will be answered by determining a fundamental quantity associated with the linear programming relaxation – its integrality gap (see Chapter 12)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                560,
+                786,
+                703
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The third question, of improving the approximation guarantee for vertex cover, is currently a central open problem in the field of approximation algorithms (see Section 30.1)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                702,
+                786,
+                746
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "4"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                89,
+                235,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "Introduction"
+                    }
+                ]
+            },
+            "bbox": [
+                300,
+                87,
+                389,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 1.5 The lower bound, of size of a maximal matching, is half the size of an optimal vertex cover for the following infinite family of instances. Consider the complete graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where n is odd. The size of any maximal matching is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( n - 1 ) / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", whereas the size of an optimal cover is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                171
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1.2 Well-characterized problems and min–max relations"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                203,
+                784,
+                219
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider decision versions of the cardinality vertex cover and maximum matching problems."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                230,
+                784,
+                260
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Is the size of the minimum vertex cover in G at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k ?"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                266,
+                658,
+                281
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Is the size of the maximum matching in G at least l?"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                281,
+                635,
+                294
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Both these decision problems are in NP and therefore have Yes certificates (see Appendix A for definitions). Do these problems also have No certificates? We have already observed that the size of a maximum matching is a lower bound on the size of a minimum vertex cover. If G is bipartite, then in fact equality holds; this is the classic K¨onig-Egerv´ary theorem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                302,
+                786,
+                375
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 1.6 In any bipartite graph,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                381,
+                507,
+                395
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\max _ {m a t c h i n g M} | M | = \\min _ {v e r t e x c o v e r U} | U |.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/cbe10858a7fa194358321eba3fba1274b7c646ec1023ae7eae24a4af747cccba.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                407,
+                534,
+                432
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Therefore, if the answer to the first decision problem is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { 6 } \\mathrm { n o } ^ { 9 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", there must be a matching of size "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in G that sufices as a certificate. Similarly, a vertex cover of size l−1 must exist in G if the answer to the second decision problem is “no”. Hence, when restricted to bipartite graphs, both vertex cover and maximum matching problems have No certificates and are in co-NP. In fact, both problems are also in P under this restriction. It is easy to see that any problem in P trivially has Yes as well as No certificates (the empty string sufices). This is equivalent to the statement that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } \\subseteq \\mathbf { N P } \\cap \\mathrm { c o - N P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". It is widely believed that the containment is strict; the conjectured status of these classes is depicted below."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                444,
+                786,
+                587
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/66810791bed58820930b3f168d079593241a074993049e37a27541afe7ea6a27.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                347,
+                592,
+                660,
+                749
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "1.2 Well-characterized problems and min–max relations"
+                    }
+                ]
+            },
+            "bbox": [
+                337,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "5"
+                    }
+                ]
+            },
+            "bbox": [
+                773,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problems that have Yes and No certificates, i.e., are in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { N P } \\cap \\mathrm { c o - N P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", are said to be well-characterized. The importance of this notion can be gauged from the fact that the quest for a polynomial time algorithm for matching started with the observation that it is well-characterized."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                170
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Min–max relations of the kind given above provide proof that a problem is well-characterized. Such relations are some of the most powerful and beautiful results in combinatorics, and some of the most fundamental polynomial time algorithms (exact) have been designed around such relations. Most of these min–max relations are actually special cases of the LP-duality theorem (see Section 12.2). As pointed out above, LP-duality theory plays a vital role in the design of approximation algorithms as well."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                170,
+                786,
+                269
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "What if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is not restricted to be bipartite? In this case, a maximum matching may be strictly smaller than a minimum vertex cover. For instance, if G is simply an odd length cycle on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 p + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "vertices, then the size of a maximum matching is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "whereas the size of a minimum vertex cover is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "This may happen even for graphs having a perfect matching, for instance, the Petersen graph:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                269,
+                784,
+                356
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/b27be490d7c3e1f07cde0750da1b55af89aec5e2280db06ad90f7c5ca6ee461c.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                426,
+                370,
+                579,
+                475
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This graph has a perfect matching of cardinality "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "5 ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "however, the minimum vertex cover has cardinality 6. One can show that there is no vertex cover of size 5 by observing that any vertex cover must pick at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "vertices from an odd cycle of length "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 p + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", just to cover all the edges of the cycle, and the Petersen graph has two disjoint cycles of length 5."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                483,
+                784,
+                556
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Under the widely believed assumption that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { N P } \\neq \\mathrm { c o - N P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", NP-hard problems do not have No certificates. Thus, the minimum vertex cover problem in general graphs, which is NP-hard, does not have a No certificate, assuming "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { N P } \\neq \\mathrm { c o - N P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The maximum matching problem in general graphs is in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "However, the No certificate for this problem is not a vertex cover, but a more general structure: an odd set cover."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                555,
+                784,
+                640
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "An odd set cover "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in a graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a collection of disjoint odd cardinality subsets of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V , S _ { 1 } , \\ldots , S _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and a collection "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { 1 } , \\ldots , v _ { l }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of vertices such that each edge of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is either incident at one of the vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "or has both endpoints in one of the sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The weight of this cover "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is defined to be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { w ( \\bar { C } ) = l + \\sum _ { i = 1 } ^ { k } { ( | S _ { i } | - 1 ) / 2 } } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The following min–max relation holds."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                640,
+                784,
+                714
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "6"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                89,
+                235,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "1 Introduction"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                87,
+                389,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 1.7 In any graph,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                440,
+                128
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\max _ {m a t c h i n g M} | M | = \\min _ {o d d s e t c o v e r C} w (C).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/c156d418569be19b586b6d16f8a8ae287cc0276f8d3df9f89135323aee815bed.jpg"
+                }
+            },
+            "bbox": [
+                475,
+                112,
+                766,
+                137
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As shown above, in general graphs a maximum matching can be smaller than a minimum vertex cover. Can it be arbitrarily smaller? The answer is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\" \\mathrm { n o } ^ { \\mathrm { 3 } \\mathrm { 5 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". A corollary of Theorem 1.3 is that in any graph, the size of a maximum matching is at least half the size of a minimum vertex cover. More precisely, Theorem 1.3 gives, as a corollary, the following approximate min–max relation. Approximation algorithms frequently yield such approximate min–max relations, which are of independent interest."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                143,
+                786,
+                244
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Corollary 1.8 In any graph,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                250,
+                445,
+                265
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\max _ {m a t c h i n g M} | M | \\leq \\min _ {v e r t e x c o v e r U} | U | \\leq 2 \\cdot \\left(\\max _ {m a t c h i n g M} | M |\\right).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/57dff04fcfd962f17a10c36c68b527fe5acf6c785857f92664bb426a266af6d6.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                275,
+                741,
+                309
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Although the vertex cover problem does not have No certificate under the assumption "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { N P } \\neq \\mathrm { c o - N P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", surely there ought to be a way of certifying that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( G , k )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\" \\mathrm { n o } ^ { \\mathrm { 5 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "instance for small enough values of k. Algorithm 1.2 (more precisely, the lower bounding scheme behind this approximation algorithm) provides such a method. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathcal { A } } ( G )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the size of vertex cover output by Algorithm 1.2. Then, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname { O P T } ( G ) \\leq A ( G ) \\leq 2 \\cdot \\operatorname { O P T } ( G )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". If "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k < { \\mathcal { A } } ( G ) / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k < \\mathrm { O P T } ( G )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and therefore "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( G , k )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must be a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { 6 } \\mathrm { n o } ^ { 9 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "instance. Furthermore, if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k < \\mathrm { O P T } ( G ) / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k < { \\mathcal { A } } ( G ) / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Hence, Algorithm 1.2 provides a No certificate for all instances "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( G , k )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k < \\mathrm { O P T } ( G ) / 2"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                319,
+                786,
+                449
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A No certificate for instances "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( I , B )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of a minimization problem Π satisfying "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B < \\mathrm { O P T } ( I ) / \\alpha"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is called a factor α approximate No certificate. As in the case of normal Yes and No certificates, we do not require that this certificate be polynomial time computable. An α factor approximation algorithm "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for Π provides such a certificate. Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has polynomial running time, this certificate is polynomial time computable. In Chapter 27 we will show an intriguing result – that the shortest vector problem has a factor n approximate No certificate; however, a polynomial time algorithm for constructing such a certificate is not known."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                448,
+                786,
+                577
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1.3 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                604,
+                364,
+                619
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1.1 Give a factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "algorithm for the following."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                646,
+                594,
+                661
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 1.9 (Acyclic subgraph) Given a directed graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", pick a maximum cardinality set of edges from E so that the resulting subgraph is acyclic."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                667,
+                784,
+                709
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Arbitrarily number the vertices and pick the bigger of the two sets, the forward-going edges and the backward-going edges. What scheme are you using for upper bounding "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T ? }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                709,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "1.3 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                628,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "7"
+                    }
+                ]
+            },
+            "bbox": [
+                773,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1.2 Design a factor 2 approximation algorithm for the problem of finding a minimum cardinality maximal matching in an undirected graph."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                784,
+                141
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Use the fact that any maximal matching is at least half the maximum matching."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                141,
+                784,
+                171
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1.3 (R. Bar-Yehuda) Consider the following factor 2 approximation algorithm for the cardinality vertex cover problem. Find a depth first search tree in the given graph, G, and output the set, say S, of all the nonleaf vertices of this tree. Show that S is indeed a vertex cover for G and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| S | \\le 2 \\cdot \\mathrm { O P T }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                181,
+                784,
+                239
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Show that G has a matching of size |S|."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                239,
+                574,
+                253
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1.4 Perhaps the first strategy one tries when designing an algorithm for an optimization problem is the greedy strategy. For the vertex cover problem, this would involve iteratively picking a maximum degree vertex and removing it, together with edges incident at it, until there are no edges left. Show that this algorithm achieves an approximation guarantee of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Give a tight example for this algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                265,
+                784,
+                350
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: The analysis is similar to that in Theorem 2.4."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                350,
+                625,
+                363
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1.5 A maximal matching can be found via a greedy algorithm: pick an edge, remove its two endpoints, and iterate until there are no edges left. Does this make Algorithm 1.2 a greedy algorithm?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                376,
+                784,
+                420
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1.6 Give a lower bounding scheme for the arbitrary cost version of the vertex cover problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                430,
+                784,
+                458
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Not easy if you don’t use LP-duality."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                458,
+                554,
+                474
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1.7 Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A = \\{ a _ { 1 } , \\ldots , a _ { n } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a finite set, and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\stackrel { 6 6 } { \\leq } \\underline { { \\stackrel { \\triangledown } { \\scriptscriptstyle \\mathrm { \\blacktriangledown } } } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a relation on A that is reflexive, antisymmetric, and transitive. Such a relation is called a partial ordering of A. Two elements "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a _ { i } , a _ { j } \\in A"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are said to be comparable if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a _ { i } \\ \\leq \\ a _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "or "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a _ { j } \\ \\leq \\ a _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Two elements that are not comparable are said to be incomparable. A subset "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\subseteq A"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a chain if its elements are pairwise comparable. If the elements of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are pairwise incomparable, then it is an antichain. A chain (antichain) cover is a collection of chains (antichains) that are pairwise disjoint and cover A. The size of such a cover is the number of chains (antichains) in it. Prove the following min–max result. The size of a longest chain equals the size of a smallest antichain cover."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                483,
+                786,
+                627
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Let the size of the longest chain be m. For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a \\in A"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi ( a )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the size of the longest chain in which a is the smallest element. Now, consider the partition of A, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A _ { i } = \\{ a \\in A \\mid \\phi ( a ) = i \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\leq i \\leq m"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                627,
+                784,
+                671
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1.8 (Dilworth’s theorem, see [195]) Prove that in any finite partial order, the size of a largest antichain equals the size of a smallest chain cover."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                681,
+                784,
+                709
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Derive from the K¨onig-Egerv´ary Theorem. Given a partial order on nelement set A, consider the bipartite graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( U , V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| U | = | V | = n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u _ { i } , v _ { j } ) \\in E"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a _ { i } \\leq a _ { j }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                709,
+                784,
+                755
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "8"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                89,
+                235,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "1 Introduction"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                87,
+                389,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The next ten exercises are based on Appendix A."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                588,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1.9 Is the following an NP-optimization problem? Given an undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", a cost function on vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c : V \\to \\mathbf { Q } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and a positive integer k, find a minimum cost vertex cover for G containing at most k vertices."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                141,
+                784,
+                198
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Can valid instances be recognized in polynomial time (such an instance must have at least one feasible solution)?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                198,
+                784,
+                227
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1.10 Let A be an algorithm for a minimization NP-optimization problem Π such that the expected cost of the solution produced by A is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\leq \\alpha \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for a constant α "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\nu > 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". What is the best approximation guarantee you can establish for Π using algorithm "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { A } ?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                240,
+                784,
+                297
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: A guarantee of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 \\alpha - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "follows easily. For guarantees arbitrarily close to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", run the algorithm polynomially many times and pick the best solution. Apply Chernof’s bound."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                297,
+                784,
+                341
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1.11 Show that if SAT has been proven NP-hard, and SAT has been reduced, via a polynomial time reduction, to the decision version of vertex cover, then the latter is also NP-hard."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                354,
+                784,
+                397
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Show that the composition of two polynomial time reductions is also a polynomial time reduction."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                397,
+                784,
+                426
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1.12 Show that if the vertex cover problem is in co-NP, then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { N P } = \\mathrm { c o - N P }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                439,
+                781,
+                454
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1.13 (Pratt [222]) Let L be the language consisting of all prime numbers. Show that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\boldsymbol { L } \\in \\mathbf { N P }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                468,
+                784,
+                495
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Consider the multiplicative group modn, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Z _ { n } ^ { * } = \\{ a \\in \\mathbf { Z } ^ { + } \\mid 1 \\leq a <"
+                    },
+                    {
+                        "type": "text",
+                        "content": "n and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( a , n ) = 1 \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| Z _ { n } ^ { * } | \\leq n - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Use the fact that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| Z _ { n } ^ { * } | = n - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if n is prime, and that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Z _ { n } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is cyclic if n is prime. The Yes certificate consists of a primitive root of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Z _ { n } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the prime factorization of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and, recursively, similar information about each prime factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - 1"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                495,
+                784,
+                569
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1.14 Give proofs of self-reducibility for the optimization problems discussed later in this book, in particular, maximum matching, MAX-SAT (Problem 16.1), clique (Problem 29.15), shortest superstring (Problem 2.9), and Minimum makespan scheduling (Problem 10.1)."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                581,
+                784,
+                639
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: For clique, consider two possibilities, that v is or isn’t in the optimal clique. Correspondingly, either restrict G to v and its neighbors, or remove v from G. For shortest superstring, remove two strings and replace them by a legal overlap (may even be a simple concatenation). If the length of the optimal superstring remains unchanged, work with this smaller instance. Generalize the scheduling problem a bit – assume that you are also given the number of time units already scheduled on each machine as part of the instance."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                639,
+                786,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "1.3 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                628,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "9"
+                    }
+                ]
+            },
+            "bbox": [
+                773,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1.15 Give a suitable definition of self-reducibility for problems in NP, i.e., decision problems and not optimization problems, which enables you to obtain a polynomial time algorithm for finding a feasible solution given an oracle for the decision version, and moreover, yields a self-reducibility tree for instances."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                183
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Impose an arbitrary order among the atoms of a solution, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { e . g . }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for SAT, this was achieved by arbitrarily ordering the n variables."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                184,
+                784,
+                212
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1.16 Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varPi _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varPi _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be two minimization problems such that there is an approximation factor preserving reduction from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varPi _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varPi _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Show that if there is an α factor approximation algorithm for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varPi _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "then there is also an α factor approximation algorithm for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varPi _ { 1 }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                227,
+                784,
+                284
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: First prove that if the reduction transforms instance "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varPi _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to instance "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varPi _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { \\pi _ { 1 } } ( I _ { 1 } ) = \\mathrm { O P T } _ { \\pi _ { 2 } } ( I _ { 2 } )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                282,
+                784,
+                313
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1.17 Show that"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                223,
+                326,
+                349,
+                340
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "L \\in \\mathbf {Z P P} \\text {   iff   } L \\in (\\mathbf {R P} \\cap \\mathrm{co-RP}).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/98d3d75e7b2f13d9dd1fa0d9cdc832d85b2ca5147401b66a1bf51177ee8ee1a5.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                354,
+                507,
+                369
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1.18 Show that if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { N P } \\subseteq \\mathrm { c o - R P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { N P } \\subseteq \\mathbf { Z P P }"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                397,
+                605,
+                411
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: If SAT instance "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is satisfiable, a satisfying truth assignment for φ can be found, with high probability, using self-reducibility and the co-RP machine for SAT. If "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is not satisfiable, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { ~ a ~ } \\ ^ { 6 6 } \\mathrm { n o } ^ { 9 9 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "answer from the co-RP machine for SAT confirms this; the machine will output such an answer with high probability."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                411,
+                786,
+                483
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "1.4 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                512,
+                331,
+                527
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The notion of well-characterized problems was given by Edmonds [69] and was precisely formulated by Cook [51]. In the same paper, Cook initiated the theory of NP-completeness. Independently, this discovery was also made by Levin [186]. It gained its true importance with the work of Karp [164], showing NP-completeness of a diverse collection of fundamental computational problems."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                541,
+                786,
+                627
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Interestingly enough, approximation algorithms were designed even before the discovery of the theory of NP-completeness, by Vizing [255] for the minimum edge coloring problem, by Graham [113] for the minimum makespan problem (Problem 10.1), and by Erd¨os [73] for the MAX-CUT problem (Problem 2.14). However, the real significance of designing such algorithms emerged only after belief in the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } \\neq \\mathbf { N P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "conjecture grew. The notion of an approximation algorithm was formally introduced by Garey, Graham, and Ullman [91] and Johnson [150]. The first use of linear programming in approximation algorithms was due to Lov´asz [192], for analyzing the greedy set cover algorithm (see Chapter 13). An early work exploring the use of randomization in the design of algorithms was due to Rabin [224] – this notion is useful in the design of approximation algorithms as well. Theorem 1.7 is due to Edmonds [69] and Algorithm 1.2 is due to Gavril [93]."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                627,
+                786,
+                743
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "10"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "1 Introduction"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                87,
+                389,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                221,
+                112,
+                784,
+                185
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For basic books on algorithms, see Cormen, Leiserson, Rivest, and Stein [54], Papadimitriou and Steiglitz [217], and Tarjan [246]. For a good treatment of min–max relations, see Lov´asz and Plummer [195]. For books on approximation algorithms, see Hochbaum [126] and Ausiello, Crescenzi, Gambosi, Kann, Marchetti, and Protasi [17]. Books on linear programming, complexity theory, and randomized algorithms are listed in Sections 12.5, A.6, and B.4, respectively."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                184,
+                786,
+                285
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "1.4 Notes"
+                    }
+                ]
+            },
+            "bbox": [
+                653,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "11"
+                    }
+                ]
+            },
+            "bbox": [
+                766,
+                89,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                0,
+                0,
+                996,
+                998
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Part I"
+                    }
+                ]
+            },
+            "bbox": [
+                715,
+                209,
+                788,
+                230
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Combinatorial Algorithms"
+                    }
+                ]
+            },
+            "bbox": [
+                467,
+                250,
+                789,
+                275
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                0,
+                0,
+                996,
+                998
+            ]
+        }
+    ]
+]

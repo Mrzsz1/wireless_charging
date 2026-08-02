@@ -1,0 +1,4592 @@
+[
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A simple combinatorial algorithm achieving an approximation factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 -"
+                    },
+                    {
+                        "type": "text",
+                        "content": "2/k for the multiway cut problem, Problem 4.1, was presented in Chapter 4. In this chapter we will use LP-rounding to improve the factor to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 / 2"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                255,
+                784,
+                298
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In Chapter 14 we mentioned the remarkable property of half-integrality, possessed by LP-relaxations of certain NP-hard problems. The multiway cut problem and its generalization, the node multiway cut problem, possess this property. We will present a proof of this fact in Section 19.3. This is the only avenue known for obtaining a constant factor approximation algorithm for the latter problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                298,
+                786,
+                384
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "19.1 An interesting LP-relaxation"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                223,
+                413,
+                569,
+                429
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The usual LP-relaxation for multiway cut has an integrality gap of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - 2 / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(see Exercise 19.2). The key to an improved approximation guarantee is a clever LP-relaxation."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                442,
+                784,
+                485
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varDelta _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "dimensional simplex. This is the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "dimensional convex polytope in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { R } ^ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "defined by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ { \\pmb x } \\in { \\bf R } ^ { k } \\ | \\ { \\pmb x } \\geq 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textstyle \\sum _ { i } x _ { i } = 1 \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the ith coordinate of point x. The simplex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varDelta _ { 3 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "\u0001is shown below."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                485,
+                784,
+                527
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/b5ec0af26c3360e05b2e9a11a8ff40c0daf50f701ddc8f3e334f7c165705c1e8.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                359,
+                530,
+                645,
+                655
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The relaxation will map each vertex of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to a point in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varDelta _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Each of the k terminals will be mapped to a distinct vertex of this simplex, i.e., to a unit vector "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { i } \\in \\mathbf { R } ^ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { v } \\in \\varDelta _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the point to which vertex v is mapped. The length of an edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v ) \\in E"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will be defined to be half the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\ell _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "distance between "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { u }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { v }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The entire relaxation is:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                659,
+                784,
+                730
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "19 Multiway Cut"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                109,
+                438,
+                128
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(0, 1, 0)"
+                    }
+                ]
+            },
+            "bbox": [
+                463,
+                707,
+                515,
+                722
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {minimize} & \\sum_ {(u, v) \\in E} c (u, v) d (u, v) \\\\ \\text {subject to} & d (u, v) = \\frac {1}{2} \\sum_ {i = 1} ^ {k} | x _ {u} ^ {i} - x _ {v} ^ {i} |, \\quad (u, v) \\in E \\\\ & x _ {v} \\in \\varDelta_ {k}, \\qquad \\qquad \\qquad v \\in V \\\\ & x _ {s _ {i}} = e _ {i}, \\qquad \\qquad s _ {i} \\in S \\end{array}\\tag{19.1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/2738ee50d9214344e8da0bacba209caf87ca4fec8d40ccec643915cd6d26d8a2.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                110,
+                648,
+                227
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In Lemma 19.1 we show that this relaxation is really a linear program. An integral solution to this relaxation maps each vertex of G to a vertex of the simplex, respectively. Each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has length either 0 or 1, depending on whether u and v are mapped to the same or diferent vertices of the simplex. Edges of length 1 form a multiway cut. The cost of this cut is the objective function value of this integral solution. Thus, an optimal integral solution corresponds to an optimal multiway cut."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                237,
+                786,
+                338
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 19.1 Relaxation (19.1) can be expressed as a linear program."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                344,
+                742,
+                361
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: For each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", replace the first constraint with:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                374,
+                682,
+                390
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "x _ {u v} ^ {i} \\geq x _ {u} ^ {i} - x _ {v} ^ {i}, 1 \\leq i \\leq k",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/ef99c0f31da4719b49a27a60b29844a2b873bb191234446471b428c20d3e97a1.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                400,
+                462,
+                420
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "x _ {u v} ^ {i} \\geq x _ {v} ^ {i} - x _ {u} ^ {i}, 1 \\leq i \\leq k",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/a922b0e679226c33e1c8608bba68d6c67003f9c36ac2ef57db331bd4ea2ef81f.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                428,
+                462,
+                447
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "d (u, v) = \\frac {1}{2} \\sum_ {i = 1} ^ {k} x _ {u v} ^ {i}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/6f50c40dc73b1386299691395744a6402d7004ea9d98c5174e47893e4c8b72b1.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                458,
+                408,
+                497
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since the objective function is being minimized, an optimal solution must satisfy "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { u v } ^ { i } = | x _ { u } ^ { i } - x _ { v } ^ { i } |"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The rest of the constraints are clearly linear. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                507,
+                784,
+                538
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 19.2 In the example given below, the optimal fractional multiway cut is cheaper than than the optimal integral cut. The mapping of vertices to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varDelta _ { 3 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the optimal fractional solution is shown below; it achieves a cost of 7.5. On the other hand, the optimal integral solution costs 8."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                548,
+                786,
+                607
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/c80dd2b0d93d3418dc061665744e08723e8a967f354aaab44f55481d703161b8.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                211,
+                609,
+                436,
+                734
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/69a85bb8be1d886fb4bd352ecfc4f6e25cd52470b7c9ff6b0150c43293c85fd1.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                463,
+                609,
+                791,
+                744
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "156"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "19 Multiway Cut"
+                    }
+                ]
+            },
+            "bbox": [
+                277,
+                87,
+                408,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The following property will greatly simplify matters:"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                112,
+                638,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 19.3 Let x be a feasible solution to relaxation "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 1 9 . 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We may assume w "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": ") . l . o . g ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". that for each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v ) \\in E , x _ { u }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { v } \\ d i f f e r"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in at most two coordinates."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                137,
+                786,
+                179
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: We will divide edges by adding new vertices in such a way that this property holds and the cost of the solution remains unchanged."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                196,
+                784,
+                225
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Suppose that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v ) \\in E"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { u }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { v }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "difer in more than two coordinates. Replace this edge by two new edges "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , w )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( w , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where w is a new vertex. Each of the new edges is of the same cost as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", thereby ensuring that the cost of the integral optimal solution is unchanged. We show below how to enforce "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d ( u , v ) = d ( u , w ) + d ( w , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", thereby ensuring that the cost of the fractional solution remains unchanged."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                225,
+                784,
+                310
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider the coordinates in which "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { u }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { v }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "difer. Let i be the coordinate in which the diference is minimum. Without loss of generality, assume "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { u } ^ { i } <"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { v } ^ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha = x _ { v } ^ { i } - x _ { u } ^ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". There must be a coordinate "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { u } ^ { j } \\ge x _ { v } ^ { j } + \\alpha ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "We will define point "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { w }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as follows. The ith and jth coordinates of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { w }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { w } ^ { i } = x _ { u } ^ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { w } ^ { j } = x _ { v } ^ { j } + \\alpha"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The remaining coordinates of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { w }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are the same as those of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { v }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { w } \\in \\varDelta _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d ( u , v ) = d ( u , w ) + d ( w , v )"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                309,
+                784,
+                395
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Notice that u and w difer in two coordinates and w and v difer in fewer coordinates than u and v. Therefore, each edge of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E"
+                    },
+                    {
+                        "type": "text",
+                        "content": "requires at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k - 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such subdivisions to enforce the required property. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                395,
+                784,
+                438
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "19.2 Randomized rounding algorithm"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                474,
+                606,
+                489
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let x be an optimal solution to relaxation (19.1) satisfying the property stated in Lemma 19.3, and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { f }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote its cost. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the subset of edges whose endpoints difer in coordinate "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E _ { i } = \\{ ( u , v ) \\in"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E \\mid x _ { u } ^ { i } \\neq x _ { v } ^ { i } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "}. Clearly, each edge e with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d ( e ) > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will lie in two of these sets. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\bar { W _ { i } } = \\bar { \\sum _ { e \\in E _ { i } } } c ( e ) d ( e ) } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Renumber the terminals so that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the largest of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W _ { 1 } , \\ldots , W _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\rho \\in ( 0 , 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", define"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                502,
+                784,
+                590
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "B (s _ {i}, \\rho) = \\{v \\in V | x _ {v} ^ {i} \\geq \\rho \\}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/605b2c3f03cd3828df62662f4a6968cd7636ecdbe5c306a2203efeaa8860b461.jpg"
+                }
+            },
+            "bbox": [
+                265,
+                602,
+                475,
+                619
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 19.4 operates as follows. It picks "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\rho"
+                    },
+                    {
+                        "type": "text",
+                        "content": "at random in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 , 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and σ at random from the two permutations "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 1 , 2 , \\ldots , k - 1 , k )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( k - 1 , k -"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 , \\ldots , 1 , k )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". It uses "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\rho"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and σ to construct a partition of V into k sets, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { 1 } , \\dots , V _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "• ensuring that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } \\in V _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Edges running between these sets will form the multiway cut."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                631,
+                784,
+                702
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "If σ is the first (second) permutation, then these sets are constructed in the order "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { 1 } , V _ { 2 } , \\ldots , V _ { k } \\ ( V _ { k - 1 } , V _ { k - 2 } , \\ldots , V _ { 1 } , V _ { k } ) . \\ \\mathrm { I f } \\ \\rho > 1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B ( s _ { i } , \\rho )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are pairwise disjoint. Observe that in this case the partition is not afected by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", because V<sub>i</sub> is simply "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B ( s _ { i } , \\rho )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\leq i \\leq k - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { k } = V - ( V _ { 1 } \\cup \\cdot \\cdot \\cdot \\cup V _ { k - 1 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "If "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\rho \\le 1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B ( s _ { i } , \\rho )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "overlap and σ plays a role, as illustrated in the figure below for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k = 3"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                703,
+                784,
+                747
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "19.2 Randomized rounding algorithm"
+                    }
+                ]
+            },
+            "bbox": [
+                463,
+                87,
+                729,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "157"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                156
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/7c7d9bda7029f93475924743001860e4a052126a7a8d95b35304e6a08493794c.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                220,
+                180,
+                401,
+                300
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/16560fa9d502bd2eb5bfbae0c01ed83f7db63385e2667576567b9295c783e481.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                421,
+                180,
+                600,
+                282
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/9a6cfa90acf5417df96cb1dda9af75723cf79e80aed0e5f3b7bf2e6d6022b4cb.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                620,
+                180,
+                798,
+                282
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 19.4 (Multiway cut)\n1. Compute an optimal solution, x, to relaxation (19.1).\n2. Renumber the terminals so that   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W_{k}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "  is largest among   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W_{1},\\ldots,W_{k}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n3. Pick uniformly at random   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\rho\\in(0,1)"
+                    },
+                    {
+                        "type": "text",
+                        "content": "  and\n  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma\\in\\{(1,2,\\ldots,k-1,k),(k-1,k-2,\\ldots,1,k)\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n4. For i=1 to k-1:   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V_{\\sigma(i)}\\leftarrow B(s_{i},\\rho)-\\bigcup_{j<i}V_{\\sigma(j)}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n5.   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V_{k}\\leftarrow V-\\bigcup_{i<k}V_{i}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n6. Let C be the set of edges that run between sets in the partition\n  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V_{1},\\ldots,V_{k}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " . Output C."
+                    }
+                ]
+            },
+            "bbox": [
+                233,
+                318,
+                737,
+                470
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will show that the expected cost of the multiway cut produced by the algorithm, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { E } [ c ( C ) ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", is at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 1 . 5 - 1 / k ) \\cdot \\mathrm { O P T } _ { f }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The following lemma will be critical."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                495,
+                784,
+                537
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 19.5 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I f e \\in E - E _ { k } , \\mathbf { P r } [ e \\in C ] \\leq 1 . 5 d ( e )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                546,
+                603,
+                561
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i f e \\in E _ { k } , \\mathbf { P r } [ e \\in C ] \\le d ( e )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                561,
+                462,
+                576
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Suppose e "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\in E - E _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\boldsymbol { e } = \\left( u , v \\right)"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and let i and j be the coordinates in which "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { u }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { v }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "difer. There are two cases: the intervals "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "[ x _ { u } ^ { i } , x _ { v } ^ { i } ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "[ x _ { v } ^ { j } , x _ { u } ^ { j } ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "either overlap or they are disjoint. These two cases are shown below. Note that in either case the two intervals have the same length since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { v } ^ { i } - x _ { u } ^ { i } ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { u } ^ { j } - x _ { v } ^ { j } = d ( e )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Intervals α and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are defined in the figure below for the two cases."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                590,
+                784,
+                677
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "158"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "19 Multiway Cut"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                87,
+                408,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/44440221eddfcc0ca06edfe2900299f041a73af61cafd45338eac072446782e8.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "19.2 Randomized rounding algorithm"
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                248,
+                105,
+                754,
+                259
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Observe that the vertices u and v can end up in one of three sets, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { i } , V _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "or "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Furthermore, if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\rho \\in [ 0 , 1 ] - ( \\alpha \\cup \\beta )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then both vertices will end up in the same set, and edge e will not be in the cut. Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P r } [ \\rho \\in ( \\alpha \\cup \\beta ) ] ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| \\alpha | + | \\beta | \\leq 2 d ( e )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                282,
+                784,
+                340
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The critical observation that leads to the desired bound is that in the event "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\rho \\in \\alpha"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma ( j ) < \\sigma ( i )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", u and v will both be put in the set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { j } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and thus e will not be in the cut. Clearly, the probability of this event is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| \\alpha | / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Therefore"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                340,
+                784,
+                395
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ e \\in C ] = | \\beta | + | \\alpha | / 2 \\leq 1. 5 d (e).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b1e288d998c2cc99fb452a5949d25dc4817f829dc4a7dbb07042dd07eb55afbe.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                410,
+                522,
+                426
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Next, suppose that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e \\in E _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and that its endpoints difer in coordinates i and k. In this case "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma ( i ) < \\sigma ( k )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and u and v will end up in diferent sets only if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\rho"
+                    },
+                    {
+                        "type": "text",
+                        "content": "falls between "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { u } ^ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { v } ^ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The probability of this is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d ( e )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                439,
+                786,
+                483
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 19.6 The multiway cut, C, output by Algorithm 19.4 satisfies"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                498,
+                749,
+                513
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {E} [ c (C) ] \\leq (1. 5 - 1 / k) \\mathrm{OPT} _ {f}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/7f5373b3d79761ef7778cb2e229f14a1d2ae72866409b721b5b24910da74aab9.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                526,
+                478,
+                542
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Clearly, C forms a multiway cut. Now, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\mathrm { O P T } _ { f } = \\sum _ { e } c ( e ) d ( e ) } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since each edge with nonzero length is in two of the sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E _ { i } , \\sum _ { i = 1 } ^ { k } W _ { i } = 2 \\cdot \\mathrm { O P T } _ { f } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Since k was chosen so that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the largest of these sets, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W _ { k } \\ge ( 2 / k ) { \\cdot } \\mathrm { O P T } _ { f }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Therefore"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                561,
+                784,
+                621
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l} \\mathbf {E} [ c (C) ] = \\sum_ {e \\in E} c (e) \\mathbf {P r} [ e \\in C ] = \\sum_ {e \\in E - E _ {k}} c (e) \\mathbf {P r} [ e \\in C ] + \\sum_ {e \\in E _ {k}} c (e) \\mathbf {P r} [ e \\in C ] \\\\ \\leq 1. 5 \\sum_ {i = 1} ^ {k - 1} W _ {i} + W _ {k} = 1. 5 \\sum_ {i = 1} ^ {k} W _ {i} - 0. 5 W _ {k} \\\\ \\leq (1. 5 - 1 / k) \\cdot \\mathrm{OPT} _ {f} \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/9aafc2246969a1c73bca24642fe05cec1466dad9f5fe7845c93425a6842cdfcc.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                634,
+                766,
+                725
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where the first inequality follows from Lemma 19.5."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                738,
+                606,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "159"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 19.6 places an upper bound of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 . 5 - 1 / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on the integrality gap of relaxation 19.1 (see the notes in Section 19.5 for references to a slightly better result). The worst lower bound know on the integrality gap is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "8 / ( 7 + \\frac { 1 } { k - 1 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "; Example 19.2 places a lower bound of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 6 / 1 5"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                170
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The bound on the expected weight of the multiway cut established in Lemma 19.6 can be converted into a high probability statement using standard techniques (see Exercises 1.10 and 19.4). Hence we get"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                170,
+                784,
+                214
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 19.7 There is a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor randomized approximation algorithm for the multiway cut problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                221,
+                786,
+                250
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "19.3 Half-integrality of node multiway cut"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                287,
+                653,
+                305
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The following is a generalization of the multiway cut problem, in the sense that there is an approximation factor preserving reduction from the multiway cut problem to it (see Exercise 19.13)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                317,
+                786,
+                361
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 19.8 (Node multiway cut) Given a connected, undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with an assignment of costs to vertices, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c : V \\to \\mathbf { R } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and a set of terminals "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S = \\{ s _ { 1 } , s _ { 2 } , \\ldots , s _ { k } \\} \\subseteq V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that form an independent set in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "a node multiway cut is a subset of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V - S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "whose removal disconnects the terminals from each other. The node multiway cut problem asks for the minimum cost such subset."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                367,
+                786,
+                451
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will show that the relaxation to the following integer program always has a half-integral optimal solution. A factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - 2 / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "approximation algorithm will follow from this fact (see Exercise 19.11). In this program we have introduced a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 / 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d _ { v }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for each vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in V - S"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", which indicates whether vertex v has been picked. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the set of all paths running between distinct terminals. There is a constraint for each path "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { P } - \\mathrm { i t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "ensures that at least one vertex is picked from each path."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                451,
+                786,
+                552
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {minimize} & \\sum_ {v \\in V - S} c _ {v} d _ {v} \\\\ \\text {subject to} & \\sum_ {v \\in p} d _ {v} \\geq 1, \\quad p \\in \\mathcal {P} \\\\ & d _ {v} \\in \\{0, 1 \\}, \\quad v \\in V - S \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/eeccd9d3c9c57a796706cc434b3e8d36540c8f99cd5aedc89a4257baed6e5f82.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                565,
+                551,
+                653
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The LP-relaxation is given below. As before, we will interpret "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d _ { v } \\mathrm { { ' s } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as distance labels. With respect to an assignment to these distance labels, let us define the length of a path to be the sum of distance labels of nonterminals on this path. The distance between a pair of vertices will be the length of the shortest path between them. A solution, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { d , }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is feasible only if the distance between every pair of terminals is at least 1."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                664,
+                786,
+                751
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "160"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "19 Multiway Cut"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                87,
+                408,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\text { minimize } \\quad \\sum_ {v \\in V - S} c _ {v} d _ {v}\\tag{19.2}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/f98bc3802fdb2d6695465124892c413c13ead7fdd4c3526bfae655d6fbe95daa.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                110,
+                447,
+                141
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {subject to} & \\sum_ {v \\in p} d _ {v} \\geq 1, \\quad p \\in \\mathcal {P} \\\\ & d _ {v} \\geq 0, \\quad v \\in V - S \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/0a87d80f9167aa97d4d4153fbcd9ea896337036deed317c53e9aea4ebabe345b.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                149,
+                549,
+                197
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As in Chapter 18, the dual will be interpreted as seeking a maximum multicommodity flow. The commodities flow between distinct terminals, and the constraint is that the total amount of flow through a vertex be bounded by its cost."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                210,
+                786,
+                267
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {subject to} & \\sum_ {p: v \\in p} f _ {p} \\leq c _ {e}, \\quad v \\in V - S \\\\ & f _ {p} \\geq 0, \\quad \\quad \\quad \\quad p \\in \\mathcal {P} \\end{array}\\tag{19.3}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/0c0522b2b3b16729cfa4e194a8a626ae31f2864c0ea54579b4b45c7dd375bfd5.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                319,
+                561,
+                369
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let d be an optimal solution to LP (19.2). We will show how to obtain, eficiently, a half-integral optimal solution from d . For the purposes of proof, let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be an optimal solution to the dual LP. Complementary slackness conditions give:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                379,
+                784,
+                438
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Primal conditions: For each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in V - S , \\operatorname { i f } d _ { v } > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "then v must be saturated."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                444,
+                784,
+                458
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Dual conditions: For each path "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { p } > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "then the length of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is exactly 1."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                464,
+                784,
+                493
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider graph G with distance labels on vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in V - S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "specified by d. For each terminal "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", define its region "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be the set of vertices reachable from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by paths of length zero (we will assume that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } ~ \\in ~ S _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Define the boundary, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be all vertices that are adjacent to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i } , \\mathrm { i . e . }"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B _ { i } = \\{ v \\in { \\overline { { S _ { i } } } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "| for some "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u \\in S _ { i } , ( u , v ) \\in E \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The feasibility of d ensures that the k regions are disjoint and the boundaries do not contain any terminals."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                500,
+                784,
+                587
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Claim 19.9 Suppose "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in B _ { i } \\cap B _ { j } ~ f o r ~ i \\neq j"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d _ { v } = 1"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                595,
+                650,
+                611
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Clearly there is a path from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on which v is the only vertex having a positive distance label. The claim follows from the feasibility of d. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                626,
+                784,
+                669
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textstyle M = \\bigcup _ { i = 1 } ^ { k } B _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the set of boundary vertices. Partition this into two sets: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ^ { \\mathrm { i n t } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "being boundary vertices that occur in two or more boundary sets, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ^ { \\mathrm { d i s j } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "being the rest; each vertex in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ^ { \\mathrm { d i s j } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is in a unique boundary set. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { B y }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Claim 19.9, each vertex in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ^ { \\mathrm { i n t } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has distance label of 1."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                675,
+                784,
+                734
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "19.3 Half-integrality of node multiway cut"
+                    }
+                ]
+            },
+            "bbox": [
+                431,
+                87,
+                731,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "161"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                783,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 19.10 Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a path between two distinct terminals such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { p } >"
+                    },
+                    {
+                        "type": "text",
+                        "content": "0. Then, from the vertices in M, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "uses either exactly one vertex of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ^ { \\mathrm { i n t } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "or exactly two vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ^ { \\mathrm { d i s j } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "j"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                786,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: By the dual complementary slackness condition, the length of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must be exactly 1. Thus, if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "uses a vertex of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ^ { \\mathrm { i n t } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then it cannot have any other vertices of M on it."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                171,
+                784,
+                212
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Suppose "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "uses three or more vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ^ { \\mathrm { d i s j } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Assume that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "runs from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and that u and w are the first and last vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ^ { \\mathrm { d i s j } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "respectively. Let v be any intermediate vertex of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ^ { \\mathrm { d i s j } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in M ^ { \\mathrm { d i s j } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "v must be in a unique boundary, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B _ { k } ; k = i"
+                    },
+                    {
+                        "type": "text",
+                        "content": "or "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k = j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are possible."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                214,
+                784,
+                272
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/b10d1f52dd2d9a1b0034994c0bec2f86c1fe8f6894e08a69e21efd0632e459c7.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                257,
+                281,
+                747,
+                407
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "q"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a path connecting "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "via vertices in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { k } \\mathbf { ; }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "; such a path must exist since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in B _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now consider the following two paths: the first consists of the part of the path "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to v followed by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "q ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the second consists of the reverse of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "q"
+                    },
+                    {
+                        "type": "text",
+                        "content": "followed by the part of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from v to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". At least one of these is a valid path running between distinct terminals (even if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k = i"
+                    },
+                    {
+                        "type": "text",
+                        "content": "or "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k = j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Moreover, since it is missing at least one of the positive distance label vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "it must have length strictly less than 1. This contradicts the feasibility of d. The lemma follows. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                423,
+                784,
+                537
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let h be a solution to LP (19.2) that assigns distance labels of 1 to each vertex in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ^ { \\mathrm { i n t } } , 1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to each vertex in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ^ { \\mathrm { d i s j } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and 0 to all remaining vertices."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                543,
+                784,
+                571
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 19.11 h is an optimal solution to LP (19.2)."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                581,
+                626,
+                595
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Any valid path, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from terminal "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must use vertices of both boundary sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Suppose it uses "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in B _ { i } \\cap B _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". By definition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in M ^ { \\mathrm { i n t } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "9 and so "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { v } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Otherwise, it uses two vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\boldsymbol { \\dot { M } } ^ { \\mathrm { d i s j } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In either case the length of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is at least 1, thus showing that h is a feasible solution."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                609,
+                784,
+                667
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Next we will show that the objective function value of h is the same as that of flow "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "thereby showing that h is optimal. Partition paths carrying nonzero flow in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "into two sets: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { P } _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "consists of paths that use one vertex of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ^ { \\mathrm { i n t } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { P } _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "consists of paths that use two vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ^ { \\mathrm { d i s j } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". By Lemma 19.10 these are the only two possibilities. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { B y }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the primal complementary slackness conditions and the optimality of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { d , }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "each vertex in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is saturated by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                668,
+                786,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "162"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "19 Multiway Cut"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                87,
+                408,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Therefore, the total flow carried by paths in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { P } _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textstyle \\sum _ { v \\in M ^ { \\mathrm { i n t } } } c _ { v }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and by paths in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { P } _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\begin{array} { r l } { { \\frac { 1 } { 2 } } \\sum _ { v \\in M ^ { \\mathrm { d i s j } } } c _ { v } } \\end{array} }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Hence the total flow is"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                143
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {v \\in M ^ {\\mathrm{int}}} c _ {v} + \\frac {1}{2} \\sum_ {v \\in M ^ {\\mathrm{disj}}} c _ {v} = \\sum_ {v \\in V - S} h _ {v} c _ {v}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b9b8842404a80fa5b914d39c834179d3539226299f393b644b08f1fe8e366b28.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                156,
+                544,
+                192
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This proves the lemma."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                202,
+                400,
+                218
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Clearly h can be obtained from an optimal solution, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { d , }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to LP (19.2) in polynomial time. This gives:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                224,
+                784,
+                254
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 19.12 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L P \\ ( { \\cal { 1 9 . 2 } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "always has a half-integral solution. Moreover, any optimal solution can be converted into such a solution in polynomial time."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                261,
+                786,
+                305
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "19.4 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                223,
+                343,
+                376,
+                359
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In Chapter 4 we presented a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - 2 / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor algorithm for the minimum multiway cut problem by comparing the solution found to the integral optima solution. In the next two exercises we develop an algorithm with the same guarantee using LP-duality."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                373,
+                784,
+                432
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "19.1 Given terminals "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 } , \\ldots , s _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", consider the multicommodity flow problem in which each pair of terminals can form a source–sink pair. Thus there are "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\binom { k } { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "commodities. Give an LP for maximizing this multicommodity flow and \u0004 \u0005obtain the dual LP. The dual seeks a distance label assignment for edges satisfying the triangle inequality and ensures that the distance between any two terminals is at least 1. An optimal solution to the dual can be viewed as a fractional multiway cut."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                444,
+                786,
+                545
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "19.2 Consider the following algorithm for finding a multiway cut. Solve the dual LP to obtain an optimal fractional multiway cut. This gives a distance label assignment, say d. Pick "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\rho"
+                    },
+                    {
+                        "type": "text",
+                        "content": "at random in the interval "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "[ 0 , \\textstyle { \\frac { 1 } { 2 } } ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". An edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is picked if for some terminal s, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d ( u , s ) \\leq \\rho \\leq d ( v , s )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Prove that the expected cost of the cut picked is at most twice the optimal fractional multiway cut. Derandomize this algorithm, and give a modification to make it a factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - 2 / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                557,
+                786,
+                658
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Show that for each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the probability that it is picked is bounded by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 \\cdot d ( u , v )"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                657,
+                784,
+                687
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "19.3 In an attempt to improve the factor of the previous algorithm, suppose we choose "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\rho"
+                    },
+                    {
+                        "type": "text",
+                        "content": "at random in the interval [0, 1]. What goes wrong? How is this rectified in Algorithm 19.4?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                700,
+                786,
+                744
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "19.4 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                621,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "163"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "19.4 Derive Theorem 19.7 from Lemma 19.6."
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                112,
+                564,
+                127
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Lemma 19.6 implies that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P r } [ c ( C ) \\leq 1 . 5 \\cdot \\mathrm { O P T } _ { f } ] \\geq 2 / k \\geq 2 / n"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Run Algorithm 19.4 polynomially many times and output the best cut."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                126,
+                784,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "19.5 How does the approximation guarantee of the algorithm change if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is picked to be a random permutation from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { k } ?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                165,
+                784,
+                195
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "19.6 (Y. Rabani) For the case "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k = 3 ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", replace the randomized rounding procedure of Algorithm 19.4 with the following. Pick "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\rho _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\rho _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "independently and uniformly from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 0 , 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Pick one of the three dimensions at random, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Merge with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "all nonterminals v satisfying "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { v } ^ { i } \\geq \\rho _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Arbitrarily pick one of the remaining two dimensions, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and denote the third dimension by k. Merge with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "all remaining nonterminals v satisfying "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { v } ^ { j } + x _ { v } ^ { i } / 2 \\ge \\rho _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Finally, merge with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "all remaining nonterminals. Show that this modified algorithm achieves an approximation guarantee of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "7 / 6"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for the 3-way cut problem."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                204,
+                786,
+                319
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "19.7 We present another relaxation for the multiway cut problem for which the worst integrality gap known is no worse than that for LP (19.1) (see also Chapter 30). Given an undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with costs on edges, obtain the directed graph H by replacing each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of G by two directed edges "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u  v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( v  u )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", each having the same cost as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Assign a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 / 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "indicator variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to each edge e in H. Suppose the terminals are numbered "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 } , \\ldots , s _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in some order. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the collection of all simple paths from a lower-numbered terminal to a higher-numbered terminal. Consider the following bidirected integer programming formulation for the multiway cut problem."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                326,
+                786,
+                470
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {minimize} & \\sum_ {e \\in H} c (e) d _ {e} \\\\ \\text {subject to} & \\sum_ {e \\in p} d _ {e} \\geq 1, \\quad p \\in \\mathcal {P} \\\\ & d _ {e} \\in \\{0, 1 \\}, \\quad e \\in H \\end{array}\\tag{19.4}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/9ecca174f49bd2fc37d9f7328d2641c0e6f25c592dc3b055d5282830c4e1eb28.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                481,
+                519,
+                569
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Show that an optimal solution to IP (19.4) yields an optimal solution to the multiway cut problem."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                579,
+                784,
+                608
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Obtain the LP-relaxation and dual program. Give a good physical interpretation of the dual."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                608,
+                784,
+                636
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3. Show that the graph given in Example 19.2 has an integrality gap of 16/15 for this relaxation as well (by showing a primal and dual solution of cost 7.5)."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                636,
+                786,
+                678
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4. Show that the cost of the optimal solution to the integer program and the relaxation is independent of the ordering imposed on the terminals."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                678,
+                784,
+                709
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "19.8 Consider Algorithm 4.3 for the multiway cut problem. Show that the analogous algorithm for the node multiway cut problem, based on isolating cuts, does not achieve a constant factor. What is the best factor you can prove for this algorithm?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                724,
+                786,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "164"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "19 Multiway Cut"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                87,
+                408,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                142
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "19.9 The multiway cut problem also possesses the half-integrality property. Give an LP for the multiway cut problem similar to LP (19.2), and prove this fact."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                155,
+                784,
+                199
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "19.10 Show that the lower bound on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "given by LP (19.2) can be smaller by a factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - 2 / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by giving a graph in which the optimal node multiway cut is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - 2 / \\lambda"
+                    },
+                    {
+                        "type": "text",
+                        "content": "k times bigger than the maximum flow."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                212,
+                784,
+                256
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "19.11 Theorem 19.12 leads directly to a factor 2 approximation algorithm for the node multiway cut problem, by rounding up the halves in a halfintegral solution. Obtain a factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - 2 / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "algorithm, and give a family of tight examples for this algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                269,
+                786,
+                326
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Not all vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ^ { \\mathrm { d i s j } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are required for obtaining a multiway cut. For the tight example, consider the following graph."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                326,
+                784,
+                356
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/cc4278d074e98310aec902371275626b01f3d04b3022fa3b2e79950921402c7b.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "19.12 Consider the following problem."
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                334,
+                367,
+                668,
+                495
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 19.13 (Directed multiway cut) Given a directed graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with an assignment of capacities to edges, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c : E \\to \\mathbf { R } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and a set of terminals "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S = \\{ s _ { 1 } , s _ { 2 } , \\dotsc , s _ { k } \\} \\subseteq V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", a directed multiway cut is a set of edges whose removal ensures that the remaining graph has no path from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for each pair of distinct terminals "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The directed multiway cut problem asks for the minimum cost such set."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                548,
+                786,
+                634
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Obtain an LP-relaxation for this problem similar to LP (19.2). The dual can be interpreted as a directed multicommodity flow LP. Find the optimal fractional directed multiway cut and flow in the following example:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                634,
+                786,
+                678
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "19.4 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                621,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "165"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/32f6480fbe44684fce44096dfb581ce1a7ffc68fa1fe646d9305647e603d18a7.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                295,
+                109,
+                710,
+                222
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Notice that unlike LP (19.2), this relaxation does not always have an optimal half-integral solution."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                235,
+                784,
+                265
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "19.13 Let us define the following two problems:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                275,
+                586,
+                291
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 19.14 (Subset feedback edge set) Given a connected, undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with an assignment of weights to edges, w : "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E  \\mathbf { R } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "2 and a set of special vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S = \\{ s _ { 1 } , s _ { 2 } , \\dotsc , s _ { k } \\} \\subseteq V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", a subset feedback edge set is a set of edges whose removal ensures that the remaining graph has no cycle containing a special vertex. The subset feedback edge set problem asks for the minimum weight such set."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                307,
+                784,
+                395
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 19.15 (Subset feedback vertex set) Given a connected, undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G \\ : = \\ : ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with an assignment of weights to vertices, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w : V \\to \\mathbf { R } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and a set of special vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S = \\{ s _ { 1 } , s _ { 2 } , . . . , s _ { k } \\} \\subseteq V ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", a subset feedback vertex set is a subset of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V - S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "whose removal ensures that the remaining graph has no cycle containing a special vertex. The subset feedback vertex set problem asks for the minimum weight such set."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                411,
+                784,
+                499
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "These and previously introduced problems are related by approximation factor preserving reductions given in the following figure (each arrow represents such a reduction). Give these reductions. For a definition of such reductions, see Section A.3.1."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                508,
+                786,
+                567
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/b4631e636ae2530959f23fc6a4d8791e40728ecfb73ffe4ff181a0d3767954ee.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                225,
+                583,
+                789,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "166"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "19 Multiway Cut"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                87,
+                408,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The current best factors known for multiway cut and subset feedback vertex set are 1.34 and 8, respectively. For the rest of the problems, the current best factor is 2."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                156
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "19.5 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                223,
+                185,
+                342,
+                200
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 19.4 is due to Calinescu, Karlof, and Rabani [36]. The current best guarantee known for the multiway cut problem is 1.3438, due to Karger, Klein, Stein, Thorup, and Young [157]. This is also the best upper bound known on the integrality gap of the relaxation used. Freund and Karlof [87] give a family of instances achieving a lower bound of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "8 / ( 7 + \\frac { 1 } { k - 1 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on the integrality gap; Example 19.2 is from their paper. Theorem 19.12 is due to Garg, Vazirani, and Yannakakis [96]. For currently best approximation algorithms known for directed multiway cut, subset feedback edge set, and subset feedback vertex set, see Naor and Zosin [210], Even, Naor, Schieber, and Zosin [76], and Even, Naor, and Zosin [77], respectively."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                214,
+                786,
+                359
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "19.5 Notes"
+                    }
+                ]
+            },
+            "bbox": [
+                643,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "167"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ]
+]

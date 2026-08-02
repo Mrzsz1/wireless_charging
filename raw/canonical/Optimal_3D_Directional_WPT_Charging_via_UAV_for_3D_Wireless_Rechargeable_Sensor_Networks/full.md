@@ -1,0 +1,726 @@
+﻿---
+title: "Optimal 3D Directional WPT Charging via UAV for 3D Wireless Rechargeable Sensor Networks"
+year: null
+source_type: paper
+why_relevant: ""
+acquisition_method: auto_discovery
+discovered_via: ["arxiv"]
+discovery_run: "raw/inbox/auto-discovered/runs/search-20260714-204713"
+triage_status: promoted
+selected_by_user: true
+acquired_at: "2026-07-14T12:47:13+00:00"
+canonicalized_at: 2026-07-14
+ingest_status: ingested
+pdf_path: "raw/canonical/Optimal_3D_Directional_WPT_Charging_via_UAV_for_3D_Wireless_Rechargeable_Sensor_Networks/Optimal_3D_Directional_WPT_Charging_via_UAV_for_3D_Wireless_Rechargeable_Sensor_Netw.pdf"
+raw_md: "raw/canonical/Optimal_3D_Directional_WPT_Charging_via_UAV_for_3D_Wireless_Rechargeable_Sensor_Networks/full.md"
+---
+# Optimal 3D Directional WPT Charging via UAV for 3D Wireless Rechargeable Sensor Networks
+
+Zhenguo Gao\*, Senior Member, IEEE, Hui Li, Yiqin Chen, Qingyu Gao, Zhufang Kuang, Member, IEEE, Shih-Hau Fang, Scenior Member, IEEE, Hsiao-Chun Wu\*, Fellow, IEEE
+
+Abstract—The high mobility and flexible deployment capability of UAVs make them an impressive option for charging nodes in Wireless Rechargeable Sensor Networks (WRSNs) using Directional Wireless Power Transfer (WPT) technology. However, existing studies largely focus on 2D-WRSNs, lacking designs catering to real 3D-WRSNs. The spatial distribution characteristics of nodes in a 3D-WRSN further increase the complexity of the charging scheduling task, thus requiring a systematic framework to solve this problem. In this paper, we investigated the Directional UAV Charging Scheduling problem for 3D-WRSNs (DCS-3D) and established its NP-hard property, and then proposed a three-step framework named as directional charging scheduling algorithm using Functional Equivalent (FuncEqv) direction set and Lin-Kernighan heuristic (LKH) for 3D-WRSNs (FELKH-3D) to solve it. In FELKH-3D, the challenge of infinite charging direction space is solved by designing an algorithm generating a minimum-size direction set guaranteed to be FuncEqv to the infinite set of whole sphere surface, and the optimaility of the method was proved.To determine the optimal charging tour for the UAV, the LKH algorithm is employed.Simulation experiments demonstrated the superiority of FELKH-3D over other classical algorithms.
+
+Index Terms— 3D Wireless rechargeable sensor networks, charging schedule, UAV charger, directional WPT.
+
+## I. INTRODUCTION
+
+W <sup>IRELESS</sup> <sup>Sensor</sup> <sup>Networks</sup> <sup>(WSNs)</sup> <sup>have</sup> <sup>broad</sup> <sup>ap-</sup>plication prospects in many fields such as precision plication prospects in many fields such as precision agriculture [1] and logistics monitoring [2]. For the significant time and maintenance costs of replacing batteries [3], however, the limited battery capacity of nodes has continuously been a critical bottleneck hindering the prevalence of WSNs [4]. With the breakthroughs in Wireless Power Transfer (WPT) technology, using Mobile Chargers (MCs) equipped with WPT devices to charge the nodes in Wireless Rechargeable Sensor Networks (WRSNs) has shown great potential in extending network lifespan [5]. Recently, charging scheduling for WRSNs in complex scenarios, where the movement of MCs are restricted, are attracting research efforts. With strong mobility and flexible deployment capabilities [6–9], Unmanned Aerial Vehicles (UAVs) are considered more suitable for charging nodes in complex scenarios, and hence utilizing UAVs as flying chargers to charge WRSNs is becoming a hot topic [10].
+
+Many related research efforts are targeted for WRSNs with nodes distributed on a two-dimensional plane. With the adoption of UAVs in WRSNs, many work begin to focus on WRSNs with nodes distributed in Three-Dimensional (3D) space. For example, the work in [11] assumed a two-layer network where chargers are to be deployed in an upper plane to charge the nodes in a bottom plane. Nodes are positioned on rooftops and curved faces. Targeted for scenarios where nodes are on curved terrestrial ground, the author of[12] investigated the UAV charging schedule problem, assuming that the UAV can only radiate energy in the downward half sphere, not fully exploiting the flexibility of UAV chargers. The network there is not full 3D.
+
+In the true 3D network, sensor nodes are spatially distributed across different locations within a volumetric space—for example, mounted on balloons, attached to trees or poles, or deployed in underwater environments—forming a network topology with distinct spatial hierarchies. Leveraging the high mobility and operational flexibility of UAVs, energy replenishment for these spatially dispersed nodes can be effectively achieved. However, due to the layered and three-dimensional distribution of nodes, determining the optimal direction for wireless energy transmission becomes far more complex than in two-dimensional networks, thereby posing significant challenges to directional energy transfer.
+
+This paper aims to systematically solve the UAV charging scheduling problem caused by the spatial distribution characteristics of nodes in a 3D-WRSN, and to make full use of the UAV’s WPT capability to improve scheduling efficiency. We focus on a scenario where a UAV with directional charging ability is used to charge nodes distributed within a 3D region. The underlying optimization problem is defined as the Directional UAV Charging Scheduling problem for 3D-WRSNs (DCS-3D). Given the rapid decay of wireless power transfer efficiency with distance—and the extremely low efficiency beyond a certain threshold—we, in line with existing literature [13], consider only node locations as candidate charging positions. Hence, the terms node position and charging position are used interchangeably throughout this paper.
+
+We first prove that the DCS-3D problem is NP-hard and then propose a three-step approximation framework: (1) select charging directions at each charging position (i.e., node location), (2) determine the charging time along each selected direction, and (3) construct a round-trip tour visiting all charging positions. A complete solution is derived from these decisions. To address the challenge of the infinite charging direction space, we extend the 2D analysis in [14] to 3D and design an algorithm to compute a minimal-size charging direction set that is functionally equivalent (FuncEqv) to the full spherical space. Here, FuncEqv implies that using this reduced set as the directional search space yields optimal charging schedules identical in quality to those derived from the original continuous direction space. This algorithm, named Creating Minimal FuncEqv Direction Set (cMFEDS), is proven to be optimal. To address the UAV path planning problem, we adopt the Lin-Kernighan heuristic (LKH)[15], a state-of-the-art TSP solver known for high solution quality and efficiency. Finally, we integrate the above components into a unified algorithm—FELKH-3D (FuncEqv-directionbased Energy-efficient LKH algorithm for 3D-WRSNs)—as illustrated in Fig.1.
+
+![](images/b1fd5a76a395f2b87bbc2cb052d2cf60d3d928c524de9892943d595ab558f7cd.jpg)  
+Fig. 1. Outline of the FELKH-3D algorithm.
+
+Main contributions in this paper are summarized as follows:
+
+1) The cMFEDS algorithm was proposed which generates minimum-size charging direction set that is FuncEqv to the original infinite set of the whole sphere surface. cMFEDS’s optimality was established.
+
+2) The DCS-3D problem was shown to be NP-hard, and the FELKH-3D algorithm was proposed, which solves the DCS-3D problem in three steps by integrating established methods including cMFEDS and LKH[15].
+
+3) Extensive simulation experiments were performed, which demonstrate the superiority of FELKH-3D.
+
+The remainder of this paper is organized as follows. Sec. II reviews related work. Sec. III presents preliminary models. Sec. IV describes and formulates the DCS-3D problem. Sec. V provides the analyses and design of the cMFEDS algorithm. Sec. VI describes the FELKH-3D algorithm. Sec. VII introduces our testbed experiments. Sec. VIII presents and analyzes the simulation results. Sec. IX concludes the paper.
+
+## II. RELATED WORK
+
+We briefly review researches related to the key components of WPT charging scheduling topic: charging position generation, charging direction selection, and charging tour determination.
+
+## A. Charging Position Generation for WPT Chargers
+
+Despite advances in WPT distance extension, signal attenuation remains a fundamental limitation, making node positions the default charging candidates in most studies. Recent work has explored various optimization approaches: Jiang et al. [16] proposed grid-based position refinement for coneshaped chargers in roof-to-ground scenarios, while Liang’s team [17, 18] developed clustering methods for 2D-WRSNs and an improved firefly algorithm for UAV deployment. Alternative strategies employ spatial discretization to manage complexity, including piece-wise linearization of energy transfer models [19, 20] and spatiotemporal discretization for pseudo-3D uneven terrains [12]. These approaches collectively address the trade-off between charging efficiency and computational complexity in position selection. Although the WPT charging distance had been extended considerably, the energy transfer coefficient is still low due to the serious attenuation of radio signals over distances. As a result, using the positions of the nodes as candidate charging positions is commonly adopted in the literature.
+
+## B. Charging Direction Selection for Directional Chargers
+
+A common approach in existing literature is to generate dedicated charging directions for individual nodes [21, 22]. Alternatively, fixed direction sets are employed in some works, such as [17], where predefined directions are used irrespective of the spatial distribution of nodes. More refined methods have also been explored. In [16], the authors investigate a pseudo-3D WRSN scenario, where directional chargers are deployed on a roof plane to charge ground-level nodes. Two charging direction selection strategies are introduced: Greedy Cone Covering (GCC) and Adaptive Cone Covering (ACC). GCC iteratively generates directions based on node pairs; depending on whether both nodes can be covered by a single cone, either two or four directions are generated. ACC further compresses the direction set by greedily merging adjacent directions.
+
+To minimize charging delay, [23] proposed the Charging Power Discretization (CPD) algorithm, which identifies potential directions from each charging position to nodes within range, then applies k-means clustering to refine the direction set. In a previous work [14], an optimal charging direction selection method was developed for DMCs in 2D-WRSNs. The concept of functional equivalence (FuncEqv) was introduced, where two direction sets are considered equivalent if they support optimal schedules of equal quality. An optimal algorithm was proposed to generate a minimum-size FuncEqv direction set over the continuous space [0, 2π). A similar idea was adopted in [24], though all aforementioned methods are restricted to 2D scenarios and cannot be directly applied to 3D-WRSNs.
+
+## C. Charging Tour Searching Methods for Mobile Chargers
+
+Traditional and heuristic TSP algorithms are widely used for charging tour construction. Gao et al.[14, 25] employed the Christofides algorithm to determine efficient charging tours in energy-redistribution-assisted WRSNs. Chen et al. [26] extend this to multi-MC, multi-base station settings with enhanced ACO, jointly optimizing energy loss and time span. Liang et al. [17] reduce TSP complexity by strategically grouping sensors and then apply an improved Ant Colony Optimization (ACO) to define fewer stopping points, thereby cutting travel cost.
+
+## III. PRELIMINARY MODELS
+
+## A. System Model
+
+We consider a 3D-WRSN contains n nodes $\begin{array} { r l } { \mathcal { U } } & { { } = } \end{array}$ $\{ u _ { 1 } , \ldots , u _ { n } \}$ located at positions $\mathcal { L } = \{ l _ { i } = ( x _ { i } , y _ { i } , z _ { i } ) \in$ $\mathbb { R } ^ { 3 } \}$ , a UAV equipped with directional wireless power transfer capability, and a base station at location $l _ { 0 } .$ . Each node $u _ { i }$ has battery capacity $e _ { \mathrm { U } } ( i )$ , initial energy level $e _ { \mathbf { B } } ( i )$ , and energy demand $\boldsymbol { e } _ { \mathrm { D } } ( i )$ . The charging requirement is satisfied when the condition $\mathbf { e _ { \mathrm { F } } } { : = } \operatorname* { m i n } \{ \mathbf { e _ { \mathrm { B } } } + \mathbf { e _ { \mathrm { R } } } , \mathbf { e _ { \mathrm { U } } } \} \ \geq \ \left( \mathbf { e _ { \mathrm { D } } } + \mathbf { e _ { \mathrm { B } } } \right)$ holds, where e represents the received energy vector. The UAV operates under the following constraints: it begins each mission with full battery capacity $e _ { \mathrm { U } } ( 0 )$ at the base station, maintains a constant flight speed v¯, carries sufficient energy to complete all assigned charging tasks, and only engages in wireless power transmission when positioned at designated node locations.
+
+![](images/eaf1c5a5537dcb3c5f5200a035b8cbfa24075e10c41401119b5cd608512bc5ef.jpg)  
+Fig. 2. An example 3D-WRSN.
+
+## B. Energy Consumption Model of the UAV
+
+When fulfilling a charging schedule, the energy consumption of the UAV contains three parts: flying energy consumption, hovering energy consumption, and charging energy consumption (which results from charging the nodes).
+
+The energy consumption power of UAV when flying at speed v is modeled as Eq. (1)[12], where $p _ { b }$ and $p _ { i }$ are two constants representing the blade profile power and induced power. $U _ { \mathrm { t i p } }$ represents the tip speed of the rotor. $v _ { 0 }$ is the average rotor induced speed in hovering. $d _ { 0 }$ and $s _ { \mathrm { U A V } }$ are the fuselage drag coefficient and rotor solid ratio, respectively. $r$ and A represent the air density and rotor disc area, respectively.
+
+$$
+\begin{array}{l} p _ {\mathrm{UAV}} (v)   =   p _ {b} \left(1   +   \frac {3 v ^ {2}}{U _ {\mathrm{tip}} ^ {2}}\right)   +   p _ {i} \left(\sqrt {1   +   \frac {v ^ {4}}{4 v _ {0} ^ {4}}} - \frac {v ^ {2}}{2 v _ {0} ^ {2}}\right) ^ {1 / 2} \\ \qquad +   \frac {1}{2} d _ {0} \rho s _ {\mathrm{UAV}} A v ^ {3}. \end{array}\tag{1}
+$$
+
+According to Eq. (1), the UAV’s flying energy consumption power $p _ { \mathrm { F l y } }$ is $p _ { \mathrm { F l y } } { : = } p _ { \mathrm { U A V } } ( \bar { v } )$ , where v¯ is the UAV’s constant flying speed. $p _ { \mathrm { H o v } } { = } p _ { \mathrm { U A V } } ( 0 )$ is the hovering energy consumption power. Let $S _ { \mathrm { { D i r R e p } } } ( i ) { : = } \{ \psi _ { 1 } , \psi _ { 2 } , \ldots , \psi _ { k _ { i } } \}$ denote the charging direction set at position $l _ { i } ,$ then a position-direction (Pos-Dir) pair $( l _ { i } , \psi _ { j } )$ completely defines a direction and its associated position. When the UAV is charging at position $l _ { i }$ along direction $\psi _ { j }$ , we say that the UAV is charging along (or using) the Pos-Dir pair $( l _ { i } , \psi _ { j } )$ Let define $S _ { \mathrm { P o s D i r } } ( l _ { i } ) { : = } \{ ( l _ { i } , \psi _ { j } ) | i { \in } \{ 1 , 2 , \ldots , k _ { i } \} $ and $\begin{array} { r l } { S _ { \mathrm { P o s D i r } } { : = } } & { { } } \end{array}$ $\cup _ { i = 1 } ^ { | \mathcal { L } | } S _ { \mathrm { P o s D i r } } ( l _ { i } )$ . We assume that the pairs in $\mathcal { S } _ { \mathrm { P o s D i r } }$ are already properly sorted, firstly on position and then on direction value, and assume the number of charging directions at $l _ { 0 }$ is $k _ { 0 } { = } 0 .$
+
+Let $\mathbf { t } _ { \mathrm { C h r g } } ^ { \mathrm { U A V } } { = } [ t _ { 1 } ^ { \mathrm { C h r g } } , t _ { 2 } ^ { \mathrm { C h r g } } , \dots , t _ { K } ^ { \mathrm { C h r g } } ] ^ { \mathrm { Y } }$ with $\textstyle K : = \sum _ { i = 1 } ^ { n }$ k denote the charge time vector corresponding to the Pos-Dir pairs in $\mathcal { S } _ { \mathrm { P o s D i r } }$ . As the UAV always transmit energy with power p<sub>0</sub>, the charging energy consumption is Eq. (2). During the charging period at a position, the UAV should always hovering there, thence the corresponding hovering energy consumption can be obtained as Eq. (3).
+
+$$
+e _ {\mathrm{Chrg}} ^ {\mathrm{UAV}} := p _ {0} \cdot \sum_ {i = 1} ^ {K} t _ {i} ^ {\mathrm{Chrg}} = p _ {0} \mathbb {1} ^ {1 \times K} \mathbf {t} _ {\mathrm{Chrg}} ^ {\mathrm{UAV}}.\tag{2}
+$$
+
+$$
+e _ {\text { Hov }} ^ {\text { UAV }} := p _ {\text { UAV }} (0) \cdot \sum_ {i = 1} ^ {K} t _ {i} ^ {\text { Chrg }} = p _ {\text { UAV }} (0) \mathbb {1} ^ {1 \times K} \mathbf {t} _ {\text { Chrg }} ^ {\text { UAV }}.\tag{3}
+$$
+
+Given a charging tour $\mathbf { r } ( \mathcal { L } ) { : = } [ l _ { 0 } , l _ { \pi _ { 1 } } , l _ { \pi _ { 2 } } , \ldots , l _ { \pi _ { | } \mathcal { L } | } , l _ { \pi _ { \left( | \mathcal { L } | + 1 \right) } }$ $= l _ { 0 } ]$ , the flying energy consumption and flying time of the UAV can be expressed as
+
+$$
+\begin{array}{l} e _ {\mathrm{Fly}} ^ {\mathrm{UAV}} (\mathbf {r} (\mathcal {L})) = \sum_ {i = 0} ^ {| \mathcal {L} |} p _ {\mathrm{Fly}} * d (l _ {i}, l _ {i + 1}) / \bar {v} * w (l _ {i}, l _ {i + 1}), \\ t _ {\mathrm{Fly}} ^ {\mathrm{UAV}} (\mathbf {r} (\mathcal {L})) = \sum_ {i = 0} ^ {| \mathcal {L} |} d (l _ {i}, l _ {i + 1}) / \bar {v}. \end{array}\tag{4}
+$$
+
+(5)
+
+The total energy consumption and the remaining energy of the UAV after fulfilling a charging schedule can be expressed by Eqs. (6) and (7), respectively.
+
+$$
+e _ {\text { Total }} ^ {\text { UAV }} = e _ {\text { Fly }} ^ {\text { UAV }} (\mathbf {r} (\mathcal {L})) + e _ {\text { Chrg }} ^ {\text { UAV }} + e _ {\text { Hov }} ^ {\text { UAV }},
+$$
+
+$$
+e _ {\mathrm{F0}} = e _ {\mathrm{B0}} - e _ {\mathrm{Total}} ^ {\mathrm{UAV}}.\tag{6}
+$$
+
+(7)
+
+## C. WPT Energy Transfer Model
+
+Energy transfer coefficient is usually determined using energy transfer coefficient model. Here we adopt the model utilized in [27, 28], where the region covered by UAV’s energy transmission signal is the joint of a sphere with radius D and a cone with cone apex angle $\phi$ and height larger than D, both rooted at the UAV, as depicted in Fig. 3. Although the bottom surface of the region is not a plane, we still call it as charging cone. The center-line of the cone is referred as the corresponding charging direction, denoted as ψ. With the additional parameter including node direction θ, and the distance d from the UAV to the node concerned, Eq. (8) determines the energy transfer coefficient from the UAV to the node, where $\angle ( \psi , \theta )$ represents the angle between the two directions $\psi$ and θ. They both expressed as three-element vectors. We assume that the cone angle $\phi$ remains constant, whereas charging direction $\psi$ is freely adjustable.
+
+$$
+c (\psi , \phi , \theta , d) = \left\{ \begin{array}{l l} \frac {\delta}{(\alpha + d) ^ {\beta}}, & d \leq D, \angle (\psi , \theta) \leq \phi / 2; \\ 0, & \text { otherwise }. \end{array} \right.\tag{8}
+$$
+
+Table I lists main symbols for facilitating the readers.
+
+![](images/9c632b6eccd34385c31bb9baf37aab4c06974414efbd626d2a76cefa94ecc887.jpg)  
+Fig. 3. Charging cone diagram
+
+TABLE I: Symbol Definitions
+
+<table><tr><td>Symbol</td><td>Definition</td></tr><tr><td> $\mathcal{U},n$ </td><td> $\mathcal{U}:=\{u_1,u_2,\dots,u_n\}$  is the set of  $n$  nodes</td></tr><tr><td> $\mathcal{L}$ </td><td> $\mathcal{L}:=\{l_1,l_2,\dots,l_n\}$  is the set of nodes’ positions, with  $l_i := (x_i,y_i,z_i)$  is node  $u_i$ &#x27;s position</td></tr><tr><td> $\mathbf{e}_{\mathrm{B}},\mathbf{e}_{\mathrm{U}},\mathbf{e}_{\mathrm{D}},$  $\mathbf{e}_{\mathrm{R}},\mathbf{e}_{\mathrm{F}}$ ,</td><td>The vectors of the nodes’ initial energy, battery capacity (upper limit), energy demand, energy received from WPT, final energy</td></tr><tr><td> $e_{\mathrm{B}0},e_{\mathrm{U}0},$  $\bar{v},l_0$ </td><td>The UAV’s initial energy, battery capacity, flying speed, initial position (i.e., BS’s position)</td></tr><tr><td> $\psi ,\mathrm{D},\phi$ </td><td>The UAV’s charging direction, charging distance, charge cone apex angle (cone angle)</td></tr><tr><td> $p_0,p_{\mathrm{Fly}},$  $p_{\mathrm{Hov}}$ </td><td>The UAV’s constant energy transmission power, hovering energy consumption power, flying energy consumption power</td></tr><tr><td> $\mathcal{N}_{\mathrm{ChrgPos}}$ </td><td>Set of charging positions</td></tr><tr><td> $\mathcal{N}_{\mathrm{Sphere}}$ (O)</td><td>Set of nodes enclosed in the sphere centered at Owith radius D</td></tr><tr><td> $\mathcal{N}_{\mathrm{Cone}}$ (O,v,φ)</td><td>Set of nodes covered by a charging cone rooted at Owith direction v, cone angle φ, and height D</td></tr><tr><td> $\mathcal{S}_{\mathrm{DirRep}}$ (O,A)</td><td>Set of selected representative directions at position Owith reference node A in context  $\mathcal{C}_{\mathrm{ChrgPos}}(O,A)$ </td></tr><tr><td> $\mathcal{S}_{\mathrm{DirRep}}(O)$ </td><td>Set of selected representative directions at position Oin context  $\mathcal{C}_{\mathrm{ChrgPos}}(O)$ </td></tr><tr><td> $\mathcal{S}_{\mathrm{PosDir}}$ </td><td>Set of Pos-Dir pairs defined in Eq. (28) as three-element tuples, including charging position, charging direction, and its covered node set</td></tr><tr><td> $\mathcal{C}_{\mathrm{ChrgPos}}$ (O,A)</td><td>Context with charging position Oand reference node A</td></tr><tr><td> $\mathcal{C}_{\mathrm{ChrgPos}}(O)$ </td><td>Context with charging position O</td></tr><tr><td> $\mathcal{S}_{\mathrm{LMaxRng}}$ (O,A)</td><td>Set of LMax-SCN angle ranges in context  $\mathcal{C}_{\mathrm{ChrgPos}}(O,A)$ </td></tr><tr><td> $\mathbf{s}^{\mathrm{CTS}},\tau^{\mathrm{CTS}}$ </td><td>Charging schedule and its time span</td></tr><tr><td> $e_{\mathrm{Fly}}^{\mathrm{UAV}}(\mathbf{s}),$  $e_{\mathrm{Hov}}^{\mathrm{UAV}}(\mathbf{s}),$  $e_{\mathrm{Chrg}}^{\mathrm{UAV}}(\mathbf{s}),$  $e_{\mathrm{Loss}}^{\mathrm{Total}}(\mathbf{s})$ </td><td>Flying energy consumption, hovering energy consumption, and charging energy consumption for conducting a charging schedule s, $e_{\mathrm{Loss}}^{\mathrm{Total}}(\mathbf{s}):=e_{\mathrm{Fly}}^{\mathrm{UAV}}(\mathbf{s})+e_{\mathrm{Hov}}^{\mathrm{UAV}}(\mathbf{s})+e_{\mathrm{Chrg}}^{\mathrm{UAV}}(\mathbf{s})-e_{\mathrm{Rcv}}^{\mathrm{Nodes}}(\mathbf{s})$ </td></tr><tr><td> $e_{\mathrm{Total}}^{\mathrm{UAV}}$  $e_{\mathrm{Hov}}^{\mathrm{UAV}}(\mathbf{t}),$  $e_{\mathrm{Chrg}}^{\mathrm{UAV}}(\mathbf{t}),$  $e_{\mathrm{Rcv}}^{\mathrm{Nodes}}(\mathbf{t})$ </td><td>Total energy consumption,hovering energy consumption and charging energy consumption of UAV, and energy actually received by the nodes, which are depend on charging time vector t along Pos-Dir pairs in  $\mathcal{S}_{\mathrm{PosDir}}$ </td></tr><tr><td> $\mathcal{S}_{\mathrm{Fly}}^{\mathrm{CTS}},$  $\mathcal{S}_{\mathrm{Chrg}}^{\mathrm{CTS}}$ ,</td><td>Flying schedule item set and charging schedule item set embedded in a charging schedule</td></tr><tr><td> $\mathbf{C}_{\mathrm{ETC}}$ </td><td> $\mathbf{C}_{\mathrm{ETC}}:=[c(i,j)]_{\{i\in\{1,2,\cdots,|\mathcal{S}_{\mathrm{PosDir}}|\},U_j\in\mathcal{U}}$ </td></tr><tr><td> $\mathbf{t}_{\mathrm{Chrg}}^{\mathrm{UAV}}$ </td><td>UAV’s charging time vector along the Pos-Dir pairs in  $\mathcal{S}_{\mathrm{PosDir}}$ </td></tr></table>
+
+## IV. THE DCS-3D PROBLEM
+
+## A. Structure of Charging Schedule
+
+A complete charging schedule solving a DCS-3D problem instance should determine the UAV’s tour schedule and charging time schedule along the Pos-Dir pairs. We describe a complete schedule using an ordered list called Charging Tour Schedule (CTS) list.
+
+We use $\mathbf { s } ^ { \mathrm { C T S } } { : = } [ s _ { 1 } ^ { \mathrm { C } } , s _ { 2 } ^ { \mathrm { C } } , \ldots , s _ { m } ^ { \mathrm { C } } ]$ to represent a CTS list with m items. The i-th item $s _ { i } ^ { \mathrm { C } } { : = } ( s t a t e , x , t , \mathbf { v } )$ has three fields, where state is a binary variable. The state value indicates the type of the item: state=1 indicates it as a flying schedule item for arranging the travel between charging positions, whereas state=0 means that it is a charging schedule item for arranging the energy transmission operation along Pos-Dir pairs. For schedule item $( s t a t e , x , t , \mathbf { v } )$ , if state=1 then it means that the UAV should fly toward x for t time, and if $s t a t e { = } 0$ then it means that the UAV should charging along direction v for time t. We define two sets as $\bar { S _ { \mathrm { F l y } } ^ { \mathrm { C T S } } } = \{ s _ { i } ^ { \mathrm { C } } | \bar { s } _ { i } ^ { \mathrm { C } } . s t a t e { = } 0 \}$ and ${ \cal S } _ { \mathrm { C h r g } } ^ { \mathrm { C T S } } { = } \{ s _ { i } ^ { \mathrm { C } } | s _ { i } ^ { \mathrm { C } } . s t a t e { = } 1 \} $
+
+When fulfilling a charging schedule $\mathbf { s } ^ { \mathrm { C T S } }$ , its items are executed sequentially. Let $\textstyle { \bar { \tau } } _ { i } ^ { \mathrm { C } } : = \sum _ { j = 1 } ^ { i } s _ { j } ^ { \mathrm { C } } . t$ , then item $s _ { i } ^ { \mathrm { C } }$ starts at time $\tau _ { i - 1 } ^ { \mathrm { C } }$ and ends at time $\tau _ { i } ^ { \mathrm { C } }$ . The time span of the schedule $\begin{array} { r } { \mathbf { s } ^ { \mathrm { C T S } } \mathrm { ~ i s ~ } \boldsymbol { \tau } ^ { \mathrm { C T S } } { : = } \sum _ { j = 1 } ^ { | \mathbf { s } ^ { \mathrm { C T S } } | } s _ { j } ^ { \mathrm { C } } . t } \end{array}$
+
+## B. The DCS-3D Problem
+
+For an instance of the DCS-3D problem, the total initial energy $e _ { \mathrm { T B } } { : = } e _ { \mathrm { B } 0 } { + } \mathbb { 1 } ^ { 1 \times n } { \mathbf { e } } _ { \mathrm { B } }$ is a constant. After fulfilling a charging schedule $\mathbf { s } ,$ the total remaining energy of all nodes and the UAV is $e _ { \mathrm { T F } } ( \mathbf { s } ) { : = } e _ { \mathrm { F 0 } } { + } \mathbb { 1 } ^ { 1 \times n } \mathbf { e } _ { \mathrm { F } } ,$ . For prevously defined energy consumption symbols, such as $e _ { \mathrm { H o v } } ^ { \mathrm { U A V } } , e _ { \mathrm { C h r g } } ^ { \mathrm { U A V } } , e _ { \mathrm { R c v } } ^ { \mathrm { N o d e s } }$ , we can re-write them by appending s to emphasize the dependence on s. The total energy loss incurred during the execution of schedule s is thus computed as:
+
+$$
+e _ {\text { Loss }} ^ {\text { Total }} (\mathbf {s}) = e _ {\mathrm{TB}} - e _ {\mathrm{TF}} (\mathbf {s}) = e _ {\text { Total }} ^ {\text { UAV }} (\mathbf {s}) - e _ {\text { Rcv }} ^ {\text { Nodes }} (\mathbf {s})\tag{9}
+$$
+
+As $e _ { \mathrm { H o v } } ^ { \mathrm { U A V } } ( \mathbf { s } ) , ~ e _ { \mathrm { C h r g } } ^ { \mathrm { U A V } } ( \mathbf { s } )$ and $e _ { \mathrm { R c v } } ^ { \mathrm { N o d e s } } ( \mathbf { s } )$ are all completely determined by the charging time list t embedded in schedule s, they can be expressed as $e _ { \mathrm { H o v } } ^ { \mathrm { U A V } } ( \mathbf { t } ) ~ e _ { \mathrm { C h r g } } ^ { \mathrm { U A V } } ( \mathbf { t } )$ , and $e _ { \mathrm { R c v } } ^ { \mathrm { N o d e s } } ( \mathbf { t } )$ respectively. Let define $e _ { \mathrm { L o s s } } ^ { \mathrm { W P T + H o v } } ( \mathbf { t } )$ as
+
+$$
+e _ {\text { Loss }} ^ {\text { WPT + Hov }} (\mathbf {t}) := e _ {\text { Hov }} ^ {\text { UAV }} (\mathbf {t}) + e _ {\text { Chrg }} ^ {\text { UAV }} (\mathbf {t}) - e _ {\text { Rcv }} ^ {\text { Nodes }} (\mathbf {t})\tag{10}
+$$
+
+The objective interested here is to minimize the total energy loss with the prerequisite of satisfying the energy demands of all nodes. With this objective, the targeted DCS-3D Problem can be formally stated as follows.
+
+DCS-3D Problem: Given an 3D-WRSN contains a UAV, n nodes at positions in ${ \mathcal { L } } ,$ a BS at $l _ { 0 } ,$ and together with the preliminary models, the task is to find a charging schedule $\mathbf { s } ^ { \mathbf { C T S } }$ leading to minimum energy loss $\mathbf { e _ { L o s s } ^ { T o t a l } }$ while guaranteeing that all charging demands are satisfied.
+
+DCS-3D can be formulated as $\mathrm { E q . ( 1 1 ) }$ , where $\Omega _ { \mathrm { r } } ( \mathcal { L } )$ denotes the solution space of valid charge tours traversing all positions in ${ \mathcal { L } } , \psi$ is the space of charging directions, and Eq.(11b) assures that all nodes’ energy demands are satisfied.
+
+(P1)
+
+$$
+\min _ {\mathbf {r} (\mathcal {L}), \mathcal {S} _ {\psi} (\mathcal {L}), \mathbf {t} _ {\text { Chrg }} ^ {\text { UAV }}} e _ {\text { Loss }} ^ {\text { Total }} \bigl (\mathbf {r} (\mathcal {L}), \mathcal {S} _ {\psi} (\mathcal {L}), \mathbf {t} _ {\text { Chrg }} ^ {\text { UAV }} \bigr),\tag{11a}
+$$
+
+s.t.
+
+$$
+\mathbf {e} _ {\mathbf {F}} \geq \mathbf {e} _ {\mathbf {B}} + \mathbf {e} _ {\mathbf {D}},\tag{11b}
+$$
+
+$$
+\mathbf {t} _ {\text { Chrg }} ^ {\text { UAV }} \geq \mathbf {0},\tag{11c}
+$$
+
+$$
+\mathbf {r} (\mathcal {L}) \in \Omega_ {\mathcal {L}}, \quad \mathcal {S} _ {\psi} (\mathcal {L}) \in \Omega_ {\psi}.\tag{11d}
+$$
+
+However, the following theorem tells that solving the DCS-3D problem is challenging.
+
+## Theorem 1. The DCS-3D problem is NP-hard.
+
+Proof: Proof is provided in Sec.I in the Appendix.
+
+Given the NP-hard nature of DCS-3D, we focus on developing approximate solutions to address its two core challenges: (1) infinite charging direction space and (2) UAV path planning . Building upon [14], we resolve the first challenge by deriving a minimal FuncEqv direction set through our cMFEDS algorithm (Section V). For the UAV path planning challenge, we adapt the LKH heuristic [15] to develop the FELKH-3D solution, detailed in Section VI.
+
+## V. ADDRESSING THE INFINITE CHARGING DIRECTION SPACE CHALLENGE
+
+## A. Preliminaries
+
+For a vector v, let |v| be its norm and normalize $( \mathbf { v } ) { : = } \mathbf { v } / | \mathbf { v } |$ For any two nodes A and B, let $\overrightarrow { A B }$ represent the vector from A to B, let $| A B |$ be the length of vector $\overrightarrow { A B }$ , and let $\mathbf { e } _ { A B }$ denote the corresponding unit vector. Thus $\scriptstyle { \overrightarrow { A B } } = \mid A B \mid \mathbf { e } _ { A B }$ . In later equations, For any node, say A, its symbol A is also used to refer to the vector of its 3D coordinates. Given a charging position O and two nodes A and B, let $\varphi _ { A O B }$ denote the radian angle value of $\angle A O B$ . As the nodes have fixed positions, node A and position A are used interchangeably. For a node A, let $A ( x ) , A ( y )$ and $A ( z )$ denote its x, y and z coordinates, respectively.
+
+Let $\mathcal { N } _ { \mathrm { S p h e r e } } ( O )$ denote the set of the nodes contained in the sphere centered at position O with radius D (the charging distance), and let $\mathcal { N } _ { \mathrm { C o n e } } ( O , { \bf v } , \phi )$ denote the set of the nodes covered by a charging cone rooted at O with charging direction v and cone angle ϕ. This node set is called as the node set covered by direction v for short. All nodes in $\mathcal { N } _ { \mathrm { C o n e } } ( O , { \bf v } , \phi )$ are said as covered by direction v. A node on the boundary of a charging cone is also regarded as covered by the corresponding charging direction.
+
+In the following text, discussions are usually made in the context with a certain charging position O. We denote a such context as $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O )$ , which is assumed as the default context in later text. Furthermore, when just considering charging cones with a certain node, say A, always on the boundary, we denote the context as $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O , A )$ . Such a node A in context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O , A )$ is called the reference node in the context.
+
+In context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O )$ or even $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O , A )$ , for a node set $s _ { 1 }$ , if there is no charging direction $\mathbf { v } _ { 1 }$ such that $s _ { 1 } \subset \mathcal { N } _ { \mathrm { C o n e } } ( O , \mathbf { v } _ { 1 } , \phi )$ , we say that $s _ { 1 }$ is a Local Maximum Simultaneous Charging Node set (LMax-SCN set), otherwise it is a non-LMax-SCN set. A charging direction covering an LMax-SCN set is called an LMax-SCN direction, otherwise a non-LMax-SCN direction.
+
+As in Ref. [14], in context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O )$ , we classify the relationship between charging directions according to the partial order relationship between their corresponding covered node set. To be specific, for two directions $\mathbf { v } _ { 1 }$ and $\mathbf { v } _ { 2 } .$ , if $\mathcal { N } _ { \mathrm { C o n e } } ( O , \mathbf { v } _ { 1 } , \phi ) \supset \mathcal { N } _ { \mathrm { C o n e } } ( O , \mathbf { v } _ { 2 } , \phi )$ , we say that $\mathbf { v } _ { 1 }$ is functional better than ${ \bf v } _ { 2 } ,$ or $\mathbf { v } _ { 1 }$ outperforms $\mathbf { v } _ { 2 } .$ , and denote this relationship as $\mathbf { v } _ { 1 } \triangleright \mathbf { v } _ { 2 } .$ , or $\mathbf { v } _ { 2 } \triangleleft \mathbf { v } _ { 1 }$ ${ \mathrm { I f } } \ { \mathcal { N } } _ { \mathrm { C o n e } } ( O , \mathbf { v } _ { 1 } , \phi ) { = } { \mathcal { N } } _ { \mathrm { C o n e } } ( O , \mathbf { v } _ { 2 } , \phi )$ then we say that they are Functional Equivalent (FuncEqv), and denote the situation as $\mathbf { v } _ { 1 } \equiv \mathbf { v } _ { 2 }$ . We use $\mathbf { v } _ { 1 } \trianglelefteq$ to mean either $\mathbf { v } _ { 1 } \equiv \mathbf { v } _ { 2 }$ or $\mathbf { v } _ { 1 } \triangleleft \mathbf { v } _ { 2 }$ . If either of the relations of $\mathbf { v } _ { 1 } \triangleleft \mathbf { v } _ { 2 }$ $\mathbf { v } _ { 1 } \equiv \mathbf { v } _ { 2 }$ , and $\mathbf { v } _ { 1 } \triangleright \mathbf { v } _ { 2 }$ is true, we state that $\mathbf { v } _ { 1 }$ and $\mathbf { v } _ { 2 }$ are comparable, otherwise non-comparable.
+
+Given two direction sets $S _ { V 1 }$ and $S _ { V 2 }$ , if for each direction ${ \mathbf { v } _ { 1 } } { \in } S _ { V 1 }$ , there is a ${ \bf v } _ { 2 } { \in } S _ { V 2 }$ such that $\mathbf { v } _ { 1 } \trianglelefteq$ , then we denote the relationship as $\boldsymbol { S _ { V 1 } } \boldsymbol { \triangleleft } \boldsymbol { S _ { V 2 } }$ . We use $S _ { V 1 } { \equiv } S _ { V 2 }$ to mean that both $\boldsymbol { S _ { V 1 } } \boldsymbol { \triangleleft } \boldsymbol { S _ { V 2 } }$ and $S _ { V 1 } { \sqcap } S _ { V 2 }$ holds. If $\boldsymbol { S _ { V 1 } } \boldsymbol { \triangleleft } \boldsymbol { S _ { V 2 } }$ and $\exists \mathbf { v } _ { 2 } \in S _ { V 2 }$ such that, for any $\mathbf { v } _ { 1 } \in S _ { V 1 }$ that is comparable with ${ \bf v } _ { 2 } ,$ there is $\mathbf { v } _ { 1 } \triangleleft \mathbf { v } _ { 2 }$ , then we say that $S _ { V 2 }$ is functional better than $S _ { V 1 }$ , and denote the relationship as $\boldsymbol { S _ { V 1 } } \boldsymbol { \triangleleft } \boldsymbol { S _ { V 2 } }$
+
+Solving charging tasks involves charging the nodes and moving between the charging positions. Even if the node set covered by a charging direction at a charging position is a subset of one direction at another charging position, the two Pos-Dir pairs may both be helpful in serving the tasks. Hence we emphasize that the directions at different charging positions are regarded as not comparable.
+
+We can easily obtain the following results using above definitions, and the proofs are omitted for their trivialness.
+
+Lemma 1. Given a direction set $S _ { V 1 }$ and a direction $\mathbf { v } _ { 1 } \in S _ { V 1 }$ let $S _ { \mathrm { W o r s e } } { : = } \{ \mathbf { v } | \mathbf { v } { \in } S _ { V 1 } , \mathbf { v } { \ < } \mathbf { v } _ { 1 } \}$ and $S _ { V 2 } { : = } S _ { V 1 } { - } S _ { \mathrm { { W o r s e } } }$ , then $S _ { V 1 } { \equiv } S _ { V 2 }$
+
+Lemma 2. Given a direction set $S _ { V 1 }$ and a direction $\mathbf { v } _ { 1 } \in S _ { V 1 }$ let $S _ { \mathrm { E q u i v } } { : = } \{ \mathbf { v } | \mathbf { v } { \in } S _ { V 1 } , \mathbf { v } { \equiv } \mathbf { v } _ { 1 } \}$ and $S _ { V 2 : = } S _ { V 1 } { - } S _ { \mathrm { E q u i v } } { + } \{ { \bf v } _ { 1 } \}$ then $S _ { V 1 } { \equiv } S _ { V 2 }$
+
+In context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O )$ , the valid charging directions fill a continuous sphere surface, and can be denoted as $S _ { \mathrm { D i r } , \mathrm { S p h e r e } } { : = } \{ \mathbf { v } | v \in \mathbb { R } ^ { 3 } , | \mathbf { v } | ~ = ~ 1 \}$ . Inspired by Ref. [14], to address the infinite charging direction space challenge at a charging position, we tried to find a minimum discrete direction set $ { S _ { \mathrm { D i r R e p } } }$ that is FuncEqv with the set $\begin{array} { r } { \mathcal { S } _ { \mathrm { D i r } , \mathrm { S p h e r e } } . } \end{array}$ This task can be formulated as Eq. (12).
+
+$$
+\text {(P2)} \min _ {\mathcal {S} _ {\text {DirRep}}} \quad | \mathcal {S} _ {\text {DirRep}} |,\tag{12a}
+$$
+
+$$
+\text { s.t. } \quad \mathcal {S} _ {\text { DirRep }} \equiv \mathcal {S} _ {\text { Dir,Sphere }},\tag{12b}
+$$
+
+$$
+\mathcal {S} _ {\text { DirRep }} \subseteq \mathcal {S} _ {\text { Dir,Sphere }}.\tag{12c}
+$$
+
+In the following text, we try to solve P2 by firstly analyzing how to find LMaxSCN directions in context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O , A )$ and then, in the extended context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O )$ , to efficiently obtain $ { S _ { \mathrm { D i r R e p } } }$ by combining and refining the charging direction sets using different reference nodes. The $ { S _ { \mathrm { D i r R e p } } }$ sets at different charging positions can be combined straightforwardly into a final charging direction set for charging scheduling.
+
+In context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O )$ , we assume that all nodes in $\mathcal { N } _ { \mathrm { S p h e r e } } ( O )$ are already projected onto a unit sphere centered at $O$ using Eq. (13). So in the following text, all nodes involved are assumed as the nodes after projection by default.
+
+In particular, for a single node $A { \in } { \mathcal { N } } _ { \mathrm { S p h e r e } } ( O )$ , the valid charging direction can be uniquely determined by the vector $\overrightarrow { O A }$ , which directly connects the charging position O and the node A. This direction is thus regarded as the intrinsic charging direction of node A. However, since this one-to-one correspondence yields only trivial single-node coverage, the following analysis focuses on nontrivial cases where a single charging direction simultaneously covers multiple nodes. This enables a more efficient representation and reduction of the continuous directional space.
+
+$$
+A = O + \text { normalize } (\overrightarrow {O A}), \quad \forall A \in \mathcal {N} _ {\text { Sphere }} (O)\tag{13}
+$$
+
+B. Determine the Projected Angle Range Covering a Node Lemma 3. In context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O )$ , for any two nodes $A , B { \in } { \mathcal { N } } _ { \mathrm { S p h e r e } } ( O )$ with $\varphi _ { A O B } { \leq } \phi ,$ , the charging direction $\mathbf { e } _ { 0 , \mathrm { B o u n d } } ( A , B )$ , with both A and B are exactly on the boundary of the corresponding charging cone, can be expressed as $\mathbf { e } _ { 0 , \mathrm { B o u n d } } ( A , B )$ =normalize(v), where vector v is given in
+
+$$
+\begin{array}{l} \mathbf {v} = \sec (\varphi_ {A O B} / 2) \cdot \text { normalize } (\mathbf {e} _ {O A} + \mathbf {e} _ {O B}) \\ \quad \pm \sqrt {\tan^ {2} (\phi / 2) - \tan^ {2} (\varphi_ {A O B} / 2)} \cdot \text { normalize } (\mathbf {e} _ {O B} \times \mathbf {e} _ {O A}). \end{array}\tag{14}
+$$
+
+Proof: This can be proved easily using geometric knowledge as depicted in Fig. 4. Detailed proof is provided in Sec.II in the Appendix. ■
+
+![](images/62d86bc52b066e48849e8a094a4eaf2393806e767832b372456309c07e347875.jpg)  
+Fig. 4. Sketch for calculating the two critical directions covering two particular nodes A and B
+
+In context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O , A )$ , where node A is the reference node, only the charging cones with node node A on its boundary are considered. We create a plane perpendicular to $\overrightarrow { O A }$ while contains A, and denote it as $\beta .$ . We project the charging directions into plane $\beta$ and analyze their relationships in it. For a charging direction e, we denote the intersection point of the vector line v (originating from O) and plane $\beta$ as point $\underline { { O _ { \boldsymbol { v } } } }$ , and call it the projection point of e, and call the vector $A O _ { v } ^ { ' }$ as $\mathbf { v } ^ { \ } \mathbf { s }$ projected direction.
+
+To facilitate describing the projected directions, we will setup a reference direction in plane β and associate the projected directions with the corresponding angle values relative to the reference direction, with positive in counter-clockwise direction facing $\overrightarrow { O A }$ . We denote the reference direction as $\mathbf { e } _ { \mathrm { R E F } }$ . In this paper, we set $\mathbf { e } _ { \mathrm { R E F } }$ as the intersection line of plane $\beta$ with the horizontal plane with $z { = } A ( z )$ towards right. It is easy to note that $\mathbf { e } _ { \mathrm { R E F } }$ must be perpendicular with both $\overrightarrow { O A }$ and the z axis. So, additionally with the right hand rule for determining the direction of vector × operation, there is $\mathbf { e } _ { \mathrm { R E F } } { = } \overrightarrow { O A } { \times } \left[ 0 , 0 , 1 \right]$ . When these two planes are the same, $\mathbf { e } _ { \mathrm { R E F } }$ can be selected randomly in the plane, and this case is omitted for it is trivial.
+
+With a fixed $\mathbf { e } _ { \mathrm { R E F } }$ , a direction in plane $\beta$ is associated with an angle in range [0, 2π). Thus, a charging direction $e _ { O X }$ is associated with its projection point $O _ { X }$ , projected direction $\overrightarrow { A O _ { X } } $ , and its projected angle $\theta _ { A O _ { \lambda } }$ . In context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O , A )$ as there is a one-to-one map between a charging direction v and its projected angle $\theta ,$ we treat $\mathcal { N } _ { \mathrm { C o n e } } ( O , \theta , \phi )$ and $\mathcal { N } _ { \mathrm { C o n e } } ( O , { \bf v } , \phi )$ as the same thing.
+
+Lemma 4. In context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O , A )$ , given a reference direction e<sub>REF</sub> in plane $\beta ,$ a charging direction $\mathbf { e } _ { O X } \mathbf { \ ' } _ { \mathrm { s } }$ projection point $O _ { X }$ , projected direction $\overline { { A O _ { X } } } ^ { \prime }$ , and angle $\theta _ { A O _ { X } }$ are provided by the equations from Eq. (15) to Eq. (18), respectively. Given an angle $\theta _ { X }$ , the corresponding projected direction $\mathbf { e } _ { \theta _ { X } }$ and projection point $O _ { \theta _ { X } }$ are given by Eq. (19) and Eq. (20), respectively. 1
+
+$$
+O _ {X} = O - \frac {1}{\mathbf {e} _ {O X} \cdot \overrightarrow {O A}} \mathbf {e} _ {O X},\tag{15}
+$$
+
+$$
+\overrightarrow {A O _ {X}} = \overrightarrow {A O} - \frac {1}{\mathbf {e} _ {O X} \cdot \overrightarrow {O A}} \mathbf {e} _ {X},
+$$
+
+$$
+\left| A O _ {X} \right| = \tan (\phi),\tag{16}
+$$
+
+(17)
+
+$$
+\theta_ {A O _ {X}} = \left\{ \begin{array}{l l} \arccos (\frac {\overrightarrow {A O _ {X}} \cdot \mathbf {e} _ {\mathrm{REF}}}{| \overrightarrow {A O _ {X}} | | \mathbf {e} _ {\mathrm{REF}} |}), & \text {if} A O _ {X} (z) \geq 0; \\ \arccos (\frac {\overrightarrow {A O _ {X}} \cdot \mathbf {e} _ {\mathrm{REF}}}{| \overrightarrow {A O _ {X}} | | \mathbf {e} _ {\mathrm{REF}} |}) + \pi , & \text {if} A O _ {X} (z) <   0. \end{array} \right.\tag{18}
+$$
+
+$$
+\mathbf {e} _ {\theta_ {X}} = \cos (\phi) \cdot \mathbf {e} _ {\text { REF }} + \cos (\theta - \pi / 2) \cdot \text { normalize } (\overrightarrow {O A} \times \mathbf {e} _ {\text { REF }}),\tag{19}
+$$
+
+$$
+O _ {\theta_ {X}} = A + \mathbf {e} _ {\theta_ {X}} \tan \phi .\tag{20}
+$$
+
+Proof: This can be proved easily with the help of Fig. $5 .$ Detailed proof is provided in Sec.III in the Appendix. ■
+
+## C. Determine Local-Maximum Direction Angle Ranges
+
+In context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O , A )$ , A is the reference node. If ${ \mathcal { N } } _ { \mathrm { C o n e } } ( O , { \overrightarrow { O A } } , 2 \phi ) { = } \{ A \}$ , it implies that there are no cone directions that can simultaneously cover A with any other node. In this trivial case, to assure covering node A, we select $\mathbf { \sigma _ { e _ { O A } } }$ into the final $\mathcal { S } _ { \mathrm { D i r R e p } }$
+
+Now let focus on the the case $\{ A \} \subset \mathcal { N } _ { \mathrm { C o n e } } ( O , \overrightarrow { O A } , 2 \phi )$ For any node $B { \in } { \mathcal { N } } _ { \mathrm { C o n e } } ( O , \overrightarrow { O A } , 2 \phi )$ , let denote the two directions obtained in Lemma 3 as $\mathbf { e } _ { \mathrm { O B 1 } }$ and $\mathbf { e } _ { \mathrm { O B 2 } }$ , then we can obtain their projection points $O _ { \mathrm { B 1 } }$ and $O _ { \mathrm { B } 2 }$ , projected angles $\theta _ { \mathrm { B 1 } }$ and $\theta _ { \mathbf { B } 2 }$ using Lemma 4. Then, as shown in Fig. 5, node B is covered by any charging direction with projected angle in range $[ \theta _ { \mathrm { B } 1 } , \theta _ { \mathrm { B } 2 } ] ,$ , i.e., the charging direction’s projection point lies in the arc between $O _ { \mathrm { B 1 } }$ and $O _ { \mathrm { B } 2 }$ on the circle centered at A with radius csc $\phi .$ . We call this angle range as B’s charging direction projected angle range, and call $\theta _ { \mathrm { B 1 } }$ and $\theta _ { \mathrm { B } 2 }$ as its start angle and the end angle, respectively. Following the same way, we generate the CPD angle ranges for all nodes in ${ \mathcal { N } } _ { \mathrm { C o n e } } ( O , { \overrightarrow { O A } } , 2 \phi )$ . Fig. 6 provides an illustration showing multiple angle ranges, where for distinguishing overlapped angle ranges, the ranges are demonstrated on multiple circles with different radius.
+
+![](images/bdf0913a7719a2415414ad6967c8d52e0921a049e7e187a456bf1fd825dcdd87.jpg)  
+Fig. 5. Sketch of the range of the projected angles for covering node B when node A is the reference node
+
+![](images/9897f844491a370bcd43659b6a69c5699281cd3fe402bcf7e30100c6960a4203.jpg)  
+Fig. 6. Sketch map of multiple projected angle ranges
+
+Given a node X, two charging directions can be determined according to Lemma 3, from which the corresponding angular range $[ \theta _ { X 1 } , \theta _ { X 2 } ]$ is derived. Although $\theta _ { X 1 }$ is typically smaller than $\theta _ { X 2 }$ , there are cases where $\theta _ { X 1 } \ge \theta _ { X 2 }$ , indicating that the angular interval crosses the reference vector ${ \bf e } _ { \mathrm { R E F } }$
+
+Now we exploit the angle ranges for the nodes in ${ \mathcal { N } } _ { \mathrm { C o n e } } ( O , { \overrightarrow { O A } } , 2 \phi )$ for facilitating the determination of LMax-SCN directions. For each projected angle range $[ \theta _ { \mathrm { B } 1 } , \theta _ { \mathrm { B } 2 } ]$ $B { \in } { \mathcal { N } } _ { \mathrm { C o n e } } ( O , \overrightarrow { O A } , 2 \phi )$ , we represent each of the two endpoints with a tuple having structure as
+
+$$
+l _ {\mathrm{Bi}} := (\theta , \delta , \eta , \sigma , \tau), \quad i \in \{1, 2 \},\tag{21}
+$$
+
+where θ stores the angle value, $\delta \in \{ 0 , 1 \}$ is a binary variable for indicating whether δ is a start angle or an end angle. $\delta { = } 0$ means a start angle, otherwise it is an end angle. η stores the node, which is B here. $\sigma { = } \theta _ { \mathrm { B } 2 } { - } \theta _ { \mathrm { B } 1 }$ records the range size. $\tau = [ \boldsymbol { \theta } _ { \mathrm { B } 1 } , \boldsymbol { \theta } _ { \mathrm { B } 2 } ]$ stores the original angle range. These information are used in refining charging directions.
+
+We collect and sort all the tuples in ascending order of the θ value into a list $L _ { \mathrm { A n g R n g } } { = } [ l _ { 1 } , l _ { 2 } , \ldots , l _ { \kappa } ]$ with $\kappa { = } 2 ~ *$ $| \mathcal { N } _ { \mathrm { C o n e } } ( O , \overrightarrow { O A } , 2 \phi ) |$ . Let assume that the fields of the tuples can be accessed using point operation, $\mathrm { e . g . } , l _ { i } . \theta$ means the $l _ { i } { ' } s$ θ value.
+
+In the context of $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O , A )$ , by exploiting the projected angles of all feasible charging directions, we can construct the set $S _ { \mathrm { L M a x R n g } } ( O , A )$ using Eq. (22), which stores the angular ranges associated with potential LMax-SCN sets. Since the projected angles lie on a circular domain [0, 2π), the ordering of the tuples in $\mathcal { L } _ { \mathrm { A n g R n g } }$ induces not only consecutive start–end pairs within the list but also a wrap-around pair between the last tuple $l _ { \kappa }$ and the first tuple $l _ { 1 } .$ . This ensures that angle intervals spanning across the boundary between 2π and 0 are also properly represented.
+
+$$
+\begin{array}{c} \mathcal {S} _ {\mathrm{LMaxRng}} (O, A) = \{(l _ {i}, l _ {i + 1}) \mid l _ {i}. \delta = 0,   l _ {i + 1}. \delta = 1,   1 \leq i <   \kappa \} \\ \cup   \{(l _ {\kappa}, l _ {1}) \mid l _ {\kappa}. \delta = 0,   l _ {1}. \delta = 1 \}. \end{array}\tag{22}
+$$
+
+Lemma 5 and Lemma 6 show that, in the context of $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O , A )$ , each angle range in $S _ { \mathrm { L M a x R n g } } ( O , A )$ corresponds to an LMax-SCN set, which can be obtained by checking the projected angle ranges of nodes in $\mathcal { N } _ { \mathrm { C h r g P o s } } ( O , O _ { A } , \phi )$ Such an interval is referred to as an LMax-SCN angle range, and $l _ { a } . \eta$ and $l _ { b } . \eta$ are termed the critical nodes associated with the angle range $[ l _ { a } . \theta , l _ { b } . \theta ]$
+
+Lemma 5. In context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O , A )$ , for any two projected angles $\theta _ { 1 } , \theta _ { 2 } \in [ l _ { a } . \theta , l _ { b } . \theta ]$ with $( l _ { a } , l _ { b } ) { \in } S _ { \mathrm { L M a x R n g } } ( O , A )$ , there is $\mathcal { N } _ { \mathrm { C o n e } } ( O , \theta _ { 1 } , \phi ) = \mathcal { N } _ { \mathrm { C o n e } } ( O , \theta _ { 2 } , \phi )$
+
+Proof: Proof is provided in Sec.IV in the Appendix. ■
+
+Lemma 6. In context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O , A )$ , for any projected angle $\theta _ { 1 } \in [ l _ { a } . \theta , l _ { b } . \theta ]$ with $( l _ { a } , l _ { b } ) { \mathsf { \bar { e } } } S _ { \mathrm { L M a x R n g } } ( O , A ) , \ N _ { \mathrm { C o n e } } ( O , \theta _ { 1 } , \phi )$ is an LMax-SCN set. Conversely, for any LMax-SCN set $s _ { 1 }$ in context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O , A )$ , there must be an item $( l _ { a } , l _ { b } ) { \in } S _ { \mathrm { L M a x R n g } } ( O , A )$ in which, for any charging direction $\theta _ { 1 } \in [ l _ { a } . \theta , l _ { b } . \theta ]$ , there is $\mathcal { N } _ { \mathrm { C o n e } } ( O , \theta _ { 1 } , \phi ) { = } s _ { 1 }$
+
+Proof: Proof is provided in Sec.V in the Appendix. ■
+
+Fig. 7 illustrates the determination of 4 tuple items in $S _ { \mathrm { L M a x R n g } } ( O , A )$ , where each bar with light blue background represents an item $( l _ { a } , l _ { b } )$ . In this figure, the four tuples items in $S _ { \mathrm { L M a x R n g } } ( O , A )$ are $( l _ { 3 } , l _ { 4 } ) , ( l _ { 5 } , l _ { 6 } ) , ( l _ { 8 } , l _ { 9 } )$ and $( l _ { 1 1 } , l _ { 1 2 } )$ which correspond to LMax-SCN angle ranges of $[ \theta _ { \mathrm { C 1 } } , \theta _ { \mathrm { B } 2 } ]$ $[ \theta _ { \mathrm { D 1 } } , \theta _ { \mathrm { C 2 } } ] , [ \theta _ { \mathrm { F 1 } } , \theta _ { \mathrm { D 2 } } ]$ and $[ \theta _ { \mathrm { G 1 } } , \theta _ { \mathrm { G 2 } } ]$ , respectively. Each of these angle ranges corresponds to an LMax-SCN node set. To be specific, the LMax-SCN node sets corresponding to these angle ranges are $\{ B , C , E \} , \ \{ C , D , E \} , \ \{ D , F \}$ and {G}, respectively.
+
+![](images/ce657b668f8a20aef065ddd1a3fc146fd8c030742389c406ac4fe50e9c807039.jpg)  
+Fig. 7. Sketch map for determining LMax-SCN angle ranges in $S _ { \mathrm { L M a x R n g } } ( O , A )$
+
+## D. Select and Refine Representative Directions for Each LMax-SCN Angle Range
+
+As the projected angles in a $( l _ { a } , l _ { b } ) { \in } S _ { \mathrm { L M a x R n g } } ( O , A )$ cover the same node set, the charging directions are FuncEqv with each other. As a basic idea, we want to make the covered nodes near to the enter-line of the charge cone as much as possible. Here we select a angle using Eq. (23) as the representation of the angle range $[ l _ { a } . \theta , l _ { b } . \theta ]$ . Fig. 8 illustrates a projected angle θ<sub>REP</sub> representing the angle range $[ \theta _ { \mathrm { C 1 } } , \theta _ { \mathrm { B } 2 } ]$
+
+$$
+\frac {\theta_ {\mathrm{REP}} - l _ {a} . \theta}{l _ {b} . \theta - \theta_ {\mathrm{REP}}} = \frac {l _ {a} . \tau}{l _ {b} . \tau}\tag{23}
+$$
+
+![](images/f5c3f7efcafcfa0b7b4f71329d32972deb5eaa67a5a9e72136b86bd43c121ed3.jpg)  
+Fig. 8. Sketch map for selecting and refining the representative charging direction for an LMax-SCN angle range.
+
+Eq. (23) leads to
+
+$$
+\theta_ {\mathrm{REP}} = \frac {(l _ {b} . \theta) \cdot (l _ {a} . \tau) + (l _ {a} . \theta) \cdot (l _ {b} . \tau)}{(l _ {a} . \tau) + (l _ {b} . \tau)}\tag{24}
+$$
+
+Eq. (23) as the representative of the angle range $[ l _ { a } . \theta , l _ { b } . \theta ]$ which yields the result in Eq. (24). Eq. (24) is valid for tuples $[ l _ { a } . \theta , l _ { b } . \theta ]$ where $l _ { b } . \theta { > } l _ { a } . \theta$ . When ${ l _ { b } . \theta } { < l _ { a } . \theta } .$ , we can update $l _ { b } . \theta { = } l _ { b } . \theta + 2 \pi$ as a preprocessing operation, and the resulting $\theta _ { \mathrm { R E P } }$ obtained using Eq. (24) should be subtracted by 2π to ensure $\theta _ { \mathrm { R E P } } { \in } [ 0 , 2 \pi )$
+
+In context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O , A )$ , the reference node A is on the boundary of all charging cones with protected angles in range $[ 0 , 2 \pi )$ , including the selected $\theta _ { \mathrm { R E P } }$ . We denote the projection point corresponding to $\theta _ { \mathrm { R E P } }$ as $O _ { \mathrm { R E P } }$ , which can be obtained using Eq. (20) in Lemma 4. We then alter the direction $\theta _ { \mathrm { R E P } }$ by moving node A inward the charging cone, meanwhile ensuring that no node leaves out of the charging cone. To this end, we make a one dimensional search on the line segment $A O _ { \mathrm { R E P } }$ from point $O _ { \mathrm { R E P } }$ towards A discretely, and select the one satisfying Eq. (25) as a final representative direction e<sub>REP</sub>:=normalize(OX) for the corresponding angle range.
+
+$$
+\arg \min _ {\overrightarrow {O X}} \max _ {Y \in \mathcal {N} _ {\text { Cone}} (O, \overrightarrow {O X}, \phi)} \angle X O Y = \arccos \left(\frac {\overrightarrow {O X} \cdot \overrightarrow {O Y}}{| \overrightarrow {O X} | | \overrightarrow {O Y} |}\right),
+$$
+
+$$
+\text { s.t. } \quad X \in [ O _ {\text { REP }}, A ];\tag{25a}
+$$
+
+(25b)
+
+$$
+\mathcal {N} _ {\text { Cone }} (O, \overrightarrow {O X}, \phi) \supseteq \mathcal {N} _ {\text { Cone }} (O, \overrightarrow {O O _ {\text { REP }}}, \phi);\tag{25c}
+$$
+
+Till now, for a charging point O and reference node A, we obtain a set of representative directions with each covers an LMax-SCN set. Let $s _ { \mathrm { R E P } } ( O , A )$ be the set of representative directions corresponding to the LMax-SCN angle ranges in $S _ { \mathrm { L M a x R n g } } ( O , A )$ . For each $\mathbf { e } _ { \mathrm { R E P } }$ and its corresponding $S _ { \mathrm { C o n e } } ( O , \mathbf { e } _ { \mathrm { R E P } } , \phi )$ , we create a tuple $( \mathbf { v } _ { \mathrm { D i r } } , S _ { \mathrm { C o n e } } )$ with $\mathbf { v } _ { \mathrm { D i r } } { = } \mathbf { e } _ { \mathrm { R E P } }$ and $S _ { \mathrm { C o n e } } { = } S _ { \mathrm { C o n e } } ( O , { \mathbf { e } } _ { \mathrm { R E P } } , \phi )$ , and collect all such tuples into a set $S _ { \mathrm { D i r R e p } } ( O , A )$ , i.e.,
+
+$$
+\mathcal {S} _ {\text { DirRep }} (O, A) := \left\{\left(\mathbf {e} _ {\text { REP }}, \mathcal {S} _ {\text { Cone }} (O, \mathbf {e} _ {\text { REP }}, \phi)\right) \mid \mathbf {e} _ {\text { REP }} \in s _ {\text { REP }} (O, A) \right\}.\tag{26}
+$$
+
+E. Build FuncEqv Representative Direction Set for a Charging Position
+
+Above analyses are conducted in the context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O , A )$ For a certain charging position O, we use each node $A { \in } { \mathcal { N } } _ { \mathrm { S p h e r e } } ( O )$ as a reference node to obtain its representative direction set $S _ { \mathrm { D i r R e p } } ( O , A )$ , and combine them into a larger set using Eq. (27).
+
+$$
+\mathcal {S} _ {\text { DirRep }} (O) := \underset {A \in \mathcal {N} _ {\text { Sphere }} (O)} {\cup} \mathcal {S} _ {\text { DirRep }} (O, A).\tag{27}
+$$
+
+Each charging direction in $S _ { \mathrm { D i r R e p } } ( O , A )$ corresponds to an LMax-SCN set. This statement is valid in the context with a certain reference node, ${ \mathrm { e . g . , ~ } } { \mathcal { C } } _ { \mathrm { C h r g P o s } } ( O , A )$ . In the larger context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O )$ , it may become invalid. In $S _ { \mathrm { D i r R e p } } ( O )$ there may be some charging directions that are functional better than some other directions. In other words, $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O )$ may contain some non-LMax-SCN directions. We name this issue as non-LMax-SCN direction issue. The following lemma help us to refine $S _ { \mathrm { D i r R e p } } ( O )$ by checking and removing non-LMax-SCN direction items, as utilized in code line 17 in Alg. 1.
+
+Lemma 7. In context $\mathcal { C } _ { \mathrm { C h r g P o s } } ( O )$ , for any two nodes $A , B { \in } { \mathcal { N } } _ { \mathrm { S p h e r e } } ( O )$ , the non-LMax-SCN direction issue may happen between $S _ { \mathrm { D i r R e p } } ( O , A )$ and $S _ { \mathrm { D i r R e p } } ( O , B )$ if and only if $\varphi _ { A O B } { \leq } \phi$
+
+Proof: Proof is provided in Sec.VI in the Appendix.
+
+$S _ { \mathrm { D i r R e p } } ( O )$ is indeed a set of tuples that contains charging direction information, not directly containing the charging directions as its elements. However, $S _ { \mathrm { D i r R e p } } ( O )$ is mainly for storing the charging directions with other fields as auxiliary information for facilitating algorithm application, with a slight abuse of symbols, we also regard $S _ { \mathrm { D i r R e p } } ( O )$ as a charging direction set for expression simplicity, where the actual meaning can be identified from the context.
+
+Refining $\mathcal { S } _ { \mathrm { D i r R e p } } ( O )$ will remove non-LMax-SCN direction items, making $S _ { \mathrm { D i r R e p } } ( O )$ optimal, as indicated by the following lemmas.
+
+Lemma 8. The representative directions contained in $S _ { \mathrm { D i r R e p } } ( O )$ all correspond to LMax-SCN sets; For any LMax-SCN set $s _ { 1 }$ at a certain charging position $O { \in } N _ { \mathrm { C h r g P o s } }$ , there must be a tuple $( \mathbf { v } _ { 1 } , s _ { 1 } ) { \in } S _ { \mathrm { D i r R e p } } ( O )$
+
+Proof: Proof is provided in Sec.VII in the Appendix.
+
+Lemma 9. $S _ { \mathrm { D i r R e p } } ( O )$ is a minimum-size charging direction set that is FuncEqv to $\begin{array} { r } { S _ { \mathrm { D i r } , \mathrm { S p h e r e } } , } \end{array}$ i.e., $S _ { \mathrm { D i r , S p h e r e } } { \equiv } S _ { \mathrm { D i r R e p } } ( O )$
+
+Proof: Proof is provided in Sec.VIII in the Appendix. <sup>■</sup>
+
+## F. Generate Minimum-Size Pos-Dir Set
+
+We construct set $\mathcal { S } _ { \mathrm { P o s D i r } }$ following Eq. (28), where each tuple $( q . \mathbf { v } _ { \mathrm { D i r } } , O , q . S _ { \mathrm { C o n e } } )$ contains the information about the corresponding charging direction, charging position and the set of covered nodes. Compared with the set $\mathcal { S } _ { \mathrm { P o s D i r } }$ mentioned in Sec. III-B in page 3, the set of covered nodes $q . S _ { \mathrm { C o n e } }$ is provided for facilitating the construction of energy transfer coefficient matrix C<sub>ETC</sub>.
+
+$$
+\begin{array}{c} \mathcal {S} _ {\text {PosDir}} := \{(q. \mathbf {v} _ {\text {Dir}}, O, q. S _ {\text {Cone}}) | \\ q \in \mathcal {S} _ {\text {DirRep}} (O, A), A \in \mathcal {N} _ {\text {Sphere}} (O), O \in \mathcal {N} _ {\text {ChrgPos}} \} \end{array}\tag{28}
+$$
+
+Based on above analyses, we design the cMFEDS algorithm for obtaining a minimum-size FuncEqv direction set, which are the final charging directions to be utilized. Its pseudo code is shown in Alg. 1.
+
+<div class="mineru-algorithm" style="white-space: pre-wrap; font-family:monospace;">
+Algorithm 1: Create a Minimum FuncEqv Direction Set (cMFEDS).
+
+Input: node set N, charging position set  $N_{ChrgPos}$ , charge cone angle  $\phi$ , charging distance D;
+Output: Pos-Dir set  $S_{PosDir}$ ;
+
+for (Each position  $O \in N_{ChrgPos}$ ) do
+
+2 Normalize the nodes in  $N_{Sphere}(O)$  using Eq. (13).
+3 for (Each node  $A \in N_{Sphere}(O)$ ) do
+
+4 if ( $N_{Cone}(O, \overrightarrow{OA}, 2\phi) = \{A\}$ ) then
+5  $S_{DirRep}(O, A) = \{(\mathbf{e}_{OA}, \{A\})\}$ ;
+6 Continue;
+
+7 for (Each node  $B \in N_{Cone}(O, \overrightarrow{OA}, 2\phi)$ ) do
+8 Obtain  $\theta_{B1}, \theta_{B2}$  using Eq. (18);
+9 construct tuples using Eq. (21);
+
+10 Sort the tuples in ascending order of angles;
+11 Create  $S_{LMaxRng}(O, A)$  using Eq. (22);
+12 Calculate and refine  $\theta_{REP}$  directions using Eq. (23), and Eq. (25);
+13 Construct  $S_{DirRep}(O, A)$  using Eq. (26);
+
+14 Construct  $S_{DirRep}(O)$  using Eq. (27);
+15 for ( $A, B \in N_{Sphere}(O)$ ) do
+16 if ( $\varphi_{AOB} \leq \phi$ ) then
+17 Check and remove non-LMax-SCN directions in  $S_{DirRep}(O)$ ;
+
+18 Construct  $S_{PosDir}$  using Eq. (28);
+19 return  $S_{PosDir}$ ;
+</div>
+
+Theorem 2. cMFEDS optimally solves the P2 problem and returns a set $\mathcal { S } _ { \mathrm { P o s D i r } }$ with minimum size.
+
+Proof: Lemma 9 shows that, for each charging position, the algorithm solves a corresponding instance of the P2 problem and returns an optimal solution $S _ { \mathrm { D i r R e p } } ( O )$ with minimum size. Furthermore, as the charging directions at different positions in $ { \mathcal { N } } _ { \mathrm { C h r g P o s } }$ are not comparable, the set $\mathcal { S } _ { \mathrm { P o s D i r } }$ obtained by unifying $S _ { \mathrm { D i r R e p } } ( O )$ with $O \in \mathcal { N } _ { \mathrm { C h r g P o s } }$ is also minimum. ■
+
+Lemma 10. The time complexity required by cMFEDS is $\mathcal { O } ( P { \times } N ^ { 2 } )$ , where P represents the number of charging positions, and N represents the number of nodes.
+
+Proof: Proof is provided in Sec.IX in the Appendix. ■
+
+## VI. THE FELKH-3D ALGORITHM
+
+We propose FELKH-3D to address the DCS-3D problem in three steps, as previously outlined in Fig. 1 in Sec. I.
+
+## A. Determine Charging Times along Pos-Dir Pairs
+
+Let $\mathbf { t } ( \mathbf { s } ) { : = } [ t _ { 1 } , t _ { 2 } , \ldots , t _ { K } ] ^ { \mathrm { T } }$ denotes the column vector of the energy transmission times in a charging schedule s along the Pos-Dir pairs in $\mathcal { S } _ { \mathrm { P o s D i r } }$ . As UAV’s flying energy consumption is not affected by t, when only charging times as used as optimization variables, minimizing total energy loss $e _ { \mathrm { L o s s } } ^ { \mathrm { T o t a l } } ( \mathbf { s } )$ is equivalent to minimize $e _ { \mathrm { L o s s } } ^ { \mathrm { W P T + H o v } }$ . Thus, the optimal t can be determined by solving P3 in Eq. (29).
+
+$$
+\mathbf {t} ^ {*} = \arg \min _ {\mathbf {t}} e _ {\text { Loss }} ^ {\text { WPT + Hov }} (\mathbf {t}), \tag {P3}\tag{29a}
+$$
+
+$$
+\begin{array}{l l} \text { s.t. } & E q. (1 1 b), E q. (1 1 c); \\ & \mathbf {t} \geq 0. \end{array}\tag{29b}
+$$
+
+Problem P3 can be solved using mature softwares such as Cplex. Combining $\mathbf { t } ^ { * }$ with the Pos-Dir pairs in set $\mathcal { S } _ { \mathrm { P o s D i r } }$ , the flying schedule item set $ { S _ { \mathrm { F l y } } } ^ { \mathrm { C T S } }$ can be constructed easily.
+
+## B. Determining UAV’s Trajectory
+
+Having obtained t<sup>∗</sup> in the previous step, let $t _ { \mathrm { P o s } } ( i )$ denote the sum of the times corresponding to the Pos-Dir pairs with position l<sub>i</sub>. If $t _ { \mathrm { P o s } } ( i ) { = } 0$ , then charging position $l _ { i }$ need not be traversed. Let $\mathcal { L } _ { \mathrm { R e f i n e } } ^ { * } { : = } \{ l _ { i } | t _ { \mathrm { P o s } } ( i ) { \ge } 0 , u _ { i } { \in } \mathcal { U } \}$ , then the objective of this step is to determine a loop tour r with minimum flying energy consumption to traverse all charging positions in $\mathcal { L } _ { \mathrm { R e f i n e } } ^ { * } .$
+
+Let $\mathbf { r } _ { \pi } : = [ l \pi _ { 0 } = l _ { 0 } , l _ { \pi _ { 1 } } , \ldots , l _ { \pi _ { m } } , l _ { 0 } ] ,$ , and let $\mathbf { r } _ { \pi }$ represent the set of locations contained in the path $\mathbf { r } _ { \pi } .$ , and $\left| \mathbf { r } _ { \pi } \right|$ represent the length of the path list, i.e., $| \mathbf { r } _ { \pi } | = m + 2 .$ Let $e ^ { \mathrm { U A V } } \mathrm { F l y } ( \mathbf { r } \pi )$ represent the flight energy consumption of the UAV along the path $\mathbf { r } _ { \pi }$ . The UAV traverses each location sequentially according to a predetermined visiting order. Therefore, the path planning task can be formalized as the formula (??), where constraint Eq.(30b) ensures that each position in the set $\mathcal { L } _ { \mathrm { R e f i n e } } ^ { * } \cup l _ { 0 }$ is visited only once.
+
+$$
+\mathbf {r} _ {\pi} ^ {*} = \arg \min _ {\mathbf {r} _ {\pi}} e _ {\text { Fly }} ^ {\text { UAV }} (\mathbf {r} _ {\pi}) \tag {P4}\tag{30a}
+$$
+
+$$
+\text { s.t. } \quad \{\mathbf {r} _ {\pi} \} = \mathcal {L} _ {\text { Refine }} ^ {*} \cup \{l _ {0} \}.\tag{30b}
+$$
+
+To solve P4, we exploit the most efficient and powerful heuristic algorithm named as LKH, which achieves the stateof-the-art performance both in solution quality and running speed. Performance evaluations well demonstrates the superiority of LKH.
+
+Given a loop route r, the flying schedule item set $ { S _ { \mathrm { F l y } } } ^ { \mathrm { C T S } }$ can be constructed easily. A complete CTS schedule $\mathbf { s } ^ { \mathrm { C T S } }$ solving the Directional Mobile Charger Charge Scheduling (DMCCS) problem can then be obtained by merging $ { S _ { \mathrm { F l y } } } ^ { \mathrm { C T S } }$ and $ { S _ { \mathrm { C h r g } } } ^ { \mathrm { C T S } }$ and sorting the items following r.
+
+## C. The FELKH-3D Algorithm
+
+Based on above analyses, the FELKH-3D algorithm as outlined in Alg. 2 is obtained easily.
+
+<div class="mineru-algorithm" style="white-space: pre-wrap; font-family:monospace;">
+Algorithm 2: FELKH-3D
+
+Input: $\mathcal{N},\phi ,\mathrm{D},\mathbf{e}_{\mathrm{E}},\mathbf{e}_{\mathrm{B}},\mathbf{p}_{\mathrm{hov}},\mathbf{p}_{0},\mathbf{p}_{\mathrm{U}},p_{\mathrm{mov}},v$
+
+Output: A charging schedule $\mathbf{s}_{\mathrm{CS}}$
+
+1 $S_{\mathrm{PosDir}} = cMFEDS(\mathcal{N},\mathcal{N}_{\mathrm{ChrgPos}} = \mathcal{N},\phi ,D)$;
+
+2 Construct ETC matrix $\mathbf{C}_{\mathrm{ETC}} := [c(i,j)]_{i \in S_{\mathrm{PosDir}},u_j \in \mathcal{U}}$;
+
+3 $[\mathbf{t},e_{\mathrm{Hov}}^{\mathrm{UAV}},e_{\mathrm{Chrg}}^{\mathrm{UAV}},e_{\mathrm{Rcv}}^{\mathrm{Nodes}}] = \text{sloveP3}(\mathbf{C}_{\mathrm{ETC}},\mathbf{e}_{\mathrm{B}},\mathbf{e}_{\mathrm{E}},\mathbf{p}_{0},\mathbf{p}_{\mathrm{hov}})$;
+
+4 Construct charging schedule item set $S_{\mathrm{Chrg}}^{\mathrm{CTS}}$;
+
+5 Construct $\mathcal{L}_{\mathrm{Refine}}^* := \{l_i|t_{\mathrm{Pos}}(i) \geq 0, u_i \in \mathcal{U}\}$ using t and $S_{\mathrm{PosDir}}$;
+
+6 $[\mathbf{r},e_{\mathrm{Fly}}^{\mathrm{UAV}},t_{\mathrm{Fly}}^{\mathrm{UAV}}] = \text{LKH}(\mathcal{L}_{\mathrm{Refine}}^*)$;
+
+7 $e_{\text{Loss}}^{\text{Total}} = e_{\text{Fly}}^{\text{UAV}} + e_{\text{Hov}}^{\text{UAV}} + e_{\text{Chrg}}^{\text{UAV}} - e_{\text{Rcv}}^{\text{Nodes}}$;
+
+8 Construct flying schedule item set $S_{\mathrm{Fly}}^{\mathrm{CTS}}$;
+
+9 $\mathbf{s}^{\mathrm{CTS}} = \text{combineAndSort}(\mathcal{S}_{\mathrm{Chrg}}^{\mathrm{CTS}},S_{\mathrm{Fly}}^{\mathrm{CTS}})$;
+
+10 return $\mathbf{s}^{\mathrm{CTS}}$;
+</div>
+
+Lemma 11. The time complexity of FELKH-3D is $O ( P N ^ { 2 } + M N + P ^ { 2 } )$ , where $\scriptstyle M = \left| S _ { \mathrm { P o s D i r } } \right|$
+
+Proof: Proof is provided in Sec.X in the Appendix.
+
+## VII. TESTBED EXPERIMENT
+
+We set up a small-scale 3D WRSN scenario outdoors and conducted tests on the FELKH-3D algorithm.
+
+## A. Experiment Setup
+
+As illustrated in Fig. 9, the UAV is equipped with a Powercast TX91501 module for wireless power transfer, while five WRSN nodes employ Powercast P2110-EVB modules with energy storage. These nodes are deployed within a 4m × 4m × 2m three-dimensional space and periodically report their energy levels to a PC via wireless communication for centralized data processing. Although the TX91501 module supports a maximum transmission distance of 12m, the effective communication range is restricted to 2m to improve transmission efficiency. In the simulated deployment, nodes are positioned at A (1.5, 0.3, 1.2), B (2.7, 0.9, 0.9), C (2.7, 1.2, 0.8), D (3.3, 1.2, 0), and E (3.3, 1.8, 0), with the UAV base at (4, 4, 0). Directional charging is achieved through the TX91501’s built-in directional antenna, which features a 60° beam width and height. Mounted on the UAV, this
+
+![](images/09ebd0e9c9d9f1433f30dacd5e9edd15656d48e3ec46504c58d6ef1f1f6f81e5.jpg)  
+Fig. 9. Test-bed devices and system module enables controlled directional charging by adjusting the drone’s pitch, roll, and yaw, ensuring precise alignment between the antenna’s emission direction and the target node. This mechanism enhances wireless power transfer efficiency.
+
+![](images/f4851423de8a6cb6ed6357540a8d02d9511673292ce7171d0739997502435d3b.jpg)
+
+![](images/a3d51f774ba89da8a3b2376750999043025fcddf5d1f7c76686294ab65e4a14c.jpg)  
+(a) Test-bed scenario  
+(b) Experimental Results
+
+Fig. 10. Testbed experiment  
+TABLE II: Experiment Parameters
+
+<table><tr><td>Parameter</td><td>Value</td><td>Parameter</td><td>Value</td><td>Parameter</td><td>Value</td></tr><tr><td> $e_{B}$ </td><td>20~80 J</td><td> $e_{E}$ </td><td>30~90 J</td><td>n</td><td>5</td></tr><tr><td> $p_{0}$ </td><td>3 W</td><td> $p_{Hov}$ </td><td>150 J/s</td><td> $p_{Fly}$ </td><td>160 J/s</td></tr><tr><td> $l_{0}$ </td><td>(4,4,0)</td><td>D</td><td>2 m</td><td>v</td><td>3 m/s</td></tr><tr><td colspan="2">Region</td><td colspan="4">4m×4m×2m</td></tr></table>
+
+## B. Experimental Results
+
+Figure 10a illustrates the deployment configuration of five sensor nodes in a three-dimensional experimental scenario, along with the predefined flight paths and the WRSN. Three algorithms were compared, with results shown in Fig.10b. The proposed FELKH-3D algorithm achieves the lowest energy loss—30% and 13% lower than the Sch-GridAccGreedy and Sch-GroupPloyAnt algorithms, respectively. This improvement is due to FELKH-3D’s ability to position the UAV closer to nodes during hovering. In contrast, Sch-GridAccGreedy constrains the UAV to a fixed altitude, reducing energy reception efficiency and yielding suboptimal charging directions. Sch-GroupPloyAnt forms charging groups based on node proximity, but suffers from prolonged charging times due to limited transmission power. FELKH-3D addresses both reception efficiency and power constraints by distributing charging time across multiple positions and applying efficient path planning to approximate an optimal route, thereby reducing charging cost and overall energy loss. Although FELKH-3D incurs slightly higher flight costs, it significantly reduces hovering cost—the dominant component—leading to minimal total energy loss, as shown in Fig. 10b. In larger-scale scenarios with higher energy demands, faster UAV speeds, and stronger transmission capabilities, the advantage of FELKH-3D is expected to be even more substantial.
+
+## VIII. PERFORMANCE EVALUATION
+
+We evaluate FELKH-3D’s performance via numerical simulations using MATLAB 2022b running on a computer with i5-9300H CPU, 16 GB RAM, and Windows 10 OS.
+
+## A. Algorithms for Comparison
+
+As solving the DCS-3D problem involves several steps each has several alternative options/methods, we will comparatively evaluate the alternative options in the context of a complete algorithm. To emphasize the comparison of the methods for a step, all other steps take the same options. We also evaluate several complete algorithms with different step-wise options.
+
+For charging position generation, the node-based method, Grid-Based method [16], and Clustering-based method [17] are selected for comparison, which are denoted by “Pos-Node“, “Pos-Grid“, “Pos-Group“, and “Pos-Cluster“, respectively. For charging direction selection, we select the simple node-based direction, GCC [16], ACC [16], and our cMFEDS algorithm. As an representation of fixed direction method, we propose to divide the whole sphere surface into regular faces by referring to suitable regular polyhedrons or the soccer ball, and select the directions passing the centers of the faces as charging directions. The methods are denoted as “Dir-Node“, “Dir-GCC“, “Dir-ACC“, “Dir-FuncEqv“, and “Dir-Polyhedron“, respectively. For charging tour searching, the ant colony algorithm was chosen as the representative heuristic algorithm for solving the TSP. In addition, classic TSP algorithms (LKH algorithm and greedy algorithm) were also used. Therefore, the three methods used are represented as "Tour-LKH", "Tour-Ant", and "Tour-Greedy" respectively. Combining different options of the steps leads to complete algorithms for solving the DCS-3D problem. We will select typical complete algorithms to compare with our FELKH-3D in Sec. VIII-F.
+
+## B. Performance Metrics and Simulation Setup
+
+Two primary performance metrics adopted here are total energy loss and time span. Detailed metrics such as charging energy consumption, charging time, flying time will also be checked when suitable.
+
+Table III presents the crucial simulation parameters and the corresponding default values in our simulations. A typical set of parameter values is referred to as a simulation configuration here. The impact of a parameter on the algorithms is investigated by exhaustive experiments under various simulation configurations. The UAV’s energy consumption related parameters in the simulation experiments are referenced from [12, 29, 30]. To mitigate randomness, 100 problem instances for each simulation configuration are tested and the results are averaged. We collect and average the performance metrics of the instances as the final result.
+
+## C. Comparison of Charging Position Generation Methods
+
+We fix the options of Dir-FuncEqv and Tour-LKH and comparatively evaluate the four charging position generation methods with respect to node number n and $p _ { \mathrm { H o v } } / p _ { \mathrm { F l y } }$
+
+TABLE III: Simulation Parameters
+
+<table><tr><td>Parameter</td><td>Value</td><td>Parameter</td><td>Value</td><td>Parameter</td><td>Value</td></tr><tr><td> $e_{\text{B}}$ </td><td>20~90 J</td><td> $e_{\text{E}}$ </td><td>20~90 J</td><td> $e_{\text{U0}}$ </td><td>90 J</td></tr><tr><td> $\beta$ </td><td>4</td><td> $\gamma$ </td><td>2</td><td> $\delta$ </td><td>12</td></tr><tr><td> $p_0$ </td><td>1 W</td><td> $p_{\text{Hov}}/p_{\text{Fly}}$ </td><td>0.1~1</td><td> $p$ </td><td>8W</td></tr><tr><td> $l_0$ </td><td>(0,0,0)</td><td> $\phi$ </td><td> $\pi/3$ </td><td> $v$ </td><td>1 m/s</td></tr><tr><td> $D$ </td><td>6 m</td><td> $c_{\text{max}}$ </td><td>0.9</td><td> $n$ </td><td>400~800</td></tr><tr><td colspan="2">Region</td><td colspan="4">100m×100m×20m</td></tr></table>
+
+1) Number of Nodes: We varied the number of nodes n from 400 to 800 while keeping the ratio $p _ { \mathrm { H o v } } / p _ { \mathrm { F l y } }$ fixed at 1. The results are shown in Fig. 11. Total energy loss, time span, charging position number, and tour length are used as performance metrics.
+
+Fig. 11a shows that $e _ { \mathrm { L o s s } } ^ { \mathrm { T o t a l } }$ of Pos-Node is lower than those of the other three algorithms. This is due to the fact that the energy transmission coefficient decreases as charging distance increases, resulting in higher energy consumption for Pos-Cluster, Pos-Group, and Pos-Grid, where the nodes are charged over a distance. This not only leads to higher charging energy consumption, but also results in charging schedules with longer time span. As shown in Fig. 11b, Pos-Node exhibits a more favorable time span. Fig. 11c shows the trend of charging position number as n increases. Pos-Cluster and Pos-Group methods creates much fewer charging positions than Pos-Grid and Pos-Node, however fewer charging positions do not necessarily leads to lower energy loss schedules. In Fig. 11d, Pos-Cluster and Pos-Group generate charging tours considerably shorter than the others, owing to their fewer charging positions. Although Pos-Node leads to longer tour distance, it achieves the least energy consumption and shortest time span, and so it is adopted in our FELKH-3D.
+
+2) Ratio of $p _ { \mathrm { H o v } } / p _ { \mathrm { F l y } }$ : The ratio $p _ { \mathrm { H o v } } / p _ { \mathrm { F l y } }$ increases from 0.1 to 1 with a step size of 0.1, while the number of nodes n is fixed at $n = 4 0 0$ . The results are shown in Fig. 12. The total energy loss $e _ { \mathrm { L o s s } } ^ { \mathrm { T o t a l } }$ of the four algorithms all increase, indicating that the UAV’s hovering energy consumption is a primary source of energy consumption of the charging schedules. It is also evident that $e _ { \mathrm { L o s s } } ^ { \mathrm { T o t a l } }$ of Pos-Node consistently remains lower than those of the other three algorithms, confirming that Pos-Node is the best among the charging position set generation methods.
+
+## D. Comparison of Charging Direction Selection Methods
+
+With the fixed options of Pos-Cluster and Tour-LKH, the performances of the five charging direction selection methods were evaluated with node number n increases from 400 to 800. Six performance metrics are adopted in this work, including total energy loss, time span, charging direction number, direction choosing time, P3 solving time, and total running time. Direction choosing time metric measures the running time for choosing charging directions. P3 solving time represents the average time of the Cplex for solving P3, and total running time represents the time for running a whole scheme completely. The results are shown in Fig. 13.
+
+Fig. 13a illustrates the total energy loss $e _ { \mathrm { L o s s } } ^ { \mathrm { T o t a l } }$ of all the five methods all increase as n increases. However, $e _ { \mathrm { L o s s } } ^ { \mathrm { T o t a l } }$ of Dir-FuncEqv consistently remains lower than those of Dir-Node, Dir-ACC, and Dir-Polyhedron. This is because that Dir-Node,
+
+![](images/28e94dc35bdf6808030a32864ef76ae39fe86f25b6817c2ccca26eeb5ac5fe39.jpg)  
+(a) Total energy loss
+
+![](images/73b1305d2df5f96fc27b7025cb4c0a7951e6f9edeebd5dd1bcd8334ee800f797.jpg)  
+(b) Time span
+
+![](images/ee6f2554111430d49fb656af9313bb6a9b2697c4006e3416b48e48ce468c3991.jpg)  
+(c) Charging position number
+
+![](images/ea1531349b6cda409398261d1782603e9ab47a09d624a23b07d807422ae8ad39.jpg)  
+(d) Tour length
+
+Fig. 11. Effects of the number of nodes  
+![](images/f41acc9702173ecce9a4d6320c1f585fbd783b2fb589c6b85b90b21c6d485c87.jpg)  
+(a) Total energy loss
+
+![](images/45554c7c00a12d7179b61b5f2e184f7179e9bafb2c611ebdfca6e43cf9d226ca.jpg)  
+(b) Flying energy consumption
+
+![](images/34659ec007a03f426849003a0a3d07d2b7c6b1cd6be4a6f36ec148934de3f554.jpg)  
+(c) Hovering energy consumption  
+Fig. 12. Effects of the ratio of hovering energy consumption power to flying energy consumption power.
+
+Dir-ACC, and Dir-Polyhedron fail to encompass all LMax-SCN set, which can be noticed easily with some analyses. Dir-GCC generates a charging direction set guaranteed to contains all LMax-SCN set, so it leads to schedules with total energy loss identical to Dir-FuncEqv. However, Dir-GCC’s direction set is excessively redundant, as revealed in Fig. 13c, which makes Dir-GCC runs much slower than Dir-FuncEqv. Fig. 13b highlights the superior performance of Dir-FuncEqv in term of time span. Fig. 13c shows the number of charging directions determined by the methods, where the y-axis is in a logarithmic scale for the large scale differences of charging direction numbers. Fig. 13d shows that Dir-FuncEqv incurs higher time overhead, which is mainly due to an unfair point that Dir-FuncEqv contains a direction adjustment process for practical considerations, yet the others do not contains. In Fig. 13e, Dir-GCC consumes the most time due to the high redundancy in its charging directions. As shown in Fig. 13f, despite the additional time-consuming direction adjustment process, Dir-FuncEqv’s total running time is not significantly different from the other algorithms. This demonstrates that Dir-FuncEqv is highly efficient.
+
+## E. Comparison of Charging Tour Searching Methods
+
+To concentrate on the performance differences of Tour-LKH, Tour-Ant, and Tour-Greedy in searching efficient charging tours, we fixed the options of Pos-Node and Dir-FuncEqv. The flying energy consumption and total running time performance metrics are shown in Fig. 14.
+
+As shown in Figure 14a, Tour-LKH consumes significantly less energy than Tour-Ant and Tour-Greedy. The results in Figure 14b further demonstrate that Tour-LKH runs significantly faster than Tour-Ant. While Tour-Greedy boasts the fastest running speed due to the simplicity of its algorithm, this comes at the cost of significantly increased energy consumption.
+
+![](images/2f2806123f14567695a854d0f3c84c4d1e44c1eb2feb3d5de91611f7ad3e41c0.jpg)  
+(a) Total energy loss
+
+![](images/7b73927f199280a3fbea24beb09d3468e4c16d5fd5661f6093b1ab8398f8716c.jpg)  
+(b) Time span
+
+![](images/ffa7e25e804a17779d123cbbc5185e2ee4c8b2ad11158c8657b096482c64e2fa.jpg)  
+(c) Charging direction number
+
+![](images/e75e2d6598b80be9c1b58f39ac070690d4a812b57cc580b8c05a33a63fde19be.jpg)  
+(d) Direction choosing time
+
+![](images/752892d89a4481268369030031019f75f85790aeeeb39e2cdb6c2ed221dd3701.jpg)  
+(e) P3 solving time
+
+![](images/6e803f364d28bc4c62b87f07b167e163bbbd61f9ac38d706ac366597ad1afce3.jpg)  
+(f) Total running time  
+Fig. 13. Performance comparison of charging direction selection methods
+
+![](images/beccd874cf28b0d9eebc14fa20c5f909587036075d6a39a528026a09bb7fab68.jpg)
+
+![](images/bf455e21d6ef4f0c657990a4e1b91cf74cc70398b942c249ae9f2445f319343b.jpg)  
+(a) Flying energy consumption  
+(b) Total running time  
+Fig. 14. Performance comparison in solving TSP
+
+## F. Comparison of Complete Schemes
+
+Based on the results in the previous experiments, we select two additional complete schemes to compare with FELKH-3D. The first one is a combination of Pos-Group, Dir-Polyhedron, and Tour-Ant, which is denoted as “Sch-GroupPolyAnt“ and represents clustering based methods. Sch-GroupPolyAnt can be considered as a 3D extension of the algorithm proposed in [17]. The second one combines Pos-Grid, Dir-ACC, and Tour-Greedy, which is denoted as “Sch-GridAccGreedy“ and represents traditional methods. Sch-GridAccGreedy can be regarded as an adaption of the algorithm proposed in [16].
+
+The results are shown in Fig. 15. Fig. 15a shows the results of the total energy loss metric. As FELKH-3D combines all the most energy efficient options in the steps, it consistently exhibits lower energy loss compared to the other schemes. As shown in Fig. 15b, FELKH-3D also produces the optimal charging schedules in term of time span.
+
+![](images/28c4e2b778cf852869e194d866d5e59b929aae2615d09e2ed1e3bb2f51a3e42c.jpg)  
+(a) Total energy loss
+
+![](images/23775c42537f254acfc1cd218b3a10faa561993073ffa2c0f518e4d8f253c67d.jpg)  
+(b) Time span  
+Fig. 15. Performance comparison of complete schemes for solving DCS-3D problems
+
+## IX. CONCLUSION
+
+In this paper, we addressed the DCS-3D problem for 3D-WRSNs using UAVs as wireless chargers, focusing on scenarios where nodes are distributed in three-dimensional space. We established that the DCS-3D problem is NP-hard and introduced the FELKH-3D algorithm to solve it. To determine an optimal set of charging directions, we developed the cMFEDS algorithm. cMFEDS identifies a minimal set of charging directions in a three-dimensional space such that the set is functional equivalent to the original infinite directions forming the whole sphere surface, which is essential for producing optimal charging schedules. Thus, the challenge of infinite charging direction space is address by the cMFEDS algorithm. To determine the optimal charging tour for the UAV, the LKH algorithm is employed. Simulation results demonstrated that FELKH-3D achieves the best performance.
+
+[1] P. K. Singh and A. Sharma, “An intelligent WSN-UAV-based IoT framework for precision agriculture application,” Computers and Electrical Engineering, vol. 100, p. 107912, 2022.
+
+[2] J. Jiang, H. Wang, X. Mu, and S. Guan, “Logistics industry monitoring system based on wireless sensor network platform,” Computer Communications, vol. 155, pp. 58–65, 2020.
+
+[3] N. Nowrozian and F. Tashtarian, “A mobile charger based on wireless power transfer technologies: A survey of concepts, techniques, challenges, and applications on rechargeable wireless sensor networks,” Journal of AI and Data Mining, vol. 9, no. 3, pp. 383–402, 2021.
+
+[4] X. Huan, K. S. Kim, S. Lee, E. G. Lim, and A. Marshall, “A beaconless asymmetric energy-efficient time synchronization scheme for resource-constrained multi-hop wireless sensor networks,” IEEE Transactions on Communications, vol. 68, no. 3, pp. 1716–1730, 2020.
+
+[5] D. Sikeridis, E. E. Tsiropoulou, M. Devetsikiotis, and S. Papavassiliou, “Energy-efficient orchestration in wireless powered Internet of Things infrastructures,” IEEE Transactions on Green Communications and Networking, vol. 3, no. 2, pp. 317–328, 2019.
+
+[6] B. Xu, Z. Kuang, J. Gao, L. Zhao, and C. Wu, “Joint offloading decision and trajectory design for UAV-Enabled edge computing with task dependency,” IEEE Transactions on Wireless Communications, vol. 22, no. 8, pp. 5043–5055, 2023.
+
+[7] Z. Kuang, H. Wang, J. Li, and F. Hou, “Utility-aware UAV deployment and task offloading in Multi-UAV edge computing networks,” IEEE Internet of Things Journal, vol. 11, no. 8, pp. 14 755–14 770, 2024.
+
+[8] P. Zhao, Z. Kuang, G. Yujing, and F. Hou, “Task offloading and resource allocation mechanism in UAV-assisted vehicle platoon system,” IEEE Transactions on Vehicular Technology, Early Access, pp. 1–15.
+
+[9] Y. Zhang, Z. Kuang, Y. Feng, and F. Hou, “Task offloading and trajectory optimization for secure communications in dynamic user Multi-UAV MEC systems,” IEEE Transactions on Mobile Computing, Early Access, pp. 1–14.
+
+[10] N. Liu, J. Zhang, C. Luo, J. Cao, Y. Hong, Z. Chen, and T. Chen, “Dynamic charging strategy optimization for UAV-Assisted wireless rechargeable sensor networks based on deep Q-network,” IEEE Internet of Things Journal, vol. 11, no. 12, pp. 21 125–21 134, 2024.
+
+[11] Z. Wang, X. Liu, and L. Yu, “3-D heterogeneous wireless charger empowered wireless rechargeable sensor network,” in 2023 3rd International Conference on Electronic Information Engineering and Computer Science (EIECS), 2023, pp. 1198– 1203.
+
+[12] C. Lin, W. Yang, H. Dai, T. Li, Y. Wang, L. Wang, G. Wu, and Q. Zhang, “Near optimal charging schedule for 3-D wireless rechargeable sensor networks,” IEEE Transactions on Mobile Computing, vol. 22, no. 6, pp. 3525–3540, 2023.
+
+[13] A. Tomar, L. Muduli, and P. K. Jana, “A fuzzy logic-based on-demand charging algorithm for wireless rechargeable sensor networks with multiple chargers,” IEEE Transactions on Mobile Computing, vol. 20, no. 9, pp. 2715–2727, 2021.
+
+[14] Z. Gao, C. Liu, and Y. Chen, “Scheduling of ERD-assisted charging of a WRSN using a directional mobile charger,” IEEE Transactions on Mobile Computing, vol. 23, no. 6, pp. 6681– 6696, 2024.
+
+[15] Éric D. Taillard and K. Helsgaun, “POPMUSIC for the travelling salesman problem,” European Journal of Operational Research, vol. 272, no. 2, pp. 420–429, jan 2019.
+
+[16] J.-R. Jiang and J.-H. Liao, “Efficient wireless charger deployment for wireless rechargeable sensor networks,” Energies, vol. 9, no. 9, p. 696, 2016.
+
+[17] Y. Liang, M. Yin, Y. Zhang, W. Wang, W. Jia, and T. Wang, “Grouping reduces energy cost in directionally rechargeable
+
+wireless vehicular and sensor networks,” IEEE Transactions on Vehicular Technology, vol. 72, no. 8, pp. 10 840–10 851, 2023.
+
+[18] S. Liang, Z. Fang, G. Sun, C. Lin, J. Li, S. Li, and A. Wang, “Charging UAV deployment for improving charging performance of wireless rechargeable sensor networks via joint optimization approach,” Computer Networks, vol. 201, p. 108573, 2021.
+
+[19] H. Dai, K. Sun, A. X. Liu, L. Zhang, J. Zheng, and G. Chen, “Charging task scheduling for directional wireless charger networks,” IEEE Transactions on Mobile Computing, vol. 20, no. 11, pp. 3163–3180, 2021.
+
+![](images/eb13aebf2eb7336ce34adff80dad7c2b796f6a5c561132f3c25f1dd9ea784d6f.jpg)
+
+[20] H. Dai, Y. Liu, G. Chen, X. Wu, T. He, A. X. Liu, and H. Ma, “Safe charging for wireless power transfer,” IEEE/ACM Transactions on Networking, vol. 25, no. 6, pp. 3531–3544, 2017.
+
+[21] C. Lin, J. Zhou, C. Guo, H. Song, G. Wu, and M. S. Obaidat, “TSCA: A temporal-spatial real-time charging scheduling algorithm for on-demand architecture in wireless rechargeable sensor networks,” IEEE Transactions on Mobile Computing, vol. 17, no. 1, pp. 211–224, 2018.
+
+Zhenguo Gao (Senior Member, IEEE) received the B.S. and M.S. degrees in mechanical and electrical engineering and the Ph.D. degree in computer architecture from Harbin Institute of Technology, Harbin, China, in 1999, 2001, and 2006, respectively.
+
+He is currently a Professor with Huaqiao University, Xiamen, China, and also the Dean of the Key Laboratory of Computer Vision and Machine Learning (Huaqiao University), Fujian Province University, Xiamen. His research interests include wireless networks and edge computing.
+
+[22] N. Kumar, D. Dash, and M. Kumar, “An efficient on-demand charging schedule method in rechargeable sensor networks,” Journal of Ambient Intelligence and Humanized Computing, vol. 12, pp. 8041–8058, 2021.
+
+[23] C. Lin, Z. Yang, H. Dai, L. Cui, L. Wang, and G. Wu, “Minimizing charging delay for directional charging,” IEEE/ACM Transactions on Networking, vol. 29, no. 6, pp. 2478–2493, 2021.
+
+[24] H. Dai, Y. Xu, G. Chen, W. Dou, C. Tian, X. Wu, and T. He, “ROSE: Robustly safe charging for wireless power transfer,” IEEE Transactions on Mobile Computing, vol. 21, no. 6, pp. 2180–2197, 2022.
+
+[25] Z. Gao, Y. Chen, L. Fan, H. Wang, S. C.-H. Huang, and H.-C. Wu, “Joint energy loss and time span minimization for energy-redistribution-assisted charging of WRSNs with a mobile charger,” IEEE Internet of Things Journal, vol. 10, no. 5, pp. 4636–4651, 2023.
+
+[26] Y. Chen, H. Wang, D. Chen, Y. Jiang, Z. Gao, and J. Cao, “Energy redistribution assisted charging of WRSNs with multiple mobile chargers having multiple base stations,” Ad hoc Networks, vol. 148, p. 103213, 2023.
+
+[27] S. Liang, Z. Fang, G. Sun, C. Lin, J. Li, S. Li, and A. Wang, “Charging UAV deployment for improving charging performance of wireless rechargeable sensor networks via joint optimization approach,” Computer Networks, vol. 201, p. 108573, 2021.
+
+[29] Y. Sun, C. Lin, W. Yang, J. Ren, L. Wang, G. Wu, and Q. Zhang, “Charging dynamic sensors through online learning,” in IEEE INFOCOM 2023 - IEEE Conference on Computer Communications, 2023, pp. 1–10.
+
+[28] Y. Liu, H. Pan, G. Sun, A. Wang, J. Li, and S. Liang, “Joint scheduling and trajectory optimization of charging UAV in wireless rechargeable sensor networks,” IEEE Internet of Things Journal, vol. 9, no. 14, pp. 11 796–11 813, 2022.
+
+[30] T. Shan, Y. Wang, C. Zhao, Y. Li, G. Zhang, and Q. Zhu, “Multi-UAV WRSN charging path planning based on improved heed and IA-DRL,” Computer Communications, vol. 203, pp. 77–88, 2023.

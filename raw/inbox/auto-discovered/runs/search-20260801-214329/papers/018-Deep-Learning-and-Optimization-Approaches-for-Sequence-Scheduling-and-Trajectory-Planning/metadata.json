@@ -1,0 +1,44 @@
+{
+  "title": "Deep Learning and Optimization Approaches for Sequence Scheduling and Trajectory Planning in Wireless Rechargeable Sensor Networks",
+  "authors": [
+    "Haleema Fernandes-Pereira"
+  ],
+  "abstract": "Wireless Rechargeable Sensor Networks (WRSNs) have emerged as an effective solution for addressing the energy limitations of traditional Wireless Sensor Networks by integrating mobile chargers and intelligent energy management mechanisms. However, efficient sequence scheduling and trajectory planning for mobile chargers remain major challenges, especially in dynamic environments containing obstacles and varying network conditions. Recently, deep learning and optimization-based techniques have shown significant potential for solving these complex problems. In particular, deep convolutional U-shape networks (U-Net) integrated with jump attention-based Vision Transformers (ViTs) have attracted considerable attention for trajectory planning and obstacle avoidance in WRSNs. U-Net architectures effectively capture spatial features through encoder–decoder structures, while Vision Transformers utilize self-attention mechanisms to model long-range dependencies and global contextual relationships. The combination of convolutional operations with transformer architectures improves local feature extraction and global dependency learning, resulting in more accurate path prediction and efficient mobile charger scheduling. Recent studies indicate that attention-based spatial–temporal models significantly enhance trajectory optimization, obstacle avoidance, and navigation efficiency in dynamic WRSN environments. Furthermore, hybrid deep learning and optimization frameworks improve energy efficiency, scalability, and scheduling accuracy. However, challenges such as computational complexity, real-time implementation, and resource constraints continue to motivate future research in intelligent WRSN systems.",
+  "published_date": "2025-05-25",
+  "updated_date": "",
+  "year": 2025,
+  "doi": "10.65521/itsi-teee.v14i1.2813",
+  "arxiv_id": "",
+  "landing_url": "https://doi.org/10.65521/itsi-teee.v14i1.2813",
+  "pdf_url": "https://journals.mriindia.com/index.php/itsiteee/article/download/2813/2694",
+  "is_open_access": true,
+  "license": "",
+  "providers": [
+    "openalex"
+  ],
+  "provider_ids": {
+    "openalex": "https://openalex.org/W7162188496"
+  },
+  "matched_queries": [
+    "mobile charger scheduling"
+  ],
+  "score": 15.25,
+  "score_reasons": [
+    "标题命中：rechargeable, scheduling, sensor",
+    "摘要命中：charger, dynamic, energy, mobile",
+    "近年文献"
+  ],
+  "local_pdf": "raw/inbox/auto-discovered/runs/search-20260801-214329/papers/018-Deep-Learning-and-Optimization-Approaches-for-Sequence-Scheduling-and-Trajectory-Planning/paper.pdf",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "openalex"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260801-214329",
+  "triage_status": "pending",
+  "selected_by_user": false,
+  "acquired_at": "2026-08-01T13:43:29+00:00",
+  "selected_at": "",
+  "canonicalized_at": "",
+  "discovery_status": "candidate",
+  "retrieved_at": "2026-08-01T13:44:08+00:00"
+}

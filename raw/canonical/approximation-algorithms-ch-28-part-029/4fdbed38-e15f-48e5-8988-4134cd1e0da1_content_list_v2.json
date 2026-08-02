@@ -1,0 +1,4681 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "28 Counting Problems"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                109,
+                502,
+                129
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The techniques for approximately counting the number of solutions to #Pcomplete problems are quite diferent from those for obtaining approximation algorithms for NP-hard optimization problems. Much of the former theory is built around the Markov chain Monte Carlo method, see Section 28.4 for references. In this chapter, we will present combinatorial algorithms (not using Markov chains) for two fundamental problems, counting the number of satisfying truth assignments for a DNF formula, and estimating the failure probability of an undirected network."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                255,
+                786,
+                369
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Intuitively, the class "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\# \\mathbf { P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "captures the problems of counting the number of solutions to NP problems. Let us formalize this notion. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a language in NP, M be its associated verifier, and polynomial "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the bound on the length of its Yes certificates (see Section "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { A . 1 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For string "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x \\in \\Sigma ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( x )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be the number of strings y such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| y | \\leq p ( | x | )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ( x , y )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "accepts. Functions "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f : \\Sigma ^ { * } \\to \\mathbf { Z } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that arise in this manner constitute the class "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\# \\mathbf { P }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                369,
+                786,
+                454
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f \\in \\# \\mathbf { P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is said to be #P-complete if every function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "g \\in \\# \\mathbf { P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "can be reduced to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the following sense. There is a polynomial time transducer "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R : \\Sigma ^ { * } \\to \\Sigma ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", that, given an instance, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { g , }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "produces an instance, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R ( x )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Furthermore, there is a polynomial time computable function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S : \\Sigma ^ { * } \\times"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { Z } ^ { + } \\to \\mathbf { Z } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { g i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "ven x and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( R ( x ) )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "computes "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "g ( x ) , \\mathrm { i . e . }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "2"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                454,
+                784,
+                527
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\forall x \\in \\Sigma^ {*}, g (x) = S (x, f (R (x))).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/8e73f563c6961905b32a9634e4d718d4b7d9b4073a24001cd52c49a32d70ad43.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                537,
+                495,
+                552
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In other words, an oracle for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "can be used to compute "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "g"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in polynomial time. The solution counting versions of all known NP-complete problems are #P-complete.<sup>1</sup> Interestingly enough, other than a handful of exceptions, this is true of problems in P as well. This raises the question of designing polynomial time algorithms for approximately counting the number of solutions to these latter problems (see Exercise 28.3 regarding the question of approximately counting the number of solutions to NP-complete problems). These problems admit only two interesting possibilities: they either allow approximability to any required degree, or essentially not at all (see Section 28.4)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                565,
+                786,
+                694
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>1</sup> I<sub>n</sub> f<sub>ac</sub>t<sub>,</sub> t<sub>yp</sub>i<sub>ca</sub>ll<sub>y</sub> <sub>a</sub> <sub>po</sub>l<sub>ynom</sub>i<sub>a</sub>l ti<sub>me</sub> <sub>re</sub>d<sub>uc</sub>ti<sub>on</sub> f<sub>rom</sub> <sub>one</sub> NP<sub>-comp</sub>l<sub>e</sub>t<sub>e</sub> <sub>pro</sub>bl<sub>em</sub> to another maps solutions of the given instance to solutions of the transformed i<sub>ns</sub>t<sub>ance, an</sub>d <sub>so preserves</sub> th<sub>e num</sub>b<sub>er o</sub>f <sub>so</sub>l<sub>u</sub>ti<sub>ons;</sub> h<sub>ence,</sub> th<sub>e proo</sub>f <sub>o</sub>f #P<sub>-</sub> <sub>comp</sub>l<sub>e</sub>t<sub>eness</sub> f<sub>o</sub>ll<sub>ows</sub> di<sub>rec</sub>tl<sub>y</sub> f<sub>rom</sub> th<sub>e proo</sub>f <sub>o</sub>f NP<sub>-comp</sub>l<sub>e</sub>t<sub>eness.</sub>"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                697,
+                786,
+                753
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The former possibility is captured in the definition of a fully polynomial randomized approximation scheme, abbreviated "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { F P R A S }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                141
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider a problem in P whose counting version, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\# \\mathbf { P } \\cdot"
+                    },
+                    {
+                        "type": "text",
+                        "content": "-complete. An algorithm A is an FPRAS for this problem if for each instance "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x \\in \\Sigma ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and error parameter "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon > 0"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                141,
+                784,
+                185
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ | \\mathcal {A} (x) - f (x) | \\leq \\varepsilon f (x) ] \\geq \\frac {3}{4},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/fb0f53c6e20b643c52eac353ee59016d7fe540567c90e1482737059f37c423c6.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                195,
+                500,
+                223
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "and the running time of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is polynomial in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| x |"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / \\varepsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". (See Exercise 28.1 for a method for reducing the error probability of an FPRAS.)"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                233,
+                784,
+                263
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "28.1 Counting DNF solutions"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                290,
+                527,
+                307
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 28.1 (Counting DNF solutions) Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f = C _ { 1 } \\lor C _ { 2 } \\lor \\dots \\lor C _ { m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a formula in disjunctive normal form on n Boolean variables "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { 1 } , \\ldots , x _ { n } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Each clause "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is of the form "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C _ { i } = l _ { 1 } \\wedge l _ { 2 } \\wedge . . . \\wedge l _ { r _ { i } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "l _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a literal, i.e., it is either a Boolean variable or its negation. We may assume w.l.o.g. that each clause is satisfiable, i.e., does not contain a variable and its negation. The problem is to compute "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\# \\mathrm { f } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the number of satisfying truth assignments of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                325,
+                786,
+                426
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The main idea is to define an eficiently samplable random variable X which is an unbiased estimator for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\# \\mathrm { f } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { E } [ X ] = \\# \\mathrm { f }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". If in addition, the standard deviation of X is within a polynomial factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { E } [ X ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then an FPRAS for #f can be obtained in a straightforward manner by sampling "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "X"
+                    },
+                    {
+                        "type": "text",
+                        "content": "a polynomial number of times (in n and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / \\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and outputting the mean."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                425,
+                784,
+                497
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Constructing an unbiased estimator for #f is easy. Let random variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Y"
+                    },
+                    {
+                        "type": "text",
+                        "content": "have uniform distribution on all "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 ^ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "truth assignments, and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Y ( \\tau )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 ^ { n } { \\mathrm { ~ i f ~ } } \\tau"
+                    },
+                    {
+                        "type": "text",
+                        "content": "satisfies "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and 0 otherwise (see Exercise 28.4). However, this random variable can have a very large standard deviation, and does not yield an FPRAS. For instance, suppose "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has only polynomially many satisfying truth assignments. Then, with high probability, a polynomial number of randomly picked truth assignments will all have "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Y = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", giving a poor estimate for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\# \\mathrm { f . }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                497,
+                786,
+                596
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will rectify this by defining a random variable that assigns nonzero probability to only the satisfying truth assignments of f. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the set of truth assignments to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { 1 } , \\ldots , x _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that satisfy clause "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| S _ { i } | = 2 ^ { n - r _ { i } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "2 where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the number of literals in clause "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Also, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\# \\mathrm { f } = | \\cup _ { i = 1 } ^ { m } S _ { i } |"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( \\tau )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the number of clauses that truth assignment τ satisfies. Let M denote the multiset union of the sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i } , \\mathrm { i . e . }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", it contains each satisfying truth assignment, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau , c ( \\tau )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "number of times. Notice that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { | M | = \\sum _ { i } | S _ { i } | } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is easy to compute."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                596,
+                784,
+                709
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Pick a satisfying truth assignment, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with probability "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( \\tau ) / | M |"
+                    },
+                    {
+                        "type": "text",
+                        "content": "• and define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "X ( \\tau ) = | M | / c ( \\tau )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We will first show that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "X"
+                    },
+                    {
+                        "type": "text",
+                        "content": "can be eficiently sampled, i.e., using a randomized polynomial time algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                709,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "28.1 Counting DNF solutions"
+                    }
+                ]
+            },
+            "bbox": [
+                515,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "295"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 28.2 Random variable X can be eficiently sampled."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                678,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Picking a random element from the multiset M ensures that each truth assignment is picked with the desired probability. The following twostep process will accomplish this. First pick a clause so that the probability of picking clause "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| S _ { i } | / | M |"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Next, among the truth assignments satisfying the picked clause, pick one at random."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                142,
+                786,
+                212
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Now, the probability with which truth assignment "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is picked is"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                214,
+                722,
+                228
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {i: \\tau \\text {satisfies} C _ {i}} \\frac {| S _ {i} |}{| M |} \\times \\frac {1}{| S _ {i} |} = \\frac {c (\\tau)}{| M |}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/630600cd8dcbd46b0846501f3b21156fff36d4837711577ce2f7963198c194b9.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                239,
+                512,
+                279
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 28.3 X is an unbiased estimator for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\# f ."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                317,
+                594,
+                332
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                346,
+                280,
+                360
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {E} [ X ] = \\sum_ {\\tau} \\mathbf {P r} [ \\tau \\text {is picked} ] \\cdot X (\\tau) = \\sum_ {\\tau \\text {satisfies} f} \\frac {c (\\tau)}{| M |} \\times \\frac {| M |}{c (\\tau)} = \\# \\mathrm{f}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/6d9ca0ce08a59d33bde59162d94a0c5f165e284a17ce764fb027a0d599953284.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                370,
+                754,
+                409
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "X takes values only in a “polynomial range”, thereby ensuring that its standard deviation is not large compared to its expectation. This fact is proved in the next lemma, and leads to the FPRAS construction."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                439,
+                786,
+                483
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 28.4 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "m denotes the number of clauses in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "then"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                491,
+                675,
+                506
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\frac {\\sigma (X)}{\\mathbf {E} [ X ]} \\leq m - 1.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/66c8d994a4e93cee1489100cad5363d4049cc7bef0bd0c04e62a0f5b392c0266.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                517,
+                383,
+                549
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Denote "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| M | / m"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by α. Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { E } [ X ] \\geq \\alpha"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For each satisfying truth assignment τ of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f , 1 \\leq c ( \\tau ) \\leq m"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "X ( \\tau )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "lies in the range "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "[ \\alpha , m \\alpha ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and so the random variable deviates from its mean by at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( m - 1 ) \\alpha ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "• i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| X ( \\tau ) - \\mathbf { E } [ X ] | \\leq ( m - 1 ) \\alpha"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, the standard deviation of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "X"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is bounded by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( m - 1 ) \\alpha"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Using the lower bound on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { E } [ X ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "stated above, we get the lemma. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                565,
+                784,
+                652
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finally, we will show that sampling X polynomially many times (in n and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / \\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and simply outputting the mean leads to an FPRAS for #f. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "X _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the mean of k samples of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "X"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                658,
+                784,
+                702
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 28.5 For any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon > 0"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                709,
+                443,
+                724
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ | X _ {k} - \\# f | \\leq \\varepsilon \\# f ] \\geq 3 / 4,",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/d6bc1ad779a9717977c5968ff1bbae0f26eafc2d2f81139ac4fc46910f685795.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                738,
+                484,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "296"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "28 Counting Problems"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                445,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k = 4 ( m - 1 ) ^ { 2 } / \\varepsilon ^ { 2 }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                406,
+                127
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: We will use Chebyshev’s inequality (see Section B.2), with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon { \\bf E } [ X _ { k } ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Using the value of k stated above we get"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                143,
+                784,
+                174
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ | X _ {k} - \\mathbf {E} [ X _ {k} ] | \\geq \\varepsilon \\mathbf {E} [ X _ {k} ] ] \\leq \\left(\\frac {\\sigma (X _ {k})}{\\varepsilon \\mathbf {E} [ X _ {k} ]}\\right) ^ {2} = \\left(\\frac {\\sigma (X)}{\\varepsilon \\sqrt {k} \\mathbf {E} [ X ]}\\right) ^ {2} \\leq \\frac {1}{4},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/bfaf1988792daa8f9b12fd6471bd6ff5f4929da3a1d4192e47a46e94a226e24a.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                184,
+                746,
+                219
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where the equality follows by noting that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\bf E } [ X _ { k } ] \\ = \\ { \\bf E } [ X ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma ( X _ { k } ) \\ ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma ( X ) / \\sqrt { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and the last inequality follows by applying Lemma 28.4. The lemma follows. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                231,
+                784,
+                275
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 28.6 There is an FPRAS for the problem of counting DNF solutions."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                291,
+                781,
+                321
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "28.2 Network reliability"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                350,
+                470,
+                366
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 28.7 (Network reliability) Given a connected, undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", with failure probability "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "specified for each edge e, compute the probability that the graph becomes disconnected."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                387,
+                784,
+                430
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Graph G will become disconnected if all edges in some cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( C , { \\overline { { C } } } ) , C \\subset V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "fail. We will present an FPRAS for this problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                429,
+                783,
+                458
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us first handle the case that each edge has the same failure probability, denoted by p. However, we will allow "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to have parallel edges between any two vertices. Denote by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname { F A I L } ( p )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the probability that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "gets disconnected. If "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname { F A I L } ( p )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is at least inverse polynomial, then it can be eficiently estimated by Monte Carlo sampling (see proof of Theorem 28.11 for details). Let us handle the dificult case that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname { F A I L } ( p )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is small. Assume that FAIL "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\dot { ( p ) } \\leq n ^ { - 4 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The reason for this choice will become clear below."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                458,
+                784,
+                557
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The probability that cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( C , { \\overline { { C } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "gets disconnected is simply "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ^ { c }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "where c is the number of edges crossing this cut. Since the failure probability of a cut decreases exponentially with capacity, the most important cuts for the purpose of estimating "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname { F A I L } ( p )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are cuts with “small” capacity. The algorithm is built around two ideas:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                557,
+                786,
+                629
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. For any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon > 0 ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we will show that only polynomially many “small” cuts (in n and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / \\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are responsible for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 - \\varepsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "fraction of the total failure probability "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname { F A I L } ( p )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Moreover, these cuts, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E _ { 1 } , \\ldots E _ { k } , E _ { i } \\subseteq E"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", can be enumerated in polynomial time."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                634,
+                784,
+                692
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. We will construct a polynomial sized DNF formula "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "whose probability of being satisfied is precisely the probability that at least one of these cuts fails."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                692,
+                786,
+                734
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "28.2 Network reliability"
+                    }
+                ]
+            },
+            "bbox": [
+                556,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "297"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As a result of the first idea, it is suficient to estimate the probability that one of the cuts "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E _ { 1 } , \\ldots E _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "fails. However, because of correlations, this is nontrivial. The second idea reduces this problem to counting DNF solutions, for which we have an FPRAS."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                170
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Formula "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has a Boolean variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e , x _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is set to true with probability "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the failure probability of edge e. Suppose cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E _ { i } = \\{ e _ { 1 } , . . . , e _ { j } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Construct the clause "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "D _ { i } = x _ { e _ { 1 } } \\wedge \\cdot \\cdot \\cdot \\wedge x _ { e _ { i } } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "i.e., the conjunct of all variables corresponding to edges in this cut. The probability that this clause is satisfied is precisely the failure probability of cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Finally, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f = D _ { 1 } \\lor \\cdots \\lor D _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", i.e., the disjunct of clauses corresponding to cuts."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                170,
+                784,
+                256
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "28.2.1 Upperbounding the number of near-minimum cuts"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                275,
+                722,
+                290
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The first idea has its roots in the fact that one can place upper bounds on the number of minimum and near-minimum capacity cuts in an undirected graph. Let c be the capacity of a minimum cut in G. Recall that all edges in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are assumed to be of unit capacity, and that G is allowed to have parallel edges between any two vertices."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                300,
+                786,
+                373
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 28.8 The number of minimum cuts in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is bounded "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b y"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n ( n - 1 ) / 2"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                381,
+                786,
+                411
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: By contracting an edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in a graph we mean merging the vertices u and v into a single vertex. All edges running between u and v are discarded. Those running between u or v and some other vertex w will now run between the merged vertex and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", their number being conserved."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                426,
+                784,
+                483
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Now consider the following random contraction process. Iteratively, pick a random edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the current graph and contract it. Terminate when exactly two vertices are left. Suppose these two vertices correspond to sets S and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V - S , S \\subset V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", of vertices of the starting graph G. Then, the algorithm outputs the cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( S , { \\overline { { S } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We will say that this cut survives. Clearly, a cut survives if none of its edges is contracted during the algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                483,
+                786,
+                569
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( C , { \\overline { { C } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be any minimum cut in G. We will show"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                569,
+                633,
+                583
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ (C, \\overline {{C}}) \\text { survives } ] \\geq \\frac {1}{\\binom {n} {2}}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/3ddf51c0c951d308def610aae5bcab791893fb94d3d041990e8bbcc68798bad2.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                595,
+                463,
+                627
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This statement yields the lemma via an interesting argument. Let M be the number of minimum cuts in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The survival of each of these cuts is a mutually exclusive event, and the total probability of these events adds up to at most 1. Hence "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M / ( n ( n - 1 ) / 2 ) \\leq 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", thereby giving the desired bound."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                639,
+                784,
+                696
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider an arbitrary iteration in the random contraction process, and let H be a graph at the beginning of this iteration. Since the process of contraction cannot decrease the capacity of the minimum cut, the capacity of each cut in H is at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "This holds for cuts separating one vertex of H from the rest. Therefore, the degree of each vertex in H must be at least c. Hence, H must have at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c m / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "edges, where m is the number of vertices in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                696,
+                786,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "298"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "28 Counting Problems"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                445,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                221,
+                112,
+                784,
+                155
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Now, the conditional probability that cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( C , { \\overline { { C } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "survives the current iteration, given that it has survived so far, is at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\left( 1 - \\frac { c } { c m / 2 } \\right) = \\left( 1 - 2 / m \\right) } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(this is simply the probability that the randomly chosen edge in this iteration is not picked from the cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( C , { \\overline { { C } } } ) )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The probability that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( C , { \\overline { { C } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "survives the whole algorithm is simply the product of these conditional probabilities. This gives"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                155,
+                784,
+                243
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ (C, \\overline {{C}}) \\text {   survives } ] \\geq \\left(1 - \\frac {2}{n}\\right) \\left(1 - \\frac {2}{n - 1}\\right) \\ldots \\left(1 - \\frac {2}{3}\\right) = \\frac {1}{\\binom {n} {2}}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/098a1990db733d12ca851c6cb2fe2e21631b2f55e712295a02f45b8f63423e49.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                254,
+                742,
+                287
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha \\geq 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we will say that a cut is an α-min cut if its capacity is at most αc."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                315,
+                784,
+                343
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 28.9 For any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha \\geq 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the number of α-min cuts in G is at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n ^ { 2 \\alpha }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                350,
+                779,
+                365
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: We will prove the lemma for the case that α is a half-integer. The proof for arbitrary α follows by applying the same ideas to generalized binomial coeficients. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 \\alpha = k"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                379,
+                784,
+                420
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider the following two-phase process: First, run the random contraction algorithm until there are k vertices remaining in the graph. Next, pick a random cut among all "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 ^ { k - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cuts in this graph. This will define a cut in the original graph."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                420,
+                784,
+                478
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( C , { \\overline { { C } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be any α-min cut in G. We will show that the probability that it survives the two phase process is at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / n ^ { 2 \\alpha }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", thereby proving the desired bound."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                478,
+                784,
+                521
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let H be the graph at the beginning of an arbitrary iteration in the first phase. As argued in Lemma 28.8, if H has m vertices, it has at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m c / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "edges. Therefore, the conditional probability that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( C , { \\overline { { C } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "survives the current iteration, given that it has survived so far, is at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { 1 - \\frac { \\alpha c } { m c / 2 } = 1 - 2 \\alpha / m . } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "The probability that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( C , { \\overline { { C } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "survives the first phase is at least"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                521,
+                784,
+                596
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\left(1 - \\frac {2 \\alpha}{n}\\right) \\left(1 - \\frac {2 \\alpha}{n - 1}\\right) \\ldots \\left(1 - \\frac {2 \\alpha}{3}\\right) = \\frac {1}{\\binom {n} {k}}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/69741d1143cf350bc3312acb822865b5d095722d07f8478d67fa1cff66c43a86.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                606,
+                601,
+                640
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The conditional probability that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( C , { \\overline { { C } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "survives the second phase, given that it has survived the first, is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 2 ^ { k - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                653,
+                784,
+                682
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ (C, \\overline {{C}}) \\text { survives   both   phases } ] \\geq \\frac {1}{\\binom {n} {k} 2 ^ {k - 1}} \\geq \\frac {1}{n ^ {k}} = \\frac {1}{n ^ {2 \\alpha}}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/bfc57016fcd1f426606a445794ad5814d9b62634819c13feaa642a0db11b2c5a.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                692,
+                687,
+                725
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "28.2 Network reliability"
+                    }
+                ]
+            },
+            "bbox": [
+                554,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "299"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "28.2.2 Analysis"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                112,
+                364,
+                127
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Recall that we are considering the case that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { F A I L } ( p ) \\leq n ^ { - 4 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We can now justify this choice. The failure probability of a minimum cut is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ^ { c } \\leq \\mathrm { F A I L } ( p ) \\leq"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n ^ { - 4 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ^ { c } = n ^ { - ( 2 + \\delta ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\delta \\geq 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now, by Lemma 28.9, for any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha \\geq 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the total failure probability of all cuts of capacity αc is at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ^ { \\alpha c } n ^ { 2 \\alpha } = n ^ { - \\alpha \\delta }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "This rapid decrease in the total failure probability of all cuts of capacity αc will enable us to bound the total failure probability of “large” capacity cuts."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                137,
+                784,
+                225
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 28.10 For any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha \\geq 1"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                234,
+                455,
+                248
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ \\text { some   cut   of   capacity } > \\alpha c \\text { fails } ] \\leq n ^ {- \\alpha \\delta} \\left(1 + \\frac {2}{\\delta}\\right).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/e8199494c8f626ed82a94b9711ce5b11c1899cbfbe97235a48793fe583decfff.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                261,
+                658,
+                292
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Number all cuts in G by increasing capacity. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the capacity and failure probability of the kth cut in this numbering. Let a be the number of the first cut of capacity greater than αc. It sufices to show that"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                311,
+                786,
+                367
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {k \\geq a} p _ {k} \\leq n ^ {- \\alpha \\delta} \\left(1 + \\frac {2}{\\delta}\\right).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/2155fbf8de10ccc88f9651cc898a52033099ce007c1a1c23a0a6876c53703687.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                378,
+                447,
+                414
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will evaluate this sum in two steps. First, we will consider the first "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n ^ { 2 \\alpha }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "terms. Each of these terms is at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ^ { \\alpha c } = n ^ { - \\alpha ( 2 + \\delta ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, their sum is at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n ^ { - \\alpha \\delta }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                426,
+                784,
+                470
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Next, let us bound the sum of the remaining terms. Clearly, this sum is bounded by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textstyle \\sum _ { k > n ^ { 2 \\alpha } } p _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". By Lemma 28.9, there are at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n ^ { 2 \\alpha }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cuts of \u0001capacity bounded by αc. Therefore, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { n ^ { 2 \\beta } } ~ \\geq ~ \\beta c"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Writing "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": " { k } = n ^ { 2 \\beta }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "we get "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { k } \\geq"
+                    },
+                    {
+                        "type": "text",
+                        "content": "c ln "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "ln "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                470,
+                786,
+                530
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "p ^ {k} \\leq (p ^ {c}) ^ {\\frac {\\ln k}{2 \\ln n}} = k ^ {- (1 + \\delta / 2)}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/49bb18e882179be69969d1d3f1e2529f9016e307251872fa3ae8f719564c02ec.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                541,
+                463,
+                560
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Therefore,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                574,
+                302,
+                587
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {k > n ^ {2 \\alpha}} p _ {k} \\leq \\int_ {n ^ {2 \\alpha}} ^ {\\infty} k ^ {- (1 + \\delta / 2)} \\mathrm{d} k \\leq \\frac {2}{\\delta} n ^ {- \\alpha \\delta}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/67db23bd5f1b568a2c3fec2f84a0b7dac2bee6b4cdf7ce57f48964b7a00a0ae0.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                598,
+                549,
+                636
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This proves the lemma."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                648,
+                400,
+                663
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 28.11 There is an FPRAS for estimating network reliability."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                678,
+                756,
+                693
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: We will first consider the case that each edge in graph G has the same failure probability, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                709,
+                784,
+                738
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "300"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "28 Counting Problems"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                445,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "If "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { F A I L } ( p ) > n ^ { - 4 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then we will resort to Monte Carlo sampling. Flip a coin with bias p for failure of each edge, and check if G is disconnected. Repeat this experiment "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log n / ( \\varepsilon ^ { 2 } \\mathrm { F A I L } ( p ) ) )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "times, and output the mean number of times G is disconnected. A straightforward application of Chernof bounds shows that the mean lies in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "[ ( 1 - \\varepsilon ) \\mathrm { F A I L } ( p ) , ( 1 + \\varepsilon ) \\mathrm { F A I L } ( p ) ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with high probability."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                199
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Next, assume that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { F A I L } ( p ) ~ \\leq ~ n ^ { - 4 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now, for any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon \\ > \\ 0 ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we want to determine α such that the total failure probability of all cuts of capacity "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": ">"
+                    },
+                    {
+                        "type": "text",
+                        "content": "αc is bounded by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon \\mathrm { F A I L } ( p )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". By Lemma 28.10, it sufices to find α such that"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                198,
+                786,
+                255
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "n ^ {- \\alpha \\delta} \\left(1 + \\frac {2}{\\delta}\\right) \\leq \\varepsilon \\text { FAIL } (p) \\leq \\varepsilon n ^ {- (2 + \\delta)}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/01ad6ccd7e427b591bebd7feb3da93a3268556ffd653264053243c7220b80018.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                265,
+                554,
+                296
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Solving, we get"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                307,
+                339,
+                323
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\alpha = 1 + \\frac {2}{\\delta} - \\frac {\\ln (\\varepsilon / 2)}{\\delta \\ln n} \\leq 2 - \\frac {\\ln (\\varepsilon / 2)}{2 \\ln n}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/f5a827682af2fe3a087ac75418c95236cd67e86e48a2e8ae21d8234698537164.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                334,
+                531,
+                363
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "By Lemma 28.9, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { n ^ { 2 \\alpha } } > \\alpha c ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For the value of α computed,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                374,
+                648,
+                390
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ \\text { one   of   the   first } n ^ {2 \\alpha} \\text { fails } ] \\geq (1 - \\varepsilon) \\text { FAIL } (p).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/a818b7f235f9e5b18191795530bdfc5eb2d670c8b12ebfcf43da924d86aac8db.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                401,
+                608,
+                418
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The first "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n ^ { 2 \\alpha } = O ( n ^ { 4 } / \\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cuts can be enumerated in polynomial time (see Exercises). We will use these to construct the corresponding DNF formula, and estimate the probability that it is satisfiable, as described above."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                431,
+                784,
+                474
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finally, we show how to “reduce” the case of arbitrary edge failure probabilities to the simpler case analyzed above. Suppose edge e has failure probability "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Choose a small parameter θ. Replace edge e with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k _ { e } = - ( \\ln p _ { e } ) / \\theta"
+                    },
+                    {
+                        "type": "text",
+                        "content": "parallel edges each with failure probability "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 - \\theta"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then, the probability that all "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "edges fail is"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                474,
+                786,
+                546
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "(1 - \\theta) ^ {- (\\ln p _ {e}) / \\theta}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/984d78a2a4b171fe67b32127e600e1014d97b1ad4f74597b7e788a9aeda10dcd.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                557,
+                386,
+                574
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\theta  0 ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "this failure probability converges to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let H be the graph obtained by doing this transformation on each edge of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "In the limit as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\theta  0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", each cut in H has the same failure probability as that in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                587,
+                783,
+                631
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us give an eficient implementation of this idea. All we really want is a listing of the “small” capacity cuts in G. Once this is done, we can apply the more general DNF counting algorithm developed in Exercise 28.5, where each variable is set to true with its own probability "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Observe that changing θ scales the capacities of cuts in H without changing their relative values. Thus, it sufices to assign a weight "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { o f } \\mathrm { ~ - ~ } \\ln p _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to each edge e of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and find “small” capacity cuts in this graph. This completes the proof. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                631,
+                786,
+                731
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "28.2 Network reliability"
+                    }
+                ]
+            },
+            "bbox": [
+                554,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "301"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                783,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "28.3 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                112,
+                376,
+                127
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.1 Given an FPRAS for a problem, show that its success probability can be improved to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 - \\delta"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\delta > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", by a multiplicative increase in the running time of only "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\cal O } ( \\log ( 1 / \\delta ) )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                155,
+                786,
+                198
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Run the FPRAS "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log ( 1 / \\delta ) )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "times and output the median value."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                198,
+                764,
+                212
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.2 Suppose we make the definition of an FPRAS more stringent by requiring it to have a fixed additive error α with high probability, i.e.,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                227,
+                784,
+                256
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ f (x) - \\alpha \\leq A (x) \\leq f (x) + \\alpha ] \\geq \\frac {3}{4}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/57757c9af289e1fcf1103e6cca52f868757b03a319ee8f26d8c499bd10d43521.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                267,
+                547,
+                296
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Show that if there were such an algorithm for a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\# \\mathbf { P } \\cdot"
+                    },
+                    {
+                        "type": "text",
+                        "content": "-complete problem, then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } { = } \\mathbf { N P }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                306,
+                784,
+                335
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.3 Show that if there were an FPRAS for counting the number of satisfying truth assignments to SAT then every problem in NP could be solved in random polynomial time. How weak an approximate counting algorithm for SAT sufices to give this consequence? What does this say for the question of approximately counting the number of solutions to other NP-complete problems?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                349,
+                786,
+                434
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Use solution amplification. Given SAT formula "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "define formula "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "over "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "new Boolean variables which is a tautology. Then the number of solutions of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\phi = f \\wedge f ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\# \\mathrm { f } \\cdot 2 ^ { k }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                434,
+                786,
+                476
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.4 Given a DNF formula "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Y"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a random variable that on a random truth assignment "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 ^ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau"
+                    },
+                    {
+                        "type": "text",
+                        "content": "satisfies "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and 0 otherwise. Show that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Y"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is an unbiased estimator for #f. How large can the ratio σ "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { \\partial } \\cdot ( Y ) / \\mathbf { E } [ Y ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                491,
+                784,
+                535
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.5 (Karp and Luby [165]) You are given a DNF formula "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on n Boolean variables, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { 1 } , \\ldots , x _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and probabilities "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { 1 } , \\ldots , p _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with which these variables are (independently) set to true. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "D"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the resulting probability distribution over the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 ^ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "truth assignments to the Boolean variables, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the probability that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is satisfied by a truth assignment picked from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "D"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Construct an FPRAS for estimating "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { \\cdot }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                546,
+                784,
+                634
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "q _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the probability that clause "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is satisfied by a truth assignment picked from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "D _ { : }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Q \\ = \\ \\textstyle \\sum _ { i } q _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now, consider random vari-\u0001able X that assigns to each satisfying truth assignment "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau \\ \\mathrm { a }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "probability of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\bf P r } _ { D } [ \\tau ] c ( \\tau ) / Q"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "X ( \\tau ) = Q / c ( \\tau )"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                633,
+                786,
+                692
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.6 A uniform generator for an NP problem Π is a randomized polynomial time algorithm "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that given an instance I of a problem, outputs either a solution to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "or else the special symbol "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { 6 6 } \\perp ^ { 5 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", such that"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                703,
+                784,
+                747
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "302"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "28 Counting Problems"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                445,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• each solution to I is output with the same probability, i.e., there is a number "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha \\in ( 0 , 1 ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                784,
+                143
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Pr[A outputs "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s ] = \\alpha"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for each solution s of I, and"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                155,
+                657,
+                171
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• the probability of outputting ⊥, i.e., failing to output a solution, is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "< 1 / 2"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                184,
+                781,
+                200
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Give a uniform generator for picking a random satisfying truth assignment to a given DNF formula."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                205,
+                784,
+                233
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: The essential idea behind the construction of random variable X works."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                233,
+                784,
+                263
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.7 (Jerrum, Valiant, and Vazirani [147]) Let Π be an NP problem that is self-reducible (see Section A.5 and Exercise 1.15). Show that there is an FPRAS for Π if there is an almost uniform generator for it. An almost uniform generator for Π is a randomized polynomial time algorithm A such that for any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mu > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and instance I of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I I ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "there is a number "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha \\in ( 0 , 1 ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                275,
+                786,
+                361
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• for each solution s of I, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P r } | \\mathcal { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "outputs "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s ] \\in [ ( 1 - \\mu ) \\alpha , ( 1 + \\mu ) \\alpha ]"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                369,
+                705,
+                384
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P r } [ \\mathcal { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "fails to output a solution] "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "< 1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                382,
+                561,
+                397
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• the running time of A is polynomial in |I| and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\log ( 1 / \\mu )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                397,
+                653,
+                412
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Observe that unlike an FPRAS, which can only achieve inverse polynomial error, a uniform generator can achieve inverse exponential error (µ), in polynomial time."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                419,
+                784,
+                461
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: For the forward direction, first construct a uniform generator, assuming that the FPRAS makes no error. (Traverse down the self-reducibility tree for I, with biases determined by estimates on the number of solutions. Accept leaf with appropriate probability, to achieve uniform generation.) Use the fact that the error probability of the FPRAS can be made exponentially small to obtain an almost uniform generator. For the reverse direction, obtain instance "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I _ { \\alpha }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| I _ { \\alpha } | < | I |"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and a good estimate of the ratio of the number of solutions to I and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I _ { \\alpha }"
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                462,
+                786,
+                577
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.8 (Jerrum, Valiant, and Vazirani [147]) This exercise leads to strong evidence that the problem of estimating the number of simple cycles in a directed graph is essentially not approximable. Show that if there is an almost uniform generator for this problem, then there is a randomized polynomia time algorithm for deciding if a given directed graph has a Hamiltonian cycle."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                589,
+                786,
+                663
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Obtain a graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from G that amplifies the number of cycles of each length. However, it amplifies bigger cycles more than it amplifies smaller cycles, so that most cycles in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are of maximum length and correspond to the largest cycles in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                674,
+                786,
+                732
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "28.3 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                620,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "303"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.9 Show that the random contraction algorithm of Lemma 28.8 can be used to obtain a randomized algorithm for finding a minimum cut in an undirected graph."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.10 (Karger and Stein [159]) Obtain a randomized algorithm for enumerating all α-min cuts in G using the random contraction algorithm and Lemma 28.9."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                167,
+                786,
+                210
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the next three exercises (from Vazirani and Yannakakis [252]), we will develop a deterministic algorithm for enumerating in an undirected graph by increasing weight, with polynomial delay, i.e., the algorithm spends polynomial time between successive outputs."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                221,
+                786,
+                279
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Assume that graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has n vertices besides s and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "numbered 1 to n. Every s–t cut in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "can be represented as an n bit "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 / 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "vector. A partially specified cut, in which the sides of only vertices numbered 1 to k are decided, is represented as a k bit "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 / 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "vector. Consider a binary tree "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of height n. Its leaves represent "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { s - t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cuts and internal nodes represent partially specified cuts. All cuts consistent with a partially specified cut lie in the subtree rooted at it. Clearly, a minimum weight cut in this subtree can be computed with one max-flow computation."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                279,
+                786,
+                394
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.11 Let a be an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "bit "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 / 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "vector representing a partially specified cut, as well as an internal node in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The subtree, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ^ { \\prime } { \\mathrm { . } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "rooted at this node is of height k and contains "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 ^ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "leaves (s–t cuts). Among these "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 ^ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cuts, let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { { a } ^ { \\prime } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a minimum weight cut. Show how the remaining "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 ^ { k } - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cuts of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "can be partitioned into k subtrees which are of height "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 , 1 , \\ldots , k - 1"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                404,
+                786,
+                476
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.12 Using a heap, give an algorithm for enumerating s–t cuts in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by increasing weight."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                487,
+                784,
+                514
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: The heap is initialized with a minimum cut in G. At an arbitrary point, the cuts not enumerated so far can be partitioned into subtrees (see Exercise 28.11). The heap contains a minimum cut from each subtree."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                516,
+                784,
+                560
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.13 Give an algorithm for enumerating all cuts in an undirected graph by increasing weight with polynomial delay."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                570,
+                784,
+                599
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Assume that the graph has a special vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "which always goes on side 0 of the cut, and n other vertices, numbered 1 to n. A cut is specified by an n bit vector specifying the sides of vertices numbered 1 to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The main diference arises in finding a minimum cut in the subtree rooted at the internal node "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 ^ { k } , k < n"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This is done by finding a minimum cut separating the vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s , 1 , \\ldots , i"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k \\leq i < n"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and picking the lightest of these cuts."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                599,
+                786,
+                699
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "28.14 (Karger [156]) Consider the generalization of network reliability to estimating the probability that G disconnects into r or more components, where r is a fixed constant. Obtain an FPRAS for this problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                709,
+                786,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "304"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "28 Counting Problems"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                445,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "28.4 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                112,
+                342,
+                127
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The counting class #P was defined by Valiant [249]. The FPRAS for counting DNF solutions is due to Karp and Luby [165], who also gave the definition of FPRAS (see also Karp, Luby, and Madras [166]). The FPRAS for estimating network reliability is due to Karger [156]."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                141,
+                786,
+                199
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Most algorithms for approximate counting work by constructing an almost uniform generator for the problem and appealing to the equivalence established in Exercise 28.7. Broder [33] introduced the use of rapidly mixing Markov chains for almost uniform generation (see also Mihail [205])."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                198,
+                786,
+                255
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Jerrum and Sinclair [145] gave the first FPRAS using this approach, for counting the number of perfect matchings in dense bipartite graphs (each vertex should have a degree "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\geq n / 2 ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "see also Section 30.3). They also showed that a crude approximate counter, with polynomial error, can be transformed into an FPRAS (with inverse polynomial error), by defining an appropriate Markov chain on the self-reducibility tree of an instance. As a result, #P-complete problems either admit an FPRAS or are essentially not approximable at all (see Exercise 28.8) For Markov–chain based approximate counting algorithms, see Jerrum and Sinclair [142], Sinclair [242], and the references in Section 30.3."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                786,
+                399
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "28.4 Notes"
+                    }
+                ]
+            },
+            "bbox": [
+                643,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "305"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ]
+]

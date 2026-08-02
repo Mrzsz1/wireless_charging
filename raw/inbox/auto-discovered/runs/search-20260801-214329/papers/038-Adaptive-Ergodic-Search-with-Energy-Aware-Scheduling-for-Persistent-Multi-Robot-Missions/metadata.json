@@ -1,0 +1,47 @@
+{
+  "title": "Adaptive Ergodic Search with Energy-Aware Scheduling for Persistent Multi-Robot Missions",
+  "authors": [
+    "Kaleb Ben Naveed",
+    "Devansh R. Agrawal",
+    "Rahul Kumar",
+    "Dimitra Panagou"
+  ],
+  "abstract": "Autonomous robots are increasingly deployed for long-term information-gathering tasks, which pose two key challenges: planning informative trajectories in environments that evolve across space and time, and ensuring persistent operation under energy constraints. This paper presents a unified framework, mEclares, that addresses both challenges through adaptive ergodic search and energy-aware scheduling in multi-robot systems. Our contributions are two-fold: (1) we model real-world variability using stochastic spatiotemporal environments, where the underlying information evolves unpredictably due to process uncertainty. To guide exploration, we construct a target information spatial distribution (TISD) based on clarity, a metric that captures the decay of information in the absence of observations and highlights regions of high uncertainty; and (2) we introduce Robustmesch (Rmesch), an online scheduling method that enables persistent operation by coordinating rechargeable robots sharing a single mobile charging station. Unlike prior work, our approach avoids reliance on preplanned schedules, static or dedicated charging stations, and simplified robot dynamics. Instead, the scheduler supports general nonlinear models, accounts for uncertainty in the estimated position of the charging station, and handles central node failures. The proposed framework is validated through real-world hardware experiments, and feasibility guarantees are provided under specific assumptions.",
+  "published_date": "2025-05-16",
+  "updated_date": "2025-05-16",
+  "year": 2025,
+  "doi": "",
+  "arxiv_id": "2505.11663",
+  "landing_url": "https://arxiv.org/abs/2505.11663v1",
+  "pdf_url": "https://arxiv.org/pdf/2505.11663v1",
+  "is_open_access": true,
+  "license": "",
+  "providers": [
+    "arxiv"
+  ],
+  "provider_ids": {
+    "arxiv": "2505.11663"
+  },
+  "matched_queries": [
+    "mobile charger scheduling"
+  ],
+  "score": 12.25,
+  "score_reasons": [
+    "标题命中：energy, scheduling",
+    "摘要命中：charging, dynamic, mobile, rechargeable",
+    "近年文献"
+  ],
+  "local_pdf": "raw/inbox/auto-discovered/runs/search-20260801-214329/papers/038-Adaptive-Ergodic-Search-with-Energy-Aware-Scheduling-for-Persistent-Multi-Robot-Missions/paper.pdf",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "arxiv"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260801-214329",
+  "triage_status": "pending",
+  "selected_by_user": false,
+  "acquired_at": "2026-08-01T13:43:29+00:00",
+  "selected_at": "",
+  "canonicalized_at": "",
+  "discovery_status": "candidate",
+  "retrieved_at": "2026-08-01T13:46:45+00:00"
+}

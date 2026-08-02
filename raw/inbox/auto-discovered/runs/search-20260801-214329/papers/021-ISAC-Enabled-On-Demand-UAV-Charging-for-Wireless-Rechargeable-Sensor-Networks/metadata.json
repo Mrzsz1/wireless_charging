@@ -1,0 +1,49 @@
+{
+  "title": "ISAC-Enabled On-Demand UAV Charging for Wireless Rechargeable Sensor Networks",
+  "authors": [
+    "Muhammad Umar Farooq Qaisar",
+    "Lin Zhang",
+    "Paolo Bellavista",
+    "Shehzad Ashraf Chaudhry",
+    "Shamsher Ullah",
+    "Chang Liu"
+  ],
+  "abstract": "Unmanned aerial vehicles (UAVs) equipped with wireless power transfer (WPT) extend the lifetime of wireless rechargeable sensor networks (WRSNs) by delivering energy on demand. This article presents an integrated sensing and communication (ISAC)-enabled on-demand UAV charging framework coordinated by a central base station. A prioritized charging queue captures node urgency and service cost through residual energy, traffic load, estimated UAV travel time, and flight-direction alignment. This bidirectional coupling ensures that scheduling decisions shape the UAV trajectory, while updated mobility estimates from ISAC dynamically reorder the queue. ISAC-assisted estimation of UAV distance, speed, and position updates travel-time predictions under mobility uncertainty. A time-allocated partial charging policy distributes limited hover time across queued nodes according to criticality. Simulations show gains in energy usage efficiency, travel distance, and charging delay compared with representative baselines. We discuss deployment considerations, including computational overhead, scalability, and parameter selection, to aid practitioners evaluating the framework for IoT scenarios.",
+  "published_date": "2026-07-26",
+  "updated_date": "2026-07-26",
+  "year": 2026,
+  "doi": "",
+  "arxiv_id": "2607.23572",
+  "landing_url": "https://arxiv.org/abs/2607.23572v1",
+  "pdf_url": "https://arxiv.org/pdf/2607.23572v1",
+  "is_open_access": true,
+  "license": "",
+  "providers": [
+    "arxiv"
+  ],
+  "provider_ids": {
+    "arxiv": "2607.23572"
+  },
+  "matched_queries": [
+    "wireless rechargeable sensor networks"
+  ],
+  "score": 14.75,
+  "score_reasons": [
+    "标题命中：charging, rechargeable, sensor",
+    "摘要命中：dynamic, energy, scheduling",
+    "近年文献"
+  ],
+  "local_pdf": "raw/inbox/auto-discovered/runs/search-20260801-214329/papers/021-ISAC-Enabled-On-Demand-UAV-Charging-for-Wireless-Rechargeable-Sensor-Networks/paper.pdf",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "arxiv"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260801-214329",
+  "triage_status": "pending",
+  "selected_by_user": false,
+  "acquired_at": "2026-08-01T13:43:29+00:00",
+  "selected_at": "",
+  "canonicalized_at": "",
+  "discovery_status": "candidate",
+  "retrieved_at": "2026-08-01T13:44:09+00:00"
+}

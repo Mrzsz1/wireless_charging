@@ -1,0 +1,52 @@
+{
+  "title": "A novel priority-driven heap-based scheduling algorithm for mobile chargers in wireless rechargeable sensor networks",
+  "authors": [
+    "M Kamaruzzaman",
+    "A Chandra…"
+  ],
+  "abstract": "… rechargeable sensor networks (WRSNs). This research paper proposes an efficient scheduling scheme for mobile charging … dynamically adjusting charging routes and schedules. The …",
+  "published_date": "",
+  "updated_date": "",
+  "year": 2026,
+  "doi": "10.1007/s12083-025-02117-2",
+  "arxiv_id": "",
+  "landing_url": "https://link.springer.com/article/10.1007/s12083-025-02117-2",
+  "pdf_url": "https://link.springer.com/content/pdf/10.1007/s12083-025-02117-2.pdf",
+  "is_open_access": true,
+  "license": "",
+  "providers": [
+    "serpapi",
+    "tavily"
+  ],
+  "provider_ids": {
+    "serpapi": "daVNqhnn4_EJ",
+    "tavily": "5617cf1ccdde4e907ce2"
+  },
+  "matched_queries": [
+    "mobile charger scheduling",
+    "wireless rechargeable sensor networks"
+  ],
+  "score": 21.0,
+  "score_reasons": [
+    "标题命中：charger, mobile, rechargeable, scheduling, sensor",
+    "摘要命中：charging, dynamic",
+    "近年文献",
+    "多源交叉命中"
+  ],
+  "local_pdf": "",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "serpapi",
+    "tavily"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260801-214329",
+  "triage_status": "selected",
+  "selected_by_user": true,
+  "acquired_at": "2026-08-01T13:43:29+00:00",
+  "selected_at": "2026-08-01T13:47:39+00:00",
+  "canonicalized_at": "",
+  "triage_note": "2026-08-01 自动增量：优先选择 2026/2025 最新且直接涉及 WRSN 充电调度、异构移动充电器、UAV/ISAC 或综述的候选；需以全文完成 A 编译。",
+  "candidate_rank": 1,
+  "source_manifest": "raw/inbox/auto-discovered/runs/search-20260801-214329/results.json",
+  "boundary": "selected inbox candidate; not canonical; not wiki evidence"
+}

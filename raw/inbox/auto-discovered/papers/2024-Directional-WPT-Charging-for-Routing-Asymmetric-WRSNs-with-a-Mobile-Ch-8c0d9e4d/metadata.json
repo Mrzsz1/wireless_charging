@@ -1,0 +1,50 @@
+{
+  "title": "Directional WPT Charging for Routing-Asymmetric WRSNs with a Mobile Charger",
+  "authors": [
+    "Zhenguo Gao",
+    "Qi Zhang",
+    "Qingyu Gao",
+    "Yunlong Zhao",
+    "Hsiao-Chun Wu"
+  ],
+  "abstract": "Mobile Charge Scheduling for wirelessly charging nodes in Wireless Rechargeable Sensor Networks (WRSNs) is a promising but still evolving research area. Existing research mostly assumes a symmetric environment, where the routing costs in opposite directions between two locations are considered identical. However, various factors such as terrain restrictions and wind or water flows may invalidate the routing-symmetric assumption in practical environments, thereby significantly limiting the performance of these solutions in routing-asymmetric WRSNs (RA-WRSNs). To address the routing-asymmetric challenges in mobile charge scheduling for WRSNs, this paper systematically investigates the underlying Asymmetric Directional Mobile Charger (DMC) Charge Scheduling (ADMCCS) problem, aiming to minimize energy loss while satisfying the charging demands of the network nodes. The DMC model is assumed because its results can be easily applied to the specialized case of an Omnidirectional Mobile Charger (OMC). To solve the ADMCCS problem, we propose a four-step framework. First, a minimum-size efficient charging position set is selected using our designed K-means-based Charging Position Generation (KCPG) algorithm, addressing the challenge of the unlimited charging position selection space. Next, minimum-size functional-equivalent direction sets at these positions are determined using an optimal algorithm, tackling the challenge of infinite charging directions. Subsequently, the optimal energy transmission time lengths for all directions at the positions are obtained by formulating and solving a Nonlinear Program (NLP) problem. Finally, the Lin-Kernighan Heuristic (LKH) algorithm for the Asymmetric Traveling Salesman Problem is adapted to obtain a highly probable optimal loop tour, addressing the routing-asymmetric challenge.",
+  "published_date": "2024-09-12",
+  "updated_date": "2024-09-12",
+  "year": 2024,
+  "doi": "",
+  "arxiv_id": "2409.07994",
+  "landing_url": "https://arxiv.org/abs/2409.07994v1",
+  "pdf_url": "https://arxiv.org/pdf/2409.07994v1",
+  "is_open_access": true,
+  "license": "",
+  "providers": [
+    "arxiv"
+  ],
+  "provider_ids": {
+    "arxiv": "2409.07994"
+  },
+  "matched_queries": [
+    "mobile charger scheduling"
+  ],
+  "score": 15.0,
+  "score_reasons": [
+    "标题命中：charger, charging, mobile",
+    "摘要命中：energy, rechargeable, scheduling, sensor",
+    "近年文献"
+  ],
+  "local_pdf": "raw/inbox/auto-discovered/papers/2024-Directional-WPT-Charging-for-Routing-Asymmetric-WRSNs-with-a-Mobile-Ch-8c0d9e4d/paper.pdf",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "arxiv"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-204713",
+  "triage_status": "promoted",
+  "selected_by_user": true,
+  "acquired_at": "2026-07-14T12:47:13+00:00",
+  "selected_at": "2026-07-14T15:49:13+00:00",
+  "canonicalized_at": "2026-07-14T16:03:19+00:00",
+  "triage_note": "用户于 2026-07-14 明确要求下载并使用 MinerU；PDF 已校验，MinerU 7/7 成功，现标记进入 canonical，等待 A 编译。",
+  "candidate_rank": 4,
+  "source_manifest": "raw/inbox/auto-discovered/runs/search-20260714-204713/results.json",
+  "boundary": "promoted to canonical; pending wiki ingest"
+}

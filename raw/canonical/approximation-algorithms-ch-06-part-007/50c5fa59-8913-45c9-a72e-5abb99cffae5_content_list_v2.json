@@ -1,0 +1,2469 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6 Feedback Vertex Set"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                109,
+                500,
+                127
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this chapter we will use the technique of layering, introduced in Chapter 2, to obtain a factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "approximation algorithm for:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                784,
+                285
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 6.1 (Feedback vertex set) Given an undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and a function w assigning nonnegative weights to its vertices, find a minimum weight subset of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\check { V }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "whose removal leaves an acyclic graph."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                290,
+                784,
+                335
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6.1 Cyclomatic weighted graphs"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                363,
+                552,
+                379
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Order the edges of G in an arbitrary order. The characteristic vector of a simple cycle C in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a vector in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { G F } [ 2 ] ^ { m } , m = | E |"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", which has 1’s in components corresponding to edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 \\mathrm { { s } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the remaining components. The cycle space of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the subspace of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { G F } [ 2 ] ^ { m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that is spanned by the characteristic vectors of all simple cycles of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the cyclomatic number of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denoted "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname { c y c } ( G )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", is the dimension of this space."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                393,
+                786,
+                479
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 6.2 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname { c y c } ( G ) = | E | - | V | + \\kappa ( G )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\kappa ( G )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denotes the number "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "o f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "connected components "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "o f G"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                487,
+                786,
+                517
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: The cycle space of a graph is the direct sum of the cycle spaces of its connected components, and so its cyclomatic number is the sum of the cyclomatic numbers of its connected components. Therefore, it is suficient to prove the theorem for a connected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                533,
+                786,
+                590
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a spanning tree in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For each nontree edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "define its fundamental cycle to be the unique cycle formed in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T \\cup \\{ e \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The set of characteristic vectors of all such cycles is linearly independent (each cycle includes an edge that is in no other fundamental cycle). Thus, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname { c y c } ( G ) \\geq | E | - | V | + 1"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                590,
+                786,
+                646
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Each edge e of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "defines a fundamental cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( S , { \\overline { { S } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G , S \\subset V ( S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\overline { S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are the vertex sets of two connected components formed by removing e from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Define the characteristic vector of a cut to be a vector in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { G F } [ 2 ] ^ { m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that has 1’s in components corresponding to the edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the cut and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 \\mathrm { { s } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the remaining components. Consider the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| V | - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "vectors defined by edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since each cycle must cross each cut an even number of times, these vectors are orthogonal to the cycle space of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Furthermore, these "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| V | - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "vectors are linearly independent, since each cut has an edge (the tree edge defining this cut) that is not in any of the other "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| V | - 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "cuts. Therefore the dimension of the orthogonal complement to the cycle space is at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| V | - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Hence, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname { c y c } ( G ) \\leq | E | - | V | + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Combining with the previous inequality we get cyc "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( G ) = | E | - | V | + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                646,
+                786,
+                747
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                186
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Denote by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\delta _ { G } ( v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the decrease in the cyclomatic number of the graph on removing vertex v. Since the removal of a feedback vertex set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F = \\{ v _ { 1 } , \\ldots , v _ { f } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "decreases the cyclomatic number of G down to 0,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                191,
+                784,
+                235
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\operatorname{cyc} (G) = \\sum_ {i = 1} ^ {f} \\delta_ {G _ {i - 1}} (v _ {i}),",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/acda9f093b2ae23327391aae6d10e261c5535305d1a1e47675b67bef2921dbe7.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                246,
+                438,
+                286
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { 0 } = G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and, for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i > 0 , G _ { i } = G - \\left\\{ v _ { 1 } , \\ldots , v _ { i } \\right\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". By Lemma 6.4 below, we get:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                298,
+                784,
+                328
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\operatorname{cyc} (G) \\leq \\sum_ {v \\in F} \\delta_ {G} (v).\\tag{6.1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/7b51ff7ede76ac390b1a8a349f6bd5b748e332aa7bcf2158dfaa7c3800fe1b1f.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                340,
+                416,
+                370
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us say that a function assigning vertex weights is cyclomatic if there is a constant "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that the weight of each vertex v is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c \\cdot \\delta _ { G } ( v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". By inequality (6.1), for such a weight function, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c \\cdot \\operatorname { c y c } ( G )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a lower bound on OPT. The importance of cyclomatic weight functions is established in Lemma 6.5 below, which shows that for such a weight function, any minimal feedback vertex set has a weight within twice the optimal."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                382,
+                786,
+                468
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\deg _ { G } ( v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the degree of v in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and comps "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( G - v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the number of connected components formed by removing v from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { \\ l }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The claim below follows in a straightforward way by applying Theorem 6.2 to G and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G - v"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                468,
+                786,
+                526
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Claim 6.3 For a connected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G , \\delta _ { G } ( v ) = \\deg _ { G } ( v ) - \\mathrm { c o m p s } ( G - v )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                533,
+                754,
+                550
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 6.4 Let H be a subgraph of G (not necessarily vertex induced). Then, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\delta _ { H } ( v ) \\leq \\delta _ { G } ( v )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                558,
+                784,
+                588
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: It is suficient to prove the lemma for the connected components of G and H containing v. We may thus assume w.l.o.g. that G and H are connected (H may be on a smaller set of vertices). By Claim 6.3, proving the following inequality is suficient:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                604,
+                786,
+                661
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\deg_ {H} (v) - \\operatorname{comps} (H - v) \\leq \\deg_ {G} (v) - \\operatorname{comps} (G - v).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/78f209b23271eeacaf5f40bfc1eab8058d45588bb0bb45f7c2e637eca6497d95.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                674,
+                658,
+                690
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will show that edges in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G \\mathrm { ~ - ~ } H"
+                    },
+                    {
+                        "type": "text",
+                        "content": "can only help this inequality. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { 1 } , c _ { 2 } , \\ldots , c _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be components formed by removing v from H. Edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G - H"
+                    },
+                    {
+                        "type": "text",
+                        "content": "not incident at v can only help merge some of these components (and of course, they don’t change the degree of v). An edge of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G - H"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that is incident at v can lead to an additional component, but this is compensated by the contribution the edge has to the degree of v. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                702,
+                786,
+                747
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "6.1 Cyclomatic weighted graphs"
+                    }
+                ]
+            },
+            "bbox": [
+                497,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "55"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 6.5 If F is a minimal feedback vertex set of G, then"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                172,
+                680,
+                187
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {v \\in F} \\delta_ {G} (v) \\leq 2 \\cdot \\operatorname{cyc} (G).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/36486c27d89bc1756b0a64a31ef32951b4131358fd18596497de1c3c50311964.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                198,
+                436,
+                229
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Since the cycle space of G is the direct sum of the cycle spaces of its connected components, it sufices to prove the lemma for a connected graph G."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                248,
+                784,
+                291
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F = \\{ v _ { 1 } , \\ldots , v _ { f } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and let k be the number of connected components obtained by deleting F from G. Partition these components into two types: those that have edges incident to only one of the vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and those that have edges incident to two or more vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let t and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k - t"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the number of components of the first and second type, respectively. We will prove that"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                291,
+                786,
+                376
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {i = 1} ^ {f} \\delta_ {G} (v _ {i}) = \\sum_ {i = 1} ^ {f} (\\deg_ {G} (v _ {i}) - \\operatorname{comps} (G - v _ {i})) \\leq 2 (| E | - | V |),",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/297fce21658d191e295c7788a245c25bfe0b2df763af93befa5cd6d840582174.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                388,
+                705,
+                429
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "thereby proving the lemma. Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textstyle \\sum _ { i = 1 } ^ { f }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "com "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { p s } ( G - v _ { i } ) = f + t"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, we are left to prove"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                443,
+                784,
+                474
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {i = 1} ^ {f} \\deg_ {G} (v _ {i}) \\leq 2 (| E | - | V |) + f + t.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/fb9e60478e06cc5ffd65c7f67d680840233dd3ab9045dc5da56a13980db7e567.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                485,
+                531,
+                527
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/1150e941c089e76e7dc56b58abc5fc44f929893bf6b760f061b81b15e7ed5b1c.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                300,
+                536,
+                704,
+                707
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a feedback vertex set, each of the k components is acyclic and is therefore a tree. Thus, the number of edges in these components is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| V | - f - k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Next, we put a lower bound on the number of edges in the cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( F , V - F )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                709,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "56"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "6 Feedback Vertex Set"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                445,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is minimal, each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { i } \\in F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must be in a cycle that contains no other vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must have at least two edges incident at one of the components. For each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", arbitrarily remove one of these edges from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", thus removing a total of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "edges. Now, each of the t components must still have at least one edge and each of the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k - t"
+                    },
+                    {
+                        "type": "text",
+                        "content": "components must still have at least two edges incident at "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, the number of edges in the cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( F , V - F )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f + t + 2 ( k - t ) = f + 2 k - t"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                214
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "These two facts imply that"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                212,
+                450,
+                227
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {i = 1} ^ {f} \\deg_ {G} (v _ {i}) \\leq 2 | E | - 2 (| V | - f - k) - (f + 2 k - t).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/d21faefb528c598b6ee4889281f068b78e1766d9842287a952f78d0f56f1ce55.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                239,
+                648,
+                279
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The lemma follows."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                290,
+                369,
+                305
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                768,
+                291,
+                784,
+                302
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Corollary 6.6 Let w be a cyclomatic weight function on the vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and let F be a minimal feedback vertex set in it. Then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w ( F ) \\leq 2 \\cdot \\mathrm { O P T }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                319,
+                781,
+                349
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6.2 Layering applied to feedback vertex set"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                385,
+                662,
+                401
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us now deal with arbitrary weighted graphs. Consider the following basic operation: Given graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and a weight function w, let"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                414,
+                784,
+                444
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "c = \\min _ {v \\in V} \\left\\{\\frac {w (v)}{\\delta_ {G} (v)} \\right\\}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/91e92fd3c38f3202ee3ea29f9e174e20e80546bb792418ae40cb51d059880d29.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                455,
+                405,
+                488
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The weight function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t ( v ) = c \\delta _ { G } ( v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the largest cyclomatic weight function in w. Define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w ^ { \\prime } ( v ) = w ( v ) - t ( v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be the residual weight function. Finally, let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the set of vertices having positive residual weight (clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V ^ { \\prime } \\subset V )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the subgraph of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "induced on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V ^ { \\prime }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                499,
+                784,
+                556
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Using this basic operation, decompose G into a nested sequence of induced subgraphs, until an acyclic graph is obtained, each time finding the largest cyclomatic weight function in the current residual weight function. Let these graphs be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = G _ { 0 } \\supset G _ { 1 } \\supset \\cdot \\cdot \\cdot \\supset G _ { k } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is acyclic; "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the induced subgraph of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on vertex set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { i } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V = V _ { 0 } \\supset V _ { 1 } \\supset \\cdots \\supset V _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { i } , i ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 , \\ldots , k - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the cyclomatic weight function defined on graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Thus, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w _ { 0 } = w"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the residual weight function for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { 0 } , \\ t _ { 0 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the largest cyclomatic weight function in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w _ { 0 } , w _ { 1 } = w _ { 0 } - t _ { 0 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the residual weight function for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and so on. Finally, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the residual weight function for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For convenience, define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { k } = w _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since the weight of a vertex v has been decomposed into the weights "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { 0 } , t _ { 1 } , \\ldots , t _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we have"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                556,
+                784,
+                714
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {i: v \\in V _ {i}} t _ {i} (v) = w (v).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/ebbfbc1bc4d75a57ad19af2df3e56fa7a639bc0246bb7c308ded7fa5c45835f6.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                725,
+                406,
+                756
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "6.2 Layering applied to feedback vertex set"
+                    }
+                ]
+            },
+            "bbox": [
+                423,
+                87,
+                729,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "57"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The next fact suggests an algorithm for constructing a feedback vertex set on which Lemma 6.5 can be applied."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                142
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 6.7 Let H be a subgraph of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", induced on vertex set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V ^ { \\prime } \\subset"
+                    },
+                    {
+                        "type": "text",
+                        "content": "V. Let F be a minimal feedback vertex set in H, and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ^ { \\prime } \\subseteq V - V ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a minimal set such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F \\cup F ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a feedback vertex set for G. Then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F \\cup F ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a minimal feedback vertex set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f o r G"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                149,
+                786,
+                206
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Since F is minimal for H, for each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in F"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", there is a cycle, say C, in H that does not use any other vertex of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ^ { \\prime } \\cap V ^ { \\prime } = \\bar { \\varnothing } , C"
+                    },
+                    {
+                        "type": "text",
+                        "content": "uses only one vertex, v, from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F \\cup F ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as well, and so v is not redundant. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                219,
+                786,
+                263
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "After the entire decomposition, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F _ { k } = \\emptyset"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a minimal feedback vertex set of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { k } . { \\mathrm { F o r ~ } } i = k , k - 1 , \\ldots , 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the minimal feedback vertex set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "found in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is extended in a minimal way using vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { i - 1 } - V _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to yield a minimal feedback vertex set, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F _ { i - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The last set, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F _ { 0 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", is a feedback vertex set for G."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                269,
+                786,
+                340
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/b605fb2ecec25f10e4168cd3da1a453414ac4714a5572fa8e0ed155094052ee5.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                300,
+                350,
+                704,
+                502
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 6.8 (Feedback vertex set)\n1. Decomposition phase\n     "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H \\leftarrow G, w' \\leftarrow w, i \\leftarrow 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "\n    While H is not acyclic,\n     "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c \\leftarrow \\min_{u \\in H} \\left\\{ \\frac{w'(u)}{\\delta_H(u)} \\right\\}"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G_i \\leftarrow H, t_i \\leftarrow c \\cdot \\delta_{G_i}, w' \\leftarrow w' - t_i"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H \\leftarrow"
+                    },
+                    {
+                        "type": "text",
+                        "content": " the subgraph of  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G_i"
+                    },
+                    {
+                        "type": "text",
+                        "content": " induced by vertices u with  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w'(u) > 0"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i \\leftarrow i + 1,"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k \\leftarrow i, G_k \\leftarrow H"
+                    },
+                    {
+                        "type": "text",
+                        "content": "\n2. Extension phase\n     "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F_k \\leftarrow \\emptyset"
+                    },
+                    {
+                        "type": "text",
+                        "content": "\n    For  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i = k, \\ldots, 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", extend  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F_i"
+                    },
+                    {
+                        "type": "text",
+                        "content": " to a feedback vertex set  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F_{i-1}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " of  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G_{i-1}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " by adding a minimal set of vertices from  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V_{i-1} - V_i"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".\n    Output  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F_0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                518,
+                784,
+                750
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "58"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "6 Feedback Vertex Set"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                445,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 6.9 Algorithm 6.8 achieves an approximation guarantee of factor 2 for the feedback vertex set problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                786,
+                142
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be an optimal feedback vertex set for G. Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is an induced subgraph of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G , F ^ { * } \\cup V _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must be a feedback vertex set for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(not necessarily optimal). Since the weights of vertices have been decomposed into the functions "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { i } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we have"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                153,
+                784,
+                212
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm{OPT} = w (F ^ {*}) = \\sum_ {i = 0} ^ {k} t _ {i} (F ^ {*} \\cap V _ {i}) \\geq \\sum_ {i = 0} ^ {k} \\mathrm{OPT} _ {i},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/cf0f893760443a295149bd9ae932cb8009017beef8f80c97a2886b7af0144b31.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                222,
+                600,
+                263
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the weight of an optimal feedback vertex set of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with weight function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                272,
+                784,
+                300
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "By decomposing the weight of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F _ { 0 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we get"
+                    }
+                ]
+            },
+            "bbox": [
+                247,
+                302,
+                556,
+                316
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "w (F _ {0}) = \\sum_ {i = 0} ^ {k} t _ {i} (F _ {0} \\cap V _ {i}) = \\sum_ {i = 0} ^ {k} t _ {i} (F _ {i}).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/c8061ea48f70bfa3a08c29b5e5c9ece4a26376cb86d84c60e9bc3ef11904041b.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                326,
+                534,
+                366
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "By Lemma 6.7, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a minimal feedback vertex set in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 \\leq i \\leq"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k - 1 , t _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a cyclomatic weight function, by Lemma 6.5, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { i } ( F _ { i } ) \\le 2 \\mathrm { O P T } _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "; recall that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F _ { k } = \\emptyset"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                376,
+                784,
+                419
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "w (F _ {0}) \\leq 2 \\sum_ {i = 0} ^ {k} \\mathrm{OPT} _ {i} \\leq 2 \\cdot \\mathrm{OPT}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/ff2e1d3404921c32b9934b850b649e50086e5c060effbf7c666189e25bbbac44.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                429,
+                499,
+                470
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 6.10 A tight example for the algorithm is given by the graph obtained by removing a perfect matching from a complete bipartite graph and duplicating every edge. (Note that the algorithm works for parallel edges as well. If a tight example without parallel edges is desired, then a vertex with very high weight can be placed on every edge.)"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                502,
+                786,
+                575
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/24096af7f19c474a385079b577b3ad014e2e2e45cf8ea5927052cb4eee8012ae.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                403,
+                588,
+                605,
+                750
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "6.2 Layering applied to feedback vertex set"
+                    }
+                ]
+            },
+            "bbox": [
+                421,
+                87,
+                731,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "59"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Assuming that the graph is cyclomatic weighted, each vertex receives the same weight. The decomposition obtained by the algorithm consists of only one nontrivial graph, G itself, on which the algorithm computes a minima feedback vertex set. A possible output of the algorithm is the set shown above; this set contains "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 n - 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "vertices as compared with the optimum of n given by one side of the bipartition. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                200
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6.3 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                235,
+                364,
+                250
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "6.1 A natural greedy algorithm for finding a minimum feedback vertex set is to repeatedly pick and remove the most cost-efective vertex, i.e., a vertex minimizing "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w ( v ) / \\delta _ { H } ( v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where H is the current graph, until there are no more cycles left. Give examples to show that this is not a constant factor algorithm. What is the approximation guarantee of this algorithm?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                279,
+                786,
+                351
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "6.2 Give an approximation factor preserving reduction from the vertex cover problem to the feedback vertex set problem (thereby showing that improving the factor for the latter problem will also improve it for the former; also see Section 30.1)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                363,
+                786,
+                422
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "6.4 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                450,
+                331,
+                466
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 6.8 is due to Bafna, Berman, and Fujito [19] (see also Becker and Geiger [23] and Chudak, Goemans, Hochbaum, and Williamson [46] for other factor 2 algorithms for the feedback vertex set problem)."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                480,
+                784,
+                524
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "60"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "6 Feedback Vertex Set"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                445,
+                99
+            ]
+        }
+    ]
+]

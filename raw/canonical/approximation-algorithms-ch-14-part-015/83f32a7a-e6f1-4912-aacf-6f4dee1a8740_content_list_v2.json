@@ -1,0 +1,1890 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "14 Rounding Applied to Set Cover"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                223,
+                109,
+                648,
+                129
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will introduce the technique of LP-rounding by using it to design two approximation algorithms for the set cover problem, Problem 2.1. The first is a simple rounding algorithm achieving a guarantee of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the frequency of the most frequent element. The second algorithm, achieving an approximation guarantee of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", illustrates the use of randomization in rounding."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                786,
+                340
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider the polyhedron defined by feasible solutions to an LP-relaxation. For some problems, one can find special properties of extreme point solutions of this polyhedron, which can yield rounding-based algorithms. One such property is half-integrality, i.e., in each extreme point solution, every coordinate is 0, 1, or 1/2. In Section 14.3 we will show that the vertex cover problem possesses this remarkable property. This directly gives a factor 2 algorithm for weighted vertex cover; namely, find an optimal extreme point solution and round all the halves to 1. A more general property, together with an enhanced rounding algorithm, called iterated rounding, is introduced in Chapter 23."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                340,
+                786,
+                470
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "14.1 A simple rounding algorithm"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                498,
+                571,
+                514
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A linear programming relaxation for the set cover problem is given in LP(13.2). One way of converting a solution to this linear program into an integral solution is to round up all nonzero variables to 1. It is easy to construct examples showing that this could increase the cost by a factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varOmega ( n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(see Example 14.3). However, this simple algorithm does achieve the desired approximation guarantee of f (see Exercise 14.1). Let us consider a slight modification of this algorithm that is easier to prove and picks fewer sets in general:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                527,
+                786,
+                643
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 14.1 (Set cover via LP-rounding)"
+                    }
+                ]
+            },
+            "bbox": [
+                235,
+                664,
+                608,
+                680
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Find an optimal solution to the LP-relaxation."
+                    }
+                ]
+            },
+            "bbox": [
+                240,
+                686,
+                589,
+                700
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Pick all sets S for which "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { S } \\geq 1 / f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in this solution."
+                    }
+                ]
+            },
+            "bbox": [
+                238,
+                700,
+                625,
+                715
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 14.2 Algorithm "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / . 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "achieves an approximation factor of f for the set cover problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                786,
+                142
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Let C be the collection of picked sets. Consider an arbitrary element "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Since e is in at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "sets, one of these sets must be picked to the extent of at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the fractional cover. Thus, e is covered by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { C } _ { : }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and hence "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { C }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a valid set cover. The rounding process increases "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for each set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\in { \\mathcal { C } } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "by a factor of at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, the cost of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { C }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "times the cost of the fractional cover, thereby proving the desired approximation guarantee. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                156,
+                786,
+                244
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The set cover instance arising from a vertex cover problem has "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f = 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Therefore, Algorithm 14.1 gives a factor 2 approximation algorithm for the weighted vertex cover problem, thus matching the approximation guarantee established in Theorem 2.7."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                250,
+                784,
+                307
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 14.3 Let us give a tight example for Algorithm 14.1. For simplicity, we will view a set cover instance as a hypergraph: sets correspond to vertices and elements correspond to hyperedges (this is a generalization of the transformation that helped us view a set cover instance with each element having frequency 2 as a vertex cover instance)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                313,
+                786,
+                385
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { 1 } , \\dots , V _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be k disjoint sets of cardinality n each. The hypergraph has vertex set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V = V _ { 1 } \\cup \\ldots \\cup V _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n ^ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "hyperedges; each hyperedge picks one vertex from each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In the set cover instance, elements correspond to hyperedges and sets correspond to vertices. Once again, inclusion corresponds to incidence. Each set has cost 1. Picking each set to the extent of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "gives an optimal fractional cover of cost n. Given this fractional solution, the rounding algorithm will pick all nk sets. On the other hand, picking all sets corresponding to vertices in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "gives a set cover of cost n. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                385,
+                786,
+                501
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "14.2 Randomized rounding"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                536,
+                504,
+                552
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A natural idea for rounding an optimal fractional solution is to view the fractions as probabilities, flip coins with these biases and round accordingly. Let us show how this idea leads to an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor randomized approximation algorithm for the set cover problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                565,
+                784,
+                623
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "First, we will show that each element is covered with constant probability by the sets picked by this process. Repeating this process "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "times, and picking a set if it is chosen in any of the iterations, we get a set cover with high probability, by a standard coupon collector argument. The expected cost of cover picked in this manner is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log n ) { \\cdot } \\mathrm { O P T } _ { f } \\leq O ( \\log n ) { \\cdot } \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { f }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the cost of an optimal solution to the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "-relaxation. Applying Markov’s Inequality, we convert this into a high probability statement. We provide details below."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                621,
+                786,
+                737
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "120"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "14 Rounding Applied to Set Cover"
+                    }
+                ]
+            },
+            "bbox": [
+                277,
+                87,
+                527,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { \\boldsymbol { x } } = \\mathbf { \\boldsymbol { p } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be an optimal solution to the linear program. For each set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", pick S with probability "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the entry corresponding to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { \\delta } _ { p . }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { C }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the collection of sets picked. The expected cost of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { C } _ { : }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                156
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {E} [ \\mathrm{cost} (\\mathcal {C}) ] = \\sum_ {S \\in \\mathcal {S}} \\mathbf {P r} [ S \\text {   is   picked } ] \\cdot c _ {S} = \\sum_ {S \\in \\mathcal {S}} p _ {S} \\cdot c _ {S} = \\mathrm{OPT} _ {f}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/d200448b30a97b4ee470bd11fb60b2f7b05ae12fb2ef13858e1ffb39f03112f9.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                168,
+                705,
+                199
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Next, let us compute the probability that an element "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a \\in U"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is covered by C. Suppose that a occurs in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "sets of S. Let the probabilities associated with these sets be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { 1 } , \\ldots , p _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since a is fractionally covered in the optimal solution, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { 1 } + p _ { 2 } + \\cdot \\cdot \\cdot + p _ { k } \\ge 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Using elementary calculus, it is easy to show that under this condition, the probability that a is covered by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { C }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is minimized when each of the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p _ { i } \\mathrm { ^ { * } s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Thus,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                211,
+                786,
+                297
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ a \\text {   is   covered   by   } \\mathcal {C} ] \\geq 1 - \\left(1 - \\frac {1}{k}\\right) ^ {k} \\geq 1 - \\frac {1}{e},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/33ae4b4529b6b7317929511232c90625be1e34d68055fd1e7d2b5f30de7580d4.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                310,
+                620,
+                343
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where e is the base of natural logarithms. Hence each element is covered with constant probability by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { C } ."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                355,
+                784,
+                382
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To get a complete set cover, independently pick c log n such subcollections, and compute their union, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\scriptstyle { \\mathcal { C } } ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where c is a constant such that"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                384,
+                784,
+                413
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\left(\\frac {1}{e}\\right) ^ {c \\log n} \\leq \\frac {1}{4 n}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b913384dfd39dd92cf8acbd561474c2b6312ee0f62c844bc4176728f0029fcae.jpg"
+                }
+            },
+            "bbox": [
+                265,
+                424,
+                393,
+                458
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Now,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                470,
+                265,
+                483
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Pr[a is not covered by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { C } ^ { \\prime } ] \\leq \\left( \\frac { 1 } { e } \\right) ^ { c \\log n } \\leq \\frac { 1 } { 4 n } ."
+                    }
+                ]
+            },
+            "bbox": [
+                262,
+                497,
+                603,
+                530
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Summing over all elements "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a \\in U"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we get"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                543,
+                529,
+                558
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ \\mathcal {C} ^ {\\prime} \\text {   is   not   a   valid   set   cover } ] \\leq n \\cdot \\frac {1}{4 n} \\leq \\frac {1}{4}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/a2bf915bcb17423bc93a9460d90374273ab0908d633a767f1bf82299484be4f5.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                569,
+                591,
+                596
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { E } [ \\mathcal { C } ^ { \\prime } ] \\leq \\mathrm { O P T } _ { f } \\cdot c \\log n"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Applying Markov’s Inequality (see Section B.2) with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t = \\mathrm { O P T } _ { f } \\cdot 4 c \\log n ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we get"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                608,
+                784,
+                638
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ \\mathrm{cost} (\\mathcal {C} ^ {\\prime}) \\geq \\mathrm{OPT} _ {f} \\cdot 4 c \\log n ] \\leq \\frac {1}{4}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/2a6633d4ad2adf1a746c2f6f59ee1b1ec83d66131bd5c2b36c5839c0c8d1559a.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                650,
+                527,
+                678
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The probability of the union of the two undesirable events is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\leq 1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Hence,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                689,
+                779,
+                705
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathbf {P r} [ \\mathcal {C} ^ {\\prime} \\text {   is   a   valid   set   cover   and   has   cost   } \\leq \\mathrm{OPT} _ {f} \\cdot 4 c \\log n ] \\geq \\frac {1}{2}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/5aaf0f800bc9854b2a006326ba68a4ad5b83ebf9cddf2c667699c875b5103a1d.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                715,
+                724,
+                744
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "14.2 Randomized rounding"
+                    }
+                ]
+            },
+            "bbox": [
+                534,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "121"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                783,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "14 Rounding Applied to Set Cover"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                277,
+                87,
+                527,
+                102
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Observe that we can verify in polynomial time whether "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { C } ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "satisfies both these conditions. If not, we repeat the entire algorithm. The expected number of repetitions needed at most 2."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                112,
+                786,
+                156
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "14.3 Half-integrality of vertex cover"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                185,
+                591,
+                200
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider the vertex cover problem with arbitrary weights. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c : V \\to \\mathbf { Q } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the function assigning nonnegative weights to the vertices. The integer program for this problem is:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                214,
+                784,
+                259
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text { minimize } & \\sum_ {v \\in V} c (v) x _ {v} \\\\ \\text { subject   to } & x _ {u} + x _ {v} \\geq 1, \\quad (u, v) \\in E \\\\ & x _ {v} \\in \\{0, 1 \\}, \\quad v \\in V \\end{array}\\tag{14.1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/6c3c5d914bd55a3208444c3adbb6e69f25febee387f8cfeb25fb913d2123ecd6.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                269,
+                557,
+                343
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The LP-relaxation of this integer program is:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                356,
+                559,
+                370
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text { minimize } & \\sum_ {v \\in V} c (v) x _ {v} \\\\ \\text { subject   to } & x _ {u} + x _ {v} \\geq 1, \\quad (u, v) \\in E \\\\ & x _ {v} \\geq 0, \\quad v \\in V \\end{array}\\tag{14.2}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/7221c2150d804c12fb4516c435e226b9b66439def72569e319de10386c93a88e.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                382,
+                557,
+                457
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Recall that an extreme point solution of a set of linear inequalities is a feasible solution that cannot be expressed as convex combination of two other feasible solutions. A half-integral solution to LP (14.2) is a feasible solution in which each variable is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 , 1 , \\mathrm { o r ~ } 1 / 2"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                469,
+                786,
+                527
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 14.4 Let x be a feasible solution to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L P \\ ( 1 \\not { q } . \\not { Q } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that is not halfintegral. Then, x is the convex combination of two feasible solutions and is therefore not an extreme point solution for the set of inequalities in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L P \\left( { 1 4 . 2 } \\right)"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                536,
+                786,
+                580
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Consider the set of vertices for which solution x does not assign half-integral values. Partition this set as follows."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                595,
+                784,
+                624
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "V _ {+} = \\left\\{v \\left| \\frac {1}{2} <   x _ {v} <   1 \\right. \\right\\}, \\quad V _ {-} = \\left\\{v \\left| 0 <   x _ {v} <   \\frac {1}{2} \\right. \\right\\}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/5dc3807a9e963c3272e75fd06ec1a16888664f8fabad5160014555687c03008a.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                634,
+                660,
+                668
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", define the following two solutions."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                678,
+                554,
+                693
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "y _ {v} = \\left\\{ \\begin{array}{c c} x _ {v} + \\varepsilon , & x _ {v} \\in V _ {+} \\\\ x _ {v} - \\varepsilon , & x _ {v} \\in V _ {-} \\\\ x _ {v}, o t h e r w i s e \\end{array} \\right., \\quad z _ {v} = \\left\\{ \\begin{array}{c c} x _ {v} - \\varepsilon , & x _ {v} \\in V _ {+} \\\\ x _ {v} + \\varepsilon , & x _ {v} \\in V _ {-} \\\\ x _ {v}, o t h e r w i s e. \\end{array} \\right.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/60f866a834c3270e4c8d785b55f612121fa8cf76bf9cfcacb4fbf04b42407ac1.jpg"
+                }
+            },
+            "bbox": [
+                289,
+                703,
+                710,
+                749
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "122"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "By assumption, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { + } \\cup V _ { - } \\ne \\emptyset"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and so x is distinct from y and z. Furthermore, x is a convex combination of y and z, since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pmb { x } = \\frac { 1 } { 2 } ( \\pmb { y } + \\pmb { z } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We will show, by choosing "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "small enough, that y and z are both feasible solutions for LP (14.2), thereby establishing the lemma."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                170
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Ensuring that all coordinates of y and z are nonnegative is easy. Next, consider the edge constraints. Suppose "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { u } + x _ { v } > 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Clearly, by choosing ε small enough, we can ensure that y and z do not violate the constraint for such an edge. Finally, consider an edge such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { u } + x _ { v } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". There are essentially three possibilities for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { u }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { v } . \\ x _ { u } = x _ { v } = { \\textstyle { \\frac { 1 } { 2 } } } ; \\ x _ { u } = 0 , x _ { v } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "; and u "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathrm { : } } \\in V _ { + } , v \\in V _ { - }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In all three cases, for any choice of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon ,"
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                170,
+                786,
+                256
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "x _ {u} + x _ {v} = y _ {u} + y _ {v} = z _ {u} + z _ {v} = 1.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/c7fd8e0668e0f3b65b14629d744e592a087c0a799effd52085582643d91fdb6d.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                271,
+                512,
+                284
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The lemma follows."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                297,
+                369,
+                312
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                768,
+                299,
+                784,
+                311
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This leads to:"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                319,
+                352,
+                332
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 14.5 Any extreme point solution for the set of inequalities in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L P \\ ( { \\it 1 4 . 2 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is half-integral."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                343,
+                786,
+                373
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 14.5 directly leads to a factor 2 approximation algorithm for weighted vertex cover: find an extreme point solution, and pick all vertices that are set to half or one in this solution."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                380,
+                786,
+                424
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "14.4 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                453,
+                376,
+                468
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "14.1 Modify Algorithm 14.1 so that it picks all sets that are nonzero in the fractional solution. Show that the algorithm also achieves a factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Hint: Use the primal complementary slackness conditions to prove this."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                495,
+                784,
+                541
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "14.2 Consider the collection of sets, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathcal { C } } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "picked by the randomized rounding algorithm. Show that with some constant probability, C covers at least half the elements at a cost of at most O(OPT)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                552,
+                786,
+                598
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "14.3 Give O(log n) factor randomized rounding algorithms for the set multicover and multiset multicover problems (see Section 13.2)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                609,
+                784,
+                640
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "14.4 Give a (non-bipartite) tight example for the half-integrality-based algorithm for weighted vertex cover."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                653,
+                784,
+                682
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "14.5 (J. Cheriyan) Give a polynomial time algorithm for the following problem. Given a graph G with nonnegative vertex weights and a valid, though not necessarily optimal, coloring of G, find a vertex cover of weight "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\leq ( 2 - \\frac { 2 } { k } ) \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "where k is the number of colors used."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                695,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "14.4 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                621,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "123"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "14 Rounding Applied to Set Cover"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                277,
+                87,
+                527,
+                101
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "14.6 Give a counterexample to the following claim. A set cover instance in which each element is in exactly f sets has a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 1 / f )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "-integral optimal fractional solution (i.e., in which each set is picked an integral multiple of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / f )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "14.7 This exercise develops a combinatorial algorithm for finding an optimal half integral vertex cover. Given undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and a nonnegative cost function c on vertices, obtain bipartite graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ( V ^ { \\prime } , V ^ { \\prime \\prime } , E ^ { \\prime } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as follows. Corresponding to each vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", there is a vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\boldsymbol { v } ^ { \\prime } \\in V ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v ^ { \\prime \\prime } \\in V ^ { \\prime \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "each of cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( v ) / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Corresponding to each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v ) \\in E"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", there are two edges "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u ^ { \\prime } , v ^ { \\prime \\prime } ) , ( \\dot { u } ^ { \\prime \\prime } , v ^ { \\prime } ) \\in E ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Show that a vertex cover in H can be mapped to a half-integral vertex cover in G preserving total cost and vice versa. Use the fact that an optimal vertex cover in a bipartite graph can be found in polynomial time to obtain an optimal half-integral vertex cover in G."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                170,
+                786,
+                312
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "14.8 Consider LP (12.8), introduced in Exercise 12.7, for a non-bipartite graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                326,
+                784,
+                356
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Show that it is not an exact relaxation for the maximum matching problem in G."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                361,
+                784,
+                388
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Show that this LP always has a half-integral optimal solution."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                390,
+                710,
+                406
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "14.9 In an attempt to improve the running time of the algorithm obtained in Exercise 9.7 for bin packing, consider going to the LP-relaxation of the integer programming and using LP-rounding. What guarantee can you establish for bin packing through this method?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                426,
+                786,
+                483
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "14.5 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                512,
+                342,
+                527
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 14.1 is due to Hochbaum [125]. For a more sophisticated randomized rounding algorithm for set cover, see Srinivasan [244]. Theorem 14.5 is due to Nemhauser and Trotter [213]."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                541,
+                786,
+                586
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "124"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        }
+    ]
+]

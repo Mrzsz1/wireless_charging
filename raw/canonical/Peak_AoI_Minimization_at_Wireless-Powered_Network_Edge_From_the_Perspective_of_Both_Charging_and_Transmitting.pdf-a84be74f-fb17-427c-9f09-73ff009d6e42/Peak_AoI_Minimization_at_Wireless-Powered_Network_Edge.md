@@ -1,0 +1,1150 @@
+# Peak AoI Minimization at Wireless-Powered Network Edge: From the Perspective of Both Charging and Transmitting
+
+Quan Chen , Member, IEEE, Song Guo , Fellow, IEEE, Zhipeng Cai , Senior Member, IEEE, Jing Li , Member, IEEE, Tuo Shi , and Hong Gao 
+
+Abstract— Age of Information, which emerged as a new metric to quantify the freshness of information, has attracted increasing interests recently. To optimize the system AoI, most existing works try to compute an eficient schedule from the point of data transmission. Unfortunately, at wireless-powered network edge, the charging schedule of the source nodes also needs to be decided besides data transmission. Thus, in this paper, we investigate the joint scheduling problem of data transmission and energy replenishment to optimize the maximum peak AoI at network edge with directional chargers. To the best of our knowledge, this is the first work that considers such two problems simultaneously. Firstly, the theoretical bounds of the maximum peak AoI with respect to the charging latency are derived. Secondly, for the minimum peak AoI scheduling problem with a single charger, an optimal scheduling algorithm is proposed to minimize the charging latency, and then a data transmission scheduling strategy is also given to optimize the maximum peak AoI. The proposed algorithm is proved to have a constant approximation ratio of up to 1.5. As for the scenario with multiple chargers, an approximate algorithm is also proposed to minimize the charging latency and the maximum peak AoI. Additionally, when the network bandwidth constraint is considered, the algorithm which considers the parallelism of the charging process and data transmission process is also proposed to reduce the latency and the maximum peak AoI. Finally, the theoretical analysis and simulation results verify that the proposed algorithms have high performance in terms of latency and AoI. 
+
+Index Terms— Age of information (AoI), maximum peak AoI, directional charging, wireless-powered network. 
+
+## <sub>I.</sub> <sub>I</sub>ntroduction
+
+R<sup>ECENTLY,</sup> <sup>the</sup> <sup>emerging</sup> <sup>Wireless</sup> <sup>Power</sup> <sup>Trans-</sup>fer (WPT) technology has become a promising technique to provide a controllable and sustainable energy supply for IoT networks by charging devices via electromagnetic waves [2], [3], [4]. Due to its convenience and reliability for power provisioning, it has been applied in many application domains, such as structural health monitoring [5], temperature and humidity sensing [6], object localization [7], etc. For example, in the application of structural health monitoring, a system consisting of far-field LoRaWAN battery-free sensing nodes are developed recently with the WPT technique [5]. Moreover, to improve energy transfer eficiency, directional WPT has been introduced as an eficient way to gain the power intensity in a certain direction with energy beamforming. According to [2], with directional WPT, the rechargeable devices can obtain a performance gain of up to three or more times over that using omnidirectional WPT. Since the electromagnetic waves fade rapidly over distance, the directional WPT model becomes more essential for the far-field data sensing and collection applications. Many eficient scheduling algorithms have been proposed by considering the performance of data collection and charging eficiency [2], [3], [4]. 
+
+On the other hand, Age of Information (AoI) has been introduced as a new metric to quantify the freshness of information [8], [9], [10]. Significant attentions have been paid to it since then, due to the importance of maintaining data freshness in many real-time applications. It is defined as the elapsed time between the present time and the time when the most recent information (stored at the destination) is generated at its source node. Unlike traditional packet-based metrics, such as latency, AoI can naturally characterize the data freshness from the destination’s perspective. Considering a typical scenario at network edge, which consists of multiple source nodes (sensing nodes) deployed in a target area and a base station (BS). The source nodes, aimed for diferent applications, try to sense the ambient environment and transmit the sampled data to the BS. At the BS, the AoI would increase linearly when there are no updates from the source nodes. 
+
+Digital Object Identifier 10.1109/TNET.2023.3303266 
+
+Due to the limited spectrum bandwidth, only a part of newly generated samples can be forwarded to the BS at each time slot. Thus, how to schedule the transmissions of the sampled data to minimize the average and peak AoI for the whole network has become a hotspot. Many AoI-based transmission scheduling algorithms have been proposed recently [11], [12], [13], [14], [15], [16], [17], [18], [19], [20], [21], [22], [23], [24], [25], [26], [27], [28]. 
+
+However, at wireless-powered network edge, the charging schedule for the source nodes also needs to be designed besides the schedule for data transmissions. As a result, the scheduling of data transmission and energy replenishment should be designed jointly for AoI optimization. This makes the AoI optimization problem more challenging, especially when the directional charging model is exploited to improve the energy transfer eficiency. Note that, under the directional charging model, only the source nodes lying in the shape of a sector can be charged when given an orientation of the charger, and the harvested energy at each node is also heterogeneous. Without loss of generality, assume the network time is slotted. Thence, at each time slot, only a part of the source nodes can be charged and each source node may require diferent charging time to finish its transmission of the sampled data. Diferent from the traditional AoI optimization problem, there exist the following two challenging problems at wireless-powered network edge: 
+
+1) How to compute the optimal charging schedule for the source nodes (i.e., the orientation of the charger at each time slot) considering these nodes’ AoI. Note that, under directional charging model, how to exploit the overlapped charging area at diferent orientations to reduce the charging latency and AoI becomes paramountly important. 
+
+2) How to obtain the optimal data transmission decisions for each source node, especially when the source node exploits diferent sampling models, such as periodical and random sampling model. 
+
+Thus, to address the above issues, we investigate the joint scheduling problem of data transmission and energy replenishment for AoI optimization at wireless-powered network edge with directional chargers. Several approximate algorithms are proposed by considering data transmission and energy replenishment simultaneously. The main contribution of this paper is summarized as follows. 
+
+• To the best of our knowledge, this is the first work that investigates the joint scheduling problem of data transmission and energy replenishment for peak AoI optimization. The theoretical bounds of the maximum peak AoI with respect to the charging latency are also derived. 
+
+• To minimize the maximum peak AoI with a single directional charger, an approximation algorithm with a ratio of up to 1.5 is proposed. In the proposed algorithm, an optimal scheduling algorithm is firstly developed to minimize the charging latency, and then the data transmission strategies for diferent sampling models are also designed. When there exist multiple directional chargers, an approximate algorithm is also proposed to minimize the charging latency and the maximum peak AoI. 
+
+• When the network bandwidth constraint is considered, an eficient algorithm with theoretical guarantee is also proposed to reduce the latency and maximum peak AoI by considering the parallelism of the charging process and data transmission process. 
+
+• Through extensive simulations, it is shown that the proposed algorithm can reduce the maximum peak AoI by almost a half compared with the baseline methods. 
+
+The rest of the paper is organized as follows. Section II surveys the related works. Section III presents the problem formulation. Sections IV and V introduce the detailed design and theoretical analysis of the proposed algorithm for single and multiple chargers, respectively. The proposed method considering the network bandwidth constraint is introduced in Section VI. The simulation results are shown in Section VII. Finally, Section VIII concludes the paper. 
+
+## <sub>II.</sub> <sub>R</sub>elated <sub>W</sub>orks
+
+The AoI scheduling problem has attracted extensive attentions from researchers. Firstly, the AoI metric was proposed for a vehicular network in [9], where the updates are generated periodically and then cached at a first-in-firstout queue at the MAC layer for broadcasting. After that, the AoI scheduling problem under various queueing disciplines are studied by [10], [11], [12], and [13], such as the first-come-first-serve and the last-come-first-serve queues. Considering the single-link wireless network, the authors in [14], [15], [16], [17], and [18] studied the AoI scheduling problem when multiple source nodes share a common channel. When there exist multiple links in the network, the authors in [19] and [20] studied the AoI scheduling problem by considering the interference between neighboring links. In [21], [22], and [23], the authors considered a multi-hop network where the messages need to go through several intermediate nodes before reaching the destination. Li et al. [24] studied the single-hop cellular-based network where there exist one base station and multiple source nodes. The theoretical lower bounds of the system’s average AoI under three sampling strategies, i.e, arbitrary, periodic and per time slot sampling are derived. The AoI scheduling algorithm under 5G network and the network with multi-channels are studied by [25] and [26]. Recently, the authors in [27], [28], and [29] studied the scheduling problem with a maximum peak AoI constraint, and several bandwidth optimization algorithms and cyclic scheduling algorithms are proposed. However, these algorithms ignore the energy provisioning problem of the source nodes. 
+
+When the source nodes exploit the energy-harvesting model, the AoI scheduling algorithms are studied by [30], [31], [32], [33], [34], [35], [36], [37], and [38]. In [30], the authors considered a system with a single rechargeable source node. Several scheduling policies are proposed when the energy arrival time follows the Poisson point process. The same one-pair network model is also assumed by [31], [32], [33], [34], [35], and [36], where several ofline and online scheduling policies are proposed by considering diferent service time. The authors in [37] consider a two-hop model that there exists an energy-harvesting node between the source and destination. Zhu et al. [38] consider a network with N rechargeable source node and investigate how to optimize the average peak AoI by assuming the energy profiles is known. However, all these algorithms assume a simple network model and the energy replenishment process cannot be controlled. 
+
+The works in [39], [40], [41], [42], [43], [44], [45], [46], and [47] study the AoI scheduling algorithms for the networks with WPT capability. In a network of multiple WPT-enabled source nodes, the authors in [39] and [40] try to minimize the average AoI by scheduling the status of the source nodes (either energy harvesting or data transmitting). The problem of how to allocate the time for energy harvesting and data transmitting to optimize the AoI is studied in [41] and [42]. Some works assume the transmission of energy and data can be performed simultaneously over orthogonal channels [43], [44], [45], [46], [47]. In [43], the authors consider a network topology with a single source node and derive the average AoI performance with respect to the capacitor’s size of the source node. The authors in [44] and [45] investigate the AoI optimization problem in a relay system with a single source node, where the relay node can receive the wireless power from the BS. In [46], the authors assume there exist multiple selfish charging nodes and they try to design the incentive strategies for the selfish charging nodes to assist in energy transferring to reduce the AoI. Zhou et al. [47] investigate the AoI optimization problem in a two-hop network of multiple WPT-enabled source nodes, and try to optimize the average AoI with a periodical schedule under a rigid assumption that only one node can be charged per time. 
+
+Considering directional charging schedule, the authors in [48] studied the omnidirectional covering problem with directional chargers, which tries to ensure a rechargeable node at an arbitrary position can be charged with enough power. Dai et al. [2], [49] investigated the placement problem of directional chargers while the overall charging utility is optimized. The authors in [50] and [51] try to schedule the orientations of the chargers to maximize the overall charging utility, and the authors in [3] try to adjust the charging radius adaptively to improve the energy transfer eficiency. Lin et al. [4] studied the charging latency minimization problem when there is a mobile directional charger traveling and stopping at a set of planned locations to charge its surrounding nodes. 
+
+## <sub>III.</sub> <sub>P</sub>roblem <sub>D</sub>efinition
+
+## A. Network Model and Charging Model
+
+Consider a wireless-powered network, which consists of a BS equipped with a directional charger, and a set of rechargeable source nodes which can be charged wirelessly by the BS, denoted by $S = \{ s _ { 1 } , s _ { 2 } , . . . , s _ { n } \}$ . Except for receiving the timely sampled data (or status update) from these source nodes, the BS is also responsible for scheduling the directional charger to transfer the energy to these source nodes for finishing their transmissions. As in [43], [46], and [47], we assume the source nodes own two antennas to perform energy harvesting and data transmission simultaneously from orthogonal channels (i.e., Powercast [52]). For simplicity, we will first consider the scenario when there exists one single charger. The method for the scenario when there exist multiple chargers in the network will be introduced in Section V. Note that, each source node can only transmit its sampled data or status update to the BS after it has been charged enough energy. Note that, as in [39], [40], and [47], we mainly focus on the energy of the source nodes for data transmissions in this paper. The energy for sampling, which is much smaller (it may be just a status update) or just comes from another source, is omitted here. 
+
+![](images/a2470210468cee7940c4c4c4afe411a650b8a9b46ba1e3a7ef2722a4393b800f.jpg)
+
+
+
+Fig. 1. An example of wireless-powered network edge with a single charger.
+
+
+To charge the source nodes, the directional wireless charger is employed to improve the energy transfer eficiency for the far-field source nodes. Under directional charging model, according to [2], [49], and [51], the charger with a given orientation $\overrightarrow { o _ { i } }$ can only charge a part of source nodes, $i . e .$ , the nodes lying in the shape of a sector with angle $\phi$ and radius R. For example, as in Fig.1, when the directional charger is at orientation $\overrightarrow { o _ { 1 } }$ , only the source nodes $s _ { 1 } , s _ { 2 } ,$ and $s _ { 3 }$ can be charged (Since there is only one charger, we assume all the source nodes’ directional antennas are faced to the BS in this example). 
+
+Let $\Gamma ( \overrightarrow { o _ { i } } )$ denote the set of source nodes lying in the charging area when the directional charger is at orientation $\vec { \omega _ { i } } . \mathbf { A s }$ the example in Fig.1, we can have $\Gamma ( \overrightarrow { o _ { 1 } } ) = \{ s _ { 1 } , s _ { 2 } , s _ { 3 } \}$ and $\Gamma ( \overrightarrow { o _ { 2 } } ) = \{ s _ { 3 } , s _ { 4 } \}$ , respectively. The charging power received by source node $s _ { i }$ can be computed by as [2]: 
+
+$$
+P (s _ {i}, \overrightarrow {o _ {i}}) = \left\{ \begin{array}{l} \frac {\alpha}{(d (B S , s _ {i}) + \beta) ^ {2}}, i f s _ {i} \in \Gamma (\overrightarrow {o _ {i}}) \\ 0, o t h e r w i s e \end{array} \right.
+$$
+
+where and $\beta$ denote two constants related to the surrounding environment and the hardware parameters of the directional charger, and $d ( B S , s _ { i } )$ is the Euclidean distance between the BS and the source node $s _ { i } .$ . One should note that, for any two diferent orientations $\overrightarrow { o _ { i } }$ and ${ \overrightarrow { o _ { j } } } ,$ their covered source nodes may be overlapped, $i . e . , \ \Gamma ( \overrightarrow { o _ { i } } ) \mathrm { ~ \cap ~ } \Gamma ( \overrightarrow { o _ { j } } ) \neq \emptyset .$ As the example shown in Fig.1, one can have $\Gamma ( \overrightarrow { o _ { 1 } } ) \cap \Gamma ( \overrightarrow { o _ { 2 } } ) = \{ s _ { 3 } \}$ . Under such a model, how to exploit the overlapped charging area of diferent orientations to reduce the AoI and improve the charging eficiency is of utmost importance here. 
+
+In addition, if $\Gamma ( \overrightarrow { o _ { i } } ) \subseteq \Gamma ( \overrightarrow { o _ { j } } ) \ ( i \neq j )$ , we call $\overrightarrow { o _ { i } }$ a redundant orientation, which can be just removed. Assume there are in total m $( m \leq n )$ non-redundant orientations for the directional charger, $i . e . , \ { \vec { o _ { 1 } } } , \ { \vec { o _ { 2 } } } , . . . , { \vec { o _ { m } } }$ , and $\Gamma ( \overrightarrow { o _ { i } } ) \ \notin \ \Gamma ( \overrightarrow { o _ { j } } ) \ ( 1 \ \leq \ i , j \ \leq$ m $\textit { \textbf { g } i } \neq \textit { j }$ . Obviously, for all these orientations, one can have: 
+
+$$
+\bigcup_ {i = 1} ^ {m} \Gamma (\overrightarrow {o _ {i}}) = \{s _ {1}, s _ {2}, \dots , s _ {n} \}
+$$
+
+![](images/8aa06f25dfa328868c06a2b9d9caeb7ddde984cd2f6db20d78cc673a302bcc39.jpg)
+
+
+Denote $\overrightarrow { o ( t ) }$ as the charging orientation of the wireless charger at time slot $t , i . e . , \overrightarrow { o ( t ) } \in \{ \overrightarrow { o _ { 1 } } , \overrightarrow { o _ { 2 } } , \dotsc , \overrightarrow { o _ { m } } \}$ . As for each source node $s _ { i } ,$ let $e _ { i }$ be the consumed energy for transmitting one unit data, and $L _ { i }$ denote the size of its sampled data. Then, if it wants to transmit its sampled data to the BS at time slot $k ,$ then it must satisfy $\begin{array} { r } { \sum _ { t = 1 } ^ { k - 1 } P ( s _ { i } , \overrightarrow { o ( t ) } ) \cdot \tau \geq e _ { i } \cdot L _ { i } . } \end{array}$ . Note that, the network time is assumed to be divided into time slots with fixed length . It means it has been charged enough energy for its transmission at the beginning of the k-th time slot. 
+
+## B. AoI Model
+
+For the BS, it maintains the most recent sample received from each source node $s _ { i } .$ . Once it receives a new sample from a source node $s _ { i } ,$ , the old one will be replaced. At time slot t, let $U _ { s _ { i } } ( t )$ denote the generation time of the newest sample at source node $s _ { i } ,$ and let $U _ { s _ { i } } ^ { \prime } ( t )$ denote the generation time of $s _ { i } { } ^ { \prime } \mathbf { s }$ newest sample stored at the BS. Note that $U _ { s _ { i } } ^ { \prime } ( t )$ is not always equal to $U _ { s _ { i } } ( t )$ . They are equal if there is no new sample arrived at $s _ { i }$ after it transmits its newest sample to BS. 
+
+To guarantee the data-freshness of the whole network, we adopt the AoI metric in designing the scheduling algorithms. Assume $A _ { s _ { i } } ( t )$ denote the AoI of $s _ { i }$ at time slot t, which is defined as the number of time slots elapsed up to time slot t since the generation time of the most recent sample, i.e., $U _ { s _ { i } } ^ { \prime } ( t )$ . Note that, we also use time slot as the unit of AoI. Then, the AoI of source node $s _ { i }$ at time slot $t \ ( t \geq 1 )$ , i.e., $A _ { s _ { i } } ( t )$ , can be calculated as: 
+
+$$
+A _ {s _ {i}} (t) = t - U _ {s _ {i}} ^ {\prime} (t)
+$$
+
+Actually, $A _ { s _ { i } } ( t )$ is a zigzag-like function which grows linearly until the source node sends a freshest sample to the BS. At the beginning, $U _ { s _ { i } } ^ { \prime } ( 1 )$ is just set to be 0 for each source node. 
+
+Denote $x _ { i } ( t ) \in \{ 0 , 1 \}$ as the transmission decision for source node $s _ { i } ,$ , which means whether it is scheduled to transmit its sample at time slot t. Note that, to make the transmission decision $x _ { i } ( t ) = 1$ , it must have been charged enough energy at the ending of time slot t − 1. In this paper, for simplicity, we first assume the length of a time slot is much longer than the transmission time as in [47] (according to the testbed experiments in [47], transmitting a small data packet takes a few milliseconds, which is much smaller than the one of harvesting enough energy for packet transmission, i.e., several seconds), and then study the scenario with large packets and network bandwidth constraint in Section VI. If $x _ { i } ( t ) ~ = ~ 1$ then at the next time slot $t + 1$ , the AoI value will drop to $t + 1 - U _ { s _ { i } } ^ { \prime } ( t + 1 )$ . In addition, since the source node only sends the newest sample to be BS, thus, one can have $U _ { s _ { i } } ^ { \prime } ( t + 1 ) = U _ { s _ { i } } ( t )$ which means $A _ { s _ { i } } ( t + 1 ) = t + 1 - U _ { s _ { i } } ^ { \prime } ( t + 1 ) = t + \dot { 1 } - U _ { s _ { i } } ( t )$ . Thus, the AoI of $s _ { i } .$ , at time $t + 1 , i . e . , \dot { A _ { s _ { i } } } ( t + 1 )$ , can be updated as: 
+
+$$
+A _ {s _ {i}} (t + 1) = \left\{ \begin{array}{l} t + 1 - U _ {s _ {i}} (t), i f x _ {i} (t) = 1 \\ A _ {s _ {i}} (t) + 1, o t h e r w i s e \end{array} \right.
+$$
+
+Note that, if $s _ { i }$ transmits a sample which also arrives at time t (it means $U _ { s _ { i } } ( t ) = t )$ , then the AoI value at time $t + 1$ will drop to 1. 
+
+For example, as in Fig.2, it shows the AoI of source node $s _ { i }$ in the first 12 time slots, where $s _ { i }$ has sampled 4 packets (as 
+
+Fig. 2. An example of AoI scheduling. 
+
+the blue arrow in Fig.2). If node $s _ { i }$ has been charged enough energy for transmitting packets at the ending of time 1 and 3, and we schedule the transmission of the first two samples at time 2 and 4 as shown in Fig.2(a), the AoI of the source node $s _ { i }$ drops to 1 at the beginning of time 3 and 5, respectively. But the maximum peak AoI value reaches 8. And one can also find that if we let $s _ { i }$ being charged ready at the ending of time 3 and 7, and let $s _ { i }$ transmit the samples at time 4 and 8, respectively, then the maximum peak AoI of $s _ { i }$ drops to 4, which is shown in Fig.2(b). 
+
+One can see, the AoI of source node $s _ { i }$ is not only related to its transmission decision, but also the charging process. Thus, to guarantee the data freshness, one not only needs to compute the charging plan for the source nodes smartly, but also needs to schedule packet delivery of the source nodes eficiently. 
+
+As in [27] and [28], we mainly focus on the maximum peak AoI of the source nodes in this paper. Let $A _ { s _ { i } } ^ { p e a k }$ denote the maximum peak AoI of source node $s _ { i }$ during a period from 1 to $\mathcal { T } \left( \mathcal { T } \gg 1 \right)$ , which can be calculated as: 
+
+$$
+A _ {s _ {i}} ^ {\text { peak }} = \max \{A _ {s _ {i}} (t), \forall 1 \leq t \leq \mathcal {T} \}
+$$
+
+For all the source nodes, let $A ^ { p e a k }$ denote the maximum peak AoI for the whole network, which can be calculated as: 
+
+$$
+A ^ {p e a k} = \max \{A _ {s _ {i}} ^ {p e a k}, \forall 1 \leq i \leq n \}
+$$
+
+To guarantee the data-freshness, we try to minimize the maximum peak AoI for all the source nodes in the network, which is called the Minimum Peak AoI Scheduling problem. 
+
+In this paper, we will first study the Minimum Peak AoI Scheduling problem with a Single charger (MPAS-S). And then, we will introduce the algorithms for the Minimum Peak AoI Scheduling problem with Multiple chargers (MPAS-M). The major symbol used in this paper is listed in Table I. 
+
+## C. Problem Formulation
+
+In the following, we will introduce the formal definition of the MPAS-S problem. Note that, in this paper, we also consider three sampling models as in [24]: 1) the per time slot sampling model, 2) the periodic sampling model, and 3) the random sampling model. Then, the MPAS-S can be formulated as follows: 
+
+Input: 
+
+1) A set of source nodes $S = \{ s _ { 1 } , s _ { 2 } , . . . , s _ { n } \}$ , and a BS; 
+
+2) The m orientations of the charger, $i . e . , \overrightarrow { o _ { 1 } } , \overrightarrow { o _ { 2 } } , . . . , \overrightarrow { o _ { m } }$ , and the covered source nodes at each orientation $\overrightarrow { o _ { i } }$ , i.e., $\Gamma ( \overrightarrow { o _ { i } } )$ ; 
+
+3) For each source node $s _ { i } .$ the energy consumption for transmitting unit data $e _ { i }$ and the size of sample data $L _ { i } ;$ 
+
+
+TABLE I
+
+
+
+<sub>S</sub>ymbols and <sub>N</sub>otations
+
+
+<table><tr><td>Notation</td><td>Description</td></tr><tr><td><eq>S = \{s_1, ..., s_n\}</eq></td><td>the set of <eq>n</eq> source nodes</td></tr><tr><td><eq>\Gamma(\overrightarrow{o_i})</eq></td><td>the set of charged source nodes at orientation <eq>\overrightarrow{o_i}</eq></td></tr><tr><td><eq>P(s_i, \overrightarrow{o_i})</eq></td><td>the received power of <eq>s_i</eq> at charging orientation <eq>\overrightarrow{o_i}</eq></td></tr><tr><td><eq>e_i</eq></td><td>the consumed energy of <eq>s_i</eq> for transmitting one unit data</td></tr><tr><td><eq>L_i</eq></td><td>the size of <eq>s_i</eq>&#x27;s sampled data</td></tr><tr><td><eq>T_i</eq></td><td>the sampling period of <eq>s_i</eq></td></tr><tr><td><eq>A_{s_i}(t)</eq></td><td>the AoI of <eq>s_i</eq> at time <eq>t</eq></td></tr><tr><td><eq>A_{s_i}^{peak}</eq></td><td>the maximum peak AoI of <eq>s_i</eq></td></tr><tr><td><eq>A^{peak}</eq></td><td>the maximum peak AoI of the whole network</td></tr><tr><td><eq>x_i(t)</eq></td><td>the transmission decision of <eq>s_i</eq> at time <eq>t</eq></td></tr><tr><td><eq>\overrightarrow{o(t)}</eq></td><td>the charging orientation at time <eq>t</eq></td></tr><tr><td><eq>T_i</eq></td><td>the sampling period of <eq>s_i</eq></td></tr><tr><td><eq>\mathcal{A}_{opt}</eq></td><td>the optimal maximum peak AoI</td></tr><tr><td><eq>\Upsilon_{opt}</eq></td><td>the optimal charging latency</td></tr><tr><td><eq>r(s_i)</eq></td><td>the required charging time of <eq>s_i</eq> for one transmission</td></tr><tr><td><eq>r_{max}</eq></td><td>the maximum required charging time among all nodes</td></tr><tr><td><eq>prev(\overrightarrow{o_i})</eq></td><td>the previous orientation of <eq>\overrightarrow{o_i}</eq></td></tr><tr><td><eq>next(\overrightarrow{o_i})</eq></td><td>the next orientation of <eq>\overrightarrow{o_i}</eq></td></tr><tr><td><eq>\mathcal{L}(i,m,\mathcal{R})</eq></td><td>the minimum latency from <eq>\overrightarrow{o_i}</eq> to <eq>\overrightarrow{o_m}</eq></td></tr><tr><td><eq>\kappa_i</eq></td><td>the optimal number for set <eq>\Gamma(\overrightarrow{o_i})</eq></td></tr><tr><td><eq>\Gamma([\overrightarrow{o_l},\overrightarrow{o_k}])</eq></td><td>the set of covered source nodes in <eq>[\overrightarrow{o_l},\overrightarrow{o_k}]</eq></td></tr><tr><td><eq>\Lambda([\overrightarrow{o_l},\overrightarrow{o_k}])</eq></td><td>the set of covered source nodes only in <eq>[\overrightarrow{o_l},\overrightarrow{o_k}]</eq></td></tr><tr><td><eq>\mathcal{A}_{opt}^B</eq></td><td>the optimal peak AoI under bandwidth constraint</td></tr><tr><td><eq>\Upsilon_{opt}^B</eq></td><td>the optimal latency under the bandwidth constraint</td></tr><tr><td><eq>\delta</eq></td><td>the maximum number of covered nodes in an orientation</td></tr><tr><td><eq>D_{max}</eq></td><td>the maximum duration between two samples</td></tr><tr><td><eq>q</eq></td><td>the number of directional chargers</td></tr><tr><td><eq>R</eq></td><td>the charging radius</td></tr><tr><td><eq>\phi</eq></td><td>the charging angle</td></tr><tr><td><eq>m</eq></td><td>the number of charging orientations</td></tr><tr><td><eq>\tau</eq></td><td>the length of a time slot</td></tr></table>
+
+4) The sampling model for each source node $s _ { i } .$ 
+
+## Output:
+
+1) the charging decision, $\overrightarrow { o ( t ) } \ ( t = 1 , 2 , . . . , \mathcal { T } ) ;$ 
+
+2) the data transmission decision, $x _ { i } ( t ) \ ( t = 1 , 2 , . . . , \mathcal { T } )$ 
+
+while the maximum peak AoI of the whole network $A ^ { p e a k }$ is minimized. 
+
+In the following, we will introduce a joint age-based scheduling algorithm which considers data transmission and directional charging simultaneously for MPAS-S. 
+
+## <sub>IV.</sub> <sub>T</sub>he <sub>J</sub>oint <sub>S</sub>cheduling <sub>A</sub>lgorithm <sub>W</sub>ith <sub>S</sub>ingle <sub>C</sub>harger
+
+## A. Theoretical Bounds of the Maximum Peak AoI
+
+Before introducing the detailed joint charging and age-based scheduling algorithm for MPAS-S, we will first present some interesting properties of the theoretical bound of the maximum peak AoI with respect to diferent sampling models. 
+
+Let $\mathcal { A } _ { o p t }$ denote the optimal maximum peak AoI under the optimal charging and data transmission plan, and $\Upsilon _ { o p t }$ denote the optimal charging latency of the whole network, $i . e .$ , the required charging time for each node to transmit once. 
+
+In the following, we prove the optimal maximum peak AoI $\mathcal { A } _ { o p t }$ is highly related to the optimal charging latency $\Upsilon _ { o p t }$ 
+
+Firstly, considering the per time slot sampling model (which can be also seen as sampling with $T _ { i } = 1$ for each source node s<sub>i</sub>), it can be proved that $\mathcal { A } _ { o p t }$ is just equal to $\Upsilon _ { o p t } + 1$ , which is shown in Theorem 1. 
+
+Theorem 1: $I f T _ { i } = 1 f o r$ each source node $s _ { i } ( 1 \leq i \leq n )$ then $\mathcal { A } _ { o p t } = \Upsilon _ { o p t } + 1$ 
+
+Proof: Let $t _ { i } ^ { f }$ be the first time that source node $s _ { i }$ is charged ready for transmitting its sampled data. Assume node x is the last node being charged ready, $i . e . , t _ { x } ^ { f } = m a x \{ t _ { i } ^ { f } , 1 \leq i \leq n \}$ As for node x, after it transmits its sampled data at time $t _ { x } ^ { f } + 1$ its AoI will also reach $t _ { x } ^ { f } + 1$ . Since $t _ { x } ^ { f } \geq \Upsilon _ { o p t }$ , then one can have $\mathcal { A } _ { o p t } \geq \Upsilon _ { o p t } + 1$ . Additionally, since each source node $s _ { i }$ can sample at each time slot, then its AoI will drop to 1 once it transmits its newest sampled data. This means if we charge the source nodes periodically with the optimal charging latency, the maximum peak AoI of each source node is at most $\Upsilon _ { o p t } + 1$ during the whole period. Thus, one can have $\mathcal { A } _ { o p t } = \Upsilon _ { o p t } + 1$ 
+
+Secondly, when the sampling period $T _ { i } > 1$ , the upper bound of the maximum peak AoI can be proved to be at most $\Upsilon _ { o p t } +$ $T _ { m a x } - 1$ , where $T _ { m a x } = m a x \{ T _ { i } , 1 \leq i \leq n \}$ . Note that, in this case, the optimal maximum peak AoI should also be no less than $\Upsilon _ { o p t } + 1$ according to the above analysis. Then, we can have the following theorem. 
+
+Theorem 2: $I f T _ { i } > 1$ for each source node $s _ { i } ( 1 \leq i \leq n )$ then $\Upsilon _ { o p t } + 1 \leq \mathcal { A } _ { o p t } \leq \Upsilon _ { o p t } + T _ { m a x } - 1$ 
+
+An interesting finding is that the optimal maximum peak AoI may even drop when the sampling period of each node increases, which is much diferent from the latency metric. Consider the case when the sampling period of each source node is larger than $\Upsilon _ { o p t } .$ In this case, the maximum peak AoI of the whole network will just be $T _ { m a x } .$ , which is shown in Theorem 3. 
+
+Theorem 3: $I f T _ { i } > \Upsilon _ { o p t }$ for each source node $s _ { i } ( 1 \leq i \leq n )$ then $\mathcal { A } _ { o p t } = T _ { m a x } .$ 
+
+Proof: Let the sampling period of source node $s _ { i }$ be the largest, i.e., $T _ { i } ~ = ~ T _ { m a x }$ . Firstly, since the BS can update the sample by at least $T _ { m a x }$ time, one can have $\mathcal { A } _ { o p t } \ \ge \ T _ { m a x } .$ Secondly, since $T _ { i } > \Upsilon _ { o p t }$ , which means source node $s _ { i }$ must have been charged enough energy during a sampling period. In this case, one can just let the source nodes transmit when a new sample arrives, i.e., t, and the maximum peak AoI will be at most $T _ { m a x }$ at time t and will drop to 1 at time $t + 1$ Therefore, the optimal maximum peak AoI is $T _ { m a x }$ in this case, i.e., $\mathcal { A } _ { o p t } = T _ { m a x }$ 
+
+Thirdly, under random sampling model, let $D _ { m a x } > 1$ denote the maximum duration between two samples of the source nodes, then one can obtain the same result as in Theorem 2, which is shown in Theorem 4. Note that, the variable $D _ { m a x }$ here is just used to prove the theoretical bound and the approximation ratio. Actually, we do not require the value of $D _ { m a x }$ in the proposed algorithm. In addition, under random sampling model, even when $D _ { m a x } > \Upsilon _ { o p t }$ , one cannot obtain $\mathcal { A } _ { o p t } = D _ { m a x }$ here. 
+
+Theorem 4: Under random sampling model, then $\Upsilon _ { o p t } + 1 \leq$ $\mathcal { R } _ { o p t } \leq \Upsilon _ { o p t } + D _ { m a x } - 1$ 
+
+According to the above analysis, one can find that, to obtain the optimal maximum peak AoI, the optimal charging latency should be obtained firstly, which is also non-trivial. 
+
+Thus, in the following, we will first introduce a method to obtain the optimal charging latency, and then design a data transmission schedule with an approximation ratio up to 1 5. 
+
+## B. Optimizing the Charging Latency
+
+To obtain the optimal charging latency $\Upsilon _ { o p t }$ , we first transform the charging latency minimization problem to a new kind of geometric set cover problem, i.e., circle set cover problem. 
+
+Let $\begin{array} { r } { r ( s _ { i } ) \ = \ \left\lceil \frac { e _ { i } \cdot L _ { i } \cdot ( d ( B S , s _ { i } ) + \beta ) ^ { 2 } } { \alpha * \tau } \right\rceil } \end{array}$ denote the minimum number of time slots that $s _ { i }$ <sup>α τ</sup>needs to be charged for transmitting its sampled data. Then, the charging latency minimization problem can be seen as the problem of using the minimum number of sets from $\{ \Gamma ( \overrightarrow { o _ { 1 } } ) , \Gamma ( \overrightarrow { o _ { 2 } } ) , \dots , \Gamma ( \overrightarrow { o _ { m } } ) \}$ to cover each source nodes’ request $r ( s _ { i } )$ . Note that, each set $\Gamma ( \overrightarrow { o _ { i } } )$ can be used multiple times and each source node $s _ { i }$ needs to be covered by at least $r ( s _ { i } )$ times here. For simplicity, let ${ \mathcal { R } } = \{ r ( s _ { 1 } ) , r ( s _ { 2 } ) , \ldots , r ( s _ { n } ) \}$ denote the covering requirements of all the source nodes. As one can see, since all the sets constitute a circle, thus, we call such a problem the Circle Set Cover problem. 
+
+Considering the example in Fig. 1, assume there are six orientations, that is $\Gamma ( \overrightarrow { o _ { 1 } } ) = \{ s _ { 1 } , s _ { 2 } , s _ { 3 } \} , \Gamma ( \overrightarrow { o _ { 2 } } ) = \{ s _ { 3 } , s _ { 4 } \}$ 2 $\Gamma ( \overrightarrow { o _ { 3 } } ) = \{ s _ { 4 } , s _ { 5 } \} , \Gamma ( \overrightarrow { o _ { 4 } } ) = \{ s _ { 5 } , s _ { 6 } \} , \Gamma ( \overrightarrow { o _ { 5 } } ) = \{ s _ { 6 } , s _ { 7 } \} , \Gamma ( \overrightarrow { o _ { 6 } } ) = $ $\left\{ s _ { 7 } , s _ { 1 } \right\}$ , and the required charging time slots of the source nodes are set $\mathcal { R } = \{ 2 , 1 , 3 , 4 , 2 , 2 , 4 \}$ 
+
+For the circle set cover problem, when choosing the set, one must take the overlapped orientations and nodes’ covering requirements into account. In the following, we will first introduce a dynamic programming based algorithm for the circle set cover problem. It mainly works as follows. 
+
+1) Dynamic Programming Based Algorithm: Firstly, sort the orientations of the charger, $i . e . , \overrightarrow { o _ { 1 } } , \overrightarrow { o _ { 2 } } , \ldots , \overrightarrow { o _ { m } } .$ in the clockwise order. Let $\overrightarrow { o _ { 1 } }$ be the first orientation. In addition, denote $p r e \nu ( \overrightarrow { o _ { j } } )$ and $n e x t ( \overrightarrow { o } _ { j } )$ as the previous and next orientations of ${ \overrightarrow { o _ { j } } } ,$ respectively, $i . e . , p r e \nu ( \overrightarrow { o _ { 1 } } ) = \overrightarrow { o _ { m } }$ and $n e x t ( \overrightarrow { o _ { m } } ) = \overrightarrow { o _ { 1 } }$ 
+
+One can find that, for any set $\Gamma ( \overrightarrow { o _ { j } } )$ , it can be used at most $r _ { j } ^ { m a x } = m a x \{ r ( s _ { i } ) , \forall s _ { i } \in \Gamma ( \overrightarrow { o _ { j } } ) \}$ } times in the optimal result. And once if $\Gamma ( \overrightarrow { o _ { j } } )$ is used by $k \ ( k \leq r _ { i } ^ { m a x } )$ times, then the covering requirement can be updated by $\check { r ( s _ { i } ) } = m a x \{ r ( s _ { i } ) - k , 0 \}$ for any source node $s _ { i }$ in $\Gamma ( \overrightarrow { o _ { j } } )$ . 
+
+Let $\mathcal { L } ( j , m , \mathcal { R } )$ denote the minimum latency when using the orientations from $\overrightarrow { o _ { j } }$ to $\overrightarrow { o _ { m } }$ to satisfy the covering requirement R. Then, we can obtain the dynamic programming equation: 
+
+$$
+\mathcal {L} (j, m, \mathcal {R}) = m i n \{k + \mathcal {L} (j + 1, m, \mathcal {R} ^ {k}), 0 \leq k \leq r _ {j} ^ {m a x} \}
+$$
+
+where $\mathcal { R } ^ { k }$ denotes the covering requirement after using set $\Gamma ( \overrightarrow { o _ { j } } )$ by k times. As for the last orientation $o _ { m } .$ , one can have: 
+
+$$
+\mathcal {L} (m, m, \mathcal {R}) = \left\{ \begin{array}{l} \infty , i f \exists r (s _ {i}) > 0 a n d s _ {i} \notin \Gamma (\overrightarrow {o _ {m}}) \\ m a x \{r (s _ {i}), \forall s _ {i} \in \Gamma (\overrightarrow {o _ {m}}) \}, o t h e r w i s e \end{array} \right.
+$$
+
+Note that, if there exists a source node not being covered, $i . e . .$ $\exists r ( s _ { i } ) > 0$ and $s _ { i } \notin \Gamma ( \overrightarrow { o _ { m } } )$ , it means we cannot satisfy the covering requirement at this time, then set $\mathcal { L } ( m , m , \mathcal { R } ) = \infty$ 
+
+The optimal result can be obtained by calculating $\mathcal { L } ( 1 , m , \mathcal { R } )$ . However, the time complexity of the above dynamic programming algorithm is exponential with the number of sets, i.e., $O ( m ^ { r _ { m a x } + 1 } )$ , where $r _ { m a x } = m a x \{ r ( s _ { i } ) , 1 \leq i \leq n \}$ 
+
+2) Polynomial Optimal Algorithm: Next, we will introduce a much eficient algorithm which can solve it polynomially. The main trick is that if we can transfer the Circle Set Cover problem to a problem which we named as the Line Set Cover problem, then we can solve it greedily. Note that, in the line set cover problem, all the sets can be sorted in a line as shown in $\mathrm { F i g } . 3$ 
+
+![](images/8fb8f3a5679008d0945a2356774e615e186dc49ab2b28445cc9fadaf7e69433d.jpg)
+
+
+
+Fig. 3. An example of the line set cover problem.
+
+
+Assume $\Gamma ( \overrightarrow { o _ { 1 } } ) , \ \Gamma ( \overrightarrow { o _ { 2 } } ) , . . . , \ \Gamma ( \overrightarrow { o _ { m } } )$ forms a line set cover problem. Let $\kappa _ { j }$ denote the optimal number for set $\Gamma ( \overrightarrow { o _ { j } } )$ . Then, the greedy algorithm for the line set cover problem works as follows. Without loss of generality, let $\Gamma ( \overrightarrow { o _ { 1 } } )$ be the first set. First, for each orientation $\overrightarrow { o _ { j } }$ from $\overrightarrow { o _ { 1 } }$ to $\overrightarrow { o _ { m - 1 } }$ , do : 
+
+• Le $\cdot \chi ( \overrightarrow { o _ { j } } ) = \Gamma ( \overrightarrow { o _ { j } } ) - \Gamma ( \overrightarrow { o _ { j + 1 } } )$ denote the set of source nodes <sup>χ</sup>only in $\Gamma ( \overrightarrow { o _ { j } } )$ and not in $\Gamma ( \overrightarrow { o _ { j + 1 } } )$ . 
+
+• Set $\kappa _ { j } = m a x \{ r ( s _ { i } ) , \forall s _ { i } \in \chi ( \overrightarrow { o _ { j } } ) \}$ 
+
+• For any source node $s _ { i }$ in $\Gamma ( \overrightarrow { o _ { j } } ) .$ , update its covering requirement by $r ( s _ { i } ) = m a x \{ r ( s _ { i } ) - \kappa _ { j } , 0 \}$ 
+
+Second, for the last set $\overrightarrow { o _ { m } } ,$ set $\kappa _ { m } = m a x \{ r ( s _ { i } ) , \forall s _ { i } \in \Gamma ( \overrightarrow { o _ { m } } ) \}$ 
+
+With the above greedy algorithm, we will introduce the detailed optimal algorithm for the circle set cover problem. Before that, some notations are introduced. Let $[ \overrightarrow { o _ { l } } , \overrightarrow { o _ { k } } ]$ denote the set of orientations from $\overrightarrow { o _ { l } }$ to $\xrightarrow [ { o _ { k } ^ { } } ] { }$ <sup>,</sup>in the clockwise order. ${ \mathrm { W . L . O . G } }$ , assume $k > l .$ Let $\Gamma ( [ \overrightarrow { o _ { l } } , \overrightarrow { o _ { k } } ] ) = \cup _ { i = l } ^ { k } \Gamma ( \overrightarrow { o _ { j } } )$ denote the union of all the source nodes from $\Gamma ( \overrightarrow { o _ { l } } )$ to $\Gamma ( \overrightarrow { o _ { k } } )$ 
+
+Definition 1 Orientation Cut: For any orientation ${ \overrightarrow { o _ { j } } } ,$ $i f \Gamma ( \overrightarrow { o _ { j } } ) \cap \Gamma ( p r e \nu ( \overrightarrow { o _ { j } } ) ) = \emptyset ,$ , then we call $\overrightarrow { o _ { j } }$ an orientation cut, which means there is no overlapped source nodes between $\Gamma ( \overrightarrow { o _ { j } } )$ and $\Gamma ( p r e \nu ( \overrightarrow { o _ { j } } ) )$ . 
+
+Notice that, if there exists an orientation cut ${ \overrightarrow { o _ { j } } } ,$ then we can just transform the circle set cover problem to a line set cover problem, $i . e . ,$ , sort $\overrightarrow { o _ { j } }$ to $p r e \nu ( \overrightarrow { o _ { j } } )$ in the clockwise order. 
+
+However, there may not exist such an orientation cut in many scenarios. To handle such scenarios, we introduce the definition of orientation collection cut. 
+
+Definition 2 Orientation Collection Cut: For a collection of orientations $[ \overrightarrow { o _ { l } } , \overrightarrow { o _ { k } } ]$ $i f \Gamma ( p r e \nu ( \overrightarrow { o _ { l } } ) ) \cap \Gamma ( n e x t ( \overrightarrow { o _ { k } } ) ) = \emptyset ,$ then we call $[ \overrightarrow { o _ { l } } , \overrightarrow { o _ { k } } ]$ an orientation collection cut. 
+
+Actually, it means that we can divide the whole sets into two parts with an orientation collection cut $[ \overrightarrow { o _ { l } } , \overrightarrow { o _ { k } } ]$ : the sets in $[ \vec { o _ { l } } , \bar { \vec { o _ { k } } } ]$ and the sets in $[ n e x t ( \overrightarrow { o _ { k } } ) , p r e \nu ( \overrightarrow { o _ { l } } ) ]$ . One can find that the second part forms a line set cover problem. Then, we only need to find the optimal result for $[ \overrightarrow { o _ { l } } , \overrightarrow { o _ { k } } ]$ . Note that, l may equal to k. The detailed method works as follows. 
+
+Firstly, let $\Lambda ( [ \overrightarrow { o _ { l } } , \overrightarrow { o _ { k } } ] ) = \Gamma ( [ \overrightarrow { o _ { l } } , \overrightarrow { o _ { k } } ] ) - \Gamma ( [ n e x t ( \overrightarrow { o _ { k } } ) , p r e \nu ( \overrightarrow { o _ { l } } ) ] )$ denote the set of source nodes only in $\Gamma ( [ \overrightarrow { o _ { l } } , \overrightarrow { o _ { k } } ] )$ 
+
+Secondly, for each source node $s _ { i } \in \Lambda ( [ \overrightarrow { o _ { l } } , \overrightarrow { o _ { k } } ] )$ ), if it only belongs to a certain set $\Gamma ( \overrightarrow { o } _ { j } ) \ ( s _ { i } \notin \Gamma ( \overrightarrow { o } _ { x } ) , \forall x \neq j )$ , then at least $r ( s _ { i } )$ of $\Gamma ( \overrightarrow { o _ { j } } )$ are required. Let $\Lambda ( \overrightarrow { o _ { j } } )$ <sup>,</sup> denote the set of such source nodes only in $\Gamma ( \overrightarrow { o _ { j } } )$ . Set $\kappa _ { j } ^ { \prime } ~ = ~ m a x \{ r ( s _ { i } ) , s _ { i } ~ \in$ $\Lambda ( \overrightarrow { o _ { j } } ) \}$ (Note that, $\boldsymbol { \kappa } _ { j } ^ { \prime }$ is not the final result for set $\Gamma ( \overrightarrow { o _ { j } } ) )$ . After that, for any source node $s _ { i }$ in $\Gamma ( \overrightarrow { o _ { j } } )$ , the covering requirement can be updated by $r ( s _ { i } ) = m a x \{ r ( s _ { i } ) - \kappa _ { i } ^ { \prime } , 0 \}$ 
+
+Thirdly, for all the source nodes in $\dot { \Lambda } ( [ \overrightarrow { o _ { l } } , \overrightarrow { o _ { k } } ] )$ , find all the feasible solutions, $i . e . , ( \kappa _ { l } , \kappa _ { l + 1 } , \ldots , \kappa _ { k } )$ , and put them in a set X. Then, for each feasible solution in $X ,$ do: 
+
+Algorithm 1 The Optimal Algorithm for the Circle Set Cover Problem
+Input: The group of sets $\Gamma(\overrightarrow{o_j})$ ( $1 \leq j \leq m$ ), and the covering requirement $\mathcal{R} = \{r(s_1), r(s_2), \ldots, r(s_n)\}$ ;
+Output: The optimal value $\kappa_1, \kappa_2, \ldots, \kappa_m$ ;
+1 Function Circle_Set_Cover_Scheduling([ $\overrightarrow{o_1}, \overrightarrow{o_m}$ ], $\mathcal{R}$ )
+2 Sort all the orientations in the clockwise order;
+3 if there exist an orientation cut $\overrightarrow{o_j}$ then
+4 Exploit the
+Line_Set_Cover_Scheduling([ $\overrightarrow{o_j}$ , prev( $\overrightarrow{o_j}$ )], $\mathcal{R}$ );
+5 else
+6 Let the collection cut [ $\overrightarrow{o_l}$ , $\overrightarrow{o_k}$ ] be the one with the minimum value $\prod_{j=l}^k r(\Gamma(\overrightarrow{o_j}))$ ;
+7 for $\forall \overrightarrow{o_t} \in [\overrightarrow{o_l}, \overrightarrow{o_k}]$ do
+8 Let $\Lambda(\overrightarrow{o_t})$ denote the set of source nodes only in $\Gamma(\overrightarrow{o_t})$ ;
+9 Set $\kappa'_t = max\{r(s_i), s_i \in \Lambda(\overrightarrow{o_t})\}$ ;
+10 For each source node $s_i$ in $\Gamma(\overrightarrow{o_t})$ , updated its requirement by $r(s_i) = max\{r(s_i) - \kappa'_t, 0\}$ ;
+11 Calculate all the feasible solutions for $\Lambda([\overrightarrow{o_l}, \overrightarrow{o_k}])$ and put them in a set $X$ ;
+12 for $\forall (\kappa_l, \kappa_{l+1}, \ldots, \kappa_k) \in X$ do
+13 Update the covering requirements for the source nodes in $\Gamma([\text{next}(\overrightarrow{o_k}), \text{prev}(\overrightarrow{o_l})])$ with $\kappa_l, \kappa_{l+1}, \ldots, \kappa_k$ ;
+14 Line_Set_Cover_Scheduling([\text{next}(\overrightarrow{o_k}), \text{prev}(\overrightarrow{o_l})], $\mathcal{R}$ );
+15 Calculate the total latency $\mathcal{L} = \sum_{j=1}^{m} \kappa_j + \sum_{j=l}^{k} \kappa_j'$ ;
+16 Find the one with minimum latency $\mathcal{L}$ , and the corresponding value $\kappa_j$ for each set;
+17 return $\kappa_1, \kappa_2, \ldots, \kappa_m$ ;
+18 Function Line_Set_Cover_Scheduling([ $\overrightarrow{o_l}$ , $\overrightarrow{o_k}$ ], $\mathcal{R}$ )
+19 $\overrightarrow{o_t} \leftarrow \overrightarrow{o_l}$ ;
+20 for $x = 1$ to $|[[\overrightarrow{o_l}, \overrightarrow{o_k}]] - 1$ do
+21 $\chi(\overrightarrow{o_t}) \leftarrow \Gamma(\overrightarrow{o_t}) - \Gamma(\text{next}(\overrightarrow{o_t}))$ ;
+22 $\kappa_t = max\{r(s_i), \forall s_i \in \chi(\overrightarrow{o_t})\}$ ;
+23 for $s_i \in \Gamma(\overrightarrow{o_t})$ do
+24 $r(s_i) = max\{r(s_i) - \kappa_t, 0\}$ ;
+25 $\overrightarrow{o_t} \leftarrow next(\overrightarrow{o_t})$ ;
+26 Set $\kappa_k = max\{r(s_i), \forall s_i \in \Gamma(\overrightarrow{o_k})\}$ ;
+27 return $\kappa_l, \kappa_{l+1}, \ldots, \kappa_k$ ; 
+
+• Update the covering requirement for the source nodes in $\Gamma ( [ n e x t ( \overrightarrow { o _ { k } } ) , p r e \nu ( \overrightarrow { o _ { l } } ) ] )$ with $\kappa _ { l } , \kappa _ { l + 1 } , \ldots , \kappa _ { k } ;$ 
+
+• Employ the above greedy algorithm for the source nodes in $\Gamma ( [ n e x t ( \overrightarrow { o _ { k } } ) , p r e \nu ( \overrightarrow { o _ { l } } ) ] )$ ; 
+
+<sup>,</sup>• Calculate the total latency $\begin{array} { r } { \mathcal { L } = \sum _ { j = 1 } ^ { m } \kappa _ { j } + \sum _ { j = l } ^ { k } \kappa _ { j } ^ { \prime } } \end{array}$ , where $\textstyle \sum _ { j = l } ^ { k } K _ { j } ^ { \prime }$ denotes the result in the second step. 
+
+Finally, the one with minimum latency will be chosen, and the corresponding value $\kappa _ { j }$ for each set will be obtained. One can find that, to further reduce the computation time, one can choose the orientation collection cut $[ \overrightarrow { o _ { l } } , \overrightarrow { o _ { k } } ]$ , which has the minimum value $\textstyle \prod _ { j = l } ^ { k } r ( \Gamma ( { \overrightarrow { o _ { j } } } ) )$ , where $r ( \Gamma ( \overrightarrow { o _ { j } } ) ) = m a x \{ r ( s _ { i } ) , s _ { i } \in$ $\Gamma ( \overrightarrow { o _ { j } } ) \ \& \ s _ { i } \notin \Lambda ( \overrightarrow { o _ { j } } ) \}$ denotes the maximum number times of set $\Gamma ( \overrightarrow { o _ { j } } )$ can be used in the third step. 
+
+Now, the complete algorithm is introduced, which is shown in Algorithm 1. Let $p$ denote the number of orientations in the collection $[ \overrightarrow { o _ { l } } , \overrightarrow { o _ { k } } ]$ and $\delta = m a x \{ | \Gamma ( \overrightarrow { o _ { j } } ) | , 1 \leq j \leq m \}$ . Then, the time complexity of Algorithm 1 is at most $O ( p ^ { r _ { m a x } + 1 } \cdot m \cdot \delta )$ Since $p$ is generally a much small number, then the proposed algorithm is polynomial. For the example in Fig.1, one can find that [o ] is an orientation collection cut (it includes one orientation), and the optimal result is computed as {1 2 2 0 2 2} for all the 6 orientations, which takes 9 time slots in total. Note that, even when the moving time of the directional charger is considered, the obtained result is still optimal. 
+
+![](images/b9ab4d56016feb0cf158035a6fbf5e1f130cfa1e4984dd1ff104f9984e20af8a.jpg)
+
+
+
+Fig. 4. The example of maximum peak AoI scheduling.
+
+
+## C. Data Transmission Scheduling Algorithm
+
+After obtaining the optimal charging latency, we choose to charge the source nodes periodically with the obtained result. Note that, once a source node has been charged enough energy, how to design the data transmission strategy is also much important for the AoI optimization problem. 
+
+In the following, we will consider the random sampling model firstly. Under such a model, one simplest way is let the node which has been charged enough energy just transmit its newest sample without any waiting, which is called the Transmitting without Waiting (TW) strategy. Although it would not incur any waiting time for the AoI, it may result in a node transmits a sample whose generation time is quite old. 
+
+For example, as in Fig.4(a), assume node $s _ { i }$ is charged enough energy at time $t _ { a }$ and $t _ { b }$ respectively, and $D _ { m a x }$ denotes the largest sampling interval. Assume it transmits the freshest sample at time $t _ { a }$ first. In this case, the AoI value would drop to 1 at time $t _ { a } + 1$ . At the next ready time $t _ { b }$ (the time that it has been charged enough energy), under the TW strategy, it will transmit the freshest sample arrives at time $t _ { a } + 1$ . Then, the AoI value will only drop to $\Upsilon _ { o p t }$ at time $t _ { b } + 1$ , and at the next ready time after $t _ { b } .$ , the maximum peak AoI will reach $2 \Upsilon _ { o p t } - 1$ , although the optimal maximum peak AoI is only $\Upsilon _ { o p t } + 1$ in this case. 
+
+In addition, if one lets the source nodes transmit the message only when they arrive a new sample, which is called the Transmit when a new sample Arrives (TA) strategy, then the maximum peak AoI for $\mathrm { F i g . 4 ( a ) }$ will be just $\Upsilon _ { o p t } + 1 ~ ( D _ { m a x }$ equals to $\Upsilon _ { o p t }$ here). But one cannot just exploit the TA strategy here. Considering the example in Fig.4(b), if it only transmits the message at time $t _ { a }$ and time $t _ { c } .$ , then the maximum peak AoI will also be $2 \Upsilon _ { o p t } - 1$ at time $t _ { c } ,$ which is also a much larger value. 
+
+Thus, to reduce the maximum peak AoI, we will introduce a threshold-based data transmission strategy here, by combining the above two strategies. It mainly works as follows. 
+
+Firstly, let $\Delta _ { s _ { i } } ( t )$ denote the duration between the present time t and the generation time of the freshest sample for source node $s _ { i } ,$ which can be calculated by $\Delta _ { s _ { i } } ( t ) = t - U _ { s _ { i } } ( t )$ 
+
+Secondly, for any source node $s _ { i } ,$ if it has not been charged enough energy at time t, then it just waits for being charged ready. Otherwise, at time slot t, it does as follows: 
+
+1) If $A _ { s _ { i } } ( t ) ~ \leq ~ \Upsilon _ { o p t }$ , continue to wait, where $\Upsilon _ { o p t }$ is the optimal charging latency. 
+
+2) Else if $\Upsilon _ { o p t } < A _ { s _ { i } } ( t ) \ \leq \ 3 \Upsilon _ { o p t } / 2$ and $\Delta _ { s _ { i } } ( t ) \ \leq \ \Upsilon _ { o p t } / 2$ <sup>< /</sup>transmit the freshest sample as in TW. 
+
+3) Else if $\Upsilon _ { o p t } < A _ { s _ { i } } ( t ) \ \leq \ 3 \Upsilon _ { o p t } / 2$ and $\Delta _ { s _ { i } } ( t ) > \Upsilon _ { o p t } / 2$ transmit when a new sample arrives as in $\mathrm { T A } .$ 
+
+4) $\mathrm { ~ I f ~ } A _ { s _ { i } } ( t ) > 3 \Upsilon _ { o p t } / 2 .$ , just transmit the freshest sample. 
+
+With the above strategy, it can return the maximum peak AoI at most $1 . 5 \mathcal { A } _ { o p t } .$ , which will be analyzed lately. As for the example shown in Fig.4(a) and $\mathrm { F i g . 4 ( b ) }$ , it will both return the maximum peak AoI of $\Upsilon _ { o p t } + 1$ in two cases. 
+
+As for the periodic sampling model, same as in the above analysis, we can just replace $\Upsilon _ { o p t } / 2$ by $T _ { i } / 2$ in the above conditions, $i . e . , \Delta _ { s _ { i } } ( t ) \leq T _ { i } / 2$ in the 2nd condition. Specially, for source node $s _ { i } ,$ <sup>/</sup> if it has been charged enough energy at time t, then do as follows: 
+
+1) If $T _ { i } ~ = ~ 1$ , which means it employs the per time slot sampling model, then it can just transmit the freshest data. In addition, if $T _ { i } > \Upsilon _ { o p t } .$ , one can just employ the TA strategy here. 
+
+2) Else if $A _ { s _ { i } } ( t ) > \Upsilon _ { o p t }$ and $\Delta _ { s _ { i } } ( t ) \leq T _ { i } / 2$ , then just transmit the freshest sample. 
+
+3) Else if $A _ { s _ { i } } ( t ) > \Upsilon _ { o p t }$ and $\Delta _ { s _ { i } } ( t ) > T _ { i } / 2$ , wait for a new sample and then transmit it. 
+
+4) If $A _ { s _ { i } } ( t ) ~ > ~ 3 \Upsilon _ { o p t } / 2$ , then just transmit the freshest sample. 
+
+Now, the Joint Age-based Data transmission and Energy replenishment (JADE) scheduling algorithm is completed. 
+
+## D. Performance Analysis
+
+Let the maximum peak AoI value of the proposed method be ${ \mathcal { A } } .$ In the following, we will first analyze the approximation ratio of JADE under the random sampling model. 
+
+Lemma $l \colon { H \operatorname { 1 } } \leq D _ { m a x } \leq \Upsilon _ { o p t } ,$ the maximum peak AoI of the proposed algorithm under random sampling model is at most $3 \Upsilon _ { o p t } / 2 + 1$ 
+
+Proof: We will prove $\mathcal { A } \leq 3 \Upsilon _ { o p t } / 2 + 1$ when $1 \leq D _ { m a x } \leq$ $\Upsilon _ { o p t }$ by contradiction. Without loss of generality, let the source node with the largest peak AoI be $s _ { i }$ and assume its maximum peak AoI is at least $3 \Upsilon _ { o p t } / 2 + 2 .$ . Let its maximum peak AoI be obtained at time t, then one can find that the last sample is at time $t - 3 \Upsilon _ { o p t } / 2 - 2$ . In addition, since the charging latency is at most $\Upsilon _ { o p t } ,$ , then it can be charged ready at time $t - \Upsilon _ { o p t } / 2 - 1$ . At such a time, if it decides to transmit, then the maximum peak AoI at time t will be less than $3 \Upsilon _ { o p t } / 2$ (Since $1 \leq D _ { m a x } \leq \Upsilon _ { o p t } )$ <sup>/</sup>, which is a contradiction. If it decides to wait, it can wait at most $\Upsilon _ { o p t } / 2 ,$ , implying that it transmits before t and its maximum peak AoI is obtained before $t ,$ which is a contradiction. Thus, one can have $\mathcal { A } \leq 3 \Upsilon _ { o p t } / 2 + 1$ 
+
+Lemma 2: If $D _ { m a x } > \Upsilon _ { o p t } ,$ , the maximum peak AoI of the proposed algorithm under random sampling model is at most $m a x \{ D _ { m a x } + \Upsilon _ { o p t } / 2 + 1 , 3 \Upsilon _ { o p t } / 2 + 1 \}$ 
+
+It can be proved by considering the following two extreme cases. First, consider an extreme case as in $\mathrm { F i g . } 5 ( \mathrm { a } )$ , where source node $s _ { i }$ has been charged ready at time $t _ { b }$ and transmits a newest sample whose generation time is $t _ { a } .$ . At time $t _ { c } ,$ if it decides to transmit a packet, then its maximum peak AoI is at most $m a x \{ 3 \Upsilon _ { o p t } / 2 + 1 , D _ { m a x } \}$ . If it decides to wait, its maximum peak AoI is also at most $3 \Upsilon _ { o p t } / 2 + 1$ since it will just transmit when its AoI reaches $3 \Upsilon _ { o p t } / 2$ <sup>/</sup>. When node $s _ { i }$ chooses to wait at time $t _ { b } ,$ <sup>/</sup> we can also have the same result. Additionally, consider another extreme case as in $\mathrm { F i g . } 5 ( \mathrm { b } )$ , where node s<sub>i</sub> waits its peak AoI reaches $3 \Upsilon _ { o p t } / 2$ at time $t _ { b } ,$ , while the newest sample still does not arrive. At this time, its maximum peak AoI will be $D _ { m a x } + \Upsilon _ { o p t } / 2 + 1$ at the next ready time at $t _ { d } .$ Note that, if the sample arrives earlier, a much smaller peak AoI will be obtained. 
+
+![](images/3749b3c2b15f6624c0d274bc0a1ef51354b573693462cf3a96c6bbbe2e09b867.jpg)
+
+
+
+Fig. 5. The example of maximum peak AoI analysis.
+
+
+Since $\mathcal { A } _ { o p t } \geq m a x \{ \Upsilon _ { o p t } + 1 , D _ { m a x } \}$ , then we can conclude that the approximation ratio of the proposed JADE algorithm is at most 1 5, which is shown in the following Theorem 5. 
+
+Theorem 5: Under the random sampling model, the approximation ratio of the proposed JADE algorithm is at most 1 5. 
+
+As for the periodic sampling model, we can prove that, $\mathcal { A } \leq m a x \{ \Upsilon _ { o p t } + T _ { m a x } / 2 + 1 , 3 \Upsilon _ { o p t } / 2 + 1 \}$ when $1 \leq T _ { m a x } \leq \Upsilon _ { o p t }$ as shown in the following Theorem 6, and the proof is omitted here. As for the per time slot sampling model $( T _ { i } ~ = ~ 1 $ for each source node $s _ { i } ) _ { \cdot }$ , since the proposed JADE can obtain the optimal charging latency when there is a single charger, then one can have the maximum peak AoI of the proposed algorithm is at most $\Upsilon _ { o p t } + 1$ . As for $T _ { i } > \Upsilon _ { o p t } ( 1 \leq i \leq n )$ , since each source node will just transmit the freshest sample when it is ready, then one can have $\mathcal { A } = T _ { m a x }$ , which is shown in the following Theorem 7. Thus, one can find that the proposed algorithm has an approximation ratio of at most 1.5 in the first case and can reach optimum in the second case. 
+
+Theorem 6: $H 1 \leq T _ { m a x } \leq \Upsilon _ { o p t } ,$ the maximum peak AoI of the proposed algorithm under periodic sampling model is at most $m a x \{ \Upsilon _ { o p t } + T _ { m a x } / 2 + 1 , 3 \Upsilon _ { o p t } / 2 + 1 \}$ 
+
+Theorem 7: If ${ T _ { i } \ = \ 1 ( T _ { i } \ > \ \Upsilon _ { o p t } ) }$ for each source node $s _ { i } ( 1 ~ \leq ~ i ~ \leq ~ n )$ , the maximum peak AoI of the proposed algorithm is at most $\Upsilon _ { o p t } + 1 ( T _ { m a x } )$ 
+
+## <sub>V.</sub> <sub>A</sub>o<sub>I</sub> <sub>S</sub>cheduling <sub>W</sub>ith <sub>M</sub>ultiple <sub>W</sub>ireless <sub>C</sub>hargers
+
+Since one charger’s covering area is usually limited, which may not cover the whole network, thus, we consider a more general scenario where there exist multiple directional wireless chargers deployed in the target area in this section. 
+
+Assume there are $q \ ( q \ > \ 1 )$ directional chargers in the area, which are denoted by $C ^ { 1 } , C ^ { 2 } , \ldots , C ^ { q }$ , respectively. Let $o ^ { j } ( t ) \ ( 1 \leq j \leq q )$ denote the orientation of the j-th charger at time slot t. For each charger $C ^ { j }$ , let the number of orientations of charger $C ^ { j }$ be $m _ { j } , \ i . e . , \ { \stackrel {  } { o _ { 1 } ^ { j } } } , { \stackrel {  } { o _ { 2 } ^ { j } } } , . . . , { \stackrel { \longrightarrow } { o _ { m _ { j } } ^ { j } } }$ . Similarly, denote $\Gamma ( \overrightarrow { o ^ { j } ( t ) } )$ as the set of source nodes that can be charged by charger $C ^ { j }$ at orientation $\overrightarrow { o ^ { j } ( t ) }$ . Note that, under this scenario, a source node may be charged by several chargers simultaneously. According to [2], the received power of source node $s _ { i }$ at time $t ,$ i.e., $P ( s _ { i } , t )$ , can be calculated as $P ( s _ { i } , t ) =$ $\begin{array} { r } { \sum _ { i = 1 } ^ { q } P ( s _ { i } , o ^ { j } ( t ) ) } \end{array}$ 
+
+Although the MPAS-M problem becomes more challenging under this scenario, fortunately, we find that the theoretical bounds for the maximum peak AoI still hold. Thus, in the following, we will study the charging latency minimization problem with multiple directional chargers firstly. 
+
+Note that, one cannot just use the above $r ( s _ { i } )$ to compute the charging time slots for source node $s _ { i }$ here. Therefore, we set $r ( s _ { i } ) = e _ { i } \cdot L _ { i }$ to be the required energy by source node $s _ { i } .$ 
+
+Let $t ^ { j } ( k )$ denote the number of time slots that charger $C ^ { j }$ stayed at its k-th orientation. Then, for charger $C ^ { j } .$ , its latency can be calculated as $\textstyle \sum _ { k = 1 } ^ { m _ { j } } t ^ { j } ( k )$ . As for the whole network, the charging latency minimization problem can be formulated as: 
+
+$$
+\begin{array}{l} \text {Minimize} \max _ {1 \leq j \leq q} \{\sum_ {k = 1} ^ {m _ {j}} t ^ {j} (k) \} \\ \text {subject to:} \sum_ {j = 1} ^ {q} \sum_ {k = 1} ^ {m _ {j}} t ^ {j} (k) \cdot P (s _ {i}, \overrightarrow {o ^ {j} (k)}) \cdot \tau \geq r (s _ {i}), 1 \leq i \leq n; \\ t ^ {j} (k) \in \{0, 1, 2, \ldots , \}, 1 \leq j \leq q, 1 \leq k \leq m _ {j}. \end{array}
+$$
+
+It can be proved to be NP-hard by transforming such a problem to the classic NP-hard separate assignment problem [53], where each charger can be seen as a bin with a capacity constraint and it tries to find a collection of sets (or orientations) to cover all the source nodes in the network. 
+
+Theorem 8: The charging latency minimization problem with multiple wireless chargers is $N P - h a r d .$ 
+
+In the following, we will introduce a constant approximation algorithm for it. 
+
+Firstly, since brute force all the possible orientations to find an optimal strategy is much costing, here, we transform the above problem to an LP problem where $t ^ { j } ( k )$ can be relaxed as a real number. Let $t ^ { j } \tilde { ( k ) }$ be the optimal value obtained by the LP solver. One can see $t ^ { j } \tilde { ( k ) }$ includes two parts: the integer part, denote by $\lfloor t ^ { j } \tilde { ( k ) } \rfloor$ , and the fractional part, denoted by $t ^ { j } { \hat { ( k ) } }$ . 
+
+Secondly, set $t ^ { j } ( k ) = \lfloor t ^ { j } \tilde { ( k ) } \rfloor$ . Update the covering requirement for each source node in $\Gamma ( \stackrel { \longrightarrow } { o _ { k } ^ { j } } )$ . For the fractional part, if $t ^ { j } \hat { ( k ) } > 1 / 2$ and there exists a node $s _ { i } \in \Gamma ( \stackrel {  } { o _ { k } ^ { j } } ) \& r ( s _ { i } ) >$ −→ $P ( s _ { i } , \stackrel {  } { o _ { k } ^ { j } } ) \cdot \tau / 2$ , then update $t ^ { j } ( k )$ by $t ^ { j } ( k ) + 1$ , and update the covering requirement for each source node in $\Gamma ( \stackrel { \longrightarrow } { o _ { k } ^ { j } } )$ 
+
+Thirdly, sort all the chargers according to their latency in the non-decreasing order. For each charger $C ^ { j } \left( 1 \leq j \leq q \right)$ , find a set of orientations that can cover the whole circle, denoted by $O ^ { j }$ . Since each orientation can cover a sector with angle $\phi ,$ then there are at most $\lceil 2 \pi / \phi \rceil$ such orientations. Then, for each charger $C ^ { j } \ ( 1 \leq j \leq q )$ , do as follows: 
+
+• For the $j \mathrm { - t h }$ charger, find an orientation from $O ^ { j }$ which can cover most uncover nodes $( i . e . , r ( s _ { i } ) > 0 )$ , let such orientation be $o _ { k } ^ { j } .$ 
+
+• Update $t ^ { j } ( k )$ by $t ^ { j } ( k ) + 1$ , and then update the covering requirements for the uncover nodes. 
+
+The above steps continue until there is no nodes with $r ( s _ { i } ) > 0$ 
+
+For distinguish, let $\Upsilon _ { o p t } ^ { M }$ denote the optimal charging latency with multiple wireless chargers, and $f$ be the maximum number of sets that includes a same node in a charger. Then we can have the following theorem. 
+
+Theorem $g _ { \dot { \cdot } }$ The proposed algorithm has a latency bound $o f 2 \Upsilon _ { o p t } ^ { M } + c ,$ where $c = \lceil f / 2 \rceil \cdot 2 \pi / \phi$ is a constant. 
+
+Proof: Let $\Upsilon ^ { M }$ denote the charging latency obtained by the proposed algorithm. Firstly, one can see $\begin{array} { r l } { \Upsilon _ { o p t } ^ { M } } & { { } \ge } \end{array}$ max $[ \textstyle \sum _ { k = 1 } ^ { m _ { j } } t ^ { j } \tilde { ( k ) } , 1 \le j \le q \}$ . In the proposed algorithm, one can have $\begin{array} { r } { \gamma ^ { * } \tilde { \boldsymbol { M } } ^ { * } = m a x \{ \sum _ { k = 1 } ^ { m _ { j } } t ^ { j } ( k ) , 1 \leq j \leq q \} } \end{array}$ . At the beginning, $t ^ { j } ( k )$ is set $\lfloor t ^ { j } ( \tilde { k } ) \rfloor$ . For the fractional part, i $\begin{array} { r } { \mathrm { ~ f ~ } [ t ^ { j } ( k ) ] \geq 1 } \\ { \mathrm { ~ } [ t ^ { j } ( k ) ] \geq 1 } \end{array}$ , then one can see, $t ^ { j } ( k ) = \lfloor t ^ { j } \tilde { ( k ) } \rfloor + 1 \leq 2 t ^ { j } \tilde { ( k ) }$ . In addition, if $t ^ { j } \hat { ( k ) } \geq 1 / 2$ , then $t ^ { j } ( k ) \leq 2 t ^ { j } \tilde { ( k ) }$ . And if $t ^ { j } \hat { ( k ) } < 1 / 2$ , for each charger, at most $\lceil f / 2 \rceil \cdot 2 \pi / \phi$ time slots are required. Then, the total latency of the proposed algorithm is at most $\begin{array} { r } { \Upsilon ^ { M } \leq m a x \{ \sum _ { k = 1 } ^ { m _ { j } } 2 t ^ { j } \tilde { ( k ) } \} + } \end{array}$ $\begin{array} { r } { [ f / 2 ] \cdot 2 \pi / \phi , 1 \le j \le q \} \le 2 \mathcal { L } _ { o p t } + \lceil f / 2 \rceil \cdot 2 \pi / \phi = \tilde { 2 } \mathbf { \tilde { Y } } _ { o p t } ^ { M } + c . } \end{array}$ The theorem is proved. 
+
+After obtaining the charging latency, then one can just exploit the above threshold-based transmission strategy for the MPAS-M problem. And its maximum peak AoI under random sampling model can be proved as in the above Theorem 5, which is shown in the following Theorem 10. 
+
+Theorem 10: The maximum peak AoI of the proposed algorithm is at most max $\{ D _ { m a x } + \Upsilon _ { o p t } ^ { M } + ( c + 1 ) / 2 , 3 \Upsilon _ { o p t } ^ { M } + ( 3 c +$ $1 ) / 2 \}$ 
+
+Note that, as for the per time slot sampling model, the maximum peak AoI can be just obtained as $2 \Upsilon _ { o p t } ^ { M } + c + 1$ as in Theorem 1. Under the periodic sampling model, the maximum peak AoI can be just obtained as in Theorem 6 and 7 by replacing $\Upsilon _ { o p t }$ with $2 \Upsilon _ { o p t } ^ { M } + c$ 
+
+## <sub>VI.</sub> <sub>A</sub>o<sub>I</sub> <sub>S</sub>cheduling <sub>U</sub>nder the <sub>N</sub>etwork <sub>B</sub>andwidth <sub>C</sub>onstraint
+
+In this section, we will introduce the method for the MPAS problem with the network bandwidth constraint. Note that, in this case, when a node has been charged ready, it does not mean it can just transmit its sampled data to the BS immediately, which makes the MPAS much more challenging. 
+
+## A. The Minimum Latency Parallel Charging and Transmitting Scheduling Problem
+
+Since the AoI of each node is only reduced when it finishes the transmission of its sampled data, similar as in Section IV, we first try to minimize the charging and transmitting latency, $i . e .$ , the time when the last node finishes its transmission, denoted as $\Upsilon ^ { B }$ . Diferent from the charging latency, to minimize $\Upsilon ^ { B } .$ , one not only needs to guarantee all the nodes can be charged enough energy for one transmission, but also needs to ensure all the nodes can finish their transmissions fast under the network bandwidth constraint. 
+
+Note that, the latency $\Upsilon ^ { B }$ is not only related to the choice of the charging orientations, but also the sequence of the charging orientations to utilize the available network bandwidth (the source nodes can only transmit their sampled data after they have been charged enough energy). For example, for the set of nodes which have a large size of sampled data, they should be charged earlier to utilize the parallelism of the charging process and the transmission process. Otherwise, if they are charged ready at the last time slot, many extra time slots are required to finish their transmissions. This means how to utilize the parallelism of the charging process and the data transmission process is significantly important for reducing the latency $\Upsilon ^ { \bar { B } }$ under the network bandwidth constraint. 
+
+In the following, we will introduce how to minimize the latency $\Upsilon ^ { B }$ , which is denoted as the Minimum Latency Parallel Charging and Transmitting scheduling (MLPCT) problem. 
+
+Let B denote the network bandwidth, which means the data transmitted at each time slot should not exceed B. Without loss of generality, assume $\begin{array} { r } { \sum _ { i = 1 } ^ { n } L _ { i } \ \geq \ B } \end{array}$ (otherwise, one can just let each node transmit its sampled data immediately as in Section IV). In this paper, we will first consider the case when there exist a single charger, and it can be easily extended for the case with multiple chargers. 
+
+Since a node may transmit its sampled data during several consecutive time slots, we design a new variable, $d _ { i } ( t )$ , which denotes the size of transmitted data of source node $s _ { i }$ at time slot t. Obviously, for each source node $s _ { i } , d _ { i } ( t ) \leq L _ { i } \left( 1 \leq i \leq n \right)$ . And, for the whole network, one can have: 
+
+$$
+\sum_ {i = 1} ^ {n} d _ {i} (t) \leq B, \forall t = 1, 2, \dots
+$$
+
+Note that, if source node $s _ { i }$ tries to transmit its data at time $t , \ i . e . , \ d _ { i } ( t ) \ > \ 0$ , it must have been charged ready at time t (without loss of generality, we assume each node $s _ { i }$ can only transmit its data after it has been charged ready for transmitting a complete sampled data, $i . e . , e _ { i } \cdot L _ { i } )$ . In addition, the variable $x _ { i } ( t )$ in Section III is re-defined as a binary variable which denotes whether source node $s _ { i }$ finishes its data transmission process at time slot $t , i . e .$ 
+
+$$
+x _ {i} (t) = \left\{ \begin{array}{l l} 1, & i f \sum_ {k = 1} ^ {t} d _ {i} (k) \geq L _ {i} \\ 0, & o t h e r w i s e \end{array} \right.
+$$
+
+Then, the latency $\Upsilon ^ { B }$ can be computed as $\Upsilon ^ { B } = m a x \{ t | x _ { i } ( t ) =$ $1 , 1 \leq i \leq n \}$ . The Minimum Latency Parallel Charging and Transmitting scheduling (MLPCT) problem can be formulated as follows: 
+
+$$
+m i n i m i z e \Upsilon^ {B} = m a x \{t | x _ {i} (t) = 1, 1 \leq i \leq n \}
+$$
+
+sub jectto : 
+
+$$
+\sum_ {i = 1} ^ {n} d _ {i} (t) \leq B, t = 1, 2, \dots\tag{1}
+$$
+
+$$
+x _ {i} (t) = 1, i f \sum_ {k = 1} ^ {t} d _ {i} (k) \geq L _ {i}\tag{2}
+$$
+
+$$
+d _ {i} (k) = 0, i f \sum_ {t = 1} ^ {k - 1} P (s _ {i}, \overrightarrow {o (t)}) \cdot \tau <   e _ {i} \cdot L _ {i},
+$$
+
+$$
+i = 1, 2, \ldots n\tag{3}
+$$
+
+$$
+\overrightarrow {o (t)} \in \{\overrightarrow {o _ {1}}, \overrightarrow {o _ {2}}, \dots , \overrightarrow {o _ {m}} \}, t = 1, 2, \dots\tag{4}
+$$
+
+Note that, the constraint (1) is the network bandwidth at each time slot and the constraint (2) means node $s _ { i }$ must finish the transmission of its sampled data $L _ { i } .$ . The constraint (3) is the energy constraint of node $s _ { i } , \ i . e .$ , it cannot transmit the data before it has been charged ready. Let $\Upsilon _ { o p t } ^ { B }$ denote the optimal charging and transmitting latency. Obviously, one can have $\Upsilon _ { o p t } ^ { B } \geq \Upsilon _ { o p t } + 1$ , where $\Upsilon _ { o p t }$ is the optimal charging latency and can be obtained by the methods introduced in Section IV. 
+
+Considering the huge searching space of the charging orientations, it’s hard to obtain the $\mathcal { \bar { \Upsilon } } _ { o p t } ^ { \bar { B } }$ directly. In the following, we will introduce an eficient method for the MLPCT problem. 
+
+## B. The Two-Stage Flow Shop Scheduling Based Algorithm
+
+Before introducing the method for the MLPCT problem, we first show a simple case of the MLPCT problem can be transformed to a Two-Stage Flow Shop problem [54], which is a classical machine scheduling problem. 
+
+Consider a two-stage flow shop problem, where there exist m jobs, i.e., $J _ { 1 } , J _ { 2 } , \ldots , J _ { m } .$ . For each job $J _ { i } ,$ it includes two parts, $i . e . , J _ { i 1 }$ and $J _ { i 2 }$ , which need to be processed on two machines, respectively, as in Fig.6(a). The processing time of job $J _ { i }$ on two machines are $P _ { i 1 }$ and $P _ { i 2 }$ , respectively. Note that, for each job $J _ { i } ,$ its part $J _ { i 2 }$ on machine 2 can only begin after the job $J _ { i 1 }$ is finished on machine 1. Then, the two-stage flow shop problem is to find a sequence scheduling of the m jobs while the final completion time is minimized. 
+
+For the MLPCT problem, when the covered nodes of each orientation is non-overlapped, $i . e . , \ \Gamma ( \overrightarrow { o _ { i } } ) \cap \Gamma ( \overrightarrow { o _ { j } } ) \ = \ \emptyset \ ( 1 \ \leq$ $i ~ \neq ~ j ~ \leq ~ m )$ , it can be formulated as a two-stage flow shop scheduling problem as follows. For each orientation ${ \overrightarrow { o _ { i } } } ,$ since there is non-overleaped covered nodes, then at most $\kappa _ { i } = m a x \{ r ( s _ { j } ) , \forall s _ { j } \in \Gamma ( \overrightarrow { o _ { i } } ) \}$ time slots are required. This means <sup>κ ,</sup>the charging time with $\overrightarrow { o _ { i } }$ is $\kappa _ { i } .$ After all the nodes are charged ready, the transmission time for the nodes in $\Gamma ( \overrightarrow { o _ { i } } )$ can be computed as $\textstyle \sum _ { s _ { i } \in \Gamma ( \overrightarrow { o _ { i } } ) } L _ { j } / B$ . Then, for each orientation $\overrightarrow { o _ { i } }$ , one can create a job $J _ { i } ,$ whose processing time on two machines are $\kappa _ { i }$ and $\textstyle \sum _ { s _ { i } \in \Gamma ( { \overrightarrow { o _ { i } } } ) } L _ { j } / B$ , respectively. That is $P _ { i 1 } ~ = ~ \kappa _ { i }$ and $\begin{array} { r } { P _ { i 2 } = \sum _ { s _ { i } \in \Gamma ( \vec { o _ { i } } ) } \tilde { L } _ { j } / \ddot { B } } \end{array}$ in the two-stage flow shop problem. 
+
+In addition, in case some nodes $s _ { j } \in \Gamma ( \overrightarrow { o _ { i } } )$ may be charged ready before $\kappa _ { i } , ~ i . e . , ~ r ( s _ { j } ) ~ < ~ \kappa _ { i }$ , we can transfer it to the <sup>κ <</sup> <sup>κ</sup>two-stage flow shop problem with setup times. For example, as shown in ${ \mathrm { F i g . 6 ( b ) } }$ , for orientation $o _ { i } ,$ after charging $P _ { i 1 } ^ { 1 }$ time, some nodes are charged ready, and the required transmitting time for these nodes is $P _ { i 2 } ^ { 1 }$ . Similarly, after charging another $P _ { i 1 } ^ { 2 }$ and $P _ { i 1 } ^ { 3 }$ time with orientation $\overrightarrow { o _ { i } }$ , the required transmitting time of the ready nodes are $P _ { i 2 } ^ { 2 }$ and $P _ { i 2 } ^ { 3 }$ , respectively. In this case, one can just see $P _ { i 2 } ^ { 1 }$ and $\dot { P _ { i 2 } ^ { \bar { 2 } } }$ as the setup time of job $J _ { i }$ on machine 2 as shown in Fig.6(c). With such transformation, one can obtain the optimal sequence scheduling with the method in [54], which tries to minimize the idle time on machine 2. 
+
+However, for the general case, each source node may be charged by diferent orientations, and each orientation can charge several source nodes. As a result, one cannot just organize the jobs on two machines simply as introduced above, even when we obtained the optimal charging latency. For example, a source node may be charged by several orientations cooperatively, which means it is only charged ready when these orientations are arranged enough times. This makes the MLPCT problem much complicated. Note that, the two-stage flow shop problem with single precedence constraint or with release time are both proved to be NP-hard [55]. 
+
+![](images/facb0093b250c747387b19c6e31a1f0adb8f16441478b5a1527b5a0a39609011.jpg)
+
+
+
+Fig. 6. The example of two-stage flow shop problem and the MLPCT problem.
+
+
+In the following, we will introduce an eficient sequence scheduling method for the MLPCT problem. Its main idea is to finish as many as more transmission tasks before the optimal charging latency to utilize the parallelism of the charging process and transmitting process. 
+
+Let $\kappa _ { 1 } , \kappa _ { 2 } , \ldots , \kappa _ { m }$ be the optimal number of charging orientations for the charging latency optimization problem, which can be obtained by the algorithm introduced in Section IV, and $\begin{array} { r } { \Upsilon _ { o p t } = \sum _ { j = 1 } ^ { m } \kappa _ { j } } \end{array}$ is the obtained optimal charging latency. In the proposed algorithm, we try to arrange the charging orientations from time slot 1 to $\Upsilon _ { o p t }$ with $\boldsymbol { k } _ { 1 } , \boldsymbol { k } _ { 2 } , \ldots , \boldsymbol { k } _ { m }$ as follows. Let $\hat { \kappa _ { j } } \ ( 1 \leq j \leq m )$ denote the left number of charging orientation ${ \overrightarrow { o _ { j } } } ,$ , which is set as $\kappa _ { j }$ at the beginning. Additionally, for each source node $s _ { i } ( 1 \leq i \leq n )$ , let $r ( \hat { \boldsymbol { s } } _ { i } )$ be its left required charging time slots, which is set as $r ( s _ { i } )$ at the beginning. Note that, $r ( s _ { i } )$ is the required number of charging time slots of node $s _ { i }$ for one transmission. Then, for each time slot t = 1 to $\Upsilon _ { o p t } ,$ do as follows: 
+
+1) For each source node $s _ { i } ( 1 ~ \leq ~ i ~ \leq ~ n ) .$ , if $r ( { \hat { s } } _ { i } ) ~ > ~ 0$ calculate its urgency to be charged, i.e., $\mu _ { i } = L _ { i } / r ( \hat { \boldsymbol { s } } _ { i } )$ Here, the urgency $\mu _ { i }$ means if the size of transmitted data of source node $s _ { i }$ <sup>µ</sup>is larger and it is close to be charged ready (a small $r ( \hat { s } _ { i } ) )$ , then it should be scheduled earlier to utilize the parallelism of the charging process and data transmitting process; 
+
+2) For each orientation $\overrightarrow { o _ { j } } \left( 1 \leq j \leq m \right)$ , if $\hat { \kappa _ { j } } > 0 ,$ calculate its weight to be scheduled, $\begin{array} { r } { i . e . , \ w _ { j } = \sum _ { s _ { i } \in \Gamma ( \overrightarrow { o } _ { i } ) } \mu _ { i } } \end{array}$ . If an orientation owns a larger weight, then it should be scheduled earlier; 
+
+3) Let $\overrightarrow { o _ { j ^ { \prime } } }$ be the one with maximum weight. Set $\overrightarrow { o ( t ) } = \overrightarrow { o _ { j ^ { \prime } } }$ and update $\hat { \mathscr { \kappa } _ { j ^ { \prime } } }$ by $\hat { \kappa _ { j ^ { \prime } } } - 1$ ; 
+
+4) For each source node $s _ { i } \in \Gamma ( \overrightarrow { o _ { j ^ { \prime } } } )$ , set $r ( \hat { \boldsymbol { s } } _ { i } )$ as $r ( \hat { s } _ { i } ) =$ ma $x \{ r ( \hat { s } _ { i } ) - 1 , 0 \}$ 
+
+Note that, at each time slot t, one can just schedule the transmissions of the nodes that have been charged ready $( i . e .$ $r ( \hat { s } _ { i } ) ~ = ~ 0 )$ with the first-come-first-serve manner under the network bandwidth constraint. 
+
+Let $\Upsilon ^ { B }$ denote the charging and transmitting latency obtained by the above algorithm. Note that, when $r ( s _ { i } ) = 1 ( 1 \leq$ $i \leq n )$ and $\begin{array} { r } { B \geq \sum _ { i = 1 } ^ { n } L _ { i } / \Upsilon _ { o p t } . } \end{array}$ , it can achieve the optimal latency $\Upsilon _ { o p t } ^ { B } , \mathfrak { i . e . , } \Upsilon ^ { B } = \mathring { \Upsilon } _ { o p t } ^ { B } = \Upsilon _ { o p t } ^ { \circ } + 1$ , which is shown as follows. 
+
+Theorem 11: $I f ^ { ' } r ( s _ { i } ) = 1 ( 1 \leq i \leq n )$ and $\begin{array} { r } { B \geq \sum _ { i = 1 } ^ { n } L _ { i } / \Upsilon _ { o p t } , } \end{array}$ the one can have $\Upsilon ^ { B } = \Upsilon _ { o p t } ^ { B } = \Upsilon _ { o p t } + 1$ 
+
+Proof: Let $\overrightarrow { o ( 1 ) } , \overrightarrow { o ( 2 ) } , \dotsc , \overrightarrow { o ( \Upsilon _ { o p t } ) }$ be the computed sequence of orientations of the proposed method. From time $t \ = \ 1$ to $\Upsilon _ { o p t }$ , let $S _ { t }$ denote the set of source nodes being first charged ready at the end of time slot t. Denote $B _ { t }$ as the total of increased size of transmitted data at the end of time slot t, which can be computed as $\begin{array} { r } { B _ { t } = \sum _ { s _ { i } \in S _ { t } } L _ { i } . } \end{array}$ In the proposed method, since we choose the orientation <sup>−→</sup>o which has the largest weight to be scheduled, then one can obtain that $B _ { 1 } ~ > ~ B _ { 2 } . . . . ~ > ~ B _ { \Upsilon _ { o p t } }$ when $r ( s _ { i } ) ~ = ~ 1 ( 1 ~ \leq ~ i ~ \leq ~ n )$ Since the transmitted data during the whole period is at most $\scriptstyle \sum _ { i = 1 } ^ { n } L _ { i } ,$ then one can have $\begin{array} { r } { \sum _ { t = 1 } ^ { \Upsilon _ { o p t } } \breve { B } _ { t } \leq \sum _ { i = 1 } ^ { n } L _ { i } } \end{array}$ . In addition, since $\begin{array} { r } { B \geq \sum _ { i = 1 } ^ { n } L _ { i } / \Upsilon _ { o p t } , } \end{array}$ it means $\begin{array} { r } { \sum _ { t = 1 } ^ { \operatorname { \dot { T } } _ { o p t } } B _ { t } \le \sum _ { i = 1 } ^ { n } L _ { i } \le B \times \Upsilon _ { o p t } } \end{array}$ . Then, one can easily obtain that $B _ { \Upsilon _ { o p t } } \leq B .$ On the other hand, since $\begin{array} { r } { \sum _ { t = 1 } ^ { \Upsilon _ { o p t } } B _ { t } \le B \times \Upsilon _ { o p t } , } \end{array}$ , one can also obtain that all the nodes can finish its transmission at time slot $\Upsilon _ { o p t } + 1$ . It means $\Upsilon ^ { B }$ is at most $\Upsilon _ { o p t } + 1$ . Since the optimal latency $\Upsilon _ { o p t } ^ { B } \geq \Upsilon _ { o p t } + 1$ , then one can have $\Upsilon ^ { B } = \Upsilon _ { o p t } ^ { B } = \Upsilon _ { o p t } + 1$ . The theorem is proved. 
+
+As for the general case, the upper bound of $\boldsymbol { \Upsilon } ^ { B }$ is proved in Theorem 12. 
+
+Theorem 12: In the proposed algorithm, one can have $\Upsilon ^ { B } \leq$ $\begin{array} { r } { \Upsilon _ { o p t } + \lceil ( \sum _ { i = 1 } ^ { n } L _ { i } - ( \lfloor \Upsilon _ { o p t } / r _ { m a x } \rfloor - 1 ) \times m i n \{ L _ { m i n } , B \} ) / B \rceil , } \end{array}$ , where $L _ { m i n } = m i n \{ L _ { i } , 1 \leq i \leq n \}$ 
+
+Proof: Considering the parallelism of the charging process and transmitting process, the latency $\Upsilon ^ { B }$ is actually composed of two parts: the charging latency $\Upsilon _ { o p t }$ and the data transmission latency after $\Upsilon _ { o p t }$ . According to the proposed algorithm, at least one source node $s _ { i }$ is charged ready after $r _ { m a x }$ time, where $r _ { m a x }$ is the maximum required charging slots among all source nodes. If $L _ { i } \quad \leq \quad B _ { \mathrm { { \scriptsize { i } } } }$ , then at least $L _ { m i n }$ data can be transmitted. Otherwise, the transmitted data is at least B. It means the data transmitted during time 1 to $\Upsilon _ { o p t }$ is at least $( \lfloor \Upsilon _ { o p t } / r _ { m a x } \rfloor - 1 ) \times m i n \{ L _ { m i n } , B \}$ . Then, the data transmitted data after $\Upsilon _ { o p t }$ is at most $\scriptstyle \sum _ { i = 1 } ^ { n } L _ { i } ~ -$ $( \lfloor \Upsilon _ { o p t } / r _ { m a x } \rfloor - 1 ) \times m i n \{ L _ { m i n } , B \}$ . Thus, one can have $\Upsilon ^ { B } \ \leq$ $\begin{array} { r } { \Upsilon _ { o p t } + \lceil ( \sum _ { i = 1 } ^ { n } L _ { i } - ( \lfloor \Upsilon _ { o p t } / r _ { m a x } \rfloor - 1 ) \times m i n \{ L _ { m i n } , B \} ) / B \rceil \leq \Upsilon _ { o p t } + } \end{array}$ $\lceil ( \sum _ { i = 1 } ^ { n } L _ { i } - ( \lfloor \Upsilon _ { o p t } / r _ { m a x } \rfloor - 1 ) \times m i n \{ L _ { m i n } , B \} ) / B \rceil$ . The theorem is proved. 
+
+## C. AoI Scheduling Under Diferent Sampling Models
+
+In this subsection, we will introduce the AoI scheduling algorithms with respect to diferent sampling models under the network bandwidth constraint. 
+
+Firstly, consider the per time slot sampling model, i.e., $T _ { i } =$ 1 for each source node $s _ { i } ~ ( 1 \leq i \leq n )$ . In this case, one can just employ the proposed algorithm in the above subsection to obtain the charging orientation and data transmission decision at each time slot. 
+
+Let $\mathcal { A } ^ { B }$ denote the maximum peak AoI obtained by the proposed method. According to Theorem 1 in Section $^ \mathrm { I V , }$ one can easily obtain that the obtained maximum peak AoI is equal to $\Upsilon ^ { B }$ in this case (the time slot when the last source node finishes transmission), i.e., $\mathcal { A } ^ { B } = \Upsilon ^ { B }$ . Additionally, we find that if $L _ { i } = 1 \ ( 1 \leq i \leq n )$ and the network bandwidth $B \geq$ $\delta ,$ we can still obtain the optimal maximum peak AoI, i.e., $\mathcal { A } ^ { B } = \mathcal { A } _ { o p t } ^ { B } = \Upsilon _ { o p t } + 1$ , where denotes the maximum number of covered source nodes by an orientation. 
+
+Theorem 13: $I f L _ { i } = 1 ( 1 \leq i \leq n )$ and $B \geq \delta$ under per time slot sampling model, then one can have $\mathcal { A } ^ { B } = \mathcal { A } _ { o p t } ^ { B } = \Upsilon _ { o p t } + 1$ 
+
+Proof: Let $S _ { t }$ be the set of source nodes being charged ready at time slot t. Since $L _ { i } = 1 \ ( 1 \leq i \leq n )$ , then the size of required transmitted data is at most $| S _ { t } |$ at the end of time slot t. In addition, since $\delta$ denotes the maximum number of covered source nodes by any orientation, thus, one can have $\left| S _ { t } \right| \leq \delta$ . If $B \geq \delta ,$ then one can have $\left| S _ { t } \right| \le \delta \le B .$ It means all the charged source nodes can finish their transmission at the next time slot. Thus, one can have $\mathcal { A } ^ { B } = \Upsilon _ { o p t } + 1$ , where $\Upsilon _ { o p t }$ is the obtained charging latency of the proposed method. On the other hand, since $\mathcal { R } _ { o p t } ^ { B } = \Upsilon _ { o p t } ^ { B } \geq \Upsilon _ { o p t } + 1$ , then one can also have $\mathcal { A } ^ { B } = \mathcal { A } _ { o p t } ^ { B } = \Upsilon _ { o p t } + 1$ . The theorem is proved. 
+
+Secondly, as for the random and periodic sampling model, we also employ the threshold based schedule strategy as JADE in Section V.C after we obtain the charging orientations and their orders with the algorithm introduced above. Note that, after we obtain the data transmission decision as in JADE, we cannot just transmit their sampled data here. 
+
+Denote $y _ { i } ( t )$ as the transmission decision made by the JADE algorithm, $i . e . .$ , whether source node $s _ { i }$ is scheduled to transmit at time slot t. Let $S ~ = ~ \{ s _ { i } ~ | ~ y _ { i } ( t ) ~ = ~ 1 , \forall 1 ~ \leq ~ i ~ \leq ~ n \}$ as the set of nodes that need to be transmitted at time slot t. Since there may also exist some source nodes that do not finish their transmissions at the beginning of time slot t, let $S _ { p r e \nu }$ be the set of such nodes. In addition, if a node has transmitted part of its transmitted data, we will prior choose such node to finish its transmission at time slot t. Actually, there exists only one such node (without loss of generality, we assume $L _ { i } \leq B$ here). Let the left network bandwidth be $\beta . \mathrm { ~ H ~ } \beta > 0 .$ , as for the left nodes in $S _ { p r e \nu } \cup S _ { \mathrm { { \small p r e \nu } } }$ , we do as follows: 
+
+1) Let $s _ { i }$ be the one with maximum AoI in $S \cup S _ { p r e \nu } , i . e .$ argmax ${ } _ { \mathrm { s } _ { i } } \{ A _ { s _ { i } } ( t ) , s _ { i } \in S \cup S _ { p r e \nu } \}$ . We try to schedule the node with maximum AoI first here. 
+
+2) If $L _ { i } \leq \beta ,$ one can just finish $s _ { i } { } ^ { \prime } \mathbf { s }$ transmission at time slot t. Update $\beta$ as $\beta = \beta - L _ { i }$ . Remove $s _ { i }$ from $S \cup S _ { p r e \nu }$ 
+
+3) Otherwise, transmit $s _ { i } ^ { \cdot } \mathrm { s }$ sampled data with size of $\beta ,$ and set $\beta$ <sup>β</sup>as 0. Then one can move to the next time slot. Note that, if $S \cup S _ { p r e \nu }$ is not empty, all the nodes in $S \cup S _ { p r e \nu }$ will be set as $S _ { p r e \nu }$ in the next time slot. 
+
+The above process repeats until $\beta = 0 \mathrm { o r } S \cup S _ { p r e \nu }$ are empty. <sup>β</sup>Under random sampling model, the maximum peak AoI of the above algorithm can be proved to be at most $\begin{array} { r l r } { m a x \{ \Upsilon _ { o p t } } & { { } + } & { D _ { m a x } / 2 \quad + } \end{array}$ $\begin{array} { r l r } { \lceil ( \sum _ { i = 1 } ^ { n } L _ { i } - ( \lfloor { \Upsilon _ { o p t } / r _ { m a x } } \rfloor - 1 ) \times m i n \{ L _ { m i n } , B \} ) / B \rceil , 3 \Upsilon _ { o p t } / 2 } & { { } } & { + } \end{array}$ $\lceil ( \sum _ { i = 1 } ^ { n } L _ { i } - ( \lfloor \Upsilon _ { o p t } / r _ { m a x } \rfloor - 1 ) \times m i n \{ L _ { m i n } , B \} ) / B \rceil \}$ as in Section IV. As for the periodic sampling model, one can also obtain the upper bound of the maximum peak AoI as in Theorem 7 and 8. 
+
+## <sub>VII.</sub> <sub>S</sub>imulation <sub>R</sub>esults
+
+In this section, we evaluate the performance of the proposed algorithms through extensive simulations. Note that, in the simulations, the proposed algorithms under diferent data transmission strategies, i.e., the TW and TA strategy, are also evaluated, denoted by JADE-TW and JADE-TA, respectively. Additionally, the following baseline algorithms are evaluated: 
+
+First, two heuristic AoI scheduling methods are exploited as the baseline, where we greedily choose the transmission nodes and the orientations of the chargers at each time slot. In the first method, we let the node with maximum AoI to be charged, which is denoted by Greedy-AoI. In the second method, we prior choose the orientation which can cover the largest sum of AoI values. This method is denoted by Greedy-Charge. Note that, in these two methods, the source nodes will transmit their freshest samples immediately when they have been charged enough energy. 
+
+Second, the existing AoI based transmission scheduling method considering diferent sampling models, $i . e . ,$ , Juventas [24], is compared in the experiments, where we first choose the nodes need to be transmitted as in [24], and then schedule the charger’s orientation to charge such nodes. In addition, the method which tries to optimize the average peak AoI under the energy harvesting model, i.e., LARF [38], is also compared. 
+
+Third, for the scenario with multiple chargers, we first exploit the optimal charging schedules obtained by CPLEX with three data transmission strategies as the lower bound. They are denoted by Optimal-TW, and Optimal-TA, Optimal-TT (the one with threshold). In addition, we also exploit the Greedy-Charge scheduling method as the baseline here, where we choose the orientation of each charger greedily. 
+
+In the simulations, we mainly focus on the charging latency and maximum peak AoI performance of the proposed algorithms under various network models, where we randomly deploy 100 nodes in a 100m×100m field. As in [2], the parameters are set $\alpha = 1 0 0 0 0 , \beta = 4 0 , R = 4 0$ , and the length of a time slot is set 10. The length of the data size is set from 10 to 100 and the energy for transmitting unit data are set 4, which means the number of required charging time slots, i.e., $r ( s _ { i } )$ , is ranging from 1 to 15 in the experiments. In addition, the sampling period of each source node is generated randomly to test a wide range of configurations. In all the simulations, each plotted point represents the average of 100 executions. 
+
+## A. AoI and Latency With a Single Wireless Charger
+
+In this group of experiments, we first evaluate the charging latency of the proposed methods with a single charger, and then the maximum peak AoI under diferent number of source nodes (i.e., n), charging time slot (r(s )), and periodic and random sampling model. 
+
+Fig.7 compares the charging latency of the proposed methods as a function of n and $r ( s _ { i } )$ . To demonstrate the performance of the proposed algorithms, we first employ the Line Set Cover scheduling algorithm as the baseline (where we just choose the set from the first orientation to the last one). In addition, a greedy algorithm which charges the nodes one by one (denoted by Greedy by Nodes) is also evaluated. The first observation from Fig.7 is that the charging latency of the proposed algorithms is much less than that of the two baseline algorithms in all the scenarios. Especially, compared to the Greedy by Nodes method, the charging latency is reduced by almost a half. This demonstrates the importance of considering the overlapped charging orientations for directional charging. 
+
+Fig.8 evaluates the maximum peak AoI of the proposed methods under diferent n and $r ( s _ { i } )$ . As one can see in $\mathrm { F i g . 8 ( a ) }$ the maximum peak AoI of the proposed methods under diferent data transmission strategies is much less than the one of the existing Juventas and LARF methods and the Greedy-AoI and Greedy-Charge baseline algorithms. Compared to other methods, the Juventas method performs the worst. This is because it prefers to schedule the nodes which can be fast charged. But, in the directional charging model, these nodes can be simultaneously charged when scheduling other nodes. This is also why the Greedy-Charge algorithm performs much better than the Juventas, LARF and Greedy-AoI algorithms. This demonstrates the importance of considering the charging schedule at the wireless-powered network edge. 
+
+![](images/9167433c4456b79dfc9334137e827d7070ad78d14491c878d1b765e847c91292.jpg)
+
+
+
+(a) Number of Source Nodes
+
+
+![](images/0a49a3ad1e9b58b326ca415f3fdf345c6c1072f68645278f26158c402f91d718.jpg)
+
+
+
+Fig. 7. Charging latency.
+
+
+
+(b) Average Required Charging Time
+
+
+![](images/dff36292ccd59479c82f92b8feb989e3734017264452a50287e5ad7129cdaa1d.jpg)
+
+
+
+(a) Number of Source Nodes
+
+
+![](images/14835a6d32f827e736a14e25ac78edf7566bc5b5fae88cb56e9c55212d6fac35.jpg)
+
+
+
+(b) Average Required Charging Time
+
+
+
+Fig. 8. Maximum peak AoI.
+
+
+![](images/866ce75f9d5055eddac14961f886bafbd96085b7975629c14f07b6790d7c286a.jpg)
+
+
+
+(a) Periodical Sampling Model
+
+
+![](images/e76df0217dd611733178bb31834f5dea81c00b0705bbf303eb71a57c7e1b2426.jpg)
+
+
+
+(b) Random Sampling Model
+
+
+
+Fig. 9. Maximum peak AoI.
+
+
+Fig.9 presents the maximum peak AoI of the proposed methods under diferent sampling models. The periodic sampling model is evaluated as in Fig.9(a). As one can see, when $T _ { i } = 1$ , the maximum peak AoI of each method is fixed. This is because it is just equal to the charging latency (we fix the source nodes’ position and data size here). Additionally, one can find that the proposed threshold-based method (JADE) performs much better in all scenarios, while the TW method performs much worse when $T _ { m a x } ~ > ~ \Upsilon _ { o p t }$ (as in Fig.9(a)) and the TA method performs much worse under the random sampling model (as in Fig.9(b)). In addition, one can also find that, compared to the Juventas and Greedy-AoI methods, the LARF method performs a little better, which considers the peak AoI of source nodes during scheduling. But it still performs much worse than JADE and Greedy-Charge, since it also ignores the charging schedule during AoI optimization. 
+
+Fig.10 shows the performance of average AoI of each method. To further understand the performance of the proposed methods, we compare the performance of average AoI of each method. On can first find that, although the 
+
+![](images/2cb7f64479655f8c564870ae2184a0a10ef201fbb55bb9c27e57301bcbe86d4b.jpg)
+
+
+
+(a) Number of Source Nodes
+
+
+![](images/b04de2e94eaf6203099f4b832cd8097aaaf7e5dbe1a5a207dd4777da2de2df19.jpg)
+
+
+
+(b) Number of Wireless Chargers
+
+
+
+Fig. 10. Average AoI.
+
+
+![](images/ed97b7667efc07b4e1eb474db0db95845285f3fe9895bc313dceeae93c89d397.jpg)
+
+
+
+(a) Number of Source Nodes
+
+
+![](images/d1c1a672f0d89e544b7f866bbb0cc870214c2b6c468d2258b96d59f7c07e5d16.jpg)
+
+
+
+(b) Number of Wireless Chargers
+
+
+
+Fig. 11. Charging latency.
+
+
+![](images/790ca7347046ad7c9689042f9e3de1225ddcb26a055812fadc11ad3457faeffd.jpg)
+
+
+
+(a) Number of Source Nodes
+
+
+![](images/fb109882e6c21204ec8f236ebfcc5a762fa21e48195894c12f11e6dd6fe0424c.jpg)
+
+
+
+(b) Number of Wireless Chargers
+
+
+
+Fig. 12. Maximum peak AoI.
+
+
+Juventas is designed to optimize the average AoI, but it still performs much worse than the proposed JADE methods. This is mainly because the proposed JADE algorithm can minimize the maximum peak AoI of each source node through an eficient charging schedule. This demonstrates the importance of considering the charging schedule at the wireless-powered network edge from another perspective. 
+
+## B. AoI and Latency With Multiple Wireless Chargers
+
+Next, we evaluate the performance of the proposed algorithm when there exist multiple wireless chargers. 
+
+Fig.11 presents the charging latency of the proposed algorithms for diferent n and q values. Firstly, compared to the Greedy-Charge method, the latency of the proposed approximate method can be reduced by almost 60%. The latency of Greedy-Charge is even larger than the maximum latency calculated by each charger independently (denoted by Single-Max). Compared to the optimal method, the performance of the approximate method is very close, which demonstrates its eficiency in charging latency. 
+
+Fig.12 compares the maximum peak AoI of the proposed algorithms for diferent n and q values. One can see that, in both scenarios, the maximum peak AoI of the proposed approximate method (i.e., Appro.) is much less than the one of Greedy-Charge. This is mainly due to the proposed method not only can obtain a much small charging latency, but also can improve the maximum peak AoI by the TT transmission strategy (the one with threshold). 
+
+Fig.13 compares the maximum peak AoI of the proposed algorithms under diferent sampling models. An interesting observation is that, when we set nodes’ sampling period to be 40, which exceeds the charging latency, the maximum peak 
+
+![](images/f332544ce37a62ea56627029e6d8202782bd13119e4c8b88960c0bb3f7235f56.jpg)
+
+
+
+(a) Periodical Sampling Model
+
+
+![](images/b9fa9606a674a6f566accd3d09aecd35dcf79d7904d898a59186ca4c2022c0d6.jpg)
+
+
+
+(b) Random Sampling Model
+
+
+
+Fig. 13. Maximum peak AoI.
+
+
+![](images/96719c5932ba1d2fbb0d2b0c00efd5cc955201bf9b80942b3399e91b90ed2c59.jpg)
+
+
+![](images/861e13bff82f15586b81744a8f7d65ecfac26942a6a4077b8fb868bc3f12652c.jpg)
+
+
+
+(a) Number of Source Nodes (b) Average Required Charing (c) Average Size of Sampled Time Data
+
+
+![](images/1168b2c611e27e4930449889fc2ba826336cf68d481564d177da608164ceb60e.jpg)
+
+
+
+Fig. 14. Charging and transmitting latency.
+
+
+AoI of the TT and TA transmission strategy drops in Fig.13(a), while other methods still grow. This is because they can return the optimal result $T _ { m a x }$ in this case. Note that, the TW strategy cannot return the optimal result here. Additionally, diferent from the periodic scenario, the AoI of all methods still increase under the random sampling model as in Fig.13(b). This is because the sampling duration can range from 1 to $D _ { m a x }$ in this case. 
+
+## C. AoI and Latency With Network Bandwidth Constraint
+
+Last, we evaluate the performance of the proposed algorithm under the network bandwidth constraint. Note that, the proposed algorithm for the MLPCT problem and AoI scheduling problem are denoted as Sequence-Bandwidth and JADE-Bandwidth, respectively. In the experiments, the network bandwidth is set 20 and the size of sampled data of the source nodes are ranging from 1 to 10. 
+
+Fig.14 presents the latency of the proposed algorithms for the MLPCT problem. Note that, the Random-Bandwidth (where we choose the sequence of the computed charging orientations randomly) and the Optimal method (where we try to search for the optimal sequence) are also evaluated. Firstly, compared to the Greedy-Charge and Random-Bandwidth methods, the latency of the proposed Sequence-Bandwidth method is much less, which is much close to the one of the Optimal method. It demonstrates the eficiency of the proposed Sequence-Bandwidth method by considering the parallelism of the charging process and the data transmission process. Additionally, one can also find that, when the average size of the sampled data is increasing, the latency of each method grows slowly at the beginning as in Fig.14(c). This is mainly because that the latency is mainly dominated by the charging latency in this case. 
+
+Fig.15 compares the maximum peak AoI of the proposed JADE-Bandwidth algorithm under diferent number of source nodes and average charging time. One can observe that the maximum peak AoI of the proposed JADE-Bandwidth method is much less than the one of other methods in both scenarios as in Fig.15(a) and Fig.15(b). This is mainly due to the proposed JADE-Bandwidth method not only can choose the charging orientations smartly to reduce the charging and transmitting latency, but also can generate the data transmission decisions eficiently to improve the maximum peak AoI under the network bandwidth constraint. Although the Juventas also considers the network bandwidth during scheduling, it performs much worse since it ignores the charging process, which plays a much important role for AoI scheduling at wireless-powered network edge. 
+
+![](images/c7145b642e23561d01d65add30f0188e8d91e758ce8b67d5459be37096946e1d.jpg)
+
+
+
+(a) The Number of Source Nodes
+
+
+![](images/209524ba6e2cf46b8118d4358ecf6c6eac881c2697f7b24a803649e7663da617.jpg)
+
+
+
+(b) Average Required Charing Time
+
+
+
+Fig. 15. Maximum peak AoI under network bandwidth.
+
+
+![](images/5d772026a2540084d0120f3179aff14fe0db4b6b79664607e0a81d4496a9ebc8.jpg)
+
+
+
+(a) Average Size of Sampled Data
+
+
+![](images/6ede577cbf8e6c56e570362958c6109bec6afff3b3395eb25858d96228fd7d48.jpg)
+
+
+
+(b) Random Sampling Model
+
+
+
+Fig. 16. Maximum peak AoI under network bandwidth.
+
+
+Fig.16 evaluates the maximum peak AoI of the proposed JADE-Bandwidth algorithm under diferent size of sampled data and sampling periods. Compared to the one without bandwidth constraint, the maximum peak AoI of each method grows with the increasing of the size of sampled data, and the proposed JADE-Bandwidth method still performs much better than other methods, where the maximum peak AoI is reduced by almost 40% on average. It demonstrates the eficiency of the proposed method for AoI scheduling at wireless-powered network edge, by considering both the charging process and the data transmission process. 
+
+## <sub>VIII.</sub> <sub>C</sub>onclusion and <sub>F</sub>uture <sub>W</sub>ork
+
+In this paper, the AoI scheduling problem by optimizing both data transmission and energy replenishment is investigated for the first time. To minimize the peak AoI, the theoretical bounds of the maximum peak AoI with respect to the charging latency are derived under diferent sampling models. For the minimum peak AoI scheduling problem with a single charger, an approximation algorithm with a ratio of up to 1.5 is proposed, which includes an optimal charging latency optimization algorithm and a data transmission scheduling strategy. When there are multiple chargers and the network bandwidth constraint, several approximate algorithms are also designed to reduce the maximum peak AoI. Finally, the theoretical analysis and simulation results verify the high performance of the proposed algorithms. 
+
+For future works, we will continue to investigate the AoI scheduling problem with unreliable wireless links at wireless-powered network edge, by optimizing data transmission and energy replenishment simultaneously. First, the relationship between the expected peak AoI and the optimal charging latency will be investigated. Then, the eficient scheduling methods by considering both directional charging and data transmission with unreliable wireless links will be studied. Additionally, to further improve the performance, the AoI optimization algorithms with adjustable charging angles will also be investigated. 
+
+## <sub>R</sub>eferences
+
+
+
+[1] Q. Chen, Z. Cai, L. Cheng, F. Wang, and H. Gao, “Joint near-optimal age-based data transmission and energy replenishment scheduling at wireless-powered network edge,” in Proc. IEEE INFOCOM, May 2022, pp. 770–779. 
+
+
+
+
+
+[2] H. Dai, X. Wang, A. X. Liu, H. Ma, G. Chen, and W. Dou, “Wireless charger placement for directional charging,” IEEE/ACM Trans. Netw., vol. 26, no. 4, pp. 1865–1878, Aug. 2018. 
+
+
+
+
+
+[3] Z. Wang, L. Duan, and R. Zhang, “Adaptively directional wireless power transfer for large-scale sensor networks,” IEEE J. Sel. Areas Commun., vol. 34, no. 5, pp. 1785–1800, May 2016. 
+
+
+
+
+
+[4] C. Lin, Y. Zhou, F. Ma, J. Deng, L. Wang, and G. Wu, “Minimizing charging delay for directional charging in wireless rechargeable sensor networks,” in Proc. IEEE INFOCOM, Paris, France, Apr./May 2019, pp. 1819–1827. 
+
+
+
+
+
+[5] G. Loubet et al., “LoRaWAN battery-free wireless sensors network designed for structural health monitoring in the construction domain,” Sensors, vol. 19, no. 7, pp. 1–26, 2019. 
+
+
+
+
+
+[6] W.-K. Lee, M. J. W. Schubert, B.-Y. Ooi, and S. J. Ho, “Multi-source energy harvesting and storage for floating wireless sensor network nodes with long range communication capability,” IEEE Trans. Ind. Appl., vol. 54, no. 3, pp. 2606–2615, May 2018. 
+
+
+
+
+
+[7] F. Xiao, Z. Wang, N. Ye, R. Wang, and X.-Y. Li, “One more tag enables fine-grained RFID localization and tracking,” IEEE/ACM Trans. Netw., vol. 26, no. 1, pp. 161–174, Feb. 2018. 
+
+
+
+
+
+[8] A. Kosta, N. Pappas, and V. Angelakis, “Age of information: A new concept, metric, and tool,” Found. Trends Netw., vol. 12, no. 3, pp. 162–259, Nov. 2017. 
+
+
+
+
+
+[9] S. Kaul, M. Gruteser, V. Rai, and J. Kenney, “Minimizing age of information in vehicular networks,” in Proc. IEEE SECON, Salt Lake City, UT, USA, Jun. 2011, pp. 350–358. 
+
+
+
+
+
+[10] S. Kaul, R. Yates, and M. Gruteser, “Real-time status: How often should one update?” in Proc. IEEE INFOCOM, Mar. 2012, pp. 2731–2735. 
+
+
+
+
+
+[11] L. Huang and E. Modiano, “Optimizing age-of-information in a multiclass queueing system,” in Proc. IEEE ISIT, Jun. 2015, pp. 1681–1685. 
+
+
+
+
+
+[12] Y. Inoue, H. Masuyama, T. Takine, and T. Tanaka, “The stationary distribution of the age of information in FCFS single-server queues,” in Proc. IEEE Int. Symp. Inf. Theory (ISIT), Jun. 2017, pp. 571–575. 
+
+
+
+
+
+[13] A. M. Bedewy, Y. Sun, and N. B. Shrof, “Minimizing the age of information through queues,” IEEE Trans. Inf. Theory, vol. 65, no. 8, pp. 5215–5232, Aug. 2019. 
+
+
+
+
+
+[14] T.-W. Kuo, “Minimum age TDMA scheduling,” in Proc. IEEE INFO-COM, Apr. 2019, pp. 2296–2304. 
+
+
+
+
+
+[15] I. Kadota and E. Modiano, “Minimizing the age of information in wireless networks with stochastic arrivals,” in Proc. ACM Mobihoc, Jul. 2019, pp. 221–230. 
+
+
+
+
+
+[16] A. M. Bedewy, Y. Sun, S. Kompella, and N. B. Shrof, “Age-optimal sampling and transmission scheduling in multi-source systems,” in Proc. ACM MobiHoc, Jul. 2019, pp. 121–130. 
+
+
+
+
+
+[17] I. Kadota, A. Sinha, and E. Modiano, “Optimizing age of information in wireless networks with throughput constraints,” in Proc. IEEE INFO-COM, Apr. 2018, pp. 1844–1852. 
+
+
+
+
+
+[18] Q. He, D. Yuan, and A. Ephremides, “Optimal link scheduling for age minimization in wireless systems,” IEEE Trans. Inf. Theory, vol. 64, no. 7, pp. 5381–5394, Jul. 2018. 
+
+
+
+
+
+[19] R. Talak, S. Karaman, and E. Modiano, “Optimizing information freshness in wireless networks under general interference constraints,” in Proc. ACM MobiHoc, Jun. 2018, pp. 61–70. 
+
+
+
+
+
+[20] N. Lu, B. Ji, and B. Li, “Age-based scheduling: Improving data freshness for wireless real-time trafic,” in Proc. ACM MobiHoc, Jun. 2018, pp. 191–200. 
+
+
+
+
+
+[21] R. Talak, S. Karaman, and E. Modiano, “Minimizing age-of-information in multi-hop wireless networks,” in Proc. 55th Annu. Allerton Conf. Commun., Control, Comput. (Allerton), Oct. 2017, pp. 486–493. 
+
+
+
+
+
+[22] Q. Liu, H. Zeng, and M. Chen, “Minimizing age-of-information with throughput requirements in multi-path network communication,” in Proc. ACM MobiHoc, Jul. 2019, pp. 41–50. 
+
+
+
+
+
+[23] J. Lou, X. Yuan, S. Kompella, and N.-F. Tzeng, “AoI and throughput tradeofs in routing-aware multi-hop wireless networks,” in Proc. IEEE INFOCOM, Jul. 2020, pp. 476–485. 
+
+
+
+
+
+[24] C. Li, S. Li, and Y. T. Hou, “A general model for minimizing age of information at network edge,” in Proc. IEEE INFOCOM, Apr./May 2019, pp. 118–126. 
+
+
+
+
+
+[25] C. Li, Y. Huang, Y. Chen, B. Jalaian, Y. T. Hou, and W. Lou, “Kronos: A 5G scheduler for AoI minimization under dynamic channel conditions,” in Proc. IEEE ICDCS, Jul. 2019, pp. 1466–1475. 
+
+
+
+
+
+[26] Z. Qian, F. Wu, J. Pan, K. Srinivasan, and N. B. Shrof, “Minimizing age of information in multi-channel time-sensitive information update systems,” in Proc. IEEE INFOCOM, Jul. 2020, pp. 446–455. 
+
+
+
+
+
+[27] L. Hu, Z. Chen, Y. Jia, M. Wang, and T. Q. S. Quek, “Asymptotically optimal arrival rate for IoT networks with AoI and peak AoI constraints,” IEEE Commun. Lett., vol. 25, no. 12, pp. 3853–3857, Dec. 2021. 
+
+
+
+
+
+[28] Q. Liu, C. Li, Y. T. Hou, W. Lou, J. H. Reed, and S. Kompella, “Aion: A bandwidth conserving scheduler with data freshness guarantee,” IEEE Trans. Mobile Comput., early access, Oct. 20, 2022, doi: 10.1109/TMC.2022.3215934. 
+
+
+
+
+
+[29] C. Li et al., “Scheduling with age of information guarantee,” IEEE/ACM Trans. Netw., vol. 30, no. 5, pp. 2046–2059, Oct. 2022. 
+
+
+
+
+
+[30] R. D. Yates, “Lazy is timely: Status updates by an energy harvesting source,” in Proc. IEEE Int. Symp. Inf. Theory (ISIT), Jun. 2015, pp. 3008–3012. 
+
+
+
+
+
+[31] A. Arafa and S. Ulukus, “Age minimization in energy harvesting communications: Energy-controlled delays,” in Proc. 51st Asilomar Conf. Signals, Syst., Comput., Oct./Nov. 2017, pp. 1801–1805. 
+
+
+
+
+
+[32] B. T. Bacinoglu and E. Uysal-Biyikoglu, “Scheduling status updates to minimize age of information with an energy harvesting sensor,” in Proc. IEEE Int. Symp. Inf. Theory (ISIT), Jun. 2017, pp. 1122–1126. 
+
+
+
+
+
+[33] X. Wu, J. Yang, and J. Wu, “Optimal status update for age of information minimization with an energy harvesting source,” IEEE Trans. Green Commun. Netw., vol. 2, no. 1, pp. 193–204, Mar. 2018. 
+
+
+
+
+
+[34] S. Feng and J. Yang, “Minimizing age of information for an energy harvesting source with updating failures,” in Proc. IEEE Int. Symp. Inf. Theory (ISIT), Jun. 2018, pp. 2431–2435. 
+
+
+
+
+
+[35] B. T. Bacinoglu, Y. Sun, E. Uysal–Bivikoglu, and V. Mutlu, “Achieving the age-energy tradeof with a finite-battery energy harvesting source,” in Proc. IEEE Int. Symp. Inf. Theory (ISIT), Jun. 2018, pp. 876–880. 
+
+
+
+
+
+[36] A. Arafa, J. Yang, S. Ulukus, and H. V. Poor, “Age-minimal transmission for energy harvesting sensors with finite batteries: Online policies,” IEEE Trans. Inf. Theory, vol. 66, no. 1, pp. 534–556, Jan. 2020. 
+
+
+
+
+
+[37] A. Arafa and S. Ulukus, “Age-minimal transmission in energy harvesting two-hop networks,” in Proc. GLOBECOM, Dec. 2017, pp. 1–6. 
+
+
+
+
+
+[38] T. Zhu, J. Li, H. Gao, Y. Li, and Z. Cai, “AoI minimization data collection scheduling for battery-free wireless sensor networks,” IEEE Trans. Mobile Comput., vol. 22, no. 3, pp. 1343–1355, Mar. 2023. 
+
+
+
+
+
+[39] M. A. Abd-Elmagid, N. Pappas, and H. S. Dhillon, “On the role of age of information in the Internet of Things,” IEEE Commun. Mag., vol. 57, no. 12, pp. 72–77, Dec. 2019. 
+
+
+
+
+
+[40] M. A. Abd-Elmagid, H. S. Dhillon, and N. Pappas, “A reinforcement learning framework for optimizing age of information in RFpowered communication systems,” IEEE Trans. Commun., vol. 68, no. 8, pp. 4747–4760, Aug. 2020. 
+
+
+
+
+
+[41] T. D. P. Perera, D. N. K. Jayakody, I. Pitas, and S. Garg, “Age of information in SWIPT-enabled wireless communication system for 5GB,” IEEE Wireless Commun., vol. 27, no. 5, pp. 162–167, Oct. 2020. 
+
+
+
+
+
+[42] Q. Gu, G. Wang, R. Fan, F. Li, H. Jiang, and Z. Zhong, “Optimal resource allocation for wireless powered sensors: A perspective from age of information,” IEEE Commun. Lett., vol. 24, no. 11, pp. 2559–2563, Nov. 2020. 
+
+
+
+
+
+[43] I. Krikidis, “Average age of information in wireless powered sensor networks,” IEEE Wireless Commun. Lett., vol. 8, no. 2, pp. 628–631, Apr. 2019. 
+
+
+
+
+
+[44] Y. Zheng, J. Hu, and K. Yang, “Average age of information in wireless powered relay aided communication network,” IEEE Internet Things J., vol. 9, no. 13, pp. 11311–11323, Jul. 2022. 
+
+
+
+
+
+[45] Y. Khorsandmanesh, M. J. Emadi, and I. Krikidis, “Average peak age of information analysis for wireless powered cooperative networks,” IEEE Trans. Cogn. Commun. Netw., vol. 7, no. 4, pp. 1291–1303, Dec. 2021. 
+
+
+
+
+
+[46] H. Zheng, K. Xiong, P. Fan, Z. Zhong, and K. B. Letaief, “Age of information-based wireless powered communication networks with selfish charging nodes,” IEEE J. Sel. Areas Commun., vol. 39, no. 5, pp. 1393–1411, May 2021. 
+
+
+
+
+
+[47] Z. Zhou, Z. Yun, C. Fu, C. J. Xue, and S. Han, “Maintaining realtime data freshness in wireless powered communication networks,” in Proc. IEEE Real-Time Syst. Symp., Houston, TX, USA, Dec. 2020, pp. 166–177. 
+
+
+
+
+
+[48] H. Dai, X. Wang, A. X. Liu, F. Zhang, Y. Zhao, and G. Chen, “Omnidirectional chargability with directional antennas,” in Proc. IEEE 24th Int. Conf. Netw. Protocols (ICNP), Singapore, Nov. 2016, pp. 1–10. 
+
+
+
+
+
+[49] X. Wang et al., “Practical heterogeneous wireless charger placement with obstacles,” IEEE Trans. Mobile Comput., vol. 19, no. 8, pp. 1910–1927, Aug. 2020. 
+
+
+
+
+
+[50] X. Wang, H. Dai, H. Huang, Y. Liu, G. Chen, and W. Dou, “Robust scheduling for wireless charger networks,” in Proc. IEEE INFOCOM, Paris, France, Apr. 2019, pp. 2323–2331. 
+
+
+
+
+
+[51] H. Dai, K. Sun, A. X. Liu, L. Zhang, J. Zheng, and G. Chen, “Charging task scheduling for directional wireless charger networks,” IEEE Trans Mobile Comput., vol. 20, no. 11, pp. 3163–3180, Nov. 2021. 
+
+
+
+
+
+[52] (2021). Power Over Distance RF Energy Harvesting & Wireless Power. Providing Solutions Since 2003. [Online]. Available: https://www.powercastco.com/ 
+
+
+
+
+
+[53] L. Fleischer, M. X. Goemans, V. S. Mirrokni, and M. Sviridenko, “Tight approximation algorithms for maximum general assignment problems,” in Proc. ACM SODA, 2006, pp. 611–620. 
+
+
+
+
+
+[54] T. Yoshida and K. Hitomi, “Optimal two-stage production scheduling with setup times separated,” AIIE Trans., vol. 11, no. 3, pp. 261–263, Sep. 1979. 
+
+
+
+
+
+[55] J. K. Lenstra, A. H. G. R. Kan, and P. Brucker, “Complexity of machine scheduling problems,” Ann. Discrete Math., vol. 1, pp. 343–362, Jan. 1977. 
+
+
+
+![](images/32975ddf10c4dfdfdcb3ab4500b12deb188576199274ba8997585ea6d8737d9d.jpg)
+
+
+Quan Chen (Member, IEEE) received the B.S., master’s, and Ph.D. degrees from the School of Computer Science and Technology, Harbin Institute of Technology, China. He is currently an Associate Professor with the School of Computers, Guangdong University of Technology. In the past, he was a Post-Doctoral Research Fellow with Georgia State University. His current research interests include the IoT networks, wireless communication, and edge computing. He was a recipient of the Hong Kong Scholar Award, the ACM SIGCOM 
+
+CHINA Excellent Doctoral Dissertation, and the CCF Excellent Doctoral Dissertation Nomination Award. He has served as the technical program committee member for several refereed conferences and a technical reviewer for several IEEE T<sup>ransactions</sup>. 
+
+![](images/890d320f4a24f31fb981d1cc0ecefc8d1c47afd9704d8677679cc0eaf985e7fb.jpg)
+
+
+Song Guo (Fellow, IEEE) is currently a Full Professor with the Department of Computing, The Hong Kong Polytechnic University. He also holds a Changjiang Chair Professorship awarded by the Ministry of Education of China. His current research interests include big data, edge AI, mobile computing, and distributed systems. With many impactful articles published in top venues in these areas, he has been recognized as a Highly Cited Researcher (Web of Science) and received more than 12 best paper awards from IEEE/ACM conferences, 
+
+journals, and technical committees. He is an ACM Distinguished Member. He is the Editor-in-Chief of IEEE O<sup>pen</sup> J<sup>ournal</sup> <sup>of</sup> <sup>the</sup> C<sup>omputer</sup> S<sup>ociety</sup>. He has served on the IEEE Communications Society Board of Governors and the IEEE Computer Society Fellow Evaluation Committee. He has served on the editorial board of several prestigious international journals. He has also served as the chair for organizing and technical committees of many international conferences. 
+
+![](images/2d24ec27a962389ff54d605765b286c1d280b1a16eabe41823b675cb8caee235.jpg)
+
+
+Zhipeng Cai (Senior Member, IEEE) received the B.S. degree from the Beijing Institute of Technology and the M.S. and Ph.D. degrees from the Department of Computing Science, University of Alberta. He is currently a Professor with the Department of Computer Science, Georgia State University. His current research interests include networking, privacy, and big data. He is a recipient of the NSF CAREER Award. He is currently the Steering Committee Co-Chair of WASA. He is an Editor/a Guest Editor of Algorithmica, Theoretical Computer Science, 
+
+Journal of Combinatorial Optimization, and IEEE<sup>/</sup>ACM T<sup>ransactions</sup> <sup>on</sup> <sub>C</sub>omputational <sub>B</sub>iology and <sub>B</sub>ioinformatics<sub>.</sub> 
+
+![](images/95e6855fcb1e73f1d403ac9b7e45fe2a6e8abc20eb3c18ce407a4add06a290a7.jpg)
+
+
+Jing Li (Member, IEEE) received the B.Sc. (Hons.) and Ph.D. degrees from The Australian National University, in 2018 and 2022, respectively. He is currently a Post-Doctoral Fellow with The Hong Kong Polytechnic University. His current research interests include edge computing, the Internet of Things, digital twin, network function virtualization, and combinatorial optimization. 
+
+![](images/dff2538f6d67d13fe7f7e42581140fa6517dd1d990ae338e706593b07a43bd3f.jpg)
+
+
+Tuo Shi received the B.S., M.S., and Ph.D. degrees in computer science from the Harbin Institute of Technology, China. He is currently a Post-Doctoral Researcher with the City University of Hong Kong. Before that, he was a Research Associate with Tianjin University. He has published papers in refereed journals and conferences, including IEEE<sup>/</sup>ACM <sub>T</sub>ransactions on <sub>N</sub>etworking<sub>,</sub> <sub>IEEE</sub> <sub>T</sub>ransactions <sup>on</sup> M<sup>obile</sup> C<sup>omputing</sup>, IEEE INFOCOM, and IEEE ICDCS. His current research interests include battery-free networks and mobile edge computing. 
+
+He is a reviewer of distinguished journals, including IEEE T<sup>ransactions</sup> <sup>on</sup> <sub>W</sub>ireless <sub>C</sub>ommunications<sub>,</sub> <sub>IEEE</sub> <sub>I</sub>nternet of <sub>T</sub>hings <sub>J</sub>ournal<sub>,</sub> <sub>IEEE</sub> <sub>T</sub>ransac<sub>-</sub> tions on <sub>K</sub>nowledge and <sub>D</sub>ata <sub>E</sub>ngineering<sub>,</sub> <sub>and Journal</sub> <sub>of</sub> <sub>Current</sub> <sub>Science</sub> and Technology. 
+
+![](images/adc848f627e1208da81ba261057626944929a48866c08c6f2d1c1b7238e02b80.jpg)
+
+
+Hong Gao received the B.S. degree in computer science from Heilongjiang University, the M.S. degree from Harbin Engineering University, China, and the Ph.D. degree in computer science from the Harbin Institute of Technology. She is currently a Professor with the School of Computer Science and Technology, Zhejiang Normal University. Her current research interests include graph data management, sensor networks, and massive data management. She is the winner of the National Science and Technology Progress Award. 

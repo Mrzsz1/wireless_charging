@@ -1,0 +1,1730 @@
+[
+    {
+        "type": "text",
+        "text": "Algorithmic Game Theory",
+        "text_level": 2,
+        "bbox": [
+            359,
+            93,
+            634,
+            112
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Over the last few years, there has been explosive growth in the research done at the interface of computer science, game theory, and economic theory, largely motivated by the emergence of the Internet. Algorithmic Game Theory develops the central ideas and results of this new and exciting area.",
+        "bbox": [
+            135,
+            129,
+            858,
+            193
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "More than 40 of the top researchers in this field have written chapters whose topics range from the foundations to the state of the art. This book contains an extensive treatment of algorithms for equilibria in games and markets, computational auctions and mechanism design, and the “price of anarchy,” as well as applications in networks, peer-to-peer systems, security, information markets, and more.",
+        "bbox": [
+            135,
+            195,
+            860,
+            278
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "This book will be of interest to students, researchers, and practitioners in theoretical computer science, economics, networking, artificial intelligence, operations research, and discrete mathematics.",
+        "bbox": [
+            135,
+            278,
+            858,
+            329
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Noam Nisan is a Professor in the Department of Computer Science at The Hebrew University of Jerusalem. His other books include Communication Complexity.",
+        "bbox": [
+            135,
+            345,
+            858,
+            380
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Tim Roughgarden is an Assistant Professor in the Department of Computer Science at Stanford University. His other books include Selfish Routing and the Price ofAnarchy.",
+        "bbox": [
+            135,
+            398,
+            858,
+            432
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Eva Tardos is a Professor in the Department of Computer Science at Cornell University.<sup>´</sup> Her other books include Algorithm Design.",
+        "bbox": [
+            135,
+            449,
+            858,
+            483
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Vijay V. Vazirani is a Professor in the College of Computing at the Georgia Institute of Technology. His other books include Approximation Algorithms.",
+        "bbox": [
+            135,
+            500,
+            860,
+            535
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            0,
+            0,
+            998,
+            998
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Algorithmic Game Theory",
+        "text_level": 1,
+        "bbox": [
+            223,
+            92,
+            772,
+            129
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Edited by",
+        "bbox": [
+            445,
+            309,
+            550,
+            331
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Noam Nisan",
+        "bbox": [
+            417,
+            334,
+            578,
+            358
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Hebrew University ofJerusalem",
+        "bbox": [
+            385,
+            362,
+            612,
+            382
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Tim Roughgarden",
+        "bbox": [
+            385,
+            394,
+            612,
+            419
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Stanford University",
+        "bbox": [
+            427,
+            423,
+            570,
+            442
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Eva Tardos<sup>´</sup>",
+        "bbox": [
+            427,
+            456,
+            570,
+            479
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Cornell University",
+        "bbox": [
+            429,
+            486,
+            568,
+            504
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Vijay V. Vazirani",
+        "bbox": [
+            391,
+            518,
+            604,
+            542
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Georgia Institute ofTechnology",
+        "bbox": [
+            387,
+            546,
+            608,
+            564
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "footer",
+        "text": "CAMBRIDGE UNIVERSITY PRESS",
+        "bbox": [
+            371,
+            850,
+            624,
+            892
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "cambridge university press Cambridge, New York, Melbourne, Madrid, Cape Town, Singapore, Sao Paulo, Delhi˜",
+        "bbox": [
+            139,
+            78,
+            744,
+            108
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Cambridge University Press 32 Avenue of the Americas, New York, NY 10013-2473, USA",
+        "bbox": [
+            139,
+            121,
+            596,
+            153
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "www.cambridge.org Information on this title: www.cambridge.org/9780521872829",
+        "bbox": [
+            139,
+            161,
+            594,
+            191
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "\u0001C Noam Nisan, Tim Roughgarden, Eva Tardos, Vijay V. Vazirani 2007<sup>´</sup>",
+        "bbox": [
+            139,
+            205,
+            654,
+            221
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "This publication is in copyright. Subject to statutory exception and to the provisions of relevant collective licensing agreements, no reproduction of any part may take place without the written permission of Cambridge University Press.",
+        "bbox": [
+            139,
+            235,
+            610,
+            299
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "First published 2007",
+        "bbox": [
+            139,
+            313,
+            295,
+            327
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Printed in the United States of America",
+        "bbox": [
+            139,
+            343,
+            431,
+            358
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "A catalog recordfor this book is availablefrom the British Library.",
+        "bbox": [
+            139,
+            373,
+            626,
+            390
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Library ofCongress Cataloging in Publication Data",
+        "bbox": [
+            139,
+            405,
+            524,
+            421
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Algorithmic game theory / edited by Noam Nisan . . . [et al.]; foreword by Christos Papadimitriou.",
+        "bbox": [
+            139,
+            426,
+            650,
+            458
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "p. cm.",
+        "bbox": [
+            155,
+            460,
+            217,
+            472
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Includes index.",
+        "bbox": [
+            139,
+            474,
+            257,
+            488
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "ISBN-13: 978-0-521-87282-9 (hardback)",
+        "bbox": [
+            139,
+            488,
+            443,
+            504
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "ISBN-10: 0-521-87282-0 (hardback)",
+        "bbox": [
+            139,
+            504,
+            411,
+            518
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "1. Game theory. 2. Algorithms. I. Nisan, Noam. II. Title.",
+        "bbox": [
+            139,
+            518,
+            582,
+            535
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "QA269.A43 2007",
+        "bbox": [
+            139,
+            534,
+            291,
+            549
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "519.3–dc22 2007014231",
+        "bbox": [
+            139,
+            550,
+            375,
+            564
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "ISBN 978-0-521-87282-9 hardback",
+        "bbox": [
+            139,
+            580,
+            413,
+            595
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Cambridge University Press has no responsibility for",
+        "bbox": [
+            139,
+            610,
+            528,
+            627
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "the persistence or accuracy of URLS for external or",
+        "bbox": [
+            139,
+            627,
+            520,
+            642
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "third-party Internet Web sites referred to in this publication",
+        "bbox": [
+            139,
+            642,
+            570,
+            656
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "and does not guarantee that any content on such",
+        "bbox": [
+            139,
+            658,
+            493,
+            672
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Web sites is, or will remain, accurate or appropriate.",
+        "bbox": [
+            139,
+            673,
+            522,
+            688
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Contents",
+        "text_level": 2,
+        "bbox": [
+            413,
+            80,
+            584,
+            111
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Foreword page xiii\nPreface xvii\nContributors xix",
+        "bbox": [
+            135,
+            344,
+            858,
+            400
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "I Computing in Games",
+        "text_level": 2,
+        "bbox": [
+            375,
+            419,
+            620,
+            440
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "1 Basic Solution Concepts and Computational Issues 3\nÉva Tardos and Vijay V. Vazirani\n1.1 Games, Old and New 3\n1.2 Games, Strategies, Costs, and Payoffs 9\n1.3 Basic Solution Concepts 10\n1.4 Finding Equilibria and Learning in Games 16\n1.5 Refinement of Nash: Games with Turns and Subgame Perfect Equilibrium 18\n1.6 Nash Equilibrium without Full Information: Bayesian Games 20\n1.7 Cooperative Games 20\n1.8 Markets and Their Algorithmic Issues 22\nAcknowledgments 26\nBibliography 26\nExercises 26\n2 The Complexity of Finding Nash Equilibria 29\nChristos H. Papadimitriou\n2.1 Introduction 29\n2.2 Is the NASH Equilibrium Problem NP-Complete? 31\n2.3 The Lemke–Howson Algorithm 33\n2.4 The Class PPAD 36\n2.5 Succinct Representations of Games 39\n2.6 The Reduction 41\n2.7 Correlated Equilibria 45\n2.8 Concluding Remarks 49\nAcknowledgment 50\nBibliography 50",
+        "bbox": [
+            147,
+            444,
+            860,
+            907
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_number",
+        "text": "v",
+        "bbox": [
+            491,
+            921,
+            504,
+            933
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "contents",
+        "text_level": 2,
+        "bbox": [
+            453,
+            43,
+            550,
+            57
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "3 Equilibrium Computation for Two-Player Games in Strategic and Extensive Form 53\nBernhard von Stengel\n3.1 Introduction 53\n3.2 Bimatrix Games and the Best Response Condition 54\n3.3 Equilibria via Labeled Polytopes 57\n3.4 The Lemke–Howson Algorithm 61\n3.5 Integer Pivoting 63\n3.6 Degenerate Games 65\n3.7 Extensive Games and Their Strategic Form 66\n3.8 Subgame Perfect Equilibria 68\n3.9 Reduced Strategic Form 69\n3.10 The Sequence Form 70\n3.11 Computing Equilibria with the Sequence Form 73\n3.12 Further Reading 75\n3.13 Discussion and Open Problems 75\nBibliography 76\nExercises 77\n4 Learning, Regret Minimization, and Equilibria 79\nAvrim Blum and Yishay Mansour\n4.1 Introduction 79\n4.2 Model and Preliminaries 81\n4.3 External Regret Minimization 82\n4.4 Regret Minimization and Game Theory 88\n4.5 Generic Reduction from External to Swap Regret 92\n4.6 The Partial Information Model 94\n4.7 On Convergence of Regret-Minimizing Strategies to Nash Equilibrium in Routing Games 96\n4.8 Notes 99\nBibliography 99\nExercises 101\n5 Combinatorial Algorithms for Market Equilibria 103\nVijay V. Vazirani\n5.1 Introduction 103\n5.2 Fisher's Linear Case and the Eisenberg–Gale Convex Program 105\n5.3 Checking If Given Prices Are Equilibrium Prices 108\n5.4 Two Crucial Ingredients of the Algorithm 109\n5.5 The Primal-Dual Schema in the Enhanced Setting 109\n5.6 Tight Sets and the Invariant 111\n5.7 Balanced Flows 111\n5.8 The Main Algorithm 115\n5.9 Finding Tight Sets 117\n5.10 Running Time of the Algorithm 118\n5.11 The Linear Case of the Arrow–Debreu Model 121\n5.12 An Auction-Based Algorithm 122\n5.13 Resource Allocation Markets 124",
+        "bbox": [
+            149,
+            75,
+            864,
+            928
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_number",
+        "text": "vi",
+        "bbox": [
+            141,
+            41,
+            163,
+            55
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "contents",
+        "text_level": 2,
+        "bbox": [
+            449,
+            43,
+            546,
+            57
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "5.14 Algorithm for Single-Source Multiple-Sink Markets 126\n5.15 Discussion and Open Problems 131\nBibliography 132\nExercises 133\n\n6 Computation of Market Equilibria by Convex Programming 135\nBruno Codenotti and Kasturi Varadarajan\n6.1 Introduction 135\n6.2 Fisher Model with Homogeneous Consumers 141\n6.3 Exchange Economies Satisfying WGS 142\n6.4 Specific Utility Functions 148\n6.5 Limitations 150\n6.6 Models with Production 152\n6.7 Bibliographic Notes 155\nBibliography 156\nExercises 158\n\n7 Graphical Games 159\nMichael Kearns\n7.1 Introduction 159\n7.2 Preliminaries 161\n7.3 Computing Nash Equilibria in Tree Graphical Games 164\n7.4 Graphical Games and Correlated Equilibria 169\n7.5 Graphical Exchange Economies 176\n7.6 Open Problems and Future Research 177\n7.7 Bibliographic Notes 177\nAcknowledgments 179\nBibliography 179\n\n8 Cryptography and Game Theory 181\nYevgeniy Dodis and Tal Rabin\n8.1 Cryptographic Notions and Settings 181\n8.2 Game Theory Notions and Settings 187\n8.3 Contrasting MPC and Games 189\n8.4 Cryptographic Influences on Game Theory 191\n8.5 Game Theoretic Influences on Cryptography 197\n8.6 Conclusions 202\n8.7 Notes 203\nAcknowledgments 204\nBibliography 204\n\nII Algorithmic Mechanism Design\n9 Introduction to Mechanism Design (for Computer Scientists) 209\nNoam Nisan\n9.1 Introduction 209\n9.2 Social Choice 211\n9.3 Mechanisms with Money 216\n9.4 Implementation in Dominant Strategies 222",
+        "bbox": [
+            145,
+            72,
+            860,
+            931
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "contents",
+        "text_level": 2,
+        "bbox": [
+            453,
+            44,
+            550,
+            57
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "9.5 Characterizations of Incentive Compatible Mechanisms 225  \n9.6 Bayesian-Nash Implementation 233  \n9.7 Further Models 238  \n9.8 Notes 239  \nAcknowledgments 240  \nBibliography 241  \n\n10 Mechanism Design without Money 243  \nJames Schummer and Rakesh V. Vohra  \n10.1 Introduction 243  \n10.2 Single-Peaked Preferences over Policies 244  \n10.3 House Allocation Problem 253  \n10.4 Stable Matchings 255  \n10.5 Future Directions 262  \n10.6 Notes and References 263  \nBibliography 264  \nExercises 264  \n\n11 Combinatorial Auctions 267  \nLiad Blumrosen and Noam Nisan  \n11.1 Introduction 267  \n11.2 The Single-Minded Case 270  \n11.3 Walrasian Equilibrium and the LP Relaxation 275  \n11.4 Bidding Languages 279  \n11.5 Iterative Auctions: The Query Model 283  \n11.6 Communication Complexity 287  \n11.7 Ascending Auctions 289  \n11.8 Bibliographic Notes 295  \nAcknowledgments 296  \nBibliography 296  \nExercises 298  \n\n12 Computationally Efficient Approximation Mechanisms 301  \nRon Lavi  \n12.1 Introduction 301  \n12.2 Single-Dimensional Domains: Job Scheduling 303  \n12.3 Multidimensional Domains: Combinatorial Auctions 310  \n12.4 Impossibilities of Dominant Strategy Implementability 317  \n12.5 Alternative Solution Concepts 321  \n12.6 Bibliographic Notes 327  \nBibliography 327  \nExercises 328  \n\n13 Profit Maximization in Mechanism Design 331  \nJason D. Hartline and Anna R. Karlin  \n13.1 Introduction 331  \n13.2 Bayesian Optimal Mechanism Design 335  \n13.3 Prior-Free Approximations to the Optimal Mechanism 339  \n13.4 Prior-Free Optimal Mechanism Design 344",
+        "bbox": [
+            139,
+            73,
+            864,
+            928
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "page_number",
+        "text": "viii",
+        "bbox": [
+            141,
+            41,
+            173,
+            55
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "contents",
+        "text_level": 2,
+        "bbox": [
+            449,
+            43,
+            546,
+            57
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "13.5 Frugality 350\n13.6 Conclusions and Other Research Directions 354\n13.7 Notes 357\nBibliography 358\nExercises 360\n\n14 Distributed Algorithmic Mechanism Design 363\nJoan Feigenbaum, Michael Schapira, and Scott Shenker\n14.1 Introduction 363\n14.2 Two Examples of DAMD 366\n14.3 Interdomain Routing 370\n14.4 Conclusion and Open Problems 379\n14.5 Notes 380\nAcknowledgments 381\nBibliography 381\nExercises 383\n\n15 Cost Sharing 385\nKamal Jain and Mohammad Mahdian\n15.1 Cooperative Games and Cost Sharing 385\n15.2 Core of Cost-Sharing Games 387\n15.3 Group-Strategyproof Mechanisms and Cross-Monotonic Cost-Sharing Schemes 391\n15.4 Cost Sharing via the Primal-Dual Schema 394\n15.5 Limitations of Cross-Monotonic Cost-Sharing Schemes 400\n15.6 The Shapley Value and the Nash Bargaining Solution 402\n15.7 Conclusion 405\n15.8 Notes 406\nAcknowledgments 408\nBibliography 408\nExercises 410\n\n16 Online Mechanisms 411\nDavid C. Parkes\n16.1 Introduction 411\n16.2 Dynamic Environments and Online MD 413\n16.3 Single-Valued Online Domains 417\n16.4 Bayesian Implementation in Online Domains 431\n16.5 Conclusions 435\n16.6 Notes 436\nAcknowledgments 437\nBibliography 437\nExercises 439\n\nIII Quantifying the Inefficiency of Equilibria\n\n17 Introduction to the Inefficiency of Equilibria 443\nTim Roughgarden and Éva Tardos\n17.1 Introduction 443",
+        "bbox": [
+            135,
+            73,
+            860,
+            931
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "17.2 Fundamental Network Examples 446\n17.3 Inefficiency of Equilibria as a Design Metric 454\n17.4 Notes 456\nBibliography 457\nExercises 459\n\n18 Routing Games 461\nTim Roughgarden\n18.1 Introduction 461\n18.2 Models and Examples 462\n18.3 Existence, Uniqueness, and Potential Functions 468\n18.4 The Price of Anarchy of Selfish Routing 472\n18.5 Reducing the Price of Anarchy 478\n18.6 Notes 480\nBibliography 483\nExercises 484\n\n19 Network Formation Games and the Potential Function Method 487\nÉva Tardos and Tom Wexler\n19.1 Introduction 487\n19.2 The Local Connection Game 489\n19.3 Potential Games and a Global Connection Game 494\n19.4 Facility Location 502\n19.5 Notes 506\nAcknowledgments 511\nBibliography 511\nExercises 513\n\n20 Selfish Load Balancing 517\nBerthold Vöcking\n20.1 Introduction 517\n20.2 Pure Equilibria for Identical Machines 522\n20.3 Pure Equilibria for Uniformly Related Machines 524\n20.4 Mixed Equilibria on Identical Machines 529\n20.5 Mixed Equilibria on Uniformly Related Machines 533\n20.6 Summary and Discussion 537\n20.7 Bibliographic Notes 538\nBibliography 540\nExercises 542\n\n21 The Price of Anarchy and the Design of Scalable Resource Allocation Mechanisms 543\nRamesh Johari\n21.1 Introduction 543\n21.2 The Proportional Allocation Mechanism 544\n21.3 A Characterization Theorem 551\n21.4 The Vickrey–Clarke–Groves Approach 559\n21.5 Chapter Summary and Further Directions 564",
+        "bbox": [
+            139,
+            72,
+            866,
+            912
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "page_number",
+        "text": "x",
+        "bbox": [
+            141,
+            44,
+            157,
+            55
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "header",
+        "text": "contents",
+        "bbox": [
+            453,
+            44,
+            550,
+            57
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "contents",
+        "text_level": 2,
+        "bbox": [
+            449,
+            43,
+            546,
+            57
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "21.6 Notes 565\nBibliography 566\nExercises 567\n\nIV Additional Topics\n22 Incentives and Pricing in Communications Networks 571\nAsuman Ozdaglar and R. Srikant\n22.1 Large Networks – Competitive Models 572\n22.2 Pricing and Resource Allocation – Game Theoretic Models 578\n22.3 Alternative Pricing and Incentive Approaches 587\nBibliography 590\n\n23 Incentives in Peer-to-Peer Systems 593\nMoshe Babaioff, John Chuang, and Michal Feldman\n23.1 Introduction 593\n23.2 The p2p File-Sharing Game 594\n23.3 Reputation 596\n23.4 A Barter-Based System: BitTorrent 600\n23.5 Currency 601\n23.6 Hidden Actions in p2p Systems 602\n23.7 Conclusion 608\n23.8 Bibliographic Notes 608\nBibliography 609\nExercises 610\n\n24 Cascading Behavior in Networks: Algorithmic and Economic Issues 613\nJon Kleinberg\n24.1 Introduction 613\n24.2 A First Model: Networked Coordination Games 614\n24.3 More General Models of Social Contagion 618\n24.4 Finding Influential Sets of Nodes 622\n24.5 Empirical Studies of Cascades in Online Data 627\n24.6 Notes and Further Reading 630\nBibliography 631\nExercises 632\n\n25 Incentives and Information Security 633\nRoss Anderson, Tyler Moore, Shishir Nagaraja, and Andy Ozment\n25.1 Introduction 633\n25.2 Misaligned Incentives 634\n25.3 Informational Asymmetries 636\n25.4 The Economics of Censorship Resistance 640\n25.5 Complex Networks and Topology 643\n25.6 Conclusion 646\n25.7 Notes 647\nBibliography 648",
+        "bbox": [
+            135,
+            73,
+            860,
+            903
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "26 Computational Aspects of Prediction Markets 651\nDavid M. Pennock and Rahul Sami\n26.1 Introduction: What Is a Prediction Market? 651\n26.2 Background 652\n26.3 Combinatorial Prediction Markets 657\n26.4 Automated Market Makers 662\n26.5 Distributed Computation through Markets 665\n26.6 Open Questions 670\n26.7 Bibliographic Notes 671\nAcknowledgments 672\nBibliography 672\nExercises 674\n27 Manipulation-Resistant Reputation Systems 677\nEric Friedman, Paul Resnick, and Rahul Sami\n27.1 Introduction: Why Are Reputation Systems Important? 677\n27.2 The Effect of Reputations 680\n27.3 Whitewashing 682\n27.4 Eliciting Effort and Honest Feedback 683\n27.5 Reputations Based on Transitive Trust 689\n27.6 Conclusion and Extensions 693\n27.7 Bibliographic Notes 694\nBibliography 695\nExercises 696\n28 Sponsored Search Auctions 699\nSébastien Lahaie, David M. Pennock, Amin Saberi, and Rakesh V. Vohra\n28.1 Introduction 699\n28.2 Existing Models and Mechanisms 701\n28.3 A Static Model 702\n28.4 Dynamic Aspects 707\n28.5 Open Questions 711\n28.6 Bibliographic Notes 712\nBibliography 713\nExercises 715\n29 Computational Evolutionary Game Theory 717\nSiddharth Suri\n29.1 Evolutionary Game Theory 717\n29.2 The Computational Complexity of Evolutionarily Stable Strategies 720\n29.3 Evolutionary Dynamics Applied to Selfish Routing 723\n29.4 Evolutionary Game Theory over Graphs 728\n29.5 Future Work 733\n29.6 Notes 733\nAcknowledgments 734\nBibliography 734\nExercises 735\nIndex 737",
+        "bbox": [
+            137,
+            73,
+            864,
+            934
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "page_number",
+        "text": "xii",
+        "bbox": [
+            141,
+            41,
+            167,
+            57
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "header",
+        "text": "contents",
+        "bbox": [
+            453,
+            43,
+            550,
+            57
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "As the Second World War was coming to its end, John von Neumann, arguably the foremost mathematician of that time, was busy initiating two intellectual currents that would shape the rest of the twentieth century: game theory and algorithms. In 1944 (16 years after the minmax theorem) he published, with Oscar Morgenstern, his Games and Economic Behavior, thus founding not only game theory but also utility theory and microeconomics. Two years later he wrote his draft report on the EDVAC, inaugurating the era of the digital computer and its software and its algorithms. Von Neumann wrote in 1952 the first paper in which a polynomial algorithm was hailed as a meaningful advance. And, he was the recipient, shortly before his early death four years later, of Godel’s letter in which the P¨ vs. NP question was first discussed.",
+        "bbox": [
+            135,
+            366,
+            860,
+            548
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Could von Neumann have anticipated that his twin creations would converge half a century later? He was certainly far ahead of his contemporaries in his conception of computation as something dynamic, ubiquitous, and enmeshed in society, almost organic – witness his self-reproducing automata, his fault-tolerant network design, and his prediction that computing technology will advance in lock-step with the economy (for which he had already postulated exponential growth in his 1937 Vienna Colloquium paper). But I doubt that von Neumann could have dreamed anything close to the Internet, the ubiquitous and quintessentially organic computational artifact that emerged after the end of the Cold War (a war, incidentally, of which von Neumann was an early soldier and possible casualty, and that was, fortunately, fought mostly with game theory and decided by technological superiority – essentially by algorithms – instead of the thermonuclear devices that were von Neumann’s parting gift to humanity).",
+        "bbox": [
+            135,
+            548,
+            860,
+            765
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "The Internet turned the tables on students of both markets and computation. It transformed, informed, and accelerated markets, while creating new and theretofore unimaginable kinds of markets – in addition to being itself, in important ways, a market. Algorithms became the natural environment and default platform of strategic decision making. On the other hand, the Internet was the first computational artifact that was not created by a single entity (engineer, design team, or company), but emerged from the strategic interaction of many. Computer scientists were for the first time faced with an object that they had to feel with the same bewildered awe with which economists have always approached the market. And, quite predictably, they turned to game theory for inspiration – in the words of Scott Shenker, a pioneer of this way of thinking who has contributed to this volume, “the Internet is an equilibrium, we just have to identify the game.” A fascinating fusion of ideas from both fields – game theory and algorithms – came into being and was used productively in the effort to illuminate the mysteries of the Internet. It has come to be called algorithmic game theory.",
+        "bbox": [
+            135,
+            765,
+            860,
+            910
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "header",
+        "text": "Foreword",
+        "bbox": [
+            403,
+            82,
+            592,
+            110
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "page_number",
+        "text": "xiii",
+        "bbox": [
+            481,
+            919,
+            514,
+            934
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            137,
+            78,
+            864,
+            186
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "The chapters of this book, a snapshot of algorithmic game theory at the approximate age of ten written by a galaxy of its leading researchers, succeed brilliantly, I think, in capturing the field’s excitement, breadth, accomplishment, and promise. The first few chapters recount the ways in which the new field has come to grips with perhaps the most fundamental cultural incongruity between algorithms and game theory: the latte predicts the agents’ equilibrium behavior typically with no regard to the ways in which such a state will be reached – a consideration that would be a computer scientist’s foremost concern. Hence, algorithms for computing equilibria (Nash and correlated equilibria in games, price equilibria for markets) have been one of algorithmic game theory’s earliest research goals. This body of work has become a valuable contribu tion to the debate in economics about the validity of behavior predictions: Efficient computability has emerged as a very desirable feature of such predictions, while com putational intractability sheds a shadow of implausibility on a proposed equilibrium concept. Computational models that reflect the realities of the market and the Internet better than the von Neumann machine are of course at a premium – there are chapters in this book on learning algorithms as well as on distributed algorithmic mechanism design.",
+        "bbox": [
+            137,
+            186,
+            864,
+            493
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "The algorithmic nature of mechanism design is even more immediate: This elegan and well-developed subarea of game theory deals with the design of games, with players who have unknown and private utilities, such that at the equilibrium of the designed game the designer’s goals are attained independently of the agents’ utilities (auctions are an important example here). This is obviously a computational problem, and in fact some of the classical results in this area had been subtly algorithmic, albeit with little regard to complexity considerations. Explicitly algorithmic work on mechanism design has, in recent years, transformed the field, especially in the case of auctions and cost sharing (for example, how to recover the cost of an Internet service from customers who value the service by amounts known only to them) and has become the arena of especially intense and productive cross-fertilization between game theory and algorithms; these problems and accomplishments are recounted in the book’s second part.",
+        "bbox": [
+            137,
+            493,
+            864,
+            728
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "The third part of the book is dedicated to a line of investigation that has come to be called “the price of anarchy.” Selfish rational agents reach an equilibrium. The question arises: exactly how inefficient is this equilibrium in comparison to an idealized situation in which the agents would strive to collaborate selflessly with the common goal of minimizing total cost? The ratio of these quantities (the cost of an equilibrium over the optimum cost) has been estimated successfully in various Internet-related setups, and it is often found that “anarchy” is not nearly as expensive as one might have feared. For example, in one celebrated case related to routing with linear delays and explained in the “routing games” chapter, the overhead of anarchy is at most 33% over the optimum solution – in the context of the Internet such a ratio is rather insignificant and quickly absorbed by its rapid growth. Viewed in the context of the historical development of research in algorithms, this line of investigation could be called “the third compromise.” The realization that optimization problems are intractable led us to approximation algorithms; the unavailability of information about the future, or the lack of coordination between distributed decision makers, brought us online algorithms; the price ofanarchy is the result ofone further obstacle: now the distributed decision makers have different objective functions. Incidentally, it is rather surprising that economists had not studied this aspect of strategic behavior before the advent of the Internet. One explanation may be that, for economists, the ideal optimum was never an available option; in contrast, computer scientists are still looking back with nostalgia to the good old days when artifacts and processes could be optimized exactly. Finally, the chapters on “additional topics” that conclude the book (e.g., on peer-to-peer systems and information markets) amply demonstrate the young area’s impressive breadth, reach, diversity, and scope.",
+        "bbox": [
+            137,
+            728,
+            866,
+            910
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "page_number",
+        "text": "xiv",
+        "bbox": [
+            141,
+            43,
+            173,
+            55
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "header",
+        "text": "foreword",
+        "bbox": [
+            447,
+            44,
+            554,
+            57
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            135,
+            76,
+            860,
+            331
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Books – a glorious human tradition apparently spared by the advent of the Internet – have a way of marking and focusing a field, of accelerating its development. Seven years after the publication of The Theory of Games, Nash was proving his theorem on the existence of equilibria; only time will tell how this volume will sway the path of algorithmic game theory.",
+        "bbox": [
+            135,
+            330,
+            860,
+            423
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Paris, February 2007",
+        "bbox": [
+            137,
+            437,
+            317,
+            454
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Christos H. Papadimitriou",
+        "bbox": [
+            634,
+            437,
+            858,
+            454
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "header",
+        "text": "foreword",
+        "bbox": [
+            443,
+            44,
+            550,
+            57
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "page_number",
+        "text": "xv",
+        "bbox": [
+            832,
+            44,
+            858,
+            55
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            0,
+            0,
+            998,
+            998
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "This book covers an area that straddles two fields, algorithms and game theory, and has applications in several others, including networking and artificial intelligence. Its text is pitched at a beginning graduate student in computer science – we hope that this makes the book accessible to readers across a wide range of areas.",
+        "bbox": [
+            135,
+            366,
+            860,
+            439
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "We started this project with the belief that the time was ripe for a book that clearly develops some of the central ideas and results of algorithmic game theory – a book that can be used as a textbook for the variety of courses that were already being offered at many universities. We felt that the only way to produce a book of such breadth in a reasonable amount of time was to invite many experts from this area to contribute chapters to a comprehensive volume on the topic.",
+        "bbox": [
+            135,
+            440,
+            860,
+            548
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "This book is partitioned into four parts: the first three parts are devoted to core areas, while the fourth covers a range of topics mostly focusing on applications. Chapter 1 serves as a preliminary chapter and it introduces basic game-theoretic definitions that are used throughout the book. The first chapters of Parts II and III provide introductions and preliminaries for the respective parts. The other chapters are largely independent of one another. The authors were requested to focus on a few results highlighting the main issues and techniques, rather than provide comprehensive surveys. Most of the chapters conclude with exercises suitable for classroom use and also identif promising directions for further research. We hope these features give the book the fee of a textbook and make it suitable for a wide range of courses.",
+        "bbox": [
+            135,
+            548,
+            860,
+            728
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "You can view the entire book online at",
+        "bbox": [
+            159,
+            729,
+            489,
+            744
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "www.cambridge.org/us/9780521872829",
+        "bbox": [
+            137,
+            746,
+            479,
+            762
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "username: agt1user",
+        "bbox": [
+            137,
+            765,
+            309,
+            781
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "password: camb2agt",
+        "bbox": [
+            137,
+            783,
+            315,
+            800
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "Many people’s efforts went into producing this book within a year and a half of its first conception. First and foremost, we thank the authors for their dedi cation and timeliness in writing their own chapters and for providing important feedback on preliminary drafts of other chapters. Thanks to Christos Papadimitriou for his inspiring Foreword. We gratefully acknowledge the efforts of outside review ers: Elliot Anshelevich, Nikhil Devanur, Matthew Jackson, Vahab Mirrokni, Herve Moulin, Neil Olver, Adrian Vetta, and several anonymous referees. Thanks to Cindy Robinson for her invaluable help with correcting the galley proofs. Finally, a big thanks to Lauren Cowles for her stellar advice throughout the production of this volume.",
+        "bbox": [
+            135,
+            800,
+            860,
+            854
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "header",
+        "text": "Preface",
+        "bbox": [
+            425,
+            82,
+            570,
+            110
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "page_number",
+        "text": "xvii",
+        "bbox": [
+            479,
+            920,
+            516,
+            934
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            137,
+            78,
+            864,
+            205
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "Noam Nisan",
+        "bbox": [
+            702,
+            217,
+            818,
+            235
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "Tim Roughgarden",
+        "bbox": [
+            702,
+            235,
+            862,
+            253
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "Eva Tardos <sup>´</sup>",
+        "bbox": [
+            702,
+            253,
+            808,
+            271
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "Vijay V. Vazirani",
+        "bbox": [
+            702,
+            271,
+            856,
+            291
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "page_number",
+        "text": "xviii",
+        "bbox": [
+            141,
+            41,
+            185,
+            57
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "header",
+        "text": "preface",
+        "bbox": [
+            459,
+            43,
+            544,
+            57
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "Ross Anderson Computer Laboratory University of Cambridge",
+        "bbox": [
+            135,
+            384,
+            353,
+            440
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Moshe Babaioff School of Information University of California, Berkeley",
+        "bbox": [
+            135,
+            451,
+            429,
+            509
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Avrim Blum Department of Computer Science Carnegie Mellon University",
+        "bbox": [
+            135,
+            520,
+            425,
+            577
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Liad Blumrosen Microsoft Research Silicon Valley",
+        "bbox": [
+            135,
+            589,
+            309,
+            645
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "John Chuang School of Information University of California, Berkeley",
+        "bbox": [
+            135,
+            658,
+            429,
+            714
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Bruno Codenotti Istituto di Informatica e Telematica, Consiglio Nazionale delle Ricerche",
+        "bbox": [
+            135,
+            726,
+            353,
+            800
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Yevgeniy Dodis Department of Computer Science Courant Institute of Mathematical Sciences, New York University",
+        "bbox": [
+            135,
+            813,
+            427,
+            888
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Joan Feigenbaum Computer Science Department Yale University",
+        "bbox": [
+            504,
+            383,
+            772,
+            440
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Michal Feldman School of Business Administration and the Center for the Study of Rationality Hebrew University of Jerusalem",
+        "bbox": [
+            504,
+            446,
+            858,
+            521
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Eric Friedman School of Operations Research and Information Engineering Cornell University",
+        "bbox": [
+            504,
+            528,
+            772,
+            601
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Jason D. Hartline Microsoft Research Silicon Valley",
+        "bbox": [
+            506,
+            609,
+            678,
+            665
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Kamal Jain Microsoft Research Redmond",
+        "bbox": [
+            506,
+            672,
+            678,
+            726
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Ramesh Johari Department of Management Science and Engineering Stanford University",
+        "bbox": [
+            504,
+            736,
+            818,
+            808
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Anna R. Karlin Department of Computer Science and Engineering University of Washington",
+        "bbox": [
+            504,
+            817,
+            794,
+            891
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "header",
+        "text": "Contributors",
+        "bbox": [
+            373,
+            80,
+            624,
+            111
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "page_number",
+        "text": "xix",
+        "bbox": [
+            483,
+            920,
+            512,
+            934
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "contributors",
+        "text_level": 2,
+        "bbox": [
+            429,
+            43,
+            574,
+            58
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Michael Kearns Department of Computer and Information Science University of Pennsylvania",
+        "bbox": [
+            139,
+            76,
+            375,
+            152
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Jon Kleinberg Department of Computer Science Cornell University",
+        "bbox": [
+            139,
+            161,
+            427,
+            218
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Sebastien Lahaie´ School of Engineering and Applied Sciences Harvard University",
+        "bbox": [
+            139,
+            228,
+            335,
+            304
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Ron Lavi Faculty of Industrial Engineering and Management, The Technion Israel Institute of Technology",
+        "bbox": [
+            139,
+            313,
+            425,
+            389
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Mohammad Mahdian Yahoo! Research Silicon Valley",
+        "bbox": [
+            139,
+            398,
+            343,
+            454
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Noam Nisan School of Computer Science and Engineering Hebrew University of Jerusalem",
+        "bbox": [
+            139,
+            666,
+            417,
+            740
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "David C. Parkes School of Engineering and Applied Sciences Harvard University",
+        "bbox": [
+            510,
+            153,
+            706,
+            227
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Yishay Mansour School of Computer Science Tel Aviv University",
+        "bbox": [
+            139,
+            465,
+            387,
+            521
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Asuman Ozdaglar Department of Electrical Engineering and Computer Science, MIT",
+        "bbox": [
+            139,
+            751,
+            375,
+            824
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "David M. Pennock Yahoo! Research New York",
+        "bbox": [
+            510,
+            246,
+            682,
+            302
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Tyler Moore Computer Laboratory University of Cambridge",
+        "bbox": [
+            139,
+            532,
+            355,
+            589
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Andy Ozment Computer Laboratory University of Cambridge",
+        "bbox": [
+            139,
+            835,
+            355,
+            891
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Tal Rabin T. J. Watson Research Center IBM",
+        "bbox": [
+            510,
+            323,
+            762,
+            377
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Shishir Nagaraja Computer Laboratory University of Cambridge",
+        "bbox": [
+            139,
+            599,
+            355,
+            656
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Christos H. Papadimitriou Computer Science Division University of California, Berkeley",
+        "bbox": [
+            510,
+            76,
+            802,
+            133
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Paul Resnick School of Information University of Michigan",
+        "bbox": [
+            510,
+            398,
+            712,
+            456
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Tim Roughgarden Department of Computer Science Stanford University",
+        "bbox": [
+            510,
+            474,
+            796,
+            531
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Amin Saberi Department of Management Science and Engineering Stanford University",
+        "bbox": [
+            510,
+            550,
+            754,
+            624
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Rahul Sami School of Information University of Michigan",
+        "bbox": [
+            510,
+            644,
+            712,
+            701
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Michael Schapira School of Computer Science and Engineering The Hebrew University of Jerusalem",
+        "bbox": [
+            510,
+            719,
+            824,
+            794
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "James Schummer M.E.D.S. Kellogg School of Management Northwestern University",
+        "bbox": [
+            510,
+            815,
+            784,
+            889
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "page_number",
+        "text": "xx",
+        "bbox": [
+            141,
+            44,
+            167,
+            57
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "contributors",
+        "text_level": 2,
+        "bbox": [
+            425,
+            41,
+            570,
+            58
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Scott Shenker EECS Department University of California, Berkeley",
+        "bbox": [
+            135,
+            76,
+            431,
+            133
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "R. Srikant",
+        "text_level": 2,
+        "bbox": [
+            137,
+            140,
+            239,
+            158
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Department of Electrical and Computer Engineering and Coordinated Science Laboratory, University of Illinois at Urbana-Champaign",
+        "bbox": [
+            135,
+            158,
+            475,
+            232
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Siddharth Suri Department of Computer Science Cornell University",
+        "bbox": [
+            135,
+            239,
+            425,
+            295
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Eva Tardos<sup>´</sup> Department of Computer Science Cornell University",
+        "bbox": [
+            135,
+            302,
+            425,
+            359
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Kasturi Varadarajan Department of Computer Science University of Iowa",
+        "bbox": [
+            135,
+            366,
+            425,
+            422
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Vijay V. Vazirani College of Computing Georgia Institute of Technology",
+        "bbox": [
+            504,
+            76,
+            782,
+            135
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Berthold Vocking ¨ Department of Computer Science RWTH Aachen University",
+        "bbox": [
+            504,
+            143,
+            794,
+            200
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Rakesh V. Vohra M.E.D.S. Kellogg School of Management Northwestern University",
+        "bbox": [
+            504,
+            211,
+            782,
+            285
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Bernhard von Stengel Department of Mathematics London School of Economics",
+        "bbox": [
+            504,
+            297,
+            762,
+            354
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Tom Wexler Department of Computer Science Cornell University",
+        "bbox": [
+            504,
+            366,
+            794,
+            422
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "page_number",
+        "text": "xxi",
+        "bbox": [
+            826,
+            41,
+            858,
+            57
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "PART ONE",
+        "bbox": [
+            429,
+            78,
+            564,
+            99
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "Computing in Games",
+        "bbox": [
+            239,
+            103,
+            756,
+            147
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            0,
+            0,
+            996,
+            1000
+        ],
+        "page_idx": 22
+    }
+]

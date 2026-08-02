@@ -1,0 +1,2895 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "3-D Placement of an Unmanned Aerial Vehicle Base Station for Maximum Coverage of Users With Different QoS Requirements"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                104,
+                71,
+                893,
+                119
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Mohamed Alzenad, Amr El-Keyi, and Halim Yanikomeroglu"
+                    }
+                ]
+            },
+            "bbox": [
+                269,
+                132,
+                727,
+                148
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Abstract—The need for a rapid-to-deploy solution for providing wireless cellular services can be realized by unmanned aerial vehicle base stations (UAV-BSs). To the best of our knowledge, this letter is the first in literature that studies a novel 3-D UAV-BS placement that maximizes the number of covered users with different quality-of-service requirements. We model the placement problem as a multiple circles placement problem and propose an optimal placement algorithm that utilizes an exhaustive search (ES) over a 1-D parameter in a closed region. We also propose a low-complexity algorithm, namely, maximal weighted area (MWA) algorithm to tackle the placement problem. Numerical simulations are presented showing that the MWA algorithm performs very close to the ES algorithm with a significant complexity reduction."
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                202,
+                493,
+                380
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Index Terms—Unmanned aerial vehicles, drone, coverage, optimization."
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                385,
+                491,
+                412
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "I. INTRODUCTION"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                217,
+                422,
+                349,
+                435
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "wireless services [1], [2]. The need for UAV-BSs could arise in various scenarios, for instance, during a malfunction of the terrestrial infrastructure or for the purpose of offloading traffic from a congested macro BS [1]. UAV-BSs can also play a key role for providing an energy efficient Internet of Things (IoT) communications where UAV-BSs can collect data from the IoT devices and forward it to other devices [3]."
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                439,
+                493,
+                568
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Despite its promising benefits, UAV-aided communication is facing many challenges. Unlike terrestrial channels, where the location of the BS is fixed, and hence the path loss depends on the location of the user, the air-to-ground (A2G) channel model is a function of the location of the user as well as the UAV-BS. A key challenge in UAV-aided communications is where to deploy the UAV-BS. Furthermore, the UAV-BS placement is no longer a 2D placement problem as for terrestrial BSs. It is indeed a 3D placement problem. Furthermore, the energy available for powering the onboard electronics is limited because of using batteries as a source of power [4]. Therefore, the UAV-BS may not be capable of providing a full coverage for the serving area, and only partial coverage is possible. A key challenge that is addressed in this letter is that given a limited UAV-BS transmit power and users with different quality of service (QoS) requirements, defined in terms of the received signal to noise ratio (SNR), where to deploy the UAV-BS such that the number of covered users is maximized."
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                568,
+                493,
+                755
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                503,
+                200,
+                924,
+                272
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The work in [5] proposed a polynomial-time spiral algorithm for multiple UAVs placement. Alzenad et al. [6] proposed a framework for evaluating the 3D location of the UAV-BS that maximizes the number of covered users using minimum transmit power. The work in [7] evaluated the optimal UAV-BS altitude that maximizes the coverage region. The work in [8] made a further step and deployed the UAV-BS based on the locations of the users and formulated the UAV-BS placement problem as a quadratically-constraint mixed integer non-linear problem. A grid search algorithm was proposed in [9] to tackle a backhaul-aware 3D UAV-BS placement problem. Kalantari et al. [10] developed a particle swarm optimization framework to find the minimum number of UAV-BSs and their locations to serve a particular region. A 3D UAV-BS placement for two cases, one UAV-BS and two UAV-BSs was examined in [11]. Furthermore, Mozaffari et al. [11] optimized the 3D UAV-BS deployment with the aim of maximizing the coverage region with the minimum transmit power. However, the work in [5]–[11] assumes that all the users have the same QoS requirement."
+                    }
+                ]
+            },
+            "bbox": [
+                503,
+                273,
+                924,
+                556
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this letter, we study a novel 3D UAV-BS placement that has not been previously addressed. Our work aims to maximize the number of covered users demanding different QoS requirements. We model the UAV-BS placement as a multiple circles placement problem. We propose an algorithm that utilizes an exhaustive search (ES) over a one-dimensional parameter in a closed region to determine the optimal height and 2D location of the UAV-BS. In addition, we propose a low-complexity algorithm, namely maximal weighted area (MWA) algorithm to solve the placement problem. We also show by simulations that the proposed MWA algorithm performs very close to the ES algorithm with a significant complexity reduction."
+                    }
+                ]
+            },
+            "bbox": [
+                503,
+                556,
+                924,
+                729
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "II. SYSTEM MODEL"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                640,
+                766,
+                785,
+                780
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We consider a congested area containing a set of stationary or low-mobility users. The congestion at the terrestrial BS might have occurred due to a number of reasons including a malfunction at the BS or a temporary event such as a festival or a sports event. Therefore, in order to relieve the stress at the terrestrial BS, a UAV-BS is deployed for serving as many users as possible. We assume that each user has one of K different QoS requirements defined in terms of the SNR. Let U denote the set of the users and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { U } _ { k } \\subseteq \\mathcal { U }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the set of the users corresponding to QoS k such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\cup _ { k = 1 } ^ { K } \\mathcal { U } _ { k } = \\mathcal { U } ."
+                    }
+                ]
+            },
+            "bbox": [
+                503,
+                784,
+                924,
+                928
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "Authorized licensed use limited to: Nanjing Univ of Post & Telecommunications. Downloaded on August 07,2024 at 09:08:11 UTC from IEEE Xplore. Restrictions apply."
+                    }
+                ]
+            },
+            "bbox": [
+                68,
+                962,
+                924,
+                974
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "38"
+                    }
+                ]
+            },
+            "bbox": [
+                76,
+                35,
+                93,
+                46
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "IEEE WIRELESS COMMUNICATIONS LETTERS, VOL. 7, NO. 1, FEBRUARY 2018"
+                    }
+                ]
+            },
+            "bbox": [
+                498,
+                34,
+                921,
+                47
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "Manuscript received August 16, 2017; accepted September 11, 2017. Date of publication September 14, 2017; date of current version February 16, 2018. This work was supported in part by the Ministry of Higher Education and Scientific Research, Libya, through the Libyan-North American Scholarship Program, and in part by TELUS Canada. The associate editor coordinating the review of this paper and approving it for publication was X. Chu. (Corresponding author: Mohamed Alzenad.)"
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                766,
+                491,
+                847
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "M. Alzenad is with the Department of Systems and Computer Engineering, Carleton University, Ottawa, ON K1S 5B6, Canada, and also with Sirte University, Sirte, Libya (e-mail: mohamed.alzenad@sce.carleton.ca)."
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                845,
+                491,
+                881
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "A. El-Keyi and H. Yanikomeroglu are with the Department of Systems and Computer Engineering, Carleton University, Ottawa, ON K1S 5B6, Canada (e-mail: amr.elkeyi@sce.carleton.ca; halim@sce.carleton.ca)."
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                880,
+                491,
+                914
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "Digital Object Identifier 10.1109/LWC.2017.2752161"
+                    }
+                ]
+            },
+            "bbox": [
+                86,
+                914,
+                377,
+                926
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "2162-2345 \u0004c 2017 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See http://www.ieee.org/publications_standards/publications/rights/index.html for more information."
+                    }
+                ]
+            },
+            "bbox": [
+                197,
+                931,
+                800,
+                957
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We also denote by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( x _ { i k } , y _ { i k } ) , i = 1 , 2 , \\ldots | \\mathcal { U } _ { k } | , k = 1 , 2 , \\ldots K ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "the 2D location of the user i of the set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ { \\mathcal U } _ { k } }"
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                69,
+                490,
+                99
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As discussed in [7], the A2G links are either line-of-sight (LoS) or non line-of-sight (NLoS) with some probability. Assuming a UAV-BS located at "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( x _ { D } , y _ { D } , h )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the path loss for the LoS and NLoS links in dB is given respectively by"
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                99,
+                491,
+                156
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{r} L _ {\\mathrm{LoS}} = 2 0 \\log \\left(\\frac {4 \\pi f _ {c} d _ {i k}}{c}\\right) + \\eta_ {\\mathrm{LoS}} \\\\ L _ {\\mathrm{NLoS}} = 2 0 \\log \\left(\\frac {4 \\pi f _ {c} d _ {i k}}{c}\\right) + \\eta_ {\\mathrm{NLoS}}, \\end{array}\\tag{1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/6a892b498fde6063b8d85aa6d88c188664bb9da0ea561485349aa18cd0165df4.jpg"
+                }
+            },
+            "bbox": [
+                160,
+                162,
+                406,
+                228
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { c }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the carrier frequency, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d _ { i k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the distance between the UAV-BS and user i of Uk, given by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d _ { i k } = \\sqrt { h ^ { 2 } + r _ { i k } ^ { 2 } } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r _ { i k } = \\sqrt { ( x _ { i k } - x _ { D } ) ^ { 2 } + ( y _ { i k } - y _ { D } ) ^ { 2 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Furthermore, η<sub>LoS</sub> and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\eta _ { \\mathrm { N L o S } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are the average additional losses for LoS and NLoS, respectively, and are given in [7]. The probability of occurrence of a LoS connection between the UAV-BS and user i of set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { U } _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "located at an elevation angle "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\theta _ { i k } = \\tan ^ { - 1 } ( \\frac { h } { r _ { i k } } ) } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is given by"
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                234,
+                491,
+                359
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm {P_ {LoS}} = \\frac {1}{1 + a \\exp (- b (\\frac {1 8 0}{\\pi} \\theta_ {i k} - a))},\\tag{2}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/3604215430926aa5b97ba6099fa19819ce35828b538ea23a6468af49ace11a83.jpg"
+                }
+            },
+            "bbox": [
+                155,
+                364,
+                400,
+                400
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where a and b are constants that depend on the environment. Also, the probability of NLoS is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { P _ { N L o S } = 1 - P _ { L o S } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "In this letter, we only deal with the mean path loss rather than its random behavior because BS deployment often deals with long term variations of the channel rather than small scale variations [6]. Finally, the probabilistic mean path loss is given by"
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                404,
+                491,
+                505
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "L (h, r _ {i k}) = L _ {\\mathrm{LoS}} P _ {\\mathrm{LoS}} + L _ {\\mathrm{NLoS}} P _ {\\mathrm{NLoS}},\\tag{3}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/4744739795df939055d69e8bbdc32498a4e42ca2c5043713945773d5bcc44eb4.jpg"
+                }
+            },
+            "bbox": [
+                153,
+                512,
+                403,
+                529
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "which yields"
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                535,
+                166,
+                550
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "L (h, r _ {i k}) = \\frac {A}{1 + a \\exp (- b (\\frac {1 8 0}{\\pi} \\tan^ {- 1} (\\frac {h}{r _ {i k}}) - a))} + 1 0 \\log (h ^ {2} + r _ {i k} ^ {2}) + B,\\tag{4}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/1a02ba3f2b2134ef69e6801c0cb0e13f3b3d0674cad8aa5d783de87943c80071.jpg"
+                }
+            },
+            "bbox": [
+                78,
+                556,
+                457,
+                585
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A = \\eta _ { \\mathrm { L o S } } - \\eta _ { \\mathrm { N L o S } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { B = 2 0 \\log ( \\frac { 4 \\pi f _ { c } } { c } ) + \\eta _ { \\mathrm { N L o S } } } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Equation (4) can be further rewritten as"
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                594,
+                490,
+                625
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "L (h, r _ {i k}) = \\frac {A}{1 + a \\exp (- b (\\frac {1 8 0}{\\pi} \\theta_ {i k} - a))} + 2 0 \\log (\\frac {r _ {i k}}{\\cos (\\theta_ {i k})}) + B.\\tag{5}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/23539ec7e48a374e2c2083c25da5a7c90287ca704cc31e3842fdbcefd5e9211e.jpg"
+                }
+            },
+            "bbox": [
+                80,
+                631,
+                457,
+                661
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the transmit power of the UAV-BS in dB. The received power at user i of the set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ { \\mathcal U } _ { k } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in dB is given by"
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                666,
+                491,
+                696
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "P _ {r} ^ {i k} = P _ {t} - L (h, r _ {i k}).\\tag{6}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/bbd0ad155ee4f7228416b996afb15e3f1f9e36e94051723e78c3c93f59d9308d.jpg"
+                }
+            },
+            "bbox": [
+                207,
+                700,
+                346,
+                720
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In a noise limited scenario, the conventional approach to define coverage is through the SNR. The ith user of set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ { \\mathcal U } _ { k } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is covered if the probabilistic mean SNR exceeds a predefined threshold "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\gamma _ { \\mathrm { t h } } ^ { k } \\ \\mathrm { ( d \\bar { B } ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". That is if"
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                726,
+                491,
+                786
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\gamma (h, r _ {i k}) (\\mathrm{dB}) = P _ {r} ^ {i k} - P _ {n} = P _ {t} - L (h, r _ {i k}) - P _ {n} \\geq \\gamma_ {\\mathrm{th}} ^ {k}\\tag{7}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/d0163761fed85926c5fac675f66edb26a6df69bfc3efc34590d3bf7fd0fb94dd.jpg"
+                }
+            },
+            "bbox": [
+                96,
+                792,
+                459,
+                810
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the noise power in dB. Clearly, the coverage condition can be equivalently defined in terms of the probabilistic mean path loss. Hence, a user i of set Uk is covered if its link experiences a mean path loss less than or equal to some threshold "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L _ { \\mathrm { t h } } ^ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L _ { \\mathrm { t h } } ^ { k } \\overset { \\_ } { = } P _ { t } - P _ { n } - \\gamma _ { \\mathrm { t h } } ^ { k }"
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                816,
+                491,
+                888
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "It was shown in [6] and [7] and can also be seen from (4) that, for a given environment, a UAV-BS altitude and a QoS requirement "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L _ { \\mathrm { t h } } ^ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the coverage region is a circular disc with radius "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { k } ( h ) = \\ddot { r } \\vert _ { L ( h , r _ { k } ) = L _ { \\mathrm { t h } } ^ { k } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". However, for multiple QoS requirements, the coverage region is no longer a single circular disc. We can see from (4) that the region over which all the QoS requirements "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ L ( h , r _ { k } ) \\leq L _ { \\mathrm { t h } } ^ { k } \\} _ { k = 1 } ^ { K }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are satisfied forms a set of circular discs with radii "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ R _ { k } ( h ) \\} _ { k = 1 } ^ { K }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and center "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( x _ { D } , y _ { D } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Obviously, the larger the required path loss threshold "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L _ { \\mathrm { t h } } ^ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the larger the coverage radius "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { k } ( h )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is. It was shown in [6] that for any QoS requirement "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L _ { \\mathrm { t h } } ^ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the optimal elevation angle "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\theta ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that maximizes the coverage radius, is constant and depends only on the environment. The optimal elevation angle is given by [6]"
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                888,
+                493,
+                950
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                501,
+                69,
+                924,
+                219
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\theta^ {*} = \\tan^ {- 1} (\\frac {h _ {k} ^ {*}}{R _ {k} ^ {*}})\\tag{8}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/0148a86a03d8644b1e61663c71f370a4e6524694f398f5fe7e4b63bd822122fb.jpg"
+                }
+            },
+            "bbox": [
+                648,
+                222,
+                766,
+                257
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { k } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { k } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are the optimal altitude that maximizes the coverage region and the associated maximum coverage radius, respectively, and optimal elevation angle "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\theta ^ { * } \\ = \\ 2 0 . 3 4 ^ { \\circ } , 4 2 . 4 4 ^ { \\circ } , 5 4 . 6 2 ^ { \\circ }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "7 5 . 5 2 ^ { \\circ }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for the suburban, urban, dense urban and high-rise urban environments, respectively [6]. For a given environment and a path loss threshold "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L _ { \\mathrm { t h } } ^ { k } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the maximum coverage radius can be evaluated by solving (5). Finally, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { k } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "can be evaluated by solving (8)."
+                    }
+                ]
+            },
+            "bbox": [
+                503,
+                261,
+                923,
+                378
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "III. PROBLEM FORMULATION AND ALGORITHMS"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                535,
+                392,
+                888,
+                407
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As discussed previously, the coverage region for each set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { U } _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", denoted by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C _ { k } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a circular disk with center "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( x _ { D } , y _ { D } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and radius "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { k } ( h )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, placing the coverage regions "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ C _ { k } \\} _ { k = 1 } ^ { K }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "horizontally corresponds to placing the UAV-BS in the horizontal dimension. It is worth mentioning that the coverage regions "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ C _ { k } \\} _ { k = 1 } ^ { K }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "have the same center which corresponds to the horizontal location of the UAV-BS, i.e., (x<sub>D</sub>, y<sub>D</sub>). The user i of set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ { \\mathcal U } _ { k } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is covered if it is located within a distance at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { k } ( h )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from the center "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( x _ { D } , y _ { D } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u _ { i k } \\in \\{ 0 , 1 \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a binary variable such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u _ { i k } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if the user i of set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ { \\mathcal U } _ { k } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is within the coverage region "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u _ { i k } = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "otherwise. This condition can be written as"
+                    }
+                ]
+            },
+            "bbox": [
+                503,
+                409,
+                923,
+                580
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "u _ {i k} ((x _ {i k} - x _ {D}) ^ {2} + (y _ {i k} - y _ {D}) ^ {2}) ^ {\\frac {1}{2}} \\leq R _ {k} (h)\\tag{9}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/67045cf5809e6df127eb07fd40779803a6ec307848c80d4fa3caa35b00809ece.jpg"
+                }
+            },
+            "bbox": [
+                571,
+                585,
+                844,
+                604
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Clearly, when "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u _ { i k } = 1 , ( ( x _ { i k } - x _ { D } ) ^ { 2 } + ( y _ { i k } - y _ { D } ) ^ { 2 } ) ^ { \\frac { 1 } { 2 } } \\le R _ { k } ( h )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must be satisfied. On the other hand, when "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u _ { i k } = 0 ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the constraint (9) is trivially satisfied. To avoid the multiplication of the variables "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u _ { i k } , x _ { D }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { D } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we use the big-M method. The constraint (9) can thus be further rewritten as"
+                    }
+                ]
+            },
+            "bbox": [
+                503,
+                612,
+                923,
+                685
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "((x _ {i k} - x _ {D}) ^ {2} + (y _ {i k} - y _ {D}) ^ {2}) ^ {\\frac {1}{2}} \\leq R _ {k} (h) + M (1 - u _ {i k})\\tag{10}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/6523f0a2fd0202db695701088045b97d50bfaf8cba30786f3120b0b0dffe491c.jpg"
+                }
+            },
+            "bbox": [
+                535,
+                690,
+                880,
+                709
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where M is a constant chosen large enough such that the constraint (10) is trivially satisfied when "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u _ { i k } = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The 3D placement problem can be formulated as"
+                    }
+                ]
+            },
+            "bbox": [
+                503,
+                714,
+                921,
+                758
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "maximize "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sum _ { k = 1 } ^ { K } \\sum _ { i \\in \\mathcal { U } _ { k } } u _ { i k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "x<sub>D</sub>,y<sub>D</sub>,h,u<sub>ik</sub>"
+                    }
+                ]
+            },
+            "bbox": [
+                504,
+                763,
+                660,
+                808
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "subject to"
+                    }
+                ]
+            },
+            "bbox": [
+                504,
+                809,
+                576,
+                824
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{r l} & \\left((x _ {i k} - x _ {D}) ^ {2} + (y _ {i k} - y _ {D}) ^ {2}\\right) ^ {\\frac {1}{2}} \\leq R _ {k} (h) + M (1 - u _ {i k}), \\\\ & \\quad \\forall i \\in \\mathcal {U} _ {k}, k = 1, 2 \\dots K, \\\\ & u _ {i k} \\in \\{0, 1 \\}, \\quad \\forall i \\in \\mathcal {U} _ {k}, k = 1, 2, \\dots K. \\end{array} \\tag {11}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/e10b1f9ca2af3fdb0ebb6ab243a27e81feda4c88247ad3eccee1a7f1caa09ed5.jpg"
+                }
+            },
+            "bbox": [
+                578,
+                825,
+                918,
+                881
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The problem (11) is a mixed integer non-linear problem (MINLP) which is difficult to solve. The difficulty of the problem (11) arises due to the coupling between the vertical placement, i.e., h and the horizontal placement, i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( x _ { D } , y _ { D } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "through the parameters "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ R _ { k } ( h ) \\} _ { k = 1 } ^ { K }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In order to simplify problem (11), we decouple the vertical and the horizontal placements. Such decoupling can be performed by utilizing an exhaustive search for the optimal altitude that solves (11). In the following lemma, we show that there exists a closed region in which the optimal altitude is guaranteed to exist."
+                    }
+                ]
+            },
+            "bbox": [
+                503,
+                887,
+                923,
+                946
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "ALZENAD et al.: 3-D PLACEMENT OF UAV-BS FOR MAXIMUM COVERAGE OF USERS WITH DIFFERENT QoS REQUIREMENTS"
+                    }
+                ]
+            },
+            "bbox": [
+                75,
+                34,
+                750,
+                47
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "39"
+                    }
+                ]
+            },
+            "bbox": [
+                905,
+                35,
+                921,
+                46
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "Authorized licensed use limited to: Nanjing Univ of Post & Telecommunications. Downloaded on August 07,2024 at 09:08:11 UTC from IEEE Xplore. Restrictions apply."
+                    }
+                ]
+            },
+            "bbox": [
+                66,
+                960,
+                924,
+                974
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                73,
+                69,
+                491,
+                155
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 1: Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { 1 } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { 1 } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the optimal altitude and the associated maximum coverage radius corresponding to the smallest path loss threshold "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L _ { t h } ^ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", respectively, and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { K } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { K } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the optimal altitude and the associated maximum coverage radius corresponding to the largest path loss threshold "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L _ { t h } ^ { \\check { K } } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "respectively, then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\exists \\check { h ^ { * } } \\in [ h _ { 1 } ^ { * } , h _ { K } ^ { * } ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that yields "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "N ( h ^ { * } ) ~ \\geq ~ \\widetilde { N ( h ) } ~ \\forall ~ \\bar { h } ~ \\notin ~ [ h _ { 1 } ^ { * } , h _ { K } ^ { * } ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "N ( h )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the number of covered users obtained by solving (11) for a given h."
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                155,
+                493,
+                270
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Note that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { k } ( h )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a concave function in h and has one maxima at "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { k } ^ { * } \\left[ 1 1 \\right]"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Also, we note that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { m } ^ { * } < h _ { l } ^ { * } \\ \\mathrm { i f } \\ L _ { t h } ^ { m } < L _ { t h } ^ { l }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "since from (4) we have "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { m } ( h ) < R _ { l } ( h )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L _ { t h } ^ { m } < L _ { t h } ^ { l }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and also "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\theta ^ { * } = \\tan ^ { - 1 } ( \\frac { h _ { k } ^ { * } } { R _ { k } ^ { * } } ) } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is constant. Therefore, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\forall \\bar { h } \\ < \\ h _ { 1 } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "we have "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { k } ( \\bar { h } ) < R _ { k } ( h _ { 1 } ^ { * } ) \\forall k \\ { \\stackrel { ( a ) } { \\Longrightarrow } } \\ N ( \\bar { h } ) \\leq N ( h _ { 1 } ^ { * } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Similarly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\forall \\bar { h } > h _ { K } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "we have "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { k } ( h _ { K } ^ { * } ) ~ > ~ R _ { k } ( \\bar { h } ) ~ \\forall k ~ \\stackrel { ( b ) } { \\Longrightarrow } ~ N ( h _ { K } ^ { * } ) ~ \\geq ~ N ( \\bar { h } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", which completes the proof. (a) and (b) result from the fact that increasing "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { k } ( h )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "enlarges the feasible region of (11) which does not decrease the optimal value of the objective function of (11)."
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                268,
+                493,
+                434
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "A. Exhaustive Search (ES)"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                73,
+                449,
+                259,
+                464
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The ES algorithm performs an exhaustive search for the optimal altitude "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { \\mathrm { E } } ^ { \\ast }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "over the closed region "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "[ h _ { 1 } ^ { * } , h _ { K } ^ { * } ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For a given altitude "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r c l } { \\breve { h _ { E } } } & { \\in } & { [ h _ { 1 } ^ { * } , h _ { K } ^ { * } ] . } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the associated coverage radii "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ R _ { k } ( h _ { \\mathrm { E } } ) \\} _ { k = 1 } ^ { K }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are computed by solving (4) numerically. Next, (12) is solved to find the optimal horizontal UAV-BS location"
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                467,
+                493,
+                553
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "maximize "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sum _ { k = 1 } ^ { K } \\sum _ { i \\in \\mathcal { U } _ { k } } u _ { i k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "x<sub>D</sub>,y<sub>D</sub>,u<sub>ik</sub>"
+                    }
+                ]
+            },
+            "bbox": [
+                75,
+                556,
+                230,
+                599
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "subject to"
+                    }
+                ]
+            },
+            "bbox": [
+                75,
+                601,
+                148,
+                616
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{c} \\left(\\left(x _ {i k} - x _ {D}\\right) ^ {2} + \\left(y _ {i k} - y _ {D}\\right) ^ {2}\\right) ^ {\\frac {1}{2}} \\leq R _ {k} \\left(h _ {E}\\right) + M \\left(1 - u _ {i k}\\right), \\\\ \\forall i \\in \\mathcal {U} _ {k}, k = 1, 2 \\dots K, \\\\ u _ {i k} \\in \\{0, 1 \\}, \\quad \\forall i \\in \\mathcal {U} _ {k}, k = 1, 2, \\dots K. \\end{array} \\tag {12}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/9de9dc9bc7a782cd4914b204c84bd51dd99c8f1c0dd047434a708896dee96659.jpg"
+                }
+            },
+            "bbox": [
+                148,
+                618,
+                486,
+                672
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The problem (12) is a mixed integer second order cone problem (MISOCP). Such problems can be solved by branch and cut method whose worst-case complexity is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\dot { O ( 2 ^ { n } ) } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "where n is the number of users. At each branching node, the underlying relaxed subproblem is a SOCP which can be solved in a polynomial time using primal-dual interior point method with complexity "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( n ^ { 3 . 5 } \\log ( \\varepsilon ^ { - 1 } ) )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "where ε is the accepted duality gap [12]. Thus, the complexity of solving problem (12) is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\bar { O } } ( 2 ^ { n } n ^ { 3 . 5 } \\log ( \\varepsilon ^ { - 1 } ) )"
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                678,
+                493,
+                809
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "B. Maximal Weighted Area (MWA)"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                75,
+                821,
+                316,
+                837
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us consider the case in which the users in the set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ { \\mathcal U } _ { k } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are uniformly distributed over the serving region with density "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\lambda _ { k } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Given that the UAV-BS is at altitude "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the average number of covered users, denoted by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "N _ { \\mathrm { a v g } } ( h )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", is then"
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                840,
+                493,
+                898
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "N _ {\\mathrm{avg}} (h) = \\pi \\sum_ {k = 1} ^ {K} \\lambda_ {k} R _ {k} ^ {2} (h).\\tag{13}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/c77058eb82f62921089bf0d96282930ec832ec03cc5c1ba9aad45d351ed7df8e.jpg"
+                }
+            },
+            "bbox": [
+                189,
+                904,
+                364,
+                946
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Obviously, maximizing the average number of covered users "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "N _ { \\mathrm { a v g } } ( h )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for a uniformly distributed users depends only on the UAV-BS’s altitude. In order to obtain the optimal altitude "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { M } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that maximizes (13), we need to search for h that satisfies"
+                    }
+                ]
+            },
+            "bbox": [
+                503,
+                69,
+                921,
+                128
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\frac {\\partial}{\\partial h} \\sum_ {k = 1} ^ {K} \\lambda_ {k} R _ {k} ^ {2} (h) = 0,\\tag{14}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/3ad6f820d54a2a18dc353d0d5cb0f5db81a3d0a3eee95f0c0a571e1eda133c92.jpg"
+                }
+            },
+            "bbox": [
+                638,
+                133,
+                777,
+                176
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "which yields the following"
+                    }
+                ]
+            },
+            "bbox": [
+                504,
+                181,
+                691,
+                196
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {k = 1} ^ {K} \\frac {2 \\lambda_ {k} X _ {k} (h) R _ {k} ^ {2} (h)}{R _ {k} ^ {2} (h) + h ^ {2} + h X _ {k} (h)} = 0,\\tag{15}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/2c849bc53bb3cd5f8caad8003e1f615a25db23b7db53d91c260254e02249623e.jpg"
+                }
+            },
+            "bbox": [
+                604,
+                204,
+                813,
+                246
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where"
+                    }
+                ]
+            },
+            "bbox": [
+                504,
+                252,
+                552,
+                266
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "X _ {k} (h) = \\frac {- 9 \\ln (1 0) A a b}{\\pi} \\frac {R _ {k} (h) \\exp (- b [ \\frac {1 8 0}{\\pi} \\tan^ {- 1} (\\frac {h}{R _ {k} (h)}) - a ])}{(1 + a \\exp (- b [ \\frac {1 8 0}{\\pi} \\tan^ {- 1} (\\frac {h}{R _ {k} (h)}) - a ]) ^ {2}} - h.\\tag{16}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/21fdac9fc462312da5564b2623d34375849090cbcb0856c7ba675c3549c21c6b.jpg"
+                }
+            },
+            "bbox": [
+                504,
+                270,
+                877,
+                305
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "It can be shown that (15) has a solution in the interval "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "[ h _ { 1 } ^ { * } , h _ { K } ^ { * } ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". However, this solution may not be unique. Clearly, (15) is an implicit function of h. Therefore, we need to search for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { M } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that satisfies (15) numerically."
+                    }
+                ]
+            },
+            "bbox": [
+                503,
+                310,
+                921,
+                368
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The maximal weighted area (MWA) algorithm deploys the UAV-BS at the altitude "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { M } ^ { * } . ^ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ R _ { k } ( h _ { M } ^ { * } ) \\} _ { k = 1 } ^ { K }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the coverage radii associated with the altitude "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { M } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The problem (11) then reduces to"
+                    }
+                ]
+            },
+            "bbox": [
+                503,
+                367,
+                923,
+                424
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\underset {x _ {D}, y _ {D}, u _ {i k}} {\\text { maximize }} \\sum_ {k = 1} ^ {N} \\sum_ {i \\in \\mathcal {U} _ {k}} u _ {i k}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/c1383857b5e207546a8ad6329c2a6d6dd5738363f6d897670f2fe0c5ea05deab.jpg"
+                }
+            },
+            "bbox": [
+                506,
+                429,
+                663,
+                473
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "subject to"
+                    }
+                ]
+            },
+            "bbox": [
+                506,
+                474,
+                580,
+                489
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{c} \\left(\\left(x _ {i k} - x _ {D}\\right) ^ {2} + \\left(y _ {i k} - y _ {D}\\right) ^ {2}\\right) ^ {\\frac {1}{2}} \\leq R _ {k} \\left(h _ {M} ^ {*}\\right) + M \\left(1 - u _ {i k}\\right), \\\\ \\forall i \\in \\mathcal {U} _ {k}, k = 1, 2 \\dots K, \\\\ u _ {i k} \\in \\{0, 1 \\}, \\quad \\forall i \\in \\mathcal {U} _ {k}, k = 1, 2, \\dots K, \\end{array} \\tag {17}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/207d117e1f1ac786eb61667c7cdd60de406b1be69092022bf442d2f672dd61e8.jpg"
+                }
+            },
+            "bbox": [
+                580,
+                489,
+                916,
+                546
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "which is a MISOCP."
+                    }
+                ]
+            },
+            "bbox": [
+                504,
+                553,
+                650,
+                569
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "IV. SIMULATION RESULTS"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                617,
+                585,
+                810,
+                599
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We consider a square 3 km × 3 km urban area with parameters "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a = 9 . 6 1 , b = 0 . 1 6 , \\eta _ { \\mathrm { L o S } } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\eta _ { \\mathrm { N L o S } } = 2 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We also consider a UAV-BS that transmits its signal at "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { c } = 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "GHz and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { t } = 3 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "dBm. We assume that there are two sets of users "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { U } _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { U } _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "uniformly distributed with densities "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\lambda _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\lambda _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "respectively. However, for a fair comparison, the total density of users is fixed at "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\lambda = \\lambda _ { 1 } + \\lambda _ { 2 } = 1 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "users/km<sup>2</sup>. Furthermore, we assume that the users demand QoS defined as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\gamma _ { \\mathrm { t h } } ^ { 1 } = 5 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "dBm and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\gamma _ { \\mathrm { t h } } ^ { 2 } = 4 7"
+                    },
+                    {
+                        "type": "text",
+                        "content": "dBm for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { U } _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { U } _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", respectively, with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { n } ~ = ~ - 1 2 \\ddot { 0 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "dBm. For comparison, we assume a UAV-BS placement algorithm, namely largest QoS (LQ) algorithm. The LQ algorithm assumes that all the users have the same QoS requirement "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\gamma _ { \\mathrm { t h } } = 5 0 ~ \\mathrm { d B }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L _ { t \\mathrm { h } } = 1 0 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "dB and the UAV-BS is therefore deployed vertically at "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { L O } ^ { * } = 6 4 6 . 5"
+                    },
+                    {
+                        "type": "text",
+                        "content": "m which results in maximal coverage radius "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R ^ { * } \\stackrel { \\sim } { = } 7 0 7"
+                    },
+                    {
+                        "type": "text",
+                        "content": "m. The LQ algorithm is based on the observation that any user i of set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ { \\mathcal U } _ { k } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", regardless of the required QoS, falling within the coverage region that corresponds to the largest SNR threshold will be covered. For the ES algorithm, we perform an exhaustive search for the optimal altitude "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { E } ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "over the closed region [646.5, 913] m. Furthermore, we discretize the altitude range [646.5, 913] m into a uniform one-dimensional grid of 9 points where the discretization step is given by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\Delta h = 2 9 . 6"
+                    },
+                    {
+                        "type": "text",
+                        "content": "m. In this letter, we use the CVX parser/solver with the MOSEK solver to solve problems (12) and (17)."
+                    }
+                ]
+            },
+            "bbox": [
+                501,
+                602,
+                923,
+                864
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "40"
+                    }
+                ]
+            },
+            "bbox": [
+                76,
+                35,
+                93,
+                45
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "IEEE WIRELESS COMMUNICATIONS LETTERS, VOL. 7, NO. 1, FEBRUARY 2018"
+                    }
+                ]
+            },
+            "bbox": [
+                498,
+                34,
+                921,
+                47
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>1</sup>The objective function in (12) and (17) is to maximize the number of covered users (not the average number of covered users) by also optimizing the UAV-BS’s horizontal location which clearly results in covering more users in comparison to placing the UAV-BS randomly in the horizontal dimension. The uniform distribution is assumed in the MWA algorithm to avoid the exhaustive search on the altitude by deploying the UAV-BS at the altitude "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "h _ { M } ^ { * }"
+                    }
+                ]
+            },
+            "bbox": [
+                504,
+                875,
+                923,
+                946
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "Authorized licensed use limited to: Nanjing Univ of Post & Telecommunications. Downloaded on August 07,2024 at 09:08:11 UTC from IEEE Xplore. Restrictions apply."
+                    }
+                ]
+            },
+            "bbox": [
+                68,
+                962,
+                924,
+                974
+            ]
+        }
+    ],
+    [
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/2fbbbd637395ad2537fa9e0fcb32acd517c2934de27566b773058420f64b9675.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Fig. 1. CDF of the number of covered users "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\rho = 1 )"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                111,
+                65,
+                455,
+                257
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/e0adbfcc2fd5c684d874f03a001cce966177e6fe7e99cbe996cae52605d0bc8c.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Fig. 2. CDF of execution time "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\rho = 1 )"
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                107,
+                294,
+                452,
+                487
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/6358e73ebb7378221d229c943bb510bc0c295a9e4a1eaaa9ca5b395e7b86ec18.jpg"
+                },
+                "content": "",
+                "chart_caption": [
+                    {
+                        "type": "text",
+                        "content": "Fig. 3. Average number of covered users versus density ratio."
+                    }
+                ],
+                "chart_footnote": []
+            },
+            "bbox": [
+                109,
+                523,
+                455,
+                719
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                73,
+                773,
+                493,
+                873
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The number of covered users and execution time are random quantities whose distributions can be measured by the cumulative distribution function (CDF). Fig. 1 and Fig. 2 show the CDF of the number of covered users and the CDF of the execution time for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\rho = \\frac { \\lambda _ { 2 } } { \\lambda _ { 1 } } = 1 } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", respectively. As shown in Fig. 1, the ES and MWA algorithms have very close performance and both outperform the LQ algorithm. However, based on Fig. 2, the ES algorithm has the worst execution time with a significant gap to that of the MWA and the LQ algorithms."
+                    }
+                ]
+            },
+            "bbox": [
+                73,
+                873,
+                493,
+                946
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                503,
+                70,
+                921,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Fig. 3 shows the average number of covered users versus the density ratio "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\rho ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Clearly, the performance of the MWA algorithm is very close to that of the ES algorithm. It is also worth noting that as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\rho"
+                    },
+                    {
+                        "type": "text",
+                        "content": "increases, the gap between the MWA and ES algorithms on one hand and the LQ algorithm on the other hand increases. This is because as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\rho"
+                    },
+                    {
+                        "type": "text",
+                        "content": "increases, the number of elements in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { U } _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(U<sub>1</sub>) increases (decreases). However, the LQ algorithm does not consider the density of the users in the set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal { U } _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "which justifies the gap increase."
+                    }
+                ]
+            },
+            "bbox": [
+                503,
+                128,
+                923,
+                256
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "V. CONCLUSION"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                651,
+                271,
+                774,
+                284
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this letter, we studied a novel 3D placement of a UAV-BS that maximizes the number of covered users with different QoS requirements. We modeled the placement problem as a multiple circles placement problem and proposed an optimal placement algorithm that utilizes an exhaustive search over a one-dimensional parameter in a closed region. We also proposed a low-complexity algorithm, referred to as the MWA algorithm, to solve the placement problem. Simulations have shown that the MWA algorithm performs very close to the ES algorithm with a significant reduction in complexity."
+                    }
+                ]
+            },
+            "bbox": [
+                503,
+                289,
+                923,
+                434
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "REFERENCES"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                665,
+                448,
+                763,
+                462
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[1] I. Bor-Yaliniz and H. Yanikomeroglu, “The new frontier in RAN heterogeneity: Multi-tier drone-cells,” IEEE Commun. Mag., vol. 54, no. 11, pp. 48–55, Nov. 2016."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                513,
+                468,
+                921,
+                502
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[2] Y. Zeng, R. Zhang, and T. J. Lim, “Wireless communications with unmanned aerial vehicles: Opportunities and challenges,” IEEE Commun. Mag., vol. 54, no. 5, pp. 36–42, May 2016."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                513,
+                502,
+                921,
+                536
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[3] M. Mozaffari, W. Saad, M. Bennis, and M. Debbah, “Mobile unmanned aerial vehicles (UAVs) for energy-efficient Internet of Things communications,” IEEE Trans. Wireless Commun., to be published, doi: 10.1109/TWC.2017.2751045."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                513,
+                536,
+                921,
+                580
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[4] Y. Zeng and R. Zhang, “Energy-efficient UAV communication with trajectory optimization,” IEEE Trans. Wireless Commun., vol. 16, no. 6, pp. 3747–3760, Jun. 2017."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                513,
+                582,
+                921,
+                614
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[5] J. Lyu, Y. Zeng, R. Zhang, and T. J. Lim, “Placement optimization of UAV-mounted mobile base stations,” IEEE Commun. Lett., vol. 21, no. 3, pp. 604–607, Mar. 2017."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                513,
+                616,
+                921,
+                648
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[6] M. Alzenad, A. El-Keyi, F. Lagum, and H. Yanikomeroglu, “3-D placement of an unmanned aerial vehicle base station (UAV-BS) for energy-efficient maximal coverage,” IEEE Wireless Commun. Lett., vol. 6, no. 4, pp. 434–437, Aug. 2017."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                514,
+                648,
+                921,
+                695
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[7] A. Al-Hourani, S. Kandeepan, and S. Lardner, “Optimal LAP altitude for maximum coverage,” IEEE Wireless Commun. Lett., vol. 3, no. 6, pp. 569–572, Dec. 2014."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                513,
+                695,
+                921,
+                729
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[8] R. I. Bor-Yaliniz, A. El-Keyi, and H. Yanikomeroglu, “Efficient 3-D placement of an aerial base station in next generation cellular networks,” in Proc. IEEE Int. Conf. Commun. (ICC), Kuala Lumpur, Malaysia, May 2016, pp. 1–5."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                513,
+                729,
+                921,
+                773
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[9] E. Kalantari, M. Z. Shakir, H. Yanikomeroglu, and A. Yongacoglu, “Backhaul-aware robust 3D drone placement in 5G+ wireless networks,” in Proc. IEEE Int. Conf. Commun. Workshop (ICCW), Paris, France, May 2017, pp. 109–114."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                513,
+                773,
+                921,
+                819
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[10] E. Kalantari, H. Yanikomeroglu, and A. Yongacoglu, “On the number and 3D placement of drone base stations in wireless cellular networks,” in Proc. IEEE 84th Veh. Technol. Conf. (VTC Fall), Montreal, QC, Canada, Sep. 2016, pp. 1–6."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                506,
+                819,
+                921,
+                864
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[11] M. Mozaffari, W. Saad, M. Bennis, and M. Debbah, “Drone small cells in the clouds: Design, deployment and performance analysis,” in Proc. IEEE Glob. Commun. Conf. (GLOBECOM), San Diego, CA, USA, Dec. 2015, pp. 1–6."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                506,
+                864,
+                921,
+                909
+            ]
+        },
+        {
+            "type": "list",
+            "content": {
+                "list_type": "reference_list",
+                "list_items": [
+                    {
+                        "item_type": "text",
+                        "item_content": [
+                            {
+                                "type": "text",
+                                "content": "[12] Y. E. Nesterov and M. J. Todd, “Self-scaled barriers and interior-point methods for convex programming,” Math. Oper. Res., vol. 22, no. 1, pp. 1–42, 1997."
+                            }
+                        ]
+                    }
+                ]
+            },
+            "bbox": [
+                506,
+                910,
+                921,
+                944
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "ALZENAD et al.: 3-D PLACEMENT OF UAV-BS FOR MAXIMUM COVERAGE OF USERS WITH DIFFERENT QoS REQUIREMENTS"
+                    }
+                ]
+            },
+            "bbox": [
+                75,
+                34,
+                750,
+                47
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "41"
+                    }
+                ]
+            },
+            "bbox": [
+                905,
+                35,
+                919,
+                45
+            ]
+        },
+        {
+            "type": "page_footer",
+            "content": {
+                "page_footer_content": [
+                    {
+                        "type": "text",
+                        "content": "Authorized licensed use limited to: Nanjing Univ of Post & Telecommunications. Downloaded on August 07,2024 at 09:08:11 UTC from IEEE Xplore. Restrictions apply."
+                    }
+                ]
+            },
+            "bbox": [
+                68,
+                962,
+                923,
+                974
+            ]
+        }
+    ]
+]

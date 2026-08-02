@@ -1,0 +1,389 @@
+import { useCallback, useEffect, useMemo, useState, type ComponentType } from 'react'
+import { getCurrentWindow } from '@tauri-apps/api/window'
+import {
+  Archive,
+  BookOpen,
+  Bot,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  CircleHelp,
+  Code2,
+  FileText,
+  Folder,
+  FolderOpen,
+  Gauge,
+  GitBranch,
+  Home,
+  LibraryBig,
+  Menu,
+  Network,
+  Plus,
+  RefreshCw,
+  Search,
+  Settings,
+  Sparkles,
+  Star,
+  X,
+} from 'lucide-react'
+import { TabBar, type WorkTab } from './components/TabBar'
+import { CoreBooksView } from './features/books/CoreBooksView'
+import { ComparisonView } from './features/comparison/ComparisonView'
+import { CompileCenterView } from './features/compile/CompileCenterView'
+import { GraphView } from './features/graph/GraphView'
+import { LibraryView } from './features/library/LibraryView'
+import { PageView } from './features/pages/PageView'
+import { AskView } from './features/qa/AskView'
+import {
+  chooseRepository,
+  getBacklinks,
+  getPage,
+  isDesktopRuntime,
+  listPages,
+  openLocalPath,
+  rebuildIndex,
+  repositoryInfo,
+  searchPages,
+} from './services/desktop'
+import type { Backlink, PageDetail, PageFilters, PageSummary, RepositoryInfo, SearchResult } from './types'
+
+type Icon = ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
+type MainView = 'dashboard' | 'qa' | 'library' | 'methods' | 'books' | 'graph' | 'comparison' | 'compile' | 'settings' | 'help' | 'page'
+type Theme = 'light' | 'dark' | 'system'
+
+type NavigationItem = { label: string; view: MainView; icon: Icon }
+type WorkspaceItem = { id: string; label: string; view?: MainView; star?: boolean; children?: WorkspaceItem[] }
+
+const navigation: NavigationItem[] = [
+  { label: '工作台', view: 'dashboard', icon: Home },
+  { label: '智能问答', view: 'qa', icon: Bot },
+  { label: '文献库', view: 'library', icon: FileText },
+  { label: '方法库', view: 'methods', icon: Gauge },
+  { label: '核心书籍', view: 'books', icon: BookOpen },
+  { label: '知识图谱', view: 'graph', icon: Network },
+  { label: '对比', view: 'comparison', icon: GitBranch },
+  { label: '编译中心', view: 'compile', icon: Code2 },
+]
+
+const workspaceItems: WorkspaceItem[] = [
+  { id: 'wireless-charging', label: '无线充电调度研究', view: 'dashboard', star: true },
+  {
+    id: 'vehicle-road',
+    label: '车路协同',
+    children: [
+      { id: 'vehicle-road-library', label: '相关文献', view: 'library' },
+      { id: 'vehicle-road-graph', label: '关系图谱', view: 'graph' },
+    ],
+  },
+  {
+    id: 'scheduling',
+    label: '调度算法',
+    children: [
+      { id: 'scheduling-methods', label: '方法模型', view: 'methods' },
+      { id: 'scheduling-books', label: '核心书籍', view: 'books' },
+      { id: 'scheduling-compare', label: '方法对比', view: 'comparison' },
+    ],
+  },
+  {
+    id: 'experiments',
+    label: '实验数据',
+    children: [
+      { id: 'experiments-evidence', label: '证据问答', view: 'qa' },
+      { id: 'experiments-compile', label: '编译任务', view: 'compile' },
+    ],
+  },
+]
+
+const defaultTab: WorkTab = { id: 'nav-dashboard', label: '研究工作台', kind: 'dashboard', nav: 'dashboard' }
+
+function readStored<T>(key: string, fallback: T): T {
+  try {
+    const value = localStorage.getItem(key)
+    return value ? (JSON.parse(value) as T) : fallback
+  } catch {
+    return fallback
+  }
+}
+
+function viewLabel(view: MainView) {
+  return navigation.find((item) => item.view === view)?.label ?? (view === 'settings' ? '设置' : view === 'help' ? '帮助' : '页面')
+}
+
+export default function App() {
+  const [view, setView] = useState<MainView>(() => readStored('desktop.active-view', 'dashboard'))
+  const [navCollapsed, setNavCollapsed] = useState(() => readStored('desktop.nav-collapsed', false))
+  const [contextOpen, setContextOpen] = useState(() => readStored('desktop.context-open', true))
+  const [contextTab, setContextTab] = useState<'evidence' | 'methods'>('evidence')
+  const [expandedWorkspaceNodes, setExpandedWorkspaceNodes] = useState<string[]>(() => readStored('desktop.workspace-expanded', ['scheduling']))
+  const [tabs, setTabs] = useState<WorkTab[]>(() => {
+    const stored = readStored<WorkTab[]>('desktop.tabs', [defaultTab])
+    return stored.length ? stored : [defaultTab]
+  })
+  const [activeTab, setActiveTab] = useState(() => readStored('desktop.active-tab', defaultTab.id))
+  const [repository, setRepository] = useState<RepositoryInfo | null>(null)
+  const [repositoryGeneration, setRepositoryGeneration] = useState(0)
+  const [catalog, setCatalog] = useState<PageSummary[]>([])
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState<SearchResult[]>([])
+  const [filters, setFilters] = useState<PageFilters>({ limit: 200, sort: 'modified' })
+  const [page, setPage] = useState<PageDetail | null>(null)
+  const [backlinks, setBacklinks] = useState<Backlink[]>([])
+  const [loading, setLoading] = useState(true)
+  const [notice, setNotice] = useState('')
+  const [theme, setTheme] = useState<Theme>(() => readStored('desktop.theme', 'light'))
+  const [fontSize, setFontSize] = useState(() => readStored('desktop.font-size', 14))
+
+  const refreshRepository = useCallback(async () => {
+    setLoading(true)
+    try {
+      const [info, pages] = await Promise.all([
+        isDesktopRuntime() ? repositoryInfo() : Promise.resolve<RepositoryInfo | null>(null),
+        listPages({ ...filters, limit: 200 }),
+      ])
+      setRepository(info)
+      setCatalog(pages)
+      setNotice(info ? `已加载 ${pages.length} 个页面` : `预览模式已加载 ${pages.length} 个页面`)
+    } catch (error) {
+      setCatalog([])
+      setNotice(`页面列表加载失败：${String(error)}`)
+    } finally {
+      setLoading(false)
+    }
+  }, [filters, repositoryGeneration])
+
+  useEffect(() => { void refreshRepository() }, [refreshRepository])
+  useEffect(() => { localStorage.setItem('desktop.nav-collapsed', JSON.stringify(navCollapsed)) }, [navCollapsed])
+  useEffect(() => { localStorage.setItem('desktop.context-open', JSON.stringify(contextOpen)) }, [contextOpen])
+  useEffect(() => { localStorage.setItem('desktop.workspace-expanded', JSON.stringify(expandedWorkspaceNodes)) }, [expandedWorkspaceNodes])
+  useEffect(() => { localStorage.setItem('desktop.tabs', JSON.stringify(tabs)) }, [tabs])
+  useEffect(() => { localStorage.setItem('desktop.active-tab', JSON.stringify(activeTab)) }, [activeTab])
+  useEffect(() => { localStorage.setItem('desktop.active-view', JSON.stringify(view)) }, [view])
+  useEffect(() => {
+    localStorage.setItem('desktop.theme', JSON.stringify(theme))
+    document.documentElement.dataset.theme = theme
+  }, [theme])
+  useEffect(() => {
+    localStorage.setItem('desktop.font-size', JSON.stringify(fontSize))
+    document.documentElement.style.fontSize = `${fontSize}px`
+  }, [fontSize])
+
+  const activateView = useCallback((nextView: MainView, label = viewLabel(nextView)) => {
+    const tabId = `nav-${nextView}`
+    setView(nextView)
+    setActiveTab(tabId)
+    setTabs((current) => current.some((tab) => tab.id === tabId)
+      ? current
+      : [...current, { id: tabId, label, kind: nextView, nav: nextView }])
+  }, [])
+
+  const openPage = useCallback(async (pageId: string) => {
+    setLoading(true)
+    try {
+      const [detail, linked] = await Promise.all([getPage(pageId), getBacklinks(pageId)])
+      setPage(detail)
+      setBacklinks(linked)
+      setView('page')
+      setActiveTab(pageId)
+      setTabs((current) => current.some((tab) => tab.id === pageId)
+        ? current
+        : [...current, { id: pageId, label: detail.title, kind: 'page', resourceId: pageId }])
+    } catch (error) {
+      setNotice(`页面打开失败：${String(error)}`)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  const selectTab = (tabId: string) => {
+    const tab = tabs.find((item) => item.id === tabId)
+    if (!tab) return
+    setActiveTab(tabId)
+    if (tab.kind === 'page' && tab.resourceId) void openPage(tab.resourceId)
+    else setView(tab.kind as MainView)
+  }
+
+  const closeTab = (tabId: string) => {
+    setTabs((current) => {
+      const remaining = current.filter((tab) => tab.id !== tabId)
+      const safe = remaining.length ? remaining : [defaultTab]
+      if (tabId === activeTab) {
+        const next = safe[safe.length - 1]
+        setActiveTab(next.id)
+        setView(next.kind as MainView)
+      }
+      return safe
+    })
+  }
+
+  const toggleWorkspaceNode = (id: string) => {
+    setExpandedWorkspaceNodes((current) => current.includes(id)
+      ? current.filter((item) => item !== id)
+      : [...current, id])
+  }
+
+  const handleChooseRepository = async () => {
+    try {
+      const selected = await chooseRepository()
+      setRepository(selected)
+      const stats = await rebuildIndex()
+      setNotice(`知识库已建立索引：${stats.pageCount} 个页面`)
+      setRepositoryGeneration((value) => value + 1)
+    } catch (error) {
+      setNotice(`知识库选择未完成：${String(error)}`)
+    }
+  }
+
+  const handleRebuild = async () => {
+    try {
+      const stats = await rebuildIndex()
+      setNotice(`索引已重建：${stats.pageCount} 个页面`)
+      setRepositoryGeneration((value) => value + 1)
+    } catch (error) {
+      setNotice(`索引重建失败：${String(error)}`)
+    }
+  }
+
+  const handleSearch = async (value: string) => {
+    setQuery(value)
+    if (!value.trim()) {
+      setResults([])
+      return
+    }
+    try {
+      setResults(await searchPages(value, 30))
+    } catch (error) {
+      setResults([])
+      setNotice(`搜索失败：${String(error)}`)
+    }
+  }
+
+  const recentPages = useMemo(() => catalog.slice(0, 5), [catalog])
+  const relatedMethods = useMemo(() => catalog.filter((item) => item.pageType === 'method').slice(0, 4), [catalog])
+
+  const renderDashboard = () => (
+    <>
+      <div className="page-heading">
+        <div><div className="eyebrow">LOCAL KNOWLEDGE WORKSPACE</div><h1>研究工作台</h1></div>
+        <button className="refresh-button" onClick={() => void refreshRepository()}><RefreshCw size={14} />刷新快照</button>
+      </div>
+      <div className="metrics-grid">
+        <div className="metric"><div className="metric-icon"><FileText size={22} /></div><div><div className="metric-value">{catalog.filter((item) => item.pageType === 'source').length}</div><div className="metric-label">文献来源</div></div></div>
+        <div className="metric"><div className="metric-icon"><Gauge size={22} /></div><div><div className="metric-value">{catalog.filter((item) => item.pageType === 'method').length}</div><div className="metric-label">方法模型</div></div></div>
+        <div className="metric"><div className="metric-icon"><BookOpen size={22} /></div><div><div className="metric-value">61</div><div className="metric-label">书籍章节</div></div></div>
+        <div className="metric"><div className="metric-icon"><Network size={22} /></div><div><div className="metric-value">{repository?.pageCount ?? catalog.length}</div><div className="metric-label">已索引页面</div></div></div>
+      </div>
+      <section className="panel recent-panel">
+        <div className="section-header"><h2>最近更新</h2><button className="link-button" onClick={() => activateView('library')}>查看文献库</button></div>
+        <div className="recent-table">
+          <div className="table-head"><span>类型</span><span>标题</span><span>状态</span><span>年份</span><span /></div>
+          {recentPages.length ? recentPages.map((item) => (
+            <button className="research-row" key={item.id} onClick={() => void openPage(item.id)}>
+              <span><span className={`type-icon ${item.pageType === 'method' ? 'method' : ''}`}><FileText size={13} /></span>{item.pageType}</span>
+              <strong>{item.title}</strong><span className="muted-text">{item.status || '已收录'}</span><span>{item.year || '—'}</span><ChevronRight size={14} />
+            </button>
+          )) : <div className="empty-state">{loading ? '正在加载知识库…' : '当前没有可展示的页面'}</div>}
+        </div>
+      </section>
+      <div className="dashboard-split">
+        <section className="panel"><div className="section-header"><h2>快速入口</h2></div><div className="compile-row"><button className="toolbar-button" onClick={() => activateView('qa')}><Bot size={17} />询问知识库</button><button className="toolbar-button" onClick={() => activateView('comparison')}><GitBranch size={17} />方法对比</button><button className="toolbar-button" onClick={() => activateView('graph')}><Network size={17} />查看图谱</button></div></section>
+        <section className="panel"><div className="section-header"><h2>编译状态</h2><button className="link-button" onClick={() => activateView('compile')}>打开编译中心</button></div><div className="compile-row"><div className="compile-icon"><Archive size={21} /></div><div className="compile-title"><strong>知识库编译流水线</strong><span>任务状态以编译中心记录为准</span></div></div></section>
+      </div>
+    </>
+  )
+
+  const renderSettings = () => (
+    <div className="placeholder-view">
+      <div className="placeholder-icon"><Settings size={28} /></div><h1>设置</h1>
+      <div className="panel" style={{ width: 'min(680px, 100%)', padding: 20, textAlign: 'left', display: 'grid', gap: 16 }}>
+        <div><h2>知识库目录</h2><p>{repository?.path || '尚未选择本地知识库'}</p></div>
+        <div className="heading-actions"><button className="refresh-button" onClick={() => void handleChooseRepository()}><FolderOpen size={14} />选择目录</button><button className="refresh-button" disabled={!repository} onClick={() => void handleRebuild()}><RefreshCw size={14} />重建索引</button></div>
+        <label>主题　<select value={theme} onChange={(event) => setTheme(event.target.value as Theme)}><option value="light">浅色</option><option value="dark">深色</option><option value="system">跟随系统</option></select></label>
+        <label>字号　<input type="range" min="12" max="18" value={fontSize} onChange={(event) => setFontSize(Number(event.target.value))} /> {fontSize}px</label>
+        <div><h2>Luna 与模型设置</h2><p>模型地址、模型名和密钥环境变量在智能问答页面的设置面板中管理。</p><button className="link-button" onClick={() => activateView('qa')}>前往智能问答</button></div>
+        <div><h2>缓存与日志</h2><p>缓存、任务事件与日志保存在应用数据目录；具体任务产物可在编译中心查看。</p></div>
+      </div>
+    </div>
+  )
+
+  const renderContent = () => {
+    if (loading && view === 'page') return <div className="page-loading"><RefreshCw className="spin" />正在加载页面…</div>
+    if (view === 'dashboard') return renderDashboard()
+    if (view === 'library' || view === 'methods') return <LibraryView query={query} results={results} catalog={catalog} pageType={view === 'methods' ? 'method' : 'source'} filters={filters} loading={loading} onQueryChange={(value) => void handleSearch(value)} onFiltersChange={setFilters} onOpenResult={(item) => void openPage(item.id)} />
+    if (view === 'page' && page) return <PageView page={page} backlinks={backlinks} backlinksLoading={loading} onOpenLink={(id) => void openPage(id)} onOpenPath={(path, reveal) => void openLocalPath(path, reveal)} onReload={() => void openPage(page.id)} />
+    if (view === 'books') return <CoreBooksView onOpenLink={(id) => void openPage(id)} target={null} />
+    if (view === 'graph') return <GraphView onOpenPage={(id) => void openPage(id)} />
+    if (view === 'comparison') return <ComparisonView candidates={catalog} onOpenPage={(id) => void openPage(id)} />
+    if (view === 'qa') return <AskView repositoryPath={repository?.path ?? ''} onOpenPage={(id) => void openPage(id)} onOpenBook={() => activateView('books')} onOpenPath={(path) => void openLocalPath(path)} />
+    if (view === 'compile') return <CompileCenterView repositoryPath={repository?.path ?? ''} onChooseRepository={() => void handleChooseRepository()} onOpenPath={(path) => void openLocalPath(path)} />
+    if (view === 'settings') return renderSettings()
+    if (view === 'help') return <div className="placeholder-view"><div className="placeholder-icon"><CircleHelp size={28} /></div><h1>帮助</h1><p>从左侧选择文献、方法、书籍或知识图谱；在智能问答中提出研究问题并打开证据来源。编译中心用于执行 Lint、Graphify 更新和文献编译任务。</p><button className="refresh-button" onClick={() => activateView('dashboard')}>返回工作台</button></div>
+    return <div className="placeholder-view"><div className="placeholder-icon"><FileText size={28} /></div><h1>页面未加载</h1><p>请重新从文献库打开该页面。</p></div>
+  }
+
+  return (
+    <div className="app-shell">
+      <header className="titlebar">
+        <button className="titlebar-menu" aria-label="展开或收起侧边栏" onClick={() => setNavCollapsed((value) => !value)}><Menu size={18} /></button>
+        <div className="titlebar-drag-region" data-tauri-drag-region><span className="window-title">研究工作台</span></div>
+        <div className="window-actions">
+          <button aria-label="最小化" onClick={() => void getCurrentWindow().minimize()}>−</button>
+          <button aria-label="最大化或还原" onClick={() => void getCurrentWindow().toggleMaximize()}>□</button>
+          <button aria-label="关闭" onClick={() => void getCurrentWindow().close()}>×</button>
+        </div>
+      </header>
+
+      <div className="app-body">
+        <aside className={`app-sidebar ${navCollapsed ? 'collapsed' : 'expanded'}`}>
+          <div className="sidebar-brand"><span className="sidebar-icon"><LibraryBig size={19} /></span>{!navCollapsed && <span className="sidebar-brand-label">工作台</span>}</div>
+          <nav className="primary-nav">
+            {navigation.map(({ label, view: itemView, icon: NavIcon }) => (
+              <button key={itemView} className={`sidebar-nav-item ${view === itemView ? 'selected' : ''}`} onClick={() => activateView(itemView, label)} title={label}>
+                <span className="sidebar-icon"><NavIcon size={18} /></span>{!navCollapsed && <span className="sidebar-label">{label}</span>}
+              </button>
+            ))}
+          </nav>
+
+          {!navCollapsed && <div className="sidebar-expanded-content">
+            <div className="nav-divider" />
+            <div className="nav-section-title"><span>我的空间</span><Plus size={14} /></div>
+            <div className="workspace-tree">
+              {workspaceItems.map((item) => {
+                const expanded = expandedWorkspaceNodes.includes(item.id)
+                return <div className="workspace-node" key={item.id}>
+                  <button className={`tree-item ${expanded ? 'expanded' : ''}`} aria-expanded={item.children ? expanded : undefined} onClick={() => item.children ? toggleWorkspaceNode(item.id) : item.view && activateView(item.view, item.label)}>
+                    <span className="tree-leading">{item.children ? (expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />) : <Folder size={14} />}</span><span>{item.label}</span>{item.star && <Star className="star-fill" size={13} />}
+                  </button>
+                  {item.children && expanded && <div className="workspace-children">{item.children.map((child) => <button className="tree-item tree-child" key={child.id} onClick={() => child.view && activateView(child.view, child.label)}><span className="tree-leading"><ChevronRight size={12} /></span>{child.label}</button>)}</div>}
+                </div>
+              })}
+            </div>
+          </div>}
+
+          <div className="sidebar-spacer" />
+          <div className="sidebar-footer">
+            <button className={`sidebar-nav-item ${view === 'settings' ? 'selected' : ''}`} onClick={() => activateView('settings')}><span className="sidebar-icon"><Settings size={18} /></span>{!navCollapsed && <span className="sidebar-label">设置</span>}</button>
+            <button className={`sidebar-nav-item ${view === 'help' ? 'selected' : ''}`} onClick={() => activateView('help')}><span className="sidebar-icon"><CircleHelp size={18} /></span>{!navCollapsed && <span className="sidebar-label">帮助</span>}</button>
+          </div>
+        </aside>
+
+        <main className={`main-workspace ${view === 'qa' ? 'qa-active' : ''} ${view === 'compile' ? 'compile-active' : ''}`}>
+          <div className="workspace-toolbar">
+            <div className="global-search"><Search size={17} /><input value={query} onChange={(event) => void handleSearch(event.target.value)} placeholder="搜索论文、方法、模型或问题…" />{query && <button className="clear-search" onClick={() => void handleSearch('')}><X size={14} /></button>}<kbd>Ctrl K</kbd></div>
+            <div className="toolbar-actions"><button className="toolbar-button" onClick={() => activateView('qa')}><Sparkles size={16} />新建问答</button><button className="icon-button" title="刷新知识库快照" onClick={() => void refreshRepository()}><RefreshCw size={16} /></button><button className="icon-button" title={contextOpen ? '收起研究脉络' : '展开研究脉络'} onClick={() => setContextOpen((value) => !value)}>{contextOpen ? <ChevronRight size={17} /> : <ChevronLeft size={17} />}</button></div>
+          </div>
+          {notice && <div className="notice"><Sparkles size={15} /><span>{notice}</span><button onClick={() => setNotice('')}><X size={14} /></button></div>}
+          <TabBar tabs={tabs} activeId={activeTab} onSelect={selectTab} onClose={closeTab} />
+          {renderContent()}
+        </main>
+
+        {contextOpen ? <aside className="context-panel">
+          <div className="context-heading"><h2>研究脉络</h2><button className="icon-button subtle" onClick={() => setContextOpen(false)}><ChevronRight size={17} /></button></div>
+          <div className="context-tabs"><button className={contextTab === 'evidence' ? 'active' : ''} onClick={() => setContextTab('evidence')}>证据链</button><button className={contextTab === 'methods' ? 'active' : ''} onClick={() => setContextTab('methods')}>相关方法</button></div>
+          {contextTab === 'evidence' ? <><div className="evidence-list">{recentPages.map((item, index) => <button className="evidence-item" key={item.id} onClick={() => void openPage(item.id)}><span className="evidence-rank">{index + 1}</span><span><strong>{item.title}</strong><span className="evidence-meta">{item.pageType} · {item.year || '年份未知'}</span><p>{item.summary || '打开页面查看完整证据。'}</p></span><ChevronRight className="evidence-link" size={14} /></button>)}</div>{!recentPages.length && <div className="empty-state">暂无证据条目</div>}<div className="evidence-footer"><button className="link-button" onClick={() => activateView('qa')}>添加证据</button><button className="link-button" onClick={() => activateView('graph')}>查看完整脉络图</button></div></> : <><div className="method-list">{relatedMethods.map((item) => <button className="method-item" key={item.id} onClick={() => void openPage(item.id)}><span><strong>{item.title}</strong><span className="method-tags"><span>{item.methodFamily || '方法'}</span></span><small>{item.summary || '打开页面查看方法详情'}</small></span><Star size={14} /></button>)}</div>{!relatedMethods.length && <div className="empty-state">暂无相关方法</div>}<div className="evidence-footer"><span /><button className="link-button" onClick={() => activateView('methods')}>查看更多方法</button></div></>}
+        </aside> : <button className="context-reopen" aria-label="展开研究脉络" onClick={() => setContextOpen(true)}><ChevronLeft size={16} /></button>}
+      </div>
+
+      <footer className="statusbar"><span><i className="status-dot" />{repository?.indexed ? '已同步' : '等待索引'}</span><span>{repository?.path || '尚未选择本地知识库'}</span><span>页面 {repository?.pageCount ?? catalog.length}</span><span className="status-graph">Graphify 派生图</span></footer>
+    </div>
+  )
+}

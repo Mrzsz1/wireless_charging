@@ -1,0 +1,4724 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "22 Steiner Forest"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                109,
+                438,
+                127
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will obtain a factor 2 approximation algorithm for the Steiner forest problem by enhancing the primal–dual schema with the idea of growing duals in a synchronized manner. The Steiner forest problem generalizes the metric Steiner tree problem, for which a factor 2 algorithm was presented in Chapter 3. Recall, however, that we had postponed giving the lower bounding method behind that algorithm; we will clarify this as well."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                786,
+                340
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As in the Steiner tree problem (Theorem 3.2), the main case of the Steiner forest problem is also the metric case (see Exercise 22.2). However, the primal–dual algorithm remains the same for both cases, so we don’t impose this restriction."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                340,
+                786,
+                398
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 22.1 (Steiner forest) Given an undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "• a cost function on edges "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c : E \\to \\mathbf { Q } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and a collection of disjoint subsets of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V , S _ { 1 } , \\ldots S _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", find a minimum cost subgraph in which each pair of vertices belonging to the same set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is connected."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                404,
+                784,
+                461
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us restate the problem; this will also help generalize it later. Define a connectivity requirement function r that maps unordered pairs of vertices to {0, 1} as follows:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                462,
+                786,
+                505
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "r (u, v) = \\left\\{ \\begin{array}{l} 1 \\text {   if   } u \\text {   and   } v \\text {   belong   to   the   same   set   } S _ {i} \\\\ 0 \\text {   otherwise } \\end{array} \\right.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/263ee97c34aeedc635b6ef073f8c503eec8f4d897d6034d1c0db26419845464a.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                516,
+                631,
+                548
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Now, the problem is to find a minimum cost subgraph F that contains a u–v path for each pair "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r ( u , v ) = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In general, the solution will be a forest."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                560,
+                786,
+                602
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "22.1 LP-relaxation and dual"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                631,
+                514,
+                646
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In order to give an integer programming formulation for this problem, let us define a function on all cuts in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G , \\ f : 2 ^ { V } \\to \\{ 0 , 1 \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", which specifies the minimum number of edges that must cross each cut in any feasible solution."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                663,
+                786,
+                705
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "f (S) = \\left\\{ \\begin{array}{l} 1 \\text {   if   } \\exists u \\in S \\text {   and   } v \\in \\overline {{S}} \\text {   such   that   } r (u, v) = 1 \\\\ 0 \\text {   otherwise } \\end{array} \\right.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/549efc5da3d535b78651d4d4ce0e02bf1193e5d7bfb62fbbb9f14bf6c4ef06a7.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                715,
+                667,
+                749
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us also introduce a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 / 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e \\in E ; x _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will be set to 1 if e is picked in the subgraph. The integer program is:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                143
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {minimize} & \\sum_ {e \\in E} c _ {e} x _ {e} \\\\ \\text {subject to} & \\sum_ {e: e \\in \\delta (S)} x _ {e} \\geq f (S), \\quad S \\subseteq V \\\\ & x _ {e} \\in \\{0, 1 \\}, \\qquad e \\in E \\end{array}\\tag{22.1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/78284fb4cc18e447d89dab788feccd06840fd4b9048ece9b987bc88c025c2a92.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                154,
+                578,
+                244
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\delta ( S )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denotes the set of edges crossing the cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( S , { \\overline { { S } } } )"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                256,
+                658,
+                271
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Following is the LP-relaxation of (22.1); once again, we have dropped the redundant conditions "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { e } \\leq 1"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                271,
+                784,
+                300
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text { minimize } & \\sum_ {e \\in E} c _ {e} x _ {e} \\\\ \\text { subject   to } & \\sum_ {e: e \\in \\delta (S)} x _ {e} \\geq f (S), \\quad S \\subseteq V \\\\ & x _ {e} \\geq 0, \\quad e \\in E \\end{array}\\tag{22.2}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/21ecde03f68cb4577ccd16a4ee22af9052309369f9668d391201114ec91a8f66.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                311,
+                576,
+                400
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The dual program is:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                412,
+                383,
+                428
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {maximize} & \\sum_ {S \\subseteq V} f (S) \\cdot y _ {S} \\\\ \\text {subject to} & \\sum_ {S: e \\in \\delta (S)} y _ {S} \\leq c _ {e}, \\quad e \\in E \\\\ & y _ {S} \\geq 0, \\quad S \\subseteq V \\end{array}\\tag{22.3}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/f6f699da2e85589fe33322c7282d9a57bb031338c2a6143d9ee337bfea81ef6f.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                441,
+                559,
+                530
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Notice that the primal and dual programs form a covering and packing pair of LPs (see Section 13.1 for definitions)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                542,
+                786,
+                571
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "22.2 Primal–dual schema with synchronization"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                600,
+                697,
+                615
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will introduce a new idea in the primal–dual schema for approximation algorithms, setting it apart from the way this schema is used for designing exact algorithms. The later algorithms work on demand – in each iteration, we pick one unsatisfied complementary slackness condition, and satisfy it by modifying the primal and dual solutions suitably. The new idea is that of raising duals in a synchronized manner. The algorithm is not trying to rectify a specific condition. Instead, it tries many possibilities simultaneously, one of which leads to primal improvement."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                630,
+                788,
+                745
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "22.2 Primal–dual schema with synchronization"
+                    }
+                ]
+            },
+            "bbox": [
+                398,
+                87,
+                731,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "199"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Some figurative terminology will help describe the algorithm more easily. Let us say that edge e feels dual "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { S } > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e \\in \\delta ( S )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Say that set S has been raised in a dual solution if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { S } > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Clearly, raising S or S has the same efect. Sometimes we will also say that we have raised the cut (S, S). Further, there is no advantage in raising set S with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( S ) = 0 ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", since this does not contribute to the dual objective function. Thus, we may assume that such cuts are never raised. Say that edge e is tight if the total amount of dual it feels equals its cost. The dual program is trying to maximize the sum of the dual variables "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "subject to the condition that no edge feels more dual than its cost, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { i . e . , }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "no edge is overtight."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                255
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Next, let us state the primal and relaxed dual complementary slackness conditions. The algorithm will pick edges integrally only. Define the degree "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "o f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "set S to be the number of picked edges crossing the cut (S, S)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                786,
+                299
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Primal conditions: For each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { e \\in E , x _ { e } \\neq 0 \\Rightarrow \\sum _ { i : e \\in \\delta ( S ) } y _ { S } = c _ { e } } \\end{array}"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                305,
+                715,
+                321
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Equivalently, every picked edge must be tight."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                319,
+                557,
+                334
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Relaxed dual conditions: The following relaxation of the dual conditions would have led to a factor 2 algorithm: for each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\subseteq V , y _ { S } \\neq 0 \\Rightarrow"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\sum _ { e \\colon \\ e \\in \\delta ( S ) } x _ { e } \\leq 2 \\cdot f ( S ) } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", i.e., every raised cut has degree at most 2. However, \u0001we do not know how to ensure this condition. Interestingly enough, we can still obtain a factor 2 algorithm – by relaxing this condition further! Raised sets will be allowed to have high degree; however, we will ensure that on average, raised duals have degree at most 2. The exact definition of “on average” will be given later."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                340,
+                784,
+                454
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm starts with null primal and dual solutions. In the spirit of the primal–dual schema, the current primal solution indicates which cuts need to be raised, and in turn, the current dual solution indicates which edge needs to be picked. Thus, the algorithm iteratively improves the feasibility of the primal, and the optimality of the dual, until a feasible primal is obtained."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                454,
+                786,
+                525
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us describe what happens in an iteration. At any point, the picked edges form a forest. Say that set S is unsatisfied if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( S ) = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", but there is no picked edge crossing the cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( S , { \\overline { { S } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is said to be active if it is a minimal (w.r.t. inclusion) unsatisfied set in the current iteration. Clearly, if the currently picked primal solution is infeasible, there must an unsatisfied set and therefore an active set w.r.t. it."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                525,
+                786,
+                612
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 22.2 Set S is active "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i f f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "it is a connected component in the currently picked forest and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( S ) = 1"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                620,
+                786,
+                650
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be an active set. Now, S cannot contain part of a connected component because otherwise there will already be a picked edge in the cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( S , { \\bar { S } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Thus, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a union of connected components. Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( S ) = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", there is a vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in { \\overline { { S } } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r ( u , v ) = 1 . \\operatorname { L e t } S ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the connected component containing u. Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is also unsatisfied, and by the minimality of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S , S = S ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                665,
+                786,
+                750
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "200"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "22 Steiner Forest"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                408,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "By the characterization of active sets given in Lemma 22.2, it is easy to find all active sets in the current iteration. The dual variables of these sets are raised in a synchronized manner, until some edge goes tight. Any one of the newly tight edges is picked, and the current iteration terminates."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                170
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "When a primal feasible solution is found, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the edge augmentation step terminates. However, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "may contain redundant edges, which need to be pruned for achieving the desired approximation factor; this is illustrated in Example 22.4. Formally, edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e \\in F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is said to be redundant if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\boldsymbol { F } - \\{ \\boldsymbol { e } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is also a feasible solution. All redundant edges can be dropped simultaneously from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Equivalently, only nonredundant edges are retained."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                170,
+                786,
+                256
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This algorithm is presented below. We leave its eficient implementation as an exercise."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                255,
+                786,
+                284
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 22.3 (Steiner forest)\n1. (Initialization)  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F \\leftarrow \\emptyset"
+                    },
+                    {
+                        "type": "text",
+                        "content": "; for each  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\subseteq V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ",  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y_S \\leftarrow 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".\n2. (Edge augmentation) while there exists an unsatisfied set do: simultaneously raise  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y_S"
+                    },
+                    {
+                        "type": "text",
+                        "content": " for each active set  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", until some edge  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e"
+                    },
+                    {
+                        "type": "text",
+                        "content": " goes tight;\n "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F \\leftarrow F \\cup \\{e\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".\n3. (Pruning) return  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F' = \\{e \\in F | F - \\{e\\} \\text{ is primal infeasible}\\}"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                294,
+                781,
+                429
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 22.4 Consider a star in which all edges have cost 1, except one edge whose cost is 3."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                449,
+                784,
+                479
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/8c9b48e10894abc10222795b194b786d32640ca7aee2929e58fb0de3f65e4392.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                386,
+                495,
+                623,
+                571
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The only requirement is to connect the end vertices of the edge of cost 3. The algorithm will add to F all edges of cost 1 before adding the edge of cost 3. Clearly, at this point, F is not within twice the optimal. However, this wil be corrected in the pruning step when all edges of cost 1 will be removed. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                582,
+                786,
+                640
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us run the algorithm on a nontrivial example to illustrate its finer points."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                646,
+                784,
+                676
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 22.5 Consider the following graph. Costs of edges are marked, and the only nonzero connectivity requirements are "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r ( u , v ) = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r ( s , t ) = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "The thick edges indicate an optimal solution of cost 45."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                681,
+                784,
+                726
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "22.2 Primal–dual schema with synchronization"
+                    }
+                ]
+            },
+            "bbox": [
+                398,
+                87,
+                729,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "201"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                783,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/1e4114c59b2c5bdd581b352b9748988850d1eb15d655ac2125dec28355726977.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                347,
+                108,
+                660,
+                282
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the first iteration, the following four singleton sets are active: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ s \\} , \\{ t \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "• "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ u \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ v \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". When their dual variables are raised to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "6"
+                    },
+                    {
+                        "type": "text",
+                        "content": "each, edges "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , a )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( v , b )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "go tight. One of them, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , a )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is picked, and the iteration ends. In the second iteration, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ u , a \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "replaces "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ u \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as an active set. However, in this iteration there is no need to raise duals, since there is already a tight edge, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( v , b )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This edge is picked, and the iteration terminates. The primal and dual solutions at this point are shown below, with picked edges marked thick:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                286,
+                786,
+                388
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/570af3f94a27c0d59774a35e07db3f8553eba3845a70397c0cc891f439e350e0.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                317,
+                395,
+                687,
+                609
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the third iteration, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ v , b \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "replaces "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ v \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as an active set. When the active sets are raised by 2 each, edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , s )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "goes tight and is picked. In the fourth iteration, the active sets are "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ u , s , a \\} , \\{ v \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ t \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". When they are raised by 1 each, edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( b , t )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "goes tight and is picked. The situation now is:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                612,
+                784,
+                670
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "202"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "Steiner Forest"
+                    }
+                ]
+            },
+            "bbox": [
+                307,
+                87,
+                408,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/9effafa690d9bfce4eeb002adca84c5072239aa0ac74d3b2e66865c37b245342.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "In the fifth iteration, the active sets are "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ a , s , u \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ b , v , t \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". When they are raised by 1 each, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "goes tight, and we now have a primal feasible solution:"
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                268,
+                111,
+                736,
+                368
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/9f497c26089dc636d63b6668d9207f66ad1059bf1adce4fec1db64bae2caa324.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "In the pruning step, edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , a )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is deleted, and we obtain the following solution of cost 54:"
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                245,
+                426,
+                763,
+                686
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "22.2 Primal–dual schema with synchronization"
+                    }
+                ]
+            },
+            "bbox": [
+                398,
+                87,
+                731,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "203"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/3826e565d401f9f2bdcdfde9993aeaeab1ed09eec4d08e30c715059971aecff3.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                337,
+                109,
+                672,
+                299
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "22.3 Analysis"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                349,
+                369,
+                365
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In Lemma 22.6 we will show that simultaneously deleting all redundant edges still leaves us with a primal feasible solution, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { i . e . } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", it is never the case that two edges "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are both redundant individually, but on deletion of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e , f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "becomes nonredundant."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                379,
+                786,
+                437
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 22.6 At the end of the algorithm, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and y are primal and dual feasible solutions, respectively."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                445,
+                786,
+                475
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: At the end of Step 2, F satisfies all connectivity requirements. In each iteration, dual variables of connected components only are raised. Therefore, no edge running within the same component can go tight, and so "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is acyclic, i.e., it is a forest. Therefore, if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r ( u , v ) = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", there is a unique u–v path in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Thus, each edge on this path in nonredundant and is not deleted in Step 3. Hence, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is primal feasible."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                489,
+                784,
+                576
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "When an edge goes tight, the current iteration ends and active sets are redefined. Therefore, no edge is overtightened. Hence, y is dual feasible. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                576,
+                786,
+                605
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\deg _ { F ^ { \\prime } } ( S )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the number of edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "crossing the cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( S , { \\overline { { S } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "The characterization of degrees of satisfied components established in the next lemma will be crucial in proving the approximation guarantee of the algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                609,
+                784,
+                670
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 22.7 Consider any iteration of the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a l g o r i t h m"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and let C be a component w.r.t. the currently picked edges. If "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( C ) = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\deg _ { F ^ { \\prime } } ( C ) \\neq 1"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                677,
+                784,
+                707
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Suppose "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\deg _ { F ^ { \\prime } } ( C ) = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the unique edge of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "crossing the cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( C , { \\overline { { C } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since e is nonredundant (every edge in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is nonredundant), there is a pair of vertices, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u , v ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r ( u , v ) = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and e lies on the unique "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u - v"
+                    },
+                    {
+                        "type": "text",
+                        "content": "path in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since this path crosses the cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( C , { \\overline { { C } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "exactly once, one of these vertices must lie in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the other in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\overline { { C } } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now, since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r ( u , v ) = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "2 we get that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( C ) = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", thus leading to a contradiction. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                722,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "22 Steiner Forest"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                408,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "204"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                171
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 22.8"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                189,
+                331,
+                203
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {e \\in F ^ {\\prime}} c _ {e} \\leq 2 \\sum_ {S \\subseteq V} y _ {S}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/fa4df1236a12b0f49f84417600407a13346b20c93f974b17e761bd3f60c5a778.jpg"
+                }
+            },
+            "bbox": [
+                374,
+                186,
+                512,
+                217
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Since every picked edge is tight,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                231,
+                526,
+                247
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {e \\in F ^ {\\prime}} c _ {e} = \\sum_ {e \\in F ^ {\\prime}} \\left(\\sum_ {S: e \\in \\delta (S)} y _ {S}\\right).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/eb72ca97e395e83ca5869f6424929f46053313f970c14a3300e161f56a202d72.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                258,
+                489,
+                304
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Changing the order of summation we get:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                315,
+                532,
+                331
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {e \\in F ^ {\\prime}} c _ {e} = \\sum_ {S \\subseteq V} \\left(\\sum_ {e \\in \\delta (S) \\cap F ^ {\\prime}} y _ {S}\\right) = \\sum_ {S \\subseteq V} \\deg_ {F ^ {\\prime}} (S) \\cdot y _ {S}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/08691a699c6f8672b5713c246fc216e1c23a2256fede55cd92e5690ffed5242d.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                342,
+                643,
+                388
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Thus, we need to show that"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                400,
+                431,
+                414
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {S \\subseteq V} \\deg_ {F ^ {\\prime}} (S) \\cdot y _ {S} \\leq 2 \\sum_ {S \\subseteq V} y _ {S}.\\tag{22.4}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/0ceb89e1d15d1eaeea2f8db7dd384a0458404f7e3f1ce9e277f45288e4ff29aa.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                426,
+                487,
+                458
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will prove the following stronger claim. In each iteration, the increase in the left-hand side of inequality (22.4) is bounded by the increase in the right-hand side. Consider an iteration, and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varDelta"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the extent to which active sets were raised in this iteration. Then, we need to show:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                470,
+                786,
+                527
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\Delta \\times \\left(\\sum_ {S \\text {active}} \\deg_ {F ^ {\\prime}} (S)\\right) \\leq 2 \\Delta \\times (\\# \\text {of active sets}).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/3008275e8cd2de17c4bb4c4e940002f8ae986207677d36df9f303bfc68cef39c.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                539,
+                655,
+                586
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Notice that the degree w.r.t. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of any active set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is due to edges that will be picked during or after the current iteration. Let us rewrite this inequality as follows:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                596,
+                784,
+                640
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\frac {\\sum_ {S \\text {active}} \\deg_ {F ^ {\\prime}} (S)}{\\# \\text {of active sets}} \\leq 2.\\tag{22.5}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/c6d4f8bd9512da565919ff3c8b1c067347172f2765fce47d71458b1982fc2401.jpg"
+                }
+            },
+            "bbox": [
+                265,
+                650,
+                453,
+                681
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Thus, we need to show that in this iteration, the average degree of active sets w.r.t. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is at most 2. The mechanics of the argument lies in the fact that in a tree, or in general in a forest, the average degree of vertices is at most 2."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                693,
+                786,
+                750
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "22.3 Analysis"
+                    }
+                ]
+            },
+            "bbox": [
+                625,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "205"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let H be a graph on vertex set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and edge set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Consider the set of connected components w.r.t. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "at the beginning of the current iteration. In "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", shrink the set of vertices of each of these components to a single node to obtain graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(we will call the vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "nodes for clarity). Notice that in going from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ^ { \\prime } { \\mathrm { . } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", all edges picked in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "before the current iteration have been shrunk. Clearly, the degree of a node in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is equal to the degree of the corresponding set in H. Let us say that a node of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "corresponding to an active component is an active node; any other node will be called inactive. Each active node of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has nonzero degree (since there must be an edge incident to it to satisfy its requirement), and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a forest. Now, remove all isolated nodes from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The remaining graph is a forest with average degree at most 2. By Lemma 22.7 the degree of each inactive node in this graph is at least 2, i.e., the forest has no inactive leaves. Hence, the average degree of active nodes is at most 2. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                313
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Observe that the proof given above is essentially a charging argument: for each active node of degree greater than 2, there must be correspondingly many active nodes of degree 1, i.e., leaves, in the forest. The exact manner in which the dual conditions have been relaxed must also be clear now: in each iteration, the duals being raised have average degree at most 2. Lemmas 22.6 and 22.8 give:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                319,
+                786,
+                406
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 22.9 Algorithm 22.3 achieves an approximation guarantee of factor 2 for the Steiner forest problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                414,
+                784,
+                443
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The tight example given for the metric Steiner tree problem, Example 3.4, is also a tight example for this algorithm. Algorithm 22.3 places an upper bound of 2 on the integrality gap of LP-relaxation (22.2) for the Steiner forest problem. Example 22.10 places a lower bound of (essentially) 2 on this LP, even if restricted to the minimum spanning tree problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                451,
+                786,
+                523
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us run Algorithm 22.3 on an instance of the metric Steiner tree problem. If the edge costs satisfy the strict triangle inequality, i.e., for any three vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u , v , w , \\ c ( u , v ) < c ( u , w ) + c ( v , w )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then it is easy to see that the algorithm will find a minimum spanning tree on the required vertices, i.e., it is essentially the algorithm for the metric Steiner tree problem presented in Chapter 3. Even if the triangle inequality is not strictly satisfied, the cost of the solution found is the same as the cost of an MST. Furthermore, if among multiple tight edges, the algorithm always prefers picking edges running between required vertices, it will find an MST. This clarifies the lower bound on which that algorithm was based."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                523,
+                786,
+                665
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The MST problem is a further special case: every pair of vertices need to be connected. Observe that when run on such an instance, Algorithm 22.3 essentially executes Kruskal’s algorithm, i.e., in each iteration, it picks the cheapest edge running between two connected components. Hence it finds an optimal MST. However, as shown in Example 22.10, the dual found may be as small as half the primal."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                665,
+                786,
+                752
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "206"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "22 Steiner Forest"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                408,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 22.10 Consider a cycle on n vertices, with all edges of cost 1. The cost of an optimal MST is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". the dual found is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Algorithm 22.3 finds a dual of value "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n / 2 \\colon 1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "around each vertex. Indeed, this is an optimal dual solution, since there is a fractional primal solution of the same value: pick each edge to the extent of half. This places a lower bound of (essentially) 2 on the integrality gap of LP (22.2), even if restricted to the minimum spanning tree problem. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                214
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "22.4 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                249,
+                376,
+                265
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "22.1 Show, using the max-flow min-cut theorem, that a subgraph of G has all the required paths if it does not violate any of the cut requirements in IP (22.1). Use this fact to show that IP (22.1) is an integer programming formulation for the Steiner forest problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                293,
+                786,
+                351
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "22.2 Show that there is an approximation-factor-preserving reduction from the Steiner forest problem to the metric Steiner forest problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                363,
+                784,
+                393
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Show that there is no loss of generality in requiring that the edge costs satisfy the triangle inequality for the Steiner network problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                393,
+                784,
+                420
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: The reasoning is the same as that for the Steiner tree problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                420,
+                746,
+                436
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "22.3 How does the feasibility and approximation guarantee of the solution found change if"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                449,
+                784,
+                479
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. the pruning step of Algorithm 22.3 is replaced with the reverse delete step of Algorithm 18.4."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                485,
+                784,
+                513
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. the reverse delete step of Algorithm 18.4 is replaced by the pruning step of Algorithm 22.3."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                513,
+                786,
+                543
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "22.4 Give an example for which some cut raised by Algorithm 22.3 has degree at least 3 w.r.t. the primal solution found."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                563,
+                784,
+                593
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "22.5 Run Algorithm 22.3 on an instance of the minimum spanning tree problem. Pick an arbitrary vertex as the root, and throw away all raised duals containing this vertex. Show that the cost of the tree found is twice the sum of the remaining duals."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                605,
+                786,
+                663
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Show that in an iteration which starts with k connected components, and lasts for time ∆, the total increase to the left-hand side of inequality (22.4) is precisely "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 ( k - 1 ) \\varDelta"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                663,
+                784,
+                707
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "22.6 Let us think of running Step 2 of Algorithm 22.3 continuously in time. Thus, in unit time, a dual grows a unit amount. Consider an instance of the"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                719,
+                784,
+                749
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "22.4 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                620,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "207"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Steiner forest problem, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( G = ( V , E ) , c , S _ { 1 } , \\ldots , S _ { k } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and its modification in which one of the vertices from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V - ( S _ { 1 } \\cup \\ldots \\cup S _ { k } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is added to one of the sets. Run Algorithm 22.3 on both these instances. Call these runs "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", respectively."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                171
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Show that if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", i.e., the starting instance was a Steiner tree instance, then the following holds. If at time t two vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u , v \\in S _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are connected by a tight path in run "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then they are connected by a tight path at time t in run "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "R _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as well."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                175,
+                784,
+                233
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Give a counterexample to the previous claim in case "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k > 1"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                233,
+                685,
+                248
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "22.7 (Goemans and Williamson [105]) Algorithm 22.3 actually works for a general class of problems that includes the Steiner forest problem as a special case. A function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f : 2 ^ { V } \\to \\{ 0 , 1 \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is said to be proper if it satisfies the following properties:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                267,
+                786,
+                325
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( V ) = 0 ;"
+                    }
+                ]
+            },
+            "bbox": [
+                230,
+                331,
+                329,
+                346
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( S ) = f ( { \\overline { { S } } } )"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                346,
+                349,
+                360
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3. If A and B are two disjoint subsets of V and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( A \\cup B ) = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( A ) = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "or "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ( B ) = 1 \\quad"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                359,
+                784,
+                388
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Notice that function f defined for the Steiner forest problem is a proper function. Consider the integer program (22.1) with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "restricted to be a proper function. Show that Algorithm 22.3 is in fact a factor 2 approximation algorithm for this class of integer programs."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                394,
+                786,
+                454
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "22.8 (Goemans and Williamson [105]) Consider the following problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                464,
+                752,
+                481
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 22.11 (Point-to-point connection) Given a graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "a cost function on edges c : "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E \\to \\mathbf { Q } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(not necessarily satisfying the triangle inequality) and two disjoint sets of vertices, S and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", of equal cardinality, find a minimum cost subgraph that has a path connecting each vertex in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to a unique vertex in T."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                486,
+                784,
+                558
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Give a factor 2 approximation algorithm for this problem."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                565,
+                680,
+                581
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Show that this can be formulated as an integer program using (22.1), with f being a proper function."
+                    }
+                ]
+            },
+            "bbox": [
+                238,
+                581,
+                784,
+                609
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Relax the problem to requiring that each vertex in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be connected to some vertex in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(not necessarily unique). Give a factor 2 approximation algorithm for this problem as well."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                609,
+                784,
+                652
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Reduce to the Steiner tree problem."
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                652,
+                574,
+                667
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "22.9 (Goemans and Williamson [105]) Consider the following variant of the metric Steiner tree problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                688,
+                784,
+                718
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 22.12 (Prize-collecting Steiner tree) We are given a complete undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and a special vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r \\in V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Function cost : "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\bf Q } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "satisfies the triangle inequality, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pi : V \\to \\mathbf { Q } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the penalty function for vertices. The problem is to find a tree containing r which minimizes the sum of the costs of the edges in the tree and the penalties of vertices not in the tree."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                724,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "208"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "22 Steiner Forest"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                408,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                171
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Consider the following integer program for this problem. It has a variable, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { e } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for each edge e and a variable, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Z _ { T } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for each set T of vertices not containing "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r . \\ Z _ { T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is set to 1 for the set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of vertices that are not included in the optimal tree. Obtain the LP-relaxation and dual for this LP. The dual will have a variable for each set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of vertices not containing r. Let’s call this variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { S }"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                179,
+                786,
+                266
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text { minimize } & \\sum_ {e \\in E} c _ {e} x _ {e} + \\sum_ {T \\subseteq V; r \\not \\in T} \\left(Z _ {T} \\sum_ {v \\in T} \\pi_ {v}\\right) \\\\ \\text { subject   to } & \\sum_ {e \\in \\delta (S)} x _ {e} + \\sum_ {T \\supseteq S} Z _ {T} \\geq 1, \\\\ & x _ {e} \\in \\{0, 1 \\}, \\\\ & Z _ {T} \\in \\{0, 1 \\}, \\end{array} \\quad \\begin{array}{l l} & (2 2) \\\\ & S \\subseteq V; r \\not \\in S \\\\ & e \\in E \\\\ & T \\subseteq V; r \\not \\in T. \\end{array}\\tag{22.6}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/88f1c7139c9d71972093c3fb9c95844b593dce8ec272e4567d79be64e799b2b6.jpg"
+                }
+            },
+            "bbox": [
+                287,
+                278,
+                759,
+                397
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. The following primal–dual algorithm for this problem is along the lines of Algorithm 22.3. Initialize as follows. Each vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\neq r"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a singleton active set, with a charge of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pi _ { v } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Ordered list "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is set to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varnothing ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The dual variables of all active sets are grown in a synchronized manner. As a dual grows, its charge decreases by the same amount. If set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "runs out of charge, it is declared dead and all of its unmarked vertices are marked with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { \\mathfrak { a } } \\bar { S } ^ { \\mathfrak { n } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". When an edge e goes tight, it is added to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "The rest of the action depends on the following cases."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                407,
+                786,
+                521
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• If e connects active set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r :"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Set S is deactivated and is declared connected to r. All unmarked vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are marked "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { 6 } r ^ { 5 }"
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                521,
+                784,
+                550
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• If e connects active set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to a set that is connected to r: Same action as in previous case."
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                550,
+                784,
+                579
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• If e connects sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "which are either both active or one is active and one is dead: The active sets among "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are deactivated. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\cup S ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is declared active and is given the sum of the leftover charges of S and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ^ { \\prime } ."
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                577,
+                784,
+                634
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "When there are no more active sets, the algorithm performs a dynamic reverse delete on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "This is an enhanced reverse delete procedure in which requirements change dynamically. All vertices marked "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { 6 } r ^ { 5 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are labeled Required. We will say that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is feasible if there is a path from each Required vertex to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r"
+                    },
+                    {
+                        "type": "text",
+                        "content": "using edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e = ( u , v ) \\in F ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then the maximal dead set w.r.t. e, containing v is the maximal set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in S , u \\notin S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "was declared dead by the algorithm. If there is no set satisfying these conditions, then the maximal dead set w.r.t. e, containing v is defined to be ∅."
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                634,
+                786,
+                737
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "22.4 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                618,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "209"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                248,
+                112,
+                784,
+                141
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Edges "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textit { e } \\in \\textit { F }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are considered in the reverse order in which they were inserted in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F - e"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is feasible, then e is removed from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Otherwise, suppose "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\boldsymbol { e } = \\left( u , v \\right)"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and let S be the maximal dead set w.r.t. e, containing v. If "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\neq \\emptyset"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then declare all vertices marked "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { 6 6 } S ^ { 9 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Required. Repeat for the maximal dead set w.r.t. e containing "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u ."
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                141,
+                784,
+                212
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3. Show that at the beginning of the reverse delete step, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is feasible. Also, show that F is never infeasible, even if the set of Required vertices grows."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                212,
+                784,
+                241
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4. Show that at the end, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a tree containing r and satisfying a) all vertices marked "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { 6 } r ^ { 5 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are included in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and b) if a vertex marked "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { 6 6 } S ^ { 9 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is included in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then all vertices marked "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { 6 6 } T ^ { 5 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T \\supseteq S ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", are also included in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                241,
+                704,
+                256
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                253,
+                254,
+                625,
+                269
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                252,
+                268,
+                781,
+                298
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "5. The primal solution is constructed as follows. For each edge e in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F _ { ; }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to 1, and set the remaining "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { e } \\mathrm { { ^ { * } s } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to 0. For each maximal dead set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", none of whose vertices are in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Z _ { T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to 1. For all the remaining sets, set their "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Z"
+                    },
+                    {
+                        "type": "text",
+                        "content": "variable to 0."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                298,
+                784,
+                355
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Prove that this is a factor 2 approximation algorithm for the prizecollecting Steiner tree problem, by showing that the primal and dual solutions produced satisfy"
+                    }
+                ]
+            },
+            "bbox": [
+                247,
+                354,
+                784,
+                399
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {e \\in E} c _ {e} x _ {e} + 2 \\cdot \\sum_ {T \\subseteq V; r \\not \\in T} \\left(Z _ {T} \\sum_ {v \\in T} \\pi_ {v}\\right) \\leq 2 \\cdot \\sum_ {S \\subseteq V; r \\not \\in T} y _ {S}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/7b011a97e7e0541b07295b14a601cae2693e3be628de9f508d7f86ebec7daec0.jpg"
+                }
+            },
+            "bbox": [
+                290,
+                410,
+                685,
+                450
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: If "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "Z _ { T } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the sum of penalties of vertices in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "equals the total dual contained in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Twice the rest of the duals pays for the cost of the tree. Show the latter by proving, similar to Lemma "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 2 . 7"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", that at any point in the algorithm, there is at most one inactive set of degree 1 (the one containing r)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                462,
+                786,
+                533
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "22.10 Consider the following generalization of the Steiner forest problem to higher connectivity requirements: the specified connectivity requirement function r maps pairs of vertices to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ 0 , \\ldots , k \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is part "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { o f }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the input. Assume that multiple copies of any edge can be used; each copy of edge e wil cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( e )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Using Algorithm 22.3 as a subroutine, give a factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 \\cdot ( \\lfloor \\log _ { 2 } k \\rfloor + 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "algorithm for the problem of finding a minimum cost graph satisfying all connectivity requirements."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                546,
+                784,
+                648
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "22.11 We give below the bidirected cut relaxation for the Steiner tree problem. This is believed to have a smaller integrality gap than the undirected relaxation (22.2), though there is no proof of this fact yet. From graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "obtain directed graph H by replacing each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by the two edges "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u  v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( v  u )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", each of the same cost as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Designate an arbitrary required vertex, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as the root. Say that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\subset V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is valid if it contains a required vertex and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r \\in { \\overline { { S } } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be an indicator variable for each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e \\in H"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The integer program is:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                661,
+                784,
+                747
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "210"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "22 Steiner Forest"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                408,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                142
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {minimize} & \\sum_ {e \\in E} c _ {e} x _ {e} \\\\ \\text {subject to} & \\sum_ {e: e \\in \\delta (S)} x _ {e} \\geq 1, \\quad \\text {valid set} S \\\\ & x _ {e} \\in \\{0, 1 \\}, \\qquad e \\in H \\end{array}\\tag{22.7}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b264cba6cc2b113072aa241aab0f98d2b17a2566897990bc55ce4258f5960367.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                154,
+                584,
+                244
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Show that the optimal solution to this integer program is an optimal Steiner tree."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                256,
+                784,
+                284
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Obtain the LP-relaxation and dual for IP (22.7)."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                284,
+                613,
+                299
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3. Show that the cost of the optimal solution to (22.7) and its relaxation is independent of the root chosen."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                299,
+                784,
+                326
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4. Show that the integrality gap of the relaxation is bounded by 2."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                326,
+                726,
+                342
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "5. (Rajagopalan and Vazirani [226]) Show that the integrality gap of this relaxation for the following graph is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 0 / 9"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In this graph, the bold vertices are required and the remaining vertices are Steiner."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                341,
+                786,
+                385
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/178e2925a822343eb3972f6add6c40fe7e0ab1c010b875ac423f3d953a3ffe8e.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                403,
+                393,
+                631,
+                513
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "6. (M. Goemans) The following family of graphs puts a lower bound of essentially "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "8 / 7"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on the integrality gap of relaxation (22.7). This is currently the worst example known."
+                    }
+                ]
+            },
+            "bbox": [
+                226,
+                526,
+                786,
+                570
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/d450123b63c76ff375b20229dcb4ad255e9dbd858ddff85f7886c5751e95aaf3.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                369,
+                574,
+                665,
+                747
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "22.4 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                618,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "211"
+                    }
+                ]
+            },
+            "bbox": [
+                756,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n { + 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "required vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a _ { 0 } , a _ { 1 } , \\ldots , a _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Steiner vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { 1 } , \\ldots , b _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d _ { i j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\leq i < j \\leq n"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The figure above gives edges and costs. Verify that the optimal Steiner tree has cost 4n and the optimal solution to relaxation (22.7) has cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "7 n + 1 / 2"
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                112,
+                784,
+                170
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "7. Construct other graphs for which this relaxation has a gap (it is not easy!)."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                170,
+                784,
+                198
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "8. (Edmonds [70]) Consider the special case that there are no Steiner vertices, i.e., we want to find a minimum spanning tree in G. Give a primal– dual algorithm that uses this relaxation to find a tree and a dual of the same cost, thereby showing that this relaxation is exact, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { i . e . , }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "always has an integral optimal solution, for the minimum spanning tree problem. (In contrast, the undirected relaxation has an integrality gap of 2 even for the minimum spanning tree problem.)"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                198,
+                786,
+                299
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "22.12 (Pr¨omel and Steger [223]) This exercise develops an algorithm for the Steiner tree problem using the weighted matroid parity problem and the following structural fact. Let us say that a Steiner tree is 3-restricted if every Steiner vertex used in this tree has exactly three neighbors, all of which are required vertices. The cost of an optimal 3-restricted Steiner tree is within "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "5 / 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of the cost of an optimal Steiner tree (Zelikovsky [262]). Show that an optimal 3-restricted Steiner tree can be found in polynomial time, given an oracle for the weighted matroid parity problem. The latter problem is neither known to be in P nor is it known to be NP-hard. However, a randomized polynomial time algorithm is known for the case of unary weights. Use this fact, and scaling, to obtain a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "5 / 3 + \\varepsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor algorithm for the Steiner tree problem for any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon > 0"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                321,
+                786,
+                493
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The weighted matroid parity problem is the following. Let (S, I) be a matroid, where S is the ground set and I is the collection of independent sets. Nonnegative weights are provided for elements of S. Further, a partition of S into pairs "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( x _ { 1 } , x _ { 2 } ) , \\dotsc , ( x _ { 2 n - 1 } , x _ { 2 n } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is also provided. The problem is to pick a maximum weight collection of pairs so that the picked elements form an independent set."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                492,
+                786,
+                579
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "22.5 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                607,
+                342,
+                621
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This chapter is based on the work of Goemans and Williamson [105]. The first factor 2 approximation algorithm for the Steiner forest problem was given by Agrawal, Klein, and Ravi [1]. See also the survey by Goemans and Williamson [107]."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                636,
+                786,
+                695
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "212"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "22 Steiner Forest"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                408,
+                99
+            ]
+        }
+    ]
+]

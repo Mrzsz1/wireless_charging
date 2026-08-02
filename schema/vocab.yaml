@@ -1,0 +1,249 @@
+# 受控词表 — 唯一权威
+# frontmatter 只写 id；正文可用 label_zh / label_en
+# 新词不得擅自加入：写入 vocab-proposals.md → 用户确认 → 合并至此
+# 版本: 2026-07-10-seed-v1（待用户审阅冻结）
+
+version: "2026-07-10-seed-v1"
+status: draft_seed  # 用户确认后改为 frozen
+
+source_type:
+  - id: paper
+    label_zh: 论文
+    label_en: Paper
+  - id: preprint
+    label_zh: 预印本
+    label_en: Preprint
+  - id: patent
+    label_zh: 专利
+    label_en: Patent
+  - id: tech_report
+    label_zh: 技术报告
+    label_en: Technical report
+  - id: standard
+    label_zh: 标准/规范
+    label_en: Standard
+  - id: book
+    label_zh: 专著
+    label_en: Book
+
+scenario:
+  - id: multi_device_wpt
+    label_zh: 多设备无线充电
+    label_en: Multi-device WPT
+    aliases: [multi-device wireless charging, multiple receivers]
+  - id: ev_static_charging
+    label_zh: 电动汽车静态无线充电
+    label_en: EV static wireless charging
+  - id: ev_dynamic_charging
+    label_zh: 电动汽车动态/路侧无线充电
+    label_en: EV dynamic / roadway wireless charging
+    aliases: [DWPT, dynamic wireless charging]
+  - id: sensor_rf_energy
+    label_zh: 传感器/物联网射频供能
+    label_en: Sensor / IoT RF energy harvesting
+  - id: uav_wpt
+    label_zh: 无人机无线充电
+    label_en: UAV wireless charging
+  - id: implant_biomedical_wpt
+    label_zh: 植入式/生物医学无线供能
+    label_en: Implantable / biomedical WPT
+  - id: room_scale_wpt
+    label_zh: 房间级/区域无线充电
+    label_en: Room-scale / ambient WPT
+  - id: fleet_charging_ops
+    label_zh: 车队/场站充电运营调度
+    label_en: Fleet / depot charging operations
+
+entities:
+  - id: transmitter
+    label_zh: 发射端/充电器
+    label_en: Transmitter / charger
+    aliases: [TX, charging pad, coil_tx]
+  - id: receiver
+    label_zh: 接收端/负载设备
+    label_en: Receiver / device
+    aliases: [RX, EV, sensor node]
+  - id: time_slot
+    label_zh: 时隙
+    label_en: Time slot
+  - id: channel
+    label_zh: 信道/耦合通道
+    label_en: Channel / coupling link
+  - id: battery
+    label_zh: 电池/储能
+    label_en: Battery / storage
+  - id: power_pool
+    label_zh: 功率池/总功率预算
+    label_en: Power budget / power pool
+  - id: user_or_request
+    label_zh: 用户请求/充电需求
+    label_en: User request / charging demand
+  - id: path_or_route
+    label_zh: 路径/轨迹
+    label_en: Path / trajectory
+  - id: grid_or_source
+    label_zh: 电网/能量源
+    label_en: Grid / energy source
+
+constraints:
+  - id: peak_power
+    label_zh: 峰值功率限制
+    label_en: Peak power limit
+  - id: average_power
+    label_zh: 平均功率限制
+    label_en: Average power limit
+  - id: deadline
+    label_zh: 截止时间/时限
+    label_en: Deadline
+  - id: fairness
+    label_zh: 公平性
+    label_en: Fairness
+  - id: min_soc
+    label_zh: 最低电量/SoC
+    label_en: Minimum SoC
+  - id: thermal_or_sar
+    label_zh: 热/电磁暴露约束
+    label_en: Thermal / SAR constraint
+  - id: interference
+    label_zh: 干扰约束
+    label_en: Interference constraint
+  - id: mutual_coupling
+    label_zh: 互耦/交叉影响
+    label_en: Mutual coupling
+  - id: mobility
+    label_zh: 移动性约束
+    label_en: Mobility constraint
+  - id: qos
+    label_zh: 服务质量约束
+    label_en: QoS constraint
+  - id: causality_online
+    label_zh: 在线因果/不可预知未来
+    label_en: Online causality (no future info)
+  - id: hardware_quantization
+    label_zh: 硬件离散/量化限制
+    label_en: Hardware discrete levels
+
+objectives:
+  - id: max_throughput
+    label_zh: 最大化吞吐量/充电量
+    label_en: Maximize throughput / delivered energy
+  - id: min_latency
+    label_zh: 最小化时延
+    label_en: Minimize latency
+  - id: min_energy
+    label_zh: 最小化能耗
+    label_en: Minimize energy consumption
+  - id: max_efficiency
+    label_zh: 最大化效率
+    label_en: Maximize efficiency
+  - id: max_fairness
+    label_zh: 最大化公平
+    label_en: Maximize fairness
+  - id: min_cost
+    label_zh: 最小化成本
+    label_en: Minimize cost
+  - id: max_completion_rate
+    label_zh: 最大化完成率/服务成功率
+    label_en: Maximize completion / success rate
+  - id: multi_objective
+    label_zh: 多目标权衡
+    label_en: Multi-objective tradeoff
+
+method_family:
+  - id: ilp_milp
+    label_zh: 整数/混合整数规划
+    label_en: ILP / MILP
+  - id: convex_opt
+    label_zh: 凸优化
+    label_en: Convex optimization
+  - id: heuristic
+    label_zh: 启发式
+    label_en: Heuristic
+  - id: metaheuristic
+    label_zh: 元启发式
+    label_en: Metaheuristic
+    aliases: [GA, PSO, SA]
+  - id: game_theory
+    label_zh: 博弈论
+    label_en: Game theory
+  - id: rl
+    label_zh: 强化学习
+    label_en: Reinforcement learning
+  - id: online_algorithm
+    label_zh: 在线算法/竞争分析
+    label_en: Online algorithm / competitive analysis
+  - id: matching
+    label_zh: 匹配/分配
+    label_en: Matching / assignment
+  - id: control_theoretic
+    label_zh: 控制理论方法
+    label_en: Control-theoretic
+  - id: learning_based
+    label_zh: 其他学习类方法
+    label_en: Other learning-based
+  - id: graph_algorithm
+    label_zh: 图算法
+    label_en: Graph algorithm
+  - id: queuing
+    label_zh: 排队论
+    label_en: Queueing theory
+
+problem_class:
+  - id: offline_scheduling
+    label_zh: 离线调度
+    label_en: Offline scheduling
+  - id: online_scheduling
+    label_zh: 在线调度
+    label_en: Online scheduling
+  - id: power_allocation
+    label_zh: 功率分配
+    label_en: Power allocation
+  - id: time_slot_allocation
+    label_zh: 时隙分配
+    label_en: Time-slot allocation
+  - id: admission_control
+    label_zh: 准入控制
+    label_en: Admission control
+  - id: charger_placement
+    label_zh: 充电器部署/选址
+    label_en: Charger placement
+  - id: routing_with_charging
+    label_zh: 充电路径/轨迹规划
+    label_en: Routing / trajectory with charging
+  - id: multi_tx_coordination
+    label_zh: 多发射端协同
+    label_en: Multi-TX coordination
+  - id: beamforming_or_coil_control
+    label_zh: 波束/线圈控制（调度相关）
+    label_en: Beamforming / coil control (scheduling-related)
+  - id: demand_response_tariff
+    label_zh: 电价/需求响应联合调度
+    label_en: Tariff / demand-response scheduling
+  - id: partial_charging
+    label_zh: 部分充电策略
+    label_en: Partial charging
+  - id: energy_harvesting_scheduling
+    label_zh: 能量收集与任务调度联合
+    label_en: Energy harvesting & task scheduling
+
+status_values:
+  - id: draft
+    label_zh: 草稿
+    label_en: Draft
+  - id: active
+    label_zh: 有效
+    label_en: Active
+  - id: needs_review
+    label_zh: 待审
+    label_en: Needs review
+
+epistemic_values:
+  - id: high
+    label_zh: 高置信
+    label_en: High
+  - id: medium
+    label_zh: 中置信
+    label_en: Medium
+  - id: low
+    label_zh: 低置信
+    label_en: Low

@@ -1,0 +1,2444 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "7 Shortest Superstring"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                109,
+                505,
+                129
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In Chapter "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "we defined the shortest superstring problem (Problem 2.9) and gave a preliminary approximation algorithm using set cover. In this chapter, we will first give a factor 4 algorithm, and then we will improve this to factor 3."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                254,
+                786,
+                312
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "7.1 A factor 4 algorithm"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                337,
+                478,
+                354
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We begin by developing a good lower bound on OPT. Let us assume that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 } , s _ { 2 } , \\ldots , s _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are numbered in order of leftmost occurrence in the shortest superstring, s."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                363,
+                784,
+                407
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/d81a81d4732c0d77be53cf585cc24b3274b44a8bca0da56c47e6a2b4ecbfd1c6.jpg"
+                },
+                "content": "",
+                "image_caption": [
+                    {
+                        "type": "text",
+                        "content": "Let overlap "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textstyle ( s _ { i } , s _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the maximum overlap between "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { j } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", i.e., the longest sufix of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that is a prefix of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Also, let prefix "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( s _ { i } , s _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the prefix of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "obtained by removing its overlap with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The overlap in s between two consecutive "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } \\mathrm { : }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "s is maximum possible, because otherwise a shorter superstring can be obtained. Hence, assuming that no "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a substring of another, we get"
+                    }
+                ],
+                "image_footnote": []
+            },
+            "bbox": [
+                221,
+                434,
+                786,
+                583
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l} \\text {OPT} = | \\text {prefix} (s _ {1}, s _ {2}) | + | \\text {prefix} (s _ {2}, s _ {3}) | + \\ldots + | \\text {prefix} (s _ {n}, s _ {1}) | \\\\ \\qquad + | \\text {overlap} (s _ {n}, s _ {1}) |. \\end{array}\\tag{7.1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/cc95ffff2e0199c186451ba54dc19e71d6f245255ff669ce2d82d3835d2aa56b.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                677,
+                714,
+                712
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Notice that we have repeated "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "at the end in order to obtain the last two terms of (7.1). This equality shows the close relation between the shortest superstring of S and the minimum traveling salesman tour on the prefix graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "o f S"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", defined as the directed graph on vertex set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ 1 , \\ldots , n \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that contains an edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i  j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of weight "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| \\mathrm { p r e f i x } ( s _ { i } , s _ { j } ) |"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i , j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(self loops included). Clearly, |prefix( "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { \\mathfrak { j } _ { 1 } , s _ { 2 } ) | + | \\mathrm { p r e f i x } ( s _ { 2 } , s _ { 3 } ) | + . . . + | \\mathrm { p r e f i x } ( s _ { n } , s _ { 1 } ) | }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "represents the weight of the tour "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\to 2 \\to \\dots \\to n \\to 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "1. Hence, by (7.1), the minimum weight of a traveling salesman tour of the prefix graph gives a lower bound on OPT. As such, this lower bound is not very useful, since we cannot eficiently compute a minimum traveling salesman tour."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                724,
+                784,
+                753
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                225
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The key idea is to lower-bound OPT using the minimum weight of a cycle cover of the prefix graph (a cycle cover is a collection of disjoint cycles covering all vertices). Since the tour "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\to 2 \\to \\ldots \\to n \\to 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a cycle cover, from (7.1) we get that the minimum weight of a cycle cover lower-bounds OPT."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                227,
+                786,
+                297
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Unlike minimum TSP, a minimum weight cycle cover can be computed in polynomial time. Corresponding to the prefix graph, construct the following bipartite graph, H. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U = \\{ u _ { 1 } , \\ldots , u _ { n } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V = \\{ v _ { 1 } , \\ldots , v _ { n } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are the vertex sets of the two sides of the bipartition. For each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i , j \\in \\{ 1 , \\ldots , n \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "add edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u _ { i } , v _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of weight "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| \\mathrm { p r e f i x } ( s _ { i } , s _ { j } ) |"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". It is easy to see that each cycle cover of the prefix graph corresponds to a perfect matching of the same weight in H and vice versa. Hence, finding a minimum weight cycle cover reduces to finding a minimum weight perfect matching in H."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                298,
+                786,
+                411
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "If "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c = ( i _ { 1 } \\to i _ { 2 } \\to \\dots i _ { l } \\to i _ { 1 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a cycle in the prefix graph, let"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                411,
+                707,
+                426
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\alpha (c) = \\operatorname{prefix} \\left(s _ {i _ {1}}, s _ {i _ {2}}\\right) \\circ \\dots \\circ \\operatorname{prefix} \\left(s _ {i _ {l - 1}}, s _ {i _ {l}}\\right) \\circ \\operatorname{prefix} \\left(s _ {i _ {l}}, s _ {i _ {1}}\\right).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/0077746d644146af1992bbd2541f027e03f533d27826b6387a4993a4ae0736ea.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                439,
+                707,
+                456
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Notice that each string "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i _ { 1 } } , s _ { i _ { 2 } } , \\ldots , s _ { i _ { l } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a substring of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\alpha ( c ) ) ^ { \\infty }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Next, let"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                468,
+                764,
+                483
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sigma (c) = \\alpha (c) \\circ s _ {i _ {1}}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/0b6fdc8c965d7eb7330c887cfa55cd090599d3014d43bbb5400a334cdb076000.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                498,
+                393,
+                512
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma ( c )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a superstring of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i _ { 1 } } , \\ldots , s _ { i _ { l } } . ^ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "In the above construction, we “opened” cycle c at an arbitrary string "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i _ { 1 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For the rest of the algorithm, we will call "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i _ { 1 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the representative string for c. We can now state the complete algorithm:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                524,
+                786,
+                583
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 7.1 (Shortest superstring – factor 4)"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                233,
+                605,
+                636,
+                621
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Construct the prefix graph corresponding to strings in S."
+                    }
+                ]
+            },
+            "bbox": [
+                238,
+                626,
+                663,
+                640
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Find a minimum weight cycle cover of the prefix graph, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathcal { C } } = \\{ c _ { 1 } , \\ldots , c _ { k } \\}"
+                    }
+                ]
+            },
+            "bbox": [
+                240,
+                640,
+                769,
+                656
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3. Output "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma ( c _ { 1 } ) \\circ \\dots \\circ \\sigma ( c _ { k } )"
+                    }
+                ]
+            },
+            "bbox": [
+                240,
+                655,
+                452,
+                670
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "62"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "7 Shortest Superstring"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                445,
+                101
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "σ(c),"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                726,
+                305,
+                739
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "α(c)"
+                    }
+                ]
+            },
+            "bbox": [
+                547,
+                713,
+                578,
+                726
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "σ(c)"
+                    }
+                ]
+            },
+            "bbox": [
+                512,
+                739,
+                542,
+                752
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "1"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                741,
+                779,
+                752
+            ]
+        },
+        {
+            "type": "page_footnote",
+            "content": {
+                "page_footnote_content": [
+                    {
+                        "type": "text",
+                        "content": "<sup>1</sup> This remains true even for the shorter string  overlap(s<sub>l</sub>, s1). We will work with since it will be needed for the factor 3 algorithm presented in the next section, where we use the property that  begins and ends with a copy of s<sub>i</sub> ."
+                    }
+                ]
+            },
+            "bbox": [
+                226,
+                711,
+                784,
+                753
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "overlap(r, r<sup>\u0001</sup>)"
+                    }
+                ]
+            },
+            "bbox": [
+                440,
+                472,
+                536,
+                486
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Clearly, the output is a superstring of the strings in S. Notice that if in each of the cycles we can find a representative string of length at most the weight of the cycle, then the string output is within "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 \\cdot \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Thus, the hard case is when all strings of some cycle c are long. But since they must all be substrings of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\alpha ( c ) ) ^ { \\infty }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", they must be periodic. This will be used to prove Lemma 7.3, which establishes another lower bound on OPT."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                199
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 7.2 If each string in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ^ { \\prime } \\subseteq S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a substring of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t ^ { \\infty }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for a string "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "then there is a cycle of weight at most |t| in the prefix graph covering all the vertices corresponding to strings in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ^ { \\prime }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                206,
+                786,
+                250
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: For each string in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", locate the starting point of its first occurrence in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t ^ { \\infty }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Clearly, all these starting points will be distinct (since no string in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a substring of another) and will lie in the first copy of t. Consider the cycle in the prefix graph visiting the corresponding vertices in this order. Clearly, the weight of this cycle is at most |t|. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                266,
+                786,
+                338
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 7.3 Let c and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be two cycles in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathcal { C } } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r , r ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be representative strings from these cycles. Then"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                353,
+                784,
+                382
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "| \\mathrm{overlap} (r, r ^ {\\prime}) | <   \\mathrm{wt} (c) + \\mathrm{wt} (c ^ {\\prime}).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/bc4c14ab5122ed6ccf34439487a19271b38a58cf17f693dc50b536958e8d8fac.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                395,
+                500,
+                411
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Suppose, for contradiction, that |overlap "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( r , r ^ { \\prime } ) | \\geq \\mathrm { w t } ( c ) + \\mathrm { w t } ( c ^ { \\prime } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Denote by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha \\left( \\alpha ^ { \\prime } \\right)"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the prefix of length wt "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( c ) \\ ( \\mathrm { w t } ( c ^ { \\prime } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", respectively) of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { o v e r l a p } ( r , r ^ { \\prime } )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                430,
+                781,
+                461
+            ]
+        },
+        {
+            "type": "chart",
+            "content": {
+                "image_source": {
+                    "path": "images/70f38e8777abf9bc99e156b08b4bb06f0ef4586f04d1482c5616edbd03dd5252.jpg"
+                },
+                "content": "",
+                "chart_caption": [],
+                "chart_footnote": []
+            },
+            "bbox": [
+                218,
+                476,
+                766,
+                562
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Clearly, overlap "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( r , r ^ { \\prime } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a prefix of both "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ^ { \\infty }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\alpha ^ { \\prime } ) ^ { \\infty }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In addition, α is a prefix of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\alpha ^ { \\prime } ) ^ { \\infty }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a prefix of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ^ { \\infty }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since overla "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathfrak { z } ( r , r ^ { \\prime } ) \\geq | \\alpha | + | \\alpha ^ { \\prime } |"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", it follows that α and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "commute, i.e., α "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\circ \\alpha ^ { \\prime } = \\alpha ^ { \\prime } \\circ \\alpha"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". But then, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ^ { \\infty } = ( \\alpha ^ { \\prime } ) ^ { \\infty }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "This is so because for any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "，"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                573,
+                784,
+                630
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\alpha^ {k} \\circ (\\alpha^ {\\prime}) ^ {k} = (\\alpha^ {\\prime}) ^ {k} \\circ \\alpha^ {k}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/aa2ba145c7f1e1a91d056723048274fb1ce402efdfff7794cd16824e790bf9d3.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                642,
+                438,
+                658
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hence, for any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "N > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the prefix of length N of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ^ { \\infty }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the same as that of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\alpha ^ { \\prime } ) ^ { \\infty }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                671,
+                784,
+                700
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Now, by Lemma 7.2, there is a cycle of weight at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { w t } ( c )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the prefix graph covering all strings in c and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ^ { \\prime } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "contradicting the fact that C is a minimum weight cycle cover. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                700,
+                786,
+                744
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "7.1 A factor 4 algorithm"
+                    }
+                ]
+            },
+            "bbox": [
+                549,
+                87,
+                729,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "63"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 7.4 Algorithm 7.1 achieves an approximation factor of 4 for the shortest superstring problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                784,
+                142
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\mathrm { w t } ( \\mathcal { C } ) = \\sum _ { i = 1 } ^ { k } \\mathrm { w t } ( c _ { i } ) } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The output of the algorithm has length"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                156,
+                771,
+                175
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {i = 1} ^ {k} | \\sigma (c _ {i}) | = \\mathrm{wt} (\\mathcal {C}) + \\sum_ {i = 1} ^ {k} | r _ {i} |,",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/db2cb89a3b877c072f74caf116a146621ef4b472c39715dd4bb8215bf769df42.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                186,
+                480,
+                225
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denotes the representative string from cycle "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We have shown that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { w t } ( \\mathcal { C } ) \\leq \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Next, we show that the sum of the lengths of representative strings is at most 3 · OPT."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                237,
+                784,
+                279
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Assume that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r _ { 1 } , \\ldots , r _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are numbered in order of their leftmost occurrence in the shortest superstring of S. Using Lemma 7.3, we get the following lower bound on OPT:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                280,
+                784,
+                323
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm{OPT} \\geq \\sum_ {i = 1} ^ {k} | r _ {i} | - \\sum_ {i = 1} ^ {k - 1} | \\text { overlap } (r _ {i}, r _ {i + 1}) | \\geq \\sum_ {i = 1} ^ {k} | r _ {i} | - 2 \\sum_ {i = 1} ^ {k} \\operatorname{wt} (c _ {i}).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/ce3f86e389f2ca78a0dd7d3210168ff8c9e803f17df010953be086f9a6d90846.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                332,
+                729,
+                373
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hence,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                384,
+                275,
+                399
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {i = 1} ^ {k} \\left| r _ {i} \\right| \\leq \\mathrm{OPT} + 2 \\sum_ {i = 1} ^ {k} \\mathrm{wt} (c _ {i}) \\leq 3 \\cdot \\mathrm{OPT}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b4403e8fd7a6b1fd9ade3979cbd7fdcf13901e45cdf4f0b44b2d17ee02348a2d.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                411,
+                564,
+                451
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "7.2 Improving to factor 3"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                510,
+                487,
+                527
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Notice that any superstring of the strings "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma ( c _ { i } ) , i = 1 , \\ldots , k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", is also a superstring of all strings in S. Instead of simply concatenating these strings, let us make them overlap as much as possible (this may sound circular, but it is not!)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                539,
+                784,
+                596
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let X be a set of strings. We will denote by ||X|| the sum of the lengths of the strings in X. Let us define the compression achieved by a superstring s as the diference between the sum of the lengths of the input strings and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| s | , \\mathrm { i . e . , } | | S | | - | s |"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Clearly, maximum compression is achieved by the shortest superstring. Several algorithms are known to achieve at least half the optimal compression. For instance, the greedy superstring algorithm, described in Section 2.3, does so; however, its proof is based on a complicated case analysis. For a less eficient algorithm, see Section 7.2.1. Either of these algorithms can be used in Step 3 of Algorithm 7.5."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                596,
+                786,
+                726
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "64"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                242,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "7 Shortest Superstring"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                87,
+                445,
+                102
+            ]
+        }
+    ],
+    [
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 7.5 (Shortest superstring - factor 3)  \n1. Construct the prefix graph corresponding to strings in  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".  \n2. Find a minimum cycle cover of the prefix graph,  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathcal{C} = \\{c_1, \\ldots, c_k\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".  \n3. Run the greedy superstring algorithm on  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{\\sigma(c_1), \\ldots, \\sigma(c_k)\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " and output the resulting string, say  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\tau"
+                    },
+                    {
+                        "type": "text",
+                        "content": "."
+                    }
+                ]
+            },
+            "bbox": [
+                233,
+                118,
+                779,
+                210
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { \\sigma }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the length of the shortest superstring of the strings in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\cal { S } } _ { \\sigma } = \\{ \\sigma ( c _ { 1 } ) \\ldots \\sigma ( c _ { k } ) \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the representative string of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                228,
+                784,
+                258
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 7.6 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| \\tau | \\leq \\mathrm { O P T } _ { \\sigma } + \\mathrm { w t } ( \\mathcal { C } ) ."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                265,
+                524,
+                281
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Assume w.l.o.g. that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma ( c _ { 1 } ) , \\ldots , \\sigma ( c _ { k } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "appear in this order in a shortest superstring of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { \\sigma }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The maximum compression that can be achieved on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { \\sigma }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is given by"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                296,
+                784,
+                338
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {i = 1} ^ {k - 1} | \\mathrm{overlap} (\\sigma (c _ {i}), \\sigma (c _ {i + 1})) |.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/ebfb2be24a39109d43fe6bea11473d9a3f7c9c610f09a3a156bb434c701c0657.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                351,
+                472,
+                390
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since each string "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma ( c _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as a prefix as well as sufix, by Lemma 7.3,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                401,
+                759,
+                417
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\left| \\operatorname{overlap} \\left(\\sigma \\left(c _ {i}\\right), \\sigma \\left(c _ {i + 1}\\right)\\right) \\right| \\leq \\operatorname{wt} \\left(c _ {i}\\right) + \\operatorname{wt} \\left(c _ {i + 1}\\right).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/1e0516aad60165bf129af7709389efe2cafe5f31ce80fbf118a4b092b733bbca.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                430,
+                593,
+                445
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hence, the maximum compression achievable on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { \\sigma }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 \\cdot \\mathrm { w t } ( { \\mathcal { C } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| | S _ { \\sigma } | | - \\mathrm { O P T } _ { \\sigma } \\leq 2 \\cdot \\mathrm { w t } ( \\mathcal { C } )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                458,
+                781,
+                488
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The compression achieved by the greedy superstring algorithm on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { \\sigma }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is at least half the maximum compression. Therefore,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                487,
+                781,
+                516
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "| | S _ {\\sigma} | | - | \\tau | \\geq \\frac {1}{2} (| | S _ {\\sigma} | | - \\mathrm{OPT} _ {\\sigma}).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/9246f0121d5585b6d926b2354b7a576cfa314156a998c9e07dadd909567a9a3a.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                527,
+                502,
+                554
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Therefore,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                565,
+                302,
+                579
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "2 (| \\tau | - \\mathrm{OPT} _ {\\sigma}) \\leq | | S _ {\\sigma} | | - \\mathrm{OPT} _ {\\sigma} \\leq 2 \\cdot \\operatorname{wt} (\\mathcal {C}).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/23baae7cf7c3447419b6e9bc2bb18157c799add50988adeae912995a75438565.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                592,
+                589,
+                609
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The lemma follows."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                621,
+                369,
+                634
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Finally, we relate "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { \\sigma }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to OPT."
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                642,
+                495,
+                657
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 7.7"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                665,
+                321,
+                678
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm{OPT} _ {\\sigma} \\leq \\mathrm{OPT} + \\operatorname{wt} (\\mathcal {C}).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/fb351124595fb5a1345c9fa14f0c29f3315f7882d011567da537c1a1f7070766.jpg"
+                }
+            },
+            "bbox": [
+                364,
+                665,
+                539,
+                680
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { \\ l }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the length of the shortest superstring of the strings in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { r } = \\{ r _ { 1 } , \\ldots , r _ { k } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The key observation is that each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma ( c _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "begins and ends with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, the maximum compression achievable on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { \\sigma }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is at least as large as that achievable on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { r } , \\mathrm { i . e . }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "，"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                695,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "7.2 Improving to factor 3"
+                    }
+                ]
+            },
+            "bbox": [
+                544,
+                87,
+                732,
+                102
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "65"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\left| \\left| S _ {\\sigma} \\right| \\right| - \\mathrm{OPT} _ {\\sigma} \\geq \\left| \\left| S _ {r} \\right| \\right| - \\mathrm{OPT} _ {r}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/cdd807a7b3c8136485372d538d93fbc30a58204f34ed19e0f7da66b250193c84.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                112,
+                500,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\lvert \\lvert S _ { \\sigma } \\rvert \\rvert = \\lvert \\lvert S _ { r } \\rvert \\rvert + \\mathrm { w t } ( \\mathcal { C } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This gives"
+                    }
+                ]
+            },
+            "bbox": [
+                247,
+                141,
+                557,
+                156
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm{OPT} _ {\\sigma} \\leq \\mathrm{OPT} _ {r} + \\mathrm{wt} (\\mathcal {C}).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/5bfe5119d4d49f6306adcd4fb21105cf95aaa2adcda9c0e0c21841f657d64af3.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                168,
+                447,
+                185
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The lemma follows by noticing that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { r } \\leq \\mathrm { O P T }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                198,
+                600,
+                212
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Combining the previous two lemmas we get:"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                219,
+                578,
+                234
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 7.8 Algorithm 7.5 achieves an approximation factor of 3 for the shortest superstring problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                242,
+                784,
+                272
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "7.2.1 Achieving half the optimal compression"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                291,
+                618,
+                307
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We give a superstring algorithm that achieves at least half the optimal compression. Suppose that the strings to be compressed, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 } , \\cdots , s _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", are numbered in the order in which they appear in a shortest superstring. Then, the optimal compression is given by"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                317,
+                784,
+                375
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {i = 1} ^ {n - 1} | \\mathrm{overlap} (\\sigma_ {i}, \\sigma_ {i + 1}) |.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/454c106ac79738e0a8d4b7bdbed874f5cabb241cbcea9dd76767cb9a4151ae2c.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                387,
+                431,
+                426
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This is the weight of the traveling salesman path "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\to 2 \\to \\ldots \\to n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the overlap "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "g r a p h , H"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", of the strings "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 } , \\cdots , s _ { n } . \\ H"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a directed graph that has a vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "corresponding to each string "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "and contains an edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( v _ { i }  v _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of weight "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| \\mathrm { o v e r l a p } ( s _ { i } , s _ { j } ) |"
+                    },
+                    {
+                        "type": "text",
+                        "content": "| for each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i \\neq j , 1 \\leq i , j \\leq n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(H has no self loops)."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                438,
+                786,
+                495
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The optimal compression is upper bounded by the cost of a maximum traveling salesman tour in H, which in turn is upper bounded by the cost of a maximum cycle cover. The latter can be computed in polynomial time using matching, similar to the way we computed a minimum weight cycle cover. Since H has no self loops, each cycle has length at least 2. Remove the lightest edge from each cycle of the maximum cycle cover to obtain a set of disjoint paths. The sum of weights of edges on these paths is at least half the optimal compression. Overlap strings "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 } , \\cdots , s _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "according to the edges of these paths and concatenate the resulting strings. This gives a superstring achieving at least half the optimal compression."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                495,
+                786,
+                638
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "7.3 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                665,
+                364,
+                681
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "7.1 Show that Lemma 7.3 cannot be strengthened to"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                709,
+                623,
+                724
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\left| \\operatorname{overlap} \\left(r, r ^ {\\prime}\\right) \\right| <   \\max \\left\\{\\operatorname{wt} (c), \\operatorname{wt} \\left(c ^ {\\prime}\\right) \\right\\}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/8559ff2a17659441424bcdb8dc9d504a922f81e925a146265c786f0626366281.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                737,
+                536,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "66"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "7 Shortest Superstring"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                445,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "7.2 (Jiang, Li, and Du [148]) Obtain constant factor approximation algorithms for the variants of the shortest superstring problem given in Exercise 2.16."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                156
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "7.4 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                184,
+                332,
+                200
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithms given in this chapter are due to Blum, Jiang, Li, Tromp, and Yannakakis [27]."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                214,
+                784,
+                244
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "7.4 Notes"
+                    }
+                ]
+            },
+            "bbox": [
+                652,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "67"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ]
+]

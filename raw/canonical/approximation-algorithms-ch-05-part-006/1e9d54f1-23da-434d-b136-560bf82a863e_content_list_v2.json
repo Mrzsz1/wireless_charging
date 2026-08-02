@@ -1,0 +1,2584 @@
+[
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider the following application. Given a set of cities, with intercity distances specified, pick k cities for locating warehouses in so as to minimize the maximum distance of a city from its closest warehouse. We will study this problem, called the k-center problem, and its weighted version, under the restriction that the edge costs satisfy the triangle inequality. Without this restriction, the k-center problem cannot be approximated within factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ( n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for any computable function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ( n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", assuming "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } \\neq \\mathbf { N P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(see Exercise 5.1)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                784,
+                355
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will introduce the algorithmic technique of parametric pruning for solving this problem. In Chapter 17 we will use this technique in a linear programming setting."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                355,
+                786,
+                399
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 5.1 (Metric k-center) Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a complete undirected graph with edge costs satisfying the triangle inequality, and k be a positive integer. For any set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\subseteq V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", define connect "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( v , S )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be the cost of the cheapest edge from v to a vertex in S. The problem is to find a set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\subseteq V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| S | = k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", so as to minimize max {connect(v, S)}."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                404,
+                786,
+                476
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.1 Parametric pruning applied to metric k-center"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                505,
+                732,
+                521
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "If we know the cost of an optimal solution, we may be able to prune away irrelevant parts of the input and thereby simplify the search for a good solution. However, as stated in Chapter 1, computing the cost of an optimal solution is precisely the dificult core of NP-hard NP-optimization problems. The technique of parametric pruning gets around this dificulty as follows. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { A }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "parameter t is chosen, which can be viewed as a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { ^ { 6 } g u e s s ^ { 7 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on the cost of an optimal solution. For each value of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the given instance I is pruned by removing parts that will not be used in any solution of cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "> t ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Denote the pruned instance by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I ( t )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The algorithm consists of two steps. In the first step, the family of instances "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I ( t )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is used for computing a lower bound on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In the second step, a solution is found in instance "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I ( \\alpha \\cdot t ^ { * } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for a suitable choice of α."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                535,
+                786,
+                705
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A restatement of the k-center problem shows how parametric pruning applies naturally to it. Sort the edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in nondecreasing order of cost, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname { i . e . , \\ c o s t } ( e _ { 1 } ) \\leq \\operatorname { c o s t } ( e _ { 2 } ) \\leq \\ldots \\leq \\operatorname { c o s t } ( e _ { m } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i } = ( V , E _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E _ { i } ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ e _ { 1 } , e _ { 2 } , \\ldots , e _ { i } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". A dominating set in an undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H = ( U , F )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a subset "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\subseteq U"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that every vertex in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U - S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is adjacent to a vertex in S. Let dom(H) denote the size of a minimum cardinality dominating set in H. Computing dom(H) is NP-hard. The k-center problem is equivalent to finding the smallest index i such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has a dominating set of size at most k, i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "contains k stars spanning all vertices, where a star is the graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K _ { 1 , p }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p \\geq 1 . \\mathrm { ~ H ~ } i ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the smallest such index, then cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( e _ { i ^ { * } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the cost of an optimal k-center. We will denoted this by OPT. We will work with the family of graphs "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { 1 } , \\ldots , G _ { m }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                705,
+                784,
+                750
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "5 k-Center"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                109,
+                361,
+                127
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                242
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Define the square of graph H to be the graph containing an edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "whenever H has a path of length at most two between u and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v , u \\ne v"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We will denote it by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The following structural result gives a method for lower bounding OPT."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                241,
+                786,
+                299
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 5.2 Given a graph H, let I be an independent set in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| I | \\leq \\mathrm { d o m } ( H )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                307,
+                784,
+                337
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Let D be a minimum dominating set in H. Then, H contains "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| D |"
+                    },
+                    {
+                        "type": "text",
+                        "content": "stars spanning all vertices. Since each of these stars will be a clique in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ^ { 2 }"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "contains |D| cliques spanning all vertices. Clearly, I can pick at most one vertex from each clique, and the lemma follows. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                351,
+                784,
+                410
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [
+                    {
+                        "type": "text",
+                        "content": "The lower bound on which this algorithm is based is:"
+                    }
+                ],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 5.3 (Metric k-center)\n1. Construct   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G_{1}^{2}, G_{2}^{2}, \\ldots, G_{m}^{2}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n2. Compute a maximal independent set,   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M_{i}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " , in each graph   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G_{i}^{2}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n3. Find the smallest index i such that   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "|M_{i}| \\leq k"
+                    },
+                    {
+                        "type": "text",
+                        "content": " , say j.\n4. Return   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M_{j}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " ."
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                442,
+                784,
+                550
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 5.4 For j as defined in the algorithm, cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( e _ { j } ) \\le \\mathrm { O P T }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                586,
+                700,
+                602
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: For every "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textit { i } < \\textit { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "we have that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| M _ { i } | > k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now, by Lemma 5.2, dom "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( G _ { i } ) > k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and so "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ^ { * } > i ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Hence, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j \\leq i ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                617,
+                784,
+                646
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 5.5 Algorithm 5.3 achieves an approximation factor of 2 for the metric k-center problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                662,
+                784,
+                692
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: The key observation is that a maximal independent set, I, in a graph is also a dominating set (for, if some vertex v is not dominated by I, then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "I \\cup \\{ v \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must also be an independent set, contradicting I’s maximality). Thus, there exist stars in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { j } ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", centered on the vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", covering all vertices. By the triangle inequality, each edge used in constructing these stars has cost at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 \\cdot \\mathrm { c o s t } ( e _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The theorem follows from Lemma 5.4. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                707,
+                784,
+                752
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "48"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "5 k-Center"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                364,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                221,
+                112,
+                784,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 5.6 A tight example for the previous algorithm is given by a whee graph on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "vertices, where all edges incident to the center vertex have cost 1, and the rest of the edges have cost 2:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                170,
+                784,
+                212
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/248530775ed254469363bdfa88bbed0fd99f5ce796598ddcb19ea71282b27ee6.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                391,
+                231,
+                613,
+                388
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "(Here, thin edges have cost 1 and thick edges have cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "not all edges of cost 2 are shown.)"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                399,
+                784,
+                426
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the optimal solution is the center of the wheel, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { { O P T } = 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "The algorithm will compute index "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j ~ = ~ n"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { n } ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a clique and, if a peripheral vertex is chosen as the maximal independent set, then the cost of the solution found is 2. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                426,
+                786,
+                485
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Next, we will show that 2 is essentially the best approximation factor achievable for the metric k-center problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                492,
+                784,
+                521
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 5.7 Assuming "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } \\neq \\mathbf { N P }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", there is no polynomial time algorithm achieving a factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - \\varepsilon , \\varepsilon > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for the metric k-center problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                529,
+                784,
+                558
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: We will show that such an algorithm can solve the dominating set problem in polynomial time. The idea is similar to that of Theorem 3.6 and involves giving a reduction from the dominating set problem to metric kcenter. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", k be an instance of the dominating set problem. Construct a complete graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime } = ( V , E ^ { \\prime } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with edge costs given by"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                574,
+                784,
+                646
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\operatorname{cost} (u, v) = \\left\\{ \\begin{array}{l} 1, \\text {   if   } (u, v) \\in E, \\\\ 2, \\text {   if   } (u, v) \\not \\in E. \\end{array} \\right.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/bee97507a47441d2c7a43bc194361948da2df6e0e2e4533aa3684d6e8bfe681f.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                658,
+                485,
+                690
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "satisfies the triangle inequality. This reduction satisfies the conditions:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                702,
+                784,
+                731
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname { d o m } ( G ) \\leq k ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has a k-center of cost 1, and"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                737,
+                628,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "5.1 Parametric pruning applied to metric k-center"
+                    }
+                ]
+            },
+            "bbox": [
+                374,
+                87,
+                731,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "49"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• if dom "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( G ) > k ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then the optimum cost of a k-center in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is 2."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                700,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In the first case, when run on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 2 - \\varepsilon )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "-approximation algorithm must give a solution of cost 1, since it cannot use an edge of cost 2. Hence, using this algorithm, we can distinguish between the two possibilities, thus solving the dominating set problem. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                134,
+                786,
+                192
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.2 The weighted version"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                227,
+                485,
+                244
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will use the technique of parametric pruning to obtain a factor 3 approximation algorithm for the following generalization of the metric k-center problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                256,
+                786,
+                300
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 5.8 (Metric weighted k-center) In addition to a cost function on edges, we are given a weight function on vertices, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w : V \\to R ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and a bound "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W \\in R ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The problem is to pick "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\subseteq V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of total weight at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W"
+                    },
+                    {
+                        "type": "text",
+                        "content": "minimizing the same objective function as before, i.e.,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                307,
+                784,
+                365
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\max _ {v \\in V} \\{\\min _ {u \\in S} \\{\\text { cost } (u, v) \\} \\}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/8bc7b7becf51728b8643feac27da440ce612b55cb603172327c018e8ada3f9c3.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                378,
+                433,
+                399
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let wdom "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": ". ( G )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the weight of a minimum weight dominating set in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { \\ l }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then, with respect to the graphs "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "defined above, we need to find the smallest index i such that wdom "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( G _ { i } ) \\leq W"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". If "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is this index, then the cost of the optimal solution is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } = \\displaystyle \\mathrm { c o s t } ( e _ { i ^ { * } } )"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                412,
+                784,
+                469
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Given a vertex weighted graph H, let I be an independent set in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u \\in I"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s ( u )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote a lightest neighbor of u in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { ; }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where u is also considered a neighbor of itself. (Notice that the neighbor is picked in H and not in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ^ { 2 } . )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S = \\{ s ( u ) | ~ u \\in I \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The following fact, analogous to Lemma 5.2, will be used to derive a lower bound on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                469,
+                786,
+                539
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 5.9 w(S) ≤ wdom(H)."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                549,
+                505,
+                564
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Let D be a minimum weight dominating set of H. Then there exists a set of disjoint stars in H, centered on the vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "D"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and covering all the vertices. Since each of these stars becomes a clique in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ^ { 2 } , I"
+                    },
+                    {
+                        "type": "text",
+                        "content": "can pick at most one vertex from each of them. Thus, each vertex in I has the center of the corresponding star available as a neighbor in H. Hence, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w ( S ) \\leq w ( D )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                580,
+                786,
+                653
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm is given below. In it, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } ( u )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will denote a lightest neighbor of u in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i } ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "; for this definition, u will also be considered a neighbor of itself."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                658,
+                784,
+                688
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "50"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "5 k-Center"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                364,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 5.10 (Metric weighted  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "-center)  \n1. Construct  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G_1^2, G_2^2, \\ldots, G_m^2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".  \n2. Compute a maximal independent set,  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M_i"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", in each graph  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G_i^2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".  \n3. Compute  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S_i = \\{s_i(u) | u \\in M_i\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".  \n4. Find the minimum index  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i"
+                    },
+                    {
+                        "type": "text",
+                        "content": " such that  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w(S_i) \\leq W"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", say  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".  \n5. Return  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S_j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "."
+                    }
+                ]
+            },
+            "bbox": [
+                233,
+                116,
+                697,
+                230
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 5.11 Algorithm 5.10 achieves an approximation factor of 3 for the weighted k-center problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                246,
+                786,
+                277
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: By Lemma 5.9, cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( e _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a lower bound on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "; the argument is identical to that in Lemma 5.4 and is omitted here. Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a dominating set in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { j } ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we can cover V with stars of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { j } ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "centered in vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". By the triangle inequality these stars use edges of cost at most 2 · cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( e _ { j } )"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                285,
+                786,
+                344
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/97365cddda2e11fcaef5588c342a9bb8556373e3748609e029f9c8ea65901ab2.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                337,
+                357,
+                667,
+                495
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Each star center is adjacent to a vertex in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", using an edge of cost at most cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( e _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Move each of the centers to the adjacent vertex in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and redefine the stars. Again, by the triangle inequality, the largest edge cost used in constructing the final stars is at most 3 · cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( e _ { j } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                505,
+                784,
+                563
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 5.12 A tight example is provided by the following graph on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n + 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": "vertices. Vertex weights and edge costs are as marked; all missing edges have a cost given by the shortest path."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                571,
+                786,
+                615
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/337487883295e1292f68e1be85ff275320a8ed977961dc75c5b72c7d3ec0e1f0.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                315,
+                617,
+                697,
+                751
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "5.2 The weighted version"
+                    }
+                ]
+            },
+            "bbox": [
+                544,
+                87,
+                729,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "51"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                783,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "It is not dificult to see that for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W = 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the optimum cost of a k-center is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 + \\varepsilon \\colon \\mathrm { a }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "k-center achieving this cost is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ a , c \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textit { i } < n + 3"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "computed by the algorithm will contain a vertex of infinite weight. Suppose that, for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i = n + 3 ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the algorithm chooses "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M _ { n + 3 } = \\{ b \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as a maximal independent set. Then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { n + 3 } = \\{ a \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and this is the output of the algorithm. The cost of this solution is 3. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                199
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.3 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                235,
+                364,
+                250
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "5.1 Show that if the edge costs do not satisfy the triangle inequality, then the k-center problem cannot be approximated within factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ( n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for any computable function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha ( n )"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                279,
+                784,
+                321
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Put together ideas from Theorems 3.6 and 5.7."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                322,
+                626,
+                336
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "5.2 Consider Step 2 of Algorithm 5.3, in which a maximal independent set is found in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i } ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Perhaps a more natural choice would have been to find a minimal dominating set. Modify Algorithm 5.3 so that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is picked to be a minimal dominating set in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i } ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Show that this modified algorithm does not achieve an approximation guarantee of 2 for the k-center problem. What approximation factor can you establish for this algorithm?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                349,
+                786,
+                435
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: With this modification, the lower bounding method does not work, since Lemma 5.2 does not hold if I is picked to be a minimal dominating set in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ^ { 2 }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                435,
+                784,
+                476
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.3 (Gonzalez [111]) Consider the following problem."
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                492,
+                621,
+                507
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 5.13 (Metric k-cluster) Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a complete undirected graph with edge costs satisfying the triangle inequality, and let k be a positive integer. The problem is to partition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "into sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V _ { 1 } , \\dots , V _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "so as to minimize the costliest edge between two vertices in the same set, i.e., minimize"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                512,
+                784,
+                583
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\max _ {1 \\leq i \\leq k, u, v \\in V _ {i}} \\operatorname{cost} (u, v).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/865ed1d6f8ba8c4ace4c1dad5efd89da9f6356b7564d27978f03ae11238e0bcb.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                599,
+                435,
+                621
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Give a factor 2 approximation algorithm for this problem, together with a tight example."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                633,
+                784,
+                661
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Show that this problem cannot be approximated within a factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 - \\varepsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "• for any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", unless "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { P } = \\mathbf { N P }"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                661,
+                783,
+                690
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "5.4 (Khuller, Pless, and Sussmann [169]) The fault-tolerant version of the metric k-center problem has an additional input, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha \\leq k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", which specifies the number of centers that each city should be connected to. The problem again is to pick k centers so that the length of the longest edge used is minimized."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                713,
+                784,
+                743
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "52"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "5 k-Center"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                364,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                141
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "A set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\subseteq V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in an undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is an α-dominating set if each vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is adjacent to at least α vertices in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(assuming that a vertex is adjacent to itself). Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { d o m } _ { \\alpha } ( H )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the size of a minimum cardinality α-dominating set in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                141,
+                786,
+                199
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Let I be an independent set in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Show that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\alpha | I | \\leq \\mathrm { d o m } _ { \\alpha } ( H ) } \\end{array}"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                206,
+                722,
+                222
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Give a factor 3 approximation algorithm for the fault-tolerant k-center problem."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                222,
+                784,
+                250
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Compute a maximal independent set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i } ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\leq i \\leq"
+                    },
+                    {
+                        "type": "text",
+                        "content": "m. Find the smallest index i such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\left| M _ { i } \\right| \\le \\left\\lfloor \\frac { k } { \\alpha } \\right\\rfloor"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and moreover, the degree of each vertex of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i } \\ { \\mathrm { i s } } \\geq \\alpha - 1"
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                250,
+                784,
+                293
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "5.5 (Khuller, Pless, and Sussmann [169]) Consider a modification of the problem of Exercise 5.4 in which vertices of S have no connectivity requirements and only vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V - S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "have connectivity requirements. Each vertex of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V - S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "needs to be connected to α vertices in S. The object again is to pick "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S , | S | = k ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "so that the length of the longest edge used is minimized."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                316,
+                784,
+                388
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm for this problem works on each graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". It starts with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i } = \\emptyset"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in V - S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is said to be j-connected if it is adjacent to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "vertices in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", using edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i } ^ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". While there is a vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in V - S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that is not k-connected, pick the vertex with minimum connectivity, and include it in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Finally, find the minimum index i such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| S _ { i } | \\leq k ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", say l. Output "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { l }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Prove that this is a factor 2 approximation algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                388,
+                784,
+                475
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "5.4 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                502,
+                331,
+                518
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Both k-center algorithms presented in this chapter are due to Hochbaum and Shmoys [127], and Theorem 5.7 is due to Hsu and Nemhauser [132]."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                532,
+                784,
+                562
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "5.4 Notes"
+                    }
+                ]
+            },
+            "bbox": [
+                650,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "53"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ]
+]

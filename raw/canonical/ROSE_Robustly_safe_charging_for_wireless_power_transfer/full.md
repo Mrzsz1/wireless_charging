@@ -1,0 +1,753 @@
+﻿---
+title: "ROSE: Robustly safe charging for wireless power transfer"
+year: null
+source_type: paper
+why_relevant: ""
+acquisition_method: auto_discovery
+discovered_via: ["serpapi"]
+discovery_run: "raw/inbox/auto-discovered/runs/search-20260714-214003"
+triage_status: promoted
+selected_by_user: true
+acquired_at: "2026-07-14T13:40:03+00:00"
+canonicalized_at: 2026-07-14
+ingest_status: ingested
+pdf_path: "raw/canonical/ROSE_Robustly_safe_charging_for_wireless_power_transfer/ROSE_Robustly_safe_charging_for_wireless_power_transfer.pdf"
+raw_md: "raw/canonical/ROSE_Robustly_safe_charging_for_wireless_power_transfer/full.md"
+---
+# ROSE: Robustly Safe Charging for Wireless Power Transfer
+
+Haipeng Dai , Member, IEEE, Yun Xu , Guihai Chen , Member, IEEE, Wanchun Dou , Member, IEEE, Chen Tian , Member, IEEE, Xiaobing Wu, Member, IEEE, and Tian He , Fellow, IEEE
+
+Abstract—One critical issue for wireless power transfer is to avoid human health impairments caused by electromagnetic radiation (EMR) exposure. The existing studies mainly focus on scheduling wireless chargers so that (expected) EMR at any point in the area does not exceed a threshold R . Nevertheless, they overlook the EMR jitter that leads to exceeding of R even if the expected EMR is no more than R . This paper studies the fundamental problem of RObustly SafE charging for wireless power transfer (ROSE), that is, scheduling the power of chargers so that the charging utility for all rechargeable devices is maximized while the probability that EMR anywhere does not exceed R is no less than a given confidence. We first build our empirical probabilistic charging model and EMR model. Then, we present EMR approximation and area discretization technigues to formulate ROSE into a Second-Order Cone Program. After that, we propose the first redundant second-order cone constraints reduction algorithm to reduce the computationa cost, and therefore obtain a ð1 - -Þ-approximation centralized algorithm. Further, we propose a ð1 - -Þ-approximation fully distributed algorithm scalable with network size for ROSE. We conduct both simulation and field experiments, and the results show that our algorithms can outperform comparison algorithms by 480.19 percent.
+
+Index Terms—Robustly safe charging, wireless power transfer, approximation algorithm, distribution algorithm
+
+## 1 INTRODUCTION
+
+## 1.1 Motivation
+
+bles a wireless charger to transmit power to a rechargeable device across the air gap, has drawn increasing attention from both industrial and academic circles due to its merits of no wiring, reliability, ease of maintenance, etc. The technology has found many applications including body sensor networks [1], coffee shops and restaurants [2], civil structure monitoring [3], large-scale urban sensing [4], [5], warehouses [6], smart grids [7]. As per a recent report, wireless power transmission market is estimated to rise to 17.04 billion till 2020 [8]. Nevertheless, WPT typically incurs high electromagnetic radiation (EMR), which causes risks of tissue impairment, brain tumor, miscarriage, and detrimental impact on children that can be ten times greater than adults [9]. Therefore, with the WPT technology profoundly infiltrating into each field of human life, it becomes a critical issue for the technology to avoid human health impairments caused by EMR exposure.
+
+In this paper, we for the first time consider the jitter phenomenon of EMR aroused by wireless chargers. For illustration, Fig. 1 shows that the measured charging power (which is exactly proportional to the EMR there) that a wireless rechargeable sensor node harvested from an off-the-shelf TX91501 power transmitter produced by Powercast [10] varies in a range, rather than keeping constant, for a fixed distance between 0:5 m and 1:8 m. Fig. 2 shows the charging power histogram for the distance of 0:9 m using 334 measured charging power samples. Note that we measure the charging power at the distance starting from 0:5 m mainly because such power transmitter transmits charging power only if a sensor node is at least 0:4 m away under typical settings. Moreover, we use the same method as that in the field experiments stated in Section 7. We can see that the charging power distribution basically matches a Gaussian distribution. Our quantitative evaluation based on Anderson-Darling test and Kolmogorov-Smirnov test also supports this observation.
+
+Essentially, EMR jitter is mainly due to the fading effect [11] caused by multipath propagation, shadowing from obstacles, etc. Thereby, the resulted EMR is indeed the superposition of multiple copies of that for the transmitted signal, each traversing a different path with different attenuation, delay and phase shift, resulting in either constructive or destructive interference. Thus, we argue that it is not sufficient to guarantee the traditional EMR safety, which we call deterministic EMR safety, as done by most existing wireless charging schemes; that is, the (expected) EMR intensity anywhere should not exceed a threshold, say R . The main reason is that even if the expected EMR is no more than R , it is always possible that EMR exceeds R<sub>t</sub> and the corresponding probability can be up to 50 percent; and traditional schemes cannot distinguish between the harmful levels of two EMR distributions with different jitter amplitudes but same average value, which are definitely different.
+
+![](images/2b767af9108bafde956ddd6327d504bc81df6bc198e9a34fcc143b657fb04329.jpg)  
+Fig. 1. Charging power distribution with distance.
+
+Moreover, one may argue that why not take the maximum observed EMR in history for a charger to build a new “maximum EMR model”, and therefore directly use existing schemes for ensuring deterministic EMR safety. Our answer is no for the following reasons. First, due to the probabilistic nature of EMR, one can never guarantee that the maximum EMR in the future must not surpass the maximum one in history. Second, the maximum endurable intensity for instantaneous or short-term EMR is shown to be much higher than the average endurable EMR. The reason may be that by medical studies such as [12], the severity of the EMR effect is largely determined by the amount of total energy locally absorbed (or deposited) per unit mass which is not only related to the EMR intensity, but also to the lasting period. Thus, occasional violation of average EMR threshold is not unacceptable because the allowed peak EMR threshold is much higher. Instead, the issue matters here is to control the frequency of occurrence of such violation. Third, this solution might be too conservative to use in practical applications, as to satisfy the more stringent EMR constraints, chargers need to be scheduled at lower levels, yielding lower charging utility. Consequently, to better characterize the EMR safety extent given its probabilistic nature, we propose the notion of probabilistic EMR safety that requires the probability that EMR intensity anywhere does not exceed a given threshold $R _ { t }$ should be no less than a given confidence h $( 0 < \eta \leq 1 )$
+
+## 1.2 Limitations of Prior Art
+
+Though there exist a host of works studying on mobile charging that using mobile chargers to charge rechargeable devices, we study on static charging that schedule static chargers to charge devices in this paper because we believe using static chargers has some advantages over using mobile chargers in some cases. First, using static chargers is a more robust and timely way to handle unexpected events, such as urgent charging requests caused by accidental energy depletion of existing sensor nodes or new nodes join, than using mobile chargers. Second, static chargers can also serve as data collectors. Using static chargers would also help achieve fast and efficient data collection than using mobile chargers. Third, it is more cost-efficient for some applications where, for example, sensor nodes form multiple clusters with long distance between them. Further, from a long term view, purchasing wireless chargers is a onetime investment and can be amortized over time, while using mobile chargers usually require much higher energy cost and human cost than maintaining static chargers, and such cost constantly accumulates over time. Fourth, there have emerged on-the-shelf products based on wireless power transfer technologies, such as [2], [6], [13], and they offered solutions for popular applications like wireless charging systems at coffee shops, security systems, the smart home, and in-vehicle charging systems by deploying static chargers. After all, we believe using static chargers is a good alternative, or at least a good complemental way, in some scenarios, and accordingly. Nevertheless, mobile charging is still a promising topic and we have planed to study it in the near future.
+
+![](images/ee6718eac13a7b91c83e44d51ecaf51f83ba43411ad741aefd25ae778548231c.jpg)  
+Fig. 2. Charging power for distance of 0:9 m with one single charger
+
+## 1.3 Problem Statement
+
+We are concerned with the problem of RObustly SafE charging for wireless power transfer (ROSE) in this paper. We first propose probabilistic charging and EMR models to capture their jitter nature. By defining charging utility of a device to be proportional to its received power, our optimization goal is to maximize the aggregated (expected) charging utility of all devices. Formally, given a number of static wireless chargers and rechargeable devices on a 2D plane, our problem is to schedule the power of chargers so that the overall charging utility of all the devices is maximized while the probability that EMR intensity at any point in the plane does not exceed a given threshold $R _ { t }$ is no less than a given confidence h. We seek to propose both centralized and distributed algorithms to address ROSE. Especially, the motivation of a distributed algorithm is to address the scalability issue by guaranteeing that no matter how large the network is, wireless chargers that are delegated to perform computation tasks can always keep their overhead at a constant level.
+
+## 1.4 Key Technical Challenges
+
+The main technical challenges for ROSE are four-folds. The first challenge is that the ROSE problem is non-convex and it has infinite number of constraints. ROSE is non-convex because both of the charging power and EMR in the plane are non-convex as they are the aggregate value of charging power and EMR from surrounding chargers, which are probabilistic and nonlinear with distance. Moreover, the probabilistic EMR safety requirement is imposed on every point in the plane, which implies an infinite number of constraints. This makes ROSE even more difficult to be addressed. The second challenge is due to the high computational cost of the centralized algorithm. Even if we could approximately transform the infinite constraints of the problem into limited ones, their number is still huge and cause high computational cost. The third challenge is to design a fully distributed algorithm. As generally neighboring chargers have overlapping areas for power transfer and caused EMR, the optimization of power scheduling for all chargers is inevitably correlated. We need to decouple such correlation, and make the treatments of the non-convex problem distributed. The fourth challenge is to bound the performance for the distributed algorithm. We need to evaluate the caused performance loss when we reduce its infinite nonlinear constraints to finite ones and when we make the algorithm distributed. It is a challenging task since both the optimization goal and the nonlinear constraints change during the above two processes.
+
+## 1.5 Proposed Approach
+
+We propose both centralized and distributed algorithms by addressing the four challenges one by one. First, we transform the probabilistic constraint of ROSE into a second-order cone one, and propose EMR approximation and area discretization techniques to reformulated ROSE as a traditional Second-Order Cone Program (SOCP), which can be optimally addressed by convex optimization techniques such as interior point methods [14]. We then address the first challenge. Second, we propose the first redundant second-order cone constraints reduction scheme to effectively remove the redundant constraints. We thus address the second challenge. Third, we present an area partition scheme which basically divides the area into many subareas and considers the optimization problem in each subarea independently. This is the first fully distributed algorithm for SOCP that is scalable with network size. Note that we also propose the first distributed redundant second-order cone constraints reduction scheme to reduce computational cost. Thereby, we address the third challenge. Fourth, by controlling the error for the EMR approximation and area discretization, and the granularity of the distributed area partition scheme, we prove that our distributed algorithm achieves ð1 - -Þ-approximation ratio. Then, we address the fourth challenge.
+
+## 1.6 Evaluation Results
+
+We conducted both simulations and field experiments to evaluate our proposed algorithms. The results show that our algorithms can outperform comparison algorithms by 480.19 percent.
+
+## 2 RELATED WORK
+
+To the best of our knowledge, we are the first to study the robustly safe charging problem that considers the jitter of aroused EMR of wireless chargers. First, there exist some works [9], [15], [16], [17], [18], [19], [20], [21], [22] studying on wireless charging issues with EMR safety concern, but none of them considers the EMR jitter phenomenon. For example, Dai et al. initiated the study of safe charging by first taking the detrimental effect of high EMR into consideration in [9]. They investigated how to schedule unadjustable chargers [9], [15] and adjustable chargers [16], [17] to maximize the overall charging utility of all rechargeable devices. Dai et al. also proposed the first charger deployment scheme for wireless chargers with EMR safety concern [19]. Moreover, they considered radiation constrained scheduling of wireless charging tasks each of which has a desired charging energy requirement and a charging deadline in [20], [21]. Their goal is to maximize the aggregated effective charging energy and further minimize the overall charging time for all tasks. Unlike the previous works that maximize the overall performance for all devices, [22] concentrates on the fairness of wireless charging and aims to maximize the minimum charging utility of devices. All these schemes merely consider deterministic EMR safety and cannot be applied to address our problem. Besides, their solutions are essentially based on either discrete optimization or linear programming methods, which differ from ours that relies on quadratic programming. In the conference version of this paper [23], we first proposed and studied the robustly safe charging problem.
+
+Second, some other works study charging efficiency issues for wireless charger networks but overlook the EMR safety [24], [25], [26], [27], [28], [29], [30]. For example, Dai et al. presented the directional charging problem where both the charging area for chargers and receiving area for devices can be modeled as sectors, and studied omnidirectional charging using directional chargers in [25], the wireless charger placement problem in [26], [27], [28], the online scheduling problem for directional wireless chargers in [29]. Besides, Yu et al. studied the wireless charger placement problem under the connectivity constraint of wireless chargers in [30].
+
+Third, there are numerous works concentrating on mobile charging scenarios where one or multiple mobile chargers (MCs) are used to charge rechargeable devices, which are fundamentally different from our work. For example, Shi et al. [31], [32] proposed to use a single MC to charge a wireless rechargeable sensor network (WRSN) to improve data collection performance of the networks. Their goal is to minimize the working time within a charging time period. In [33], [34], Dai et al. studied a similar scenario except that their goal is to optimize the performance of stochastic event capture. Moreover, Xie et al. [35], [36] proposed to use MCs not only as energy providers but also as data collectors. Further, Rault et al. [37] proposed the first scheme to use MCs to achieve multi-node energy transfer while considering deterministic EMR safety but not probabilistic EMR safety. For more related works, we refer readers to a recent survey [38] for details.
+
+## 3 PROBLEM FORMULATION
+
+## 3.1 Preliminaries
+
+Suppose there are n identical wireless chargers $S = \{ s _ { i } \} _ { i = 1 } ^ { n }$ and m identical rechargeable devices $O = \{ o _ { j } \} _ { j = 1 } ^ { m }$ located in a 2D plane V. With a little abuse of notation, we still use s (and $\bar { \bf \Phi } _ { O _ { j } } )$ to denote the position of wireless charger $s _ { i }$ (and device $o _ { j } )$ . We build our probabilistic charging model based on the omnidirectional charging model proposed in [9], [24] for chargers and devices, that is, both of the power charging area of chargers and the power receiving area of devices are in the shape of a disk. We stress that our analytical results can be easily extended to the directional charging models [25], [26], which we will describe in Section 7. Table 1 lists the notations used in this paper.
+
+We establish our probabilistic model based on the field experiments using the off-the-shelf TX91501 power transmitters
+
+TABLE 1 Notations
+
+<table><tr><td>Symbol</td><td>Description</td></tr><tr><td> $s_i$ </td><td> $i$ th wireless charger (or its position)</td></tr><tr><td> $o_j$ </td><td> $j$ th rechargeable device (or its position)</td></tr><tr><td> $n$ </td><td>Number of wireless chargers</td></tr><tr><td> $m$ </td><td>Number of rechargeable devices</td></tr><tr><td> $P(.)$ </td><td>Charging power function</td></tr><tr><td> $\alpha_1, \beta_1$ </td><td>Constants in the expression of charging power expectation</td></tr><tr><td> $\alpha_2, \beta_2$ </td><td>Constants in the expression of charging power standard deviation</td></tr><tr><td> $D$ </td><td>Charging radius for wireless chargers</td></tr><tr><td> $x_i$ </td><td>Adjusting factor of the  $i$ th wireless charger</td></tr><tr><td> $\overline{P}(d),$ </td><td>Expectation and standard deviation of charging</td></tr><tr><td> $\sigma_P(d)$ </td><td>power with distance  $d$ </td></tr><tr><td> $\overline{e}(d),$ </td><td>Expectation and standard deviation of EMR with</td></tr><tr><td> $\sigma_e(d)$ </td><td>distance  $d$ </td></tr><tr><td> $c_e$ </td><td>Constant in the EMR model</td></tr><tr><td> $c_u$ </td><td>Constant in the charging utility model</td></tr><tr><td> $\mathcal{U}(.)$ </td><td>Utility function</td></tr><tr><td> $R_t$ </td><td>EMR threshold</td></tr><tr><td> $\underline{\eta}$  $\overline{P}_{iz}, \widetilde{\sigma}_{P,iz}$ </td><td>ConfidenceApproximated expectation and standard deviation of EMR in subarea  $\mathcal{A}_z$  from  $s_i$ </td></tr><tr><td> $\mathbf{N}(s_i)$ </td><td>Neighbor set of charger  $s_i$ </td></tr></table>
+
+and wireless rechargeable sensor nodes produced by Powercast [10]. We used a sensor node to receive power from a single TX91501 power transmitter at a distance from 0:5 m to 1:8 m. We first fit the distribution of the node’s received power at a certain distance into a Gaussian distribution, and then fit the distribution of the expectation (and the standard deviation) of the fitted Gaussian distribution at all measured distances to a nearly inverse-square function. Figs. 1 and 3 show the fitting results of the expectation and standard deviation of the received power for the node. In addition, to qualitatively measure the goodness of Gaussian distribution fitting, we use Anderson-Darling test (A-D test) and Kolmogorov-Smirnov test (K-S test), which are statistical tests of whether a given sample of data is drawn from a given probability distribution [39]. Their idea of testing normality of data is to compare the empirical distribution function estimated based on the data with the cumulative distribution function (CDF) of normal distribution to see if there is a good agreement between them. The K-S test statistic is based on the largest vertical difference between the hypothesized and empirical distribution [40], while the A-D test statistic is based on the squared difference and gives more weight to the tails of the distribution [41]. Our experimental results show that the probability values, or p-values, have a range of [0.0624,0.2148], for both of the two tests, which are larger than the commonly used significance level of 0.05 and thus pass both the tests. For similar experiments with two chargers put in front of the sensor node at a same distance from 0:5 m to 1:8 m (the distance between the two chargers is about 0:05 m), Fig. 4 shows that the p-values for both the tests are dramatically improved, and their mean values become larger than 0.13. This indicates that our Gaussian distribution fitting is more appropriate for realistic cases with multiple chargers. Note that though some works claim that WPT channels can be characterized by log-normal fading in some cases [42], [43], our empirical results show that Gaussian distribution fitting achieves comparable or higher p-value compared with log-normal distribution fitting. After all, Gaussian distribution can well approximate log-normal distribution if $\mu ~ >$ 6s [44], while we have $\mu ~ >$ 16s in our case. To sum up, we assume that all the chargers can continuously adjust its power level from 0 to a maximum power. When a charger works at the maximum power, the received power of a device at a distance d from the charger is
+
+![](images/8b044103befe311c89b306466da771522025bfb39512f31e88159fbf80e6f020.jpg)  
+Fig. 3. Fitting result for standard deviation of power.
+
+![](images/9395fedf2a2e259b091805fff7b7d7f1b0bc3407fe49f42153d8d0df417cd472.jpg)  
+Fig. 4. A-D test and K-S test results.
+
+$$
+P (d) \left\{ \begin{array}{l l} \sim \mathcal {N} \bigg (\frac {\alpha_ {1}}{(d + \beta_ {1}) ^ {2}}, \Big [ \frac {\alpha_ {2}}{(d + \beta_ {2}) ^ {2}} \Big ] ^ {2} \bigg), & 0 \leq d \leq D \\ = 0, & d > D \end{array} \right.,
+$$
+
+where $\alpha _ { 1 } , \beta _ { 1 } , \alpha _ { 2 } ,$ , and $\beta _ { 2 }$ are four constants, d is the distance between $s _ { i }$ and $o _ { j } ,$ and D is the charging radius. For convenience, we define $\begin{array} { r } { \overline { { P } } ( d ) = { \bf E } [ P ( d ) ] = \frac { \alpha _ { 1 } } { \left( d + \beta _ { 1 } \right) ^ { 2 } } } \end{array}$ and $\sigma _ { P } ( d ) =$ $\begin{array} { r } { \sqrt { \mathbf { V a r } [ P ( d ) ] } = \frac { \alpha _ { 2 } } { ( d + \beta _ { 2 } ) ^ { 2 } } } \end{array}$ , and then $P ( d ) \sim \mathcal { N } ( \overline { { P } } ( d ) , \sigma _ { P } ( d ) ^ { 2 } )$ for $0 \leq d \leq D ,$ , and $P ( d ) = 0$ for $d > D$ . Moreover, we define adjusting factor $x _ { i }$ $( 0 \leq x _ { i } \leq 1 , i = 1 , \ldots , n )$ as the ratio of the current adjusted power to the maximum allowed power for the charger $s _ { i } ,$ then the charging power at distance d is $P ( d ) x _ { i }$ . Further, we adopt the power addictive model for multiple chargers [45], i.e., the aggregate received power of a device $o _ { j }$ is the sum of the received power from all its surrounding chargers.
+
+We adopt the electromagnetic radiation (EMR) model proposed in [9], [16], that is, the accumulated EMR at a point is the sum of the EMR caused by each charger which is proportional to the corresponding charging power
+
+$$
+e (p) = c _ {e} \sum_ {i = 1} ^ {n} P (d (s _ {i}, p)) x _ {i},\tag{1}
+$$
+
+where $c _ { e }$ is a predetermined constant and $d ( s _ { i } , p )$ is the distance from charger $s _ { i }$ to point $p .$ . Besides, we note that both of the probabilistic charging model and the EMR model cannot be straightforwardly applied to 3D scenarios. This is because we do observe that the charging parameters $\alpha _ { 1 } , \beta _ { 1 } ,$ $\alpha _ { 2 } ,$ and $\beta _ { 2 }$ vary with the height to the referenced 2D plane where a charger is located based on our preliminary experimental study. We will investigate 3D wireless charging issues in our future work.
+
+For the charging utility model, we adopt the linear model proposed in [16], namely
+
+$$
+\mathcal {U} (x) = c _ {u} \cdot x,\tag{2}
+$$
+
+where $c _ { u }$ is a predetermined constant and x denotes the the aggregate received power for all devices.
+
+## 3.2 Problem Statement
+
+Let $d ( s _ { i } , o _ { j } )$ be the distance from charger $s _ { i }$ to device $o _ { j } .$ . Considering the jitter of the received power of device $o _ { j }$ from charger $s _ { i } , \mathrm { i . e . , } P ( d ( s _ { i } , o _ { j } ) ) x _ { i } .$ , we take the expected charging utility over time $\mathbf { E } [ \mathcal { U } ( \bar { P } ( d ( s _ { i } , o _ { j } ) ) x _ { i } ) ] = \mathbf { E } [ c _ { u } \bar { P } ( d ( s _ { i } , o _ { j } ) ) \bar { x _ { i } } ] =$ $c _ { u } \overline { { P } } ( \dot { d } ( s _ { i } , o _ { j } ) ) x _ { i }$ for optimization. Therefore, the optimization goal for ROSE is to maximize the aggregate expected charging utility of all devices, i.e., $\begin{array} { r } { c _ { u } \sum _ { i = 1 } ^ { n } \sum _ { j = 1 } ^ { m } \overline { { P } } ( d ( s _ { i } , o _ { j } ) ) x _ { i } } \end{array}$ . As for the constraint, we require that for any point $\boldsymbol { p } \in \mathbb { R } ^ { 2 }$ , the probability that the aggregated EMR there does not exceed a given threshold $R _ { t }$ is not less than a given confidence h $( 0 ^ { ^ { - } } < \eta \leq 1 )$ , i.e., $\begin{array} { r } { \mathbf { P r o b } ( c _ { e } \sum _ { i = 1 } ^ { n } P ( d ( s _ { i } , \breve { p ) } ) x _ { i } \leq R _ { t } ) \geq \eta } \end{array}$ . To sum up, the problem of RObustly SafE charging for wireless power transfer (ROSE) can be defined as follows:
+
+$$
+\begin{array}{l} \text {(P1)} \quad \max _ {x _ {i}} \quad c _ {u} \sum_ {i = 1} ^ {n} \sum_ {j = 1} ^ {m} \overline {{P}} (d (s _ {i}, o _ {j})) x _ {i} \\ s. t. \quad \forall p \in \mathbb {R} ^ {2}, \quad \mathbf {P r o b} (c _ {e} \sum_ {i = 1} ^ {n} P (d (s _ {i}, p)) x _ {i} \leq R _ {t}) \geq \eta , \\ \quad 0 \leq x _ {i} \leq 1 \quad (i = 1, \ldots , n). \end{array}\tag{3}
+$$
+
+Note that $x _ { i } \mathbf { s }$ are the optimization variables. Because the sum of independent Gaussian random variables also follows Gaussian distribution and its expectation and variance is exactly the sum of the expectation and variance of all the Gaussian random variables, respectively [46], we let $P =$ $\textstyle \sum _ { i = 1 } ^ { n } P ( d ( s _ { i } , p ) ) x _ { i }$ and $\begin{array} { r } { \sigma _ { P } ^ { 2 } = \sum _ { i = 1 } ^ { n ^ { \bullet } } \sigma _ { P } ^ { 2 } ( d ( \hat { s _ { i } } , p ) ) x _ { i } ^ { 2 } . } \end{array}$ , and introduce an assistant zero mean unit variance Gaussian variable, and the constraint in the former formulation can be rewritten as
+
+$$
+\begin{array}{l} \mathbf {P r o b} \bigg (\frac {P - \mathbf {E} [ P ]}{\sigma_ {P}} \leq \frac {R _ {t} / c _ {e} - \mathbf {E} [ P ]}{\sigma_ {P}} \bigg) \\ = \mathbf {P r o b} \bigg (\frac {P - \mathbf {E} [ P ]}{\sigma_ {P}} \leq z \bigg) \geq \eta . \end{array}\tag{4}
+$$
+
+Suppose $\begin{array} { r } { \Phi ( z ) = \frac { 1 } { \sqrt { 2 \pi } } \int _ { - \infty } ^ { z } e ^ { - t ^ { 2 } / 2 } d t } \end{array}$ is the cumulative distribution function of a zero mean unit variance Gaussian random variable, then we have $\begin{array} { r } { \frac { R _ { t } / c _ { e } - \mathbf { E } [ P ] } { \sigma _ { n } } \geq \Phi ^ { - 1 } ( \eta ) } \end{array}$ . By rearranging the inequality and plugging in the expressions of P and $\sigma _ { P } ,$ we have
+
+$$
+\sum_ {i = 1} ^ {n} \overline {{P}} (d (s _ {i}, p)) x _ {i} + \Phi^ {- 1} (\eta) \sqrt {\sum_ {i = 1} ^ {n} \sigma_ {P} ^ {2} (d (s _ {i} , p)) x _ {i} ^ {2}} \leq \frac {R _ {t}}{c _ {e}},\tag{5}
+$$
+
+which is exactly in the form of second-order cone constraint, a special type of quadratic constraints [14]. A second-order cone constraint is of the form $\| A x + b \| _ { 2 } < c x + d$ where $A \in R ^ { K \times n }$ , and it is the same as requiring the affine function ðAx $+ b , c ^ { T } x + d )$ to lie in the second-order cone in $R ^ { K + 1 }$ The second-order cone constraint typically appears in the second-order cone programming, which is convex optimization and aims to minimize a linear function.
+
+Consequently, the formulation P1 can be equivalently transformed into
+
+$$
+\begin{array}{l} \text {(P2)} \max _ {x _ {i}} c _ {u} \sum_ {i = 1} ^ {n} \sum_ {j = 1} ^ {m} \overline {{P}} (d (s _ {i}, o _ {j})) x _ {i} \\ s. t. \sum_ {i = 1} ^ {n} \overline {{P}} (d (s _ {i}, p)) x _ {i} + \Phi^ {- 1} (\eta) \sqrt {\sum_ {i = 1} ^ {n} \sigma_ {P} ^ {2} (d (s _ {i} , p)) x _ {i} ^ {2}} \leq \frac {R _ {t}}{c _ {e}}, \\ \forall p \in \mathbb {R} ^ {2}, 0 \leq x _ {i} \leq 1 (i = 1, \ldots , n). \end{array}\tag{6}
+$$
+
+Note that the constraint of P1 is nonlinear and is imposed on every point on the plane. ROSE falls in the realm of nonconvex programs. Especially, we have the following theorem.
+
+Theorem 3.1. The ROSE problem is a non-convex optimization problem.
+
+Proof. To begin with, we define the function $g ( x , p )$ and rewrite the constraint of P1 as
+
+$$
+\begin{array}{c} g (x, p) = \sum_ {i = 1} ^ {n} \overline {{P}} (d (s _ {i}, p)) x _ {i} + \Phi^ {- 1} (\eta) \sqrt {\sum_ {i = 1} ^ {n} \sigma_ {P} ^ {2} (d (s _ {i} , p)) x _ {i} ^ {2}} \\ - \frac {R _ {t}}{c _ {e}} \leq 0. \end{array}
+$$
+
+Note that $p \in \mathbb { R } ^ { 2 }$ and $0 \leq x _ { i } \leq 1 ( i = 1 , \ldots , n )$ . Next, recall that $\begin{array} { r } { \overline { { P } } ( d ) = { \bf E } [ P ( d ) ] = \frac { \alpha _ { 1 } } { ( d + \beta _ { 1 } ) ^ { 2 } } } \end{array}$ and $\sigma _ { P } ( d ) =$ $\begin{array} { r } { \sqrt { \mathbf { V a r } [ P ( d ) ] } = \frac { \alpha _ { 2 } } { \left( d + \beta _ { 2 } \right) ^ { 2 } } . } \end{array}$ , we claim that $g ( x )$ is neither a convex nor a concave function. To see this, we consider a special case for $g ( x , p )$ with $\beta _ { 1 } = 0$ and $\alpha _ { 2 } = 0$ , that is
+
+$$
+g (x, p) = \sum_ {i = 1} ^ {n} \frac {\alpha_ {1}}{d ^ {2} (s _ {i} , p)} x _ {i} - \frac {R _ {t}}{c _ {e}}.
+$$
+
+Clearly, $g ( x , p )$ is neither convex nor concave because it approaches positive infinity when p is at point s $( i =$ $1 , \ldots , n )$ . Then according to the classical result in [14], we conclude that the ROSE problem is a non-convex optimization problem. tu
+
+## 4 ð1 - -Þ-APPROXIMATION CENTRALIZEDALGORITHM
+
+In this section, we present a centralized algorithm that achieves ð1 - -Þ-approximation ratio to address ROSE. First, we use two piecewise constant functions to approximate the nonlinear expectation and standard deviation of EMR value with distance, respectively, and thus partition the whole 2D plane into multiple subareas and the aggregated EMR for any point in a given subarea is the same. Consequently, we reformulate ROSE into a traditional Second-Order Cone Program (SOCP), which can be optimally addressed. Second, considering the high time complexity caused by the huge number of second-order cone constraints in the reformulated SOCP, we propose a centralized algorithm to eliminate the redundant constraints that can be safely removed without hurting the final results.
+
+![](images/4fc7fcee04b572c54dd811ead71d6636ca9afff7091ef53e95ef6ccee83567d8.jpg)  
+Fig. 5. Area discretization.
+
+## 4.1 Piecewise Constant Approximations for EMR and Area Discretization
+
+To begin with, we use two piecewise constant functions to approximate the nonlinear expectation and standard deviation of EMR, which are denoted by $\overline { { e } } ( d )$ and $\sigma _ { e } ( d )$ , respectively. Note that we have $\begin{array} { r } { \overline { { e } } ( d ) \overline { { = } } c _ { e } \frac { \alpha _ { 1 } } { ( d + \beta _ { 1 } ) ^ { 2 } } } \end{array}$ and $\sigma _ { e } ( d ) =$ $c _ { e } \frac { \alpha _ { 2 } } { ( d + \beta _ { 2 } ) ^ { 2 } }$ <sup>1</sup>. The sets of endpoints of the piecewise constant line segments for these two functions are exactly the same, which are denoted by $\ell ( 1 ) , \dots , \ell ( Q ) \ ( \ell ( 0 ) = 0 , \ell ( Q ) = D )$ in order of distance. Next, we plot Q concentric circles with radius $\ell ( 1 ) , \ldots , \ell ( Q )$ for each charger, respectively. The approximated expectation and standard deviation of EMR from the charger at any point between adjacent circles should be uniform. Finally, the whole 2D plane is thus partitioned into multiple subareas that are shaped by these concentric circles. For each formed subarea, either the approximated expectation or the standard deviation of EMR generated by a charger is the same for any point in the considered subarea, and so is the case for aggregated EMR from multiple chargers. Fig. 5 shows an example for which we draw two concentric circles for three chargers with radius ‘ð1Þ and $\ell ( 2 )$ , and obtain 12 subareas.
+
+First, we give the following definition.
+
+Definition 4.1. Define $\ell ( q ) ( q = 1 , \ldots , Q )$ as the endpoints of the piecewise constant line segments for eðdÞ and $\sigma _ { e } ( d )$ , and set their value as
+
+$$
+\begin{array}{c} \ell (q) = \min \{\sqrt {1 + \epsilon_ {1}} \cdot [ \ell (q - 1) + \beta_ {1} ] \\ - \beta_ {1}, \sqrt {1 + \epsilon_ {2}} \cdot [ \ell (q - 1) + \beta_ {2} ] - \beta_ {2} \}, \end{array}\tag{7}
+$$
+
+where $q = 1 , \ldots , Q - 1$ and ‘ð0Þ ¼ 0 and $\ell ( Q ) = D$ where $Q$ satisfies
+
+$$
+\begin{array}{c} D \leq \min \{\sqrt {1 + \epsilon_ {1}} \cdot [ \ell (Q - 1) + \beta_ {1} ] \\ - \beta_ {1}, \sqrt {1 + \epsilon_ {2}} \cdot [ \ell (Q - 1) + \beta_ {2} ] - \beta_ {2} \}, \end{array}\tag{8}
+$$
+
+and $\ell ( Q - 1 ) < D .$
+
+Clearly, this discretization method is decided by the two parameters $\beta _ { 1 }$ and $\beta _ { 2 }$ in the probabilistic charging model and the approximation error thresholds $\epsilon _ { 1 }$ and $\epsilon _ { 2 }$ for EMR expectation and standard deviation, respectively.
+
+Then, we show in the following theorem that we can bound the approximation errors of the expectation and standard deviation of EMR.
+
+Lemma 4.1. Use the following piecewise constant function $\widetilde { \overline { { e } } } ( d )$
+
+$$
+\widetilde {\overline {{e}}} (d) = \left\{ \begin{array}{l l} \overline {{e}} (0), & d = 0 \\ \overline {{e}} (\ell (q - 1)), & \ell (q - 1) <   d \leq \ell (q)   (q = 1, \ldots , Q) \\ 0, & d > D, \end{array} \right.
+$$
+
+and
+
+(9)
+
+$$
+\widetilde {\sigma} _ {e} (d) = \left\{ \begin{array}{l l} \sigma_ {e} (0), & d = 0 \\ \sigma_ {e} (\ell (q - 1)), & \ell (q - 1) <   d \leq \ell (q)   (q = 1, \ldots , Q) \\ 0, & d > D, \end{array} \right.\tag{10}
+$$
+
+where $\ell ( q ) \ ( q = 1 , \ldots , Q )$ is defined as in Definition 4.1, the approximation errors of EMR expectation and standard deviation by a single charger from distance d satisfy
+
+$$
+1 \leq \frac {\widetilde {e} (d)}{\overline {{e}} (d)} \leq 1 + \epsilon_ {1}.\tag{11}
+$$
+
+and
+
+$$
+1 \leq \frac {\widetilde {\sigma} _ {e} (d)}{\sigma_ {e} (d)} \leq 1 + \epsilon_ {2}.\tag{12}
+$$
+
+Proof. Suppose the given distance d satisfies $\ell ( q - 1 ) \leq d \leq$ $\ell ( q )$ for a certain $q . \mathop { \mathrm { A s } } \ \overline { { e } } ( d )$ is a monotonically decreasing function, we have $\begin{array} { r } { \frac { \overline { { e } } ( d ) } { \overline { { e } } ( d ) } = \frac { \overline { { e } } ( \ell ( q - 1 ) ) } { \overline { { e } } ( d ) } \geq 1 } \end{array}$ . Moreover, by Equation (7), we have
+
+$$
+\begin{array}{l} \frac {\widetilde {e} (d)}{\overline {{e}} (d)} \\ \leq \frac {\overline {{e}} (\ell (q - 1))}{\overline {{e}} (\ell (q))} \\ = \overline {{e}} (\ell (q - 1)) / \overline {{e}} (\min \{\sqrt {1 + \epsilon_ {1}} \cdot [ \ell (q - 1) + \beta_ {1} ] - \beta_ {1}, \\ \sqrt {1 + \epsilon_ {2}} \cdot [ \ell (q - 1) + \beta_ {2} ] - \beta_ {2} \}) \\ \leq \frac {\overline {{e}} (\ell (q - 1))}{\overline {{e}} (\sqrt {1 + \epsilon_ {1}} \cdot [ \ell (q - 1) + \beta_ {1} ] - \beta_ {1})} \\ = \frac {c _ {e} \frac {\alpha_ {1}}{(\ell (q - 1) + \beta_ {1}) ^ {2}}}{c _ {e} \frac {\alpha_ {1}}{(\sqrt {1 + \epsilon_ {1}} \cdot [ \ell (q - 1) + \beta_ {1} ] - \beta_ {1} + \beta_ {1}) ^ {2}}} = 1 + \epsilon_ {1}. \end{array}\tag{13}
+$$
+
+By similar analysis to the approximation error of standard deviation, we can obtain Equation (12). This completes the proof. tu
+
+Lemma 4.2. The number of partitioned subareas is subject to $Z = O ( n ^ { 2 } ( \epsilon _ { 1 } ^ { - 2 } + \epsilon _ { 2 } ^ { - 2 } ) )$
+
+Proof. By Equation (7), we have $\ell ( q ) - \ell ( q - 1 ) =$ min $\begin{array} { r l r } { \{ \sqrt { 1 + \epsilon _ { 1 } } \cdot [ \ell ( q - 1 ) + \beta _ { 1 } ] - } & { { } } & { \beta _ { 1 } , \sqrt { 1 + \epsilon _ { 2 } } \cdot [ \ell ( q - 1 ) + } \end{array}$ $\beta _ { 2 } \} - \beta _ { 2 } \} - \ell ( q - 1 ) \geq \operatorname* { m i n } \{ ( { \sqrt { 1 + \epsilon _ { 1 } } } - 1 ) \cdot \beta _ { 1 } , ( { \sqrt { 1 + \epsilon _ { 2 } } }$ $1 ) \cdot \beta _ { 2 } \}$ . Therefore, the number of concentric circles Q is subject to $\begin{array} { r } { Q \le \frac { D } { \operatorname* { m i n } \{ ( \sqrt { 1 + \epsilon _ { 1 } } - 1 ) \cdot \beta _ { 1 } , ( \sqrt { 1 + \epsilon _ { 2 } } - 1 ) \cdot \beta _ { 2 } \} } = O ( \epsilon _ { 1 } ^ { - 1 } + \epsilon _ { 2 } ^ { - 1 } ) } \end{array}$ Further, as per the classical result proposed in [47], the number of subareas formed by n circles, say $Z ,$ satisfies $Z \le n ^ { 2 } - n + 2$ . The number of partitioned subareas is thus subject to $Z \le ( n Q ) ^ { 2 } - n Q + \overset { \cdot } { 2 } = O ( n ^ { 2 } ( \epsilon _ { 1 } ^ { - 1 } + \epsilon _ { 2 } ^ { - 1 } ) ^ { 2 } ) =$ $O ( n ^ { 2 } ( \epsilon _ { 1 } ^ { - 2 } + \epsilon _ { 2 } ^ { - 2 } ) )$ . This completes the proof. tu
+
+## 4.2 Problem Reformulation
+
+Consequently, let $\overline { { P } } _ { i z }$ and $\widetilde { \sigma } _ { P , i z }$ be the corresponding approximated expectation and standard deviation of charging power at the zth subarea in all Z subareas when the adjusting factors of all chargers are 1, P2 can be reformulated as
+
+$$
+\begin{array}{l} \text {(P3)} \quad \max _ {x _ {i}} \quad c _ {u} \sum_ {i = 1} ^ {n} \sum_ {j = 1} ^ {m} \overline {{P}} (d (s _ {i}, o _ {j})) x _ {i} \\ s. t. \sum_ {i = 1} ^ {n} \widetilde {\overline {{P}}} _ {i z} x _ {i} + \Phi^ {- 1} (\eta) \sqrt {\sum_ {i = 1} ^ {n} \widetilde {\sigma} _ {P , i z} ^ {2} x _ {i} ^ {2}} \leq \frac {R _ {t}}{c _ {e}}, (z = 1, \ldots , Z) \\ \quad 0 \leq x _ {i} \leq 1, \quad (i = 1, \ldots , n). \end{array}\tag{14}
+$$
+
+The above formulation falls exactly into the realm of Second-Order Cone Program (SOCP), which can be optimally addressed by convex optimization techniques such as interior point methods [14]. As both the approximated expectation and standard deviation of EMR are a bit exaggerated compared to their real value, the computed solution to problem P3 should be generally smaller than the optimal solution to P2, which makes it feasible to P2. We show this in the following lemma.
+
+Lemma 4.3. Any feasible solution to problem P3 is also feasible to problem P2.
+
+Apparently, the time complexity of solving problem P3 is positively related to the number of its second-order cone constraints, which increases rapidly with the error thresholds of $\epsilon _ { 1 }$ and $\epsilon _ { 2 }$ as per Lemma 4.2. To alleviate the computational cost without sacrificing the approximation accuracy, we will discuss how to eliminate useless constraints in the next subsection.
+
+4.3 Centralized Redundant Constraint Reduction To begin with, we give the following formal definition.
+
+Definition 4.2 (Redundant second-order cone constraint). Consider the system with n variables and m secondorder cone constraints
+
+$$
+\left| \left| A _ {i} x + b _ {i} \right| \right| _ {2} \leq c _ {i} ^ {T} x + d _ {i}, i \in \{1, \dots , m \},\tag{15}
+$$
+
+where $A _ { i } \in \mathbb { R } ^ { n _ { i } \times n } , b _ { i } \in \mathbb { R } ^ { n _ { i } } , x \in \mathbb { R } ^ { n }$ , and $d _ { i } \in \mathbb { R }$ . The feasible region S associated with the system is defined as
+
+$$
+S \triangleq \{x \in \mathbb {R} ^ {n} | | A _ {i} x + b _ {i} | | _ {2} \leq c _ {i} ^ {T} x + d _ {i}, i \in \{1, \dots , m \} \}.\tag{16}
+$$
+
+Moreover, for any fixed $k \in \{ 1 , \ldots , m \}$ , define the feasible region by
+
+$$
+S _ {k} \triangleq \{x \in \mathbb {R} ^ {n} | | | A _ {i} x + b _ {i} | | _ {2} \leq c _ {i} ^ {T} x + d _ {i}, i \in \{1, \dots , m \} \backslash k \}.\tag{17}
+$$
+
+Then, the kth constraint $\lvert | A _ { k } x + b _ { k } \rvert | _ { 2 } \leq c _ { k } ^ { T } x + d _ { k } ( 1 \leq k \leq$ mÞ is a redundant constraint if and only $i f S _ { k } = S$
+
+Essentially, the redundant second-order cone constraints are those constraints that can be safely removed without affecting the feasible region of the SOCP problem. As there is no algorithm available for redundant second-order cone constraint identification and reduction, we propose the first scheme to address this problem. In particular, this method consists of three steps: (1) It identifies and eliminates those trivial constraints that can be always satisfied even al $x _ { i } \mathbf { s }$ set to be 1; (2) it compares each pair of constraints, and removes the constraint that has both the coefficients of $\overline { { P } } _ { i z }$ and $\widetilde { \sigma } _ { P , i z }$ being less than that of the other constraint, respectively, for each optimization variable $x _ { i } \ ( i = 1 , \ldots , n )$ . The reason is that as long as the latter constraint is satisfied, the former one must also be satisfied, which indicates its redundancy; (3) it performs the so-called SOCP optimization based constraint reduction method for each pair of constraints. In particular, this method picks the constraints one by one; and for each constraint, it takes the formula at the left-hand side (L.H.S.) of the constraint as the optimization function and uses the other constraints to compute an optimal solution. If the solution is no more than the constant at the right-hand side (R.H.S.) of the considered constraint, which means the constraint will always be satisfied in the presence of the other constraints, then the constraint is redundant and can be removed; otherwise cannot. In our problem, suppose the kth constraint is chosen, and the optimization program is shown as below:
+
+$$
+\begin{array}{c} \max _ {x _ {i}} \sum_ {i = 1} ^ {n} \widetilde {\overline {{P}}} _ {i k} x _ {i} + \Phi^ {- 1} (\eta) \sqrt {\sum_ {i = 1} ^ {n} \widetilde {\sigma} _ {P , i k} ^ {2} x _ {i} ^ {2}} \\ s. t. \sum_ {i = 1} ^ {n} \widetilde {\overline {{P}}} _ {i z} x _ {i} + \Phi^ {- 1} (\eta) \sqrt {\sum_ {i = 1} ^ {n} \widetilde {\sigma} _ {P , i z} ^ {2} x _ {i} ^ {2}} \leq \frac {R _ {t}}{c _ {e}}, \\ (z = 1, \ldots , Z; z \neq k) \\ 0 \leq x _ {i} \leq 1, (i = 1, \ldots , n). \end{array}\tag{18}
+$$
+
+The above formulation is hard to deal with, so we introduce an assist variable y and rewrite the formulation as
+
+$$
+\begin{array}{c} \max _ {x _ {i}} \sum_ {i = 1} ^ {n} \widetilde {\overline {{P}}} _ {i k} x _ {i} + y \\ s. t. \sum_ {i = 1} ^ {n} \widetilde {\overline {{P}}} _ {i z} x _ {i} + \Phi^ {- 1} (\eta) \sqrt {\sum_ {i = 1} ^ {n} \widetilde {\sigma} _ {P , i z} ^ {2} x _ {i} ^ {2}} \leq \frac {R _ {t}}{c _ {e}}, \\ (z = 1, \ldots , Z; z \neq k) \\ \Phi^ {- 1} (\eta) \sqrt {\sum_ {i = 1} ^ {n} \widetilde {\sigma} _ {P , i k} ^ {2} x _ {i} ^ {2}} - y = 0, \\ 0 \leq x _ {i} \leq 1, (i = 1, \ldots , n). \end{array}\tag{19}
+$$
+
+In fact, this formulation is slightly different with the traditional expression of SOCP [14] because it has equality constraints. Nevertheless, we can equivalently transform each second-order constraint to a quadratic one, and then use KKT conditions [14] to compute an optimal solution. We omit the details to save space. After obtaining the optimal solution, we check whether it exceeds $\frac { R _ { t } } { c _ { e } }$ . If not, we identify the constraint as a redundant one and remove it. Moreover, we note that the redundant second-order cone constraint reduction algorithm is essentially a pruning algorithm, and it does not reduce the theoretical time complexity of the whole centralized algorithm for ROSE.
+
+For simplicity, we still use P3 to express the problem after the redundant constraint reduction if no confusion arises. In addition, we emphasize that as the redundant constraint reduction method is only performed once after the deployment of chargers, its computational cost can be amortized over time and thus can be neglected.
+
+## 4.4 Theoretical Analysis
+
+Theorem 4.1. Setting the approximation error thresholds $f o r$ EMR expectation and standard deviation as $\epsilon _ { 1 } = \epsilon _ { 2 } = \epsilon ,$ the centralized algorithm for ROSE achieves $( 1 - \epsilon )$ -approximation ratio, and its time complexity is $O ( n ^ { 5 } \epsilon ^ { - 3 } )$
+
+Proof. We analyze the time complexity of the algorithm. By Lemma 4.2, the number of subareas $Z$ after the area discretization is given by $Z = O ( n ^ { 2 } \epsilon ^ { - 2 } )$ given that $\epsilon _ { 1 } =$ $\epsilon _ { 2 } = \epsilon .$ Thus, the number of constraints in P3 is $Z =$ $O ( n ^ { 2 } \epsilon ^ { - 2 } )$ . Moreover, the number of decision variables $x _ { i } \mathbf { s }$ in P3 is exactly equal to the number of wireless chargers n. By the classical results in [48], an SOCP can be solved efficiently using interior-point algorithms in $O ( \sqrt { Z _ { 0 } } )$ iterations, each of which has complexity of $O ( n _ { 0 } ^ { 2 } \cdot Z _ { 0 } )$ , where $Z _ { 0 }$ and $n _ { 0 }$ are the number of constraints and the number of decision variables, respectively, in the SOCP. Therefore, the whole time complexity of the centralized algorithm is $O ( n _ { 0 } ^ { 2 } Z _ { 0 } ^ { 3 / 2 } ) = O ( n ^ { 2 } \bar { ( n ^ { 2 } \epsilon ^ { - 2 } ) } ^ { 3 / 2 } ) = O ( n ^ { 5 } \epsilon ^ { - 3 } )$ tu
+
+## 5 ð1 - -Þ-APPROXIMATION FULLY DISTRIBUTED ALGORITHM
+
+In this section, we develop a ð1 - -Þ-approximation algorithm for ROSE. The motivation of presenting a distributed algorithm is to address the scalability issue by guaranteeing that no matter how large the network is, wireless chargers that are delegated to perform computation tasks can always keep their overhead at a constant level. First, we make the area discretization algorithm in the centralized algorithm distributed. Second, we propose the first distributed redundant second-order cone constraint reduction algorithm to remove redundant constraints. Third, we present a distributed algorithm to address SOCP. To the best of our knowledge, it is the first fully distributed algorithm for SOCP that is scalable with network size.
+
+## 5.1 Distributed EMR Approximation, Area Discretization, and Redundant Constraint Reduction
+
+At the very beginning, we assume that each charger already knows the parameters regarding probabilistic charging model, EMR model, and approximation error threshold, which can be either hard-coded in the charger’s program or dynamically updated via infrequent network-wide broadcast by a sink node to cater to changing EMR safety or accuracy demands. Then, each charger can conduct the EMR approximation procedure independent of each other. Further, let neighbor set $\mathbf { N } ( s _ { i } )$ be the set of chargers having non-empty intersected coverage area with $s _ { i }$ . Apparently, each charger can communicate with the chargers in its neighbor set for their position information to implement area discretization. Next, as there are no prior works regarding distributed redundant second-order cone constraint reduction, we develop the first algorithm to address this problem. We only sketch the algorithm due to space limit. A charger running this algorithm first locally removes trivial constraints by using the centralized redundant second-order cone constraint reduction algorithm. Then, it exchanges the obtained constraints with neighbors in two hops, picks out the constraints that involve itself, and then performs the centralized redundant second-order cone constraint reduction algorithm one more time. We can prove that this algorithm achieves the same performance as that of its centralized version.
+
+<div class="mineru-algorithm" style="white-space: pre-wrap; font-family:monospace;">
+Algorithm 1. Distributed Algorithm for ROSE at Charger $s_i$
+
+Input: Charger set $S$, device set $O$, EMR threshold $R_t$, confidence $\eta$, and error threshold $\epsilon$
+
+Output: Adjusting factor $x_i$
+
+1 Apply distributed area discretization technique based on the collected information from neighbor set $\mathbf{N}(s_i)$ with approximation error thresholds for EMR expectation and standard deviation of $\epsilon/2$, and then compute the approximated expectation $\widetilde{P}_{kz}$ and standard deviation $\widetilde{\sigma}_{P,kz}$ in each subarea $\mathcal{A}_z$ for each charger $s_k \in s_i \cup \mathbf{N}(s_i)$;;
+
+2 Apply distributed redundant second-order cone constraint reduction algorithm to remove redundant constraints;
+
+3 Set $M = \left[\frac{1 + \sqrt{1 - \epsilon/2}}{\epsilon/2}\right]$;
+
+4 Identify itself as a member of a certain cell based on its stored geographical information;
+
+5 Take part in electing a cell head in its cell;
+
+6 if $s_i$ itself is a cell head then
+
+7 Participate in electing the cluster heads for all $(M-1)$-Clusters for different turn-off policies that is related to itself;
+
+8 for All $(M-1)$-Clusters for all turn-off policies that are related to it then
+
+9 if $s_i$ itself is a cluster head then
+
+10 Collect all related information from all cell heads in the $(M-1) - Cluster$;
+
+11 Use the traditional SOCP algorithm to compute a solution;
+
+12 Send the solution to all the cell heads;
+
+13 else
+
+14 Send related information to its corresponding cluster head, and receive the adjusting factors for the chargers in its cell from the cluster head;
+
+15 Send the corresponding adjusting factors to all chargers located in its cell;
+
+16 else
+
+17 Send related information to its cell head, and receive $M \times M$ adjusting factors from the cell head;
+
+18 Compute the average value of the obtained $M \times M$ adjusting factors as the final solution.
+</div>
+
+## 5.2 Distributed SOCP Algorithm
+
+We propose a distributed algorithm to address SOCP in this subsection. The key intuitions of the algorithm are as follows. First, to decompose the problem into multipl minor ones that can be locally addressed, we propose a new area partition scheme to partition the whole area into many smaller subareas. Especially, we preserve “blank strips” between the subareas by switching off the chargers in these strips so that the impact of charging power together with EMR from chargers in neighboring subareas can be eliminated. By this means, we can safely consider each subarea independently of others. Second, to avoid unexpected performance loss caused by adopting a specific area partition strategy and thus bound the overall performance, we enumerate all area partition strategies to forge a solution that is globally feasible and has performance guarantee. The whole distributed framework needs only oneround information gathering and one-round dissemination that involves chargers within a certain constant distance.
+
+![](images/3c2d4dfb3df3695b74b10c057f3e992655bf52a0ee5bf768a13c4acee776b907.jpg)  
+Fig. 6. (a) M-Clusters; (b) ðM - 1Þ-Clusters for < 2; 2 > ; (c) ðM - 1Þ-Clusters for < 3; 3 > .
+
+Algorithm 1 shows the details of the whole distributed algorithm running at each charger $s _ { i } .$ . After initialization, Algorithm 1 first partitions the whole area into multiple uniform grid cells with side length of 2D where D is the charging radius of wireless chargers, and further groups these cells into larger squares called M-Clusters, each of which contains $M \times M$ cells where $\begin{array} { r } { M = \left\lceil \frac { 1 + \sqrt { 1 - \epsilon / 2 } } { \epsilon / 2 } \right\rceil } \end{array}$ . This process can be implemented locally at each charger $s _ { i }$ based on its geographical location. Further, each charger participates in electing a cell head for its associated cell through methods such as voting. Fig. 6a shows an instance for which the area is partitioned into 64 cells which in turn form 4 M-Clusters. Note that black dots denote normal chargers while blue triangles denote cell heads. Second, the algorithm further partitions the area using a so-called turn-off policy, which is formally defined as a tuple of $< p , q > . \mathrm { A l l }$ M-Clusters that adopt a turn-off policy $< p , q >$ will turn off all the chargers located in the cells that lie in their pth row and qth column, and thereby, the cells with active chargers are regrouped into new clusters with scale of no more than $( \bar { M } - \bar { 1 ) } \times ( M - 1 )$ cells, which we call ðM - 1Þ-Clusters. Next, cell heads in a ðM - 1Þ-Cluster interacts with each other to elect a cluster head which is responsible for the computing task for the whole cluster as well as information collection and dissemination.
+
+Figs. 6b and 6c show the obtained 9 ðM - 1Þ-Clusters after carrying out turn-off policies $< 2 , 2 > \mathrm { a n d } < 3 , 3 >$ respectively, and in the figures red stars indicate cluster heads while directed dashed arrows indicate information flows with directions. Third, the algorithm enumerates all possible $M \times M$ different turn-off policies and accordingly obtains $M ^ { 2 }$ adjusting factors for each charger. Then, each charger computes the average value of these adjusting factors as the final solution.
+
+It is clear that each charger needs only information from chargers within a distance of no more than $2 { \sqrt { 2 } } \cdot M \cdot 2 D =$ $\begin{array} { r } { 4 \sqrt { 2 } \left\lceil \frac { 1 + \sqrt { 1 - \epsilon / 2 } } { \epsilon / 2 } \right\rceil D } \end{array}$ to compute solutions for all $M ^ { 2 }$ turn-off policies along with the final solution. Besides, though there have emerged a few distributed algorithms for SOCP, most of them are based on dual decomposition such as [49], and have no performance guarantee after a fixed number of iterations or do not scalable with network size under a given performance requirement. In contrast, our proposed algorithm has performance guarantee with a few constant steps, and is scalable with network size because each wireless charger always keep its overhead at a constant level.
+
+## 5.3 Performance Analysis
+
+Theorem 5.1. The output of Algorithm 1 for ROSE is a feasible solution to P3. Moreover, Algorithm 1 achieves ð1 - -Þ-approximation ratio in terms of the overall expected charging utility, and its communication complexity is $O ( \epsilon ^ { - 1 } )$ Þ.
+
+Proof. Suppose the obtained adjusting factor for charger $s _ { i }$ by our distributed algorithm is $x _ { i } ,$ , and the optimal adjusting factors for $s _ { i }$ for problem P3 or P2 (or P1) is $x _ { i } ^ { * } ;$ and the overall charging utilities corresponding to the three solutions are $\boldsymbol { { u } } , ~ \boldsymbol { { \widetilde U } } ^ { * }$ , and $\mathcal { U } ^ { * }$ , respectively. Suppose the computed adjusting factor for $s _ { i }$ for the turn-off strategy $< \dot { p _ { \ i } } q > \mathrm { i s } \dot { x _ { i } ^ { < } } { } ^ { p , q > }$ , and its corresponding charging utility is $\chi ^ { < p , q > }$ . We first prove the feasibility of the obtained solution x $( x _ { i } = \frac { \sum _ { p = 1 } ^ { M } \sum _ { q = 1 } ^ { M } x _ { i } ^ { < p , q > } } { M ^ { 2 } } )$ ). Clearly, we have
+
+$$
+\left\{ \begin{array}{l} \sum_ {i = 1} ^ {n} \widetilde {\overline {{P}}} _ {i z} x _ {i} ^ {<   1, 1 >} + \Phi^ {- 1} (\eta) \sqrt {\sum_ {i = 1} ^ {n} \widetilde {\sigma} _ {P , i z} ^ {2} (x _ {i} ^ {<   1 , 1 >}) ^ {2}} \leq \frac {R _ {t}}{c _ {e}}, \\ \dots \dots \\ \sum_ {i = 1} ^ {n} \widetilde {\overline {{P}}} _ {i z} x _ {i} ^ {<   M, M >} + \Phi^ {- 1} (\eta) \sqrt {\sum_ {i = 1} ^ {n} \widetilde {\sigma} _ {P , i z} ^ {2} (x _ {i} ^ {<   M , M >}) ^ {2}} \leq \frac {R _ {t}}{c _ {e}}, \end{array} \right.
+$$
+
+where $z = 1 , \dots , Z .$ . By summing up L.H.S. and R.H.S. of the $M ^ { 2 }$ inequalities and dividing both of them by $M ^ { 2 }$ and plugging in $x _ { i } = \frac { \sum _ { p = 1 } ^ { M } \sum _ { q = 1 } ^ { M } x _ { i } ^ { < p , q > } } { M ^ { 2 } }$ , we have
+
+$$
+\sum_ {i = 1} ^ {n} \widetilde {\overline {{P}}} _ {i z} x _ {i} + \frac {1}{M ^ {2}} \sum_ {p = 1} ^ {M} \sum_ {q = 1} ^ {M} \Phi^ {- 1} (\eta) \sqrt {\sum_ {i = 1} ^ {n} \widetilde {\sigma} _ {P , i z} ^ {2} (x _ {i} ^ {<   p , q >}) ^ {2}} \leq \frac {R _ {t}}{c _ {e}},\tag{20}
+$$
+
+$$
+z = 1, \dots , Z.
+$$
+
+z Further, as per Minkowskis Inequality [50], for any u $\mathbf { \Delta } , \mathbf { v } \in \mathbb { R } ^ { n }$ and $p \in [ 1 , + \infty )$ Þ, it holds that $\left\| \mathbf { u } + \mathbf { v } \right\| _ { p } \leq$ $\left\| \mathbf { u } \right\| _ { p } + \left\| \mathbf { v } \right\| _ { p }$ . Here $\| . \| _ { p }$ indicates the $\ell _ { p } { - } n o r m$ . Therefore, we have
+
+$$
+\begin{array}{l} \sqrt {\sum_ {i = 1} ^ {n} \widetilde {\sigma} _ {P , i z} ^ {2} x _ {i} ^ {2}} = \sqrt {\sum_ {i = 1} ^ {n} \widetilde {\sigma} _ {P , i z} ^ {2} \left(\frac {1}{M ^ {2}} \sum_ {p = 1} ^ {M} \sum_ {q = 1} ^ {M} x _ {i} ^ {<   p , q >}\right) ^ {2}} \\ = \sqrt {\sum_ {i = 1} ^ {n} \left(\sum_ {p = 1} ^ {M} \sum_ {q = 1} ^ {M} \frac {\widetilde {\sigma} _ {P , i z} x _ {i} ^ {<   p , q >}}{M ^ {2}}\right) ^ {2}} \\ = \left\| \sum_ {p = 1} ^ {M} \sum_ {q = 1} ^ {M} \left(\frac {\widetilde {\sigma} _ {P , 1 z} x _ {1} ^ {<   p , q >}}{M ^ {2}}, \ldots , \frac {\widetilde {\sigma} _ {P , n z} x _ {n} ^ {<   p , q >}}{M ^ {2}}\right) \right\| _ {2} \\ \leq \sum_ {p = 1} ^ {M} \sum_ {q = 1} ^ {M} \left\| \left(\frac {\widetilde {\sigma} _ {P , 1 z} x _ {1} ^ {<   p , q >}}{M ^ {2}}, \ldots , \frac {\widetilde {\sigma} _ {P , n z} x _ {n} ^ {<   p , q >}}{M ^ {2}}\right) \right\| _ {2} \\ = \sum_ {p = 1} ^ {M} \sum_ {q = 1} ^ {M} \sqrt {\sum_ {i = 1} ^ {n} \left(\frac {\widetilde {\sigma} _ {P , i z} x _ {i} ^ {<   p , q >}}{M ^ {2}}\right) ^ {2}} \\ = \frac {1}{M ^ {2}} \sum_ {p = 1} ^ {M} \sum_ {q = 1} ^ {M} \sqrt {\sum_ {i = 1} ^ {n} \widetilde {\sigma} _ {P , i z} ^ {2} (x _ {i} ^ {<   p , q >}) ^ {2}}. \end{array}\tag{21}
+$$
+
+Note that the inequality at the fourth step in the above derivation is obtained by iteratively applying Minkowskis Inequality. By combining Equations (20) and (21), we obtain
+
+$$
+\begin{array}{l} \sum_ {i = 1} ^ {n} \widetilde {\overline {{P}}} _ {i z} x _ {i} + \Phi^ {- 1} (\eta) \sqrt {\sum_ {i = 1} ^ {n} \widetilde {\sigma} _ {P , i z} ^ {2} x _ {i} ^ {2}} \\ \leq \sum_ {i = 1} ^ {n} \widetilde {\overline {{P}}} _ {i z} x _ {i} + \frac {1}{M ^ {2}} \sum_ {p = 1} ^ {M} \sum_ {q = 1} ^ {M} \Phi^ {- 1} (\eta) \sqrt {\sum_ {i = 1} ^ {n} \widetilde {\sigma} _ {P , i z} ^ {2} (x _ {i} ^ {<   p , q >}) ^ {2}} \\ \leq \frac {R _ {t}}{c _ {e}}, \end{array}\tag{22}
+$$
+
+where $z = 1 , \dots , Z$ . This indicates that $x _ { i } \mathbf { s }$ is a feasible solution to problem P3, as well as P2 as per Lemma 4.3.
+
+Next, assume we obtain in total K M-Clusters. Suppose the aggregated charging utility for the chargers in the cell lies in the ith row and jth column in the kth M-Cluster in the optimal solution to P3 is $u _ { i j k }$ . Moreover, suppose the aggregated charging utility included in the optimal charging utility to P3 achieved by the chargers that are switched on (switched off) for the policy $<$ $p , q > \mathrm { i s } \widetilde { \mathcal { U } } ^ { * < p , q > } ( \overline { { \widetilde { \mathcal { U } } } } ^ { * < p , q > } )$ ). Evidently, we have
+
+$$
+\overline {{\widetilde {\mathcal {U}}}} ^ {* <   p, q >} = \sum_ {k = 1} ^ {K} \left(\sum_ {i = p} ^ {M} \sum_ {j = 1} ^ {M} u _ {i j k} + \sum_ {i = 1} ^ {M} \sum_ {j = q} ^ {M} u _ {i j k} - u _ {p q k}\right).\tag{23}
+$$
+
+Further, as $\chi { < p , q > }$ is optimal under the settings of the turn-off policy $< p , q >$ , then we have
+
+$$
+\mathcal {U} ^ {<   p, q >} \geq \widetilde {\mathcal {U}} ^ {* <   p, q >}.\tag{24}
+$$
+
+A $\tilde { \chi } ^ { \ast < p , q > } + \overline { { \widetilde { \mathcal { U } } } } ^ { \ast < p , q > } = \widetilde { \mathcal { U } } ^ { \ast }$ , we then obtain
+
+$$
+\mathcal {U} ^ {<   p, q >} + \overline {{\widetilde {\mathcal {U}}}} ^ {* <   p, q >} \geq \widetilde {\mathcal {U}} ^ {*}.\tag{25}
+$$
+
+By enumerating all $M ^ { 2 }$ turn-off policies, we have
+
+$$
+\sum_ {p = 1} ^ {M} \sum_ {q = 1} ^ {M} \mathcal {U} ^ {<   p, q >} + \sum_ {p = 1} ^ {M} \sum_ {q = 1} ^ {M} \overline {{\widetilde {\mathcal {U}}}} ^ {* <   p, q >} \geq M ^ {2} \widetilde {\mathcal {U}} ^ {*}.\tag{26}
+$$
+
+Besides, it is clear that
+
+$$
+\begin{array}{l} \sum_ {p = 1} ^ {M} \sum_ {q = 1} ^ {M} \overline {{\widetilde {\mathcal {U}}}} ^ {* <   p, q >} \\ = \sum_ {p = 1} ^ {M} \sum_ {q = 1} ^ {M} \left(\sum_ {k = 1} ^ {K} \left(\sum_ {i = p} ^ {M} \sum_ {j = 1} ^ {M} u _ {i j k} + \sum_ {i = 1} ^ {M} \sum_ {j = q} ^ {M} u _ {i j k} - u _ {p q k}\right)\right) \\ = \sum_ {q = 1} ^ {M} \left(\sum_ {k = 1} ^ {K} \sum_ {i = 1} ^ {M} \sum_ {j = 1} ^ {M} u _ {i j k}\right) + \sum_ {p = 1} ^ {M} \left(\sum_ {k = 1} ^ {K} \sum_ {i = 1} ^ {M} \sum_ {j = 1} ^ {M} u _ {i j k}\right) \\ - \sum_ {p = 1} ^ {M} \sum_ {q = 1} ^ {M} \sum_ {k = 1} ^ {K} u _ {p q k} = (2 M - 1) \sum_ {k = 1} ^ {K} \sum_ {i = 1} ^ {M} \sum_ {j = 1} ^ {M} u _ {i j k} = (2 M - 1) \widetilde {\mathcal {U}} ^ {*}. \end{array}\tag{27}
+$$
+
+By combining Equations (26) and (27), we obtain
+
+$$
+\frac {\sum_ {p = 1} ^ {M} \sum_ {q = 1} ^ {M} \mathcal {U} ^ {<   p , q >}}{M ^ {2}} \geq (1 - \frac {2 M - 1}{M ^ {2}}) \widetilde {\mathcal {U}} ^ {*}.\tag{28}
+$$
+
+Therefore, the achieved utility of our solution U satisfies
+
+$$
+\begin{array}{l}\mathcal {U} = c _ {u} \sum_ {i = 1} ^ {n} \sum_ {j = 1} ^ {m} \overline {{P}} (d (s _ {i}, o _ {j})) x _ {i}\\\qquad = c _ {u} \sum_ {i = 1} ^ {n} \sum_ {j = 1} ^ {m} \overline {{P}} (d (s _ {i}, o _ {j})) \frac {\sum_ {p = 1} ^ {M} \sum_ {q = 1} ^ {M} x _ {i} ^ {<   p , q >}}{M ^ {2}}\\\qquad = \frac {\sum_ {p = 1} ^ {M} \sum_ {q = 1} ^ {M} c _ {u} \sum_ {i = 1} ^ {n} (\sum_ {j = 1} ^ {m} P (d (s _ {i} , o _ {j}))) x _ {i} ^ {<   p , q >}}{M ^ {2}}\\\qquad = \frac {\sum_ {p = 1} ^ {M} \sum_ {q = 1} ^ {M} \mathcal {U} ^ {<   p , q >}}{M ^ {2}} \geq (1 - \frac {2 M - 1}{M ^ {2}}) \widetilde {\mathcal {U}} ^ {*}\\\qquad = (1 - \epsilon / 2) \widetilde {\mathcal {U}} ^ {*}. \qquad (\because M = \left\lceil \frac {1 + \sqrt {1 - \epsilon / 2}}{\epsilon / 2} \right\rceil).\end{array}\tag{29}
+$$
+
+Further, we consider the optimal solution $\boldsymbol { x } _ { i } ^ { * }$ to problem P2, apparently it satisfies
+
+$$
+\begin{array}{l} \sum_ {i = 1} ^ {n} \overline {{P}} (d (s _ {i}, p)) x _ {i} ^ {*} + \Phi^ {- 1} (\eta) \sqrt {\sum_ {i = 1} ^ {n} \sigma_ {P} ^ {2} (d (s _ {i} , p)) (x _ {i} ^ {*}) ^ {2}} \\ \leq \frac {R _ {t}}{c _ {e}}, \\ \forall p \in \mathbb {R} ^ {2}, 0 \leq x _ {i} \leq 1 (i = 1, \ldots , n). \end{array}\tag{30}
+$$
+
+Consider an arbitrary point p which lies in the zth subarea. Further, as per Lemma 4.1, when we set both the approximation error thresholds for EMR expectation and standard deviation, $\mathrm { i . e . , ~ } \epsilon _ { 1 }$ and $\epsilon _ { 2 } ,$ , as $\epsilon / 2$ , we have $\begin{array} { r } { \frac { \overline { { e } } ( d ) } { \overline { { e } } ( d ) } = \frac { \overline { { P } } _ { i z } } { \overline { { P } } ( d ( s _ { i } , p ) ) } \leq } \end{array}$ $1 + \epsilon / 2$ and $\begin{array} { r } { \frac { \widetilde { \sigma _ { e } } ( d ) } { \sigma _ { e } ( d ) } = \frac { \sigma _ { P , i z } } { \sigma _ { P } ( d ( s _ { i } , p ) ) } \le 1 + \epsilon / 2 . } \end{array}$ , and therefore
+
+$$
+\begin{array}{l} \sum_ {i = 1} ^ {n} \widetilde {\overline {{P}}} _ {i z} \bigg (\frac {x _ {i} ^ {*}}{1 + \epsilon / 2} \bigg) + \Phi^ {- 1} (\eta) \sqrt {\sum_ {i = 1} ^ {n} \widetilde {\sigma} _ {P , i z} ^ {2} \bigg (\frac {x _ {i} ^ {*}}{1 + \epsilon / 2} \bigg) ^ {2}} \\ = \sum_ {i = 1} ^ {n} \bigg (\frac {\widetilde {\overline {{P}}} _ {i z}}{1 + \epsilon / 2} \bigg) x _ {i} ^ {*} + \Phi^ {- 1} (\eta) \sqrt {\sum_ {i = 1} ^ {n} \bigg (\frac {\widetilde {\sigma} _ {P , i z}}{1 + \epsilon / 2} \bigg) ^ {2} (x _ {i} ^ {*}) ^ {2}} \\ \leq \sum_ {i = 1} ^ {n} \overline {{P}} (d (s _ {i}, p)) x _ {i} ^ {*} + \Phi^ {- 1} (\eta) \sqrt {\sum_ {i = 1} ^ {n} \sigma_ {P} ^ {2} (d (s _ {i} , p)) (x _ {i} ^ {*}) ^ {2}} \\ \leq \frac {R _ {t}}{c _ {e}}, \end{array}\tag{31}
+$$
+
+which implies $\frac { x _ { i } ^ { * } } { 1 + \epsilon / 2 }$ is a feasible solution to the problem P3. As $\widetilde { \mathcal { U } } ^ { * }$ is the optimal solution to P3, we thus have
+
+$$
+\begin{array}{l} \widetilde {\mathcal {U}} ^ {*} \geq c _ {u} \sum_ {i = 1} ^ {n} \sum_ {j = 1} ^ {m} \overline {{P}} (d (s _ {i}, o _ {j})) \frac {x _ {i} ^ {*}}{1 + \epsilon / 2} \\ \quad \geq \frac {1}{1 + \epsilon / 2} c _ {u} \sum_ {i = 1} ^ {n} \sum_ {j = 1} ^ {m} \overline {{P}} (d (s _ {i}, o _ {j})) x _ {i} ^ {*} \\ \quad \geq \frac {1}{1 + \epsilon / 2} \mathcal {U} ^ {*} \geq (1 - \epsilon / 2) \mathcal {U} ^ {*}. \end{array}
+$$
+
+Combining Equations (29) and (32), we have
+
+$$
+\mathcal {U} \geq (1 - \epsilon / 2) \cdot (1 - \epsilon / 2) \mathcal {U} ^ {*} \geq (1 - \epsilon) \mathcal {U} ^ {*}.\tag{32}
+$$
+
+It indicates that our algorithm achieves ð1 - -Þ-approximation ratio.
+
+Further, each charger needs only information from chargers with a distance of no more than $\scriptstyle 4 { \sqrt { 2 } } \lceil { \frac { 1 + { \sqrt { 1 - \epsilon / 2 } } } { \epsilon / 2 } } \rceil D =$ $O ( \epsilon ^ { - 1 } )$ . Then, each charger can use an delay efficient algorithm, such as that in [51], to build a data aggregation tree which is rooted at itself and connects all other related chargers. The aggregation delay of the algorithm in [51], for example, is at most $1 6 R + \Delta - 1 4 ,$ where R is the network radius and $\Delta$ is the maximum node degree in the graph. As $\Delta$ is typically bounded because the charger density is bounded in real applications, and can be regarded as a constant, the communication complexity is thus $1 6 R + \Delta - 1 4 =$ $O ( 1 6 \cdot \epsilon ^ { - 1 } ) = O ( \epsilon ^ { - 1 } )$ tu
+
+We note that the time complexity of each charger in Algorithm 1 is not analyzed. The reason is that it depends on the number of the charger’s surrounding chargers along with the number of surrounding devices, which can vary from zero to the total numbers of chargers and of devices. Moreover, we can see that in the distributed algorithm, each charger first exchanges its position information with neighboring chargers for area discretization, and then exchanges its obtained constraints with neighbors in two hops for redundant constraint reduction. Further, for each policy $< p , q >$ , each charger in a cluster sends its ID and position, IDs of covered devices and their positions, extracted constraints, related cell head ID to its cell head, which forwards the information to its cluster head. The cluster head computes the adjusting factors for the policy $< p , q >$ , and disseminates the factors together with their associated device IDs and related cell IDs to cell heads, which then forward the information to all other chargers in this cluster.
+
+Discussion. Here we discuss practical issues when using our proposed centralized and distributed ROSE algorithms in practice. First, the two algorithms can run periodically, rather than continuously, to save energy. They can be triggered by new charging requests raised by devices. Second, in this paper we assume that charging utility of each device increases proportionally with its received charging power. This assumption captures the fact that devices can always fully utilized their harvested power to enhance working performance, such as some rechargeable sensor nodes can accordingly adjust their sampling rates for sensing based on their harvested power. In this case, wireless chargers can never be turned off because sensor nodes will never be fully charged. Further, even if each device has an upper bound for its required charging power and a nonlinear charging utility model is used as we will discuss in Section $8 ,$ wireless chargers also cannot be turned off because there is at least one device does not reach or just reaches its upper bound for required charging power due to the property of our proposed algorithms. Nevertheless, some devices are overly charged in this scenario, and they can stop harvesting power periodically.
+
+![](images/c723edd8e849e84d9cf9e5bbcfbe1101d366bba251dad2bf4db1d9dcf20e6276.jpg)  
+Fig. 7. n versus charging utility.
+
+## 6 SIMULATION RESULTS
+
+In this section, we perform simulations to verify the performance of our proposed centralized and distributed algorithms for ROSE.
+
+## 6.1 Evaluation and Baseline Setup
+
+The considered field is a 200 m 	 200 m square area. We set $\alpha _ { 1 } = 1 5 , ~ \beta _ { 1 } = 3 0 , ~ D = 1 3 m , ~ n = 3 0 , ~ \epsilon = 0 . 1 5 , ~ R _ { t } = 8 0 , ~ \eta =$ $0 . 6 , c _ { e } = 1 0 0 0 , c _ { u } = 1 , \alpha _ { 2 } = 3 0 , \beta _ { 2 } = 1 5 ,$ , and $m = 1 0 0 0 ,$ respectively. Note that here - denotes both of the approximation error thresholds for EMR expectation and standard deviation as well as the error threshold for the distributed algorithms in this paper, and is set to the same value of 0.15. Each data point in figures indicates an average result of 100 random topologies, which are generated based on uniform distribution. We develop four algorithms for comparison as there are no existing approaches for ROSE. The first algorithm is Optimal, which approximates the optimal algorithm using our centralized ROSE algorithm with $\epsilon = 0 . 0 5 .$ The second is Set-Cover that borrows the idea of the traditional set-cover algorithm. Each time it greedily picks a charger that can be turned up to achieve the largest charging utility increment. The third (fourth) is 1=3 Approximation (1=4 Approximation) that divides the whole area into uniform hexagons (squares) with side length of 2D and elects a cell head in each individual hexagon (square) to run the centralized ROSE algorithm to obtain a solution and cut down it to $1 / 3 \ : ( 1 / 4 )$ to guarantee a global feasible solution.
+
+## 6.2 Performance Comparison
+
+## 6.2.1 Impact of Charger Number n
+
+Our simulation results show that on average, Centralized ROSE outperforms Set-Cover, 1=3 Approximation, and 1=4 Approximation by 35.18, 150.14, and 238.01 percent, respectively, in terms of $n .$ . Fig. 7 shows that basically the overall charging utilities of all the algorithms increase with $n ,$ but their increasing trends slow down with n.
+
+![](images/fdc021d42e5b9cfa50d86115dac23aa8cae089fe00939f5d4b1ea63f98b35e69.jpg)  
+Fig. 8. m versus charging utility.
+
+Set-Cover algorithm demonstrates a slight fluctuation because of its heuristic charger selection strategy. The performance gap between Centralized ROSE and Optimal is as low as 2.28 percent. Moreover, 1=3 Approximation and $1 / 4$ Approximation have the worst performance due to their conservative cutting-down operation on the obtained solution. Next, we have also verified the feasibility of the results for all the six algorithms. Specifically, we randomly generated EMR value according to the probabilistic charging model at square grid points in the field with side length of grids being 0:1 m. Then, we checked the hth quantile value of the obtained EMR values at each point, and found that none of them exceeds the EMR threshold $R _ { t } ,$ which suggests the correctness of all the six algorithms.
+
+## 6.2.2 Impact of Device Number m
+
+Our simulation results show that on average, Centralized ROSE outperforms Set-Cover, 1=3 Approximation, and 1=4 Approximation by 35.2, 191.36, and 265.55 percent, respectively, in terms of m. Fig. 8 shows that when the device number increases from 500 to 4,500, the overall charging utilities of all the algorithms steadily increase and are nearly proportional to $m .$ This is because that the devices are uniformly scattered on the area, and the final obtained adjusting factors for chargers given different device numbers are nearly the same for a certain algorithm. As a result, the overall charging utility is basically determined by the density of devices, and is thus proportional to the device number. Moreover, Distributed ROSE outperforms Set-Cover, 1=3 Approximation, and $1 / 4$ Approximation by 16.15, 150.64, and 214.45 percent, respectively, in terms of m.
+
+## 6.2.3 Impact of EMR Threshold $R _ { t }$
+
+Our simulation results show that on average, Centralized ROSE outperforms Set-Cover, 1=3 Approximation, and 1=4 Approximation by 12.27, 192.28, and 281.86 percent, respectively, in terms of
+
+![](images/7f7b32f29276cd54d155a2b31ce3b726b616b5776d58caa90abd82e6ccfc3757.jpg)  
+Fig. 9. R<sub>t</sub> versus charging utility.
+
+![](images/98ba249cdeaa36ab1aaafe3b3ca96e48c5cd991f1fdbdfd7674b55676839a049.jpg)  
+Fig. 10. - versus charging utility.
+
+$R _ { t } .$ . Fig. 9 shows that the overall utilities for all algorithm grow with $R _ { t } ,$ and become nearly constant when $R _ { t }$ reaches 120. This is because when $R _ { t }$ exceeds 120, the adjusting factor for each charger can be tuned to its maximum value while not violating the EMR safety constraint, which is attained by Optimal, Centralized ROSE, and Set-Cover. In contrast, due to the performance loss caused by area division or cutting-down operation, the other three algorithms achieve less charging utility. Besides, the performance gap between Optimal and Centralized ROSE is only 0.66 percent.
+
+## 6.2.4 Impact of Error Threshold -
+
+Our simulation results show that on average, Centralized ROSE outperforms Set-Cover, 1=3 Approximation, and 1=4 Approximation by 35.94, 188.61, and 258.84 percent, respectively, in terms of -. Fig. 10 shows that the charging utilities of all the algorithms except Optimal gradually degrade with $\epsilon .$ Especially, Distributed ROSE decreases at a faster speed than others due to its adopted area partitioning scheme. The charging utility for both Centralized ROSE and Distributed ROSE is always larger than 1 - - of the optimal value, while that for 1=3 Approximation (1=4 Approximation) is larger than $1 / 3$ $( 1 / 4 )$ of the optimal one, which corroborates our theoretical results. In particular, even for $\epsilon = 0 . 3$ , the performance of Centralized ROSE reaches 96.29 percent of that for Optimal.
+
+## 6.2.5 Impact of Charging Parameter $\scriptstyle \alpha _ { 1 }$
+
+Our simulation results show that on average, Centralized ROSE outperforms Set-Cover, 1=3 Approximation, and 1=4 Approximation by 22.84, 168.7, and 228.96 percent, respectively, in terms of $\alpha _ { 1 }$ . Fig. 11 shows that when $\alpha _ { 1 }$ is smaller than 30, the charging power and EMR from each charger are so small that all the chargers can be tuned to their almost maximal power, the charging utilities of all the algorithms are thus nearly proportional to $\alpha _ { 1 }$ . In contrast, the charging utilities increase at smoother speeds when $\alpha _ { 1 }$ exceeds 50, and are supposed to be bounded due to the existence of the EMR threshold.
+
+![](images/c0ff735d3c2fa079fd79149d34730364ca938fb854c77ddc36379fb90733b6d3.jpg)  
+Fig. 11. $\alpha _ { 1 }$ versus charging utility.  
+Authorized licensed use limited to: Nanjing University. Downloaded on May 07,2022 at 00:41:10 UTC from IEEE Xplore. Restrictions apply.
+
+![](images/c384c55e2da6427cf88670c365e5f3816115801766f672da477dd8691ad535ce.jpg)  
+Fig. 12. $\beta _ { 1 }$ versus charging utility.
+
+## 6.2.6 Impact of Charging Parameter $\beta _ { 1 }$
+
+Our simulation results show that on average, Centralized ROSE outperforms Set-Cover, 1=3 Approximation, and 1=4 Approximation by 48.92, 191.59, and 268.21 percent, respectively, in terms of $\beta _ { 1 }$ . Fig. 12 shows that generally the charging utilities of all the algorithms decrease with $\beta _ { 1 } ,$ and their decreasing trends smoothly slow down with $\beta _ { 1 }$ . This phenomenon is natural because with a large $\beta _ { 1 } ,$ even though the adjusting factors for all the chargers can be tuned to a large value, the charging power will still decrease because it is nearly proportional to the inverse square of $\beta _ { 1 }$
+
+## 6.2.7 Impact of Charging Parameter ${ \bf \dot { \alpha } } ( \alpha _ { 2 }$
+
+Our simulation results show that on average, Centralized ROSE outperforms Set-Cover, 1=3 Approximation, and 1=4 Approximation by 36.16, 168.28, and 232.04 percent, respectively, in terms of $\alpha _ { 2 } .$ . Not surprisingly, Fig. 13 demonstrates that the charging utilities of all the algorithms smoothly decrease with $\alpha _ { 2 } ,$ because large $\alpha _ { 2 }$ indicates large variance of charging power and EMR, which leads to small adjusting factors of chargers in order for a guaranteed confidence. Moreover, Distributed ROSE performs well and is 18.1, 132.62, and 187.87 percent better than Set-Cover, 1=3 Approximation, and 1=4 Approximation, respectively.
+
+## 6.2.8 Impact of Charging Parameter $\beta _ { 2 }$
+
+Our simulation results show that on average, Centralized ROSE outperforms Set-Cover, 1=3 Approximation, and 1=4 Approximation by 34.14, 184.98, and 264.01 percent, respectively, in terms of $\beta _ { 2 }$ . Intuitively, the charging utilities of all the algorithms should increase with $\beta _ { 2 }$ as large $\beta _ { 2 }$ causes less variance of charging power and EMR and thus large adjusting factors of chargers. Fig. 14 well supports this intuition. Moreover, it shows that the charging utility for each algorithm grows at a decreasing rate, and gradually approaches a constant value, which corresponds to the case that the variance of charging power and EMR is negligible.
+
+![](images/c4f0ad12967b861d4441f5e1f1b8716062f3a1ad08d9cbe7cf3ae8b8fa9399c8.jpg)  
+Fig. 13. $\alpha _ { 2 }$ versus charging utility.
+
+![](images/14e5208340c0997c6d67dd791a21f4a59b6593dd42d77713919c0100945e5711.jpg)  
+Fig. 14. $\beta _ { 2 }$ versus charging utility.
+
+## 6.2.9 Impact of Confidence h
+
+Our simulation results show that on average, Centralized ROSE outperforms Set-Cover, 1=3 Approximation, and 1=4 Approxima tion by 31.26, 159.89, and 224.6 percent, respectively, in terms of h. Fig. 15 shows that the charging utility for all the algorithms decreases with $\eta ,$ which makes sense as a more rigorous EMR safety requirement intuitively leads to a more conservative scheduling scheme and thus lower charger utility.
+
+## 6.2.10 Impact of Network Size on Delay
+
+Our simulation results show that on average, the delay of Distrib uted ROSE keeps nearly constant as the network size scales up, and outperforms Optimal, Centralized ROSE, and Set-Cover by 72.55 percent. We fix the charger density to 0.002, and let the communication radius of chargers be twice the charging radius D. Fig. 16 shows that the network delay for Optimal, Centralized ROSE, and Set-Cover increases proportionally to the network size as they require network-wide information communication. Note that here the unit of delay is the average time required for a message transferred by one hop, which depends on the hardware equipment and communication protocol used by rechargeable devices. In contrast, the delays for the other three algorithms keep relatively stable when the network size exceeds 200 as they only need local communication within a subarea with a bounded size. Besides, to make the delay acceptable in reality, we need to use an appropriate value of error threshold - in the distributed algorithm even sacrificing the overall charging utility, and adopt good hardware equipment and communication protocol for devices.
+
+![](images/a6e8a107f39b5c944298f08d9de013790f8238c7dff854a920ecd41582db42f2.jpg)  
+Fig. 15. h versus charging utility.
+
+![](images/506193b97bfaeea3310d5a518269142b74e29112b3ae3d9399c1471787c136ce.jpg)  
+Fig. 16. Delay versus network size.
+
+## 6.3 Insights
+
+In this subsection, we study the impact of charger distribution on the overall charging utility. We uniformly scatter 1000 devices in a 200 m 	 200 m square area, and set $R _ { t } =$ $0 . 0 8 , \epsilon = 0 . 5 ,$ , and $\eta = 0 . 5 1$ . We let the position of all chargers follow a 2D Gaussian distribution with both $x -$ and y- coordinates randomly selected from a Gaussian distribution with $\mu = 1 0 0$ and standard deviation, say $\sigma _ { x }$ and $\sigma _ { y } ,$ from 1 to 30. Fig. 17 shows that basically the charging utility increases with either $\sigma _ { x }$ or $\sigma _ { y } ,$ which indicates that uniformness of chargers’ distribution benefits overall charging utility when the devices are uniformly distributed. That is, when the value of either of the two parameters of 2D Gaussian distribution, i.e., $\sigma _ { x }$ and $\sigma _ { y } ,$ increases, the distribution of chargers becomes more and more uniform (see Fig. 12 in [16] for illustration), and the overall charging utility increases. It is intuitive since with a more uniform distribution, chargers are no longer crowded and thus can tune at higher adjusting factors, and there are generally more devices covered by all chargers.
+
+## 7 FIELD EXPERIMENTS
+
+We conducted field experiments to evaluate the performance of our algorithms. Fig. 18 shows our testbed deployed in a 2:4 m 	 2:4 m square area that consists of eight TX91501 power transmitters and two rechargeable sensor nodes [30], [52], [53], [54], [55], [56], [57] both of which are produced by Powercast [58], an AP for data collection from sensor nodes, and a laptop connecting to the AP for data fetching and analysis (Note that typically a charging system consists of only chargers and rechargeable devices. The laptop here is used for experimental data collection and analysis, but is not necessarily required for charging activity). The eight chargers are deployed at the vertices and middle points of the edges of the square area with orientation angles 26:56<sup></sup>, 116:56<sup></sup>, 153:44<sup></sup>, 26:56<sup></sup>, 206:56<sup></sup>, 333:44<sup></sup>, 243:44<sup></sup>, and $2 0 6 . 5 6 ^ { \circ }$ , respectively. Note that these chargers are actually directional, and we adopt nearly the same probabilistic charging power/EMR model for them, except that their charging area is modeled as a sector with angle 60<sup></sup> and radius 4 m, based on our experimental results. Moreover, the beamwidth of the chargers cannot be adjusted, and we assume that the orientation of chargers is fixed. We can address this new problem for directional charging using nearly the same centralized and distributed algorithms, which involve EMR approximation and area discretization, SOCP optimization, redundant second-order cone constraints reduction, and area partition for distributed algorithm design. The only difference is that we need to consider the different boundaries of sector-shaped charging areas for area discretization as shown in Fig. 19. Besides, we can also prove that the new algorithms achieve the same approximation ratios.
+
+![](images/65d74bb34f475456259fcb7717f6ff1bd2a8f1440b4422c0af8b1d153b0f5aea.jpg)  
+Fig. 17. Charger distribution versus charging utility.
+
+![](images/6157afb0e13a8934240d0b229db8fb32b26068d73d7318bea9beddf45b6cde6b.jpg)  
+Fig. 18. Testbed.
+
+Since the power of the chargers is not adjustable, we place a piece of copper foil tape in a shape of circular segment with proper length, width, position, and bending angle in front of each charger so that the charging power and EMR at locations further than the tape approach to desired levels. In particular, we pick two or three points further than the tape as test points, and adjust the tape such that the measured charging power at the test points is as close as possible to the theoretical value (note that the EMR is proportional to the charging power, so we only need to pay attention to the later one). As the tape can almost uniformly reflect back some portion of electromagnetic signals and thus uniformly weaken penetrating signals at different angles, we have found that the measured charging power at points other than test points also agrees well with theoretical results, which shows the effectiveness of this power adjustment scheme. The two devices are placed at points ð1:2; 1:2Þ and ð1:2; 1:6Þ, respectively.
+
+![](images/34e62a2301f93c79388124d37008ee6bf11237844909d810210a8ed0b18b4c8a.jpg)  
+Fig. 19. Area discretization for directional charging.  
+Authorized licensed use limited to: Nanjing University. Downloaded on May 07,2022 at 00:41:10 UTC from IEEE Xplore. Restrictions apply.
+
+![](images/55c0c9ce8c3ce631219c0501ca3545d682d7e18f246a22c37d05a094c5e57862.jpg)  
+Fig. 20. Charging utility comparison.
+
+We make slight adaptation to Set-Cover, Centralized ROSE, and Distributed ROSE. Specifically, we only consider the covered sector-shaped areas of chargers for charging and EMR safety, and extract second-order cone constraints at subareas after drawing concentric arcs to discretize the whole area. Moreover, instead of implementing the centralized and distributed ROSE algorithms in sensor nodes, we adopt an equivalent but easier way for implementation. That is, running these algorithms on the laptop, and artificially “adjusting” the power of chargers by appropriately placing the copper foil tape in front of each charger based on the computed results of the two algorithms. Fig. 20 shows the charging utilities of the three algorithms for $R _ { t } =$ 105; 115; 125 $( m W / c m ^ { 2 } )$ with $\eta = 0 . 7 , ~ \epsilon = 0 . 1 5 ,$ , and $c _ { u } =$ 100. On average, Centralized ROSE and Distributed ROSE outperform Set-Cover by 480.19 and 391.09 percent, respectively. Such high gain is because in the greedy selection process of Set-Cover, it happens to tune the charger selected in the first iteration to its maximum power but yielding little charging utility, and leaves little room to tune the remaining unscheduled chargers which have higher charging efficiency. Moreover, we collected multiple samples at a location, and found the 70th quantile value (as $\eta = 0 . 7 )$ as its reference EMR value. Fig. 21 shows the measured reference EMR distribution in the area for our Centralized
+
+ROSE algorithm with $R _ { t } = 1 2 5 m W / c m ^ { 2 }$ . We can see that the peak EMR value is 94 $\mu W / c m ^ { 2 } .$ , less than $R _ { t }$ . This fact supports the correctness of our algorithm. Besides, the $3 1 \mu W \mathrm { \bar { / } } c m ^ { 2 }$ gap between $R _ { t }$ and the measured peak EMR value is not only due to the ð1 - -Þ-approximation ratio, but also to the discrepancy between the probabilistic directional charging model and reality. For example, from our experimental results, the charging power and EMR are the strongest at the same distance right in front of a TX91501 power transmitter, and they become weaker when the angle with the transmitter’s orientation increases or decreases. Therefore, the real power and EMR are indeed smaller than the calculated values.
+
+## 8 DISCUSSION
+
+Safe Charging for Certain Locations and/or Areas. For the case that not every point on the plane, but only some known locations (for example, chairs or sofas, or positions constantly indicated by humans wearing a beacon) and/or areas (for example, bedrooms for children) on the plane need to be considered for EMR safety, we can make slight adaptation to the original centralized and distributed ROSE algorithms by extracting second-order cone constraints at those locations or the subareas for further processing after drawing concentric circles to discretize the whole area.
+
+![](images/fe54c0c45f774795ce78e6ced39962398b1451c2a485a4f5d52a653365e7acdc.jpg)  
+Fig. 21. Reference EMR distribution.
+
+Heterogeneous Wireless Charger Networks. Suppose the considered network is a hybrid one consisting of heterogeneous wireless chargers which may be directional or omnidirectional and have various charging parameters $\alpha _ { 1 } , \beta _ { 1 } , \alpha _ { 1 } , \beta _ { 2 } ,$ and D. Generally, we can use different charging power and EMR approximation techniques for different kinds of wireless chargers, and thus draw concentric arcs and concentric circles for directional and omnidirectional wireless chargers, respectively, for area discretization. Then, we extract corresponding second-order cone constraints in the obtained subareas and adopt the similar centralized and distributed algorithms to address the obtained instance of SOCP.
+
+Minimum Expected Received Power Requirements for Devices. In some applications, a minimum expected received power is required for some rechargeable devices to guarantee their basic operation or cater to fairness target. Basically, for this case, we can express these requirements as linear constraints, which can be regarded as a special case of second-order cone constraints, and thus still formulate ROSE as a second-order cone problem, which allows the same centralized algorithm for ROSE. Nevertheless, as we use turn-off policies to turn off some chargers for distributed algorithm for ROSE and thus performance loss arises, some devices may fail to satisfy their minimum expected power requirements. To address this problem, we can artificially promote the required minimum expected received powers for those devices to some extents to compensate the performance loss.
+
+Nonlinear Charging Utility Model. In this paper, we adopt the simple linear model proposed in [16] for charging utility $\mathcal { U } ( . )$ . However, if we consider the actual power need for each device, which should be a limited value, then the linear and bounded model adopted in [26], [27] would be more suitable. For this model, the charging utility is first proportional to the charging power, and then becomes a constant if the charging power exceeds a given threshold, which captures the fact that energy beyond a device’s need is useless. In this case, the optimization function in the original problem P2 becomes much more complicated: $\scriptstyle \sum _ { j = 1 } ^ { m } \int _ { y = - \infty } ^ { + \infty } { \dot { \mathcal { U } } } ( y )$ $\begin{array} { r } { \frac { 1 } { \sqrt { 2 \pi } \sigma _ { P } } e x p ( - \frac { y - P } { 2 \sigma _ { P } ^ { 2 } } ) d y } \end{array}$ where $\begin{array} { r } { P = \sum _ { i = 1 } ^ { n } P ( d ( s _ { i } , p ) ) x _ { i } } \end{array}$ and $\sigma _ { P } ^ { 2 } = $ $\textstyle \sum _ { i = 1 } ^ { n } \sigma _ { P } ^ { 2 } ( d ( s _ { i } , \stackrel { . } { p } ) ) x _ { i } ^ { 2 }$ . Note that $\mathcal { U } ( . )$ is a nonlinear function.
+
+![](images/e6556c224b0c713d72a34e8658abd948ee31b0cc2aded7eedfc69e02b1166603.jpg)
+
+![](images/7317e2e6583270227e4a136a194a9f11468d2be2d35b63206f03e2fcf2d0dd09.jpg)
+
+![](images/3a832568e18bedeabcc953299dd04dcd243a0a43c95054e38a2f009260896d02.jpg)  
+Fig. 22. (a) M<sup>0</sup>-Clusters; (b) ðM<sup>0</sup> - 1Þ-Clusters for Instance 1; (c) ðM<sup>0</sup> - 1Þ-Clusters for Instance 2.
+
+Clearly, the optimization function cannot be even simplified into a closed form because there is no closed form for the cumulative distribution function for the standard Gaussian distribution. We can prove that this function is concave, and thereby formulate the problem as a Nonlinear Second-Order Cone Program (NSOCP). Unfortunately, to the best of our knowledge, there is no optimal or approximation algorithms to address NSOCP, but only algorithms with locally optimal solutions [59]. Consequently, the whole algorithm for the new problem is not an approximation algorithm. We omit detailed analysis here to save space.
+
+More Efficient Distributed Algorithm. The key idea of our proposed distributed algorithm for ROSE is to partition the area into multiple M-Clusters, and enumerate all possible turn-off policies to further divide the area into multiple ðM - 1Þ-Clusters. Both the M-Clusters and ðM - 1Þ- Clusters are squares in shape. A natural question is that can we divide the area into subareas in shapes other than squares for better performance. The answer is positive. As Fig. 22a shows, we divide the whole area into uniform hexagons with side length of $M ^ { \prime } \cdot D ,$ , which we call M<sup>0</sup>-Clusters. Similarly, we enumerate all possible turn-off policies in each hexagon such that the whole area is re-partitioned into so-called ðM<sup>0</sup> - 1Þ-Clusters, which have distance of 2D between neighboring hexagons. Figs. 22b and 22c show two instances of ðM<sup>0</sup> - 1Þ-Clusters. By using similar analysis to Algorithm 1, we can prove that when we set $M ^ { \prime } =$ $\left\lceil \frac { 1 + \sqrt { 1 - \epsilon / 2 } } { \sqrt { 3 } / 2 \cdot \epsilon / 2 } \right\rceil$ , the hexagon-partitioning based algorithm achieves ð1 - -Þ-approximation ratio. Moreover, the new algorithm requires information of chargers and devices from a ðM<sup>0</sup> - 1Þ-Cluster with area of no more than $\frac { 3 \sqrt { 3 } } { 2 } ( M ^ { \prime } D$ ${ \textstyle \frac { 1 } { \sqrt { 3 } / 2 } } D ) ^ { 2 } = 2 \sqrt { 3 } ( M - 1 ) ^ { 2 } D ^ { 2 }$ where $\begin{array} { r } { M = \left\lceil \frac { 1 + \sqrt { 1 - \epsilon / 2 } } { \epsilon / 2 } \right\rceil } \end{array}$ Compared with Algorithm 1 which has $( M - 1 ) – C l u s t e r$ with area of no more than $\left( M - 1 \right) ^ { 2 } \cdot \left( 2 D \right) ^ { 2 } = 4 ( \dot { M } - 1 ) ^ { 2 } D ^ { 2 }$ , our algorithm is more efficient as the computational cost of the centralized ROSE is $O ( n ^ { 5 } \epsilon ^ { - 3 } )$ where n is the number of chargers and is proportional to area size given that chargers are uniformly distributed. Furthermore, the communication delay of the new algorithm is obviously $\begin{array} { r } { 4 M ^ { \prime } D = \frac { 8 \sqrt { 3 } } { 3 } M D , } \end{array}$ which is less than that of Algorithm 1, i.e., 4 <sup>fifi</sup>2MD according to the proof to Theorem 5.1. To sum up, the new algorithm outperforms Algorithm 1 in terms of both computational cost and communication delay.
+
+Besides, we argue that the new algorithm is optimal under the double-partitioning framework. By the classical result in [60] for tessellation or tiling in two dimensions in geometry, which studies how shapes can be arranged to fill a plane without any gaps according to a given set of rules, there are only three shapes that can form regular tessellations, i.e., the equilateral triangle, square, and regular hexagon. We can easily verify that the hexagon-partitioning based algorithm also outperforms the triangle-partitioning based algorithm, and thereby the former is the optimal under our double-partitioning framework.
+
+## 9 CONCLUSION
+
+The key novelty of this paper is proposing the first scheme for robustly safe charging for wireless charger networks to maximize the overall charging utility considering EMR jitter. The key contributions of this paper are establishing the empirical probabilistic charging model, developing both centralized and distributed approximation algorithms, and conducting both simulations and field experiments for evaluation. The key technical depth of this paper is in proposing the EMR approximation and area discretization methods to reformulate the problem into the classical problem of SOCP, developing the first centralized and distrib. uted second-order cone constraint reduction schemes, and presenting the fully distributed algorithm and bounding its performance. Our simulations and experimental results show that our proposed scheme achieves good performance and can outperform comparison algorithms by 480.19 percent. In the future, we plan to consider probabilistic EMR safety under more applications such as those using mobile chargers.
+
+## ACKNOWLEDGMENTS
+
+This work was supported in part by the National Natural Science Foundation of China under Grant 61872178, in part by the Natural Science Foundation of Jiangsu Province under Grant No. BK20181251, in part by the Fundamental Research Funds for the Central Universities under Grant 14380062, in part by the National Natural Science Foundation of China under Grant 61672353, Grant 61472252, Grant 61772046, Grant 61629302, Grant 61373130, Grant 61672276, Grant 61472184, Grant 61772265, and Grant 62072228, in part by the Key Research and Development Program of Jiangsu Province under Grant No. BE2019104, and in part by the Collaborative Innovation Center of Novel Software Technology and Industrialization, Nanjing University.
+
+## REFERENCES
+
+[1] F. Zhang, J. Liu, Z. Mao, and M. Sun, “Mid-range wireless power transfer and its application to body sensor networks,” Open J. Appl. Sci., vol. 2, no. 1, pp. 35–46, 2012.
+
+[2] WiPo wireless Power. Accessed: 2019. [Online]. Available: https:// wipo-wirelesspower.com/
+
+[3] D. Mascarenas, E. Flynn, M. Todd, G. Park, and C. Farrar,\~ “Wireless sensor technologies for monitoring civil structures,” Sound Vib., vol. 42, no. 4, pp. 16–21, 2008.
+
+[4] M. Buettner, R. Prasad, M. Philipose, and D. Wetherall, “Recognizing daily activities with RFID-based sensors,” in Proc. 11th Int. Conf. Ubiquitous Comput., 2009, pp. 51–60.
+
+[5] M. Buettner, B. Greenstein, A. Sample, J. Smith, and D. Wetherall, “Revisiting smart dust with RFID sensor networks,” in Proc. 7th ACM Workshop Hot Topics Netw., 2008, pp. 37–42.
+
+[6] Ossia and T-Mobile pilot wireless-charging asset trackers in Walmart warehouses. Accessed: 2020. [Online]. Available: https://blog. ossia.com/news/ossia-and-t-mobile-pilot-wireless-charging-assettrackers-in-walmart-warehouses
+
+[7] M. Erol-Kantarci and H. T. Mouftah, “Suresense: Sustainable wireless rechargeable sensor networks for the smart grid,” IEEE Wireless Commun., vol. 19, no. 3, pp. 30–36, Jun. 2012
+
+[8] WPT Market Forecast. Accessed: 2019. [Online]. Available: https:// www.electronics.ca/store/wireless-power-transmission-marketforecast-analysis.html
+
+[9] H. Dai, Y. Liu, G. Chen, X. Wu, and T. He, “Safe charging for wireless power transfer,” in Proc. IEEE INFOCOM, 2014, pp. 1105–1113.
+
+[10] Powercast Applications. Accessed: 2011. [Online]. Available: http:// www.powercastsensors.com/category/applications/page/2/
+
+[11] R. Zhang and C. K. Ho, "MIMO broadcasting for simultaneous wireless information and power transfer,” IEEE Trans. Wireless Commun., vol. 12, no. 5, pp. 1989–2001, May 2013.
+
+[12] W. Van Loock, “Elementary effects in humans exposed to electromagnetic fields and radiation,” in Proc. 5th Asia-Pacific Conf. Environ. Electromagn., 2009, pp. 221–224.
+
+[13] Wi-Charge. Accessed: 2019. [Online]. Available: https://wicharge.com/applications/
+
+[14] S. Boyd and L. Vandenberghe, Convex Optimization. Cambridge, U.K.: Cambridge Univ. Press, 2004.
+
+[15] H. Dai et al., “Safe charging for wireless power transfer,” IEEE/ ACM Trans. Netw., vol. 25, no. 6, pp. 3531–3544, Dec. 2017.
+
+[16] H. Dai, Y. Liu, G. Chen, X. Wu, and T. He, “SCAPE: Safe charging with adjustable power,” in Proc. IEEE 34th Int. Conf. Distrib. Com put. Syst., 2014, pp. 439–448.
+
+[17] H. Dai et al., “SCAPE: Safe charging with adjustable power,” IEEE/ ACM Trans. Netw., vol. 26, no. 1, pp. 520–533, Feb. 2018.
+
+[18] S. Nikoletseas, T. P. Raptis, and C. Raptopoulos, “Low radiation efficient wireless energy transfer in wireless distributed systems,” in Proc. IEEE 35th Int. Conf. Distrib. Comput. Syst., 2015, pp. 196–204.
+
+[19] H. Dai, Y. Liu, A. X. Liu, L. Kong, G. Chen, and T. He, “Radiation constrained wireless charger placement," in Proc. IEEE INFO-COM, 2016, pp. 1–9.
+
+[20] H. Dai, H. Ma, A. X. Liu, and G. Chen, “Radiation constrained scheduling of wireless charging tasks,” in Proc. 18th ACM Int. Symp. Mobile Ad Hoc Netw. Comput., 2017, pp. 17–26.
+
+[21] H. Dai, H. Ma, A. X. Liu, and G. Chen, “Radiation constrained scheduling of wireless charging tasks,” IEEE/ACM Trans. Netw., vol. 26, no. 1, pp. 314–327, Feb. 2018.
+
+[22] L. Li, H. Dai, G. Chen, J. Zheng, Y. Zhao, and P. Zeng, “Radiation constrained fair wireless charging,” in Proc. 14th Annu. IEEE Int. Conf. Sens. Commun. Netw., 2017, pp. 1–9.
+
+[23] R. Dai et al., “Robustly safe charging for wireless power transfer,” in Proc. IEEE INFOCOM, 2018, pp. 378–386.
+
+[24] S. He, J. Chen, F. Jiang, D. K. Yau, G. Xing, and Y. Sun, “Energy provisioning in wireless rechargeable sensor networks,” IEEE Trans. Mobile Comput., vol. 12, no. 10, pp. 1931–1942, Oct. 2013.
+
+[25] H. Dai, X. Wang, A. X. Liu, F. Zhang, Y. Zhao, and G. Chen, “Omnidirectional chargability with directional antennas,” in Proc. IEEE 24th Int. Conf. Netw. Protocols, 2016, pp. 1–10.
+
+[26] H. Dai, X. Wang, A. X. Liu, H. Ma, and G. Chen, “Optimizing wireless charger placement for directional charging,” in Proc. IEEE INFOCOM, 2017, pp. 1–9.
+
+[27] H. Dai, X. Wang, A. X. Liu, H. Ma, G. Chen, and W. Dou, “Wireless charger placement for directional charging,” IEEE/ACM Trans. Netw., vol. 26, no. 4, pp. 1865–1878, Aug. 2018.
+
+[28] X. Wang et al., “Heterogeneous wireless charger placement with obstacles,” in Proc. 47th Int. Conf. Parallel Process., 2018, pp. 1–9.
+
+[29] H. Dai, K. Sun, A. X. Liu, L. Zhang, J. Zheng, and G. Chen, “Charging task scheduling for directional wireless charger networks,” in Proc. 47th Int. Conf. Parallel Process., 2018, pp. 1–10.
+
+[30] N. Yu, H. Dai, A. X. Liu, and B. Tian, "Placement of connected wireless chargers,” in Proc. IEEE INFOCOM, 2018, pp. 387–395.
+
+[31] Y. Shi, L. Xie, Y. T. Hou, and H. D. Sherali, “On renewable sensor networks with wireless energy transfer,” in Proc. IEEE INFOCOM, 2011, pp. 1350–1358.
+
+[32] L. Xie, Y. Shi, Y. T. Hou, W. Lou, H. D. Sherali, and S. F. Midkiff “On renewable sensor networks with wireless energy transfer: The multi-node case,” in Proc. 9th Annu. IEEE Commun. Soc. Conf. Sensor Mesh Ad Hoc Commun. Netw., 2012, pp. 10–18
+
+[33] H. Dai, L. Jiang, X. Wu, D. K. Y. Yau, G. Chen, and S. Tang, “Near optimal charging and scheduling scheme for stochastic event capture with rechargeable sensors,” in Proc. IEEE 10th Int. Conf. Mobile Ad-Hoc Sensor Syst., 2013, pp. 10–18.
+
+[34] H. Dai et al., “CHASE: Charging and scheduling scheme for stochastic event capture in wireless rechargeable sensor networks,” IEEE Trans. Mobile Comput., vol. 19, no. 1, pp. 44–59, Jan. 2020.
+
+[35] L. Xie, Y. Shi, Y. T. Hou, W. Lou, H. D. Sherali, and S. F. Midkiff “Bundling mobile base station and wireless energy transfer: Modeling and optimization,” in Proc. IEEE INFOCOM, 2013, pp.1636-1644.
+
+[36] L. Xie, Y. Shi, Y. T. Hou, W. Lou, and H. D. Sherali, “On traveling path and related problems for a mobile station in a rechargeable sensor network,” in Proc. 14th ACM Int. Symp. Mobile Ad Hoc Netw. Comput., 2013, pp. 109–118.
+
+[37] T. Rault, “Avoiding radiation of on-demand multi-node energy charging with multiple mobile chargers,” Comput. Commun., vol. 134, pp. 42–51, 2019.
+
+[38] X. Lu, P. Wang, D. Niyato, D. I. Kim, and Z. Han, “Wireless charging technologies: Fundamentals, standards, and network applications,” IEEE Commun. Surveys Tuts., vol. 18, no. 2, pp. 1413–1452, Second Quarter 2016.
+
+[39] N. Mohd Razali and B. Yap, “Power comparisons of Shapiro-Wilk, Kolmogorov-Smirnov, Lilliefors and Anderson-Darling tests,” J. Statist. Model. Analytics, vol. 2, no. 1, pp. 21–33, 2011.
+
+[40] C. M. Borror, “Practical nonparametric statistics,” J. Qual. Technol., vol. 33, no. 2, pp. 260–260, 2001.
+
+[41] P. J. Farrell and K. Rogersstewart, “Comprehensive study of tests for normality and symmetry: Extending the spiegelhalter test,” J. Statist. Comput. Simul., vol. 76, no. 9, pp. 803–816, 2006.
+
+[42] K. M. Rabie, B. Adebisi, and M.-S. Alouini, “Wireless power transfer in cooperative DF relaying networks with log-normal fading,” in Proc. IEEE Global Commun. Conf., 2016, pp. 1–6.
+
+[43] K. M. Rabie, A. Salem, E. Alsusa, and M.-S. Alouini, “Energy-harvesting in cooperative AF relaying networks over log-normal fading channels,” in Proc. IEEE Int. Conf. Commun., 2016, pp. 1–7.
+
+[44] Normal Approximation to the Lognormal Distribution. Accessed: 2020. [Online]. Available: http://www.epixanalytics.com/modelassist/ AtRisk/Model\_Assist.htm#Distributions/Approximations/Normal\_ approximation to the Lognormal distribution.htm
+
+[45] S. He, J. Chen, F. Jiang, D. K. Y. Yau, G. Xing, and Y. Sun, “Energy provisioning in wireless rechargeable sensor networks,” in Proc. IEEE INFOCOM, 2011, pp. 2006–2014.
+
+[46] S. Ross, A First Course in Probability. London, U.K.: Pearson, 2014.
+
+[47] M. De Berg, M. Van Kreveld, M. Overmars, and O. Schwarzkopf, Computational Geometry. Berlin, Germany: Springer, 2008.
+
+[48] M. S. Lobo, L. Vandenberghe, S. Boyd, and H. Lebret, “Applications of second-order cone programming,” Linear Algebra Appl., vol. 284, no. 1–3, pp. 193–228, 1998.
+
+[49] Q. Peng and S. H. Low, “Distributed algorithm for optimal power flow on a radial network,” in Proc. 53rd IEEE Conf. Decis. Control, 2014, pp. 167–172.
+
+[50] M. Voitsekhovskii, “Minkowski inequality,” Hazewinkel, Michiel, Encyclopedia of Mathematics. The Netherlands: Springer, 1997.
+
+[51] X. Xu, X. Y. Li, X. Mao, S. Tang, and S. Wang, “A delay-efficient algorithm for data aggregation in multihop wireless sensor networks,” IEEE Trans. Parallel Distrib. Syst., vol. 22, no. 1, pp. 163–175, Jan. 2011.
+
+[52] H. Dai, X. Wu, L. Xu, G. Chen, and S. Lin, “Using minimum mobile chargers to keep large-scale wireless rechargeable sensor networks running forever,” in Proc. 22nd Int. Conf. Comput. Commun. Netw., 2013, pp. 1–7.
+
+[53] H. Dai, X. Wu, G. Chen, L. Xu, and S. Lin, “Minimizing the number of mobile chargers for large-scale wireless rechargeable sensor networks,” Comput. Commun., vol. 46, pp. 54–65, 2014.
+
+[54] H. Dai, X. Wu, L. Xu, and G. Chen, “Practical scheduling for stochastic event capture in wireless rechargeable sensor networks,” in Proc. IEEE Wireless Commun. Netw. Conf., 2013, pp. 986–991.
+
+[55] H. Dai, L. Xu, X. Wu, C. Dong, and G. Chen, “Impact of mobility on energy provisioning in wireless rechargeable sensor networks,” in Proc. IEEE Wireless Commun. Netw. Conf., 2013, pp. 962–967.
+
+[56] H. Dai, G. Chen, C. Wang, S. Wang, X. Wu, and F. Wu, “Quality of energy provisioning for wireless power transfer,” IEEE Trans. Parallel Distrib. Syst., vol. 26, no. 2, pp. 527–537, Feb. 2015.
+
+[57] H. Dai, X. Wu, L. Xu, F. Wu, S. He, and G. Chen, “Practical scheduling for stochastic event capture in energy harvesting sensor networks,” Int. J. Sensor Netw., vol. 18, no. 2, pp. 85–100, 2015.
+
+[58] Powercast. Accessed: 2020. [Online]. Available: www.powercastco. com
+
+[59] Y. Wang and L. Zhang, “Properties of equation reformulation of the Karush–Kuhn–Tucker condition for nonlinear second order cone optimization problems," Math. Methods Operations Res. vol. 70, no. 2, pp. 195–218, 2009.
+
+[60] J. H. Conway, H. Burgiel, and C. Goodman-Strauss, The Symmetries of Things. Natick, MA, USA/Boca Raton, FL, USA: AK Peters/CRC Press, 2016.
+
+![](images/09186256fa63714fe1a4f5687272fb962bd56d91dc2e229970916284f75d7ea2.jpg)  
+Haipeng Dai (Member, IEEE) received the BS degree from the Department of Electronic Engineering, Shanghai Jiao Tong University, Shanghai, China, in 2010, and the PhD degree from the Department of Computer Science and Technology, Nanjing University, Nanjing, China, in 2014. He is currently an associate professor at the Department of Computer Science and Technology, Nanjing University. He is also a member of the ACM. He received Best Paper Award from IEEE ICNP’15, Best Paper Award Runner-up from IEEE SECON’18, and Best Paper Award Candidate from IEEE INFOCOM’17.
+
+![](images/67b759513095de5fb49c524594785c9568805ae4d5776b91ef8e8e7b13bee67c.jpg)  
+Yun Xu received the BS degree from the Department of Computer Science and Technology, Hunan University, Changsha, China, in 2018. He is currently working toward the master’s degree from the Department of Computer Science and Technology, Nanjing University, Nanjing, China. His research interests focus on wireless charging.
+
+![](images/410b80a2e9dbe6fff02ecfe5bd57c378d4013cc44d16e4211b01261659561568.jpg)
+
+Guihai Chen (Member, IEEE) received the BS degree in computer software from Nanjing University, Nanjing, China, in 1984, the ME degree in computer applications from Southeast University, Nanjing, China, in 1987, and the PhD degree in computer science from The University of Hong Kong, Hong Kong, in 1997. He is currently a professor and deputy chair with the Department of Computer Science, Nanjing University, China. He has a wide range of research interests with focus on sensor networks, peer-to-peer computing, high-performance computer architecture, and combinatorics.
+
+![](images/056a5ee6745e6c189f27aa30a693334e6b0acc16c4c1bf7cce4daa37b62ae8fc.jpg)
+
+Wanchun Dou (Member, IEEE) received the PhD degree in mechanical and electronic engineering from the Nanjing University of Science and Technology, Nanjing, China, in 2001. He is currently a full professor at the State Key Laboratory for Novel Software Technology, Nanjing University. From April 2005 to June 2005 and from November 2008 to February 2009, he respec tively visited the Department of Computer Science and Engineering, Hong Kong University of Science and Technology, Hong Kong, as a visiting scholar. Up to now, he has chaired three National Natural Science Foundation of China projects and published more than 100 research papers in international journals and international conferences. His research interests include workflow, cloud computing, and service computing.
+
+![](images/c94fb92d31f07dd6628937f08472ebe2fc08618c8400d7609969713430a23ad4.jpg)
+
+Chen Tian (Member, IEEE) received the BS, MS, and PhD degrees from the Department of Elec tronics and Information Engineering, Huazhong University of Science and Technology, Wuhan, China, in 2000, 2003, and 2008. He is currently an associate professor with the State Key Laboratory for Novel Software Technology, Nanjing University, China. He was previously an associate professor with the School of Electronics Information and Communications, Huazhong University of Science and Technology, China. From 2012 to 2013, he was a postdoctoral researcher with the Department of Computer Science, Yale University. His research interests include data center networks network function virtualization, distributed systems, Internet streaming and urban computing.
+
+![](images/edeefcf5e7cdecabd864d786f2966a702776787669bd53d6beb8d6d5a0095761.jpg)
+
+Xiaobing Wu (Member, IEEE) received the BS and ME degrees in computer science from Wuhan University, Wuhan, China, in 2000 and 2003, respectively, and the PhD degree in computer science from Nanjing University, Nanjing, China, in 2009. He is currently with Wireless Research Centre, University of Canterbury, New Zealand. His research interests include the fields of wireless networking and communications, Internet of Things, and cyber physical systems. His publications appeared at the IEEE Transac tions on Parallel and Distributed Systems (TPDS), the ACM Transac tions on Sensor Networks (TOSN), the Computer Communications (ComCom), the Wireless Networks, IEEE INFOCOM 2015/2014, IEEE ICDCS 2014, IEEE MASS 2013, etc. He won Honoured Mention Award in ACM MobiCom 2009 Demos and Exhibitions. He was an associate professor with the Department of Computer Science and Technology, Nanjing University.
+
+![](images/745fd02474cde46ba7a58cb558a6579b458c3b2f847f0379bafbbec107a1e901.jpg)
+
+Tian He (Fellow, IEEE) is currently a professor at the School of Computer Science and Engineering, Southeast University. He is the author or coauthor of more than 300 articles in premier network journals and conferences with more than 23,000 citations (H-Index 70). His research interests include wireless networks, networked sensing systems, cyber-physical systems, real-time embedded systems, and distributed systems. He is a fellow of the ACM. He has served as the few general/program chair positions for international conferences and on many program committees and also has been an editorial board member for six international journals, including the ACM Transactions on Sensor Networks, the IEEE Transactions on Computers, and the IEEE/ACM Transactions on Networking.
+
+" For more information on this or any other computing topic please visit our Digital Library at www.computer.org/csdl.

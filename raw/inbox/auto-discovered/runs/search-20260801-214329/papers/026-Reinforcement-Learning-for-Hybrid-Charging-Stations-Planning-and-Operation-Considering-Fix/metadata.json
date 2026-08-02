@@ -1,0 +1,49 @@
+{
+  "title": "Reinforcement Learning for Hybrid Charging Stations Planning and Operation Considering Fixed and Mobile Chargers",
+  "authors": [
+    "Yanchen Zhu",
+    "Honghui Zou",
+    "Chufan Liu",
+    "Yuyu Luo",
+    "Yuankai Wu",
+    "Yuxuan Liang"
+  ],
+  "abstract": "The success of vehicle electrification relies on efficient and adaptable charging infrastructure. Fixed-location charging stations often suffer from underutilization or congestion due to fluctuating demand, while mobile chargers offer flexibility by relocating as needed. This paper studies the optimal planning and operation of hybrid charging infrastructures that combine both fixed and mobile chargers within urban road networks. We formulate the Hybrid Charging Station Planning and Operation (HCSPO) problem, jointly optimizing the placement of fixed stations and the scheduling of mobile chargers. A charging demand prediction model based on Model Predictive Control (MPC) supports dynamic decision-making. To solve the HCSPO problem, we propose a deep reinforcement learning approach enhanced with heuristic scheduling. Experiments on real-world urban scenarios show that our method improves infrastructure availability - achieving up to 244.4% increase in coverage - and reduces user inconvenience with up to 79.8% shorter waiting times, compared to existing solutions.",
+  "published_date": "2025-06-20",
+  "updated_date": "2025-08-10",
+  "year": 2025,
+  "doi": "",
+  "arxiv_id": "2506.16764",
+  "landing_url": "https://arxiv.org/abs/2506.16764v2",
+  "pdf_url": "https://arxiv.org/pdf/2506.16764v2",
+  "is_open_access": true,
+  "license": "",
+  "providers": [
+    "arxiv"
+  ],
+  "provider_ids": {
+    "arxiv": "2506.16764"
+  },
+  "matched_queries": [
+    "mobile charger scheduling"
+  ],
+  "score": 13.75,
+  "score_reasons": [
+    "标题命中：charger, charging, mobile",
+    "摘要命中：dynamic, scheduling",
+    "近年文献"
+  ],
+  "local_pdf": "raw/inbox/auto-discovered/runs/search-20260801-214329/papers/026-Reinforcement-Learning-for-Hybrid-Charging-Stations-Planning-and-Operation-Considering-Fix/paper.pdf",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "arxiv"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260801-214329",
+  "triage_status": "pending",
+  "selected_by_user": false,
+  "acquired_at": "2026-08-01T13:43:29+00:00",
+  "selected_at": "",
+  "canonicalized_at": "",
+  "discovery_status": "candidate",
+  "retrieved_at": "2026-08-01T13:44:16+00:00"
+}

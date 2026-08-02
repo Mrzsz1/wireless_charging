@@ -1,0 +1,45 @@
+{
+  "title": "Modelled Energy Cost Minimization Solution for Wireless Rechargeable Sensor Networks",
+  "authors": [
+    "M Ahmed",
+    "DS NYITAMEN…"
+  ],
+  "abstract": "… Sensor nodes (SNs) in wireless sensor networks (WSNs) are … ’ utility energies, planning an on-demand charging trajectory to … -aware charging scheduling for multiple mobile chargers in …",
+  "published_date": "",
+  "updated_date": "",
+  "year": 2025,
+  "doi": "",
+  "arxiv_id": "",
+  "landing_url": "http://journals.abuad.edu.ng/ajerd/article/view/965",
+  "pdf_url": "https://journals.abuad.edu.ng/ajerd/article/download/965/677",
+  "is_open_access": true,
+  "license": "",
+  "providers": [
+    "serpapi"
+  ],
+  "provider_ids": {
+    "serpapi": "pGaC-DgavOQJ"
+  },
+  "matched_queries": [
+    "mobile charger scheduling"
+  ],
+  "score": 14.75,
+  "score_reasons": [
+    "标题命中：energy, rechargeable, sensor",
+    "摘要命中：charger, charging, mobile, scheduling",
+    "近年文献"
+  ],
+  "local_pdf": "raw/inbox/auto-discovered/runs/search-20260801-214329/papers/023-Modelled-Energy-Cost-Minimization-Solution-for-Wireless-Rechargeable-Sensor-Networks/paper.pdf",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "serpapi"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260801-214329",
+  "triage_status": "pending",
+  "selected_by_user": false,
+  "acquired_at": "2026-08-01T13:43:29+00:00",
+  "selected_at": "",
+  "canonicalized_at": "",
+  "discovery_status": "candidate",
+  "retrieved_at": "2026-08-01T13:44:11+00:00"
+}

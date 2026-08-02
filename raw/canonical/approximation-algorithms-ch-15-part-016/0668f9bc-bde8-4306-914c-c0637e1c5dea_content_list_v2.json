@@ -1,0 +1,1470 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "15 Set Cover via the Primal–Dual Schema"
+                    }
+                ],
+                "level": 1
+            },
+            "bbox": [
+                223,
+                109,
+                737,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As noted in Section 12.3, the primal–dual schema is the method of choice for designing approximation algorithms since it yields combinatorial algorithms with good approximation factors and good running times. We will first present the central ideas behind this schema and then use it to design a simple f factor algorithm for set cover, where f is the frequency of the most frequent element."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                786,
+                340
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The primal–dual schema has its origins in the design of exact algorithms. In that setting, this schema yielded the most eficient algorithms for some of the cornerstone problems in P, including matching, network flow, and shortest paths. These problems have the property that their LP-relaxations have integral optimal solutions. By Theorem 12.3 we know that optimal solutions to linear programs are characterized by fact that they satisfy all the complementary slackness conditions. In fact, the primal–dual schema for exact algorithms is driven by these conditions. Starting with initial feasible solutions to the primal and dual programs, it iteratively starts satisfying complementary slackness conditions. When they are all satisfied, both solutions must be optimal. During the iterations, the primal is always modified integrally, so that eventually we get an integral optimal solution."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                340,
+                786,
+                512
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider an LP-relaxation for an NP-hard problem. In general, the relaxation will not have an optimal solution that is integral. Does this rule out a complementary slackness condition driven approach? Interestingly enough, the answer is ‘no’. It turns out that the algorithm can be driven by a suitable relaxation of these conditions! This is the most commonly used way of designing primal–dual based approximation algorithms – but not the only way."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                512,
+                786,
+                611
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "15.1 Overview of the schema"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                223,
+                640,
+                519,
+                655
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us consider the following primal program, written in standard form."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                670,
+                754,
+                684
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\text { minimize } \\quad \\sum_ {j = 1} ^ {n} c _ {j} x _ {j}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/fa89d0a73517b55783d793dd57a535353d37809eabf5fdeeaa68580e60307e86.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                697,
+                423,
+                736
+            ]
+        }
+    ],
+    [
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text { subject   to } & \\sum_ {j = 1} ^ {n} a _ {i j} x _ {j} \\geq b _ {i}, \\quad i = 1, \\ldots , m \\\\ & x _ {j} \\geq 0, \\quad j = 1, \\ldots , n \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/e26b8223efe1dcf977f80b37843696c77bd37b43dce656ddd80dd9eff61ea1d6.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                110,
+                586,
+                166
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a _ { i j } , b _ { i } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are specified in the input. The dual program is:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                177,
+                729,
+                193
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {maximize} & \\sum_ {i = 1} ^ {m} b _ {i} y _ {i} \\\\ \\text {subject to} & \\sum_ {i = 1} ^ {m} a _ {i j} y _ {i} \\leq c _ {j}, \\quad j = 1, \\ldots , n \\\\ & y _ {i} \\geq 0, \\quad i = 1, \\ldots , m \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/20e8197c7064a8530e9f386f6801c1068ad8b2f8ece06dfaffb9cb2f84345656.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                205,
+                583,
+                304
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Most known approximation algorithms using the primal–dual schema run by ensuring one set of conditions and suitably relaxing the other. In the following description we capture both situations by relaxing both conditions. Eventually, if primal conditions are ensured, we set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and if dual conditions are ensured, we set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta = 1"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                313,
+                786,
+                387
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Primal complementary slackness conditions"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                394,
+                594,
+                407
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha \\geq 1 ."
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                407,
+                331,
+                420
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { 1 \\leq j \\leq n \\colon \\mathrm { e i t h e r } \\ x _ { j } = 0 \\ \\mathrm { o r } \\ c _ { j } / \\alpha \\leq \\sum _ { i = 1 } ^ { m } a _ { i j } y _ { i } \\leq c _ { j } . } \\end{array}"
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                420,
+                700,
+                438
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Dual complementary slackness conditions"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                444,
+                578,
+                458
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta \\geq 1"
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                458,
+                331,
+                472
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\leq i \\leq m \\colon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "either "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { y _ { i } = 0 \\mathrm { ~ o r ~ } b _ { i } \\le \\sum _ { j = 1 } ^ { n } a _ { i j } x _ { j } \\le \\beta \\cdot b _ { i } , } \\end{array}"
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                472,
+                704,
+                489
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proposition 15.1 If x and y are primal and dual feasible solutions satisfying the conditions stated above then"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                495,
+                784,
+                524
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {j = 1} ^ {n} c _ {j} x _ {j} \\leq \\alpha \\cdot \\beta \\cdot \\sum_ {i = 1} ^ {m} b _ {i} y _ {i}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/ff5a5f218df343da449c0bd1e553794e0d09a578e72fb61c5807ab180d16ddff.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                533,
+                453,
+                573
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                590,
+                280,
+                602
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{r l} & {\\sum_ {j = 1} ^ {n} c _ {j} x _ {j} \\leq \\alpha \\sum_ {j = 1} ^ {n} \\left(\\sum_ {i = 1} ^ {m} a _ {i j} y _ {i}\\right) x _ {j} = \\alpha \\sum_ {i = 1} ^ {m} \\left(\\sum_ {j = 1} ^ {n} a _ {i j} x _ {j}\\right) y _ {i}} \\\\ & {\\qquad \\leq \\alpha \\beta \\sum_ {i = 1} ^ {m} b _ {i} y _ {i}.} \\end{array}\\tag{15.1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/3c920dcca5c3a071811891d743cf6263780c0a331a748a2ef7e907c4629c0b20.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                615,
+                668,
+                697
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The first and second inequalities follow from the primal and dual conditions, respectively. The equality follows by simply changing the order of summation. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                709,
+                784,
+                752
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "126"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "15 Set Cover via the Primal–Dual Schema"
+                    }
+                ]
+            },
+            "bbox": [
+                277,
+                87,
+                579,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm starts with a primal infeasible solution and a dual feasible solution; these are usually the trivial solutions "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\pmb x } = { \\bf 0 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { \\nabla } _ { \\mathbf { y } } = \\mathbf { 0 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". It iteratively improves the feasibility of the primal solution, and the optimality of the dual solution, ensuring that in the end a primal feasible solution is obtained and all conditions stated above, with a suitable choice of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are satisfied. The primal solution is always extended integrally, thus ensuring that the final solution is integral. The improvements to the primal and the dual "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "_ \\mathrm { g o }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "handin-hand: the current primal solution is used to determine the improvement to the dual, and vice versa. Finally, the cost of the dual solution is used as a lower bound on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and by Proposition 15.1, the approximation guarantee of the algorithm is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha \\beta"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                271
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "15.2 Primal–dual schema applied to set cover"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                299,
+                685,
+                315
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us obtain a factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "algorithm for the set cover problem using the primal– dual schema. For this algorithm, we will choose "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta = f"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We will work with the primal and dual pair of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P } { \\mathrm { { s } } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "given in (13.2) and (13.3), respectively. The complementary slackness conditions are:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                329,
+                784,
+                386
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Primal conditions"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                393,
+                378,
+                407
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\forall S \\in \\mathcal {S}: x _ {S} \\neq 0 \\Rightarrow \\sum_ {e: e \\in S} y _ {e} = c (S).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/2ca03f3c275c328ba76d7d9ecebe500bf6d2def07f795d7459cc5a764172763c.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                417,
+                527,
+                449
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will be said to be tight if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\sum _ { e \\colon { e \\in S } } y _ { e } = c ( S ) } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since we will increment \u0001the primal variables integrally, we can state the conditions as: Pick only tight sets in the cover."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                461,
+                784,
+                502
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Clearly, in order to maintain dual feasibility, we are not allowed to overpack any set."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                504,
+                784,
+                532
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Dual conditions"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                539,
+                361,
+                552
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\forall e: y _ {e} \\neq 0 \\Rightarrow \\sum_ {S: e \\in S} x _ {S} \\leq f",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b66d80cfd8b1ec7bb7610400b8d54449f98b9945f7938258d52c6286f45b5c83.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                565,
+                470,
+                595
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since we will find a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 / 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "solution for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathbf { } } ^ { \\mathbf { } } \\mathbf { { \\mathbf { x } } } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "these conditions are equivalent to: Each element having a nonzero dual value can be covered at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "times. Since each element is in at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "sets, this condition is trivially satisfied for all elements."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                608,
+                784,
+                664
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The two sets of conditions naturally suggest the following algorithm:"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                665,
+                756,
+                680
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "15.2 Primal–dual schema applied to set cover"
+                    }
+                ]
+            },
+            "bbox": [
+                408,
+                87,
+                731,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "127"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 15.3 Algorithm 15.2 achieves an approximation factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ."
+                    }
+                ],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 15.2 (Set cover - factor  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": ")\n1. Initialization:  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x \\leftarrow 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ";  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y \\leftarrow 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "\n2. Until all elements are covered, do:\n    Pick an uncovered element, say  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and raise  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y_e"
+                    },
+                    {
+                        "type": "text",
+                        "content": " until some set goes tight.\n    Pick all tight sets in the cover and update  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x"
+                    },
+                    {
+                        "type": "text",
+                        "content": ".\n    Declare all the elements occurring in these sets as “covered”.\n3. Output the set cover  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x"
+                    },
+                    {
+                        "type": "text",
+                        "content": "."
+                    }
+                ]
+            },
+            "bbox": [
+                226,
+                112,
+                784,
+                263
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Clearly there will be no uncovered elements and no overpacked sets at the end of the algorithm. Thus, the primal and dual solutions will both be feasible. Since they satisfy the relaxed complementary slackness conditions with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha = f"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", by Proposition 15.1 the approximation factor is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                302,
+                786,
+                361
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 15.4 A tight example for this algorithm is provided by the following set system:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                373,
+                784,
+                404
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/6ff5135f4f8ff85aad6fd5205ea8818df323723ad127844a0e3a2ced73513ea8.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                253,
+                419,
+                752,
+                615
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Here, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s"
+                    },
+                    {
+                        "type": "text",
+                        "content": "consists of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "sets of cost 1, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ e _ { 1 } , e _ { n } \\} , \\ldots , \\{ e _ { n - 1 } , e _ { n } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and one set of cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 + \\varepsilon , \\{ e _ { 1 } , \\ldots , e _ { n + 1 } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for a small "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "appears in all n sets, this set system has "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f = n ."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                625,
+                784,
+                668
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Suppose the algorithm raises "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { e _ { n } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the first iteration. When "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { e _ { n } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is raised to 1, all sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ e _ { i } , e _ { n } \\} , i = 1 , \\dots , n - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "go tight. They are all picked in the cover, thus covering the elements "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { 1 } , \\ldots , e _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In the second iteration, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { e _ { n + 1 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is raised to ε and the set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ e _ { 1 } , \\ldots , e _ { n + 1 } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "goes tight. The resulting set cover has a cost of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n + \\varepsilon ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", whereas the optimum cover has cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 + \\varepsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                669,
+                786,
+                740
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "128"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "15 Set Cover via the Primal–Dual Schema"
+                    }
+                ]
+            },
+            "bbox": [
+                277,
+                87,
+                579,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "15.3 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                111,
+                376,
+                127
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "15.1 How is the algorithm given in Exercise 2.11 for the weighted vertex cover problem related to Algorithm 15.2 for the case "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f = 2 ?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                155,
+                786,
+                186
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "15.2 Remove the scafolding of linear programming from Algorithm 15.2 to obtain a purely combinatorial factor f algorithm for set cover."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                198,
+                786,
+                227
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: See the algorithm in Exercise 2.11."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                227,
+                539,
+                242
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "15.3 Let k be a fixed constant, and consider instances of set cover whose maximum frequency, f, is bounded by k. Algorithm 15.2 shows that the integrality gap of LP (13.2) is upper bounded by k for these instances. Provide examples to show that this bound is essentially tight."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                786,
+                313
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Consider a regular hypergraph, G, on n vertices which has a hyperedge corresponding to each choice of k of the n vertices. Construct the set system as follows. It has an element corresponding to each hyperedge and a set corresponding to each vertex, with incidence defining inclusion."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                312,
+                786,
+                370
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "15.4 The following LP-relaxation is exact for the maximum weight matching problem (see definition in Exercise 12.8) in bipartite graphs but not in general graphs. Give a primal–dual algorithm, relaxing complementary slackness conditions appropriately, to show that the integrality gap of this "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P i s } \\geq 1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "What is the best upper bound you can place on the integrality gap?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                382,
+                786,
+                456
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm{maximize} \\sum_ {e} w _ {e} x _ {e}\\tag{15.2}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/5a0dd48bf17e34102dc10b4378867c0fa8b64743463a5789592ea7908f127c93.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                468,
+                430,
+                498
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\text{subject to} \\sum_{\\substack{e: e\\text{incident at} v\\\\ x_{e}\\geq 0,}}x_{e}\\leq 1,\\quad v\\in V\\\\ e\\in E",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/1a10c328c80e98948bc05fd6ba05742c94d64376ea2053c761ad7538ac12751f.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                505,
+                611,
+                555
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "15.5 (Chudak, Goemans, Hochbaum, and Williamson [46]) Interpret the layering-based algorithms obtained for set cover and feedback vertex set problems in Chapters 2 and 6 as primal–dual schema based algorithms. How are the complementary slackness conditions being relaxed?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                581,
+                786,
+                640
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "15.4 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                667,
+                342,
+                684
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Kuhn [179] gave the first primal–dual algorithm – for the weighted bipartite matching problem – however, he used the name “Hungarian Method” to describe his algorithm. Dantzig, Ford, and Fulkerson [60] used this method for giving another means of solving linear programs and called it the primal– dual method. Although the schema was not very successful for solving linear programs, it soon found widespread use in combinatorial optimization."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                697,
+                786,
+                741
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "15.4 Notes"
+                    }
+                ]
+            },
+            "bbox": [
+                643,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "129"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 15.2 is due to Bar-Yehuda and Even [20]. Although it was not originally stated as a primal–dual algorithm, in retrospect, this was the first use of the schema in approximation algorithms. The works of Agrawal, Klein, and Ravi [1] and Goemans and Williamson [105] revived the use of this schema in the latter setting, and introduced the powerful idea of growing duals in a synchronized manner (see Chapter 22). The mechanism of relaxing complementary slackness conditions was first formalized in Williamson, Goemans, Mihail, and Vazirani [258]. For further historical information, see Goemans and Williamson [107]."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                156,
+                786,
+                285
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "130"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "Set Cover via the Primal–Dual Schema"
+                    }
+                ]
+            },
+            "bbox": [
+                307,
+                87,
+                579,
+                101
+            ]
+        }
+    ]
+]

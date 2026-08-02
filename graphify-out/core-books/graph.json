@@ -1,0 +1,2631 @@
+{
+  "schema": "core-book-graph-v1",
+  "directed": true,
+  "nodes": [
+    {
+      "id": "book:algorithmic-game-theory",
+      "label": "algorithmic-game-theory",
+      "type": "book",
+      "path": "raw/canonical/algorithmic-game-theory"
+    },
+    {
+      "id": "algorithmic-game-theory:front-matter",
+      "label": "Front matter",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/front-matter-front-matter.md",
+      "pdf_pages": [
+        1,
+        23
+      ]
+    },
+    {
+      "id": "term:approximation",
+      "label": "approximation",
+      "type": "core-book-term"
+    },
+    {
+      "id": "term:dual",
+      "label": "dual",
+      "type": "core-book-term"
+    },
+    {
+      "id": "term:equilibrium",
+      "label": "equilibrium",
+      "type": "core-book-term"
+    },
+    {
+      "id": "term:incentive",
+      "label": "incentive",
+      "type": "core-book-term"
+    },
+    {
+      "id": "term:lp",
+      "label": "lp",
+      "type": "core-book-term"
+    },
+    {
+      "id": "term:mechanism",
+      "label": "mechanism",
+      "type": "core-book-term"
+    },
+    {
+      "id": "term:nash",
+      "label": "nash",
+      "type": "core-book-term"
+    },
+    {
+      "id": "term:primal",
+      "label": "primal",
+      "type": "core-book-term"
+    },
+    {
+      "id": "term:scheduling",
+      "label": "scheduling",
+      "type": "core-book-term"
+    },
+    {
+      "id": "term:utility",
+      "label": "utility",
+      "type": "core-book-term"
+    },
+    {
+      "id": "algorithmic-game-theory:ch-01",
+      "label": "Basic Solution Concepts and Computational Issues",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-01-basic-solution-concepts-and-computational-issues.md",
+      "pdf_pages": [
+        24,
+        49
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-02",
+      "label": "The Complexity of Finding Nash Equilibria",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-02-the-complexity-of-finding-nash-equilibria.md",
+      "pdf_pages": [
+        50,
+        73
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-03",
+      "label": "Equilibrium Computation for Two-Player Games in Strategic",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-03-equilibrium-computation-for-two-player-games-in-strategic.md",
+      "pdf_pages": [
+        74,
+        99
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-04",
+      "label": "Learning, Regret Minimization, and Equilibria",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-04-learning-regret-minimization-and-equilibria.md",
+      "pdf_pages": [
+        100,
+        123
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-05",
+      "label": "Combinatorial Algorithms for Market Equilibria",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-05-combinatorial-algorithms-for-market-equilibria.md",
+      "pdf_pages": [
+        124,
+        155
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-06",
+      "label": "Computation of Market Equilibria by Convex",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-06-computation-of-market-equilibria-by-convex.md",
+      "pdf_pages": [
+        156,
+        179
+      ]
+    },
+    {
+      "id": "term:hardness",
+      "label": "hardness",
+      "type": "core-book-term"
+    },
+    {
+      "id": "algorithmic-game-theory:ch-07",
+      "label": "Graphical Games Michael Kearns",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-07-graphical-games-michael-kearns.md",
+      "pdf_pages": [
+        180,
+        201
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-08",
+      "label": "Cryptography and Game Theory Yevgeniy Dodis and Tal Rabin",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-08-cryptography-and-game-theory-yevgeniy-dodis-and-tal-rabin.md",
+      "pdf_pages": [
+        202,
+        229
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-09",
+      "label": "Introduction to Mechanism Design (for Computer Scientists)",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-09-introduction-to-mechanism-design-for-computer-scientists.md",
+      "pdf_pages": [
+        230,
+        263
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-10",
+      "label": "Mechanism Design without Money",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-10-mechanism-design-without-money.md",
+      "pdf_pages": [
+        264,
+        287
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-11",
+      "label": "Combinatorial Auctions Liad Blumrosen and Noam Nisan",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-11-combinatorial-auctions-liad-blumrosen-and-noam-nisan.md",
+      "pdf_pages": [
+        288,
+        321
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-12",
+      "label": "Computationally Efﬁcient Approximation Mechanisms",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-12-computationally-ef-cient-approximation-mechanisms.md",
+      "pdf_pages": [
+        322,
+        351
+      ]
+    },
+    {
+      "id": "term:rounding",
+      "label": "rounding",
+      "type": "core-book-term"
+    },
+    {
+      "id": "algorithmic-game-theory:ch-13",
+      "label": "Proﬁt Maximization in Mechanism Design",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-13-pro-t-maximization-in-mechanism-design.md",
+      "pdf_pages": [
+        352,
+        383
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-14",
+      "label": "Distributed Algorithmic Mechanism Design",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-14-distributed-algorithmic-mechanism-design.md",
+      "pdf_pages": [
+        384,
+        405
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-15",
+      "label": "Cost Sharing Kamal Jain and Mohammad Mahdian",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-15-cost-sharing-kamal-jain-and-mohammad-mahdian.md",
+      "pdf_pages": [
+        406,
+        431
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-16",
+      "label": "Online Mechanisms David C. Parkes",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-16-online-mechanisms-david-c-parkes.md",
+      "pdf_pages": [
+        432,
+        463
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-17",
+      "label": "Introduction to the Inefﬁciency of Equilibria",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-17-introduction-to-the-inef-ciency-of-equilibria.md",
+      "pdf_pages": [
+        464,
+        481
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-18",
+      "label": "Routing Games Tim Roughgarden",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-18-routing-games-tim-roughgarden.md",
+      "pdf_pages": [
+        482,
+        507
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-19",
+      "label": "Network Formation Games and the Potential Function Method",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-19-network-formation-games-and-the-potential-function-method.md",
+      "pdf_pages": [
+        508,
+        537
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-20",
+      "label": "Selﬁsh Load Balancing Berthold V¨ocking",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-20-sel-sh-load-balancing-berthold-v-ocking.md",
+      "pdf_pages": [
+        538,
+        563
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-21",
+      "label": "The Price of Anarchy and the Design of Scalable Resource",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-21-the-price-of-anarchy-and-the-design-of-scalable-resource.md",
+      "pdf_pages": [
+        564,
+        591
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-22",
+      "label": "Incentives and Pricing in Communications Networks",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-22-incentives-and-pricing-in-communications-networks.md",
+      "pdf_pages": [
+        592,
+        613
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-23",
+      "label": "Incentives in Peer-to-Peer Systems",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-23-incentives-in-peer-to-peer-systems.md",
+      "pdf_pages": [
+        614,
+        633
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-24",
+      "label": "Cascading Behavior in Networks: Algorithmic",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-24-cascading-behavior-in-networks-algorithmic.md",
+      "pdf_pages": [
+        634,
+        653
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-25",
+      "label": "Incentives and Information Security",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-25-incentives-and-information-security.md",
+      "pdf_pages": [
+        654,
+        671
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-26",
+      "label": "Computational Aspects of Prediction Markets",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-26-computational-aspects-of-prediction-markets.md",
+      "pdf_pages": [
+        672,
+        697
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-27",
+      "label": "Manipulation-Resistant Reputation Systems",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-27-manipulation-resistant-reputation-systems.md",
+      "pdf_pages": [
+        698,
+        719
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-28",
+      "label": "Sponsored Search Auctions S´ebastien Lahaie, David M. Pennock, Amin Saberi,",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-28-sponsored-search-auctions-s-ebastien-lahaie-david-m-pennock-amin-saberi.md",
+      "pdf_pages": [
+        720,
+        737
+      ]
+    },
+    {
+      "id": "algorithmic-game-theory:ch-29",
+      "label": "Computational Evolutionary Game Theory",
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-29-computational-evolutionary-game-theory.md",
+      "pdf_pages": [
+        738,
+        775
+      ]
+    },
+    {
+      "id": "book:approximation-algorithms",
+      "label": "approximation-algorithms",
+      "type": "book",
+      "path": "raw/canonical/approximation-algorithms"
+    },
+    {
+      "id": "approximation-algorithms:front-matter",
+      "label": "Front matter",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/front-matter-front-matter.md",
+      "pdf_pages": [
+        1,
+        18
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-01",
+      "label": "Introduction",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-01-introduction.md",
+      "pdf_pages": [
+        19,
+        32
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-02",
+      "label": "Set Cover",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-02-set-cover.md",
+      "pdf_pages": [
+        33,
+        44
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-03",
+      "label": "Steiner Tree and TSP",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-03-steiner-tree-and-tsp.md",
+      "pdf_pages": [
+        45,
+        55
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-04",
+      "label": "Multiway Cut and k-Cut",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-04-multiway-cut-and-k-cut.md",
+      "pdf_pages": [
+        56,
+        64
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-05",
+      "label": "k-Center",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-05-k-center.md",
+      "pdf_pages": [
+        65,
+        71
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-06",
+      "label": "Feedback Vertex Set",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-06-feedback-vertex-set.md",
+      "pdf_pages": [
+        72,
+        78
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-07",
+      "label": "Shortest Superstring",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-07-shortest-superstring.md",
+      "pdf_pages": [
+        79,
+        85
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-08",
+      "label": "Knapsack",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-08-knapsack.md",
+      "pdf_pages": [
+        86,
+        91
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-09",
+      "label": "Bin Packing",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-09-bin-packing.md",
+      "pdf_pages": [
+        92,
+        96
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-10",
+      "label": "Minimum Makespan Scheduling",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-10-minimum-makespan-scheduling.md",
+      "pdf_pages": [
+        97,
+        101
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-11",
+      "label": "Euclidean TSP",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-11-euclidean-tsp.md",
+      "pdf_pages": [
+        102,
+        110
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-12",
+      "label": "Introduction to LP-Duality",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-12-introduction-to-lp-duality.md",
+      "pdf_pages": [
+        111,
+        125
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-13",
+      "label": "Set Cover via Dual Fitting",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-13-set-cover-via-dual-fitting.md",
+      "pdf_pages": [
+        126,
+        136
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-14",
+      "label": "Rounding Applied to Set Cover",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-14-rounding-applied-to-set-cover.md",
+      "pdf_pages": [
+        137,
+        142
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-15",
+      "label": "Set Cover via the Primal–Dual Schema",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-15-set-cover-via-the-primal-dual-schema.md",
+      "pdf_pages": [
+        143,
+        148
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-16",
+      "label": "Maximum Satisﬁability",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-16-maximum-satis-ability.md",
+      "pdf_pages": [
+        149,
+        157
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-17",
+      "label": "Scheduling on Unrelated Parallel Machines",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-17-scheduling-on-unrelated-parallel-machines.md",
+      "pdf_pages": [
+        158,
+        163
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-18",
+      "label": "Multicut and Integer Multicommodity Flow in Trees",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-18-multicut-and-integer-multicommodity-flow-in-trees.md",
+      "pdf_pages": [
+        164,
+        172
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-19",
+      "label": "Multiway Cut",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-19-multiway-cut.md",
+      "pdf_pages": [
+        173,
+        185
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-20",
+      "label": "Multicut in General Graphs",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-20-multicut-in-general-graphs.md",
+      "pdf_pages": [
+        186,
+        197
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-21",
+      "label": "Sparsest Cut",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-21-sparsest-cut.md",
+      "pdf_pages": [
+        198,
+        215
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-22",
+      "label": "Steiner Forest",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-22-steiner-forest.md",
+      "pdf_pages": [
+        216,
+        230
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-23",
+      "label": "Steiner Network",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-23-steiner-network.md",
+      "pdf_pages": [
+        231,
+        249
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-24",
+      "label": "Facility Location",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-24-facility-location.md",
+      "pdf_pages": [
+        250,
+        260
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-25",
+      "label": "k-Median",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-25-k-median.md",
+      "pdf_pages": [
+        261,
+        272
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-26",
+      "label": "Semideﬁnite Programming",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-26-semide-nite-programming.md",
+      "pdf_pages": [
+        273,
+        290
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-27",
+      "label": "Shortest Vector",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-27-shortest-vector.md",
+      "pdf_pages": [
+        291,
+        311
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-28",
+      "label": "Counting Problems",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-28-counting-problems.md",
+      "pdf_pages": [
+        312,
+        323
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-29",
+      "label": "Hardness of Approximation",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-29-hardness-of-approximation.md",
+      "pdf_pages": [
+        324,
+        351
+      ]
+    },
+    {
+      "id": "approximation-algorithms:ch-30",
+      "label": "Open Problems",
+      "type": "book-chapter",
+      "book_id": "approximation-algorithms",
+      "path": "raw/canonical/approximation-algorithms/chapters/ch-30-open-problems.md",
+      "pdf_pages": [
+        352,
+        396
+      ]
+    }
+  ],
+  "links": [
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:front-matter",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:front-matter",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:front-matter",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:front-matter",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:front-matter",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:front-matter",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:front-matter",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:front-matter",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:front-matter",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:front-matter",
+      "target": "term:scheduling",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:front-matter",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-01",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-01",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-01",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-01",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-01",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-02",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-02",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-02",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-02",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-02",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-02",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-03",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-03",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-03",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-03",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-03",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-03",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-04",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-04",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-04",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-04",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-04",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-05",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-05",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-05",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-05",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-05",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-05",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-05",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-05",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-05",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-06",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-06",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-06",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-06",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-06",
+      "target": "term:hardness",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-06",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-06",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-06",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-07",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-07",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-07",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-07",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-07",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-07",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-07",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-07",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-08",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-08",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-08",
+      "target": "term:hardness",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-08",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-08",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-08",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-08",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-09",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-09",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-09",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-09",
+      "target": "term:hardness",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-09",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-09",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-09",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-09",
+      "target": "term:scheduling",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-09",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-10",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-10",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-10",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-10",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-10",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-10",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-11",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-11",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-11",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-11",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-11",
+      "target": "term:hardness",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-11",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-11",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-11",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-11",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-11",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-11",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-12",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-12",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-12",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-12",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-12",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-12",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-12",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-12",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-12",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-12",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-12",
+      "target": "term:scheduling",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-12",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-13",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-13",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-13",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-13",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-13",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-13",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-13",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-14",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-14",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-14",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-14",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-14",
+      "target": "term:hardness",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-14",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-14",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-14",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-14",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-15",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-15",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-15",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-15",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-15",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-15",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-15",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-15",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-15",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-15",
+      "target": "term:scheduling",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-15",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-16",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-16",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-16",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-16",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-16",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-16",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-16",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-16",
+      "target": "term:scheduling",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-16",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-17",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-17",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-17",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-17",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-17",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-17",
+      "target": "term:scheduling",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-17",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-18",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-18",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-18",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-18",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-18",
+      "target": "term:scheduling",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-19",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-19",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-19",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-19",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-19",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-19",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-19",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-20",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-20",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-20",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-20",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-20",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-20",
+      "target": "term:scheduling",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-21",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-21",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-21",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-21",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-21",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-21",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-22",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-22",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-22",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-22",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-22",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-22",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-22",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-22",
+      "target": "term:scheduling",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-22",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-23",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-23",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-23",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-23",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-23",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-23",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-23",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-24",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-24",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-24",
+      "target": "term:hardness",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-24",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-24",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-25",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-25",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-25",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-25",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-25",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-25",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-26",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-26",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-26",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-26",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-26",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-26",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-27",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-27",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-27",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-27",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-27",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-27",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-28",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-28",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-28",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-28",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-28",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-28",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-28",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-28",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:algorithmic-game-theory",
+      "target": "algorithmic-game-theory:ch-29",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-29",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-29",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-29",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-29",
+      "target": "term:hardness",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-29",
+      "target": "term:incentive",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-29",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-29",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-29",
+      "target": "term:nash",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-29",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-29",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-29",
+      "target": "term:scheduling",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "algorithmic-game-theory:ch-29",
+      "target": "term:utility",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:front-matter",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:front-matter",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:front-matter",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:front-matter",
+      "target": "term:hardness",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:front-matter",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:front-matter",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:front-matter",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:front-matter",
+      "target": "term:scheduling",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-01",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-01",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-01",
+      "target": "term:hardness",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-01",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-01",
+      "target": "term:scheduling",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-02",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-02",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-02",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-02",
+      "target": "term:hardness",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-02",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-02",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-02",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-03",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-03",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-03",
+      "target": "term:hardness",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-03",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-04",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-04",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-04",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-05",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-05",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-06",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-06",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-07",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-07",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-08",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-08",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-08",
+      "target": "term:hardness",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-08",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-09",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-09",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-09",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-10",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-10",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-10",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-10",
+      "target": "term:scheduling",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-11",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-11",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-11",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-12",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-12",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-12",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-12",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-12",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-12",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-13",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-13",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-13",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-13",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-13",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-13",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-14",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-14",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-14",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-14",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-14",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-15",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-15",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-15",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-15",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-15",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-15",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-16",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-16",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-16",
+      "target": "term:hardness",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-16",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-16",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-17",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-17",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-17",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-17",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-17",
+      "target": "term:scheduling",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-18",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-18",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-18",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-18",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-18",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-19",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-19",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-19",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-19",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-19",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-19",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-20",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-20",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-20",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-20",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-20",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-21",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-21",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-21",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-21",
+      "target": "term:equilibrium",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-21",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-21",
+      "target": "term:mechanism",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-21",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-22",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-22",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-22",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-22",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-22",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-23",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-23",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-23",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-23",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-23",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-23",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-24",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-24",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-24",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-24",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-24",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-24",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-25",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-25",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-25",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-25",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-25",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-25",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-26",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-26",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-26",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-27",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-27",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-27",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-27",
+      "target": "term:hardness",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-28",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-28",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-29",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-29",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-29",
+      "target": "term:hardness",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "book:approximation-algorithms",
+      "target": "approximation-algorithms:ch-30",
+      "relation": "HAS_CHAPTER"
+    },
+    {
+      "source": "approximation-algorithms:ch-30",
+      "target": "term:approximation",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-30",
+      "target": "term:dual",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-30",
+      "target": "term:hardness",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-30",
+      "target": "term:lp",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-30",
+      "target": "term:primal",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-30",
+      "target": "term:rounding",
+      "relation": "MENTIONS"
+    },
+    {
+      "source": "approximation-algorithms:ch-30",
+      "target": "term:scheduling",
+      "relation": "MENTIONS"
+    }
+  ]
+}

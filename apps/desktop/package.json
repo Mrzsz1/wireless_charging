@@ -1,0 +1,31 @@
+{
+  "name": "desktop",
+  "private": true,
+  "version": "0.6.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "data:build": "py -3 ../../tools/export_desktop_data.py",
+    "build": "npm run data:build && tsc && vite build",
+    "verify": "node scripts/verify-build.mjs",
+    "verify:p3": "node scripts/verify-p3.mjs",
+    "verify:p4": "node scripts/verify-p4.mjs",
+    "tauri": "tauri",
+    "preview": "vite preview",
+    "verify:p5": "node scripts/verify-p5.mjs",
+    "smoke:installer": "node scripts/smoke-installer.mjs"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.4",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "typescript": "~6.0.2",
+    "vite": "^8.2.0"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.11.1",
+    "lucide-react": "^1.28.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  }
+}

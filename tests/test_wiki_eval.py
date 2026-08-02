@@ -1,0 +1,53 @@
+from __future__ import annotations
+
+import importlib.util
+import json
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+TOOLS = ROOT / "tools"
+SPEC = importlib.util.spec_from_file_location("wiki_eval", TOOLS / "wiki_eval.py")
+assert SPEC and SPEC.loader
+wiki_eval = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = wiki_eval
+SPEC.loader.exec_module(wiki_eval)
+
+
+class WikiEvalTests(unittest.TestCase):
+    def test_repository_gold_contract(self) -> None:
+        payload = wiki_eval.load_gold(ROOT / "evals" / "gold_questions.json")
+        self.assertEqual(wiki_eval.validate_contract(payload, ROOT / "wiki"), [])
+
+    def test_invalid_type_quota_is_reported(self) -> None:
+        payload = wiki_eval.load_gold(ROOT / "evals" / "gold_questions.json")
+        payload = json.loads(json.dumps(payload))
+        payload["cases"][0]["type"] = "novelty"
+        errors = wiki_eval.validate_contract(payload, ROOT / "wiki")
+        self.assertTrue(any("类型配额" in error for error in errors))
+
+    def test_answer_check_requires_links_and_waterline(self) -> None:
+        payload = wiki_eval.load_gold(ROOT / "evals" / "gold_questions.json")
+        one_case = {"cases": [payload["cases"][0]]}
+        with tempfile.TemporaryDirectory() as temp_dir:
+            answer = Path(temp_dir) / f"{one_case['cases'][0]['id']}.md"
+            answer.write_text("没有证据链接。", encoding="utf-8")
+            errors = wiki_eval.validate_answers(one_case, Path(temp_dir))
+        self.assertTrue(any("wikilink" in error or "答案缺少" in error for error in errors))
+        self.assertTrue(any("库水位" in error for error in errors))
+
+    def test_answer_check_requires_must_mention(self) -> None:
+        payload = wiki_eval.load_gold(ROOT / "evals" / "gold_questions.json")
+        one_case = {"cases": [payload["cases"][0]]}
+        with tempfile.TemporaryDirectory() as temp_dir:
+            answer = Path(temp_dir) / f"{one_case['cases'][0]['id']}.md"
+            answer.write_text("库水位。", encoding="utf-8")
+            errors = wiki_eval.validate_answers(one_case, Path(temp_dir))
+        self.assertTrue(any("必提概念" in error for error in errors))
+
+
+if __name__ == "__main__":
+    unittest.main()

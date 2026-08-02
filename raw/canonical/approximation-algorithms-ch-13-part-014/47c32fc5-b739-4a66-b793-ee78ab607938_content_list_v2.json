@@ -1,0 +1,3266 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "13 Set Cover via Dual Fitting"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                223,
+                109,
+                589,
+                129
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this chapter we will introduce the method of dual fitting, which helps analyze combinatorial algorithms using LP-duality theory. Using this method, we will present an alternative analysis of the natural greedy algorithm (Algorithm 2.2) for the set cover problem (Problem 2.1). Recall that in Section 2.1 we deferred giving the lower bounding method on which this algorithm was based. We will provide the answer below. The power of this approach will become apparent when we show the ease with which it extends to solving several generalizations of the set cover problem (see Section 13.2)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                786,
+                369
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The method of dual fitting can be described as follows, assuming a minimization problem: The basic algorithm is combinatorial – in the case of set cover it is in fact the simple greedy algorithm. Using the linear programming relaxation of the problem and its dual, one shows that the primal integral solution found by the algorithm is fully paid for by the dual computed; however, the dual is infeasible. By "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f u l l y"
+                    },
+                    {
+                        "type": "text",
+                        "content": "paid "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f o r"
+                    },
+                    {
+                        "type": "text",
+                        "content": "we mean that the objective function value of the primal solution found is at most the objective function value of the dual computed. The main step in the analysis consists of dividing the dual by a suitable factor and showing that the shrunk dual is feasible, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { i . e . }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", it fits into the given instance. The shrunk dual is then a lower bound on OPT, and the factor is the approximation guarantee of the algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                369,
+                788,
+                527
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "13.1 Dual-fitting-based analysis for the greedy set cover algorithm"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                554,
+                729,
+                588
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To formulate the set cover problem as an integer program, let us assign a variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for each set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", which is allowed "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "0 / 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "values. This variable will be set to 1 if set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is picked in the set cover. Clearly, the constraint is that for each element "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e \\in U"
+                    },
+                    {
+                        "type": "text",
+                        "content": "we want that at least one of the sets containing it be picked."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                601,
+                786,
+                673
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\text { minimize } \\quad \\sum_ {S \\in \\mathcal {S}} c (S) x _ {S}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/3f97bdd791d3df76ec8772d43c7b09f0e50bee8e9afb70ba85639c7c3b2c7312.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                686,
+                447,
+                717
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\text { subject   to } \\quad \\sum_ {S: e \\in S} x _ {S} \\geq 1, \\quad e \\in U\\tag{13.1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/c29af9f54ca075970b56fcf5270508c30854e309af2d213263ccbd63c4e605fa.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                724,
+                532,
+                755
+            ]
+        }
+    ],
+    [
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "x _ {S} \\in \\{0, 1 \\}, \\qquad S \\in \\mathcal {S}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/0f1762e024fbfe20901bb6500d8b05d8452d9794f8db5ff6efe568b7133c8dcd.jpg"
+                }
+            },
+            "bbox": [
+                357,
+                112,
+                537,
+                129
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The LP-relaxation of this integer program is obtained by letting the domain of variables "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\geq x _ { S } \\geq 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since the upper bound on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is redundant, we get the following LP. A solution to this LP can be viewed as a fractional set cover."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                141,
+                786,
+                199
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm{minimize} \\sum_ {S \\in \\mathcal {S}} c (S) x _ {S}\\tag{13.2}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/27d848d4e1b27b90a2f7aa8518bf3f22fdffdedd46243ef88acf137777ab2b31.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                211,
+                448,
+                243
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {subject to} & \\sum_ {S: e \\in S} x _ {S} \\geq 1, \\quad e \\in U \\\\ & x _ {S} \\geq 0, \\quad S \\in \\mathcal {S} \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/557856e08f93cd46ec944a51f1fce6c14d97f5638fbb7b076f38e6833f0be595.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                250,
+                537,
+                297
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 13.1 Let us give a simple example to show that a fractional set cover may be cheaper than the optimal integral set cover. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U = \\{ e , f , g \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the specified sets be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { 1 } = \\{ e , f \\} , S _ { 2 } = \\{ f , g \\} , S _ { 3 } = \\{ e , g \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", each of unit cost. An integral cover must pick two of the sets for a cost of 2. On the other hand, picking each set to the extent of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "gives a fractional cover of cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "3 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                317,
+                784,
+                403
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Introducing a variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "corresponding to each element "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e \\in U"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we obtain the dual program."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                409,
+                784,
+                439
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text { maximize } & \\sum_ {e \\in U} y _ {e} \\\\ \\text { subject   to } & \\sum_ {e: e \\in S} y _ {e} \\leq c (S), \\quad S \\in \\mathcal {S} \\\\ & y _ {e} \\geq 0, \\quad e \\in U \\end{array}\\tag{13.3}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/ac0ee8853ca4471a3092332e70df82e6b00a0b6b01b17c91f6abc17e32fc1c62.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                451,
+                554,
+                537
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Intuitively, why is LP (13.3) the dual of LP (13.2)? In our experience, this is not the right question to be asked. As stated in Section 12.1, there is a purely mechanical procedure for obtaining the dual of a linear program. Once the dual is obtained, one can devise intuitive, and possibly physically meaningful, ways of thinking about it. Using this mechanical procedure, one can obtain the dual of a complex linear program in a fairly straightforward manner. Indeed, the LP-duality-based approach derives its wide applicability from this fact."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                550,
+                786,
+                664
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "An intuitive way of thinking about LP (13.3) is that it is packing “stuf” into elements, trying to maximize the total amount packed, subject to the constraint that no set is overpacked. A set is said to be overpacked if the total amount packed into its elements exceeds the cost of the set. Whenever the coeficients in the constraint matrix, objective function, and right-hand side are all nonnegative, the minimization LP is called a covering "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "L P"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the maximization LP is called a packing LP. Thus, (13.2) and (13.3) are a covering-packing pair of linear programs. Such pairs of programs will arise frequently in subsequent chapters."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                664,
+                786,
+                750
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "13.1 Dual-fitting-based analysis for the greedy set cover algorithm"
+                    }
+                ]
+            },
+            "bbox": [
+                267,
+                87,
+                731,
+                102
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "109"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                156
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/93fb37a34ebc7466dbf9528bcabf6fbde039dff2352d3970506b9adafc75ab2f.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                228,
+                168,
+                781,
+                256
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "At this point, we can state the lower bounding scheme being used by Algorithm 2.2. Denote by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { f }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the cost of an optimal fractional set cover, i.e., an optimal solution to LP (13.2). Clearly "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { f } \\ \\leq \\ \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the cost of an optimal (integral) set cover. The cost of any feasible solution to the dua program, LP (13.3), is a lower bound on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { f } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and hence also on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Algorithm 2.2 uses this as the lower bound."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                280,
+                786,
+                366
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 2.2 defines dual variables price(e), for each element, e. Observe that the cover picked by the algorithm is fully payed for by this dual solution. However, in general, this dual solution is not feasible (see Exercise 13.2). We will show below that if this dual is shrunk by a factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { n } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "it fits into the given set cover instance, i.e., no set is overpacked. For each element e define,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                366,
+                786,
+                438
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "y _ {e} = \\frac {\\mathrm{price} (e)}{H _ {n}}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/453ac3e453d9ec1f3b0647561ad76b613e1d386d57b7009c23d6f16688dec9a1.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                448,
+                371,
+                480
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 2.2 uses the dual feasible solution, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { \\mathbf { \\psi } } { \\mathbf { \\psi } } _ { \\mathbf { { y } } } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as the lower bound on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } ."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                489,
+                784,
+                505
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 13.2 The vector y defined above is a feasible solution for the dual program (13.3)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                512,
+                786,
+                543
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: We need to show that no set is overpacked by the solution y. Consider a set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "consisting of k elements. Number the elements in the order in which they are covered by the algorithm, breaking ties arbitrarily, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { 1 } , \\ldots , e _ { k }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                556,
+                786,
+                614
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider the iteration in which the algorithm covers element "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { i } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". At this point, S contains at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k - i + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "uncovered elements. Thus, in this iteration, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "itself can cover "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "at an average cost of at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( S ) / ( k - i + 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since the algorithm chose the most cost-efective set in this iteration, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { p r i c e } ( e _ { i } ) \\leq"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( S ) / ( k - i + 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Thus,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                613,
+                786,
+                686
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "y _ {e _ {i}} \\leq \\frac {1}{H _ {n}} \\cdot \\frac {c (S)}{k - i + 1}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/6e03d80eec0838b114e08250888e52287631c070c4500d6c2a6dcf1a979417b0.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                697,
+                425,
+                728
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Summing over all elements in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                738,
+                465,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "110"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "Set Cover via Dual Fitting"
+                    }
+                ]
+            },
+            "bbox": [
+                307,
+                87,
+                495,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {i = 1} ^ {k} y _ {e _ {i}} \\leq \\frac {c (S)}{H _ {n}} \\cdot \\left(\\frac {1}{k} + \\frac {1}{k - 1} + \\dots + \\frac {1}{1}\\right) = \\frac {H _ {k}}{H _ {n}} \\cdot c (S) \\leq c (S).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/c2a729dff59068f6d71a0b916f14192e4fb65745a015088182bd022518b01e17.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                111,
+                712,
+                149
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Therefore, S is not overpacked."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                162,
+                455,
+                177
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 13.3 The approximation guarantee of the greedy set cover algorithm is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { n }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                192,
+                784,
+                222
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: The cost of the set cover picked is"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                237,
+                542,
+                252
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {e \\in U} \\mathrm{price} (e) = H _ {n} \\left(\\sum_ {e \\in U} y _ {e}\\right) \\leq H _ {n} \\cdot \\mathrm{OPT},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/6c89e0384a5f17d224169b9b480309d663addc8af42582a2569bc9ddbcc15cde.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                263,
+                571,
+                304
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where OPT denotes the cost of the optimal fractional set cover. The last inequality follows from the fact that y is dual feasible. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                315,
+                784,
+                344
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "13.1.1 Can the approximation guarantee be improved?"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                370,
+                697,
+                386
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider the three questions raised in Section 1.1.2 regarding improving the approximation guarantee for vertex cover. Let us ask analogous questions for set cover. The first and third questions are already answered in Section 2.1."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                397,
+                784,
+                439
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As a corollary of Theorem 13.3 we get an upper bound of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "on the integrality gap of relaxation (13.2). Example 13.4 shows that this bound is essentially tight. Since the integrality gap of the LP-relaxation used bounds the best approximation factor one can hope to achieve using this relaxation, the answer to the second question is also essentially "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { 6 } \\mathrm { n o } ^ { 9 }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                439,
+                786,
+                512
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 13.4 Consider the following set cover instance. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n = 2 ^ { k } - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "where k is a positive integer, and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U = \\{ e _ { 1 } , e _ { 2 } , \\ldots , e _ { n } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\leq i \\leq n ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "consider i written as a k-bit number. We can view this as a k-dimensional vector over "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G F [ 2 ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let i denote this vector. For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\leq i \\leq n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "define set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i } ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ e _ { j } | { \\bf \\delta i } \\cdot { \\bf j } = 1 \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { i } \\cdot \\mathbf { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denotes the inner product of these two vectors. Finally, let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S = \\{ S _ { 1 } , \\ldots , S _ { n } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and define the cost of each set to be 1."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                517,
+                784,
+                604
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "It is easy to check that each set contains "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 ^ { k - 1 } = ( n + 1 ) / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "elements, and each element is contained in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( n + 1 ) / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "sets. Thus, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { i } = 2 / ( n + 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\leq i \\leq n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a fractional set cover. Its cost is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 n / ( n + 1 )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                604,
+                784,
+                646
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Next, we will show that any integral set cover must pick at least k of the sets. Consider the union of any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "sets, where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p < k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i _ { 1 } , \\ldots , i _ { p }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the indices of these "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "sets, and let A be a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p \\times k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "matrix over "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G F [ 2 ]"
+                    },
+                    {
+                        "type": "text",
+                        "content": "whose rows consist of vectors "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { i } _ { 1 } , \\ldots , \\mathbf { i } _ { p } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "respectively. Since the rank of A is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "< k ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the dimension of its null space is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\geq 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and so the null space contains a nonzero vector, say j. Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A { \\bf j } = { \\bf 0 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the element "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is not in any of the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "sets. Hence the p sets do not form a cover."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                646,
+                786,
+                747
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "13.1 Dual-fitting-based analysis for the greedy set cover algorithm"
+                    }
+                ]
+            },
+            "bbox": [
+                267,
+                87,
+                729,
+                102
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "111"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Therefore, any integral set cover has cost at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k = \\log _ { 2 } { ( n + 1 ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Hence, the lower bound on the integrality gap established by this example is"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                784,
+                142
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\left(\\frac {n + 1}{2 n}\\right) \\cdot \\log_ {2} (n + 1) > \\frac {\\log_ {2} n}{2}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/2997ec9e59eb238d5846643ca32ce0a64dff36d1705e1c46462d00978c0e4cb4.jpg"
+                }
+            },
+            "bbox": [
+                265,
+                153,
+                505,
+                185
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                768,
+                195,
+                784,
+                206
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "13.2 Generalizations of set cover"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                223,
+                244,
+                557,
+                260
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The greedy algorithm and its analysis using dual fitting extend naturally to several generalizations of the set cover problem (see Exercise 13.4)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                274,
+                786,
+                305
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Set multicover: Each element, e, needs to be covered a specified integer number, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r _ { e } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", of times. The objective again is to cover all elements up to their coverage requirements at minimum cost. We will assume that the cost of picking a set S k times is kcost(S)."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                310,
+                786,
+                367
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Multiset multicover: We are given a collection of multisets, rather than sets, of U. A multiset contains a specified number of copies of each element. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ( S , e )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the multiplicity of element e in set S. The instance satisfies the condition that the multiplicity of an element in a set is at most its coverage requirement, i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\forall S , e \\ M ( S , e ) \\ \\leq \\ r _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The objective is the same as before."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                367,
+                786,
+                451
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• Covering integer programs: These are integer programs of the form"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                453,
+                766,
+                468
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "minimize c · x"
+                    }
+                ]
+            },
+            "bbox": [
+                280,
+                483,
+                415,
+                498
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "subject to Ax ≥ b,"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                507,
+                440,
+                521
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where all entries in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A , b , c"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are nonnegative and x is required to be nonnegative and integral."
+                    }
+                ]
+            },
+            "bbox": [
+                236,
+                535,
+                784,
+                564
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "13.2.1 Dual fitting applied to constrained set multicover"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                583,
+                710,
+                598
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this section, we will present an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor approximation algorithm for set multicover with the additional constraint that each set can be picked at most once. Let us call this the constrained set multicover problem. One interesting feature of this problem is that its linear relaxation and dual contain negative coeficients and thus do not form a covering-packing pair of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P s }"
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                609,
+                786,
+                681
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r _ { e } \\in Z _ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the coverage requirement for each element "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e \\in U"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The integer programming formulation of constrained set multicover is not very diferent from that of set cover."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                681,
+                786,
+                724
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "112"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "13 Set Cover via Dual Fitting"
+                    }
+                ]
+            },
+            "bbox": [
+                278,
+                87,
+                495,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {minimize} & \\sum_ {S \\in \\mathcal {S}} c (S) x _ {S} \\\\ \\text {subject to} & \\sum_ {S: e \\in S} x _ {S} \\geq r _ {e}, \\quad e \\in U \\\\ & x _ {S} \\in \\{0, 1 \\}, \\quad S \\in \\mathcal {S} \\end{array}\\tag{13.4}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/4375ff6b034540b4c6dbcbf9f1dfd559220fa8f35c4dd42fb4bf4bc260c48bb4.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                109,
+                544,
+                198
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Notice, however, that in the LP-relaxation, the constraints "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "x _ { S } \\ \\leq \\ 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are no longer redundant. If we drop them, then a set may be picked multiple times to satisfy the coverage requirement of the elements. Thus, the LP-relaxation looks diferent from that for set cover. In particular, because of the negative numbers in the constraint matrix and the right-hand side, it is not even a covering linear program. The analysis given below deals with this added complexity."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                206,
+                786,
+                307
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {minimize} & \\sum_ {S \\in \\mathcal {S}} c (S) x _ {S} \\\\ \\text {subject to} & \\sum_ {S: e \\in S} x _ {S} \\geq r _ {e}, \\quad e \\in U \\\\ & - x _ {S} \\geq - 1, \\quad S \\in \\mathcal {S} \\\\ & x _ {S} \\geq 0, \\quad S \\in \\mathcal {S} \\end{array}\\tag{13.5}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/085361509de082f0c9b8e62a6ba622d1622c52d2f21b5964a7f5c85824678e21.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                319,
+                544,
+                423
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The additional constraints in the primal lead to new variables, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "z _ { S } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", in the dual. The dual also has negative numbers in the constraint matrix and is not a packing program. Now, a set S can be overpacked with the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { e } \\mathrm { ^ s } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "However, this can be done only if we raise "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "z _ { S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to ensure feasibility, which in turn decreases the objective function value. Overall, overpacking may still be advantageous, since the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "y _ { e } \\mathrm { ^ s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "appear with coeficients of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the objective function."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                432,
+                786,
+                533
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {maximize} & \\sum_ {e \\in U} r _ {e} y _ {e} - \\sum_ {S \\in \\mathcal {S}} z _ {S} \\\\ \\text {subject to} & \\left(\\sum_ {e: e \\in S} y _ {e}\\right) - z _ {S} \\leq c (S), \\quad S \\in \\mathcal {S} \\\\ & y _ {e} \\geq 0, \\quad e \\in U \\\\ & z _ {S} \\geq 0, \\quad S \\in \\mathcal {S} \\end{array}\\tag{13.6}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/22f05f074116e2b592d6a650736d1a82dbd48f4a86e04b62d35f3560b69ac4df.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                543,
+                618,
+                657
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm is again greedy. Let us say that element e is alive if it occurs in fewer than "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of the picked sets. In each iteration, the algorithm picks, from amongst the currently unpicked sets, the most cost-efective set, where the cost-efectiveness of a set is defined to be the average cost at which it covers alive elements. The algorithm halts when there are no more alive elements, i.e., each element has been covered to the extent of its requirement."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                667,
+                786,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "13.2 Generalizations of set cover"
+                    }
+                ]
+            },
+            "bbox": [
+                495,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "113"
+                    }
+                ]
+            },
+            "bbox": [
+                757,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "When a set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is picked, its cost is distributed equally among the alive elements it covers as follows: if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "covers e for the jth time, we set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { p r i c e } ( e , j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to the current cost-efectiveness of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Clearly, the cost-efectiveness of sets picked is nondecreasing. Hence, for each element "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e , \\mathrm { p r i c e } ( e , 1 ) \\leq \\mathrm { p r i c e } ( e , 2 ) \\leq"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\ldots \\leq \\mathrm { p r i c e } ( e , r _ { e } )"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                184
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "At the end of the algorithm, the dual variables are set as follows: For each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e \\in U"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha _ { e } = ( 1 / H _ { n } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "· price(e, r ). For each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that is picked by the algorithm, let"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                184,
+                784,
+                227
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\beta_ {S} = \\frac {1}{H _ {n}} \\cdot \\left[ \\sum_ {e \\text {covered by} S} (\\mathrm{price} (e, r _ {e}) - \\mathrm{price} (e, j _ {e})) \\right],",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/fc287b8089456db32091776b5bc17f5c55269053da1677a8f8bcbcf41aaf2b3c.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                239,
+                680,
+                286
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the copy of e that is covered by S. Notice that since price "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( e , j _ { e } ) \\le"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { p r i c e } ( e , r _ { e } ) , \\ \\beta _ { S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is nonnegative. If S is not picked by the algorithm, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\beta _ { S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is defined to be 0."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                298,
+                784,
+                341
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 13.5 The multicover picked by the algorithm is fully paid for by the dual solution "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\alpha , \\beta )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                351,
+                784,
+                380
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Since the cost of the sets picked by the algorithm is distributed among the covered elements, it follows that the total cost of the multicover produced by the algorithm is"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                395,
+                784,
+                439
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {e \\in U} \\sum_ {j = 1} ^ {r _ {e}} \\mathrm{price} (e, j).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/e29d0411f2f279d7c862e2c27b5e5274233043d87bc606ea24c96fec62774300.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                451,
+                401,
+                489
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The objective function value of the dual solution "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\alpha , \\beta )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                502,
+                652,
+                518
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {e \\in U} r _ {e} \\alpha_ {e} - \\sum_ {S \\in \\mathcal {S}} \\beta_ {S} = \\sum_ {e \\in U} \\sum_ {j = 1} ^ {r _ {e}} \\operatorname{price} (e, j).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/9f7a31c54d791c94d38f670125dd2822323d2a174ef84d1ab6cbba020f8f48f9.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                530,
+                554,
+                569
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The lemma follows."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                581,
+                369,
+                595
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The dual solution defined above is, in general, infeasible. We will show that when scaled by a factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { n } , \\mathrm { a }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "feasible solution results. Define for each element "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e \\in U"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and each set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "，"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                602,
+                784,
+                646
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "y _ {e} = \\frac {\\alpha_ {e}}{H _ {n}} \\mathrm{and} z _ {S} = \\frac {\\beta_ {S}}{H _ {n}}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/3197738ea73b894ace3c2683548df7aba08feffe6c42500f5782ec89ef51f599.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                658,
+                455,
+                687
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 13.6 The pair "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( y , z )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a feasible solution for the dual program "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( 1 3 . 6 )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                699,
+                784,
+                728
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "114"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "13 Set Cover via Dual Fitting"
+                    }
+                ]
+            },
+            "bbox": [
+                277,
+                87,
+                495,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Consider a set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "consisting of k elements. Number its elements in the order in which their requirements are fulfilled, i.e., the order in which they stopped being alive. Let the ordered elements be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { 1 } , \\ldots , e _ { k }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "First, assume that S is not picked by the algorithm. When the algorithm is about to cover the last copy of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { i } , S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "contains at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k - i + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "alive elements, so"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                155,
+                784,
+                198
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm{price} (e _ {i}, r _ {e _ {i}}) \\leq \\frac {c (S)}{k - i + 1}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/c2cd04536391e66a49d0155fc5f207cb52354e7acd3d8f32b8740468aabc21a0.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                208,
+                453,
+                237
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "z _ { S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is zero, we get"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                249,
+                400,
+                263
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l} \\left(\\sum_ {i = 1} ^ {k} y _ {e _ {i}}\\right) - z _ {S} = \\frac {1}{H _ {n}} \\sum_ {i = 1} ^ {k} \\operatorname{price} (e _ {i}, r _ {e _ {i}}) \\\\ \\qquad \\leq \\frac {c (S)}{H _ {n}} \\cdot \\left(\\frac {1}{k} + \\frac {1}{k - 1} + \\dots + \\frac {1}{1}\\right) \\leq c (S). \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/9a3c7a6d52ed47adf53f6fee27f7453b43b98cfa726ff4648ebfc790a72b44d5.jpg"
+                }
+            },
+            "bbox": [
+                265,
+                277,
+                685,
+                349
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Next, assume that S is picked by the algorithm, and before this happens, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k ^ { \\prime } \\ge 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "elements of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are already completely covered. Then"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                361,
+                784,
+                391
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l} \\left(\\sum_ {i = 1} ^ {k} y _ {e _ {i}}\\right) - z _ {S} \\\\ \\qquad = \\frac {1}{H _ {n}} \\cdot \\left[ \\sum_ {i = 1} ^ {k} \\operatorname{price} (e _ {i}, r _ {e _ {i}}) - \\sum_ {i = k ^ {\\prime} + 1} ^ {k} (\\operatorname{price} (e _ {i}, r _ {e _ {i}}) - \\operatorname{price} (e _ {i}, j _ {i})) \\right] \\\\ \\qquad = \\frac {1}{H _ {n}} \\cdot \\left[ \\sum_ {i = 1} ^ {k ^ {\\prime}} \\operatorname{price} (e _ {i}, r _ {e _ {i}}) + \\sum_ {i = k ^ {\\prime} + 1} ^ {k} \\operatorname{price} (e _ {i}, j _ {i}) \\right], \\end{array}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/a599b17bad95daf7a3137d31b9a0002c9c375b6b07b936704b2988d6965e8e66.jpg"
+                }
+            },
+            "bbox": [
+                268,
+                403,
+                771,
+                521
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "covers the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "th copy of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { i } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i \\in \\{ k ^ { \\prime } + 1 , \\ldots , k \\}"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                535,
+                685,
+                550
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "But "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\sum _ { i = k ^ { \\prime } + 1 } ^ { k } \\operatorname { p r i c e } ( e _ { i } , j _ { i } ) = \\cot ( S ) } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", since the cost of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is equally distributed \u0001among the copies it covers. Finally consider elements "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { i } , i \\in \\{ 1 , \\ldots , k ^ { \\prime } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". When the last copy of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is being covered, S is not yet picked and covers at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k - i + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "alive elements. Thus, price "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( e _ { i } , r _ { e _ { i } } ) \\le c ( S ) / ( k - i + 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                549,
+                784,
+                609
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\left(\\sum_ {i = 1} ^ {k} y _ {e _ {i}}\\right) - z _ {S} \\leq \\frac {c (S)}{H _ {n}} \\cdot \\left(\\frac {1}{k} + \\dots + \\frac {1}{k - k ^ {\\prime} + 1} + 1\\right) \\leq c (S).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/68a9a050f6b308f4465546c0edc86292b8b3eb04bc38550baab2fbc4f5faf3be.jpg"
+                }
+            },
+            "bbox": [
+                265,
+                621,
+                712,
+                659
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hence, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( y , z )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is feasible for the dual program."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                673,
+                561,
+                689
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 13.7 The greedy algorithm achieves an approximation guarantee of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for the constrained set multicover problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                705,
+                784,
+                733
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "13.2 Generalizations of set cover"
+                    }
+                ]
+            },
+            "bbox": [
+                495,
+                87,
+                731,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "115"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: By Lemmas 13.5 and 13.6, the total cost of the multicover produced by the algorithm is"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                142
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {e \\in U} r _ {e} \\alpha_ {e} - \\sum_ {S \\in \\mathcal {S}} \\beta_ {S} = H _ {n} \\cdot \\left[ \\sum_ {e \\in U} r _ {e} y _ {e} - \\sum_ {S \\in \\mathcal {S}} z _ {S} \\right] \\leq H _ {n} \\cdot \\mathrm{OPT}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/067f6cff51970fc681a3f98b6cf11f49f1af4a30228ffce179706fe782107012.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                152,
+                702,
+                195
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Observe that as a corollary of Theorem 13.7 we get that the integrality gap of LP (13.5) is bounded by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In contrast, the integrality gap of the corresponding LP for multiset multicover, with the restriction that each set be picked at most once, is not bounded by any function of n (see Exercise 13.5)."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                223,
+                788,
+                296
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "13.3 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                323,
+                376,
+                340
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "13.1 Show that the dual-fitting-based analysis for the greedy set cover and constrained set multicover algorithms actually establishes an approximation guarantee of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where k is size of the largest set in the given instance. (Notice the ease with which this can be established using the LP-duality approach; compare with Exercise 2.8.)"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                367,
+                786,
+                441
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "13.2 Give an example in which the dual solution, price(e), for each element "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "computed by Algorithm 2.2 overpacks some sets, S, by a factor of essentially "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { | S | }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                453,
+                784,
+                498
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "13.3 Give examples to show that the lower bound used by Algorithm 2.2, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "^ { \\mathbf { \\psi } } { \\mathbf { \\psi } } _ { \\mathbf { { y } } } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "can be smaller than OPT by a factor of O(log n)."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                508,
+                784,
+                539
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "13.4 Give the following approximation algorithms."
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                552,
+                608,
+                568
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor for set multicover."
+                    }
+                ]
+            },
+            "bbox": [
+                226,
+                574,
+                468,
+                589
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor for multiset multicover, where m is the size of the largest multiset in the given instance (the size of a multiset counts elements with multiplicity)."
+                    }
+                ]
+            },
+            "bbox": [
+                226,
+                588,
+                786,
+                631
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3. O(log n) factor for covering integer programs."
+                    }
+                ]
+            },
+            "bbox": [
+                226,
+                631,
+                589,
+                646
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { m }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor algorithm for multiset multicover, set the dual variables according to the average price for covering elements, i.e.,"
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                652,
+                786,
+                682
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "y _ {e} = \\frac {1}{H _ {m}} \\sum_ {i = 1} ^ {r _ {e}} \\mathrm{price} (e, i) / r _ {e}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/4afbf2f66959e7be44b26d0ae596366e31103ba19fa4331dc117bdabf2738623.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                692,
+                468,
+                740
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "116"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "13 Set Cover via Dual Fitting"
+                    }
+                ]
+            },
+            "bbox": [
+                277,
+                87,
+                495,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Use scaling and rounding to reduce covering integer programs to multiset multicover, with m polynomially bounded in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "at the expense of a small error (which goes into the approximation factor)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                156
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "13.5 Show that the integrality gap of the relaxation for the following two variants of multiset multicover, based on LP (13.2), is not bounded by any function of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                170,
+                784,
+                212
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Remove the restriction that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M ( S , e ) \\subseteq r _ { e }"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                219,
+                561,
+                234
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Impose the constraint that each set can be picked at most once."
+                    }
+                ]
+            },
+            "bbox": [
+                226,
+                234,
+                724,
+                248
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "What is the best approximation guarantee you can establish for the greedy algorithm for the second variant. Why does the proof of factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "given in Section 13.2 not extend to this case?"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                255,
+                784,
+                298
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "13.6 (Mihail [206]) Consider the following variant on the set multicover problem. Let U be the universal set, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| U | = n ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and S a collection of subsets of U. For each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", its cost is given as a function of time, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t \\in \\{ 1 , \\ldots , T \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Each of these cost functions is nonincreasing with time. In addition, for each element in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "a coverage requirement is specified, again as a function of time; these functions are nondecreasing with time. The problem is to pick sets at a minimum total cost so that the coverage requirements are satisfied for each element at each time. A set can be picked any number of times; the cost of picking a set depends on the time at which it is picked. Once picked, the set remains in the cover for all future times at no additional cost. Give an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor algorithm for this problem. (An "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { ( n \\cdot T ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor algorithm is straightforward.)"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                312,
+                786,
+                483
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "13.7 In many realistic situations, the cost of picking an item a multiple number of times does not grow linearly. Instead it is given by a concave function. The following variant of the set multicover problem models this situation. For each set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "we are given a concave function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "specifying the cost of picking this set multiple times. The problem again is to satisfy all coverage requirements of elements at minimum cost. Give a factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "algorithm for this problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                497,
+                786,
+                596
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Reduce the problem to a multiset multicover problem. For each set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "construct sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i } ^ { j } , j \\geq 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i } ^ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "contains each element of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with multiplicity "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "j"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and has a cost of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { i } ( j )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The greedy algorithm run on this instance achieves the required factor. Next show that there is no need to explicitly construct all the sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i } ^ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In each iteration of the greedy algorithm, the most cost-efective set can be computed directly in polynomial time, even if the requirements are exponentially large."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                596,
+                786,
+                697
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "13.3 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                621,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "117"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "13.4 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                112,
+                342,
+                127
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The dual-fitting-based analysis of set cover is due to Lov´asz [192] and Chv´atal [48]. The analysis of constrained set multicover is due to Rajagopalan and Vazirani [227]. For algorithms for covering integer programs, see Dobson [61] and Rajagopalan and Vazirani [227]."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                141,
+                786,
+                200
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "118"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "13 Set Cover via Dual Fitting"
+                    }
+                ]
+            },
+            "bbox": [
+                277,
+                87,
+                495,
+                101
+            ]
+        }
+    ]
+]

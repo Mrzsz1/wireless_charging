@@ -1,0 +1,1487 @@
+[
+    {
+        "type": "text",
+        "text": "3 Steiner Tree and TSP",
+        "text_level": 2,
+        "bbox": [
+            221,
+            109,
+            517,
+            128
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "In this chapter, we will present constant factor algorithms for two fundamental problems, metric Steiner tree and metric TSP. The reasons for considering the metric case of these problems are quite diferent. For Steiner tree, this is the core of the problem – the rest of the problem reduces to this case. For TSP, without this restriction, the problem admits no approximation factor, assuming $\\mathbf { P } \\neq \\mathbf { N P }$ . The algorithms, and their analyses, are similar in spirit, which is the reason for presenting these problems together.",
+        "bbox": [
+            220,
+            255,
+            786,
+            357
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "3.1 Metric Steiner tree",
+        "text_level": 2,
+        "bbox": [
+            221,
+            384,
+            463,
+            400
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "The Steiner tree problem was defined by Gauss in a letter he wrote to Schumacher (reproduced on the cover of this book). Today, this problem occupies a central place in the field of approximation algorithms. The problem has a wide range of applications, all the way from finding minimum length interconnection of terminals in VLSI design to constructing phylogeny trees in computational biology. This problem and its generalizations will be studied extensively in this book, see Chapters 22 and 23.",
+        "bbox": [
+            220,
+            414,
+            786,
+            514
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Problem 3.1 (Steiner tree) Given an undirected graph $G = ( V , E )$ with nonnegative edge costs and whose vertices are partitioned into two sets, required and Steiner, find a minimum cost tree in G that contains all the required vertices and any subset of the Steiner vertices.",
+        "bbox": [
+            221,
+            520,
+            786,
+            577
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "We will first show that the core of this problem lies in its restriction to instances in which the edge costs satisfy the triangle inequality, i.e., G is a complete undirected graph, and for any three vertices u, v, and w, cost $( u , v ) \\leq$ $\\mathrm { c o s t } ( u , w ) + \\mathrm { c o s t } ( v , w )$ . Let us call this restriction the metric Steiner tree problem.",
+        "bbox": [
+            220,
+            577,
+            786,
+            649
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Theorem 3.2 There is an approximation factor preserving reduction from the Steiner tree problem to the metric Steiner tree problem.",
+        "bbox": [
+            221,
+            658,
+            786,
+            687
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Proof: We will transform, in polynomial time, an instance I of the Steiner tree problem, consisting of graph $G = ( V , E )$ , to an instance I<sup>\u0001</sup> of the metric Steiner tree problem as follows. Let $G ^ { \\prime }$ be the complete undirected graph on vertex set V. Define the cost of edge $( u , v )$ in $G ^ { \\prime }$ to be the cost of a shortest u–v path in G. $G ^ { \\prime }$ is called the metric closure of $G _ { \\ l }$ . The partition of $V$ into required and Steiner vertices in $I ^ { \\prime }$ is the same as in $I .$",
+        "bbox": [
+            220,
+            702,
+            786,
+            747
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            220,
+            112,
+            784,
+            155
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "For any edge $( u , v ) \\in E$ , its cost in $G ^ { \\prime }$ is no more than its cost in $G .$ Therefore, the cost of an optimal solution in $I ^ { \\prime }$ does not exceed the cost of an optimal solution in I.",
+        "bbox": [
+            220,
+            155,
+            786,
+            198
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Next, given a Steiner tree $T ^ { \\prime }$ in $I ^ { \\prime } ,$ we will show how to obtain, in polynomial time, a Steiner tree $T$ in I of at most the same cost. The cost of an edge $( u , v )$ in $G ^ { \\prime }$ corresponds to the cost of a path in $G .$ . Replace each edge of $T ^ { \\prime }$ by the corresponding path to obtain a subgraph of G. Clearly, in this subgraph, all the required vertices are connected. However, this subgraph may, in general, contain cycles. If so, remove edges to obtain tree T. This completes the approximation factor preserving reduction. ✷",
+        "bbox": [
+            220,
+            198,
+            786,
+            299
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "As a consequence of Theorem 3.2, any approximation factor established for the metric Steiner tree problem carries over to the entire Steiner tree problem.",
+        "bbox": [
+            220,
+            305,
+            786,
+            348
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3.1.1 MST-based algorithm",
+        "text_level": 2,
+        "bbox": [
+            221,
+            367,
+            468,
+            382
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Let R denote the set of required vertices. Clearly, a minimum spanning tree (MST) on R is a feasible solution for this problem. Since the problem of finding an MST is in P and the metric Steiner tree problem is NP-hard, we cannot expect the MST on R to always give an optimal Steiner tree; below is an example in which the MST is strictly costlier.",
+        "bbox": [
+            220,
+            394,
+            786,
+            466
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "image",
+        "img_path": "images/1725c1d998f9bba137c768678a6d571d1d1edf03ecf8f4c3e035367ee305c10c.jpg",
+        "image_caption": [
+            "Even ${ \\mathrm { s o } } ,$ an MST on R is not much more costly than an optimal Steiner tree:"
+        ],
+        "image_footnote": [],
+        "content": "",
+        "bbox": [
+            436,
+            470,
+            573,
+            552
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Theorem 3.3 The cost of an $M S T$ on R is within $2 \\cdot \\mathrm { O P T }$",
+        "bbox": [
+            221,
+            582,
+            668,
+            596
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Proof: Consider a Steiner tree of cost OPT. $\\mathrm { B y }$ doubling its edges we obtain an Eulerian graph connecting all vertices of R and, possibly, some Steiner vertices. Find an Euler tour of this graph, for example by traversing the edges in DFS (depth first search) order:",
+        "bbox": [
+            220,
+            613,
+            786,
+            671
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_number",
+        "text": "28",
+        "bbox": [
+            223,
+            87,
+            243,
+            99
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "header",
+        "text": "Steiner Tree and TSP",
+        "bbox": [
+            300,
+            87,
+            453,
+            99
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "image",
+        "img_path": "images/d9bbcc5c0467b87eddc5ae74f7e26a99a6466778a744eac4a44101405555650f.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "content": "",
+        "bbox": [
+            352,
+            109,
+            655,
+            239
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "The cost of this Euler tour is 2 · OPT. Next obtain a Hamiltonian cycle on the vertices of R by traversing the Euler tour and “short-cutting” Steiner vertices and previously visited vertices of R:",
+        "bbox": [
+            220,
+            247,
+            786,
+            291
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "image",
+        "img_path": "images/7421bdb1b76158f21bc60ba98e8a19d0282cc6e3f218fb99b2d5959bfd754b52.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "content": "",
+        "bbox": [
+            349,
+            294,
+            655,
+            439
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Because of triangle inequality, the shortcuts do not increase the cost of the tour. If we delete one edge of this Hamiltonian cycle, we obtain a path that spans R and has cost at most 2 · OPT. This path is also a spanning tree on R. Hence, the MST on R has cost at most 2 · OPT. ✷",
+        "bbox": [
+            220,
+            450,
+            786,
+            508
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Theorem 3.3 gives a straightforward factor 2 algorithm for the metric Steiner tree problem: simply find an MST on the set of required vertices. As in the case of set cover, the “correct” way of viewing this algorithm is in the setting of LP-duality theory. In Chapters 22 and 23 we will see that LP-duality provides the lower bound on which this algorithm is based and also helps solve generalizations of this problem.",
+        "bbox": [
+            220,
+            514,
+            786,
+            601
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Example 3.4 For a tight example, consider a graph with n required vertices and one Steiner vertex. An edge between the Steiner vertex and a required vertex has cost 1, and an edge between two required vertices has cost 2 (not all edges of cost 2 are shown below). In this graph, any MST on R has cost $2 ( n - 1 )$ , while $\\mathrm { O P T } = n$",
+        "bbox": [
+            220,
+            607,
+            786,
+            678
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "header",
+        "text": "3.1 Metric Steiner tree",
+        "bbox": [
+            561,
+            87,
+            732,
+            99
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_number",
+        "text": "29",
+        "bbox": [
+            764,
+            87,
+            784,
+            99
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "image",
+        "img_path": "images/5e6ba2cd0cf222e9116483ce9f5c01e6930735711dcaf0e0d34253df050f53ca.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "content": "",
+        "bbox": [
+            411,
+            129,
+            594,
+            260
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "3.2 Metric TSP",
+        "text_level": 2,
+        "bbox": [
+            221,
+            319,
+            391,
+            336
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "The following is a well-studied problem in combinatorial optimization.",
+        "bbox": [
+            221,
+            349,
+            742,
+            365
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Problem 3.5 (Traveling salesman problem (TSP)) Given a complete graph with nonnegative edge costs, find a minimum cost cycle visiting every vertex exactly once.",
+        "bbox": [
+            220,
+            370,
+            784,
+            413
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "In its full generality, TSP cannot be approximated, assuming $\\mathbf { P } \\neq \\mathbf { N P }$",
+        "bbox": [
+            245,
+            414,
+            771,
+            429
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Theorem 3.6 For any polynomial time computable function $\\alpha ( n )$ , TSP cannot be approximated within a factor of $\\alpha ( n )$ , unless $\\mathbf { P } = \\mathbf { N P }$",
+        "bbox": [
+            221,
+            438,
+            784,
+            467
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Proof: Assume, for a contradiction, that there is a factor $\\alpha ( n )$ polynomial time approximation algorithm, ${ \\mathcal { A } } ,$ for the general TSP problem. We will show that A can be used for deciding the Hamiltonian cycle problem (which is NPhard) in polynomial time, thus implying $\\mathbf { P } = \\mathbf { N P }$",
+        "bbox": [
+            220,
+            482,
+            784,
+            539
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "The central idea is a reduction from the Hamiltonian cycle problem to TSP, that transforms a graph G on n vertices to an edge-weighted complete graph $G ^ { \\prime }$ on n vertices such that",
+        "bbox": [
+            220,
+            539,
+            786,
+            583
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "• if G has a Hamiltonian cycle, then the cost of an optimal TSP tour in $G ^ { \\prime }$ is $n ,$ and",
+        "bbox": [
+            221,
+            588,
+            784,
+            617
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "• if $G$ does not have a Hamiltonian cycle, then an optimal TSP tour in $G ^ { \\prime }$ is of cost $> \\alpha ( n ) \\cdot n$",
+        "bbox": [
+            221,
+            617,
+            784,
+            646
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Observe that when run on graph $G ^ { \\prime }$ , algorithm $\\mathcal { A }$ must return a solution of cost $\\leq \\alpha ( n ) \\cdot n$ in the first case, and a solution of cost $> \\alpha ( n )$ · n in the second case. Thus, it can be used for deciding whether $G$ contains a Hamiltonian cycle.",
+        "bbox": [
+            220,
+            652,
+            786,
+            709
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "The reduction is simple. Assign a weight of 1 to edges of $G ,$ , and a weight of $\\alpha ( n ) \\cdot n$ to nonedges, to obtain $G ^ { \\prime }$ . Now, if $G$ has a Hamiltonian cycle, then the corresponding tour in $G ^ { \\prime }$ has cost n. On the other hand, if G has no Hamiltonian cycle, any tour in $G ^ { \\prime }$ must use an edge of cost $\\alpha ( n ) \\cdot n ,$ and therefore has cost $> \\alpha ( n ) \\cdot n$ ✷",
+        "bbox": [
+            220,
+            709,
+            786,
+            753
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_number",
+        "text": "30",
+        "bbox": [
+            223,
+            87,
+            243,
+            99
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "header",
+        "text": "3 Steiner Tree and TSP",
+        "bbox": [
+            275,
+            87,
+            453,
+            101
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            220,
+            112,
+            784,
+            142
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Notice that in order to obtain such a strong nonapproximability result, we had to assign edge costs that violate triangle inequality. If we restrict ourselves to graphs in which edge costs satisfy triangle inequality, i.e., consider metric TSP, the problem remains NP-complete, but it is no longer hard to approximate.",
+        "bbox": [
+            220,
+            147,
+            786,
+            219
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "3.2.1 A simple factor 2 algorithm",
+        "text_level": 2,
+        "bbox": [
+            221,
+            234,
+            519,
+            249
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We will first present a simple factor 2 algorithm. The lower bound we will use for obtaining this factor is the cost of an MST in G. This is a lower bound because deleting any edge from an optimal solution to TSP gives us a spanning tree of G.",
+        "bbox": [
+            220,
+            256,
+            786,
+            316
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [],
+        "code_body": "<div class=\"mineru-algorithm\" style=\"white-space: pre-wrap; font-family:monospace;\">\nAlgorithm 3.7 (Metric TSP - factor 2)  \n1. Find an MST, $T$, of $G$.  \n2. Double every edge of the MST to obtain an Eulerian graph.  \n3. Find an Eulerian tour, $\\mathcal{T}$, on this graph.  \n4. Output the tour that visits vertices of $G$ in the order of their first appearance in $\\mathcal{T}$. Let $\\mathcal{C}$ be this tour.\n</div>",
+        "bbox": [
+            231,
+            326,
+            739,
+            443
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Notice that Step 4 is similar to the “short-cutting” step in Theorem 3.3.",
+        "bbox": [
+            221,
+            453,
+            757,
+            469
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Theorem 3.8 Algorithm 3.7 is a factor 2 approximation algorithm for metric TSP.",
+        "bbox": [
+            221,
+            474,
+            784,
+            502
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Proof: As noted above, cost $( T ) \\leq \\mathrm { O P T }$ . Since T contains each edge of T twice, cost $( \\tau ) = 2$ · cost(T). Because of triangle inequality, after the “shortcutting” step, cost $( { \\mathcal { C } } ) \\leq \\mathrm { c o s t } ( { \\mathcal { T } } )$ . Combining these inequalities we get that cost $( { \\mathcal { C } } ) \\leq 2 \\cdot \\mathrm { O P T }$ ✷",
+        "bbox": [
+            220,
+            514,
+            786,
+            574
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Example 3.9 A tight example for this algorithm is given by a complete graph on n vertices with edges of cost 1 and 2. We present the graph for $n = 6$ below, where thick edges have cost 1 and remaining edges have cost 2. For arbitrary n the graph has 2n−2 edges of cost 1, with these edges forming the union of a star and an $n - 1$ cycle; all remaining edges have cost 2. The optimal TSP tour has cost n, as shown below for n = 6:",
+        "bbox": [
+            220,
+            583,
+            786,
+            670
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "image",
+        "img_path": "images/f56c1ef9b1426ffdbb388db958b7343aee49e790b24b136bddb99614beef0ba0.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "content": "",
+        "bbox": [
+            373,
+            671,
+            635,
+            750
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "header",
+        "text": "3.2 Metric TSP",
+        "bbox": [
+            608,
+            87,
+            731,
+            99
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_number",
+        "text": "31",
+        "bbox": [
+            764,
+            87,
+            784,
+            99
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Suppose that the MST found by the algorithm is the spanning star created by edges of cost 1. Moreover, suppose that the Euler tour constructed in Step 3 visits vertices in order shown below for $n = 6 \\mathrm { : }$",
+        "bbox": [
+            220,
+            112,
+            786,
+            156
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "image",
+        "img_path": "images/b41c355bc3c8fe6efdd6c9663bcfe87608726bf4ded6354803150e8c35eb8d20.jpg",
+        "image_caption": [
+            "Then the tour obtained after short-cutting contains $n - 2$ edges of cost 2 and has a total cost of 2n − 2. Asymptotically, this is twice the cost of the optimal TSP tour. ✷"
+        ],
+        "image_footnote": [],
+        "content": "",
+        "bbox": [
+            371,
+            158,
+            636,
+            239
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "3.2.2 Improving the factor to 3/2",
+        "text_level": 2,
+        "bbox": [
+            221,
+            315,
+            519,
+            331
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Algorithm 3.7 first finds a low cost Euler tour spanning the vertices of $G ,$ and then short-cuts this tour to find a traveling salesman tour. Is there a cheaper Euler tour than that found by doubling an MST? Recall that a graph has an Euler tour if all its vertices have even degrees. Thus, we only need to be concerned about the vertices of odd degree in the MST. Let $V ^ { \\prime }$ denote this set of vertices. $\\vert V ^ { \\prime } \\vert$ must be even since the sum of degrees of all vertices in the MST is even. Now, if we add to the MST a minimum cost perfect matching on $V ^ { \\prime }$ , every vertex will have an even degree, and we get an Eulerian graph. With this modification, the algorithm achieves an approximation guarantee of $3 / 2$",
+        "bbox": [
+            220,
+            341,
+            786,
+            483
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Algorithm 3.10 (Metric TSP – factor $3 / 2 )$",
+        "bbox": [
+            233,
+            506,
+            591,
+            521
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "1. Find an MST of G, say T.",
+        "bbox": [
+            240,
+            527,
+            453,
+            542
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "2. Compute a minimum cost perfect matching, M, on the set of odd-degree vertices of T. Add M to $T$ and obtain an Eulerian graph.",
+        "bbox": [
+            238,
+            542,
+            752,
+            571
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "3. Find an Euler tour, $\\tau ,$ of this graph.",
+        "bbox": [
+            240,
+            570,
+            524,
+            585
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "4. Output the tour that visits vertices of $G$ in order of their first appearance in $\\tau$ . Let C be this tour.",
+        "bbox": [
+            238,
+            583,
+            700,
+            614
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Interestingly, the proof of this algorithm is based on a second lower bound on OPT.",
+        "bbox": [
+            221,
+            642,
+            784,
+            671
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Lemma 3.11 Let $V ^ { \\prime } \\subseteq V$ , such that $| V ^ { \\prime } |$ is even, and let M be a minimum cost perfect matching on $V ^ { \\prime }$ . Then, cost $( M ) \\leq \\mathrm { O P T / 2 }$",
+        "bbox": [
+            221,
+            678,
+            784,
+            709
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Proof: Consider an optimal TSP tour of $G ,$ , say τ . Let $\\tau ^ { \\prime }$ be the tour on $V ^ { \\prime }$ obtained by short-cutting τ . By the triangle inequality, cost $\\left( \\tau ^ { \\prime } \\right) \\ \\leq$ cos ${ \\mathrm { ; } } ( \\tau )$ . Now, $\\tau ^ { \\prime }$ is the union of two perfect matchings on $V ^ { \\prime }$ , each consisting of alternate edges of $\\tau .$ . Thus, the cheaper of these matchings has cost $\\leq$ cost $( \\tau ^ { \\prime } ) / 2 \\le \\mathrm { O P T / 2 }$ . Hence the optimal matching also has cost at most OPT/2. ✷",
+        "bbox": [
+            220,
+            722,
+            784,
+            753
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_number",
+        "text": "32",
+        "bbox": [
+            223,
+            87,
+            243,
+            99
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "header",
+        "text": "3 Steiner Tree and TSP",
+        "bbox": [
+            275,
+            87,
+            453,
+            101
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            220,
+            112,
+            784,
+            170
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Theorem 3.12 Algorithm 3.10 achieves an approximation guarantee $o f 3 / 2$ for metric TSP.",
+        "bbox": [
+            220,
+            186,
+            784,
+            215
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Proof: The cost of the Euler tour,",
+        "bbox": [
+            220,
+            230,
+            489,
+            244
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\operatorname{cost} (\\mathcal {T}) \\leq \\operatorname{cost} (T) + \\operatorname{cost} (M) \\leq \\mathrm{OPT} + \\frac {1}{2} \\mathrm{OPT} = \\frac {3}{2} \\mathrm{OPT},\n$$",
+        "text_format": "latex",
+        "bbox": [
+            262,
+            255,
+            685,
+            284
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "where the first inequality follows by using the two lower bounds on OPT. Using the triangle inequality, cost $( { \\mathcal { C } } ) \\leq \\mathrm { c o s t } ( { \\mathcal { T } } )$ , and the theorem follows. ✷",
+        "bbox": [
+            220,
+            294,
+            784,
+            325
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Example 3.13 A tight example for this algorithm is given by the following graph on n vertices, with n odd:",
+        "bbox": [
+            220,
+            337,
+            786,
+            366
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "image",
+        "img_path": "images/ac07c3a115b814b4f129dfde4daae88d1633ac86f9cfe2d6cf6b6c979a445597.jpg",
+        "image_caption": [
+            "Thick edges represent the MST found in step 1. This MST has only two odd vertices, and by adding the edge joining them we obtain a traveling salesman tour of cost $\\left( n - 1 \\right) + \\left\\lceil n / 2 \\right\\rceil$ . In contrast, the optimal tour has cost n. ✷"
+        ],
+        "image_footnote": [],
+        "content": "",
+        "bbox": [
+            287,
+            366,
+            719,
+            450
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Finding a better approximation algorithm for metric TSP is currently one of the outstanding open problems in this area. Many researchers have conjectured that an approximation factor of $4 / 3$ may be achievable.",
+        "bbox": [
+            220,
+            510,
+            786,
+            554
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "3.3 Exercises",
+        "text_level": 2,
+        "bbox": [
+            221,
+            582,
+            364,
+            596
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "3.1 The hardness of the Steiner tree problem lies in determining the optimal subset of Steiner vertices that need to be included in the tree. Show this by proving that if this set is provided, then the optimal Steiner tree can be computed in polynomial time.",
+        "bbox": [
+            220,
+            625,
+            786,
+            682
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Hint: Find an MST on the union of this set and the set of required vertices.",
+        "bbox": [
+            221,
+            682,
+            784,
+            696
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "3.2 Let $G = ( V , E )$ be a graph with nonnegative edge costs. S, the senders and $R _ { : }$ , the receivers, are disjoint subsets of V. The problem is to find a minimum cost subgraph of $G$ that has a path connecting each receiver to a sender (any sender sufices). Partition the instances into two cases: $S \\cup R = V$ and $S \\cup R \\neq V$ . Show that these two cases are in P and NP-hard, respectively. For the second case, give a factor 2 approximation algorithm.",
+        "bbox": [
+            221,
+            709,
+            786,
+            753
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "header",
+        "text": "3.3 Exercises",
+        "bbox": [
+            628,
+            87,
+            732,
+            99
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "page_number",
+        "text": "33",
+        "bbox": [
+            764,
+            87,
+            784,
+            99
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            220,
+            112,
+            784,
+            156
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Hint: Add a new vertex which is connected to each sender by a zero cost edge. Consider the new vertex and all receivers as required and the remaining vertices as Steiner, and find a minimum cost Steiner tree.",
+        "bbox": [
+            220,
+            156,
+            786,
+            200
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "3.3 Give an approximation factor preserving reduction from the set cover problem to the following problem, thereby showing that it is unlikely to have a better approximation guarantee than $O ( \\log n )$",
+        "bbox": [
+            220,
+            212,
+            786,
+            256
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Problem 3.14 (Directed Steiner tree) $G = ( V , E )$ is a directed graph with nonnegative edge costs. The vertex set V is partitioned into two sets, required and Steiner. One of the required vertices, r, is special. The problem is to find a minimum cost tree in G rooted into r that contains all the required vertices and any subset of the Steiner vertices.",
+        "bbox": [
+            220,
+            262,
+            784,
+            334
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Hint: Construct a three layer graph: layer 1 contains a required vertex corresponding to each element, layer 2 contains a Steiner vertex corresponding to each set, and layer 3 contains r.",
+        "bbox": [
+            220,
+            334,
+            786,
+            376
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "3.4 (Hoogeveen [130]) Consider variants on the metric TSP problem in which the object is to find a simple path containing all the vertices of the graph. Three diferent problems arise, depending on the number $( 0 , 1 , \\mathrm { o r } 2 )$ of endpoints of the path that are specified. Obtain the following approximation algorithms.",
+        "bbox": [
+            220,
+            390,
+            786,
+            462
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "• If zero or one endpoints are specified, obtain a $3 / 2$ factor algorithm.",
+        "bbox": [
+            221,
+            468,
+            742,
+            483
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "• If both endpoints are specified, obtain a $5 / 3$ factor algorithm.",
+        "bbox": [
+            221,
+            483,
+            697,
+            497
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Hint: Use the idea behind Algorithm 3.10.",
+        "bbox": [
+            221,
+            502,
+            549,
+            518
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "3.5 (Papadimitriou and Yannakakis [219]) Let G be a complete undirected graph in which all edge lengths are either 1 or 2 (clearly, G satisfies the triangle inequality). Give a $4 / 3$ factor algorithm for TSP in this special class of graphs.",
+        "bbox": [
+            220,
+            532,
+            784,
+            589
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Hint: Start by finding a minimum 2-matching in G. A 2-matching is a subset S of edges so that every vertex has exactly 2 edges of S incident at it.",
+        "bbox": [
+            221,
+            589,
+            784,
+            619
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "3.6 (Frieze, Galbiati, and Mafioli [89]) Give an $O ( \\log n )$ factor approximation algorithm for the following problem.",
+        "bbox": [
+            221,
+            631,
+            784,
+            662
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Problem 3.15 (Asymmetric TSP) We are given a directed graph G on vertex set $V _ { : }$ with a nonnegative cost specified for edge $( u  v )$ , for each pair $u , v \\in V$ . The edge costs satisfy the directed triangle inequality, i.e., for any three vertices u, v, and w, cost $( u \\to v ) \\leq \\mathrm { c o s t } ( u \\to w ) + \\mathrm { c o s t } ( w \\to v )$ . The problem is to find a minimum cost cycle visiting every vertex exactly once.",
+        "bbox": [
+            220,
+            667,
+            786,
+            740
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "page_number",
+        "text": "34",
+        "bbox": [
+            223,
+            87,
+            242,
+            99
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "header",
+        "text": "3 Steiner Tree and TSP",
+        "bbox": [
+            275,
+            87,
+            453,
+            99
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Hint: Use the fact that a minimum cost cycle cover $( \\mathrm { i . e . }$ , disjoint cycles covering all the vertices) can be found in polynomial time. Shrink the cycles and recurse.",
+        "bbox": [
+            220,
+            112,
+            786,
+            156
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "3.7 Let $G = ( V , E )$ be a graph with edge costs satisfying the triangle inequality, and $V ^ { \\prime } \\subseteq V$ be a set of even cardinality. Prove or disprove: The cost of a minimum cost perfect matching on $V ^ { \\prime }$ is bounded above by the cost of a minimum cost perfect matching on $V$ .",
+        "bbox": [
+            220,
+            168,
+            786,
+            227
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "3.8 Given n points in $\\mathbf { R } ^ { 2 }$ , define the optimal Euclidean Steiner tree to be a minimum length tree containing all n points and any other subset of points from $\\mathbf { R } ^ { 2 }$ . Prove that each of the additional points must have degree three, with all three angles being 120<sup>◦</sup>.",
+        "bbox": [
+            220,
+            241,
+            786,
+            299
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "3.9 (Rao, Sadayappan, Hwang, and Shor [230]) This exercise develops a factor 2 approximation algorithm for the following problem.",
+        "bbox": [
+            220,
+            312,
+            784,
+            342
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Problem 3.16 (Rectilinear Steiner arborescence) Let $p _ { 1 } , \\ldots , p _ { n }$ be points given in $\\mathbf { R } ^ { 2 }$ in the positive quadrant. A path from the origin to point $p _ { i }$ is said to be monotone if it consists of segments traversing in the positive x direction or the positive y direction (informally, going right or up). The problem is to find a minimum length tree containing monotone paths from the origin to each of the n points; such a tree is called rectilinear Steiner arborescence.",
+        "bbox": [
+            220,
+            347,
+            786,
+            447
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "For point $p ,$ define $x _ { p }$ and $y _ { p }$ to be its x and y coordinates, and $| p | _ { 1 } =$ $| x _ { p } | + | y _ { p } |$ . Say that point $p$ dominates point q if $x _ { p } \\leq x _ { q }$ and $y _ { p } \\le y _ { q }$ . For sets of points $A$ and $B ,$ we will say that A dominates B if for each point $b \\in B ,$ there is a point $a \\in A$ such that a dominates b. For points $p$ and q, define dom $\\displaystyle ( p , q ) = ( x , y )$ , where $x = \\operatorname* { m i n } ( x _ { p } , x _ { q } )$ and $y = \\operatorname* { m i n } ( y _ { p } , y _ { q } )$ If $p$ dominates $q ,$ define segments $( p , q )$ to be a monotone path from p to $q .$ Consider the following algorithm.",
+        "bbox": [
+            220,
+            447,
+            784,
+            548
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [],
+        "code_body": "<div class=\"mineru-algorithm\" style=\"white-space: pre-wrap; font-family:monospace;\">\nAlgorithm 3.17 (Rectilinear Steiner arborescence)\n1.  $T \\leftarrow \\emptyset$ .\n2.  $P \\leftarrow \\{p_{1}, \\ldots, p_{n}\\} \\cup \\{(0,0)\\}$ .\n3. while  $|P| &gt; 1$  do:\n    Pick  $p, q = \\arg\\max_{p, q \\in P} (|\\text{dom}(p, q)|_{1})$ .\n    $P \\leftarrow (P - \\{p, q\\}) \\cup \\{\\text{dom}(p, q)\\}$ .\n    $T \\leftarrow T \\cup \\text{segments}(\\text{dom}(p, q), p) \\cup \\text{segments}(\\text{dom}(p, q), q)$ .\n4. Output T.\n</div>",
+        "bbox": [
+            225,
+            563,
+            736,
+            703
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "header",
+        "text": "3.3 Exercises",
+        "bbox": [
+            628,
+            87,
+            732,
+            99
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "page_number",
+        "text": "35",
+        "bbox": [
+            764,
+            87,
+            784,
+            99
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "For $z \\geq 0$ , define $\\ell _ { z }$ to be the line $x + y = z$ . For a rectilinear Steiner arborescence $T _ { \\cdot }$ , let $T ( z ) = | T \\cap \\ell _ { z } |$ . Prove that the length of $T$ is",
+        "bbox": [
+            220,
+            112,
+            786,
+            142
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\int_ {z = 0} ^ {\\infty} T (z) \\mathrm{d} z.\n$$",
+        "text_format": "latex",
+        "bbox": [
+            262,
+            154,
+            366,
+            186
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Also, for every $x \\geq 0$ define $P _ { z } = \\{ p \\in P \\ s . t . \\ | p | _ { 1 } > z \\}$ , and",
+        "bbox": [
+            221,
+            197,
+            662,
+            212
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "$N ( z ) = \\operatorname* { m i n } \\{ | C | : C \\subset \\ell _ { z }$ and C dominates $P _ { z } \\}$",
+        "bbox": [
+            263,
+            225,
+            628,
+            241
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Prove that",
+        "bbox": [
+            221,
+            254,
+            305,
+            268
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\int_ {z = 0} ^ {\\infty} N (z) \\mathrm{d} z\n$$",
+        "text_format": "latex",
+        "bbox": [
+            263,
+            277,
+            366,
+            310
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "is a lower bound on $\\mathrm { O P T }$",
+        "bbox": [
+            220,
+            321,
+            416,
+            335
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Use these facts to show that Algorithm 3.17 achieves an approximation guarantee of 2.",
+        "bbox": [
+            220,
+            335,
+            784,
+            365
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "3.10 (I. M˘andoiu) This exercise develops a factor 9 approximation algorithm for the following problem, which finds applications in VLSI clock routing.",
+        "bbox": [
+            221,
+            376,
+            784,
+            407
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Problem 3.18 (Rectilinear zero-skew tree) Given a set S of points in the rectilinear plane, find a minimum length zero-skew tree (ZST) for S, i.e., a rooted tree $T$ embedded in the rectilinear plane such that points in $S$ are leaves of $T$ and all root-to-leaf paths in T have equal length. By length of a path we mean the sum of the lengths of edges on it.",
+        "bbox": [
+            220,
+            413,
+            786,
+            486
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "1. Let $T$ be an arbitrary zero-skew tree, and let $R ^ { \\prime }$ denote the common length of all root-to-leaf paths. For $r \\geq 0$ , let $T ( r )$ denote the number of points of $T$ that are at a length of $R ^ { \\prime } - r$ from the root. Prove that the length of $T$ is",
+        "bbox": [
+            228,
+            493,
+            786,
+            551
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\int_ {0} ^ {R ^ {\\prime}} T (r) \\mathrm{d} r\n$$",
+        "text_format": "latex",
+        "bbox": [
+            292,
+            563,
+            384,
+            598
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "2. A closed $\\ell _ { 1 }$ ball of radius r centered at point $p$ is the set of all points whose $\\ell _ { 1 } { \\mathrm { - d i s t a n c e } }$ from $p { \\mathrm { ~ i s ~ } } \\leq r$ . Let R denote the radius of the smallest $\\ell _ { 1 } \\cdot$ -ball that contains all points of $S .$ For $r \\geq 0$ , let $N ( r )$ denote the minimum number of closed \u0006<sub>1</sub>-balls of radius r needed to cover all points of S. Prove that",
+        "bbox": [
+            228,
+            608,
+            786,
+            680
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\int_ {0} ^ {R} N (r) \\mathrm{d} r\n$$",
+        "text_format": "latex",
+        "bbox": [
+            292,
+            689,
+            383,
+            722
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "is a lower bound on the length of the optimum ZST.",
+        "bbox": [
+            248,
+            733,
+            640,
+            749
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "page_number",
+        "text": "36",
+        "bbox": [
+            223,
+            87,
+            243,
+            99
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "header",
+        "text": "3 Steiner Tree and TSP",
+        "bbox": [
+            275,
+            87,
+            453,
+            99
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "3. Consider the following algorithm. First, compute R and find a radius R $\\ell _ { 1 }$ -ball enclosing all points of S. The center of this ball is chosen as the root of the resulting ZST. This ball can be partitioned into 4 balls, called its quadrants, of radius $R / 2$ each. The root can be connected to the center of any of these balls by an edge of length $R / 2$ . These balls can be further partitioned into 4 balls each of radius $R / 4 ,$ , and so on.",
+        "bbox": [
+            228,
+            112,
+            786,
+            199
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "The ZST is constructed recursively, starting with the ball of radius R. The center of the current ball is connected to the centers of each of its quadrants that has a point of S. The algorithm then recurses on each of these quadrants. If the current ball contains exactly one point of $S ,$ then this ball is not partitioned into quadrants. Let $r ^ { \\prime }$ be the radius of this ball, c its center, and $p \\in S$ the point in it. Clearly, the $\\ell _ { 1 }$ distance between c and $p$ is $\\leq r ^ { \\prime } .$ . Connect c to $p$ by a rectilinear path of length exactly $r ^ { \\prime } .$",
+        "bbox": [
+            247,
+            198,
+            784,
+            313
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Show that for $0 \\leq r \\leq R , T ( r ) \\leq 9 N ( r )$ . Hence, show that this is a factor 9 approximation algorithm.",
+        "bbox": [
+            248,
+            311,
+            784,
+            341
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "3.4 Notes",
+        "text_level": 2,
+        "bbox": [
+            221,
+            370,
+            331,
+            385
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "The Steiner tree problem has its origins in a problem posed by Fermat, and was defined by Gauss in a letter he wrote to his student Schumacher on March 21, 1836. Parts of the letter are reproduced on the cover of this book. Courant and Robbins [55] popularized this problem under the name of Steiner, a well known 19th century geometer. See Hwang, Richards, and Winter [133] and Schreiber [236] for the fascinating history of this problem.",
+        "bbox": [
+            220,
+            400,
+            784,
+            486
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "The factor 2 Steiner tree algorithm was discovered independently by Choukhmane [44], Iwainsky, Canuto, Taraszow, and Villa [136], Kou, Markowsky, and Berman [177], and Plesn´ık [221]. The factor $3 / 2$ metric TSP algorithm is due to Christofides [45], and Theorem 3.6 is due to Sahni and Gonzalez [232]. The lower bound in Exercise 3.10 is from Charikar, Kleinberg, Kumar, Rajagopalan, Sahai, and Tomkins [41]. The best factor known for the rectilinear zero-skew tree problem, due to Zelikovsky and M˘andoiu [263], is 3.",
+        "bbox": [
+            220,
+            485,
+            786,
+            599
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Given n points on the Euclidean plane, the minimum spanning tree on these points is within a factor of $2 / \\sqrt { 3 }$ of the minimum Steiner tree (which is allowed to use any set of points on the plane as Steiner points). This was shown by Du and Hwang [63], thereby settling the conjecture of Gilbert and Pollak [100].",
+        "bbox": [
+            220,
+            599,
+            786,
+            671
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "header",
+        "text": "3.4 Notes",
+        "bbox": [
+            650,
+            87,
+            732,
+            99
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "page_number",
+        "text": "37",
+        "bbox": [
+            764,
+            87,
+            784,
+            99
+        ],
+        "page_idx": 10
+    }
+]

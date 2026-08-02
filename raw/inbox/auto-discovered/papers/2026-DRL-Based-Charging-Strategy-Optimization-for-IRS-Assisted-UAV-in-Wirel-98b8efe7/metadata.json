@@ -1,0 +1,50 @@
+{
+  "title": "DRL-Based Charging Strategy Optimization for IRS-Assisted UAV in Wireless Rechargeable Sensor Networks",
+  "authors": [
+    "X Liu",
+    "C Zhao",
+    "S Chen",
+    "T Wang",
+    "F Chen"
+  ],
+  "abstract": "… chargers in wireless sensor networks through sensor energy management, … to the subproblem of UAVs’ trajectory planning. In this section, DRL is employed for path planning, where the …",
+  "published_date": "",
+  "updated_date": "",
+  "year": 2026,
+  "doi": "10.1145/3789206",
+  "arxiv_id": "",
+  "landing_url": "https://dl.acm.org/doi/abs/10.1145/3789206",
+  "pdf_url": "https://dl.acm.org/doi/pdf/10.1145/3789206",
+  "is_open_access": true,
+  "license": "",
+  "providers": [
+    "serpapi"
+  ],
+  "provider_ids": {
+    "serpapi": "H0v408i3AmMJ"
+  },
+  "matched_queries": [
+    "mobile charger scheduling"
+  ],
+  "score": 14.0,
+  "score_reasons": [
+    "标题命中：charging, rechargeable, sensor",
+    "摘要命中：charger, energy",
+    "近年文献"
+  ],
+  "local_pdf": "",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "serpapi"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260801-214329",
+  "triage_status": "selected",
+  "selected_by_user": true,
+  "acquired_at": "2026-08-01T13:43:29+00:00",
+  "selected_at": "2026-08-01T13:47:39+00:00",
+  "canonicalized_at": "",
+  "triage_note": "2026-08-01 自动增量：优先选择 2026/2025 最新且直接涉及 WRSN 充电调度、异构移动充电器、UAV/ISAC 或综述的候选；需以全文完成 A 编译。",
+  "candidate_rank": 24,
+  "source_manifest": "raw/inbox/auto-discovered/runs/search-20260801-214329/results.json",
+  "boundary": "selected inbox candidate; not canonical; not wiki evidence"
+}

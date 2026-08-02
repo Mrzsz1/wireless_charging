@@ -1,0 +1,4561 @@
+[
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "20 Multicut in General Graphs"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                109,
+                605,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The importance of min–max relations to combinatorial optimization was mentioned in Chapter 1. Perhaps the most useful of these is the celebrated max-flow min-cut theorem. Indeed, much of flow theory, and the theory of cuts in graphs, has been built around this theorem. It is not surprising, therefore, that a concerted efort was made to obtain generalizations of this theorem to the case of multiple commodities."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                786,
+                340
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "There are two such generalizations. In the first one, the objective is to maximize the sum of the commodities routed, subject to flow conservation and capacity constraints. In the second generalization, a demand dem(i) is specified for each commodity "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the objective is to maximize "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "called throughput, such that for each i, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": ", \\ f \\cdot \\mathrm { d e m } ( i )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "amount of commodity i can be routed simultaneously. We will call these sum multicommodity flow and demands multicommodity flow problems, respectively. Clearly, for the case of a single commodity, both problems are the same as the maximum flow problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                341,
+                786,
+                469
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Each of these generalizations is associated with a fundamental NP-hard cut problem, the first with the minimum multicut problem, Problem 18.1, and the second with the sparsest cut problem, Problem 21.2. In each case an approximation algorithm for the cut problem gives, as a corollary, an approximate max-flow min-cut theorem. In this chapter we will study the first generalization; the second is presented in Chapter 21. We will obtain an O(log k) factor approximation algorithm for the minimum multicut problem, where k is the number of commodities. A factor 2 algorithm for the special case of trees was presented in Chapter 18."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                468,
+                786,
+                598
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "20.1 Sum multicommodity flow"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                625,
+                544,
+                642
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 20.1 (Sum multicommodity flow) Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be an undirected graph with nonnegative capacity "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e \\in E ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ ( s _ { 1 } , t _ { 1 } ) , \\ldots , ( s _ { k } , t _ { k } ) \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a specified set of pairs of vertices where each pair is distinct, but vertices in diferent pairs are not required to be distinct. A separate commodity is defined for each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( s _ { i } , t _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "pair. For convenience, we will think of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as the source and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as the sink of this commodity. The objective is to maximize the sum of the commodities routed. Each commodity must satisfy flow conservation at each vertex other than its own source and sink. Also, the sum of flows routed through an edge, in both directions combined, should not exceed the capacity of this edge."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                662,
+                786,
+                750
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                170
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us first give a linear programming formulation for this problem. For each commodity "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "P _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the set of all paths from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textstyle P = \\bigcup _ { i = 1 } ^ { k } { \\tilde { P _ { i } } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The LP will have a variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { p }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p \\in P ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "which will denote the flow along path "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "The endpoints of this path uniquely specify the commodity that flows on this path. The objective is to maximize the sum of flows routed on these paths, subject to edge capacity constraints. Notice that flow conservation constraints are automatically satisfied in this formulation. The program has exponentially many variables; however, that is not a concern since we will use it primarily to obtain a clean formulation of the dual program."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                170,
+                786,
+                313
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {maximize} & \\sum_ {p \\in P} f _ {p} \\\\ \\text {subject to} & \\sum_ {p: e \\in p} f _ {p} \\leq c _ {e}, \\quad e \\in E \\\\ & f _ {p} \\geq 0, \\quad \\quad \\quad \\quad p \\in P \\end{array}\\tag{20.1}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/f9c16e2c9283dca2f963d7e9b754bdb1b1ee761e5458bf0dba81a4697a9ea249.jpg"
+                }
+            },
+            "bbox": [
+                260,
+                326,
+                529,
+                414
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us obtain the dual of this program. For this, let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the dual variable associated with edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "We will interpret these variables as distance labels of edges."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                426,
+                786,
+                469
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {minimize} & \\sum_ {e \\in E} c _ {e} d _ {e} \\\\ & \\sum_ {e \\in p} d _ {e} \\geq 1, \\quad p \\in P \\\\ & d _ {e} \\geq 0, \\quad e \\in E \\end{array}\\tag{20.2}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/793ca5934c99f249606e27e2e92e475777cd0d24f01d87fa7a040139d74734ba.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                482,
+                507,
+                569
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The dual program tries to find a distance label assignment to edges so that on each path "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p \\in P"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the distance labels of edges add up to at least 1. Equivalently, a distance label assignment is feasible if for each commodity "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the shortest path from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "has length at least 1."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                581,
+                786,
+                639
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Notice that the programs (18.2) and (18.1) are special cases of the two programs presented above for the restriction that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a tree."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                638,
+                784,
+                667
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The following remarks made in Chapter 18 hold for the two programs presented above as well: an optimal integral solution to LP (20.2) is a minimum multicut, and an optimal fractional solution can be viewed as a minimum fractional multicut. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { B y }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the LP-duality theorem, minimum fractional multicut equals maximum multicommodity flow and, as shown in Example 18.2, it may be strictly smaller than minimum integral multicut."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                667,
+                786,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "20.1 Sum multicommodity flow"
+                    }
+                ]
+            },
+            "bbox": [
+                502,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "169"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This naturally raises the question whether the ratio of minimum multicut and maximum multicommodity flow is bounded. Equivalently, is the integrality gap of LP (20.2) bounded? In the next section we present an algorithm for finding a multicut within an O(log k) factor of the maximum flow, thereby showing that the gap is bounded by O(log k)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                186
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "20.2 LP-rounding-based algorithm"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                212,
+                576,
+                230
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "First notice that the dual program (20.2) can be solved in polynomial time using the ellipsoid algorithm, since there is a simple way of obtaining a separation oracle for it: simply compute the length of a minimum "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } - t _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "path, for each commodity i, w.r.t. the current distance labels. If all these lengths are "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\geq 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we have a feasible solution. Otherwise, the shortest such path provides a violated inequality. Alternatively, the LP obtained in Exercise 20.1 can be solved in polynomial time. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the distance label computed for each edge e, and let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { F = \\sum _ { e \\in E } c _ { e } d _ { e } } \\end{array}"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                243,
+                786,
+                357
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "\u0001Our goal is to pick a set of edges of small capacity, compared to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that is a multicut. Let D be the set of edges with positive distance labels, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { i . e . , }"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "D = \\{ e \\mid d _ { e } > 0 \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Clearly, D is a multicut; however, its capacity may be very large compared to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(Exercises 20.3 and 20.4). How do we pick a small capacity subset of D that is still a multicut? Since the optimal fractional multicut is the most cost-efective way of disconnecting all source–sink pairs, edges with large distance labels are more important than those with small distance labels for this purpose. The algorithm described below indirectly gives preference to edges with large distance labels."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                357,
+                786,
+                485
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm will work on graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with edge lengths given by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The weight of edge e is defined to be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { e } d _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let dist "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathrm { : } } ( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the length of the shortest path from u to v in this graph. For a set of vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\subset V"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\delta ( S )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denotes the set of edges in the cut (S, S), c(S) denotes the capacity of this cut, i.e., the total capacity of edges in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\delta ( S )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { w t } ( S )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denotes the weight of set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "which is roughly the sum of weights of all edges having both endpoints in S (a more precise definition is given below)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                485,
+                786,
+                583
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm will find disjoint sets of vertices, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { 1 } , \\ldots , S _ { l } , l \\le k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "called regions, such that:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                583,
+                784,
+                613
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• No region contains any source–sink pair, and for each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "either "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "or "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is in one of the regions."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                620,
+                781,
+                648
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "• For each region "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i } , c ( S _ { i } ) \\leq \\varepsilon \\mathrm { w t } ( S _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where ε is a parameter that will be defined below."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                649,
+                784,
+                676
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "By the first condition, the union of the cuts of these regions, i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M \\ ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\delta ( S _ { 1 } ) \\cup \\delta ( S _ { 2 } ) \\cup \\ldots \\cup \\delta ( S _ { l } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", is a multicut, and by the second condition, its capacity "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( M ) \\leq \\varepsilon F"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". (When we give the precise definition of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { w t } ( S )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", this inequality will need to be modified slightly.)"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                684,
+                784,
+                741
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "170"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "20 Multicut in General Graphs"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                504,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "20.2.1 Growing a region: the continuous process"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                112,
+                643,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { 1 } , \\ldots , S _ { l }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are found through a region growing process. Let us first present a continuous process to clarify the issues. For the sake of time eficiency, the algorithm itself will use a discrete process (see Section 20.2.2)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                137,
+                784,
+                181
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Each region is found by growing a set starting from one vertex, which is the source or sink of a pair. This will be called the root of the region. Suppose the root is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The process consists of growing a ball around the root. For each radius "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ( r )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be the set of vertices at a distance "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\leq r"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 }"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathrm { i . e . , ~ } } S ( r ) = \\{ v \\mid { \\mathrm { d i s t } } ( s _ { 1 } , v ) \\leq r \\} . \\ S ( 0 ) = \\{ s _ { 1 } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and as "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r"
+                    },
+                    {
+                        "type": "text",
+                        "content": "increases continuously from 0, at discrete points, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ( r )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "grows by adding vertices in increasing order of their distance from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                181,
+                784,
+                282
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 20.2 If the region growing process is terminated before the radius becomes 1/2, then the set S that is found contains no source–sink pair."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                290,
+                784,
+                319
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: The distance between any pair of vertices in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ( r )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\leq 2 r"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since for each commodity "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "dist "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathbf { \\Phi } _ { : } ( s _ { i } , t _ { i } ) \\geq 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the lemma follows. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                334,
+                784,
+                363
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For technical reasons that will become clear in Lemma 20.3 (see also Exercises 20.5 and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 0 . 6 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", we will assign a weight to the root, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { w t } ( s _ { 1 } ) = F / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "The weight of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ( r )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the sum of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { w t } ( s _ { 1 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the sum of the weights of edges, or parts of edges, in the ball of radius r around "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let us state this formally. For edges "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e"
+                    },
+                    {
+                        "type": "text",
+                        "content": "having at least one endpoint in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ( r )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "q _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the fraction of edge e that is in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ( r )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". If both endpoints of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ( r )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "q _ { e } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Otherwise, suppose "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\boldsymbol { e } = \\left( u , v \\right)"
+                    },
+                    {
+                        "type": "text",
+                        "content": ") with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u \\in S ( r )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and v "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\notin S ( r )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For such edges,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                370,
+                784,
+                470
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "q _ {e} = \\frac {r - \\mathrm{dist} (s _ {1} , u)}{\\mathrm{dist} (s _ {1} , v) - \\mathrm{dist} (s _ {1} , u)}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/ab2d660222651cd2115ab70ff18061448634bd9e03f80c9262c69a9c68dc61bb.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                483,
+                478,
+                514
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Define the weight of region S(r), "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ( r )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                525,
+                465,
+                539
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm{wt} (S (r)) = \\mathrm{wt} (s _ {1}) + \\sum c _ {e} d _ {e} q _ {e},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/d4cd0b86f97544de9720aaa5aee67d301141cbcf035ee6de102d7584d3c546e7.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                554,
+                500,
+                574
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where the sum is over all edges having at least one endpoint in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ( r )"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                587,
+                727,
+                601
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We want to fix ε so that we can guarantee that we will encounter the condition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( S ( r ) ) \\leq \\varepsilon \\mathrm { w t } ( S ( r ) )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r < 1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The important observation is that at each point the rate at which the weight of the region is growing is at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( S ( r ) )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Until this condition is encountered,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                602,
+                784,
+                659
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm{d} \\operatorname{wt} (S (r)) \\geq c (S (r)) \\mathrm{d} r > \\varepsilon \\operatorname{wt} (S (r)) \\mathrm{d} r.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/235ecf1587d873d04cfaef22f2b1ddb978305ba5ce6034c704bb42ba3816a0f4.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                671,
+                566,
+                687
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Exercise 20.5 will help the reader gain some understanding of such a process."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                700,
+                783,
+                715
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 20.3 Picking "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon = 2 \\ln ( k + 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "sufices to ensure that the condition "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( S ( r ) ) \\leq \\varepsilon \\mathrm { w t } ( S ( r ) )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will be encountered before the radius becomes "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 2"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                724,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "20.2 LP-rounding-based algorithm"
+                    }
+                ]
+            },
+            "bbox": [
+                482,
+                87,
+                729,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "171"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                783,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: The proof is by contradiction. Suppose that throughout the region growing process, starting with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r ~ = ~ 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and ending at "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "r \\ = \\ 1 / 2 , \\ c ( S ( r ) ) \\ >"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon \\operatorname { w t } ( S ( r ) )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "). At any point the incremental change in the weight of the region is"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                168
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm{d} \\operatorname{wt} (S (r)) = \\sum_ {e} c _ {e} d _ {e} \\mathrm{d} q _ {e}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/2fda35825cc31b921a08ee066939d9e6d75d36aa8d8fd61830b064c5e8084b74.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                181,
+                458,
+                211
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Clearly, only edges having one endpoint in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ( r )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will contribute to the sum. Consider such an edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\boldsymbol { e } = ( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u \\in S ( r )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\not \\in S ( r )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                222,
+                784,
+                253
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "c _ {e} d _ {e} \\mathrm{d} q _ {e} = c _ {e} \\frac {d _ {e}}{\\mathrm{dist} (s _ {1} , v) - \\mathrm{dist} (s _ {1} , u)} \\mathrm{d} r.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/e0c766da7c1f0b852b9a09dd1e0b38a585d54d8271edf93eb4fe7d0688f9b4b8.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                265,
+                573,
+                294
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since dist "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( s _ { 1 } , v ) \\leq \\mathrm { d i s t } ( s _ { 1 } , u ) + d _ { e } . "
+                    },
+                    {
+                        "type": "text",
+                        "content": "we get "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d _ { e } \\geq \\mathrm { d i s t } ( s _ { 1 } , v ) - \\mathrm { d i s t } ( s _ { 1 } , u )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and hence "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { e } d _ { e } \\mathrm { d } q _ { e } \\geq c _ { e } \\mathrm { d } r"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This gives"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                307,
+                784,
+                337
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm{d} \\operatorname{wt} (S (r)) \\geq c (S (r)) \\mathrm{d} r > \\varepsilon \\operatorname{wt} (S (r)) \\mathrm{d} r.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/bfa7de54ae5fca923fb0f25a1124177cbb22a05975fb8029eeaea93d0b1ba14b.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                349,
+                563,
+                366
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "As long as the terminating condition is not encountered, the weight of the region increases exponentially with the radius. The initial weight of the region is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the final weight is at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F + F / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Integrating we get"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                378,
+                784,
+                423
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\int_ {\\frac {F}{k}} ^ {F + \\frac {F}{k}} \\frac {1}{\\operatorname{wt} (S (r))} \\mathrm{d} \\operatorname{wt} (S (r)) > \\int_ {0} ^ {\\frac {1}{2}} \\varepsilon \\mathrm{d} r.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/b0b894850d3a795c7690f4729f9420028dddd608abf6f3df34d22abae67aeff9.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                434,
+                556,
+                470
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Therefore, l "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { n } ( k + 1 ) > \\frac { 1 } { 2 } \\varepsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". However, this contradicts the assumption that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon = 2 \\ln ( k + 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "), thus proving the lemma. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                483,
+                786,
+                514
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "20.2.2 The discrete process"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                541,
+                467,
+                555
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The discrete process starts with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S = \\{ s _ { 1 } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and adds vertices to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in increasing order of their distance from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Essentially, it involves executing a shortest path computation from the root. Clearly, the sets of vertices found by both processes are the same."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                565,
+                784,
+                623
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The weight of region S is redefined for the discrete process as follows:"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                623,
+                764,
+                638
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\operatorname{wt} (S) = \\operatorname{wt} (s _ {1}) + \\sum_ {e} c _ {e} d _ {e},",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/d795262435327b8dee62d075052d15fdd98512a26e2dc6e82f5e72e34f683ff5.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                650,
+                463,
+                678
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where the sum is over all edges that have at least one endpoint in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { w t } ( s _ { 1 } ) = F / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The discrete process stops at the first point when "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( S ) \\ \\leq"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon \\mathrm { w t } ( S )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is again "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 \\ln ( k + 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Notice that for the same set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "wt(S) in the discrete process is at least as large as that in the continuous process."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                692,
+                784,
+                750
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "172"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "20 Multicut in General Graphs"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                504,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Therefore, the discrete process cannot terminate with a larger set than that found by the continuous process. Hence, the set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "found contains no source– sink pair."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                156
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "20.2.3 Finding successive regions"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                174,
+                514,
+                189
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The first region is found in graph G, starting with any one of the sources as the root. Successive regions are found iteratively. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { 1 } = G"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the region found in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Consider a general point in the algorithm when regions "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { 1 } , \\ldots , S _ { i - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "have already been found. Now, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is defined to be the graph obtained by removing vertices "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { 1 } \\cup \\dots \\cup S _ { i - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", together with all edges incident at them from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                198,
+                786,
+                282
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "If "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "does not contain a source–sink pair, we are done. Otherwise, we pick the source of such a pair, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { j } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", as the root, define its weight to be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F / k ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and grow a region in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". All definitions, such as distance and weight, are w.r.t. graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We will denote these with a subscript of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Also, for a set of vertices S in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i } , c _ { G _ { i } } ( S )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will denote the total capacity of edges incident at S in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", i.e., the total capacity of edges in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\delta _ { \\boldsymbol { G } _ { i } } ( \\boldsymbol { S } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". As before, the value of ε is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 \\ln ( k + 1 )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and the terminating condition is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { G _ { i } } ( S _ { i } ) \\leq \\varepsilon \\mathrm { w t } _ { G _ { i } } ( S _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Notice that in each iteration the root is the only vertex that is defined to have nonzero weight."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                284,
+                786,
+                411
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/811b5833d4d050d51783d2cb89cd5ed7c212db565dd7a38f39feb07a242d82e3.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                228,
+                414,
+                774,
+                661
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In this manner, we will find regions "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { 1 } , \\ldots , S _ { l } , l \\le k ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and will output the set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M = \\delta _ { G _ { 1 } } ( S _ { 1 } ) \\cup \\ldots \\cup \\delta _ { G _ { l } } ( S _ { l } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since edges of each cut are removed from the graph for successive iterations, the sets in this union are disjoint, and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { c ( M ) = \\sum _ { i } c _ { G _ { i } } ( S _ { i } ) } \\end{array}"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                668,
+                784,
+                725
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "\u0001The algorithm is summarized below. Notice that while a region is growing, edges with large distance labels will remain in its cut for a longer time, and thus are more likely to be included in the multicut found. (Of course, the precise time that an edge remains in the cut is given by the diference between the distances from the root to the two endpoints of the edge.) As promised, the algorithm indirectly gives preference to edges with large distance labels."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                724,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "20.2 LP-rounding-based algorithm"
+                    }
+                ]
+            },
+            "bbox": [
+                482,
+                87,
+                731,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "173"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                172
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 20.4 (Minimum multicut)\n1. Find an optimal solution to the LP (20.2), thus obtaining distance labels for edges of G.\n2.   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon \\leftarrow 2\\ln(k+1)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " ,   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H \\leftarrow G"
+                    },
+                    {
+                        "type": "text",
+                        "content": " ,   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M \\leftarrow \\emptyset"
+                    },
+                    {
+                        "type": "text",
+                        "content": " ;\n3. While   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\exists"
+                    },
+                    {
+                        "type": "text",
+                        "content": "  a source–sink pair in H do:\nPick such a source, say   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s_{j}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " ;\nGrow a region S with root   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s_{j}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "  until   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c_{H}(S) \\leq \\varepsilon \\operatorname{wt}_{H}(S)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " ;\n  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "M \\leftarrow M \\cup \\delta_{H}(S)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " ;\n  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H \\leftarrow H"
+                    },
+                    {
+                        "type": "text",
+                        "content": "  with vertices of S removed;\n4. Output M."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                181,
+                784,
+                360
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 20.5 The set M found is a multicut."
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                367,
+                566,
+                382
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: We need to prove that no region contains a source–sink pair. In each iteration i, the sum of weights of edges of the graph and the weight defined on the current root is bounded by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F + F / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". By the proof of Lemma 20.3, the continuous region growing process is guaranteed to encounter the terminating condition before the radius of the region becomes "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, the distance between a pair of vertices in the region, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "found by the discrete process is also bounded by 1. Notice that we had defined these distances w.r.t. graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a subgraph of G, the distance between a pair of vertices in G cannot be larger than that in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Hence, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "contains no source–sink pair. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                397,
+                786,
+                527
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 20.6 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( M ) \\leq 2 \\varepsilon F = 4 \\ln ( k + 1 ) F ."
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                542,
+                544,
+                557
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: In each iteration "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "by the terminating condition we have "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c _ { G _ { i } } ( S _ { i } ) \\leq"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon \\mathrm { w t } _ { G _ { i } } ( S _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since all edges contributing to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { w t } _ { G _ { i } } ( S _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ") will be removed from the graph after this iteration, each edge of G contributes to the weight of at most one region. The total weight of all edges of G is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Since each iteration helps disconnect at least one source–sink pair, the number of iterations is bounded by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, the total weight attributed to source vertices is at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Summing gives:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                571,
+                786,
+                673
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "c (M) = \\sum_ {i} c _ {G _ {i}} (S _ {i}) \\leq \\varepsilon \\left(\\sum_ {i} \\operatorname{wt} _ {G _ {i}} (S _ {i})\\right) \\leq \\varepsilon \\left(k \\frac {F}{k} + \\sum_ {e} c _ {e} d _ {e}\\right) = 2 \\varepsilon F.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/2d963770cec5dd0de4ed7d131a59fd2dec6f0135aa8d06e2c3ce010fd7a5849a.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                684,
+                783,
+                722
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                768,
+                732,
+                784,
+                743
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "174"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "20 Multicut in General Graphs"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                504,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 20.7 Algorithm "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\it 2 0 . 4"
+                    },
+                    {
+                        "type": "text",
+                        "content": "achieves an approximation guarantee of O(log k) for the minimum multicut problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                759,
+                142
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: The proof follows from Lemmas 20.5 and 20.6, and from the fact that the value of the fractional multicut, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", is a lower bound on the minimum multicut. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                156,
+                784,
+                200
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Exercise 20.6 justifies the choice of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { w t } ( s _ { 1 } ) = F / k"
+                    }
+                ]
+            },
+            "bbox": [
+                245,
+                206,
+                615,
+                222
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Corollary 20.8 In an undirected graph with k source–sink pairs,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                230,
+                707,
+                246
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\max _ {m / c \\text {flow} F} | F | \\leq \\min _ {\\text {multicut} C} | C | \\leq O (\\log k) \\left(\\max _ {m / c \\text {flow} F} | F |\\right),",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/1c24c13c5a2764b3620acb39306bbe231ccbcdebaaa7597a7d635bfc49520878.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                256,
+                744,
+                296
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| F |"
+                    },
+                    {
+                        "type": "text",
+                        "content": "represents the value of multicommodity flow "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F _ { s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| C |"
+                    },
+                    {
+                        "type": "text",
+                        "content": "represents the capacity of multicut C."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                307,
+                784,
+                337
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "20.3 A tight example"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                375,
+                445,
+                391
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 20.9 We will construct an infinite family of graphs for which the integrality gap for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { L P _ { \\Delta } \\left( 2 0 . 2 \\right) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\itOmega \\mathrm { ( l o g } k \\mathrm { ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", thereby showing that our analysis of Algorithm 20.4 and the approximate max-flow min-multicut theorem presented in Corollary 20.8 are tight within constant factors."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                411,
+                784,
+                469
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The construction uses expander graphs. An expander is a graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in which every vertex has the same degree, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and for any nonempty subset "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\subset V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ","
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                469,
+                786,
+                512
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "| E (S, \\overline {{S}}) | > \\min (| S |, | \\overline {{S}} |),",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/1900a242f2329aca0d0ccd6693ef2e860cb55c254abbcba3e8ef2baa597a8343.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                524,
+                450,
+                541
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "E ( S , { \\overline { { S } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denotes the set of edges in the cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( S , { \\overline { { S } } } ) , { \\mathrm { ~ i . e . . } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "edges that have one endpoint in S and the other in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\overline { { S } } } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "Standard probabilistic arguments show that almost every constant degree graph, with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d \\geq 3 ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", is an expander (see Section 20.6). Let H be such a graph containing k vertices."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                552,
+                784,
+                609
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Source–sink pairs are designated in H as follows. Consider a breadth first search tree rooted at some vertex v. The number of vertices within distance "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of vertex v is at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 + d + d ^ { 2 } + \\ldots + d ^ { \\alpha - 1 } < d ^ { \\alpha }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Picking "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha = \\lfloor \\log _ { d } k / 2 \\rfloor"
+                    },
+                    {
+                        "type": "text",
+                        "content": "ensures that at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "vertices are at a distance "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\geq \\alpha"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from v. Let us say that a pair of vertices are a source–sink pair if the distance between them is at least α. Therefore, we have chosen "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\Theta ( k ^ { 2 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "pairs of vertices as source–sink pairs."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                609,
+                786,
+                709
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Each edge in H is of unit capacity. Thus, the total capacity of edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( k )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since the distance between each source–sink pair is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varOmega ( \\log k )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", any flow path carrying a unit of flow uses up "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\itOmega \\mathrm { ( l o g } k \\mathrm { ) }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "units of capacity. Therefore, the value of maximum multicommodity flow in H is bounded by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( k / \\log k )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Next we will prove that a minimum multicut in H, say M, has capacity "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varOmega ( k )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", thereby proving the claimed integrality gap. Consider the connected components obtained by removing M from H."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                709,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "20.3 A tight example"
+                    }
+                ]
+            },
+            "bbox": [
+                571,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "175"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                221,
+                112,
+                784,
+                171
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Claim 20.10 Each connected component has at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "vertices."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                178,
+                719,
+                193
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Suppose a connected component has strictly more than "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "vertices. Pick an arbitrary vertex v in this component. By the argument given above, the number of vertices that are within distance "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "of v in the entire graph H is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "< d ^ { \\alpha } \\leq k / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Thus, there is a vertex u in the component such that the distance between u and v is at least α, i.e., u and v form a source–sink pair. Thus removal of M has failed to disconnect a source–sink pair, leading to a contradiction. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                206,
+                786,
+                307
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "By Claim 20.10, and the fact that H is an expander, each component S has "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| \\delta ( S ) | \\ge | S |"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since each vertex of H is in one of the components, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\Sigma _ { S } \\left| \\delta ( S ) \\right| \\geq k ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where the sum is over all connected components. Since an \u0001edge contributes to the cuts of at most two components, the number of edges crossing components is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varOmega ( k )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This gives the desired lower bound on the minimum multicut."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                313,
+                786,
+                398
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Next, let us ensure that the number of source–sink pairs defined in the graph is not related to the number of vertices in it. Notice that replacing an edge of H by a path of unit capacity edges does not change the value of maximum flow or minimum multicut. Using this operation we can construct from H a graph G having n vertices, for arbitrary "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n \\geq k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The integrality gap of LP (20.2) for G is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varOmega ( \\log k )"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                399,
+                786,
+                485
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "20.4 Some applications of multicut"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                533,
+                579,
+                549
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will obtain an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor approximation algorithm for the following problem by reducing to the minimum multicut problem. See Exercise 20.7 for further applications."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                561,
+                784,
+                604
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 20.11 (2CNF≡ clause deletion) A 2CNF≡ formula consists of a set of clauses of the form "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u \\equiv v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where u and v are literals. Let F be such a formula, and wt be a function assigning nonnegative rational weights to its clauses. The problem is to delete a minimum weight set of clauses of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "so that the remaining formula is satisfiable."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                609,
+                786,
+                681
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Given a 2CNF≡ formula F on n Boolean variables, let us define graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ( F )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with edge capacities as follows: The graph has 2n vertices, one corresponding to each literal. Corresponding to each clause "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( p \\equiv q )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "we include the two edges "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( p , q )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( { \\overline { { p } } } , { \\overline { { q } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", each having capacity equal to the weight of the clause "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( p \\equiv q )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ")."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                681,
+                786,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "176"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "20 Multicut in General Graphs"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                504,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Notice that the two clauses "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( p \\equiv q )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( { \\overline { { p } } } \\equiv { \\overline { { q } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are equivalent. We may assume w.l.o.g. that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "does not contain two such equivalent clauses, since we can merge their weights and drop one of these clauses. With this assumption each clause corresponds to two distinct edges in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ( F )"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                171
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 20.12 Formula F is satisfiable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i f f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "no connected component of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ( F )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "contains a variable and its negation."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                177,
+                784,
+                206
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: If "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( p , q )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is an edge in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ( F )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "then the literals "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "p"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "q"
+                    },
+                    {
+                        "type": "text",
+                        "content": "must take the same truth value in every satisfying truth assignment. Thus, all literals of a connected component of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ( F )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are forced to take the same truth value. Therefore, if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is satisfiable, no connected component in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ( F )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "contains a variable and its negation."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                219,
+                786,
+                290
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Conversely, notice that if literals p and q occur in the same connected component, then so do their negations. If no connected component contains a variable and its negation, the components can be paired so that in each pair, one component contains a set of literals and the other contains the complementary literals. For each pair, set the literals of one component to true and the other to false to obtain a satisfying truth assignment. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                291,
+                786,
+                376
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For each variable and its negation, designate the corresponding vertices in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ( F )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be a source–sink pair, thus defining n source–sink pairs. Let M be a minimum multicut in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ( F )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and C be a minimum weight set of clauses whose deletion makes "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F"
+                    },
+                    {
+                        "type": "text",
+                        "content": "satisfiable. In general, M may have only one of the two edges corresponding to a clause."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                382,
+                786,
+                453
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 20.13 w "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname { t } ( C ) \\leq c ( M ) \\leq 2 \\cdot \\operatorname { w t } ( C )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                460,
+                544,
+                475
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Delete clauses corresponding to edges of M from F to get formula "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "The weight of clauses deleted is at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( M )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ( F ^ { \\prime } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "does not contain any edges of M, it does not have any component containing a variable and its negation. By Lemma "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 0 . 1 2 , F ^ { \\prime }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is satisfiable, thus proving the first inequality."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                487,
+                784,
+                545
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Next, delete from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ( F )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the two edges corresponding to each clause in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "This will disconnect all source–sink pairs. Since the capacity of edges deleted is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 \\mathrm { w t } ( C )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", this proves the second inequality. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                545,
+                784,
+                589
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Since we can approximate minimum multicut to within an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor, we get:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                594,
+                784,
+                623
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 20.14 There is an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor approximation algorithm for Problem 20.11."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                629,
+                786,
+                658
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "20.5 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                684,
+                376,
+                700
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "20.1 "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { B y }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "defining for each edge e and commodity i a flow variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f _ { e , i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", give an LP that is equivalent to LP (20.1) and has polynomially many variables."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                724,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "20.5 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                620,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "177"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Obtain the dual of this program and show that it is equivalent to LP (20.2); however, unlike LP (20.2), it has only polynomially many constraints."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                784,
+                143
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "20.2 Let d be an optimal solution to LP (20.2). Show that d must satisfy the triangle inequality."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                155,
+                784,
+                186
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "20.3 Intuitively, our goal in picking a multicut is picking edges that are bottlenecks for multicommodity flow. In this sense, D is a very good starting point: prove that D is precisely the set of edges that are saturated in every maximum multicommodity flow."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                198,
+                786,
+                255
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Use complementary slackness conditions."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                255,
+                583,
+                269
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "20.4 Give an example to show that picking all of D gives an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varOmega ( n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor for multicut."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                282,
+                784,
+                312
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "20.5 Consider the following growth process. "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W ( t )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denotes the weight at time t. Assume that the initial weight is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W ( 0 ) = W _ { 0 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and that at each point the rate of growth is proportional to the current weight, i.e.,"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                326,
+                786,
+                370
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm{d} W (t) = \\varepsilon W (t) \\mathrm{d} t.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/db2267d0cb2b787b0bdee89c3ad329b8f94588cbc23c21fd6dc33c54696fc925.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                382,
+                403,
+                398
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Give the function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W ( t )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Next, assume that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W _ { 0 } = F / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W ( 1 / 2 ) ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F + F / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". What is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon ?"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                411,
+                783,
+                439
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W ( t ) = W _ { 0 } e ^ { \\varepsilon t }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon = 2 \\ln ( k + 1 )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                439,
+                534,
+                455
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "20.6 This exercise justifies the choice of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { w t } ( s _ { 1 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", which was fixed to be "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "F / k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Suppose we fix it at "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W _ { 0 }"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathrm { C l e a r l y } } , \\ \\varepsilon"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is inversely related to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W _ { 0 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(see Lemma 20.3). However, the approximation factor of the algorithm is given by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varepsilon ( F + k W _ { 0 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(see Lemma 20.6). For what value of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W _ { 0 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the approximation factor minimized?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                468,
+                786,
+                539
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "20.7 Consider the following problem, which has applications in VLSI design."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                552,
+                784,
+                569
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 20.15 (Graph bipartization by edge deletion) Given an edge weighted undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", remove a minimum weight set of edges to leave a bipartite graph."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                589,
+                784,
+                632
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Obtain an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor approximation algorithm for this problem by reducing it to Problem 20.11."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                632,
+                784,
+                661
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "20.8 (Even, Naor, Schieber, and Rao [75]) This exercise develops an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log ^ { 2 } n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor algorithm for the following problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                674,
+                784,
+                703
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 20.16 (Minimum length linear arrangement) Given an undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", find a numbering of its vertices from 1 to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n , h : V \\to \\{ 1 , . . . , n \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", so as to minimize"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                709,
+                786,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "178"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                250,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "20 Multicut in General Graphs"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                504,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {(u, v) \\in E} | h (u) - h (v) |.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/9aff258491089e01a9064feb409c5bcdf1c362f19ad72838f6e387689d2ad047.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                109,
+                418,
+                143
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Show that the following is an LP-relaxation of this problem. This LP has a variable "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d _ { e }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for each edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textit { e } \\in \\textit { E }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", which we will interpret as a distance label. For any distance label assignment d to the edges of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { d i s t } _ { d } ( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be the length of the shortest path from u to v in G. Give a polynomial time separation oracle for this LP, thereby showing that it can be solved in polynomial time."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                154,
+                786,
+                241
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\begin{array}{l l} \\text {minimize} & \\sum_ {e \\in E} d _ {e} \\\\ & \\sum_ {u \\in S} \\mathrm{dist} _ {d} (u, v) \\geq \\frac {1}{4} (| S | ^ {2} - 1), \\quad S \\subseteq V, v \\in S \\\\ & d _ {e} \\geq 0, \\qquad \\qquad \\qquad \\qquad e \\in E \\end{array}\\tag{20.3}",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/cedf428f077d1bb143249eddca1e7bc74aa0873bc11718970cff41454873aed3.jpg"
+                }
+            },
+            "bbox": [
+                289,
+                254,
+                719,
+                343
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Let d be an optimal solution to LP (20.3). Show that for any "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\subseteq V , v \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "there is a vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that dis "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "_ d ( u , v ) \\geq ( | S | + 1 ) / 4"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                355,
+                784,
+                385
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "3. For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\subseteq V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { w t } ( S )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be the sum of distance labels of all edges having both endpoints in S. Also, define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( S , { \\overline { { S } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be the number of edges in the cut (S, S). Give a region growing process similar to that described in Section 20.2.1 that finds a cut "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( S , { \\breve { S } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in G with w "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( S ) \\leq \\mathrm { w t } ( \\overline { { S } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( S , { \\overline { { S } } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\operatorname { w t } ( S ) ( \\log n ) / n )"
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                384,
+                784,
+                456
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "4. Show that a divide-and-conquer algorithm that recursively finds a numbering for vertices in S from 1 to |S|, and a numbering for vertices in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\overline { S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\vert S \\vert + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to n achieves an approximation guarantee of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( \\log ^ { 2 } n )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Hint: Assuming each edge in the cut (S, S) is of length "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", write a suitable recurrence for the cost incurred by the algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                455,
+                784,
+                527
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "20.6 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                555,
+                342,
+                571
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 20.7 and its corollary are due to Garg, Vazirani, and Yannakakis [97]. Problem 20.11 was introduced in Klein, Rao, Agrawal, and Ravi [173]. For showing existence of expanders via a probabilistic argument, see Pinsker [220]."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                585,
+                786,
+                644
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "20.6 Notes"
+                    }
+                ]
+            },
+            "bbox": [
+                643,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "179"
+                    }
+                ]
+            },
+            "bbox": [
+                759,
+                87,
+                784,
+                99
+            ]
+        }
+    ]
+]

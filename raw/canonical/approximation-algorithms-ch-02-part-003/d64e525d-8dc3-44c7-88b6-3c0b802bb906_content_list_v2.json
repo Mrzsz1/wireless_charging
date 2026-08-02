@@ -1,0 +1,3968 @@
+[
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The set cover problem plays the same role in approximation algorithms that the maximum matching problem played in exact algorithms – as a problem whose study led to the development of fundamental techniques for the entire field. For our purpose this problem is particularly useful, since it ofers a very simple setting in which many of the basic algorithm design techniques can be explained with great ease. In this chapter, we will cover two combinatorial techniques: the fundamental greedy technique and the technique of layering. In Part II we will explain both the basic LP-based techniques of rounding and the primal–dual schema using this problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                255,
+                786,
+                384
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Among the first strategies one tries when designing an algorithm for an optimization problem is some form of the greedy strategy. Even if this strategy does not work for a specific problem, proving this via a counterexample can provide crucial insights into the structure of the problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                382,
+                786,
+                441
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Perhaps the most natural use of this strategy in approximation algorithms is to the set cover problem. Besides the greedy set cover algorithm, we will also present the technique of layering in this chapter. Because of its generality, the set cover problem has wide applicability, sometimes even in unexpected ways. In this chapter we will illustrate such an application – to the shortest superstring problem (see Chapter 7 for an improved algorithm for the latter problem)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                439,
+                786,
+                541
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 2.1 (Set cover) Given a universe U of n elements, a collection of subsets of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U , { \\mathcal { S } } = \\{ S _ { 1 } , \\ldots , S _ { k } \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and a cost function "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c : \\mathcal { S }  \\mathbf { Q } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", find a minimum cost subcollection of S that covers all elements of U."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                546,
+                786,
+                589
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Define the frequency of an element to be the number of sets it is in. A useful parameter is the frequency of the most frequent element. Let us denote this by f. The various approximation algorithms for set cover achieve one of two factors: O(log n) or f. Clearly, neither dominates the other in all instances. The special case of set cover with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f = 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is essentially the vertex cover problem (see Exercise 2.7), for which we gave a factor 2 approximation algorithm in Chapter 1."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                589,
+                786,
+                690
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Set Cover"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                109,
+                374,
+                127
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2.1 The greedy algorithm"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                111,
+                487,
+                128
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The greedy strategy applies naturally to the set cover problem: iteratively pick the most cost-efective set and remove the covered elements, until all elements are covered. Let C be the set of elements already covered at the beginning of an iteration. During this iteration, define the cost-efectiveness of a set S to be the average cost at which it covers new elements, i.e., "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c ( S ) / | S - C |"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Define the price of an element to be the average cost at which it is covered. Equivalently, when a set S is picked, we can think of its cost being distributed equally among the new elements covered, to set their prices."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                137,
+                784,
+                254
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 2.2 (Greedy set cover algorithm)\n1.   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C \\leftarrow \\emptyset"
+                    },
+                    {
+                        "type": "text",
+                        "content": " \n2. While   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C \\neq U"
+                    },
+                    {
+                        "type": "text",
+                        "content": "  do\n    Find the most cost-effective set in the current iteration, say S.\n    Let   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\alpha = \\frac{\\text{cost}(S)}{|S - C|}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " , i.e., the cost-effectiveness of S.\n    Pick S, and for each   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e \\in S - C"
+                    },
+                    {
+                        "type": "text",
+                        "content": " , set   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\text{price}(e) = \\alpha"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n     "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C \\leftarrow C \\cup S"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n3. Output the picked sets."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                263,
+                781,
+                414
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Number the elements of U in the order in which they were covered by the algorithm, resolving ties arbitrarily. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { 1 } , \\ldots , e _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be this numbering."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                431,
+                784,
+                461
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 2.3 For each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k \\in \\{ 1 , \\ldots , n \\} , \\mathrm { p r i c e } ( e _ { k } ) \\leq \\mathrm { O P T } / ( n - k + 1 )"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                467,
+                727,
+                482
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: In any iteration, the leftover sets of the optimal solution can cover the remaining elements at a cost of at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, among these sets, there must be one having cost-efectiveness of at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } / | { \\overline { { C } } } |"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". In the iteration in which element "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "was covered, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\overline { C }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "contained at least "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - k + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "elements. Since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "was covered by the most cost-efective set in this iteration, it follows that"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                494,
+                786,
+                580
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm{price} (e _ {k}) \\leq \\frac {\\mathrm{OPT}}{| \\overline {{C}} |} \\leq \\frac {\\mathrm{OPT}}{n - k + 1}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/5cac92204b3a8bcf586182d4028e10115dd4844f322a3bea005105f576339869.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                587,
+                495,
+                620
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "From Lemma 2.3 we immediately obtain:"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                646,
+                529,
+                661
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 2.4 The greedy algorithm is an "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor approximation algorithm for the minimum set cover problem, where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { n } = 1 + { \\frac { 1 } { 2 } } + \\cdots + { \\frac { 1 } { n } }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                668,
+                784,
+                699
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Since the cost of each set picked is distributed among the new elements covered, the total cost of the set cover picked is equal to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\begin{array} { l } { \\sum _ { k = 1 } ^ { n } { \\mathrm { p r i c e } } ( e _ { k } ) } \\end{array} }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "By Lemma 2.3, this is at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textstyle { \\left( 1 + { \\frac { 1 } { 2 } } + \\cdots + { \\frac { 1 } { n } } \\right) } \\cdot \\operatorname { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                709,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "16"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Set Cover"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                373,
+                101
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 2.5 The following is a tight example for Algorithm 2.2:"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                717,
+                129
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/48f52d8d77e8e559e33d04b2f8bffb23e6d8fcdcaf752ed2e557237f3b897f20.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                369,
+                152,
+                631,
+                228
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "When run on this instance the greedy algorithm outputs the cover consisting of the n singleton sets, since in each iteration some singleton is the most cost-efective set. Thus, the algorithm outputs a cover of cost"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                231,
+                784,
+                275
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\frac {1}{n} + \\frac {1}{n - 1} + \\dots + 1 = H _ {n}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/ba4f4100499e9924dfecafdf06753c4f0efe4c14879cea1471d8b24f2fc30859.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                286,
+                465,
+                316
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "On the other hand, the optimal cover has a cost of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 + \\varepsilon ."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                326,
+                645,
+                341
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Surprisingly enough, for the minimum set cover problem the obvious algorithm given above is essentially the best one can hope for; see Sections 29.7 and 29.9."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                347,
+                784,
+                390
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "In Chapter 1 we pointed out that finding a good lower bound on OPT is a basic starting point in the design of an approximation algorithm for a minimization problem. At this point the reader may be wondering whether there is any truth to this claim. We will show in Section 13.1 that the correct way to view the greedy set cover algorithm is in the setting of the LP-duality theory – this will not only provide the lower bound on which this algorithm is based, but will also help obtain algorithms for several generalizations of this problem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                390,
+                786,
+                505
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2.2 Layering"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                533,
+                359,
+                550
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm design technique of layering is also best introduced via set cover. We note, however, that this is not a very widely applicable technique. We will give a factor 2 approximation algorithm for vertex cover, assuming arbitrary weights, and leave the problem of generalizing this to a factor f approximation algorithm for set cover, where f is the frequency of the most frequent element (see Exercise 2.13)."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                563,
+                786,
+                649
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The idea in layering is to decompose the given weight function on vertices into convenient functions, called degree-weighted, on a nested sequence of subgraphs of G. For degree-weighted functions, we will show that we will be within twice the optimal even if we pick all vertices in the cover."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                649,
+                786,
+                705
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us introduce some notation. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w : V \\to \\mathbf { Q } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the function assigning weights to the vertices of the given graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We will say that a function assigning vertex weights is degree-weighted if there is a constant "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "such that the weight of each vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c \\cdot \\deg ( v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The significance of such a weight function is captured in:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                705,
+                786,
+                749
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "2.2 Layering"
+                    }
+                ]
+            },
+            "bbox": [
+                631,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "17"
+                    }
+                ]
+            },
+            "bbox": [
+                766,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                142
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 2.6 Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w : V \\to { \\mathbf { Q } } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be a degree-weighted function. Then "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w ( V ) \\leq"
+                    },
+                    {
+                        "type": "text",
+                        "content": "2 · OPT."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                149,
+                784,
+                179
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Let c be the constant such that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w ( v ) = c \\cdot \\deg ( v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and let U be an optimal vertex cover in G. Since U covers all the edges,"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                195,
+                784,
+                225
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\sum_ {v \\in U} \\deg (v) \\geq | E |.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/fd0f8262ea9df72e1888657d4098eab94b6e406a13fe9bb76b8d634ea615e246.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                237,
+                394,
+                267
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Therefore, w "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( U ) \\geq c | E |"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now, since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\sum _ { v \\in V } \\deg ( v ) = 2 | E | , w ( V ) = 2 c | E | } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The lemma follows. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                279,
+                784,
+                309
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us define the largest degree-weighted function in w as follows: remove all degree zero vertices from the graph, and over the remaining vertices, compute "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c = \\operatorname* { m i n } \\{ w ( v ) / \\deg ( v ) \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t ( v ) = c \\cdot \\deg ( v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the desired function. Define "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w ^ { \\prime } ( v ) = w ( v ) - t ( v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "to be the residual weight function."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                316,
+                784,
+                373
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm for decomposing w into degree-weighted functions is as follows. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { 0 } = G"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Remove degree zero vertices from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { 0 } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", say this set is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "D _ { 0 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and compute the largest degree-weighted function in w. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "W _ { 0 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be vertices of zero residual weight; these vertices are included in the vertex cover. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the graph induced on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V - ( D _ { 0 } { \\cup } W _ { 0 } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Now, the entire process is repeated on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "w.r.t. the residual weight function. The process terminates when all vertices are of degree zero; let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote this graph. The process is schematically shown in the following figure."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                373,
+                784,
+                488
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/580ba9d0bb20c2b13617585a8d16a61f0a915a435422e5536b0aaf5e14e4a7e2.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                300,
+                488,
+                702,
+                636
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { 0 } , . . . , t _ { k - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the degree-weighted functions defined on graphs "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { 0 } , . . . , G _ { k - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "The vertex cover chosen is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C = W _ { 0 } \\cup . . . \\cup W _ { k - 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "V { - } C = D _ { 0 } \\cup . . . \\cup D _ { k }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                640,
+                789,
+                670
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 2.7 The layer algorithm achieves an approximation guarantee of factor 2 for the vertex cover problem, assuming arbitrary vertex weights."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                678,
+                788,
+                709
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: We need to show that set C is a vertex cover for G and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "w ( C ) \\leq"
+                    },
+                    {
+                        "type": "text",
+                        "content": "2 · OPT. Assume, for contradiction, that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is not a vertex cover for G. Then there must be an edge "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u \\in D _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in D _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for some "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i , j"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Assume "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i \\le j"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Therefore, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is present in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "contradicting the fact that u is a degree zero vertex."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                724,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "18"
+                    }
+                ]
+            },
+            "bbox": [
+                225,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Set Cover"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                371,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                155
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be an optimal vertex cover. For proving the second part, consider a vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in C . \\mathrm { H } v \\in W _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", its weight can be decomposed as"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                156,
+                784,
+                186
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "w (v) = \\sum_ {i \\leq j} t _ {i} (v).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/81cac67659e3265d06539628416df9a7a60349ba4e916052de21b18572228f4c.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                198,
+                389,
+                229
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Next, consider a vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in V - C . \\operatorname { I f } v \\in D _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", a lower bound on its weight is given by"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                241,
+                784,
+                271
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "w (v) \\geq \\sum_ {i <   j} t _ {i} (v).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/c3501a0b0cc5356f995c866ce891b1d17722e9fe0f9ab6cdbb8d8378206e5cf4.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                282,
+                389,
+                313
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The important observation is that in each layer "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i , C ^ { * } \\cap G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a vertex cover for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "since "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a vertex-induced graph. Therefore, by Lemma 2.6, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t _ { i } ( C \\cap G _ { i } ) \\leq 2 \\cdot t _ { i } ( C ^ { * } \\cap G _ { i } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". By the decomposition of weights given above, we get"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                326,
+                784,
+                384
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "w (C) = \\sum_ {i = 0} ^ {k - 1} t _ {i} (C \\cap G _ {i}) \\leq 2 \\sum_ {i = 0} ^ {k - 1} t _ {i} (C ^ {*} \\cap G _ {i}) \\leq 2 \\cdot w (C ^ {*}).",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/1074b4734425145130f956ab76eea2547d7f14c678e1ab45eeaa4fea2053050e.jpg"
+                }
+            },
+            "bbox": [
+                262,
+                395,
+                668,
+                436
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Example 2.8 A tight example is provided by the family of complete bipartite graphs, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K _ { n , n } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", with all vertices of unit weight. The layering algorithm will pick all 2n vertices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "K _ { n , n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in the cover, whereas the optimal cover picks only one side of the bipartition. ✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                472,
+                784,
+                530
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2.3 Application to shortest superstring"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                565,
+                621,
+                583
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The following algorithm is given primarily to demonstrate the wide applicability of set cover. A constant factor approximation algorithm for shortest superstring will be given in Chapter 7."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                596,
+                784,
+                639
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let us first provide motivation for this problem. The human DNA can be viewed as a very long string over a four-letter alphabet. Scientists are attempting to decipher this string. Since it is very long, several overlapping short segments of this string are first deciphered. Of course, the locations of these segments on the original DNA are not known. It is hypothesized that the shortest string which contains these segments as substrings is a good approximation to the original DNA string."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                639,
+                786,
+                740
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "2.3 Application to shortest superstring"
+                    }
+                ]
+            },
+            "bbox": [
+                452,
+                87,
+                732,
+                101
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "19"
+                    }
+                ]
+            },
+            "bbox": [
+                766,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 2.9 (Shortest superstring) Given a finite alphabet "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\Sigma ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and a set of n strings, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\dot { S } = \\{ s _ { 1 } , \\ldots , s _ { n } \\} \\subseteq { \\Sigma } ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", find a shortest string s that contains each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as a substring. Without loss of generality, we may assume that no string "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a substring of another string "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { j } , j \\neq i"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                172
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "This problem is NP-hard. Perhaps the first algorithm that comes to mind for finding a short superstring is the following greedy algorithm. Define the overlap of two strings "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s , t \\in \\Sigma ^ { * }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as the maximum length of a sufix of s that is also a prefix of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t ."
+                    },
+                    {
+                        "type": "text",
+                        "content": "The algorithm maintains a set of strings "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "initially "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T = S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "At each step, the algorithm selects from "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "two strings that have maximum overlap and replaces them with the string obtained by overlapping them as much as possible. After "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n - 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "steps, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "T"
+                    },
+                    {
+                        "type": "text",
+                        "content": "will contain "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { a }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "single string. Clearly, this string contains each "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as a substring. This algorithm is conjectured to have an approximation factor of 2. To see that the approximation factor of this algorithm is no better than "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "consider an input consisting of 3 strings: "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a b ^ { k }"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b ^ { k } c"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b ^ { k + 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". If the first two strings are selected in the first iteration, the greedy algorithm produces the string "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a b ^ { k } c b ^ { k + 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". This is almost twice as long as the shortest superstring, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "a b ^ { k + 1 } c"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                177,
+                786,
+                361
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will obtain a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 H _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor approximation algorithm, using the greedy set cover algorithm. The set cover instance, denoted by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is constructed as follows. For "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } , s _ { j } \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", if the last k symbols of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are the same as the first k symbols of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { j }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma _ { i j k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the string obtained by overlapping these k positions of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { j } \\colon"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                361,
+                784,
+                434
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/600c6c22a01f1ba05a9ad5ea25e6862008b3392bfc438e9416b76812daa5c951.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                354,
+                436,
+                650,
+                513
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let M be the set that consists of the strings "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\sigma _ { i j k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for all valid choices of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i , j , k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". For a string "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pi \\in \\Sigma ^ { + }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", define set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\pi ) = \\{ s \\in { \\dot { S } } \\mid s"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a substring of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pi \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The universal set of the set cover instance "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { \\mathrm { { ; } } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and the specified subsets of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are set(π), for each string "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pi \\in S \\cup I"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". The cost of set(π) is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| \\pi |"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", i.e., the length of string π."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                521,
+                784,
+                592
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { \\cal S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and OPT denote the cost of an optimal solution to "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and the length of the shortest superstring of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "respectively. As shown in Lemma 2.11, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { \\cal S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and OPT are within a factor of 2 of each other, and so an approximation algorithm for set cover can be used to obtain an approximation algorithm for shortest superstring. The complete algorithm is:"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                592,
+                784,
+                664
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "20"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Set Cover"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                371,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 2.10 (Shortest superstring via set cover)  \n1. Use the greedy set cover algorithm to find a cover for the instance  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\operatorname{set}(\\pi_1), \\ldots, \\operatorname{set}(\\pi_k)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " be the sets picked by this cover.  \n2. Concatenate the strings  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pi_1, \\ldots, \\pi_k"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", in any order.  \n3. Output the resulting string, say  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s"
+                    },
+                    {
+                        "type": "text",
+                        "content": "."
+                    }
+                ]
+            },
+            "bbox": [
+                233,
+                118,
+                759,
+                200
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "Lemma 2.11"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                237,
+                329,
+                252
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "\\mathrm{OPT} \\leq \\mathrm{OPT} _ {\\mathcal {S}} \\leq 2 \\cdot \\mathrm{OPT}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/7c744163a63a689a858ae9a126fb1f0e3b4ebfcf485a4df3f5262783425ef1d3.jpg"
+                }
+            },
+            "bbox": [
+                374,
+                237,
+                568,
+                253
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Proof: Consider an optimal set cover, say "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ \\sec ( \\pi _ { i } ) | 1 \\le i \\le l \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and obtain a string, say s, by concatenating the strings "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pi _ { i } , 1 \\leq i \\leq l ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", in any order. Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| s | = \\mathrm { O P T } _ { \\mathcal { S } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Since each string of S is a substring of some "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pi _ { i } , 1 \\leq i \\leq l ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "it is also a substring of s. Hence "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T } _ { S } = | s | \\geq \\mathrm { O P T }"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                269,
+                784,
+                326
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "To prove the second inequality, let s be a shortest superstring of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 } , \\ldots , s _ { n } ."
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "| s | = \\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". It sufices to produce some set cover of cost at most "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 \\cdot \\mathrm { O P T }"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                326,
+                784,
+                355
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Consider the leftmost occurrence of the strings "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 } , \\ldots , s _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in string s. Since no string among "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 } , \\ldots , s _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a substring of another, these n leftmost occurrences start at distinct places in s. For the same reason, they also end at distinct places. Renumber the n strings in the order in which their leftmost occurrences start. Again, since no string is a substring of another, this is also the order in which they end."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                355,
+                786,
+                439
+            ]
+        },
+        {
+            "type": "image",
+            "content": {
+                "image_source": {
+                    "path": "images/0c9c7840d6d7bae3c535172db5c373d691d41f32906734560fa2527f2a932f8e.jpg"
+                },
+                "content": "",
+                "image_caption": [],
+                "image_footnote": []
+            },
+            "bbox": [
+                206,
+                457,
+                781,
+                699
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "We will partition the ordered list of strings "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 } , \\ldots , s _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in groups as described below. Each group will consist of a contiguous set of strings from this list. Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denote the index of the first and last string in the ith group "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( b _ { i } = e _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is allowed). Thus, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { 1 } = 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the largest index of a string that overlaps with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(there exists at least one such string, namely "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "itself). In general, if "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { i } < n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "we set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "b _ { i + 1 } = e _ { i } + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and denote by "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { i + 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the largest index of a string that overlaps with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { b _ { i + 1 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Eventually, we will get "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "e _ { t } = n"
+                    },
+                    {
+                        "type": "text",
+                        "content": "for some "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t \\leq n"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                724,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "2.3 Application to shortest superstring"
+                    }
+                ]
+            },
+            "bbox": [
+                452,
+                87,
+                732,
+                102
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "21"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": []
+            },
+            "bbox": [
+                220,
+                112,
+                784,
+                198
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "For each pair of strings "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\left( { { s _ { b } } _ { i } } , { { s _ { e } } _ { i } } \\right)"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "k _ { i } > 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": "be the length of the overlap between their leftmost occurrences in s (this may be diferent from their maximum overlap). Let "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pi _ { i } = \\sigma _ { b _ { i } e _ { i } k _ { i } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Clearly, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\{ \\sec ( \\pi _ { i } ) | 1 \\le i \\le t \\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a solution for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", of cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\textstyle \\sum _ { i } | \\pi _ { i } |"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                198,
+                784,
+                256
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "\u0001The critical observation is that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pi _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "does not overlap "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pi _ { i + 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". We will prove this claim for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "i = 1 ;"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the same argument applies to an arbitrary i. Assume, for contradiction, that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pi _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "overlaps "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pi _ { 3 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then the occurrence of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { b _ { 3 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "in s overlaps the occurrence of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\boldsymbol { s } _ { e _ { 1 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". However, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { b _ { 3 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "does not overlap "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { b _ { 2 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "(otherwise, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "{ \\mathit { s } } _ { { b } _ { 3 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "would have been put in the second group). This implies that "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathit { s } _ { e _ { 1 } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "ends later than "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { b _ { 2 } } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", contradicting the property of endings of strings established earlier."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                256,
+                784,
+                341
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Because of this observation, each symbol of s is covered by at most two of the "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\pi _ { i } \\mathrm { ^ { * } s }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Hence "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\operatorname { O P T } _ { \\mathcal { S } } \\leq \\sum _ { i } \\left| \\pi _ { i } \\right| \\leq 2 \\cdot \\operatorname { O P T } } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "✷"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                341,
+                784,
+                370
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The size of the universal set in the set cover instance "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "n ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "the number of strings in the given shortest superstring instance. This fact, Lemma 2.11, and Theorem 2.4 immediately give the following theorem."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                374,
+                784,
+                417
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Theorem 2.12 Algorithm 2.10 is a "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "2 H _ { n }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "factor algorithm for the shortest superstring problem, where n is the number of strings in the given instance."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                422,
+                784,
+                451
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2.4 Exercises"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                481,
+                364,
+                497
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2.1 Given an undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", the cardinality maximum cut problem asks for a partition of V into sets S and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\overline { S }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "so that the number of edges running between these sets is maximized. Consider the following greedy algorithm for this problem. Here "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { 1 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v _ { 2 }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "are arbitrary vertices in "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A \\subset V , d ( v , A )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "denotes the number of edges running between vertex v and set A."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                514,
+                786,
+                601
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 2.13\n1. Initialization:\n  "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A \\leftarrow \\{v_{1}\\}"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B \\leftarrow \\{v_{2}\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " \n2. For   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in V - \\{v_{1}, v_{2}\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "  do:\nif   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "d(v, A) \\geq d(v, B)"
+                    },
+                    {
+                        "type": "text",
+                        "content": "  then   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "B \\leftarrow B \\cup \\{v\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " ,\nelse   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "A \\leftarrow A \\cup \\{v\\}"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n3. Output A and B."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                608,
+                784,
+                747
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "22"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Set Cover"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                371,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Show that this is a factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "approximation algorithm and give a tight example. What is the upper bound on "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { O P T }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "that you are using? Give examples of graphs for which this upper bound is as bad as twice OPT. Generalize the problem and the algorithm to weighted graphs."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                112,
+                786,
+                172
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2.2 Consider the following algorithm for the maximum cut problem, based on the technique of local search. Given a partition of V into sets, the basic step of the algorithm, called "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r } { \\displaystyle \\mathit { \\mathcal { \\hat { H } } i \\dot { \\imath } p } , } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", is that of moving a vertex from one side of the partition to the other. The following algorithm finds a locally optimal solution under the flip operation, i.e., a solution which cannot be improved by a single flip."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                183,
+                786,
+                269
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "The algorithm starts with an arbitrary partition of V. While there is a vertex such that flipping it increases the size of the cut, the algorithm flips such a vertex. (Observe that a vertex qualifies for a flip if it has more neighbors in its own partition than in the other side.) The algorithm terminates when no vertex qualifies for a flip. Show that this algorithm terminates in polynomial time, and achieves an approximation guarantee of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 2"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                269,
+                786,
+                356
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2.3 Consider the following generalization of the maximum cut problem."
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                366,
+                759,
+                382
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 2.14 (MAX k-CUT) Given an undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with nonnegative edge costs, and an integer k, find a partition of V into sets "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { 1 } , \\ldots , S _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "so that the total cost of edges running between these sets is maximized."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                387,
+                784,
+                444
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Give a greedy algorithm for this problem that achieves a factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\begin{array} { r l r } {  { \\big ( 1 - \\frac { 1 } { k } \\big ) } } \\end{array}"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Is the analysis of your algorithm tight?"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                444,
+                781,
+                474
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2.4 Give a greedy algorithm for the following problem achieving an approximation guarantee of factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 / 4"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                486,
+                784,
+                514
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 2.15 (Maximum directed cut) Given a directed graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G ="
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "with nonnegative edge costs, find a subset "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S \\subset V"
+                    },
+                    {
+                        "type": "text",
+                        "content": "so as to maximize the total cost of edges out of S, i.e., cost "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\{ ( u \\to v ) \\mid u \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\in { \\overline { { S } } } \\} )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                521,
+                784,
+                565
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2.5 (N. Vishnoi) Use the algorithm in Exercise 2.2 and the fact that the vertex cover problem is polynomial time solvable for bipartite graphs to give a factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\lceil \\log _ { 2 } \\varDelta \\rceil"
+                    },
+                    {
+                        "type": "text",
+                        "content": "algorithm for vertex cover, where ∆ is the degree of the vertex having highest degree."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                576,
+                784,
+                633
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Let H denote the subgraph consisting of edges in the maximum cut found by Algorithm 2.13. Clearly, H is bipartite, and for any vertex "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v ,"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { d e g } _ { H } ( v ) \\geq ( 1 / 2 ) \\mathrm { d e g } _ { G } ( v )"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                634,
+                784,
+                678
+            ]
+        },
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2.6 (Wigderson [257]) Consider the following problem."
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                689,
+                633,
+                703
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 2.16 (Vertex coloring) Given an undirected graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "color its vertices with the minimum number of colors so that the two endpoints of each edge receive distinct colors."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                709,
+                784,
+                753
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "2.4 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                628,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "23"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Give a greedy algorithm for coloring G with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varDelta + 1"
+                    },
+                    {
+                        "type": "text",
+                        "content": "colors, where "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\varDelta"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the maximum degree of a vertex in G."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                112,
+                784,
+                141
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Give an algorithm for coloring a 3-colorable graph with "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "O ( { \\sqrt { n } } )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "colors. Hint: For any vertex v, the induced subgraph on its neighbors, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "N ( v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", is bipartite, and hence optimally colorable. If v has degree "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "> { \\sqrt { n } } ,"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", color "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "v \\cup N ( v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "using 3 distinct colors. Continue until every vertex has degree "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\leq { \\sqrt { n } }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ". Then use the algorithm in the first part."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                141,
+                784,
+                215
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2.7 Let 2SC denote the restriction of set cover to instances having "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f = 2"
+                    },
+                    {
+                        "type": "text",
+                        "content": "Show that 2SC is equivalent to the vertex cover problem, with arbitrary costs, under approximation factor preserving reductions."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                236,
+                784,
+                281
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2.8 Prove that Algorithm 2.2 achieves an approximation factor of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "H _ { k }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", where k is the cardinality of the largest specified subset of U."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                293,
+                786,
+                323
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2.9 Give a greedy algorithm that achieves an approximation guarantee of H for set multicover, which is a generalization of set cover in which an integral coverage requirement is also specified for each element and sets can be picked multiple numbers of times to satisfy all coverage requirements. Assume that the cost of picking α copies of set S<sub>i</sub> is α · cost(S<sub>i</sub>)."
+                    }
+                ]
+            },
+            "bbox": [
+                218,
+                335,
+                786,
+                409
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2.10 By giving an appropriate tight example, show that the analysis of Algorithm 2.2 cannot be improved even for the cardinality set cover problem, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\mathrm { i . e . } ."
+                    },
+                    {
+                        "type": "text",
+                        "content": ", if all specified sets have unit cost."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                420,
+                786,
+                464
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Consider running the greedy algorithm on a vertex cover instance."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                464,
+                769,
+                479
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2.11 Consider the following algorithm for the weighted vertex cover problem. For each vertex v, t(v) is initialized to its weight, and when t(v) drops to 0, v is picked in the cover. c(e) is the amount charged to edge e."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                492,
+                784,
+                537
+            ]
+        },
+        {
+            "type": "algorithm",
+            "content": {
+                "algorithm_caption": [],
+                "algorithm_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 2.17\n1. Initialization:\n     "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "C \\leftarrow \\emptyset"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\forall v \\in V, t(v) \\leftarrow w(v)"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "\\forall e \\in E, c(e) \\leftarrow 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": " \n2. While C is not a vertex cover do:\n    Pick an uncovered edge, say   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "(u, v)"
+                    },
+                    {
+                        "type": "text",
+                        "content": " . Let   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "m = \\min(t(u), t(v))"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n     "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t(u) \\leftarrow t(u) - m"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t(v) \\leftarrow t(v) - m"
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "c(u, v) \\leftarrow m"
+                    },
+                    {
+                        "type": "text",
+                        "content": " \n    Include in C all vertices having   "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "t(v) = 0"
+                    },
+                    {
+                        "type": "text",
+                        "content": " .\n3. Output C."
+                    }
+                ]
+            },
+            "bbox": [
+                233,
+                552,
+                707,
+                741
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "24"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                242,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Set Cover"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                371,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Show that this is a factor 2 approximation algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                112,
+                620,
+                127
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Show that the total amount charged to edges is a lower bound on OPT and that the weight of cover C is at most twice the total amount charged to edges."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                127,
+                786,
+                171
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2.12 Consider the layering algorithm for vertex cover. Another weight function for which we have a factor 2 approximation algorithm is the constant function – by simply using the factor 2 algorithm for the cardinality vertex cover problem. Can layering be made to work by using this function instead of the degree-weighted function?"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                179,
+                786,
+                250
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2.13 Use layering to get a factor f approximation algorithm for set cover, where f is the frequency of the most frequent element. Provide a tight example for this algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                260,
+                784,
+                304
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2.14 A tournament is a directed graph "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "G = ( V , E )"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", such that for each pair of vertices, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "u , v \\in V"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", exactly one of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( u , v )"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and (v, u) is in E. A feedback vertex set for G is a subset of the vertices of G whose removal leaves an acyclic graph. Give a factor 3 algorithm for the problem of finding a minimum feedback vertex set in a directed graph."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                312,
+                786,
+                384
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Show that it is suficient to “kill” all length 3 cycles. Use the factor "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "f"
+                    },
+                    {
+                        "type": "text",
+                        "content": "set cover algorithm."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                382,
+                784,
+                413
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2.15 (Hochbaum [125]) Consider the following problem."
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                420,
+                643,
+                436
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Problem 2.18 (Maximum coverage) Given a universal set U of n elements, with nonnegative weights specified, a collection of subsets of "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "U ."
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "S _ { 1 } , \\ldots , S _ { l }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", and an integer k, pick k sets so as to maximize the weight of elements covered."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                439,
+                784,
+                497
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Show that the obvious algorithm, of greedily picking the best set in each iteration until k sets are picked, achieves an approximation factor of"
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                497,
+                784,
+                527
+            ]
+        },
+        {
+            "type": "equation_interline",
+            "content": {
+                "math_content": "1 - \\left(1 - \\frac {1}{k}\\right) ^ {k} > 1 - \\frac {1}{e}.",
+                "math_type": "latex",
+                "image_source": {
+                    "path": "images/4926ec76cac24586b9f81268a7736c516f94c4d1d2f9befcc42780635f666aad.jpg"
+                }
+            },
+            "bbox": [
+                263,
+                536,
+                440,
+                569
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2.16 Using set cover, obtain approximation algorithms for the following variants of the shortest superstring problem (here "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s ^ { R }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is the reverse of string s):"
+                    }
+                ]
+            },
+            "bbox": [
+                221,
+                589,
+                784,
+                632
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "1. Find the shortest string that contains, for each string "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", both "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } ^ { R }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as substrings."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                636,
+                784,
+                664
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: The universal set for the set cover instance will contain 2n elements, "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "and "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } ^ { R }"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", for "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "1 \\leq i \\leq n"
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                665,
+                784,
+                694
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "2. Find the shortest string that contains, for each string "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } \\in S"
+                    },
+                    {
+                        "type": "text",
+                        "content": ", either "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "or "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s _ { i } ^ { R }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "as a substring."
+                    }
+                ]
+            },
+            "bbox": [
+                228,
+                693,
+                784,
+                721
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Hint: Define set "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "( \\pi ) = \\{ s \\in S \\mid"
+                    },
+                    {
+                        "type": "text",
+                        "content": "s or "
+                    },
+                    {
+                        "type": "equation_inline",
+                        "content": "s ^ { R }"
+                    },
+                    {
+                        "type": "text",
+                        "content": "is a substring of π}. Choose the strings π appropriately."
+                    }
+                ]
+            },
+            "bbox": [
+                248,
+                720,
+                784,
+                751
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "2.4 Exercises"
+                    }
+                ]
+            },
+            "bbox": [
+                628,
+                87,
+                732,
+                99
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "25"
+                    }
+                ]
+            },
+            "bbox": [
+                764,
+                87,
+                784,
+                99
+            ]
+        }
+    ],
+    [
+        {
+            "type": "title",
+            "content": {
+                "title_content": [
+                    {
+                        "type": "text",
+                        "content": "2.5 Notes"
+                    }
+                ],
+                "level": 2
+            },
+            "bbox": [
+                221,
+                112,
+                331,
+                127
+            ]
+        },
+        {
+            "type": "paragraph",
+            "content": {
+                "paragraph_content": [
+                    {
+                        "type": "text",
+                        "content": "Algorithm 2.2 is due to Johnson [150], Lov´asz [192], and Chv´atal [48]. The hardness result for set cover, showing that this algorithm is essentially the best possible, is due to Feige [80], improving on the result of Lund and Yannakakis [199]. The application to shortest superstring is due to Li [187]."
+                    }
+                ]
+            },
+            "bbox": [
+                220,
+                141,
+                786,
+                200
+            ]
+        },
+        {
+            "type": "page_number",
+            "content": {
+                "page_number_content": [
+                    {
+                        "type": "text",
+                        "content": "26"
+                    }
+                ]
+            },
+            "bbox": [
+                223,
+                87,
+                243,
+                99
+            ]
+        },
+        {
+            "type": "page_header",
+            "content": {
+                "page_header_content": [
+                    {
+                        "type": "text",
+                        "content": "2 Set Cover"
+                    }
+                ]
+            },
+            "bbox": [
+                275,
+                87,
+                371,
+                99
+            ]
+        }
+    ]
+]

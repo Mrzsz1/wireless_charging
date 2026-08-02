@@ -1,0 +1,2952 @@
+[
+    {
+        "type": "text",
+        "text": "Cryptography and Game Theory",
+        "text_level": 1,
+        "bbox": [
+            187,
+            103,
+            808,
+            136
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Yevgeniy Dodis and Tal Rabin",
+        "text_level": 1,
+        "bbox": [
+            325,
+            181,
+            670,
+            203
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Abstract",
+        "text_level": 2,
+        "bbox": [
+            449,
+            365,
+            546,
+            384
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "The Cryptographic and Game Theory worlds seem to have an intersection in that they both deal with an interaction between mutually distrustful parties which has some end result. In the cryptographic setting the multiparty interaction takes the shape of a set of parties communicating for the purpose of evaluating a function on their inputs, where each party receives at the end some output of the computation. In the game theoretic setting, parties interact in a game that guarantees some payoff for the participants according to the joint actions of all the parties, while the parties wish to maximize their own payoff. In the past few years the relationship between these two areas has been investigated with the hope of having cross fertilization and synergy. In this chapter we describe the two areas, the similarities and differences, and some of the new results stemming from their interaction.",
+        "bbox": [
+            135,
+            403,
+            858,
+            553
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "The first and second section will describe the cryptographic and the game theory settings (respectively). In the third section we contrast the two settings, and in the last sections we detail some of the existing results.",
+        "bbox": [
+            135,
+            553,
+            858,
+            603
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "8.1 Cryptographic Notions and Settings",
+        "text_level": 2,
+        "bbox": [
+            291,
+            655,
+            704,
+            673
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Cryptography is a vast subject requiring its own book. Therefore, in the following we will give only a high-level overview of the problem of Multi-Party Computation (MPC), ignoring most of the lower-level details and concentrating only on aspects relevant to Game Theory.",
+        "bbox": [
+            135,
+            691,
+            858,
+            762
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "MPC deals with the following problem. There are $n \\geq 2$ parties $P _ { 1 } , \\ldots , P _ { n }$ where party $P _ { i }$ holds input $t _ { i } , \\ 1 \\leq i \\leq n$ , and they wish to compute together a function $s = f ( t _ { 1 } , \\ldots , t _ { n } )$ on their inputs. The goal is that each party will learn the output of the function, s, yet with the restriction that $P _ { i }$ will not learn any additional information about the input of the other parties aside from what can be deduced from the pair $( t _ { i } , s )$ . Clearly it is the secrecy restriction that adds complexity to the problem, as without it each party could announce its input to all other parties, and each party would locally compute the value of the function. Thus, the goal of MPC is to achieve the following two properties at the same time: correctness of the computation and privacy preservation of the inputs.",
+        "bbox": [
+            135,
+            765,
+            860,
+            909
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "header",
+        "text": "CHAPTER 8",
+        "bbox": [
+            433,
+            72,
+            562,
+            87
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "page_number",
+        "text": "181",
+        "bbox": [
+            481,
+            920,
+            514,
+            933
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            139,
+            78,
+            862,
+            114
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Two generalizations. The following two generalizations of the above scenario are often useful.",
+        "bbox": [
+            139,
+            118,
+            862,
+            154
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "(i) Probabilisticfunctions. Here the value of the function depends on some random string r chosen according to some distribution: $s = f ( t _ { 1 } , \\ldots , t _ { n } ; r )$ . An example of this is the coin-flipping functionality, which takes no inputs, and outputs an unbiased random bit. Notice, it is crucial that the value r is not controlled by any of the parties, but is somehow jointly generated during the computation.",
+        "bbox": [
+            143,
+            165,
+            864,
+            253
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "(ii) Multioutputfunctions. It is not mandatory that there be a single output of the function. More generally there could be a unique output for each party, i.e., $( s _ { 1 } , \\ldots , s _ { n } ) =$ $f ( t _ { 1 } , \\ldots , t _ { n } )$ . In this case, only party $P _ { i }$ learns the output $s _ { i }$ , and no other party learns any information about the other parties input and outputs aside from what can be derived from its own input and output.",
+        "bbox": [
+            139,
+            255,
+            862,
+            345
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "The parties. One of the most interesting aspects of MPC is to reach the objective of computing the function value, but under the assumption that some of the parties may deviate from the protocol. In cryptography, the parties are usually divided into two types: honest and faulty. An honest party follows the protocol without any deviation. Otherwise, the party is considered to be faulty. The faulty behavior can exemplify itself in a wide range of possibilities. The most benign faulty behavior is where the parties follow the protocol, yet try to learn as much as possible about the inputs of the other parties. These parties are called honest-but-curious (or semihonest). At the other end of the spectrum, the parties may deviate from the prescribed protocol in any way that they desire, with the goal of either influencing the computed output value in some way, or of learning as much as possible about the inputs of the other parties. These parties are called malicious.",
+        "bbox": [
+            137,
+            354,
+            864,
+            571
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "We envision an adversary A, who controls all the faulty parties and can coordinate their actions. Thus, in a sense we assume that the faulty parties are working together and can exert the most knowledge and influence over the computation out of this collusion. The adversary can corrupt any number of parties out of the n participating parties. Yet, in order to be able to achieve a solution to the problem, in many cases we would need to limit the number of corrupted parties. We call this limit a threshold k, indicating that the protocol remains secure as long as the number of corrupted parties is at most k.",
+        "bbox": [
+            137,
+            571,
+            864,
+            698
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "8.1.1 Security of Multiparty Computations",
+        "text_level": 2,
+        "bbox": [
+            295,
+            725,
+            706,
+            743
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "We are ready to formulate the idea of what it means to securely compute a given function f. Assume that there exists a trusted party who privately receives the inputs of all the participating parties, calculates the output value s, and then transmits this value to each one of the parties.<sup>1</sup> This process clearly computes the correct output of $f ,$ and also does not enable the participating parties to learn any additional information about the inputs of others. We call this model the ideal model. The security of MPC then states that a protocol is secure if its execution satisfies the following: (1) the honest parties compute the same (correct) outputs as they would in the ideal model; and (2) the protocol does not expose more information than a comparable execution with the trusted party, in the ideal model.",
+        "bbox": [
+            137,
+            753,
+            864,
+            843
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_number",
+        "text": "182",
+        "bbox": [
+            143,
+            43,
+            177,
+            55
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "header",
+        "text": "cryptography and game theory",
+        "bbox": [
+            339,
+            44,
+            662,
+            57
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>1</sup> Note that in the case of a probabilistic function the trusted party will choose r according to the specified distribution and use it in the computation. Similarly, for multioutput functions the trusted party will only give each party its own output.",
+        "bbox": [
+            139,
+            861,
+            862,
+            907
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            135,
+            78,
+            860,
+            168
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Intuitively, this is explained in the following way. The adversary’s interaction with the parties (on a vector of inputs) in the protocol generates a transcript. This transcript is a random variable that includes the outputs of all the honest parties, which is needed to ensure correctness as explained below, and the output of the adversary ${ \\mathcal { A } } .$ . The latter output, without loss of generality, includes all the information that the adversary learned, including its inputs, private state, all the messages sent by the honest parties to ${ \\mathcal { A } } .$ , and, depending on the model (see later discussion on the communication model), maybe even include more information, such as public messages that the honest parties exchanged. If we show that exactly the same transcript distribution<sup>2</sup> can be generated when interacting with the trusted party in the ideal model, then we are guaranteed that no information is leaked from the computation via the execution of the protocol, as we know that the ideal process does not expose any information about the inputs. More formally,",
+        "bbox": [
+            133,
+            168,
+            860,
+            405
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Definition 8.1 Let $f$ be a function on n inputs and let $\\pi$ be a protocol that computes the function $f .$ . Given an adversary ${ \\mathcal { A } } .$ , which controls some set of parties, we define $\\mathrm { R E A L } _ { \\mathcal { A } , \\pi } ( t )$ to be the sequence of outputs of honest parties resulting from the execution of $\\pi$ on input vector t under the attack of ${ \\mathcal { A } } ,$ in addition to the output of ${ \\mathcal { A } } .$ Similarly, given an adversary $\\mathcal { A } ^ { \\prime }$ which controls a set of parties, we define IDE $\\mathbf { A L } _ { \\mathcal { A ^ { \\prime } } , f } ( t )$ to be the sequence of outputs of honest parties computed by the trusted party in the ideal model on input vector t, in addition to the output of ${ \\mathcal { A } } ^ { \\prime } .$ . We say that π securely computes $f$ if, for every adversary $\\mathcal { A }$ as above, there exists an adversary $\\mathcal { A } ^ { \\prime } .$ , which controls the same parties in the ideal model, such that, on any input vector $t ,$ we have that the distribution of $\\mathrm { R E A L } _ { \\mathcal { A } , \\pi } ( t )$ is “indistinguishable” from the distribution of $\\mathrm { I D E A L } _ { \\mathcal { A } ^ { \\prime } , f } ( t )$ (where the term “indistinguishable will be explained later).",
+        "bbox": [
+            155,
+            423,
+            840,
+            642
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Intuitively, the task of the ideal adversary $\\mathcal { A } ^ { \\prime }$ is to generate (almost) the same output as $\\mathcal { A }$ generates in the real execution (referred to also as the real model). Thus, the attacker $\\mathcal { A } ^ { \\prime }$ is often called the simulator (of $\\boldsymbol { \\mathcal { A } } )$ . Also note that the above definition guarantees correctness ofthe protocol. Indeed, the transcript value generated in the ideal model, $\\mathrm { I D E A L } _ { \\mathcal { A } ^ { \\prime } , f } ( t )$ , also includes the outputs of the honest parties (even though we do not give these outputs to $\\mathcal { A } ^ { \\prime } )$ , which we know were correctly computed by the trusted party. Thus, the real transcript $\\mathtt { \\backslash E A L } _ { \\mathcal { A } , \\pi } ( t )$ should also include correct outputs of the honest parties in the real model.",
+        "bbox": [
+            133,
+            662,
+            860,
+            807
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "The inputs ofthefaulty parties. We assumed that every party $P _ { i }$ has an input $t _ { i } .$ , which it enters into the computation. However, if $P _ { i }$ is faulty, nothing stops $P _ { i }$ from changing $t _ { i }$ into some $t _ { i } ^ { \\prime } .$ . Thus, the notion of a “correct” input is defined only for honest parties.",
+        "bbox": [
+            135,
+            815,
+            860,
+            868
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "header",
+        "text": "cryptographic notions and settings",
+        "bbox": [
+            311,
+            43,
+            682,
+            57
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_number",
+        "text": "183",
+        "bbox": [
+            824,
+            43,
+            858,
+            55
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>2</sup> The requirement that the transcript distribution be exactly the same will be relaxed later on.",
+        "bbox": [
+            135,
+            892,
+            738,
+            909
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "However, the “effective” input of a faulty party $P _ { i }$ could be defined as the value $t _ { i } ^ { \\prime }$ that the simulator $\\mathcal { A } ^ { \\prime }$ (which we assume exists for any real model $\\boldsymbol { \\mathcal { A } } )$ gives to the trusted party in the ideal model. Indeed, since the outputs of honest parties look the same in both models, for all effective purposes $P _ { i }$ must have “contributed” the same input $t _ { i } ^ { \\prime }$ in the real model.",
+        "bbox": [
+            137,
+            78,
+            862,
+            168
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Another possible misbehavior of $P _ { i }$ , even in the ideal model, might be a refusal to give any input at all to the trusted party. This can be handled in a variety of ways, ranging from aborting the entire computation to simply assigning $t _ { i }$ some “defaul value.” For concreteness, we assume that the domain of $f$ includes a special symbol $\\perp$ indicating this refusal to give the input, so that it is well defined how $f$ should be computed on such missing inputs. What this requires is that in any real protocol we detect when a party does not enter its input and deal with it exactly in the same manne as if the party would input ⊥ in the ideal model.",
+        "bbox": [
+            137,
+            168,
+            864,
+            313
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Variations on output delivery. In the above definition of security it is implicitly assumed that all honest parties receive the output of the computation. This is achieved by stating that $\\mathrm { I D E A L } _ { \\mathcal { A } ^ { \\prime } , f } ( t )$ includes the outputs of all honest parties. We therefore say that our current definition guarantees output delivery.",
+        "bbox": [
+            139,
+            322,
+            862,
+            394
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "A more relaxed property than output delivery isfairness. If fairness is achieved, then this means that if at least one (even faulty!) party learns its outputs, then all (honest) parties eventually do too. A bit more formally, we allow the ideal model adversary $\\mathcal { A } ^ { \\prime }$ to instruct the trusted party not to compute any of the outputs. In this case, in the ideal model either all the parties learn the output, or none do. Since $\\mathcal { A } \\mathrm { { s } }$ transcript is indistinguishable from $\\mathcal { A } ^ { \\prime \\prime } \\mathrm { { s } }$ this guarantees that the same fairness guarantee must hold in the real model as well.",
+        "bbox": [
+            139,
+            394,
+            862,
+            520
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Yet, a further relaxation of the definition of security is to provide only correct ness and privacy. This means that faulty parties can learn their outputs, and prevent the honest parties from learning theirs. Yet, at the same time the protocol will still guarantee that (1) if an honest party receives an output, then this is the cor rect value, and (2) the privacy of the inputs and outputs of the honest parties is preserved.",
+        "bbox": [
+            137,
+            520,
+            862,
+            630
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Variations on the model. The basic security notions introduced above are universal and model-independent. However, specific implementations crucially depend on spelling out precisely the model where the computation will be carried out. In particular, the following issues must be specified:",
+        "bbox": [
+            139,
+            637,
+            862,
+            709
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "(i) The parties. As mentioned above, the faulty parties could be honest-but-curious or malicious, and there is usually an upper bound k on the number of parties that the adversary can corrupt.",
+        "bbox": [
+            149,
+            728,
+            862,
+            782
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "(ii) Computational assumptions. We distinguish between the computational setting and the information theoretic setting. In the information theoretic model we assume that the adversary is unlimited in its computing powers. In this case the term “indistinguishable” in Definition 8.1 is formalized by requiring the two transcript distributions to be either identical (so-called perfect security) or, at least, statistically close in their variation distance (so-called statistical security). On the other hand, in the computational setting we restrict the power of the adversary (as well as that of the honest parties). A bit more precisely, we assume that the corresponding MPC problem is parameterized by the security parameter λ, in which case (a) all the computation and communication shall be done in time polynomial in $\\lambda ;$ and (b) the misbehavior strategies of the faulty parties are also restricted to be run in time polynomial in λ. Furthermore, the term “indistinguishability” in Definition 8.1 is formalized by computational indistinguishability: two distribution ensembles $\\{ X _ { \\lambda } \\} _ { \\lambda }$ and $\\{ Y _ { \\lambda } \\} _ { \\lambda }$ are said to be computationally indistinguishable, if for any polynomial-time distinguisher $D _ { ; }$ , the quantity \u0003, defined as $| P r [ D ( X _ { \\lambda } ) = 1 ] - P r [ D ( Y _ { \\lambda } ) = 1 ] |$ , is a “negligible” function of λ. This means that for any $j > 0$ and all sufficiently large λ, \u0003 eventually becomes smaller than $\\lambda ^ { - j }$",
+        "bbox": [
+            145,
+            783,
+            864,
+            910
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_number",
+        "text": "184",
+        "bbox": [
+            143,
+            41,
+            177,
+            55
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "header",
+        "text": "cryptography and game theory",
+        "bbox": [
+            339,
+            44,
+            662,
+            57
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            173,
+            79,
+            860,
+            258
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "This modeling of computationally bounded parties enables us to build secure MPC protocols depending on plausible computational assumptions, such as the hardness of factoring large integers, etc.",
+        "bbox": [
+            173,
+            259,
+            860,
+            312
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "(iii) Communication assumptions. The two common communication assumptions are the existence of a secure channel and the existence of a broadcast channel. Secure chan nels assume that every pair of parties $P _ { i }$ and $P _ { j }$ are connected via an authenticated, private channel. A broadcast channel is a channel with the following properties: if a party $P _ { i }$ (honest or faulty) broadcasts a message m, then m is correctly received by all the parties (who are also sure the message came from $P _ { i } )$ ). In particular, if an honest party receives m, then it knows that every other honest party also received m.",
+        "bbox": [
+            135,
+            313,
+            860,
+            456
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "A different communication assumption is the existence of envelopes. An envelope (in its most general definition) guarantees the following properties: a value m can be stored inside the envelope, it will be held without exposure for a given period of time, and then the value m will be revealed without modification. A ballot box is an enhancement of the envelope setting that also provides a random shuffling mechanism of the envelopes.",
+        "bbox": [
+            173,
+            458,
+            860,
+            564
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "These are, of course, idealized assumptions that allow for a clean description of a protocol, as they separate the communication issues from the computational ones. These idealized assumptions may be realized by a physical mechanisms, but in some settings such mechanisms may not be available. Then it is important to address the question if and under what circumstances we can remove a given communication assumption. For example, we know that the assumption of a secure channel can be substituted with a protocol, but under the introduction of a computational assumption and a public key infrastructure. In general, the details of these substitutions are delicate and need to be done with care.",
+        "bbox": [
+            173,
+            566,
+            860,
+            729
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "8.1.2 Existing Results for Multiparty Computation",
+        "text_level": 2,
+        "bbox": [
+            255,
+            764,
+            738,
+            782
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Since the introduction of the MPC problem in the beginning of the 1980s, the work in this area has been extensive. We will only state, without proofs, a few representative results from the huge literature in this area.",
+        "bbox": [
+            135,
+            790,
+            858,
+            845
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Theorem 8.2 Secure MPC protocols withstanding coalitions of up to k mali cious parties (controlled by an attacker A) exist in thefollowing cases:",
+        "bbox": [
+            157,
+            871,
+            836,
+            909
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "header",
+        "text": "cryptographic notions and settings",
+        "bbox": [
+            313,
+            44,
+            680,
+            57
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_number",
+        "text": "185",
+        "bbox": [
+            824,
+            43,
+            858,
+            55
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "(i) Assuming that A is computationally bounded, secure channels, and a broadcast channel (and a certain cryptographic assumption, implied for example, by the hardness offactoring, is true), then:",
+        "bbox": [
+            167,
+            78,
+            840,
+            131
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "(a) for $k < n / 2$ with output delivery.",
+        "bbox": [
+            193,
+            133,
+            499,
+            149
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "(b) for $k < n$ with correctness and privacy.",
+        "bbox": [
+            195,
+            150,
+            548,
+            167
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "(c) additionally assuming envelopes,for $k < n$ withfairness.",
+        "bbox": [
+            195,
+            168,
+            690,
+            186
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "(ii) Assuming that A is computationally unbounded:",
+        "bbox": [
+            161,
+            191,
+            588,
+            207
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "(a) assuming secure channels, thenfor $k < n / 3$ with output delivery.",
+        "bbox": [
+            193,
+            209,
+            752,
+            225
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "(b) assuming secure and broadcast channels, then for $k < n / 2$ with output delivery (but with an arbitrarily small probability of error).",
+        "bbox": [
+            193,
+            227,
+            840,
+            262
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "(c) assuming envelopes, ballot-box and a broadcast channel, thenfor $k < n$ with output delivery.",
+        "bbox": [
+            195,
+            263,
+            840,
+            298
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Structure of MPC protocols. A common design structure of many MPC protocols proceeds in three stages: commitment to the inputs, computation of the function on the committed inputs, revealing of the output. Below we describe these stages at a high level, assuming for simplicity that the faulty parties are honest-but-curious.",
+        "bbox": [
+            137,
+            331,
+            862,
+            403
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "In the first stage the parties commit to their inputs, this is done by utilizing the first phase of a two-phased primitive called secret-sharing. The first phase of a $( k , n ) \\cdot$ secret-sharing scheme is the sharing phase. A dealer, D, who holds some secret $z ,$ computes n shares $z _ { 1 } , \\ldots , z _ { n }$ of z and gives the share $z _ { i }$ to party $P _ { i }$ . The second phase is the reconstruction phase, which we describe here and utilize later. For the reconstruction, the parties broadcast their shares to recover $z .$ . Informally, such secretsharing schemes satisfy the following two properties: (1) k, or fewer, shares do not reveal any information about $z ;$ but (2) any $k + 1$ or more shares enable one to recove z. Thus, up to $k$ colluding parties learn no information about z after the sharing stage, while the presence of at least $k + 1$ honest parties allows one to recover the secret in the reconstruction phase (assuming, for now, that no incorrect shares are given).",
+        "bbox": [
+            137,
+            404,
+            864,
+            602
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "The classical secret-sharing scheme satisfying these properties is the Shamir secret sharing scheme. Here we assume that the value z lies in some finite field F of cardinality greater than $n$ (such as the field of integers modulo a prime $p > n )$ ). The dealer D chooses a random polynomial g of degree k with the only constraint that the free coefficient of $g$ is z. Thus, $z = g ( 0 )$ . Then, if $\\alpha _ { 1 } , \\ldots , \\alpha _ { n }$ are arbitrary but agreed in advance nonzero elements of F, the shares of party $P _ { i }$ is computed as $z _ { i } = g ( \\alpha _ { i } )$ . It is now easy to observe that any $k + 1$ shares $z _ { i }$ are enough to interpolate the polynomial $g$ and compute $g ( 0 ) = z$ . Furthermore, any set of k shares is independent of $z .$ . This is easy to see as for any value $z ^ { \\prime } \\in F$ there exists a $( k + 1 )$ )st share such that with the given set of $k$ shares they interpolate a polynomial $g ^ { \\prime }$ , where $g ^ { \\prime } ( 0 ) = z ^ { \\prime } ,$ , in a sense making any value of the secret equally likely. Thus, properties (1) and (2) stated above are satisfied.",
+        "bbox": [
+            137,
+            602,
+            864,
+            817
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "To summarize, the first stage of the MPC is achieved by having each party $P _ { i }$ invoke the first part of the secret-sharing process as the dealer D with its input $t _ { i }$ as the secret, and distribute the correct shares of $t _ { i }$ to each party $P _ { j }$ . If $f$ is probabilistic, the players additionally run a special protocol at the end of which a $( k , n )$ )-secret-sharing of a random and secret value r is computed.",
+        "bbox": [
+            137,
+            818,
+            864,
+            909
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_number",
+        "text": "186",
+        "bbox": [
+            143,
+            43,
+            177,
+            55
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "header",
+        "text": "cryptography and game theory",
+        "bbox": [
+            339,
+            44,
+            662,
+            57
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "In the second stage the parties compute the function $f .$ . This is done by evaluating the pre–agreed-upon arithmetic circuit representing $f$ over $F _ { \\ast }$ , which is composed of addition, scalar-multiplication and multiplication gates. The computation proceeds by evaluating the gates one by one. We inductively assume that the inputs to the gates are shared in the manner described above in the secret-sharing scheme, and we guarantee that the output of the gate will preserve the same representation. This step forms the heart of most MPC protocols. The computation of the addition and scalar-multiplication gates are typically pretty straightforward and does not require communication (e.g., for the Shamir secret-sharing scheme the parties locally simply add or multiply by the scalar their input shares), but is considerably more involved for the multiplication gate and requires communication. For our purposes we will not need the details of the computation mechanism, simply assuming that this computation on shares is possible will suffice. Therefore, we can assume that at the end of the second stage the parties have a valid secret-sharing of the required output(s) of the function $f .$ . The most crucial observation is that no additional information is leaked throughout this stage, since all the values are always shared through a (k, n)-secret-sharing scheme.",
+        "bbox": [
+            135,
+            78,
+            860,
+            366
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Finally, in the last stage the parties need to compute their individual outputs of the function. As we have inductively maintained the property that the output of each gate is in the secret-sharing representation, then the same it true for the output gate of $f$ Thus, to let the parties learn the output s, which is the value of the function, the parties simply run the reconstruction phase of the secret-sharing scheme (as described above), by having each party broadcast its share of s.",
+        "bbox": [
+            135,
+            366,
+            860,
+            476
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "8.2 Game Theory Notions and Settings",
+        "text_level": 2,
+        "bbox": [
+            295,
+            502,
+            698,
+            521
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Strategic games. We assume that the reader is familiar with the basic concepts of strategic (or “one-shot simultaneous move”) games, including the notions of Nash Equilibrium (NE) and Correlated Equilibrium (CE). In particular, recall from Chapter 1 that the class of NE corresponds to independent strategies of all the parties, while the class of CE – to arbitrary correlated strategies. However, in order to implement a given CE one generally needs a special “correlation device” – so-called mediator M – which will sample the prescribed strategy profile $s = ( s _ { 1 } , \\ldots , s _ { n } )$ for all the parties, and disclose privately only action $s _ { i }$ to each player $P _ { i }$ . In particular, it is very important that $P _ { i }$ does not learn anything about the recommended actions of the other parties, beyond what could be implied by its own action $s _ { i }$ . Finally, recall that one can achieve consider ably higher payoffs by playing a well-selected CE than what is possible using any given NE, or even what can be achieved by taking any convex combination of NE payoffs.",
+        "bbox": [
+            135,
+            539,
+            860,
+            757
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Games with incomplete information. In games with incomplete information, each party has a private type $t _ { i } \\in T _ { i }$ , where the joint vector $t = ( t _ { 1 } , \\ldots , t _ { n } )$ is assumed to be drawn from some publicly known distribution. The point of such type, $t _ { i }$ , is that it affects the utility function of party $P _ { i }$ : namely, the utility $u _ { i }$ depends not only on the actions $s _ { 1 } , \\ldots , s _ { n }$ , but also on the private type $t _ { i }$ of party $P _ { i } , \\mathrm { o r , }$ in even more general games, on the entire type vector t of all the parties. With this in mind, generalizing the notion of Nash equilibrium to such games is straightforward. (The resulting Nash equilibrium is also called Bayesian.)",
+        "bbox": [
+            135,
+            764,
+            860,
+            909
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "header",
+        "text": "game theory notions and settings",
+        "bbox": [
+            323,
+            44,
+            670,
+            57
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "page_number",
+        "text": "187",
+        "bbox": [
+            824,
+            41,
+            858,
+            55
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Mediated games generalize to the typed setting, in which parties have to send their types to the mediator M before receiving the joint recommendation. Depending on the received type vector t, the mediator samples a correlated strategy profile s and gives each party its recommended action $s _ { i }$ , as before. We remark that the expected canonical strategy of party $P _ { i }$ is to honestly report its type $t _ { i }$ to $M$ , and then follow the recommended action $s _ { i }$ . However, $P _ { i }$ can deviate from the protocol in two ways: (1) send a wrong type $t _ { i } ^ { \\prime }$ or not send a type at all to $M$ , as well as (2) decide to change the recommended action from $s _ { i }$ to some $s _ { i } ^ { \\prime } .$ . As a mediator may receive faulty types, a fully defined sampling strategy for the mediator should specify the joint distribution x for every type $t = ( t _ { 1 } , \\ldots , t _ { n } )$ , even outside the support of the joint type distribution. Formally, $x ^ { t }$ should be defined for every $t \\in \\prod _ { i } ( T _ { i } \\cup \\{ \\perp \\} )$ , where $\\perp$ is a special symbol indicating an invalid type. (In particular, games of complete information can be seen as a special case where all $t _ { i } = \\perp$ and each party “refused” to report its type.) With this in mind, the generalization of CE to games with incomplete information is straightforward.",
+        "bbox": [
+            137,
+            78,
+            864,
+            350
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Aborting the game. We assume that the parties will always play the game by choosing an action $s _ { i } \\in S _ { i }$ and getting an appropriate payoff $u _ { i } ( s )$ . Of course, we can always model refusal to play by introducing a special action ⊥ into the strategy space, and defining the explicit utilities corresponding to such actions. Indeed, many games effectively guarantee participation by assigning very low payoff to actions equivalent to aborting the computation. However, this is not a requirement; in fact, many games do not even have the abort action as parts of their action spaces. To summarize, aborting is not something which is inherent to games, although it could be modeled within the game, if required.",
+        "bbox": [
+            137,
+            357,
+            862,
+            520
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Extended games. So far we considered only strategic games, where parties move in “one-shot” (possibly with the help of the mediator). Of course, these games are special cases of much more general extensiveform games (with complete or incomplete information), where a party can move in many rounds and whose payoffs depend on the entire run of the game. In our setting we will be interested only in a special class of such extensive form games, which we call (strategic) games extended by cheap-talk, or, in brief, extended games.",
+        "bbox": [
+            137,
+            529,
+            862,
+            654
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "An extended game $G ^ { * }$ is always induced by a basic strategic game $G$ (of either complete or incomplete information), and has the following form. In the cheap-talk (or preamble) phase, parties follow some protocol by exchanging messages in some appropriate communication model. This communication model can vary depending on the exact setting we consider. But once the setting is agreed upon, the format of the cheap talk phase is well defined. After the preamble, the game phase will start and the parties simply play the original game $G .$ . In particular, the payoffs of the extended game are exactly the payoff that the parties get in $G$ (and this explains why the preamble phase is called “cheap talk”).",
+        "bbox": [
+            137,
+            655,
+            864,
+            817
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Correspondingly, the strategy $x _ { i }$ of party $P _ { i }$ in the extended game consists of its strategy in the cheap talk phase, followed by the choice of an action $s _ { i }$ that $P _ { i }$ will play in $G$ . Just like in strategic games, we assume that the game phase must always go on. Namely, aborting the game phase will be modeled inside $G$ , but only if necessary. However, the parties can always abort the preamble phase of the extended game, and prematurely decide to move on to the game phase. Thus, a valid strategy profile for the extended game must include instructions of which action to play if some other party refuses to follow its strategy, or, more generally, deviates from the protocol instructions during the cheap talk phase (with abort being a special case of such misbehavior).",
+        "bbox": [
+            137,
+            817,
+            864,
+            907
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "page_number",
+        "text": "188",
+        "bbox": [
+            143,
+            41,
+            177,
+            55
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "header",
+        "text": "cryptography and game theory",
+        "bbox": [
+            339,
+            44,
+            662,
+            57
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            135,
+            78,
+            860,
+            152
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Nash equilibrium of extended games. With this in mind, (Bayesian) Nash equilibrium for extended games is defined as before. We remark, however, that Nash equilibrium is known to be too liberal for extensive form games, as it allows for “unreasonable” strategy profiles to satisfy the definition of NE. For example, it allows for equilibrium strategies containing so-called “empty threats” and has other subtle deficiencies. Nevertheless, in order to keep our presentation simple, we will primarily restrict ourselves to the basic concept of NE when talking about extended games.",
+        "bbox": [
+            135,
+            158,
+            860,
+            285
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Collusions. All the discussion so far assumed the traditional noncooperative setting, where agents are assumed not to form collusions. In contrast, cooperative game theory tries to model reasonable equilibrium concepts arising in scenarios where agents are allowed to form collusions. However, traditional game-theoretic treatment of such equilibria are fairly weak. We will come back to this issue in Section 8.4.1, where we provide the definition of an equilibrium that we think is the most appropriate for our setting and has been influenced by the MPC setting.",
+        "bbox": [
+            135,
+            292,
+            860,
+            421
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "8.3 Contrasting MPC and Games",
+        "text_level": 2,
+        "bbox": [
+            321,
+            442,
+            672,
+            461
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "As we can see, MPC and games share several common characteristics. In both cases an important problem is to compute some function $( s _ { 1 } \\ldots s _ { n } ) = f ( t _ { 1 } , \\ldots , t _ { n } ; r )$ in a private manner. However, there are some key differences summarized in Figure 8.1, making the translation from MPC to Games and vice versa a promising but nonobvious task.",
+        "bbox": [
+            135,
+            479,
+            860,
+            570
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Incentives and rationality. Game theory is critically built on incentives. Although it may not necessarily explain why parties participate in a game, once they do, they have a very well defined incentive. Specifically, players are assumed to be rational and only care about maximizing their utility. Moreover, rationality is common knowledge: parties are not only rational, but know that other parties are rational and utilize this knowledge when making their strategic decisions. In contrast, the incentives in the",
+        "bbox": [
+            135,
+            578,
+            860,
+            688
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "table",
+        "img_path": "images/ee9c831a45434741526ada88cc722d35e5531517a220fc99d67d7c677c469e90.jpg",
+        "table_caption": [
+            "Figure 8.1. Differences between Crytography and game theory."
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Issue</td><td>Cryptography</td><td>Game Theory</td></tr><tr><td>Incentive</td><td>Outside the model</td><td>Payoff</td></tr><tr><td>Players</td><td>Totally honest or malicious</td><td>Always rational</td></tr><tr><td>Solution drivers</td><td>Secure protocol</td><td>Equilibrium</td></tr><tr><td>Privacy</td><td>Goal</td><td>Means</td></tr><tr><td>Trusted party</td><td>In the ideal model</td><td>In the actual game</td></tr><tr><td>Punishing cheaters</td><td>Outside the model</td><td>Central part</td></tr><tr><td>Early stopping</td><td>Possible</td><td>The game goes on!</td></tr><tr><td>Deviations</td><td>Usually efficient</td><td>Usually unbounded</td></tr><tr><td>k-collusions</td><td>Tolerate “large” k</td><td>Usually only k = 1</td></tr></table>",
+        "bbox": [
+            261,
+            711,
+            732,
+            868
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "header",
+        "text": "contrasting mpc and games",
+        "bbox": [
+            357,
+            43,
+            636,
+            57
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "page_number",
+        "text": "189",
+        "bbox": [
+            824,
+            41,
+            858,
+            55
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "MPC setting remain external to the computation, and the reason the computation actually ends with a correct and meaningful output comes from the assumption on the parties. Specifically, in the MPC setting one assumes that there exist two diametrically opposite kinds of parties: totally honest and arbitrarily malicious. Thus, the settings are somewhat incomparable in general. On the one hand, the MPC setting may be harder as it has to protect against completely unexplained behavior of the malicious parties (even if such behaviors would be irrational had the parties had the utilities defined). On the other hand, the Game Theory setting could be harder as it does not have the benefit of assuming that some of the parties (i.e., the honest parties) blindly follow the protocol. However, we remark that this latter benefit disappears for the basic notions of Nash and correlated equilibria, since there one always assumes that the other parties follow the protocol when considering whether or not to deviate. For such basic concepts, we will indeed see in Section 8.4.2 that the MPC setting is more powerful.",
+        "bbox": [
+            137,
+            78,
+            864,
+            313
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Privacy and solution drivers. In the cryptographic setting the objective is to achieve a secure protocol, as defined in Definition 8.1. In particular, the main task is to eliminate the trusted party in a private and resilient way. While in the game theory setting the goal is to achieve “stability” by means of some appropriate equilibrium. In particular, the existence of the mediator is just another “parameter setting” resulting in a more desirable, but harder to implement equilibrium concept. Moreover, the privacy constraint on the mediator is merely a technical way to justify a much richer class of “explainable” rational behaviors. Thus, in the MPC setting privacy is the goal while in the game theory setting it is a means to an end.",
+        "bbox": [
+            137,
+            320,
+            864,
+            485
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "“Crime and punishment”. We also notice that studying deviations from the prescribed strategy is an important part of both the cryptographic and the game-theoretic setting. However, there are several key differences.",
+        "bbox": [
+            139,
+            492,
+            862,
+            546
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "In cryptography, the goal is to compute the function, while achieving some security guarantees in spite of the deviations of the faulty parties. Most protocols also enable the participating parties to detect which party has deviated from the protocol. Yet, even when exposed, in many instances no action is taken against the faulty party. Yet, when an action, such as removal from the computation, is taken, this is not in an attempt to punish the party, but rather to enable the protocol to reach its final goal of computing the function. In contrast, in the game-theoretic setting it is crucial to specify exactly how the misbehavior will be dealt with by the other parties. In particular, one typica approach is to design reaction strategies that will negatively affect the payoffs of the misbehaving party(s). By rationality, this ensures that it is in no player’s self-interest to deviate from the prescribed strategy.",
+        "bbox": [
+            137,
+            546,
+            864,
+            744
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "We already commented on a particular misbehavior when a party refuses to partic ipate in a given protocol/strategy. This is called early stopping. In the MPC setting, there is nothing one can do about this problem, since it is possible in the ideal model as well. In the Game Theory setting, however, we already pointed out that one always assumes that “the game goes on.” That is, if one wishes, it is possible to model stopping by an explicit action with explicit payoffs, but the formal game is always assumed to be played. Thus, if we use MPC inside a game-theoretic protocol, we will have to argue – from the game-theoretic point of view – what should happen when a given party aborts the MPC.",
+        "bbox": [
+            137,
+            744,
+            864,
+            907
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "page_number",
+        "text": "190",
+        "bbox": [
+            141,
+            41,
+            177,
+            55
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "header",
+        "text": "cryptography and game theory",
+        "bbox": [
+            339,
+            44,
+            662,
+            57
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Efficiency. Most game-theoretic literature places no computational limitations on the efficiency of a party when deciding whether or not to deviate. In contrast, a significant part of cryptographic protocol literature is designed to only withstand computationally bounded adversaries.",
+        "bbox": [
+            135,
+            78,
+            860,
+            150
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Collusions. Finally, we comment again on the issue of collusions. Most game-theoretic literature considers noncooperative setting, which corresponds to collusions of size $k = 1$ . In contrast, in the MPC setting the case $k = 1$ is usually straightforward, and a lot of effort is made to make the maximum collusion threshold as high as possible. Indeed, in most MPC settings one can tolerate at least a linear fraction of colluding parties, and sometimes even a collusion of all but one party.",
+        "bbox": [
+            133,
+            158,
+            860,
+            269
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "8.4 Cryptographic Influences on Game Theory",
+        "text_level": 2,
+        "bbox": [
+            253,
+            285,
+            740,
+            305
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "In this section we discuss how the techniques and notions from MPC and cryptography can be used in Game Theory. We start by presenting the notions of computationa and k-resilient equilibria, which were directly influenced by cryptography. We then proceed by describing how to use appropriate MPC protocols and replace the mediator implementing a given CE by a “payoff-equivalent” cheap-talk phase in a variety of contexts.",
+        "bbox": [
+            133,
+            322,
+            860,
+            430
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "8.4.1 New Notions",
+        "text_level": 2,
+        "bbox": [
+            405,
+            457,
+            588,
+            474
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Computational equilibrium. Drawing from the cryptographic world, we consider settings where parties participating in the extended game are computationally bounded and we define the notion of computational equilibriums. In this case we only have to protect against efficient misbehavior strategies $x _ { i }$ . A bit more precisely, we will assume that the basic game G has constant size. However, when designing the preamble phase of the extended game, we can parameterize it by the security parameter $\\lambda ,$ , in which case (a) all the computation and communication shall be done in time polynomial in $\\lambda ;$ and (b) the misbehavior strategies $x _ { i }$ are also restricted to be run in time polynomial in λ.",
+        "bbox": [
+            135,
+            485,
+            860,
+            647
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "The preamble phase will be designed under the assumption of the existence of a computationally hard problem. However, this introduces a negligible probability (see Section 8.1.1) that within $x _ { i }$ the attacker might break (say, by luck) the underlying hard problem, and thus might get considerably higher payoff than by following the equilibrium strategy $x _ { i } ^ { * }$ . Of course, this can improve this party’s expected payoff by at most a negligible amount (since the parameters of G, including the highest payoff, are assumed constant with respect to λ), so we must make an assumption that the party will not bother to deviate if its payoffs will increase only by a negligible amount. This gives rise to the notion of computational Nash equilibrium: a tuple of independent strategies $x _ { 1 } ^ { * } , \\ldots , x _ { n } ^ { * }$ where each strategy is efficient in λ such that for every $P _ { i }$ and for every alternative efficient in $\\lambda$ strategy $x _ { i }$ , we have $u _ { i } ( x _ { i } ^ { * } , x _ { - i } ^ { * } ) \\geq u _ { i } ( x _ { i } , x _ { - i } ^ { * } ) - \\epsilon$ , where \u0003 is a negligible function of $\\lambda$ .",
+        "bbox": [
+            135,
+            648,
+            860,
+            864
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "k-Resiliency. As we mentioned, the Game Theory world introduced several flavors of cooperative equilibria concepts. Yet, for our purposes here, we define a stronger type of such an equilibrium, called a resilient (Nash or Correlated) equilibrium. Being a very strong notion of an equilibrium, it may not exist in most games. Yet, we choose to present it since it will exist in the “Game Theory-MPC” setting, where we will use MPC protocols in several game-theoretic scenarios. The possibility of realizing such strong equilibria using MPC shows the strength of the cryptographic techniques. Furthermore, with minor modifications, most of the results we present later in the chapter extend to weaker kinds of cooperative equilibria, such as various flavors of a more well known coalition-proof equilibrium.<sup>3</sup>",
+        "bbox": [
+            135,
+            871,
+            860,
+            909
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "header",
+        "text": "cryptographic influences on game theory",
+        "bbox": [
+            281,
+            44,
+            712,
+            57
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "page_number",
+        "text": "191",
+        "bbox": [
+            824,
+            41,
+            856,
+            55
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            137,
+            78,
+            864,
+            221
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Informally, resilient equilibrium requires protection against all coalitional deviations that strictly benefit even one of its colluding parties. Thus, no such deviation will be justifiable to any member of the coalition, meaning that the equilibrium strategies are very stable. A bit more formally, an independent strategy profile $( x _ { 1 } ^ { * } , \\ldots , x _ { n } ^ { * } )$ is a k-resilient Nash Equilibrium of $G _ { ; }$ , if for all coalitions $C$ of cardinality at most $k$ , all correlated deviation strategies $x _ { C }$ of the members of $C$ , and all members $P _ { i } \\in C$ , we have $u _ { i } ( x _ { C } ^ { * } , x _ { - C } ^ { * } ) \\geq u _ { i } ( x _ { C } , x _ { - C } ^ { * } )$ . Thus, no coalition member benefits by $x _ { C }$",
+        "bbox": [
+            137,
+            221,
+            862,
+            348
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "The notion of k-resilient correlated equilibrium is defined similarly, although here we can have two variants. In the ex ante variant, members of C are allowed to collude only before receiving their actions from the mediator: namely, a deviation strategy will tell each member of the coalition how to change its recommended action, but this would be done without knowledge of the recommendations to the other members of the coalition. In the more powerful interim variant, the members of the coalition will see the entire recommended action vector $s _ { C } ^ { * }$ and then can attempt to jointly change it to some $s _ { C }$ . Clearly, ex ante correlated equilibria are more abundant than interim equilibria. For example, it is easy to construct games where already 2-resilient ex ante CEs achieve higher payoffs than 2-resilient interim equilibria, and even games where the former correlated equilibria exist and the latter do not! This is true because the ex ante setting makes a strong restriction that coalitions cannot form after the mediator gave its recommended actions. Thus, unless stated otherwise, k-resilient CE will refer to the interim scenario.",
+        "bbox": [
+            137,
+            348,
+            864,
+            601
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Finally, we mention that one can naturally generalize the above notions to games with incomplete information, and also define (usual or computational) k-resilient Nash equilibria of extended games.",
+        "bbox": [
+            139,
+            602,
+            862,
+            656
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "8.4.2 Removing the Mediator in Correlated Equilibrium",
+        "text_level": 2,
+        "bbox": [
+            233,
+            684,
+            768,
+            702
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "The natural question that can be asked is whether the mediator can be removed in the game theory setting, by simulating it with a multiparty computation. The motivation for this is clear, as the presence of the mediator significantly expands the number of equilibria in strategic form games; yet, the existence of such a mediator is a very strong and often unrealizable assumption.",
+        "bbox": [
+            137,
+            712,
+            864,
+            801
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Recall that in any correlated equilibrium x of a strategic game G (with imperfect information, for the sake of generality), the mediator samples a tuple of recommended action $( s _ { 1 } , \\ldots , s _ { n } )$ according to the appropriate distribution based on the types o the parties. This can be considered as the mediator computing some probabilistic function $( s _ { 1 } , \\ldots , s _ { n } ) = f ( t _ { 1 } , \\ldots , t _ { n } ; r )$ . We define the following extended game $G ^ { * }$ of G by substituting the mediator with an MPC and ask whether the extended game is a (potentially computational) Nash equilibrium.",
+        "bbox": [
+            139,
+            801,
+            864,
+            857
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "page_number",
+        "text": "192",
+        "bbox": [
+            143,
+            41,
+            177,
+            55
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "header",
+        "text": "cryptography and game theory",
+        "bbox": [
+            339,
+            44,
+            662,
+            57
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>3</sup> Informally, these equilibria prevent only deviations benefiting all members of the coalition, while resilient equilibria also prevent deviations benefiting even a single member.",
+        "bbox": [
+            139,
+            877,
+            862,
+            909
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            135,
+            78,
+            860,
+            150
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "(i) In the preamble stage, the parties run an “appropriate” MPC protocol<sup>4</sup> to compute the profile $( s _ { 1 } , \\ldots , s _ { n } )$ . Some additional actions may be needed (see below).",
+        "bbox": [
+            139,
+            161,
+            858,
+            198
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "(ii) Once the preamble stage is finished, party $P _ { i }$ holds a recommended action $s _ { i }$ , which it uses in the game G.",
+        "bbox": [
+            137,
+            198,
+            858,
+            232
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Meta-Theorem. Under “appropriate” conditions, the above strategies form a (potentially computational) Nash equilibrium of the extended game $G ^ { * }$ , which achieves the same expected payoffs for all the parties as the corresponding correlated equilibrium of the original game $G . ^ { 5 }$",
+        "bbox": [
+            135,
+            245,
+            860,
+            317
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "As we discussed in Section 8.3, there are several differences between the MPC and the game theory settings. Not surprisingly, we will have to resolve these differences before validating the meta-theorem above. To make matters a bit more precise, we assume that",
+        "bbox": [
+            135,
+            324,
+            860,
+            396
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "\u0001 $x$ is an interim k-resilient correlated equilibrium<sup>6</sup> of G that we are trying to simulate. k = 1 (i.e., no collusions) will be the main special case.",
+        "bbox": [
+            135,
+            408,
+            856,
+            443
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "\u0001 the MPC protocol computing x is cryptographically secure against coalitions of up to k malicious parties. This means the protocol is at least correct and private, and we will comment about its “output delivery” guarantees later.",
+        "bbox": [
+            135,
+            444,
+            858,
+            497
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "\u0001 The objective is to achieve a (possibly computational) k-resilient Nash equilibrium $x ^ { * }$ of $G ^ { * }$ with the same payoffs as x.",
+        "bbox": [
+            135,
+            497,
+            858,
+            534
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Now the only indeterminant in the definition of $G ^ { * }$ is to specify the behavior of the parties in case the MPC computation fails for some reason.",
+        "bbox": [
+            135,
+            545,
+            858,
+            582
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Using MPC with guaranteed output delivery. Recall that there exist MPC protocols (in various models) that guarantee output delivery for various resiliencies k. Namely, the malicious parties cannot cause the honest parties not to receive their output. The only thing they can do is to choose their inputs arbitrarily (where a special input ⊥ indicates they refuse to provide the input). But since this is allowed in the mediated game as well, and k-resilient equilibrium ensures the irrationality of such behavior (assuming the remaining (n − k) parties follow the protocol), we know the parties will contribute their proper types and our meta-theorem is validated.",
+        "bbox": [
+            133,
+            589,
+            860,
+            736
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "Theorem 8.3 If x is a k-resilient CE of G specified by afunction f, and π is an MPC protocol (with output delivery) securely computing f against a coalition of up to k computationally unbounded/bounded parties, then running π in the preamble step (and using any strategy to select a move in case some misbehavio occurs) yields a k-resilient regular/computational NE of the extended game $G ^ { * }$ achieving the same payoffs as x.",
+        "bbox": [
+            155,
+            755,
+            838,
+            828
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "header",
+        "text": "cryptographic influences on game theory",
+        "bbox": [
+            281,
+            44,
+            712,
+            57
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "page_number",
+        "text": "193",
+        "bbox": [
+            824,
+            41,
+            858,
+            55
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>4</sup> Where the type of the protocol depends on the particular communication model and the capabilities of the parties.",
+        "bbox": [
+            135,
+            847,
+            858,
+            878
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>5</sup> Note that the converse (every NE of G<sup>∗</sup> can be achieved by a CE of G) is true as well.",
+        "bbox": [
+            135,
+            877,
+            706,
+            892
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>6</sup> As we already remarked, the techniques presented here easily extend to weaker coalitional equilibria concepts.",
+        "bbox": [
+            135,
+            892,
+            858,
+            909
+        ],
+        "page_idx": 12
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            159,
+            78,
+            838,
+            114
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Usingfair MPC. In some instances (e.g., part i.c of Theorem 8.2) we cannot guarantee output delivery, but can still achieve fairness. Recall, this means that if at least one party $P _ { i }$ obtains its correct output $s _ { i }$ , then all parties do. However, it might be possible for misbehaving parties to cause everybody to abort or complete the protocol without an output.",
+        "bbox": [
+            137,
+            142,
+            862,
+            232
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "In the case where the protocol terminates successfully, we are exactly in the same situation as if the protocol had output delivery, and the same analysis applies. In the other case, we assume that the protocol enables detection of faulty behavior and that it is observed that one of the parties (for simplicity, assume that it is $P _ { n } )$ deviated from the protocol. As the protocol is fair, the aborting deviation must have occurred before any party has any information about their output. The simplest solution is to restart the computation of x from scratch with all parties. The technical problem with this solution is that it effectively allows (a coalition containing) $P _ { n }$ to mount a denial of service attack, by misbehaving in every MPC iteration causing the preamble to run forever.",
+        "bbox": [
+            137,
+            232,
+            864,
+            412
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Instead, to make the extended game always finite, we follow a slightly more so phisticated punishment strategy. We restart the preamble without $P _ { n }$ , and let the $( n - 1 )$ remaining parties run a new MPC to compute the (n − 1)-input function $f ^ { \\prime }$ on the remaining parties’ inputs and a default value $\\perp$ for $P _ { n } \\colon f ^ { \\prime } ( t _ { 1 } , \\ldots , t _ { n - 1 } ; r ) =$ $f ( t _ { 1 } , \\ldots , t _ { n - 1 } , \\bot ; r )$ . Notice that in this new MPC n is replaced by $n - 1$ and k replaced by $k - 1$ (as $P _ { n }$ is faulty), which means that the ratio $\\begin{array} { r } { \\frac { k - 1 } { n - 1 } \\dot { < } \\frac { k } { n } } \\end{array}$ , and, thus, $f ^ { \\prime }$ can still be securely computed in the same setting as $f .$ . Also notice that $P _ { n }$ does not participate in this MPC, and will have to decide by itself (or with the help of other colluding members) which action to play in the actual game phase. In contrast, parties $P _ { 1 } , \\ldots , P _ { n - 1 }$ are instructed to follow the recommendations they get when computing $f ^ { \\prime } , \\operatorname { i f } f ^ { \\prime }$ completes. If not, then another party (say, $P _ { n - 1 } )$ must have aborted this MPC, in which case we reiterate the same process of excluding $P _ { n - 1 }$ , and so on. Thus, at some point we have that the process will end, as there is a finite number n of parties and we eliminate (at least) one in each iteration.",
+        "bbox": [
+            137,
+            412,
+            864,
+            665
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Next, we argue that the resulting strategy profile $x ^ { * }$ forms a k-resilient Nash equi librium of $G ^ { * }$ . To see this, the fairness of the MPC step clearly ensures that the only effective misbehavior of a coalition of size |C| is to declare invalid types $\\perp$ for some of its members, while changing the real type for others. In this case, their reluctance to do so follows from the fact that such misbehavior is allowed in the mediated game as well And since we assumed that the strategy profile x is a k-resilient correlated equilibrium of G, it is irrational for the members of the coalition to deviate in this way.",
+        "bbox": [
+            137,
+            666,
+            864,
+            793
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "Using correct and private MPC: Case $k = 1$ . We can see that the previous argument crucially relied on the fairness of the MPC. In contrast, if the MPC used only provides correctness and privacy, then the members of $C$ might find their vector of outputs $s _ { C } ^ { \\prime }$ before the remaining parties, and can choose to abort the computation precisely when one of their expected payoffs $p _ { i } ^ { \\prime } = \\mathrm { E x p } ( u _ { i } ( s ) \\mid s _ { C } = s _ { C } ^ { \\prime } )$ when playing $s _ { C } ^ { \\prime }$ is less than the a priori value $p _ { i } = \\mathrm { E x p } ( u _ { i } ( s ) )$ . In fact, even for two-players games of complete information, it is easy to construct a game G (e.g., the “Game of Chicken” in Chapter 1) where the above aborting strategy of the player who learns the output first will be strictly profitable for this player, even if the other player will play its “conditional” strategy suggested in the previous paragraph.",
+        "bbox": [
+            137,
+            800,
+            864,
+            910
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "page_number",
+        "text": "194",
+        "bbox": [
+            141,
+            41,
+            177,
+            55
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "header",
+        "text": "cryptography and game theory",
+        "bbox": [
+            339,
+            44,
+            662,
+            57
+        ],
+        "page_idx": 13
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            135,
+            78,
+            858,
+            150
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Nevertheless, we show that one can still use unfair (yet private and correct) MPC protocols in an important special case of the problem. Specifically, we concentrate on the usual coalition-free case $k = 1$ , and also restrict our attention to games with complete information (i.e., no types). In this case, we show that if some party $P _ { i }$ deviates in the MPC stage (perhaps by aborting the computation based on its recommended action), the remaining parties $P _ { - i }$ can sufficiently punish $P _ { i }$ to discourage such an action. Let the min–max value $v _ { i }$ for party $P _ { i }$ denote the worst payoff that players $P _ { - i }$ can jointly enforce on $P _ { i }$ : namely, $\\begin{array} { r } { v _ { i } = \\operatorname* { m i n } _ { z _ { - i } \\in \\Delta ( S _ { - i } ) } \\operatorname* { m a x } _ { s _ { i } \\in S _ { i } } u _ { i } \\big ( s _ { i } , z _ { - i } \\big ) } \\end{array}$",
+        "bbox": [
+            135,
+            150,
+            858,
+            295
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Claim 8.4 For any correlated equilibrium x of $G$ , any $P _ { i }$ and any action $s _ { i } ^ { \\prime } f o r$ $P _ { i }$ in the support of $x _ { i } , E x p ( u _ { i } ( s ) \\mid s _ { i } = s _ { i } ^ { \\prime } ) \\geq v _ { i }$",
+        "bbox": [
+            157,
+            306,
+            836,
+            343
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "proof Notice that since x is a CE, $s _ { i } ^ { \\prime }$ is the best response of $P _ { i }$ to the profile ${ \\bar { x } } _ { - i }$ defined as $x _ { - i }$ conditioned on $s _ { i } = s _ { i } ^ { \\prime }$ . Thus, the payoff $P _ { i }$ gets in this case is what others would force on $P _ { i }$ by playing ${ \\bar { x } } _ { - i }$ , which is at least as large as what others could have selected by choosing the worst profile $z _ { - i }$ .",
+        "bbox": [
+            155,
+            361,
+            838,
+            435
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Now, in case $P _ { i }$ would (unfairly) abort the MPC step, we will instruct the other parties $P _ { - i }$ to punish $P _ { i }$ to its min–max value $v _ { i }$ . More specifically, parties $P _ { - i }$ should play the correlated strategy $z _ { - i }$ , which would force $P _ { i }$ into getting at most $v _ { i }$ . Notice, however, since this strategy is correlated, they would need to run another MPC protocol to implement $z _ { - i } , { } ^ { 7 }$ By the above claim, irrespective of the recommendation $s _ { i }$ that $P _ { i }$ learned, the corresponding payoff of $P _ { i }$ can only go down by aborting the MPC. Therefore, it is in $P _ { i } \\mathrm { ^ { * } s }$ interests not to abort the computation after learning $s _ { i }$",
+        "bbox": [
+            135,
+            446,
+            858,
+            571
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "We notice that the above punishment strategy does not straightforwardly generalize to more advanced settings. For example, in case of coalitions it could be that the min– max punishment for $P _ { 1 }$ tremendously benefits another colluding party $P _ { 2 }$ (who poses as honest and instructs $P _ { 1 }$ to abort the computation to get high benefits for itself). Also, in the case of incomplete information, it is not clear how to even define the min–max punishment, since the parties do not even know the precise utility of $P _ { i }$ !",
+        "bbox": [
+            135,
+            573,
+            860,
+            682
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "8.4.3 Stronger Equilibria",
+        "text_level": 2,
+        "bbox": [
+            373,
+            708,
+            620,
+            726
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "So far we talked only about plain Nash equilibria of the extended game $G ^ { * }$ . As we already commented briefly, Nash equilibria are usually too weak to capture extensiveform games. Therefore, an interesting (and still developing!) direction in recent research is to ensure much stronger and more stable equilibria that would simulate correlated equilibria of the original game.",
+        "bbox": [
+            135,
+            736,
+            860,
+            827
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "Eliminating empty threats. One weakness of the Nash equilibrium is that it allows for the so-called empty threats. Consider, for example, the min–max punishment strategy used above. In some games, punishing a misbehaving party to its min–max value is actually very damaging for the punishers as well. Thus, the threat to punish the misbehaving party to the min–max value is not credible in such cases, despite being an NE. In this case, eliminating such an empty threat could be done by modifying the punishment strategy to playing the worst Nash equilibrium of G for $P _ { i }$ (in terms of $P _ { i }$ ’s payoff) when $P _ { i }$ is caught cheating. Unlike the min–max punishment, this is no longe an empty threat because it is an equilibrium of G. However, it does limit (although slightly) the class of correlated equilibria one can simulate, as one can achieve only a payoff vector which is at least as large as the worst Nash equilibrium for each player. In addition, formally defining such so-called subgame-perfect or sequential equilibria has not yet been done in the computational setting, where most MPC protocols are analyzed.",
+        "bbox": [
+            135,
+            835,
+            860,
+            871
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "header",
+        "text": "cryptographic influences on game theory",
+        "bbox": [
+            281,
+            43,
+            712,
+            57
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "page_number",
+        "text": "195",
+        "bbox": [
+            824,
+            41,
+            858,
+            55
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>7</sup> Notice that there are no dishonest parties left, so any MPC protocol for the honest-but-curious case would work.",
+        "bbox": [
+            135,
+            892,
+            858,
+            907
+        ],
+        "page_idx": 14
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            137,
+            79,
+            864,
+            295
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "Ex ante correlated equilibria. So far we only talked about simulating interim correlated equilibria, where colluding parties can base their actions after seeing all thei recommendations. Another interesting direction is that of simulating ex ante correlated equilibria, where colluding parties can only communicate prior to contacting the mediator. To implement this physical restriction in real life, we need to design collusion-free protocols, where one has to ensure that no subliminal communication (a.k.a. steganography) is possible. This is a very difficult problem. Indeed, most cryp tographic protocols need randomness (or entropy), and it is known that entropy almost always implies steganography. In fact, it turns out that, in order to build such protocols, one needs some physical assumptions in the real model as well. On a positive side, it is known that envelopes (and a broadcast channel) are enough for building a class of collusion-free protocols sufficient to simulate ex ante correlated equilibria without the mediator.",
+        "bbox": [
+            137,
+            304,
+            864,
+            538
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "Iterated deletion of weakly dominated strategies. In Section 8.5.2 we will study a pretty general class of “function evaluation games,” where the objective is to achieve Nash equilibrium that survives so-called iterated deletion ofweakly dominated strategies.",
+        "bbox": [
+            137,
+            546,
+            864,
+            619
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "Strategic and privacy equivalence. The strongest recent results regarding removing the mediator is to ensure (polynomially efficient) “real-life” simulation that guaran tees an extremely strong property called strategic and privacy equivalence. Intuitively, it implies that our simulation gives exactly the same power in the real model as in the ideal model. As such, it precisely preserves all different types of equilibria of the original game (e.g., without introducing new, unexpected equilibria in the extended game, which we allowed so far), does not require the knowledge of the utility functions or an a priori-type distribution (which most of the other results above do), does not give any extra power to arbitrary coalitions, preserves privacy of the play ers types as much as in the ideal model, and has other attractive properties. Not surprisingly, strategic and privacy equivalence is very difficult to achieve, and requires some physical assumptions in the real model as well. The best known result is an extension of the MPC result ii.c in Theorem 8.2, and shows how to implement strategic and privacy equivalence assuming a broadcast channel, envelopes and a ballot box.",
+        "bbox": [
+            137,
+            627,
+            866,
+            899
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "page_number",
+        "text": "196",
+        "bbox": [
+            141,
+            43,
+            177,
+            55
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "header",
+        "text": "cryptography and game theory",
+        "bbox": [
+            339,
+            44,
+            662,
+            57
+        ],
+        "page_idx": 15
+    },
+    {
+        "type": "text",
+        "text": "To summarize, MPC techniques are promising in replacing the mediator by cheap talk in a variety of situations. However, more work has to be done in trying to achieve stronger kinds of equilibria using weaker assumptions.",
+        "bbox": [
+            135,
+            78,
+            860,
+            133
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "8.5 Game Theoretic Influences on Cryptography",
+        "text_level": 2,
+        "bbox": [
+            245,
+            161,
+            748,
+            181
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "The influence of Game Theory on Multiparty Computation has exemplified itself in modeling multiparty computation with a game-theoretic flavor by introducing rational parties with some natural utility functions into the computation. Once this is done, two main areas of investigation are as follows. First, we try to characterize the class of functions where it is in the parties’ selfish interest to report their true inputs to the computation. We call such functions noncooperatively computable (NCC). Second, we can ask to what extent the existing MPC protocols (used to compute NCC functions) form an appropriate equilibrium for the extended game, where we remove the trusted mediator by cheap talk computing the same function. As we see, the answer will depend on the strength of the equilibrium we desire (and, of course, on the natural utilities we assign to the “function evaluation game” defined below). Furthermore, issues arising in the MPC “honest vs. malicious” setting also hold in the Game Theory “rational” setting, further providing a synergy between these two fields.",
+        "bbox": [
+            135,
+            198,
+            860,
+            433
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "8.5.1 Noncooperatively Computable Functions",
+        "text_level": 2,
+        "bbox": [
+            273,
+            453,
+            720,
+            471
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "In order to “rationalize” the process of securely evaluating a given function $f ,$ , we first need to define an appropriatefunction evaluation game. For concreteness, we concentrate on single-output functions $f ( t _ { 1 } , \\ldots , t _ { n } )$ , although the results easily generalize to the n-output case. We also assume that each input $t _ { i }$ matters $( \\mathrm { i . e . }$ , for some $t _ { - i }$ the value of f is not yet determined without $t _ { i } )$",
+        "bbox": [
+            135,
+            479,
+            860,
+            571
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "Function evaluation game. We assume that the parties’ types $t _ { i }$ are their inputs to $f$ (which are selected according to some probability distribution D having full support) The action of each party $P _ { i }$ is its guess about the output $s ^ { * }$ of $f .$ . The key question, however, is how to define the utilities of the parties. Now, there are several natural cryptographic considerations that might weight into the definition of party $P _ { i } \\mathrm { ^ { * } s }$ utility.",
+        "bbox": [
+            135,
+            580,
+            858,
+            670
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "\u0001 Correctness. Each $P _ { i }$ wishes to compute $f$ correctly.",
+        "bbox": [
+            135,
+            680,
+            586,
+            698
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "\u0001 Exclusivity. Each $P _ { i }$ prefers others parties $P _ { j }$ not to learn the value of $f$ correctly.",
+        "bbox": [
+            137,
+            700,
+            816,
+            716
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "\u0001 Privacy. Each $P _ { i }$ wishes to leak as little as possible about its input $t _ { i }$ to the other parties.",
+        "bbox": [
+            135,
+            718,
+            856,
+            733
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "\u0001 Voyeurism. Each $P _ { i }$ wishes to learn as much as possible about the other parties’ inputs.",
+        "bbox": [
+            137,
+            736,
+            856,
+            753
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "Not surprisingly, one can have many different definitions for a cryptographically motivated utility function of party $P _ { i }$ . In turn, different definitions would lead to different results. For concreteness, we will restrict ourselves to one of the simplest and, arguably, most natural choices. Specifically, we will consider only correctness and exclusivity, and value correctness over exclusivity. However, other choices might also be interesting in various situations, so our choice here is certainly with a loss of generality.",
+        "bbox": [
+            135,
+            765,
+            860,
+            871
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "A bit more formally, recall that the utility $u _ { i }$ of party $P _ { i }$ depends on the true type vector t of all the parties, and the parties’ actions $s _ { 1 } , \\ldots , s _ { n }$ . Notice that the true type vector t determines the correct function value $s ^ { * } = f ( t )$ , and parties’ actions determine the boolean vector $\\mathrm { c o r r e c t } = ( \\mathrm { c o r r e c t } _ { 1 } , \\dots , \\mathrm { c o r r e c t } _ { n } )$ , where $\\mathrm { c o r r e c t } _ { i } = 1$ if an only if $s _ { i } = s ^ { * }$ . In our specific choice of the utility function, we will assume that the utilities of each party depend only on the boolean vector correct: namely, which of the parties learned the output and which did not. Therefore, we will write $u _ { i } ( \\mathrm { c o r r e c t } )$ to denote the utility of party $P _ { i }$ . Now, rather than assigning somewhat arbitrary numbers to capture correctness and exclusivity, we state only the minimal constraints that imply these properties. Then, the correctness constraint states that $u _ { i } ( \\mathrm { c o r r e c t } ) > u _ { i }$ (correct<sup>\u0003</sup>), whenever $\\mathrm { c o r r e c t } _ { i } = 1$ and $\\mathrm { c o r r e c t } _ { i } ^ { \\prime } = 0$ . Similarly, exclusivity constraint states that if (a) $\\mathrm { c o r r e c t } _ { i } = \\mathrm { c o r r e c t } _ { i } ^ { \\prime }$ , (b) for all $j \\neq i$ we have correc $\\mathfrak { l } _ { j } \\le \\mathrm { c o r r e c t } _ { j } ^ { \\prime }$ , while (c) for some $j$ actually correc ${ \\bf \\dot { \\theta } } _ { j } = 0$ and $\\mathrm { c o r r e c t } _ { j } ^ { \\prime } = 1$ , then $u _ { i } ( { \\mathrm { c o r r e c t } } ) > u _ { i } ( { \\mathrm { c o r r e c t } } ^ { \\prime } )$ Namely, provided $P _ { i }$ has the same success in learning the output, it prefers as few parties as possible to be successful.",
+        "bbox": [
+            135,
+            873,
+            860,
+            909
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "header",
+        "text": "game theoretic influences on cryptography",
+        "bbox": [
+            269,
+            43,
+            724,
+            57
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "page_number",
+        "text": "197",
+        "bbox": [
+            824,
+            41,
+            858,
+            55
+        ],
+        "page_idx": 16
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            137,
+            78,
+            862,
+            313
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "Noncooperatively computablefunctions. Having defined the function evaluation game, we can now ask what are the equilibria of this game. In this case, Nash equilibria are not very interesting, since parties typically have too little information to be successful with any nontrivial probability. On the other hand, it is very interesting to study correlated equilibria of this game. Namely, parties give their inputs $t _ { i }$ to the mediator $M ,$ , who then recommends an action $s _ { i } ^ { * }$ for each party. Given that each party is trying to compute the value of the function $f ,$ , it is natural to consider “canonical” mediator strategy: namely, that of evaluating the function $f$ on the reported type vector t, and simply recommending each party to “guess” the resulting function value $s ^ { * } = f ( t )$ . Now, we can ask the question of characterizing the class of functions $f$ for which this canonical strategy is indeed a correlated equilibrium of the function evaluation game. To make this precise, though, we also need to define the actions of the mediator if some party gives a wrong type to the mediator. Although several options are possible, here we will assume that the mediator will send an error message to all the parties and let them decide by themselves what to play.",
+        "bbox": [
+            137,
+            320,
+            864,
+            592
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "Definition 8.5 We say that a function $f$ is noncooperatively computable (NCC) with respect to utility functions $\\{ u _ { i } \\}$ (and a specific input distribution $D )$ if the above canonical mediated strategy is a correlated equilibrium of the function evaluation game. Namely, it is in the parties’ selfish interest to honestly report their true inputs to the mediator.",
+        "bbox": [
+            159,
+            605,
+            842,
+            697
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "We illustrate this definition by giving two classes of functions that are never NCC. Let us say that a function $f$ is dominated if there exists an index i and an input $t _ { i }$ , which determine the value of $f$ irrespective of the other inputs $t _ { - i }$ . Clearly, for such an input $t _ { i }$ it is not in the interest of $P _ { i }$ to submit $t _ { i }$ to the mediator, as $P _ { i }$ is assured of $\\mathrm { c o r r e c t } _ { i } = 1$ even without the help of M, while every other party is not (for at least some of its inputs). Thus, dominated functions cannot be NCC. For another example, a function $f$ is reversible if for some index i and some input $t _ { i }$ , there exists another input $t _ { i } ^ { \\prime }$ and a function $g _ { \\mathrm { : } }$ , such that (a) for all other parties’ inputs $t _ { - i }$ we have $g ( f ( t _ { i } ^ { \\prime } , t _ { - i } ) , t _ { i } ) = f ( t _ { i } , t _ { - i } )$ , and (b) for some other parties’ inputs $t _ { - i }$ we have $f ( t _ { i } ^ { \\prime } , t _ { - i } ) \\neq f ( t _ { i } , t _ { - i } )$ . Namely, property (a) states that there is no risk in terms of correctness for $P _ { i }$ to report $t _ { i } ^ { \\prime }$ instead of $t _ { i }$ , while property (b) states that at least sometimes $P _ { i }$ will be rewarded by higher exclusivity. A simple example of such (boolean) function is the parity function: negating one’s input always negates the outcome, but still in a manner easily correctable by negating the output back. Clearly, reversible functions are also not NCC.",
+        "bbox": [
+            137,
+            709,
+            862,
+            910
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "page_number",
+        "text": "198",
+        "bbox": [
+            143,
+            41,
+            177,
+            55
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "header",
+        "text": "cryptography and game theory",
+        "bbox": [
+            339,
+            44,
+            662,
+            57
+        ],
+        "page_idx": 17
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            133,
+            78,
+            860,
+            149
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "In general, depending on the exact utilities and the input distribution D, other functions might also be non-NCC. However, if we assume that the risk of losing correctness is always too great to be tempted by higher exclusivity, it turns out that these two classes are the only non-NCC functions. (And, thus, most functions, like majority, are NCC.) More precisely, assume that the utilities and the input distribution D are such that for all vectors correct, correct<sup>\u0003</sup>, correct<sup>\u0003\u0003</sup> satisfying correct $\\mathbf { \\tau } = \\mathrm { c o r r e c t } _ { i } ^ { \\prime } = 1$ $\\mathrm { c o r r e c t } _ { i } ^ { \\prime \\prime } = 0$ , we have $u _ { i } ( \\mathrm { c o r r e c t } ) > ( 1 - \\epsilon ) u _ { i } ( \\mathrm { c o r r e c t } ^ { \\prime } ) + \\epsilon u _ { i } ( \\mathrm { c o r r e c t } ^ { \\prime \\prime } )$ , where \u0003 is the smallest probability in D. Namely, if by deviating from the canonical strategy there is even a minuscule chance of $P _ { i }$ not learning the value of $f$ correctly, this loss will always exceed any potential gain caused by many other parties not learning the outcome as well. In this case we can show the following:",
+        "bbox": [
+            133,
+            150,
+            860,
+            350
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Theorem 8.6 Under the above assumption, afunction f is NCC ifand only if it is not dominated and not reversible.<sup>8</sup>",
+        "bbox": [
+            155,
+            359,
+            840,
+            396
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Collusions. So far we concentrated on the case of no collusions; i.e., k = 1. However, one can also define (a much smaller class of) k-Non-Cooperatively Computable (k-NCC) functions, for which no coalition of up to k parties has any incentive to deviate from the canonical strategy of reporting their true types. One can also characterize k-NCC functions under appropriate assumptions regarding the utilities and the input distribution D.",
+        "bbox": [
+            133,
+            408,
+            860,
+            517
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "8.5.2 Rational Multiparty Computation",
+        "text_level": 2,
+        "bbox": [
+            307,
+            536,
+            688,
+            553
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Assume that a given function f is k-NCC, so it is in the parties’ own interest to contribute their inputs in the ideal model. We now ask the same question as in Section 8.4: can we replace the mediator computing f by a corresponding MPC protocol for $f 2$ Notice, by doing so the parties effectively run the cryptographic MPC protocol for computing $f .$ Thus, a positive answer would imply that a given MPC protocol π securely computes $f$ not only from a cryptographic point of view but also from a game-theoretic, rational point of view! Fortunately, since the function evaluation game is just a particular game, Theorem 8.3 immediately implies",
+        "bbox": [
+            133,
+            563,
+            860,
+            709
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "Theorem 8.7 If f is a k-NCC function (w.r.t. to some utilities and input dis tribution) and π is an MPC protocol securely computing f against a coalition of up to k computationally unbounded/bounded parties, then π is a k-resilien regular/computational Nash equilibrium for computing f in the corresponding extended game.",
+        "bbox": [
+            155,
+            718,
+            838,
+            810
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "From a positive perspective, this result shows that for the goal of achieving just a Nash equilibrium, current MPC protocols can be explained in rational terms, as long as the parties are willing to compute f in the ideal model. From a negative perspective, the latter constraint nontrivially limits the class of functions $f ,$ , which can be rationally explained, and it is an interesting open problem how to rationalize MPC even for non-NCC functions, for which the cryptographic definition still makes perfect sense.",
+        "bbox": [
+            135,
+            821,
+            860,
+            857
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "header",
+        "text": "game theoretic influences on cryptography",
+        "bbox": [
+            269,
+            43,
+            724,
+            57
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "page_number",
+        "text": "199",
+        "bbox": [
+            824,
+            41,
+            858,
+            55
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>8</sup> In fact, under our assumption that each party’s input matters in some cases and D has full support, it is easy to see that every dominated function is also reversible.",
+        "bbox": [
+            135,
+            878,
+            858,
+            907
+        ],
+        "page_idx": 18
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            137,
+            78,
+            862,
+            150
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Stronger equilibria. As another drawback, we already mentioned that the notion of Nash equilibrium is really too weak to capture the rationality of extensive-form processes, such as multiparty computation protocols. Thus, an important direction is to try achieving stronger kinds of equilibria explaining current MPC protocols, or, alter natively, design robust enough MPC protocols which would achieve such equilibria. In Section 8.4.3, we briefly touched on several general results in this direction (which clearly still apply to the special case of the function evaluation games). Here we will instead concentrate on the specifics of computing the function under the correctness and exclusivity preferences defined in the previous section, and will study a specific refinement of the Nash equilibrium natural for these utility functions.",
+        "bbox": [
+            137,
+            158,
+            864,
+            338
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "To motivate our choice, let us see a particular problem with current MPC protocols. Recall, such protocols typically consist of three stages; in the first two stages the parties enter their inputs and compute the secret-sharing of the output of $f ,$ , while the last stage consists of the opening of the appropriate output shares. Now we claim that the strategy of not sending out the output shares is always at least as good as, and sometimes better than, the strategy of sending the output shares. Indeed, consider any party $P _ { i }$ . The correctness of output recovery for $P _ { i }$ is not affected by whether or not $P _ { i }$ sent his own share, irrespective of the behavior of the other parties. Yet, not sending the share to others might, in some cases, prevent others from reconstructing their outputs, resulting in higher exclusivity for $P _ { i }$ . True, along the Nash equilibrium path of Theorem 8.7, such cases where the share of $P _ { i }$ was critical did not exhibit themselves. Still, in reality it seems that there is no incentive for any party to send out their shares, since this is never better, and sometimes worse than not sending the shares. This motivates the following definition.",
+        "bbox": [
+            137,
+            338,
+            864,
+            592
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Definition 8.8 We say that a strategy $s \\in S _ { i }$ is weakly dominated by $s ^ { \\prime } \\in S _ { i }$ with respect to $S _ { - i } \\ \\mathrm { i f \\ ( a ) }$ there exists $s _ { - i } \\in S _ { - i }$ such that $u _ { i } ( s , s _ { - i } ) < u _ { i } ( s ^ { \\prime } , s _ { - i } )$ and (b) for all strategies $s _ { - i } ^ { \\prime } \\in S _ { - i }$ we have that $u _ { i } ( s , s _ { - i } ^ { \\prime } ) \\leq u _ { i } ( s ^ { \\prime } , s _ { - i } ^ { \\prime } )$ . We define iterated deletion of weakly dominated strategies (IDoWDS) as the following process. Let $\\mathbf { D O M } _ { i } ( S _ { 1 } , \\ldots , S _ { n } )$ denote the set of strategies in $S _ { i }$ that are weakly dominated with respect to S . Let $S _ { i } ^ { 0 } = S _ { i }$ and for $j \\geq 1$ define $S _ { i } ^ { j }$ inductively as $S _ { i } ^ { j } = S _ { i } ^ { j - 1 } \\backslash \\mathbf { D O M } _ { i } ( S _ { 1 } ^ { j - 1 } , \\ldots , S _ { n } ^ { j - 1 } )$ and let $\\begin{array} { r } { S _ { i } ^ { \\infty } = \\bigcap _ { j \\geq 1 } S _ { i } ^ { j } } \\end{array}$ . Finally, we say that a Nash equilibrium $( x _ { 1 } , \\ldots , x _ { n } )$ survives IDoWDS, if each $x _ { i }$ is fully supported within $S _ { i } ^ { \\infty }$",
+        "bbox": [
+            159,
+            613,
+            842,
+            779
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "k-resilient Nash equilibria surviving IDoWDS are defined similarly.<sup>9</sup>",
+        "bbox": [
+            139,
+            799,
+            722,
+            817
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "Now, the above discussion implies that the k-resilient Nash equilibrium from Theo rem 8.7 does not survive IDoWDS. On a positive side, the only reason for that was that the basic secret-sharing scheme where the parties are instructed to blindly open their shares does not survive IDoWDS. It turns out that the moment we fix the secret-sharing scheme to survive IDoWDS, the resulting Nash equilibrium for the function evaluation game will survive IDoWDS too, and Theorem 8.7 can be extended to Nash equilibrium surviving IDoWDS. Therefore, we will treat only the latter, more concise problem. We remark, however, that although a Nash equilibrium surviving IDoWDS is better than plain Nash equilibrium, it is still a rather weak concept. For example, it still allows for “empty threats,” and has other undesirable properties. Thus, stronger equilibria are still very desirable to achieve.",
+        "bbox": [
+            139,
+            818,
+            862,
+            854
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "page_number",
+        "text": "200",
+        "bbox": [
+            141,
+            41,
+            177,
+            55
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "header",
+        "text": "cryptography and game theory",
+        "bbox": [
+            339,
+            43,
+            662,
+            57
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>9</sup> We notice that, in general, it matters in which order 1 removes the weakly dominated strategies. The specific order chosen above seems natural, however, and will not affect the results we present below.",
+        "bbox": [
+            139,
+            877,
+            862,
+            907
+        ],
+        "page_idx": 19
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            133,
+            78,
+            860,
+            241
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Rational secret-sharing. Recall, in the $( k , n )$ -secret-sharing problem the parties are given (random valid) shares $z _ { 1 } , \\ldots , z _ { n }$ of some secret z, such that any $k$ shares leak no information about $z ,$ while any $k + 1$ or more shares reveal $z .$ . We can define the secret-sharing game, where the objective of each party is to guess the value of $z ,$ , and where we assume that parties’ utilities satisfy the correctness and exclusivity constraints defined earlier. In the extended game corresponding to the secret-sharing game, the parties can perform some computation before guessing the value of the secret. For our communication model, we assume that it is strong enough to perform generic multiparty computation, since this will be the case in the application to the function evaluation game. (On the other hand, we will need only MPC with correctness and privacy, and not necessarily fairness.) In addition, if not already present, we also assume the existence of a simultaneous broadcast channel, where at each round all parties can simultaneously announce some message, after which they atomically receive the messages of all the other parties. Our goal is to build a preamble protocol for which the outcome of all the parties learning the secret z will be a k-resilient Nash equilibrium for the extended game that survives IDoWDS.",
+        "bbox": [
+            133,
+            249,
+            860,
+            538
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "As we observed already, the natural 1-round preamble protocol where each party is supposed to simply broadcast its share does not survive IDoWDS. In fact, a simple backward induction argument shows that any preamble protocol having an a priori fixed number of simultaneous broadcast rounds (and no other physical assumptions, such as envelopes and ballot boxes) cannot enable the parties to rationally learn the secret and survive IDoWDS. Luckily, it turns out that we can have probabilistic protocols with no fixed upper bound on the number of rounds, but which have a constant expected number of rounds until each party learns the secret. We sketch the simplest such protocol below. W.l.o.g. we assume that the domain of the secret-sharing scheme is large enough to deter random guessing of $z ,$ , and also includes a special value denoted ⊥, such that $z$ is guaranteed to be different from ⊥.",
+        "bbox": [
+            135,
+            538,
+            860,
+            736
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "Let $\\alpha \\in ( 0 , 1 )$ be a number specified shortly. At each iteration $r \\geq 1$ , the parties do the following two steps:",
+        "bbox": [
+            135,
+            736,
+            858,
+            772
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "(i) Run an MPC protocol on inputs $z _ { i }$ which computes the following probabilistic functionality. With probability $\\alpha .$ , compute fresh and random $( k , n )$ )-secret-sharing $z _ { 1 } ^ { \\prime } , \\ldots , z _ { n } ^ { \\prime }$ of $z ,$ , where party $P _ { i }$ learns $z _ { i } ^ { \\prime } .$ . Otherwise, with probability $1 - \\alpha$ compute a random $( k , n )$ -secret-sharing $z _ { 1 } ^ { \\prime } , \\ldots , z _ { n } ^ { \\prime }$ of $\\perp$ , where party $P _ { i }$ learns $z _ { i } ^ { \\prime } . ^ { 1 0 }$",
+        "bbox": [
+            145,
+            790,
+            860,
+            864
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "header",
+        "text": "game theoretic influences on cryptography",
+        "bbox": [
+            269,
+            43,
+            724,
+            57
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "page_number",
+        "text": "201",
+        "bbox": [
+            822,
+            41,
+            856,
+            55
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "page_footnote",
+        "text": "<sup>10</sup> This protocol is typically pretty efficient for the popular Shamir’s secret-sharing scheme.",
+        "bbox": [
+            129,
+            892,
+            720,
+            909
+        ],
+        "page_idx": 20
+    },
+    {
+        "type": "text",
+        "text": "(ii) All parties $P _ { i }$ simultaneously broadcast $z _ { i } ^ { \\prime }$ to other parties.",
+        "bbox": [
+            143,
+            78,
+            648,
+            94
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "(iii) If either the MPC protocol fails for even one party, or even one party fails to broadcast the value $z _ { i } ^ { \\prime }$ , all parties are instructed to abort.",
+        "bbox": [
+            139,
+            97,
+            862,
+            132
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "(iv) Each party tries to recover some value $z ^ { \\prime }$ from the shares received from the other parties. If the recovery fails, or at least one share is inconsistent with the final value $z ^ { \\prime } ,$ the party aborts the preamble. Otherwise, if $z ^ { \\prime } = \\bot$ the parties proceed to the next iteration, while in case $z ^ { \\prime } \\neq \\bot$ the parties stop the preamble and output $z ^ { \\prime }$ as their guess for $z .$ .",
+        "bbox": [
+            139,
+            133,
+            864,
+            223
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "Notice, by the privacy of the MPC step, no coalition C of up to k parties knows if the value $z ^ { \\prime }$ is equal $\\mathrm { t o } ~ z ~ \\mathrm { o r } ~ \\perp$ . Thus, in case this coalition chooses not to broadcast their shares, they will learn only the value z (while punishing all the other parties) with probability $\\alpha ,$ , and not learn the value z forever with probability $1 - \\alpha$ . Thus, if $\\alpha$ is small enough (depending on the particular utilities), the risk of not learning the secret will outweigh the gain of achieving higher exclusivity. Also, it is easy to see that no strategy of the above protocol is weakly dominated by another strategy, so the above Nash equilibrium survives IDoWDS.",
+        "bbox": [
+            137,
+            235,
+            864,
+            380
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "The above protocol works for any k. However, it runs in expected $O ( 1 / \\alpha )$ iterations, which is constant, but depends on the specific utilities of the parties (and the value $k )$ . Somewhat more sophisticated protocols are known to work for not too large k, but have expected number of iterations which is independent of the utilities. These results are summarized without further details below.",
+        "bbox": [
+            137,
+            380,
+            862,
+            471
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "Theorem 8.9 Assume that the parties utilities satisfy correctness over exclusivity properties for the $( k , n )$ -secret-sharing game. Then there exists k-resilient Nash equilibriafor the extended game that survive IDoWDS and run in expected constant number ofiterations r, where",
+        "bbox": [
+            159,
+            493,
+            842,
+            564
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "$k < n$ , but r depends on the specific utilities.",
+        "bbox": [
+            161,
+            570,
+            548,
+            587
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "$k < n / 2 ,$ r isfixed, but theparties still need to know a certainparameter depending on the specific utilities.",
+        "bbox": [
+            161,
+            592,
+            840,
+            627
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "$k < n / 3$ , r isfixed, and no other information about the utilities is needed.",
+        "bbox": [
+            161,
+            631,
+            776,
+            649
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "8.6 Conclusions",
+        "text_level": 2,
+        "bbox": [
+            415,
+            673,
+            586,
+            691
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "As we have seen, the settings of MPC in cryptography and correlated equilibrium in game theory have many similarities, as well as many differences. Existing results so far started to explore these connections, but much work remains to be done. For example, can we use some flavors of MPC to remove the mediator, while achieving very strong types of Nash equilibria, but with more realistic physical and other setup assumptions? $\\mathrm { O r } ,$ can we use game theory to “rationalize” MPC protocols for non-NCC functions (such as parity), or to explain other popular cryptographic tasks such as commitment or zero-knowledge proofs? In addition, so far “rationalizing” MPC using game theory resulted only in more sophisticated protocols. Are there nat ural instances where assuming rationality will simplify the design of cryptographic tasks?",
+        "bbox": [
+            137,
+            709,
+            864,
+            907
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "page_number",
+        "text": "202",
+        "bbox": [
+            141,
+            41,
+            177,
+            55
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "header",
+        "text": "cryptography and game theory",
+        "bbox": [
+            339,
+            44,
+            662,
+            57
+        ],
+        "page_idx": 21
+    },
+    {
+        "type": "text",
+        "text": "8.7 Notes",
+        "text_level": 2,
+        "bbox": [
+            445,
+            76,
+            550,
+            94
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "text",
+        "text": "The multiparty computation problem (Section 8.1) was introduced in Yao (1982). The basic definitional and construction approaches were introduced by Goldreich et al. (1987), in particular the paradigm of a real/ideal execution. In Section 8.1.1 we follow the definitional framework of Canetti (2000), which is based on the works of Goldwasser and Levin (1990), Micali and Rogaway (1991), and Beaver (1991). The results mentioned in Theorem 8.2 are from the following: parts i.a and i.b from Goldreich et al. (1987), part i.c from Lepinski et al. (2004), part ii.a from Ben-Or et al. (1988) and Chaum et al. (1988), part ii.b from Rabin and Ben-Or (1989) and Beaver (1991), part ii.c from Izmalkov et al. (2005). The secret-Sharing protocol presented is Shamir’s Secret-Sharing (1979). The notion of indistinguishability was introduced in Goldwasser and Micali (1984). For a more formal and in-depth discussion on multiparty computations see Goldreich (2004).",
+        "bbox": [
+            133,
+            114,
+            860,
+            331
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "text",
+        "text": "In Section 8.2 we present the classical results of Nash (1951) and Aumann (1974) for Nash and correlated equilibrium (respectively). The extension of correlated equilibrium to games with incomplete information is due to Forges (1986). The notion of extended games is from Barany (1992). For a broader game theory background, see the book by Osborne and Rubinstein (1999).",
+        "bbox": [
+            135,
+            331,
+            860,
+            422
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "text",
+        "text": "The comparison discussion between Game Theory and Cryptography, as it appears in Section 8.3, was initiated by Dodis et al. (2000) and later expanded by Feigebaum and Shenker (2002); yet here we further expand on these points. The related discussion was also carried out in many other works (Abraham et al., 2006; Barany, 1992; Lepinsk et al., 2004; Izmalkov et al., 2005).",
+        "bbox": [
+            135,
+            422,
+            860,
+            511
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "text",
+        "text": "The notion of computational equilibrium which appears in Section 8.4.1 was introduced in Dodis et al. (2000). The work of Urbano and Vila (2002, 2004) also deals with the computational model, but does not explicitly define this notion. The importance of tolerating collusions was first addressed in our setting by Feigenbaum and Shanker (2002). For the k-resilient equilibrium we chose the formulation of Abraham et al. (2006), as we felt it best suited our presentation. For other related formulations, see the references in Abraham et al. (2006), and also a recent work of Lysyanskaya and Triandopoulos (2006). The results which appear in Section 8.4.2 appear in the following. Theorem 8.3 follows by combining results such as Dodis et al. (2000), Barany (1992), Ben-Porath (1998), Gerardi (2004), Urbano and Vila (2002, 2004) and Abraham et al. (2006). The result for using fair MPC appears in Lepinski et al. (2004). The introduction of a min-max punishment to deal with unfair MPC in the attempt to remove the mediator appears in Dodis et al. (2000). For some efficiency improvements to the protocol of Dodis et al. (2000), see the works of Teague (2004) and Attalah et al. (2006). The results which appear in Section 8.4.2 appear in the following. The worst equilibrium punishment technique was first applied to unmediated games by Ben-Porath (1998). The notion of collusion free protocols which is used to implement ex ante equilibria is from the work of Lepinski et al. (2005). The result of achieving strategic and privacy equivalence under physical assumptions is from Izmalkov et al. (2005).",
+        "bbox": [
+            133,
+            511,
+            860,
+            875
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "header",
+        "text": "notes",
+        "bbox": [
+            467,
+            44,
+            528,
+            57
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "page_number",
+        "text": "203",
+        "bbox": [
+            822,
+            41,
+            858,
+            57
+        ],
+        "page_idx": 22
+    },
+    {
+        "type": "text",
+        "text": "The noncooperative computation formulation and some discussion used in Section 8.5.1 are introduced (for k = 1) by Shoham and Tennenholtz (2005), and expanded by McGrew et al. (2003). Theorem 8.6 is also from Shoham and Tennenholtz (2005), while the formulation of “correctness followed by exclusivity” utilities is from Halpern and Teague (2004). The results in Section 8.5.2 appear as follows: the introduction of rational secret-sharing surviving IDowDS and the impossibility result of reaching it in a fixed number of rounds are from Halpern and Teague (2004). The protocol for rational secret-sharing we present appears in Abraham et al. (2006) and (for k = 1) by Gordon and Katz (2006). Yet, a more complicated and less general solution along these lines appeared first (for k = 1) in Halpern and Teague (2004). Theorem 8.9 is from Abraham et al. (2006). For a different, but related “mixed MPC” model, see Lysyanskaya and Triandopoulos (2006).",
+        "bbox": [
+            137,
+            78,
+            864,
+            295
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "text",
+        "text": "Acknowledgments",
+        "text_level": 2,
+        "bbox": [
+            405,
+            340,
+            598,
+            358
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "text",
+        "text": "We thank the following people for extensive discussions, explanations, and general advice: Ittai Abraham, Ran Canetti, Hugo Krawczyk, Matt Lepinski, Anna Lysyanskaya, Silvio Micali, abhi shelat, and Nikos Triandopoulos, and give special thanks to our coauthor Shai Halevi.",
+        "bbox": [
+            137,
+            377,
+            862,
+            449
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "text",
+        "text": "Bibliography",
+        "text_level": 2,
+        "bbox": [
+            431,
+            476,
+            570,
+            497
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "I. Abraham, D. Dolev, R. Gonen, and J. Halpern. Distributed computing meets game theory: Robust mechanisms for rational secret-sharing and multiparty computation. In Princ. ofDistributed Computing ’06, pp. 53–62. ACM Press, 2006.",
+        "bbox": [
+            141,
+            509,
+            862,
+            557
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "M. Atallah, M. Blanton, K. Frikken, and J. Li. Efficient Correlated Action Selection. In Financial Crypt., LNCS 4107:296–310. Springer, 2006.",
+        "bbox": [
+            141,
+            559,
+            862,
+            589
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "R. Aumann. Subjectivity and correlation in randomized strategies. J. Math. Econ., 1:67–96, 1974",
+        "bbox": [
+            141,
+            592,
+            844,
+            606
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "I. Barany. Fair Distribution Protocols or How the Players Replace Fortune. Math. Oper. Res., 17(2):327–341, 1992.",
+        "bbox": [
+            141,
+            609,
+            860,
+            640
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "D. Beaver. Secure multiparty protocols and zero-knowledge proof systems tolerating a faulty minority. J. Cryptology, 4(2):75–122, 1991.",
+        "bbox": [
+            141,
+            642,
+            860,
+            673
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "M. Ben-Or, S. Goldwasser, and A. Wigderson. Completeness theorems for noncryptographic fault tolerant distributed Computations. In Proc. 20th Symp. on Theory ofComputing 88, pp. 1–10.",
+        "bbox": [
+            141,
+            676,
+            860,
+            708
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "E. Ben-Porath. Correlation without mediation: Expanding the set of equilibrium outcomes by “cheap” pre-play procedures. J. Econ. Theo., 80(1):108–122, 1998.",
+        "bbox": [
+            141,
+            709,
+            860,
+            740
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "R. Canetti. Security and composition of multiparty cryptographic protocols. J. Cryptology, 13(1):143– 202, 2000. Available at eprint.iacr.org/1998/018.",
+        "bbox": [
+            141,
+            741,
+            860,
+            774
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "D. Chaum, C. Crepeau, and I. Damgard. Multiparty unconditionally secure protocols. In Proc. 20th Symp. on Theory ofComputing 88, pp. 11–19.",
+        "bbox": [
+            141,
+            776,
+            860,
+            808
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "Y. Dodis, S. Halevi, and T. Rabin. A cryptographic solution to a game theoretic problem. In Crypto 2000, pp. 112–130, 2000. LNCS No. 1880.",
+        "bbox": [
+            141,
+            808,
+            860,
+            839
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "F.M. Forges. An approach to communication equilibria. Econometrica, 54(6):1375–85, 1986.",
+        "bbox": [
+            141,
+            842,
+            814,
+            857
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "J. Feigenbaum and S. Shenker. Distributed algorithmic mechanism design: Recent results and future directions. In Proc. 6th Intl. Wkshp. Disc. Algo. Meth. Mobile Comp. Comm., pp. 1–13. ACM Press, 2002.",
+        "bbox": [
+            141,
+            859,
+            862,
+            906
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "page_number",
+        "text": "204",
+        "bbox": [
+            141,
+            41,
+            177,
+            55
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "header",
+        "text": "cryptography and game theory",
+        "bbox": [
+            339,
+            44,
+            662,
+            57
+        ],
+        "page_idx": 23
+    },
+    {
+        "type": "ref_text",
+        "text": "D. Gerardi. Unmediated communication in games with complete and incomplete information. J. Econ. Theo., 114:104,131, 2004.",
+        "bbox": [
+            137,
+            79,
+            858,
+            111
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "O. Goldreich. Foundations ofCryptography: Volume 2. Cambridge University Press, 2004. Prelimi nary version http://philby.ucsd.edu/cryptolib.html/.",
+        "bbox": [
+            137,
+            112,
+            858,
+            145
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "O. Goldreich, S. Micali, and A. Wigderson. How to play any mental game. In Proc. 19th STOC, pp. 218–229. ACM, 1987.",
+        "bbox": [
+            137,
+            146,
+            858,
+            177
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "S. Goldwasser and L. Levin. Fair computation of general functions in presence of immoral majority. In Crypto ’90, LNCS 537:77–93.",
+        "bbox": [
+            137,
+            179,
+            858,
+            211
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "S. Goldwasser and S. Micali. Probabilistic encryption. J. Comp. Syst. Sci., 28(2):270–299, April 1984.",
+        "bbox": [
+            137,
+            211,
+            858,
+            242
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "S.D. Gordon and J. Katz. Rational secret-sharing, revisited. In 5th Conf. Sec. Crypto. Networks, 2006. Updated version available at http://eprint.iacr.org/2006/142.",
+        "bbox": [
+            137,
+            245,
+            858,
+            278
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "J. Halpern and V. Teague. Rational secret-sharing and multiparty computation. In Proc. of36th STOC, pp. 623–632. ACM Press, 2004.",
+        "bbox": [
+            137,
+            280,
+            858,
+            311
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "S. Izmalkov, M. Lepinski, and S. Micali. Rational secure computation and ideal mechanism design. In Proc. of46th Fdns. ofComputer Science, pp. 585–595, 2005.",
+        "bbox": [
+            137,
+            313,
+            858,
+            345
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "M. Lepinksi, S. Micali, and A. Shelat. Collusion-free protocols. In Proc. 37th Ann. ACM Symp. Theo. Comp., pp. 543–552. ACM Press, 2005.",
+        "bbox": [
+            137,
+            345,
+            858,
+            377
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "M. Lepinski, S. Micali, C. Peikert, and A. Shelat. Completely fair sfe and coalition-safe cheap talk. In PODC ’04: Proc. 23rd Annual ACM Symp. Princ. Dist. Comp., pp. 1–10. ACM Press, 2004.",
+        "bbox": [
+            137,
+            380,
+            856,
+            412
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "A. Lysyanskaya and N. Triandopoulos. Rationality and adversarial Behavior in Multi-Party Computation. In Crypto 2006, 2006.",
+        "bbox": [
+            137,
+            412,
+            858,
+            444
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "R. McGrew, R. Porter, and Y. Shoham. Towards a general theory of non-cooperative computation (extended abstract). In Theo. Aspects ofRationality and Knowledge IX, 2003.",
+        "bbox": [
+            137,
+            446,
+            858,
+            478
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "S. Micali and P. Rogaway. Secure computation. In Crypto ’91, LNCS 576:392–404, 1991.",
+        "bbox": [
+            137,
+            479,
+            786,
+            495
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "J. Nash. Non-cooperative games. Annals ofMath., 54:286–295, 1951.",
+        "bbox": [
+            137,
+            496,
+            642,
+            511
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "M.J. Osborne and A. Rubinstein. A Course in Game Theory. MIT Press, 1999.",
+        "bbox": [
+            137,
+            513,
+            702,
+            528
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "T. Rabin and M. Ben-Or. Verifiable secret-sharing and multiparty protocols with honest majority. In Proc. 21st Symp. on Theory ofComputing, pp. 73–85. ACM, 1989.",
+        "bbox": [
+            137,
+            529,
+            858,
+            560
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "A. Shamir. How to share a secret. Comm. ACM, 22:612–613, 1979.",
+        "bbox": [
+            137,
+            563,
+            624,
+            578
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "Y. Shoham and M. Tennenholtz. Non-cooperative computation: Boolean functions with correctness and exclusivity. Theor. Comput. Sci., 343(1–2):97–113, 2005.",
+        "bbox": [
+            137,
+            580,
+            858,
+            610
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "V. Teague. Selecting correlated random actions. In Financial Cryptography, LNCS 3110:181–195. Springer, 2004.",
+        "bbox": [
+            137,
+            613,
+            856,
+            645
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "A. Urbano and J.E. Vila. Computational complexity and communication: Coordination in two-player games. Econometrica, 70(5):1893–1927, 2002.",
+        "bbox": [
+            137,
+            645,
+            858,
+            679
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "A. Urbano and J.E. Vila. Computationally restricted unmediated talk under incomplete information. Econ. Theory, 23:283–320, 2004.",
+        "bbox": [
+            137,
+            680,
+            858,
+            711
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "ref_text",
+        "text": "A.C. Yao. Protocols for secure computations. In Proc. Fdns. of Computer Science 82, pp. 160–164, IEEE, 1982",
+        "bbox": [
+            137,
+            712,
+            858,
+            743
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "header",
+        "text": "bibliography",
+        "bbox": [
+            427,
+            44,
+            566,
+            57
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "page_number",
+        "text": "205",
+        "bbox": [
+            822,
+            41,
+            858,
+            55
+        ],
+        "page_idx": 24
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            0,
+            0,
+            998,
+            998
+        ],
+        "page_idx": 25
+    }
+]

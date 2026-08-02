@@ -1,0 +1,3097 @@
+{
+  ".claude/settings.json": {
+    "mtime": 1783616075.730772,
+    "ast_hash": "6dafa34fd63b3bd82be41764116fa309",
+    "semantic_hash": "6dafa34fd63b3bd82be41764116fa309"
+  },
+  ".codex/hooks.json": {
+    "mtime": 1783616383.4934106,
+    "ast_hash": "d0c2aafa0942644f3e9c907eac0efbe6",
+    "semantic_hash": "d0c2aafa0942644f3e9c907eac0efbe6"
+  },
+  ".agents/skills/graphify/SKILL.md": {
+    "mtime": 1783616383.61189,
+    "ast_hash": "7f89f9fef0c3007df59814ab17706bce",
+    "semantic_hash": "7f89f9fef0c3007df59814ab17706bce"
+  },
+  ".agents/skills/graphify/references/add-watch.md": {
+    "mtime": 1783615955.7885568,
+    "ast_hash": "d59d027fe449f06aa03905a01184e779",
+    "semantic_hash": "d59d027fe449f06aa03905a01184e779"
+  },
+  ".agents/skills/graphify/references/exports.md": {
+    "mtime": 1783615955.789531,
+    "ast_hash": "9da2a2152e60a22f07f05fed5158f287",
+    "semantic_hash": "9da2a2152e60a22f07f05fed5158f287"
+  },
+  ".agents/skills/graphify/references/extraction-spec.md": {
+    "mtime": 1783615955.789531,
+    "ast_hash": "42fef56a01698118f7fd722acdadea34",
+    "semantic_hash": "42fef56a01698118f7fd722acdadea34"
+  },
+  ".agents/skills/graphify/references/github-and-merge.md": {
+    "mtime": 1783615955.7905047,
+    "ast_hash": "cde13df085e4c492aeb7ba298a996d0d",
+    "semantic_hash": "cde13df085e4c492aeb7ba298a996d0d"
+  },
+  ".agents/skills/graphify/references/hooks.md": {
+    "mtime": 1783615955.7914774,
+    "ast_hash": "aea24fe86e18fe8aeb304403032cfce7",
+    "semantic_hash": "aea24fe86e18fe8aeb304403032cfce7"
+  },
+  ".agents/skills/graphify/references/query.md": {
+    "mtime": 1783615955.7914774,
+    "ast_hash": "3c46f8ad006874260614ed8657d02307",
+    "semantic_hash": "3c46f8ad006874260614ed8657d02307"
+  },
+  ".agents/skills/graphify/references/transcribe.md": {
+    "mtime": 1783615955.7914774,
+    "ast_hash": "67b6a5fa6c0974e18f60db9f8932fbd8",
+    "semantic_hash": "67b6a5fa6c0974e18f60db9f8932fbd8"
+  },
+  ".agents/skills/graphify/references/update.md": {
+    "mtime": 1783615955.7924516,
+    "ast_hash": "c698309979460d0f02ba616417844399",
+    "semantic_hash": "c698309979460d0f02ba616417844399"
+  },
+  ".claude/CLAUDE.md": {
+    "mtime": 1783616075.729286,
+    "ast_hash": "c232166e6492ba1ed955030b16979b05",
+    "semantic_hash": "c232166e6492ba1ed955030b16979b05"
+  },
+  ".claude/skills/graphify/SKILL.md": {
+    "mtime": 1783616075.7286172,
+    "ast_hash": "60dae20a917d4f50294ef7f88470cf53",
+    "semantic_hash": "60dae20a917d4f50294ef7f88470cf53"
+  },
+  ".claude/skills/graphify/references/add-watch.md": {
+    "mtime": 1783615955.833405,
+    "ast_hash": "d59d027fe449f06aa03905a01184e779",
+    "semantic_hash": "d59d027fe449f06aa03905a01184e779"
+  },
+  ".claude/skills/graphify/references/exports.md": {
+    "mtime": 1783615955.8343785,
+    "ast_hash": "9da2a2152e60a22f07f05fed5158f287",
+    "semantic_hash": "9da2a2152e60a22f07f05fed5158f287"
+  },
+  ".claude/skills/graphify/references/extraction-spec.md": {
+    "mtime": 1783615955.8343785,
+    "ast_hash": "42fef56a01698118f7fd722acdadea34",
+    "semantic_hash": "42fef56a01698118f7fd722acdadea34"
+  },
+  ".claude/skills/graphify/references/github-and-merge.md": {
+    "mtime": 1783615955.8353553,
+    "ast_hash": "cde13df085e4c492aeb7ba298a996d0d",
+    "semantic_hash": "cde13df085e4c492aeb7ba298a996d0d"
+  },
+  ".claude/skills/graphify/references/hooks.md": {
+    "mtime": 1783615955.8353553,
+    "ast_hash": "3f545db6ce646650bb9de588f5512a27",
+    "semantic_hash": "3f545db6ce646650bb9de588f5512a27"
+  },
+  ".claude/skills/graphify/references/query.md": {
+    "mtime": 1783615955.8363285,
+    "ast_hash": "3c46f8ad006874260614ed8657d02307",
+    "semantic_hash": "3c46f8ad006874260614ed8657d02307"
+  },
+  ".claude/skills/graphify/references/transcribe.md": {
+    "mtime": 1783615955.8363285,
+    "ast_hash": "67b6a5fa6c0974e18f60db9f8932fbd8",
+    "semantic_hash": "67b6a5fa6c0974e18f60db9f8932fbd8"
+  },
+  ".claude/skills/graphify/references/update.md": {
+    "mtime": 1783615955.8363285,
+    "ast_hash": "c698309979460d0f02ba616417844399",
+    "semantic_hash": "c698309979460d0f02ba616417844399"
+  },
+  ".codex/skills/graphify/SKILL.md": {
+    "mtime": 1783616383.4914553,
+    "ast_hash": "addc33b2f59fe59c9213f773287d1987",
+    "semantic_hash": "addc33b2f59fe59c9213f773287d1987"
+  },
+  ".codex/skills/graphify/references/add-watch.md": {
+    "mtime": 1783615955.8031921,
+    "ast_hash": "d59d027fe449f06aa03905a01184e779",
+    "semantic_hash": "d59d027fe449f06aa03905a01184e779"
+  },
+  ".codex/skills/graphify/references/exports.md": {
+    "mtime": 1783615955.8031921,
+    "ast_hash": "9da2a2152e60a22f07f05fed5158f287",
+    "semantic_hash": "9da2a2152e60a22f07f05fed5158f287"
+  },
+  ".codex/skills/graphify/references/extraction-spec.md": {
+    "mtime": 1783615955.8041663,
+    "ast_hash": "bf895ec4d4e40f5f66f7d31c2a9bd4a7",
+    "semantic_hash": "bf895ec4d4e40f5f66f7d31c2a9bd4a7"
+  },
+  ".codex/skills/graphify/references/github-and-merge.md": {
+    "mtime": 1783615955.8041663,
+    "ast_hash": "cde13df085e4c492aeb7ba298a996d0d",
+    "semantic_hash": "cde13df085e4c492aeb7ba298a996d0d"
+  },
+  ".codex/skills/graphify/references/hooks.md": {
+    "mtime": 1783615955.8041663,
+    "ast_hash": "3f545db6ce646650bb9de588f5512a27",
+    "semantic_hash": "3f545db6ce646650bb9de588f5512a27"
+  },
+  ".codex/skills/graphify/references/query.md": {
+    "mtime": 1783615955.8051388,
+    "ast_hash": "3c46f8ad006874260614ed8657d02307",
+    "semantic_hash": "3c46f8ad006874260614ed8657d02307"
+  },
+  ".codex/skills/graphify/references/transcribe.md": {
+    "mtime": 1783615955.8051388,
+    "ast_hash": "67b6a5fa6c0974e18f60db9f8932fbd8",
+    "semantic_hash": "67b6a5fa6c0974e18f60db9f8932fbd8"
+  },
+  ".codex/skills/graphify/references/update.md": {
+    "mtime": 1783615955.8051388,
+    "ast_hash": "c698309979460d0f02ba616417844399",
+    "semantic_hash": "c698309979460d0f02ba616417844399"
+  },
+  "CLAUDE.md": {
+    "mtime": 1783616075.7297924,
+    "ast_hash": "8a6643a420fdad6bfb583523bc6cef16",
+    "semantic_hash": "8a6643a420fdad6bfb583523bc6cef16"
+  },
+  "raw/canonical/README.md": {
+    "mtime": 1784039483.4056444,
+    "ast_hash": "9ebbd1a81f7420a32342d189c47924c2",
+    "semantic_hash": ""
+  },
+  "wiki/index.md": {
+    "mtime": 1785592738.6201417,
+    "ast_hash": "467637040a67df2e96a3a5f13adc35ad",
+    "semantic_hash": ""
+  },
+  "wiki/maps/library-status.md": {
+    "mtime": 1785592675.2217019,
+    "ast_hash": "b06051002898e3ff116e96ba18b85791",
+    "semantic_hash": ""
+  },
+  "wiki/maps/map-home.md": {
+    "mtime": 1785586540.5833144,
+    "ast_hash": "9ffbffa5444419f7a2e9394af8da133d",
+    "semantic_hash": ""
+  },
+  "wiki/maps/map-models-and-objectives.md": {
+    "mtime": 1785592405.9592972,
+    "ast_hash": "71483ab91bad192331913e1f88b2a593",
+    "semantic_hash": ""
+  },
+  "wiki/maps/map-multi-device-wpt.md": {
+    "mtime": 1785592405.9592972,
+    "ast_hash": "099dc78783afdb6ebbe9036a600ed9ee",
+    "semantic_hash": ""
+  },
+  "wiki/maps/map-online-scheduling.md": {
+    "mtime": 1785592405.9592972,
+    "ast_hash": "79915cd0c5916d912dcfeee4ef9eaeec",
+    "semantic_hash": ""
+  },
+  "wiki/maps/map-power-allocation.md": {
+    "mtime": 1785586540.5833144,
+    "ast_hash": "2d72d51dde1ee03d65f1a74c9009b30d",
+    "semantic_hash": ""
+  },
+  ".obsidian/app.json": {
+    "mtime": 1784044036.3723955,
+    "ast_hash": "99914b932bd37a50b983c5e7c90ae93b",
+    "semantic_hash": ""
+  },
+  ".obsidian/appearance.json": {
+    "mtime": 1784044036.373842,
+    "ast_hash": "99914b932bd37a50b983c5e7c90ae93b",
+    "semantic_hash": ""
+  },
+  ".obsidian/core-plugins.json": {
+    "mtime": 1784044035.889194,
+    "ast_hash": "7c877bea49eaeabb100563bd157b9051",
+    "semantic_hash": ""
+  },
+  "evals/core-book-retrieval.json": {
+    "mtime": 1785591521.3365796,
+    "ast_hash": "6704156d330e4b72f23fe45182a7fd2b",
+    "semantic_hash": ""
+  },
+  "evals/gold_questions.json": {
+    "mtime": 1784041741.2462413,
+    "ast_hash": "4b3cb63afe691cd382b6770e4e52036e",
+    "semantic_hash": ""
+  },
+  "raw/canonical/3-D_Placement_of_an_Unmanned_Aerial_Vehicle_Base_Station_for_Maximum_Coverage_of_Users_With_Different_QoS_Requirements.pdf-22862a8f-519b-48c9-a820-695a0df5d5e5/8708a601-cd53-41c7-82f8-a15ea406ccbc_content_list.json": {
+    "mtime": 1783617255.4064302,
+    "ast_hash": "972582f15251c29b2c9c005ca43e300d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/3-D_Placement_of_an_Unmanned_Aerial_Vehicle_Base_Station_for_Maximum_Coverage_of_Users_With_Different_QoS_Requirements.pdf-22862a8f-519b-48c9-a820-695a0df5d5e5/8708a601-cd53-41c7-82f8-a15ea406ccbc_content_list_v2.json": {
+    "mtime": 1783617255.405193,
+    "ast_hash": "56d0c0b9cf2939fa952505a942a4fa01",
+    "semantic_hash": ""
+  },
+  "raw/canonical/3-D_Placement_of_an_Unmanned_Aerial_Vehicle_Base_Station_for_Maximum_Coverage_of_Users_With_Different_QoS_Requirements.pdf-22862a8f-519b-48c9-a820-695a0df5d5e5/8708a601-cd53-41c7-82f8-a15ea406ccbc_model.json": {
+    "mtime": 1783617255.4021802,
+    "ast_hash": "86e1f9f55d11495dfdd0d1b68d8f63f3",
+    "semantic_hash": ""
+  },
+  "raw/canonical/3-D_Placement_of_an_Unmanned_Aerial_Vehicle_Base_Station_for_Maximum_Coverage_of_Users_With_Different_QoS_Requirements.pdf-22862a8f-519b-48c9-a820-695a0df5d5e5/block_list.json": {
+    "mtime": 1783617660.8852773,
+    "ast_hash": "fedaaf3553c886f19b7fb5c308183657",
+    "semantic_hash": ""
+  },
+  "raw/canonical/3-D_Placement_of_an_Unmanned_Aerial_Vehicle_Base_Station_for_Maximum_Coverage_of_Users_With_Different_QoS_Requirements.pdf-22862a8f-519b-48c9-a820-695a0df5d5e5/layout.json": {
+    "mtime": 1783617255.4198866,
+    "ast_hash": "9ea92fbdc2dd7c1bd1dd82089ff63f8d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_on_the_Move_Scheduling_Static_Chargers_with_Tunable_Power_for_Mobile_Devices.pdf-b04f915c-4c38-444c-8103-1c9d81579ab7/block_list.json": {
+    "mtime": 1783617663.887969,
+    "ast_hash": "6247c02a26f832465415588638e09687",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_on_the_Move_Scheduling_Static_Chargers_with_Tunable_Power_for_Mobile_Devices.pdf-b04f915c-4c38-444c-8103-1c9d81579ab7/c5f6bda9-dccb-4ca4-86ac-02a5ceb80107_content_list.json": {
+    "mtime": 1783617276.698676,
+    "ast_hash": "312f32bb3584fe41c900b2784b07ec7a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_on_the_Move_Scheduling_Static_Chargers_with_Tunable_Power_for_Mobile_Devices.pdf-b04f915c-4c38-444c-8103-1c9d81579ab7/c5f6bda9-dccb-4ca4-86ac-02a5ceb80107_content_list_v2.json": {
+    "mtime": 1783617276.6675777,
+    "ast_hash": "4975fd39b4c314805e9dda4af7cb353f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_on_the_Move_Scheduling_Static_Chargers_with_Tunable_Power_for_Mobile_Devices.pdf-b04f915c-4c38-444c-8103-1c9d81579ab7/c5f6bda9-dccb-4ca4-86ac-02a5ceb80107_model.json": {
+    "mtime": 1783617276.6717281,
+    "ast_hash": "a70d71834cfcd990273be6302eedb877",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_on_the_Move_Scheduling_Static_Chargers_with_Tunable_Power_for_Mobile_Devices.pdf-b04f915c-4c38-444c-8103-1c9d81579ab7/layout.json": {
+    "mtime": 1783617276.7167597,
+    "ast_hash": "633f2ccb65b9c2902b674fb8baef92bd",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrent_Charging_with_Wave_Interference.pdf-a984b0a6-dc76-4283-951d-f75a915cd6eb/a6ab8e09-7c37-4a2c-a543-02f2c5ef9429_content_list.json": {
+    "mtime": 1783617271.7287984,
+    "ast_hash": "f55cb77f98a81e8ff22f3427bfe2b2bb",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrent_Charging_with_Wave_Interference.pdf-a984b0a6-dc76-4283-951d-f75a915cd6eb/a6ab8e09-7c37-4a2c-a543-02f2c5ef9429_content_list_v2.json": {
+    "mtime": 1783617271.726432,
+    "ast_hash": "74aa4863d22a23257c2251a5fb8d2513",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrent_Charging_with_Wave_Interference.pdf-a984b0a6-dc76-4283-951d-f75a915cd6eb/a6ab8e09-7c37-4a2c-a543-02f2c5ef9429_model.json": {
+    "mtime": 1783617271.7328744,
+    "ast_hash": "ed63cd5dac3099193039f122a7c6d503",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrent_Charging_with_Wave_Interference.pdf-a984b0a6-dc76-4283-951d-f75a915cd6eb/block_list.json": {
+    "mtime": 1783617667.1565819,
+    "ast_hash": "c1c4089648aa5c0bf6a0bb418f148420",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrent_Charging_with_Wave_Interference.pdf-a984b0a6-dc76-4283-951d-f75a915cd6eb/layout.json": {
+    "mtime": 1783617271.8358085,
+    "ast_hash": "cebb6747d8603d5941b2e820fd6e1afe",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrently_Wireless_Charging_Sensor_Networks_with_Efficient_Scheduling.pdf-ab89513d-dd68-4bde-843f-8060d98fba2e/block_list.json": {
+    "mtime": 1783617629.5037339,
+    "ast_hash": "c672330267ef94f667ab8fea171c312d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrently_Wireless_Charging_Sensor_Networks_with_Efficient_Scheduling.pdf-ab89513d-dd68-4bde-843f-8060d98fba2e/f07e7b42-687a-445a-a065-fde715cbeda1_content_list.json": {
+    "mtime": 1783617271.4355924,
+    "ast_hash": "2572708bd0d226a5b291418ebf2c9035",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrently_Wireless_Charging_Sensor_Networks_with_Efficient_Scheduling.pdf-ab89513d-dd68-4bde-843f-8060d98fba2e/f07e7b42-687a-445a-a065-fde715cbeda1_content_list_v2.json": {
+    "mtime": 1783617271.4144666,
+    "ast_hash": "31cdc83dbf875fbf3c843d32d7e1c857",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrently_Wireless_Charging_Sensor_Networks_with_Efficient_Scheduling.pdf-ab89513d-dd68-4bde-843f-8060d98fba2e/f07e7b42-687a-445a-a065-fde715cbeda1_model.json": {
+    "mtime": 1783617271.4406815,
+    "ast_hash": "ca89e86d4fb02be00ab9361b66ee86cf",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrently_Wireless_Charging_Sensor_Networks_with_Efficient_Scheduling.pdf-ab89513d-dd68-4bde-843f-8060d98fba2e/layout.json": {
+    "mtime": 1783617271.4748755,
+    "ast_hash": "767c34711fb670f836f225f61f2d0a19",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Cooperative_Charging_as_Service_Scheduling_for_Mobile_Wireless_Rechargeable_Sensor_Networks.pdf-8bd73c94-27f3-4b2a-aafb-4d318e567433/block_list.json": {
+    "mtime": 1783617670.8361409,
+    "ast_hash": "1d40489993818936b418eccd796a9b1b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Cooperative_Charging_as_Service_Scheduling_for_Mobile_Wireless_Rechargeable_Sensor_Networks.pdf-8bd73c94-27f3-4b2a-aafb-4d318e567433/d1295364-c752-47ab-bf3e-e2f99bf3ff1a_content_list.json": {
+    "mtime": 1783617255.923089,
+    "ast_hash": "d62bc40eef788c7154fd8a0e8400a61a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Cooperative_Charging_as_Service_Scheduling_for_Mobile_Wireless_Rechargeable_Sensor_Networks.pdf-8bd73c94-27f3-4b2a-aafb-4d318e567433/d1295364-c752-47ab-bf3e-e2f99bf3ff1a_content_list_v2.json": {
+    "mtime": 1783617255.9280107,
+    "ast_hash": "b7490dfb2af0f7e5a44430de4dbae6aa",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Cooperative_Charging_as_Service_Scheduling_for_Mobile_Wireless_Rechargeable_Sensor_Networks.pdf-8bd73c94-27f3-4b2a-aafb-4d318e567433/d1295364-c752-47ab-bf3e-e2f99bf3ff1a_model.json": {
+    "mtime": 1783617255.932878,
+    "ast_hash": "88fd94de4c116924bb871fbc7afcf1cc",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Cooperative_Charging_as_Service_Scheduling_for_Mobile_Wireless_Rechargeable_Sensor_Networks.pdf-8bd73c94-27f3-4b2a-aafb-4d318e567433/layout.json": {
+    "mtime": 1783617255.9533932,
+    "ast_hash": "e1db71d29b295d7be8fa89e97c83a918",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Directional_WPT_Charging_for_Routing-Asymmetric_WRSNs_with_a_Mobile_Charger/ab25893a-8d80-48bb-99d6-21e75c6579bd_content_list.json": {
+    "mtime": 1784044877.7132778,
+    "ast_hash": "aef49b533dda8f502cb0e0f2a75788a0",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Directional_WPT_Charging_for_Routing-Asymmetric_WRSNs_with_a_Mobile_Charger/ab25893a-8d80-48bb-99d6-21e75c6579bd_content_list_v2.json": {
+    "mtime": 1784044877.7142515,
+    "ast_hash": "a501b74ecab6d1676a8011beb85969d9",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Directional_WPT_Charging_for_Routing-Asymmetric_WRSNs_with_a_Mobile_Charger/ab25893a-8d80-48bb-99d6-21e75c6579bd_model.json": {
+    "mtime": 1784044877.7431698,
+    "ast_hash": "f7e9d62dd1ca83f86eda91a2b8ffed7d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Directional_WPT_Charging_for_Routing-Asymmetric_WRSNs_with_a_Mobile_Charger/layout.json": {
+    "mtime": 1784044877.7422059,
+    "ast_hash": "1a5db34bf04f4f406acaa3549c2ef83a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Dynamic_Power_Distribution_Controlling_for_Directional_Chargers.pdf-c51176d4-83bc-464b-8fc3-befdb45d519e/6efbd3e9-a11c-475c-b0bd-03e61a8e0a3a_content_list.json": {
+    "mtime": 1783617277.186844,
+    "ast_hash": "bf9d732f45fd95bb7f76efb766dc74fd",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Dynamic_Power_Distribution_Controlling_for_Directional_Chargers.pdf-c51176d4-83bc-464b-8fc3-befdb45d519e/6efbd3e9-a11c-475c-b0bd-03e61a8e0a3a_content_list_v2.json": {
+    "mtime": 1783617277.0619698,
+    "ast_hash": "f6a67cdce05516a8216bfe1db8ac86f8",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Dynamic_Power_Distribution_Controlling_for_Directional_Chargers.pdf-c51176d4-83bc-464b-8fc3-befdb45d519e/6efbd3e9-a11c-475c-b0bd-03e61a8e0a3a_model.json": {
+    "mtime": 1783617277.158702,
+    "ast_hash": "0fab8f7a46dd7e25f53b9105eb7625a0",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Dynamic_Power_Distribution_Controlling_for_Directional_Chargers.pdf-c51176d4-83bc-464b-8fc3-befdb45d519e/block_list.json": {
+    "mtime": 1783617673.6122262,
+    "ast_hash": "226fd88d9ef263424e392470a2e6d39d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Dynamic_Power_Distribution_Controlling_for_Directional_Chargers.pdf-c51176d4-83bc-464b-8fc3-befdb45d519e/layout.json": {
+    "mtime": 1783617277.185749,
+    "ast_hash": "431a52c6ca272196d6f7baf6065a2147",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Infinite_Drive_Optimal_Urban_Location_of_Dynamic_Wireless_Charging_at_Signalized_Intersections/fae7382c-9d8c-4a3b-84ca-ed04d3add4f8_content_list.json": {
+    "mtime": 1784044866.3614755,
+    "ast_hash": "31c67972c7051b64783893fb967dc89b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Infinite_Drive_Optimal_Urban_Location_of_Dynamic_Wireless_Charging_at_Signalized_Intersections/fae7382c-9d8c-4a3b-84ca-ed04d3add4f8_content_list_v2.json": {
+    "mtime": 1784044866.3715131,
+    "ast_hash": "de7560fc1b41c50966707364f15f4dfa",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Infinite_Drive_Optimal_Urban_Location_of_Dynamic_Wireless_Charging_at_Signalized_Intersections/fae7382c-9d8c-4a3b-84ca-ed04d3add4f8_model.json": {
+    "mtime": 1784044866.362517,
+    "ast_hash": "69f55ea4fdcbe481d40534eb0f9daa41",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Infinite_Drive_Optimal_Urban_Location_of_Dynamic_Wireless_Charging_at_Signalized_Intersections/layout.json": {
+    "mtime": 1784044866.3704598,
+    "ast_hash": "c7010ad182b78bc4eba5ac02cc7a52f7",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Joint_Scheduling_and_Trajectory_Optimization_of_Charging_UAV_in_Wireless_Rechargeable_Sensor_Net/83eeecb5-d7b9-4547-823b-65063c9c26c1_content_list.json": {
+    "mtime": 1784044863.895224,
+    "ast_hash": "d7329eeb18dd4812c4156276a225497f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Joint_Scheduling_and_Trajectory_Optimization_of_Charging_UAV_in_Wireless_Rechargeable_Sensor_Net/83eeecb5-d7b9-4547-823b-65063c9c26c1_content_list_v2.json": {
+    "mtime": 1784044863.8942509,
+    "ast_hash": "64d172bf3fe302c5dd630d5706e822b5",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Joint_Scheduling_and_Trajectory_Optimization_of_Charging_UAV_in_Wireless_Rechargeable_Sensor_Net/83eeecb5-d7b9-4547-823b-65063c9c26c1_model.json": {
+    "mtime": 1784044863.8932872,
+    "ast_hash": "9ce4ba1cc39396ddacc0009ab992f7eb",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Joint_Scheduling_and_Trajectory_Optimization_of_Charging_UAV_in_Wireless_Rechargeable_Sensor_Net/layout.json": {
+    "mtime": 1784044863.901073,
+    "ast_hash": "7623ada89172ae5ea31cc5d89831ebde",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Minimizing_the_energy_depletion_in_wireless_rechargeable_sensor_networks_using_bi-level_metaheur/24aad59e-265d-4120-9d72-764a475bf661_content_list.json": {
+    "mtime": 1784044865.5077574,
+    "ast_hash": "d2aca5a3f72f8642023f0fb41d9a7bd2",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Minimizing_the_energy_depletion_in_wireless_rechargeable_sensor_networks_using_bi-level_metaheur/24aad59e-265d-4120-9d72-764a475bf661_content_list_v2.json": {
+    "mtime": 1784044865.5019085,
+    "ast_hash": "179b41dda5695097b8de483a387642b1",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Minimizing_the_energy_depletion_in_wireless_rechargeable_sensor_networks_using_bi-level_metaheur/24aad59e-265d-4120-9d72-764a475bf661_model.json": {
+    "mtime": 1784044865.5009353,
+    "ast_hash": "68dbc7e3bc1e49b5e33bf37d5345aa3c",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Minimizing_the_energy_depletion_in_wireless_rechargeable_sensor_networks_using_bi-level_metaheur/layout.json": {
+    "mtime": 1784044865.5122662,
+    "ast_hash": "28a5f04f0049741824001928c03dbaf9",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Optimal_3D_Directional_WPT_Charging_via_UAV_for_3D_Wireless_Rechargeable_Sensor_Networks/3f61160b-8251-4338-8b5a-ac9cee37c9ad_content_list.json": {
+    "mtime": 1784044879.2339642,
+    "ast_hash": "70cafc712d0498a5183026e2ae15216b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Optimal_3D_Directional_WPT_Charging_via_UAV_for_3D_Wireless_Rechargeable_Sensor_Networks/3f61160b-8251-4338-8b5a-ac9cee37c9ad_content_list_v2.json": {
+    "mtime": 1784044879.2923644,
+    "ast_hash": "e9080415f1c3f3c1f7eca13ecc35f507",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Optimal_3D_Directional_WPT_Charging_via_UAV_for_3D_Wireless_Rechargeable_Sensor_Networks/3f61160b-8251-4338-8b5a-ac9cee37c9ad_model.json": {
+    "mtime": 1784044879.2913911,
+    "ast_hash": "04e2ef190e20850d12befc2dfb674c4c",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Optimal_3D_Directional_WPT_Charging_via_UAV_for_3D_Wireless_Rechargeable_Sensor_Networks/layout.json": {
+    "mtime": 1784044879.2894537,
+    "ast_hash": "7f3bddcee8d1497d2b3a1a382f13527f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Peak_AoI_Minimization_at_Wireless-Powered_Network_Edge_From_the_Perspective_of_Both_Charging_and_Transmitting.pdf-a84be74f-fb17-427c-9f09-73ff009d6e42/0de7a251-8609-441b-9567-63baa9007152_content_list.json": {
+    "mtime": 1783617272.6140945,
+    "ast_hash": "9eb3465698c703599db3fd8bde99129a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Peak_AoI_Minimization_at_Wireless-Powered_Network_Edge_From_the_Perspective_of_Both_Charging_and_Transmitting.pdf-a84be74f-fb17-427c-9f09-73ff009d6e42/0de7a251-8609-441b-9567-63baa9007152_content_list_v2.json": {
+    "mtime": 1783617272.6121483,
+    "ast_hash": "6abd903015725d17bc4a183773b7bf1f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Peak_AoI_Minimization_at_Wireless-Powered_Network_Edge_From_the_Perspective_of_Both_Charging_and_Transmitting.pdf-a84be74f-fb17-427c-9f09-73ff009d6e42/0de7a251-8609-441b-9567-63baa9007152_model.json": {
+    "mtime": 1783617272.608253,
+    "ast_hash": "9d57d4f61f33fedbb56e60befece9fe5",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Peak_AoI_Minimization_at_Wireless-Powered_Network_Edge_From_the_Perspective_of_Both_Charging_and_Transmitting.pdf-a84be74f-fb17-427c-9f09-73ff009d6e42/block_list.json": {
+    "mtime": 1783617659.7549489,
+    "ast_hash": "3966119940b856ae137632cd289f848a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Peak_AoI_Minimization_at_Wireless-Powered_Network_Edge_From_the_Perspective_of_Both_Charging_and_Transmitting.pdf-a84be74f-fb17-427c-9f09-73ff009d6e42/layout.json": {
+    "mtime": 1783617272.6464288,
+    "ast_hash": "74f7a80b493f366e3f7d6aee7439ad83",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Placing_Wireless_Chargers_With_Multiple_Antennas.pdf-bafca2d9-e008-4ed3-9747-5a6b9783c669/a0b2506c-ac82-42ff-924f-ddb2ec0d6b59_content_list.json": {
+    "mtime": 1783617271.907494,
+    "ast_hash": "163c9801a719a947748b2cde2fbee8de",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Placing_Wireless_Chargers_With_Multiple_Antennas.pdf-bafca2d9-e008-4ed3-9747-5a6b9783c669/a0b2506c-ac82-42ff-924f-ddb2ec0d6b59_content_list_v2.json": {
+    "mtime": 1783617271.9111986,
+    "ast_hash": "458689692d677908f40bc8abfe595757",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Placing_Wireless_Chargers_With_Multiple_Antennas.pdf-bafca2d9-e008-4ed3-9747-5a6b9783c669/a0b2506c-ac82-42ff-924f-ddb2ec0d6b59_model.json": {
+    "mtime": 1783617271.8216298,
+    "ast_hash": "39c05d49e0731f603a65273b2363f9aa",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Placing_Wireless_Chargers_With_Multiple_Antennas.pdf-bafca2d9-e008-4ed3-9747-5a6b9783c669/block_list.json": {
+    "mtime": 1783617321.979195,
+    "ast_hash": "ef8909e3df9e955be84c4f107d0d9e38",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Placing_Wireless_Chargers_With_Multiple_Antennas.pdf-bafca2d9-e008-4ed3-9747-5a6b9783c669/layout.json": {
+    "mtime": 1783617271.9396522,
+    "ast_hash": "2ad7110a7892f22bae988e2bcefb6d12",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Planning_dynamic_wireless_charging_infrastructure_for_battery_electric_bus_systems_with_the_join/957f8ed5-1c74-4ea9-8111-56d1eb9f2a7a_content_list.json": {
+    "mtime": 1784044864.6302788,
+    "ast_hash": "4d66566c9b634d8a45edf4237e89f3d6",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Planning_dynamic_wireless_charging_infrastructure_for_battery_electric_bus_systems_with_the_join/957f8ed5-1c74-4ea9-8111-56d1eb9f2a7a_content_list_v2.json": {
+    "mtime": 1784044864.636286,
+    "ast_hash": "4431dce48c7bbdd1882da92beb70dd2e",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Planning_dynamic_wireless_charging_infrastructure_for_battery_electric_bus_systems_with_the_join/957f8ed5-1c74-4ea9-8111-56d1eb9f2a7a_model.json": {
+    "mtime": 1784044864.6297557,
+    "ast_hash": "10852166ba4bd9b30a517e9dd994cad7",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Planning_dynamic_wireless_charging_infrastructure_for_battery_electric_bus_systems_with_the_join/layout.json": {
+    "mtime": 1784044864.6346428,
+    "ast_hash": "57e609b1b87c48ef80ea3d4a23398d17",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Practical_Heterogeneous_Wireless_Charger_Placement_with_Obstacles.pdf-9d3d72a1-5370-40da-8eac-87463b92da63/74433dca-96dc-4752-8529-b2628a5683ce_content_list.json": {
+    "mtime": 1783617277.1158214,
+    "ast_hash": "0baaad2d4116a87fddd3217fa56683f7",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Practical_Heterogeneous_Wireless_Charger_Placement_with_Obstacles.pdf-9d3d72a1-5370-40da-8eac-87463b92da63/74433dca-96dc-4752-8529-b2628a5683ce_content_list_v2.json": {
+    "mtime": 1783617277.124143,
+    "ast_hash": "514915d023b9a75c006498cdb107aa79",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Practical_Heterogeneous_Wireless_Charger_Placement_with_Obstacles.pdf-9d3d72a1-5370-40da-8eac-87463b92da63/74433dca-96dc-4752-8529-b2628a5683ce_model.json": {
+    "mtime": 1783617277.0348337,
+    "ast_hash": "52d7f48e70b71c2b59cdcfb7ae3281b1",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Practical_Heterogeneous_Wireless_Charger_Placement_with_Obstacles.pdf-9d3d72a1-5370-40da-8eac-87463b92da63/block_list.json": {
+    "mtime": 1783617622.9194396,
+    "ast_hash": "94aa8e6f17c78fa1f17ea219dc57185b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Practical_Heterogeneous_Wireless_Charger_Placement_with_Obstacles.pdf-9d3d72a1-5370-40da-8eac-87463b92da63/layout.json": {
+    "mtime": 1783617277.1657453,
+    "ast_hash": "0a9891b2a8ac379e91fb4bb6e648a52a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/ROSE_Robustly_safe_charging_for_wireless_power_transfer/0d628760-d043-4144-b5b0-b34bd2ff945d_content_list.json": {
+    "mtime": 1784044876.9351797,
+    "ast_hash": "4ac81ffec312b29401d988eb29e76ef8",
+    "semantic_hash": ""
+  },
+  "raw/canonical/ROSE_Robustly_safe_charging_for_wireless_power_transfer/0d628760-d043-4144-b5b0-b34bd2ff945d_content_list_v2.json": {
+    "mtime": 1784044876.9371264,
+    "ast_hash": "2848178f82e69e23e4d9d924182f0d9a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/ROSE_Robustly_safe_charging_for_wireless_power_transfer/0d628760-d043-4144-b5b0-b34bd2ff945d_model.json": {
+    "mtime": 1784044876.9482014,
+    "ast_hash": "4508a4a0f2efbfee8b51fc67d78bce19",
+    "semantic_hash": ""
+  },
+  "raw/canonical/ROSE_Robustly_safe_charging_for_wireless_power_transfer/layout.json": {
+    "mtime": 1784044876.9540384,
+    "ast_hash": "5db50edfe3d6ac24bc6cb0b84f266360",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-01-part-002/5641c1c6-659d-4a69-a6f5-bdd88a8191bb_content_list.json": {
+    "mtime": 1785590813.4404182,
+    "ast_hash": "2f7bd309552993ab707f7b3daebc928f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-01-part-002/5641c1c6-659d-4a69-a6f5-bdd88a8191bb_content_list_v2.json": {
+    "mtime": 1785590813.437853,
+    "ast_hash": "55ea386b59df217e0292ffc030a4a512",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-01-part-002/5641c1c6-659d-4a69-a6f5-bdd88a8191bb_model.json": {
+    "mtime": 1785590813.4413917,
+    "ast_hash": "1764d57b6a612c7aee3de64d08ffcb80",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-01-part-002/layout.json": {
+    "mtime": 1785590813.4452848,
+    "ast_hash": "313e03058be8c627449102b3e023f7ea",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-02-part-003/15ebbe86-8df7-4797-8b50-165931d33cb3_content_list.json": {
+    "mtime": 1785590803.0916703,
+    "ast_hash": "248feb829d1176b00820d2331308c6db",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-02-part-003/15ebbe86-8df7-4797-8b50-165931d33cb3_content_list_v2.json": {
+    "mtime": 1785590803.0926433,
+    "ast_hash": "907e348732d76eb51c0a4812158de5bd",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-02-part-003/15ebbe86-8df7-4797-8b50-165931d33cb3_model.json": {
+    "mtime": 1785590803.090683,
+    "ast_hash": "941dd86cc07196e0e4628cd66ace25f9",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-02-part-003/layout.json": {
+    "mtime": 1785590803.0975573,
+    "ast_hash": "c6a752f389267f084cbf0041bf6900bf",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-03-part-004/1ce42256-68d8-44e9-b8d0-043f187a58a8_content_list.json": {
+    "mtime": 1785590813.703372,
+    "ast_hash": "53445884d4acabd18a37950b8873ec95",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-03-part-004/1ce42256-68d8-44e9-b8d0-043f187a58a8_content_list_v2.json": {
+    "mtime": 1785590813.6994665,
+    "ast_hash": "5707ee6b5736cd0446c0a0ba640593c4",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-03-part-004/1ce42256-68d8-44e9-b8d0-043f187a58a8_model.json": {
+    "mtime": 1785590813.7023938,
+    "ast_hash": "41206b3e7649ab2728b517c44fe22bf1",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-03-part-004/layout.json": {
+    "mtime": 1785590813.7079,
+    "ast_hash": "e7cec44f73c310c316f4826c40eacd3d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-04-part-005/3157a5ae-c1b7-44cc-9151-fcfecaec60d1_content_list.json": {
+    "mtime": 1785590827.2460425,
+    "ast_hash": "4f41a027d96261f0430649b1c8d35c77",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-04-part-005/3157a5ae-c1b7-44cc-9151-fcfecaec60d1_content_list_v2.json": {
+    "mtime": 1785590827.2520885,
+    "ast_hash": "28adfec64f9362d38b9598d7d5996339",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-04-part-005/3157a5ae-c1b7-44cc-9151-fcfecaec60d1_model.json": {
+    "mtime": 1785590827.2460425,
+    "ast_hash": "8b131ed4c0d018a9e39e7098f4574703",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-04-part-005/layout.json": {
+    "mtime": 1785590827.251115,
+    "ast_hash": "dea95b89eb81be25c3f21a70a2b78a28",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-05-part-006/6aa10ed1-8431-4a6e-961c-2e14dfafec16_content_list.json": {
+    "mtime": 1785590840.3459208,
+    "ast_hash": "7a5611f2b21f914f718c1fb4d8390dfa",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-05-part-006/6aa10ed1-8431-4a6e-961c-2e14dfafec16_content_list_v2.json": {
+    "mtime": 1785590840.3503692,
+    "ast_hash": "5ce89359357f87d59a68a798fab4d058",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-05-part-006/6aa10ed1-8431-4a6e-961c-2e14dfafec16_model.json": {
+    "mtime": 1785590840.3484209,
+    "ast_hash": "a31dd7c5060196eba2c1e381d18fd1a0",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-05-part-006/layout.json": {
+    "mtime": 1785590840.3573227,
+    "ast_hash": "090522692b095c69abe69d137abcfba0",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-06-part-007/cfbc8b65-55b7-4c76-9632-fae8e38290cc_content_list.json": {
+    "mtime": 1785590827.4910007,
+    "ast_hash": "f2544fc31d1b0faa4cd4cda43337b90f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-06-part-007/cfbc8b65-55b7-4c76-9632-fae8e38290cc_content_list_v2.json": {
+    "mtime": 1785590827.492947,
+    "ast_hash": "2a3bd739fd0dc446f75e554001de992d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-06-part-007/cfbc8b65-55b7-4c76-9632-fae8e38290cc_model.json": {
+    "mtime": 1785590827.4939203,
+    "ast_hash": "49eac17ab0a0a8b78b4b5065fc6234af",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-06-part-007/layout.json": {
+    "mtime": 1785590827.4984345,
+    "ast_hash": "4a6ba701ff236b0ef8a4a1c93efdd97f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-07-part-008/39667b7a-06d8-4d5f-976f-7215fbde78f7_content_list.json": {
+    "mtime": 1785590813.955475,
+    "ast_hash": "df5e1e96fe940fb4b6433b1ba9626fc5",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-07-part-008/39667b7a-06d8-4d5f-976f-7215fbde78f7_content_list_v2.json": {
+    "mtime": 1785590813.953524,
+    "ast_hash": "73ccf16e3fbccf11624af2d2692b5f04",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-07-part-008/39667b7a-06d8-4d5f-976f-7215fbde78f7_model.json": {
+    "mtime": 1785590813.952502,
+    "ast_hash": "1c5d1aa26945d96c345279467b5ed031",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-07-part-008/layout.json": {
+    "mtime": 1785590813.958465,
+    "ast_hash": "d455a6c3dd0892e82385c701b847f45c",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-08-part-009/4b962e69-2662-416f-82a7-ed52b6a40271_content_list.json": {
+    "mtime": 1785590814.1545646,
+    "ast_hash": "d42004edbbba622b060c336f400792dc",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-08-part-009/4b962e69-2662-416f-82a7-ed52b6a40271_content_list_v2.json": {
+    "mtime": 1785590814.155907,
+    "ast_hash": "829100ac71f59292f308118309cfc0f6",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-08-part-009/4b962e69-2662-416f-82a7-ed52b6a40271_model.json": {
+    "mtime": 1785590814.1539953,
+    "ast_hash": "dec90b3d4eb71f980a35fcf21f552e6a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-08-part-009/layout.json": {
+    "mtime": 1785590814.1604571,
+    "ast_hash": "dbd286276ffa4b55fb038aa8c2405b2d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-09-part-010/53b2b527-318a-4889-ba1c-7464b5719e33_content_list.json": {
+    "mtime": 1785590827.7314825,
+    "ast_hash": "4db7ebdf8e9715f366b73d4fa8397cc3",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-09-part-010/53b2b527-318a-4889-ba1c-7464b5719e33_content_list_v2.json": {
+    "mtime": 1785590827.7269802,
+    "ast_hash": "f5bde631e2900152141efe2bcc3b0be3",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-09-part-010/53b2b527-318a-4889-ba1c-7464b5719e33_model.json": {
+    "mtime": 1785590827.7314825,
+    "ast_hash": "20fd3f90c6eb3168c9236f002ccafca2",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-09-part-010/layout.json": {
+    "mtime": 1785590827.7392347,
+    "ast_hash": "ac5197082f6d476f6178c11bb741792f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-10-part-011/1224da77-27c0-4da0-96a2-04bd11a54987_content_list.json": {
+    "mtime": 1785590827.943577,
+    "ast_hash": "10966bddc88288961fc9c05464ea8aff",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-10-part-011/1224da77-27c0-4da0-96a2-04bd11a54987_content_list_v2.json": {
+    "mtime": 1785590827.9426036,
+    "ast_hash": "65133c8d21c54c81575d4a4228ad602d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-10-part-011/1224da77-27c0-4da0-96a2-04bd11a54987_model.json": {
+    "mtime": 1785590827.9494488,
+    "ast_hash": "27013e1721d233a026f9770538ffa6be",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-10-part-011/layout.json": {
+    "mtime": 1785590827.948243,
+    "ast_hash": "4668d1990c9fb06d2e2f1c8b5b1626a8",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-11-part-012/b5583193-cbb6-444d-a60a-fa86919fd149_content_list.json": {
+    "mtime": 1785590840.7616034,
+    "ast_hash": "ba79c22380a0ef85ed6c78e0851bb764",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-11-part-012/b5583193-cbb6-444d-a60a-fa86919fd149_content_list_v2.json": {
+    "mtime": 1785590840.7522817,
+    "ast_hash": "998a380cb1bb1903ab318638ffde959a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-11-part-012/b5583193-cbb6-444d-a60a-fa86919fd149_model.json": {
+    "mtime": 1785590840.7552016,
+    "ast_hash": "5d1c1b2f9f997d3663982aa8d18e48d9",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-11-part-012/layout.json": {
+    "mtime": 1785590840.76063,
+    "ast_hash": "b7252738f45fd7ee66f67111228b99e8",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-12-part-013/61aaf4f9-4ad8-4604-a7d3-dd7a2d233dfb_content_list.json": {
+    "mtime": 1785590828.2414663,
+    "ast_hash": "3147e8b8568a51f280f6d7055571f6c9",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-12-part-013/61aaf4f9-4ad8-4604-a7d3-dd7a2d233dfb_content_list_v2.json": {
+    "mtime": 1785590828.2434132,
+    "ast_hash": "bd9061d0c206071a25d33811abad2ffb",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-12-part-013/61aaf4f9-4ad8-4604-a7d3-dd7a2d233dfb_model.json": {
+    "mtime": 1785590828.2395291,
+    "ast_hash": "b677e383ba4f823a299f8fb2088380b7",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-12-part-013/layout.json": {
+    "mtime": 1785590828.249426,
+    "ast_hash": "02d9f3de218c009e42496cdc2af5451e",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-13-part-014/ee31c1ad-4cf5-436d-9e19-e7ac9e9ca68c_content_list.json": {
+    "mtime": 1785590828.4827454,
+    "ast_hash": "3867c82f58aed0deebb36056157145ad",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-13-part-014/ee31c1ad-4cf5-436d-9e19-e7ac9e9ca68c_content_list_v2.json": {
+    "mtime": 1785590828.486756,
+    "ast_hash": "7b8c19a7ab70249bd731e1d4e6a1661e",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-13-part-014/ee31c1ad-4cf5-436d-9e19-e7ac9e9ca68c_model.json": {
+    "mtime": 1785590828.4846978,
+    "ast_hash": "7fcc663a96c4e1517ebe47d13456109a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-13-part-014/layout.json": {
+    "mtime": 1785590828.4938843,
+    "ast_hash": "819f2ca177b2d829339c5dc035e662ba",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-14-part-015/6ec4ff29-ff17-43c1-9a21-96a4720b3bab_content_list.json": {
+    "mtime": 1785590814.364233,
+    "ast_hash": "9af09cca304abc169c9330258efdce69",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-14-part-015/6ec4ff29-ff17-43c1-9a21-96a4720b3bab_content_list_v2.json": {
+    "mtime": 1785590814.3613129,
+    "ast_hash": "0465019cd33d7c78e651ebafe27ae06a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-14-part-015/6ec4ff29-ff17-43c1-9a21-96a4720b3bab_model.json": {
+    "mtime": 1785590814.3691769,
+    "ast_hash": "16a20f3fc18fa339c3d1a7ce35d7f04d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-14-part-015/layout.json": {
+    "mtime": 1785590814.3682032,
+    "ast_hash": "b04becda4691c0ec99ec383f65d6848e",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-15-part-016/23429cd2-379a-40d6-9a74-cafdb026a248_content_list.json": {
+    "mtime": 1785590828.7345302,
+    "ast_hash": "409565d50ba395afe88dea67a836bc16",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-15-part-016/23429cd2-379a-40d6-9a74-cafdb026a248_content_list_v2.json": {
+    "mtime": 1785590828.7418087,
+    "ast_hash": "374cbb4e2a47d8dda5c964e89204c3f0",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-15-part-016/23429cd2-379a-40d6-9a74-cafdb026a248_model.json": {
+    "mtime": 1785590828.7325754,
+    "ast_hash": "8918a8e5eac076883964e03052dcc850",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-15-part-016/layout.json": {
+    "mtime": 1785590828.7398496,
+    "ast_hash": "da0e712f91b1a62e579509f6c801c374",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-16-part-017/c1789a15-4afb-4fbb-89c6-979186a799af_content_list.json": {
+    "mtime": 1785590814.6802025,
+    "ast_hash": "7fdd005aa58fa1dfa6fab724e88a2f0b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-16-part-017/c1789a15-4afb-4fbb-89c6-979186a799af_content_list_v2.json": {
+    "mtime": 1785590814.6792274,
+    "ast_hash": "a2dcdafb82cd54f0c41c1e07ab24547d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-16-part-017/c1789a15-4afb-4fbb-89c6-979186a799af_model.json": {
+    "mtime": 1785590814.6821494,
+    "ast_hash": "6baaca329bf4b876930925c1214d252e",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-16-part-017/layout.json": {
+    "mtime": 1785590814.6860921,
+    "ast_hash": "434aeeb0fb720b333f76952ff4747aed",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-17-part-018/21a6588e-e98f-4ec1-bebe-d06a96036328_content_list.json": {
+    "mtime": 1785590814.8825016,
+    "ast_hash": "50407ef6b320137ac56bc21e3c658d46",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-17-part-018/21a6588e-e98f-4ec1-bebe-d06a96036328_content_list_v2.json": {
+    "mtime": 1785590814.8825016,
+    "ast_hash": "53391a9916cf637ec33365f423e3fc6b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-17-part-018/21a6588e-e98f-4ec1-bebe-d06a96036328_model.json": {
+    "mtime": 1785590814.8834748,
+    "ast_hash": "1568fd110f7f1fc5912cd9a7a843439c",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-17-part-018/layout.json": {
+    "mtime": 1785590814.8874004,
+    "ast_hash": "4a881d95bf06a24500a685266c648b18",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-18-part-019/6cbbbfcc-eb61-42ea-b464-b4bf13df877e_content_list.json": {
+    "mtime": 1785590815.0980804,
+    "ast_hash": "60cd8cef2a60aa33c36e5fc9b70da612",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-18-part-019/6cbbbfcc-eb61-42ea-b464-b4bf13df877e_content_list_v2.json": {
+    "mtime": 1785590815.099114,
+    "ast_hash": "66fdff9bdb3f4ec0c50278b21ff72455",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-18-part-019/6cbbbfcc-eb61-42ea-b464-b4bf13df877e_model.json": {
+    "mtime": 1785590815.1001804,
+    "ast_hash": "5313975f890cddf035eada2bfc73a8cb",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-18-part-019/layout.json": {
+    "mtime": 1785590815.1046138,
+    "ast_hash": "adf762128a28692659f1816d3fb04647",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-19-part-020/c016800b-5fc0-4d63-a5ca-d0fd472cc3fa_content_list.json": {
+    "mtime": 1785590815.3357694,
+    "ast_hash": "b527b25d3ab14d168589f421e7a3100a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-19-part-020/c016800b-5fc0-4d63-a5ca-d0fd472cc3fa_content_list_v2.json": {
+    "mtime": 1785590815.3347962,
+    "ast_hash": "beecf63d9cc924c7474abf8641dd1467",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-19-part-020/c016800b-5fc0-4d63-a5ca-d0fd472cc3fa_model.json": {
+    "mtime": 1785590815.3328493,
+    "ast_hash": "c35ce0d1e97b11277a069e32b043c668",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-19-part-020/layout.json": {
+    "mtime": 1785590815.3412118,
+    "ast_hash": "297fa055fd8f169f79d2daa9876d033d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-20-part-021/78b0980f-8d31-4cb3-81be-47aab5012919_content_list.json": {
+    "mtime": 1785590815.5991917,
+    "ast_hash": "acce086e641b82c9ad1fd8e40675768a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-20-part-021/78b0980f-8d31-4cb3-81be-47aab5012919_content_list_v2.json": {
+    "mtime": 1785590815.6001668,
+    "ast_hash": "8739ff6ecfde1f2b2642a9e7876ac86e",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-20-part-021/78b0980f-8d31-4cb3-81be-47aab5012919_model.json": {
+    "mtime": 1785590815.6021137,
+    "ast_hash": "5b46dba507f1795db3c4fe237e741e87",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-20-part-021/layout.json": {
+    "mtime": 1785590815.6076305,
+    "ast_hash": "63480630d3ed4ad59d916ff656213ef0",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-21-part-022/9ca399f0-b86d-4cce-a449-4dbc77a77b03_content_list.json": {
+    "mtime": 1785590815.877296,
+    "ast_hash": "e81b248cde96cce68329ca03db6a1527",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-21-part-022/9ca399f0-b86d-4cce-a449-4dbc77a77b03_content_list_v2.json": {
+    "mtime": 1785590815.880231,
+    "ast_hash": "ad2b9b77e0e05173404c37d2e2d019e9",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-21-part-022/9ca399f0-b86d-4cce-a449-4dbc77a77b03_model.json": {
+    "mtime": 1785590815.8782806,
+    "ast_hash": "95759cca0fb293f69eb440ada3acea04",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-21-part-022/layout.json": {
+    "mtime": 1785590815.886155,
+    "ast_hash": "8f9f99179314e7790174a5dae265d624",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-22-part-023/b8fa1649-2aa0-45b7-a9cd-6fba86b3e0d3_content_list.json": {
+    "mtime": 1785590828.9716375,
+    "ast_hash": "6d36314d9046c0c1524168fbc8a3aad6",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-22-part-023/b8fa1649-2aa0-45b7-a9cd-6fba86b3e0d3_content_list_v2.json": {
+    "mtime": 1785590828.9677374,
+    "ast_hash": "fe43d57dc9cb93dbb77dd507f783e39f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-22-part-023/b8fa1649-2aa0-45b7-a9cd-6fba86b3e0d3_model.json": {
+    "mtime": 1785590828.9661777,
+    "ast_hash": "38e68cf7340d3d9fc52485a1029a7ea7",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-22-part-023/layout.json": {
+    "mtime": 1785590828.970664,
+    "ast_hash": "8aef7634725d7d609c052bca2f19788b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-23-part-024/0ecdf9ec-142c-4621-862b-7e93dfa466d0_content_list.json": {
+    "mtime": 1785590816.1073208,
+    "ast_hash": "5fb952b5a76076abbd68c10dded77936",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-23-part-024/0ecdf9ec-142c-4621-862b-7e93dfa466d0_content_list_v2.json": {
+    "mtime": 1785590816.103825,
+    "ast_hash": "0568050f22041d1fac0aa54f1020388a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-23-part-024/0ecdf9ec-142c-4621-862b-7e93dfa466d0_model.json": {
+    "mtime": 1785590816.104841,
+    "ast_hash": "b11d0db649bb9d04cc74763ef9cae1f9",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-23-part-024/layout.json": {
+    "mtime": 1785590816.110255,
+    "ast_hash": "6d522c47b43deee19619cce517fdf35c",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-24-part-025/29c5524b-0124-41f6-91c7-179079bde0a3_content_list.json": {
+    "mtime": 1785590816.296402,
+    "ast_hash": "5a0e0966259ecadb454386c1c91a3381",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-24-part-025/29c5524b-0124-41f6-91c7-179079bde0a3_content_list_v2.json": {
+    "mtime": 1785590816.2954285,
+    "ast_hash": "fb7ce50d0460b6cf936d565434b78d6c",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-24-part-025/29c5524b-0124-41f6-91c7-179079bde0a3_model.json": {
+    "mtime": 1785590816.296402,
+    "ast_hash": "f1a0b1491713fbc98351b8f9b12d6b68",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-24-part-025/layout.json": {
+    "mtime": 1785590816.3008945,
+    "ast_hash": "b1d600e676cff02373098d75bfe17c15",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-25-part-026/7731f78c-bf71-49f4-bbbd-9707d5948017_content_list.json": {
+    "mtime": 1785590816.514282,
+    "ast_hash": "0b96c7b8906906fff3291e526b34025e",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-25-part-026/7731f78c-bf71-49f4-bbbd-9707d5948017_content_list_v2.json": {
+    "mtime": 1785590816.5175083,
+    "ast_hash": "4f8707d4768f2ba6af59b4bc25861782",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-25-part-026/7731f78c-bf71-49f4-bbbd-9707d5948017_model.json": {
+    "mtime": 1785590816.51529,
+    "ast_hash": "5c391538bd9c3b68508bc7122037f5ac",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-25-part-026/layout.json": {
+    "mtime": 1785590816.5194795,
+    "ast_hash": "052cf5756e9bc28bc6078ef155e802f3",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-26-part-027/cccfe519-6688-4828-8e2f-891aa5cdc9c7_content_list.json": {
+    "mtime": 1785590829.192781,
+    "ast_hash": "bca888999b29ce8a8eb84cad06886923",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-26-part-027/cccfe519-6688-4828-8e2f-891aa5cdc9c7_content_list_v2.json": {
+    "mtime": 1785590829.1942792,
+    "ast_hash": "785a6b3b0b5f0c8af4d39e6f1ba791d9",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-26-part-027/cccfe519-6688-4828-8e2f-891aa5cdc9c7_model.json": {
+    "mtime": 1785590829.1952531,
+    "ast_hash": "0329eb12597e2904542a6017e80c64a8",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-26-part-027/layout.json": {
+    "mtime": 1785590829.2002258,
+    "ast_hash": "fdf739e1c3ed5c8d5d9101c4a54a4997",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-27-part-028/1456f76f-93d2-4fab-aba6-b5e126cd17df_content_list.json": {
+    "mtime": 1785590829.385738,
+    "ast_hash": "eaecd57104cd3726b4a860b337262839",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-27-part-028/1456f76f-93d2-4fab-aba6-b5e126cd17df_content_list_v2.json": {
+    "mtime": 1785590829.384495,
+    "ast_hash": "abf04e83628bfaeb00901b6960926076",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-27-part-028/1456f76f-93d2-4fab-aba6-b5e126cd17df_model.json": {
+    "mtime": 1785590829.3833985,
+    "ast_hash": "6d4c59a865113d5406de5f976ab73cb6",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-27-part-028/layout.json": {
+    "mtime": 1785590829.389211,
+    "ast_hash": "57e241cbf7da17c7874ab1d87f51e024",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-28-part-029/56e300c0-6435-4fba-9648-fb1c6349774e_content_list.json": {
+    "mtime": 1785590816.758183,
+    "ast_hash": "c0912111f64164c134cdf1fb037f859b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-28-part-029/56e300c0-6435-4fba-9648-fb1c6349774e_content_list_v2.json": {
+    "mtime": 1785590816.7556882,
+    "ast_hash": "fd18c7766af2cf1bb883a342ae37dc0b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-28-part-029/56e300c0-6435-4fba-9648-fb1c6349774e_model.json": {
+    "mtime": 1785590816.7571967,
+    "ast_hash": "8dc6231f77d624e6a2b1027bd88dfb5a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-28-part-029/layout.json": {
+    "mtime": 1785590816.763321,
+    "ast_hash": "91c7ce40b8f1ffba65cd1b3e7a39df90",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-29-part-030/af37afa3-de46-4c0c-baaf-3da940d44314_content_list.json": {
+    "mtime": 1785590829.6273527,
+    "ast_hash": "7ff136d2ea83175570ba2dc03bbcf517",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-29-part-030/af37afa3-de46-4c0c-baaf-3da940d44314_content_list_v2.json": {
+    "mtime": 1785590829.6234374,
+    "ast_hash": "a8bd468b61206be21604cd06f6747a06",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-29-part-030/af37afa3-de46-4c0c-baaf-3da940d44314_model.json": {
+    "mtime": 1785590829.6224532,
+    "ast_hash": "34fdf899d45e20915184868bf644169c",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-29-part-030/layout.json": {
+    "mtime": 1785590829.6361618,
+    "ast_hash": "722af441107083d1d92b34b2c885f37f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-front-matter-part-001/3d4d2abc-62d1-443b-b515-3d6f3b650fc0_content_list.json": {
+    "mtime": 1785590816.9307868,
+    "ast_hash": "859dee011775de9f53f28de2322720a1",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-front-matter-part-001/3d4d2abc-62d1-443b-b515-3d6f3b650fc0_content_list_v2.json": {
+    "mtime": 1785590816.932981,
+    "ast_hash": "7d70e95db42e281430ce6ce00ff364e3",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-front-matter-part-001/3d4d2abc-62d1-443b-b515-3d6f3b650fc0_model.json": {
+    "mtime": 1785590816.931292,
+    "ast_hash": "79ed89cbf7666789ccec050fc80578f1",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-front-matter-part-001/layout.json": {
+    "mtime": 1785590816.932981,
+    "ast_hash": "516d9d8a323c957bb7d19897de22857b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory/chapter-index.json": {
+    "mtime": 1785591135.66999,
+    "ast_hash": "38a56bf0b7ede6ee9b33eeb52134912f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-01-part-002/a6e8097a-c874-4189-81bf-5f06b028e791_content_list.json": {
+    "mtime": 1785590740.8830025,
+    "ast_hash": "10d3edb7f54af2832ebe6f0461f97f6c",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-01-part-002/a6e8097a-c874-4189-81bf-5f06b028e791_content_list_v2.json": {
+    "mtime": 1785590740.8820295,
+    "ast_hash": "3a7df521cbbb57d18a40ef1801d9503b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-01-part-002/a6e8097a-c874-4189-81bf-5f06b028e791_model.json": {
+    "mtime": 1785590740.883976,
+    "ast_hash": "3d47800f73b0025bc00edaf26c1fbf63",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-01-part-002/layout.json": {
+    "mtime": 1785590740.8859227,
+    "ast_hash": "f98f3bad6de8765d25face7a0f6d84ec",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-02-part-003/d64e525d-8dc3-44c7-88b6-3c0b802bb906_content_list.json": {
+    "mtime": 1785590741.2389822,
+    "ast_hash": "35b2cd96c8ac6566cae67e51ababe071",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-02-part-003/d64e525d-8dc3-44c7-88b6-3c0b802bb906_content_list_v2.json": {
+    "mtime": 1785590741.237423,
+    "ast_hash": "3d19aaa4a8d7f68c735c4a8b8b449089",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-02-part-003/d64e525d-8dc3-44c7-88b6-3c0b802bb906_model.json": {
+    "mtime": 1785590741.2379358,
+    "ast_hash": "86330b3ee88f6432b9fd8cefcff76a11",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-02-part-003/layout.json": {
+    "mtime": 1785590741.242388,
+    "ast_hash": "6a470c2b3ba8c52d6936a91764277233",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-03-part-004/ee7f718b-9721-4f4c-8b8b-0d89dac08799_content_list.json": {
+    "mtime": 1785590741.5557692,
+    "ast_hash": "76930f436f0f4a96bf737550dbf15043",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-03-part-004/ee7f718b-9721-4f4c-8b8b-0d89dac08799_content_list_v2.json": {
+    "mtime": 1785590741.5583713,
+    "ast_hash": "73faf4d4f2c4221221e71b000157bc84",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-03-part-004/ee7f718b-9721-4f4c-8b8b-0d89dac08799_model.json": {
+    "mtime": 1785590741.555136,
+    "ast_hash": "443a4333c1354c32cf00335dc079b510",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-03-part-004/layout.json": {
+    "mtime": 1785590741.5595129,
+    "ast_hash": "4cb2636a463a203578ed3b5113fd61da",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-04-part-005/d26e437c-03e6-46d0-ba39-0465cce5eaf4_content_list.json": {
+    "mtime": 1785590756.384199,
+    "ast_hash": "22fd662676c25b74cd2eadfe723e9f02",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-04-part-005/d26e437c-03e6-46d0-ba39-0465cce5eaf4_content_list_v2.json": {
+    "mtime": 1785590756.386136,
+    "ast_hash": "0f975e4dbdfb179eef2ad5b0dde82421",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-04-part-005/d26e437c-03e6-46d0-ba39-0465cce5eaf4_model.json": {
+    "mtime": 1785590756.385163,
+    "ast_hash": "11d2232b45247499176ee8c413b5f17c",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-04-part-005/layout.json": {
+    "mtime": 1785590756.3876414,
+    "ast_hash": "a0b12619bd90a85cdbc070192a8e35ce",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-05-part-006/1e9d54f1-23da-434d-b136-560bf82a863e_content_list.json": {
+    "mtime": 1785590741.8922489,
+    "ast_hash": "bf9e6adc159fda2fd490d19e71317894",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-05-part-006/1e9d54f1-23da-434d-b136-560bf82a863e_content_list_v2.json": {
+    "mtime": 1785590741.889499,
+    "ast_hash": "7b9f37e6602c6a3c829216c6620b6d25",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-05-part-006/1e9d54f1-23da-434d-b136-560bf82a863e_model.json": {
+    "mtime": 1785590741.8900456,
+    "ast_hash": "c5c54fe6950d393445db2490913f8143",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-05-part-006/layout.json": {
+    "mtime": 1785590741.8912344,
+    "ast_hash": "23e9d4bcfad59423b735c87440437242",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-06-part-007/50c5fa59-8913-45c9-a72e-5abb99cffae5_content_list.json": {
+    "mtime": 1785590756.6336937,
+    "ast_hash": "b989ce460ada765c3527750d100e07e1",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-06-part-007/50c5fa59-8913-45c9-a72e-5abb99cffae5_content_list_v2.json": {
+    "mtime": 1785590756.6330018,
+    "ast_hash": "896049623aed1455cf39addc5cb4bff6",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-06-part-007/50c5fa59-8913-45c9-a72e-5abb99cffae5_model.json": {
+    "mtime": 1785590756.636699,
+    "ast_hash": "304326083d5d8c3496702a03a75d8ddf",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-06-part-007/layout.json": {
+    "mtime": 1785590756.6357174,
+    "ast_hash": "afcc97d83ef39c8f061026e94f972073",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-07-part-008/daa33a71-a904-4105-9874-f454847d1db8_content_list.json": {
+    "mtime": 1785590742.121692,
+    "ast_hash": "b39e19caa7be0d301a82c92faca9f145",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-07-part-008/daa33a71-a904-4105-9874-f454847d1db8_content_list_v2.json": {
+    "mtime": 1785590742.1226695,
+    "ast_hash": "053b6e7aadf85761e56a9c514901eeee",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-07-part-008/daa33a71-a904-4105-9874-f454847d1db8_model.json": {
+    "mtime": 1785590742.121692,
+    "ast_hash": "9b11d8646007a69f7e2350d383d7a315",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-07-part-008/layout.json": {
+    "mtime": 1785590742.1236422,
+    "ast_hash": "32d63dfb59f5365dbcc29157108563ad",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-08-part-009/58d918a4-aff6-4725-8241-8dfb107a69d8_content_list.json": {
+    "mtime": 1785590742.6655738,
+    "ast_hash": "d8007a9f373ba8df2502f6334c48fad1",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-08-part-009/58d918a4-aff6-4725-8241-8dfb107a69d8_content_list_v2.json": {
+    "mtime": 1785590742.6660788,
+    "ast_hash": "ef73db852c77e11ffffde343cb6f9542",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-08-part-009/58d918a4-aff6-4725-8241-8dfb107a69d8_model.json": {
+    "mtime": 1785590742.6665921,
+    "ast_hash": "443d7bc4ce15b2e09f7d5c78122fad11",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-08-part-009/layout.json": {
+    "mtime": 1785590742.6676774,
+    "ast_hash": "eaabb685c280d0d5e3a9df5e9de12c25",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-09-part-010/6cb4cfd6-ea7d-4bb3-892a-6e8735624d67_content_list.json": {
+    "mtime": 1785590742.9391744,
+    "ast_hash": "c4f36c95a072f95d9506796fa7465c4c",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-09-part-010/6cb4cfd6-ea7d-4bb3-892a-6e8735624d67_content_list_v2.json": {
+    "mtime": 1785590742.940817,
+    "ast_hash": "da39386669ab5d8be6270f10d2cf862d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-09-part-010/6cb4cfd6-ea7d-4bb3-892a-6e8735624d67_model.json": {
+    "mtime": 1785590742.9386694,
+    "ast_hash": "aca7a5b928fbeb7c9e372905986b7fb0",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-09-part-010/layout.json": {
+    "mtime": 1785590742.9403126,
+    "ast_hash": "cfdf8fdaa392aeb32b78dcb91ff2e9e5",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-10-part-011/05e6e61e-d67e-42c1-8e37-63aafdbfb5c5_content_list.json": {
+    "mtime": 1785590743.4645042,
+    "ast_hash": "8acb8f9620ca78d0313ed5a8fdef4ddd",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-10-part-011/05e6e61e-d67e-42c1-8e37-63aafdbfb5c5_content_list_v2.json": {
+    "mtime": 1785590743.4675426,
+    "ast_hash": "539f94577fea16b8b2b457f5692a4a29",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-10-part-011/05e6e61e-d67e-42c1-8e37-63aafdbfb5c5_model.json": {
+    "mtime": 1785590743.4645042,
+    "ast_hash": "b6419c03420bf714263b0e0c923d2d92",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-10-part-011/layout.json": {
+    "mtime": 1785590743.4675426,
+    "ast_hash": "8395428531ac898476ef579e34fc4925",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-11-part-012/09b8aa01-55c2-4f13-b8ef-ac210620def5_content_list.json": {
+    "mtime": 1785590756.8775382,
+    "ast_hash": "fcbd094a0ebd7523739eb29a730de75c",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-11-part-012/09b8aa01-55c2-4f13-b8ef-ac210620def5_content_list_v2.json": {
+    "mtime": 1785590756.8792467,
+    "ast_hash": "25263adb185341ec46e514c9e4ddd4fc",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-11-part-012/09b8aa01-55c2-4f13-b8ef-ac210620def5_model.json": {
+    "mtime": 1785590756.876533,
+    "ast_hash": "15d9843c99c81dffeb550bef6d7caed2",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-11-part-012/layout.json": {
+    "mtime": 1785590756.8792467,
+    "ast_hash": "1494475f9197cc24ff1628513f1de7a3",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-12-part-013/76ae3175-1997-4547-bd4e-40f637b1da27_content_list.json": {
+    "mtime": 1785590757.2342205,
+    "ast_hash": "ef34ffd58df9a01af0fd6859513f91bc",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-12-part-013/76ae3175-1997-4547-bd4e-40f637b1da27_content_list_v2.json": {
+    "mtime": 1785590757.2313025,
+    "ast_hash": "40663df917bba0e88c2bffd9ef0a1108",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-12-part-013/76ae3175-1997-4547-bd4e-40f637b1da27_model.json": {
+    "mtime": 1785590757.2313025,
+    "ast_hash": "b77ba344d65451595aebb99b922b1a40",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-12-part-013/layout.json": {
+    "mtime": 1785590757.2361672,
+    "ast_hash": "968ad8d5f20b765c4d8b2f29b2e9fecc",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-13-part-014/47c32fc5-b739-4a66-b793-ee78ab607938_content_list.json": {
+    "mtime": 1785590743.751788,
+    "ast_hash": "b9b268625b780042ce3b96c571d6dce4",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-13-part-014/47c32fc5-b739-4a66-b793-ee78ab607938_content_list_v2.json": {
+    "mtime": 1785590743.7493236,
+    "ast_hash": "35bc63e2346d44e6670b864918d2722b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-13-part-014/47c32fc5-b739-4a66-b793-ee78ab607938_model.json": {
+    "mtime": 1785590743.7493236,
+    "ast_hash": "aad5d709fb7eebcb5889b4ee3416e4a8",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-13-part-014/layout.json": {
+    "mtime": 1785590743.7527716,
+    "ast_hash": "140d9ffda16b01045082856ebb7cb086",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-14-part-015/83f32a7a-e6f1-4912-aacf-6f4dee1a8740_content_list.json": {
+    "mtime": 1785590744.1472545,
+    "ast_hash": "5c2d5cc033e26ecfd4a7af606c9b8f87",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-14-part-015/83f32a7a-e6f1-4912-aacf-6f4dee1a8740_content_list_v2.json": {
+    "mtime": 1785590744.144777,
+    "ast_hash": "20b726da2490a952547c581c71d08d84",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-14-part-015/83f32a7a-e6f1-4912-aacf-6f4dee1a8740_model.json": {
+    "mtime": 1785590744.1438146,
+    "ast_hash": "512586ecb6414b404db7aa9a4fe13b04",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-14-part-015/layout.json": {
+    "mtime": 1785590744.1472545,
+    "ast_hash": "e15b76ade9cb7ae0667366b70bf6b621",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-15-part-016/0668f9bc-bde8-4306-914c-c0637e1c5dea_content_list.json": {
+    "mtime": 1785590744.4858708,
+    "ast_hash": "f9a789f6db7f5efee898b8317c8ebb64",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-15-part-016/0668f9bc-bde8-4306-914c-c0637e1c5dea_content_list_v2.json": {
+    "mtime": 1785590744.4879215,
+    "ast_hash": "5a5176545919b5293ae5e6d7e8c4cbd3",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-15-part-016/0668f9bc-bde8-4306-914c-c0637e1c5dea_model.json": {
+    "mtime": 1785590744.4873984,
+    "ast_hash": "55a348bb178a9414d17fa3456a9fa365",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-15-part-016/layout.json": {
+    "mtime": 1785590744.4884648,
+    "ast_hash": "fa4e013b21447857ac8aa5b30b9e8d67",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-16-part-017/2999fe75-9f9c-4f68-81a8-d37f7e74e186_content_list.json": {
+    "mtime": 1785590757.9478924,
+    "ast_hash": "71b4086722a7d3201fdc214859c0b1ad",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-16-part-017/2999fe75-9f9c-4f68-81a8-d37f7e74e186_content_list_v2.json": {
+    "mtime": 1785590757.9473772,
+    "ast_hash": "fdbe3ef31377b3dd294c5cb28a728114",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-16-part-017/2999fe75-9f9c-4f68-81a8-d37f7e74e186_model.json": {
+    "mtime": 1785590757.946864,
+    "ast_hash": "9e9861d814ffaf6afe12f1d725a8288c",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-16-part-017/layout.json": {
+    "mtime": 1785590757.9503376,
+    "ast_hash": "07889240c39a2507a9ee0c8d466f9d79",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-17-part-018/de8a0ef0-7d43-428c-88d9-27b55cba321e_content_list.json": {
+    "mtime": 1785590744.7065437,
+    "ast_hash": "63aff0e4e278bfddbad82922916629e4",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-17-part-018/de8a0ef0-7d43-428c-88d9-27b55cba321e_content_list_v2.json": {
+    "mtime": 1785590744.706369,
+    "ast_hash": "e3da023188231dbfa6fa992c7e6c1ee1",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-17-part-018/de8a0ef0-7d43-428c-88d9-27b55cba321e_model.json": {
+    "mtime": 1785590744.707049,
+    "ast_hash": "f8de434a4fa385d81d14b6cff701f687",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-17-part-018/layout.json": {
+    "mtime": 1785590744.7086017,
+    "ast_hash": "de99d76f9621aa377d6b04c5e1866306",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-18-part-019/f1bc44f6-6da2-4dc8-b697-0af4de1719ec_content_list.json": {
+    "mtime": 1785590744.9916148,
+    "ast_hash": "f33a53a3d868b70ad3bc3cecf5facf2b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-18-part-019/f1bc44f6-6da2-4dc8-b697-0af4de1719ec_content_list_v2.json": {
+    "mtime": 1785590744.990651,
+    "ast_hash": "4f76b95b21ce3fbfc00dc3f1e0310270",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-18-part-019/f1bc44f6-6da2-4dc8-b697-0af4de1719ec_model.json": {
+    "mtime": 1785590744.9916148,
+    "ast_hash": "3df93219843bb4947d2ae0af050b9c99",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-18-part-019/layout.json": {
+    "mtime": 1785590744.9926035,
+    "ast_hash": "3b4fed0034c8db8c5db707845b441d8f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-19-part-020/8af3b6ad-b572-48ac-8d85-1f760e85bc61_content_list.json": {
+    "mtime": 1785590758.3393466,
+    "ast_hash": "8bcfa778c39a674d208f6d274fdc670b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-19-part-020/8af3b6ad-b572-48ac-8d85-1f760e85bc61_content_list_v2.json": {
+    "mtime": 1785590758.3363256,
+    "ast_hash": "0d194b7fdcbf22af9fe681927a312186",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-19-part-020/8af3b6ad-b572-48ac-8d85-1f760e85bc61_model.json": {
+    "mtime": 1785590758.3373985,
+    "ast_hash": "cc06907b386b79fbe2e3b2a72de76516",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-19-part-020/layout.json": {
+    "mtime": 1785590758.3412952,
+    "ast_hash": "0a2287bc069ff0742658648f1b0c7cad",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-20-part-021/69301628-41bc-4fd3-bd77-67c0a3629d62_content_list.json": {
+    "mtime": 1785590758.625645,
+    "ast_hash": "6553a9d880632910de7f359589e67cd8",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-20-part-021/69301628-41bc-4fd3-bd77-67c0a3629d62_content_list_v2.json": {
+    "mtime": 1785590758.625645,
+    "ast_hash": "9f279e430692bfbc9dce9135722b95f9",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-20-part-021/69301628-41bc-4fd3-bd77-67c0a3629d62_model.json": {
+    "mtime": 1785590758.6231782,
+    "ast_hash": "2c9caedc77bac8aecf92488ffe7c25b0",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-20-part-021/layout.json": {
+    "mtime": 1785590758.627624,
+    "ast_hash": "ff94827b8c3cf27e30c30bf3f2ce176a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-21-part-022/588288e8-83be-4348-9c05-9353785cdd63_content_list.json": {
+    "mtime": 1785590759.0119908,
+    "ast_hash": "99e8f4a01b3d6c7419c3c9173cb3aa3b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-21-part-022/588288e8-83be-4348-9c05-9353785cdd63_content_list_v2.json": {
+    "mtime": 1785590759.012964,
+    "ast_hash": "969e656d46cadc20a84ab891217b80a5",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-21-part-022/588288e8-83be-4348-9c05-9353785cdd63_model.json": {
+    "mtime": 1785590759.0164409,
+    "ast_hash": "4b869d98d83103d037ac3481b70dea9d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-21-part-022/layout.json": {
+    "mtime": 1785590759.019441,
+    "ast_hash": "db44a9d8be83d927b38a5f82852c99df",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-22-part-023/62fa128c-6876-41f6-b328-abe4d5e38b99_content_list.json": {
+    "mtime": 1785590759.6998048,
+    "ast_hash": "2af41c9dd53d1fd5946bbb9ae7ed1404",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-22-part-023/62fa128c-6876-41f6-b328-abe4d5e38b99_content_list_v2.json": {
+    "mtime": 1785590759.6992717,
+    "ast_hash": "d409d5c748dd071cc1d1d75c44563d54",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-22-part-023/62fa128c-6876-41f6-b328-abe4d5e38b99_model.json": {
+    "mtime": 1785590759.7022767,
+    "ast_hash": "58b8ac4ea02f9e7be07253445b77a86f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-22-part-023/layout.json": {
+    "mtime": 1785590759.7042234,
+    "ast_hash": "6a69ca07666f9c49d45bd684abd6ff78",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-23-part-024/8971cc59-3f99-453d-8d87-f26a9d4b7b25_content_list.json": {
+    "mtime": 1785590760.0145183,
+    "ast_hash": "fb80bad3abf6290329baed7571b146e8",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-23-part-024/8971cc59-3f99-453d-8d87-f26a9d4b7b25_content_list_v2.json": {
+    "mtime": 1785590760.0160415,
+    "ast_hash": "0a14894281c3227dec486a3487e56c97",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-23-part-024/8971cc59-3f99-453d-8d87-f26a9d4b7b25_model.json": {
+    "mtime": 1785590760.02248,
+    "ast_hash": "6eb90ea92cacf224815abac9a3856840",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-23-part-024/layout.json": {
+    "mtime": 1785590760.0213437,
+    "ast_hash": "63cd29827cb47c70bdc49775734812eb",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-24-part-025/002c447f-f712-437d-89d4-38b3425b4eb4_content_list.json": {
+    "mtime": 1785590745.2338717,
+    "ast_hash": "de77bc8232dea03ed90207840157ae71",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-24-part-025/002c447f-f712-437d-89d4-38b3425b4eb4_content_list_v2.json": {
+    "mtime": 1785590745.2353594,
+    "ast_hash": "846089f06e770771c1ece65d9fff28d8",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-24-part-025/002c447f-f712-437d-89d4-38b3425b4eb4_model.json": {
+    "mtime": 1785590745.234377,
+    "ast_hash": "fc9bf719e2bf3e6bfe8da5908967c49a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-24-part-025/layout.json": {
+    "mtime": 1785590745.2374516,
+    "ast_hash": "b9896468a07c388e5486c927dd8a7c1b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-25-part-026/c6162742-f73e-4094-a347-596f73457809_content_list.json": {
+    "mtime": 1785590745.8112502,
+    "ast_hash": "508856329ea2120f441a088c864ad0dd",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-25-part-026/c6162742-f73e-4094-a347-596f73457809_content_list_v2.json": {
+    "mtime": 1785590745.810276,
+    "ast_hash": "bf0cc58060c755fce98e06534f40babc",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-25-part-026/c6162742-f73e-4094-a347-596f73457809_model.json": {
+    "mtime": 1785590745.809301,
+    "ast_hash": "e24e8012828aea133d933801b26bc30a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-25-part-026/layout.json": {
+    "mtime": 1785590745.813196,
+    "ast_hash": "7cdf30b3ea0114026818cbdebaffc6f4",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-26-part-027/07000db0-b414-452c-8b32-a4f66df8b8b7_content_list.json": {
+    "mtime": 1785590760.3233068,
+    "ast_hash": "8420e1ce30eaf49a5772ce8cf51dcb85",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-26-part-027/07000db0-b414-452c-8b32-a4f66df8b8b7_content_list_v2.json": {
+    "mtime": 1785590760.3203778,
+    "ast_hash": "8cc5d1d333ceef78705fd1f530a1b9ac",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-26-part-027/07000db0-b414-452c-8b32-a4f66df8b8b7_model.json": {
+    "mtime": 1785590760.3213513,
+    "ast_hash": "d3a60fd21175e31a5546fc0fd89dade4",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-26-part-027/layout.json": {
+    "mtime": 1785590760.3253865,
+    "ast_hash": "6a4a3b79250005f693f32951958bc722",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-27-part-028/e3fa46bc-8bc9-4703-93c8-77d3699263c2_content_list.json": {
+    "mtime": 1785590760.8014104,
+    "ast_hash": "2271361357beab3d3ad03817aad37624",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-27-part-028/e3fa46bc-8bc9-4703-93c8-77d3699263c2_content_list_v2.json": {
+    "mtime": 1785590760.803357,
+    "ast_hash": "6bd8fbfa4df44f5fc2506cbf83d78a59",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-27-part-028/e3fa46bc-8bc9-4703-93c8-77d3699263c2_model.json": {
+    "mtime": 1785590760.8014104,
+    "ast_hash": "ea12a6bbc2a6296dc3dcf0418b650449",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-27-part-028/layout.json": {
+    "mtime": 1785590760.8072932,
+    "ast_hash": "ac2211856dc459d9f082009e0bb4ef7b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-28-part-029/4fdbed38-e15f-48e5-8988-4134cd1e0da1_content_list.json": {
+    "mtime": 1785590746.0518053,
+    "ast_hash": "7840689d864ab0265fcb56c396578604",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-28-part-029/4fdbed38-e15f-48e5-8988-4134cd1e0da1_content_list_v2.json": {
+    "mtime": 1785590746.0529788,
+    "ast_hash": "6a4bee16bc8d349e3db391cb7c34610e",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-28-part-029/4fdbed38-e15f-48e5-8988-4134cd1e0da1_model.json": {
+    "mtime": 1785590746.053957,
+    "ast_hash": "c943663b806ae682e6b0c4f887f39eb2",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-28-part-029/layout.json": {
+    "mtime": 1785590746.0559037,
+    "ast_hash": "1c80b417ae02d7959c4138b28dd9ec33",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-29-part-030/36221da9-e9ab-4389-a44c-5470f931c562_content_list.json": {
+    "mtime": 1785590761.4911296,
+    "ast_hash": "88def50d344b14a3ce7ccaaf96933e9b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-29-part-030/36221da9-e9ab-4389-a44c-5470f931c562_content_list_v2.json": {
+    "mtime": 1785590761.4985507,
+    "ast_hash": "503f24a5471fc752c09d03d1195c9f5b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-29-part-030/36221da9-e9ab-4389-a44c-5470f931c562_model.json": {
+    "mtime": 1785590761.4900134,
+    "ast_hash": "3206e0817b89c0e5a8604809225609ab",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-29-part-030/layout.json": {
+    "mtime": 1785590761.4975748,
+    "ast_hash": "b92259e1e1d13eca97f30c0880de8090",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-30-part-031/9cfd72e8-9aae-4587-9dd5-ba97319ee922_content_list.json": {
+    "mtime": 1785590762.1676178,
+    "ast_hash": "0a78ba8b515b0cc9957bf8cb4edff759",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-30-part-031/9cfd72e8-9aae-4587-9dd5-ba97319ee922_content_list_v2.json": {
+    "mtime": 1785590762.1666124,
+    "ast_hash": "8ca0466500dc876626e37917d693a121",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-30-part-031/9cfd72e8-9aae-4587-9dd5-ba97319ee922_model.json": {
+    "mtime": 1785590762.1691468,
+    "ast_hash": "06b89844aa05b6366b708e8ecac9c1e4",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-30-part-031/layout.json": {
+    "mtime": 1785590762.1804101,
+    "ast_hash": "d5ec8d783c2686f578725352618ee552",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-front-matter-part-001/658521f2-af95-4867-b238-e26edde8bf3b_content_list.json": {
+    "mtime": 1785590762.3376853,
+    "ast_hash": "bbb017c97a095c20355ee6b0b8311b15",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-front-matter-part-001/658521f2-af95-4867-b238-e26edde8bf3b_content_list_v2.json": {
+    "mtime": 1785590762.3392777,
+    "ast_hash": "b69c04984572db121810d9585d86a6d8",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-front-matter-part-001/658521f2-af95-4867-b238-e26edde8bf3b_model.json": {
+    "mtime": 1785590762.3382304,
+    "ast_hash": "d71fbf3301a150d097aa28e92907fbd9",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-front-matter-part-001/layout.json": {
+    "mtime": 1785590762.3403578,
+    "ast_hash": "895b535900edd6e02399689a0c0a782d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms/chapter-index.json": {
+    "mtime": 1785591132.3500395,
+    "ast_hash": "df06e2d302d808486eb4a49b979f0b60",
+    "semantic_hash": ""
+  },
+  "raw/canonical/core-books-quality.json": {
+    "mtime": 1785591142.2720547,
+    "ast_hash": "578e89bba680f51d43a78285471e2a81",
+    "semantic_hash": ""
+  },
+  "work/core-books/algorithmic-game-theory/part-manifest.json": {
+    "mtime": 1785591129.8200545,
+    "ast_hash": "7c0e9e68f0b244a5e4ce401a74322732",
+    "semantic_hash": ""
+  },
+  "work/core-books/approximation-algorithms/part-manifest.json": {
+    "mtime": 1785591129.8128307,
+    "ast_hash": "fc751c3f18293d45c52b4a82206b2b99",
+    "semantic_hash": ""
+  },
+  "evals/README.md": {
+    "mtime": 1785587151.3650386,
+    "ast_hash": "df378207dee93dbefc40132020a547ca",
+    "semantic_hash": ""
+  },
+  "evals/answers/REVIEW.md": {
+    "mtime": 1785587136.7361393,
+    "ast_hash": "77a26dd709f2cc7e29347843a5222c2d",
+    "semantic_hash": ""
+  },
+  "evals/answers/novelty-dwpt-ev-scheduling.md": {
+    "mtime": 1785586775.8797376,
+    "ast_hash": "1172091bd88733799ecf88707f8cd4b9",
+    "semantic_hash": ""
+  },
+  "evals/answers/novelty-joint-placement-online-interference.md": {
+    "mtime": 1785586775.880711,
+    "ast_hash": "f226a02326eb8df4233ce00c4bf166fc",
+    "semantic_hash": ""
+  },
+  "evals/answers/novelty-mobile-partial-deadline.md": {
+    "mtime": 1785586775.880711,
+    "ast_hash": "dc91e275c0afce07afd89eea4328a8f3",
+    "semantic_hash": ""
+  },
+  "evals/answers/relation-additive-vs-interference.md": {
+    "mtime": 1785586775.8816843,
+    "ast_hash": "796ddabc9d8c341bd1b743c4bac27894",
+    "semantic_hash": ""
+  },
+  "evals/answers/relation-gain-tide.md": {
+    "mtime": 1785586775.8816843,
+    "ast_hash": "f3c9d0117b91ba12ff55b390d2be2e3d",
+    "semantic_hash": ""
+  },
+  "evals/answers/solve-interference-switching.md": {
+    "mtime": 1785586775.882658,
+    "ast_hash": "70171d4e85b98a18e720e1a9d7a31af5",
+    "semantic_hash": ""
+  },
+  "evals/answers/solve-mobile-known-trajectory.md": {
+    "mtime": 1785586775.882658,
+    "ast_hash": "7664ec6fc73b733a51a5b951fa2b1650",
+    "semantic_hash": ""
+  },
+  "evals/answers/solve-online-directional-requests.md": {
+    "mtime": 1785586775.882658,
+    "ast_hash": "5cb191a3b20c385780711041e730cfd5",
+    "semantic_hash": ""
+  },
+  "evals/answers/solve-paid-cooperative-service.md": {
+    "mtime": 1785586775.882658,
+    "ast_hash": "0fae3031bbca369f78445ac827025446",
+    "semantic_hash": ""
+  },
+  "evals/answers/solve-peak-aoi.md": {
+    "mtime": 1785586775.8914697,
+    "ast_hash": "435e74b61cbf85203eb13e11320c7970",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260714_121411_\u7406\u89e3\u5f53\u524d\u9879\u76ee\u4ee5\u53ca\u67b6\u6784\u7136\u540e\u5199\u51fa\u67b6\u6784\u6587\u6863.md": {
+    "mtime": 1784031251.5039344,
+    "ast_hash": "4f646e06d9c03c66c76a31068f8a43fb",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260714_123009_\u63a5\u5165_mineru_api_\u628a\u672c\u5730_pdf_\u81ea\u52a8\u89e3\u6790\u6210_markdown.md": {
+    "mtime": 1784032209.9620519,
+    "ast_hash": "8229489aafa8eb236bebd21312dcef1d",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260714_124905_\u589e\u52a0\u80fd\u591f\u4ece_arxiv_\u7b49\u6765\u6e90\u81ea\u52a8\u641c\u7d22\u76f8\u5173\u9886\u57df\u8bba\u6587\u7684\u529f\u80fd.md": {
+    "mtime": 1784033345.2578945,
+    "ast_hash": "c93bd104b5bc3fc96517127ccf2f208c",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260714_134137_\u6211\u65b0\u589e\u7684key\u6dfb\u52a0\u8fdb\u53bb\u641c\u7d22\u6e90_openalex\u7684apikey\u4e5f\u6dfb\u52a0\u8fdb\u53bb\u4e86_google_schola.md": {
+    "mtime": 1784036497.6229825,
+    "ast_hash": "a69799b7a83f008bcebdcd4c5301287a",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260714_134813_\u5bf9\u5f53\u524d\u7684\u7ed3\u6784\u8fdb\u884c\u7406\u89e3\u5e76\u4e14\u8bf4\u660e\u5176\u4f18\u70b9\u548c\u7f3a\u70b9_\u56e0\u4e3a\u6211\u5e0c\u671b\u80fd\u505a\u6210llm_wiki_\u540c\u65f6\u9700\u8981\u5bf9\u5f53\u524d\u53d1\u73b0\u6587\u732e\u505a.md": {
+    "mtime": 1784036893.033817,
+    "ast_hash": "4f0435e8571ba254cf48cd34d8e9cf7e",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260714_144043_\u4f18\u5316\u8fd9\u4e9b\u7f3a\u70b9_\u540c\u65f6\u4f18\u5316llmwiki\u7684\u7ed3\u6784.md": {
+    "mtime": 1784040043.8456664,
+    "ast_hash": "7c8e8aeb200edd7eefcded150cf22873",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260714_145156_\u751f\u6210\u5feb\u6377\u65b9\u5f0f\u7528\u4e8e\u542f\u52a8\u8fd9\u4e2a\u7a0b\u5e8f.md": {
+    "mtime": 1784040716.0815797,
+    "ast_hash": "68fb34879f37950836f823df5f597eae",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260714_145439_\u9488\u5bf9\u73b0\u5728\u8fd9\u4e2a\u4e2a\u4eba\u77e5\u8bc6\u5e93\u91c7\u7528llmwiki_\u4f60\u6709\u4ec0\u4e48\u5efa\u8bae\u5417.md": {
+    "mtime": 1784040879.553728,
+    "ast_hash": "fb4bb77dda07eecaf907806783ad5a25",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260714_151728_\u73b0\u5728\u5f00\u59cb\u5b8c\u6210\u4e0a\u9762\u7684.md": {
+    "mtime": 1784042248.4163752,
+    "ast_hash": "604ead8c325420e69d69daf396d23ba9",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260714_154128_\u8fd9\u4e24\u4ef6\u4e8b\u4ea4\u7ed9\u4f60_\u540c\u65f6\u6211\u53d1\u73b0\u53ef\u4ee5\u5229\u7528\u8bba\u6587\u7684\u5173\u952e\u8bcd\u6765\u6269\u5c55\u77e5\u8bc6\u5e93\u4f5c\u4e3a\u9886\u57df\u7684\u5173\u952e\u8bcd.md": {
+    "mtime": 1784043688.6831808,
+    "ast_hash": "d5515b37af652b17deca6330f8002c14",
+    "semantic_hash": ""
+  },
+  "graphify-out/memory/query_20260714_154748_\u4f60\u4e3a\u4ec0\u4e48\u6ca1\u7528mineru.md": {
+    "mtime": 1784044068.671084,
+    "ast_hash": "7d330329b9b5f539a4495762eeddaa5b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_on_the_Move_Scheduling_Static_Chargers_with_Tunable_Power_for_Mobile_Devices.pdf-b04f915c-4c38-444c-8103-1c9d81579ab7/Charging_on_the_Move_Scheduling_Static_Chargers_with_Tunable_Power_for_Mobile_.md": {
+    "mtime": 1783617665.9154892,
+    "ast_hash": "22aa6cb12ba72d640e90801a2bc05e41",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Cooperative_Charging_as_Service_Scheduling_for_Mobile_Wireless_Rechargeable_Sensor_Networks.pdf-8bd73c94-27f3-4b2a-aafb-4d318e567433/Cooperative_Charging_as_Service_Scheduling_for_Mobile_Wireless_Rechargea.md": {
+    "mtime": 1783617672.3020737,
+    "ast_hash": "e3cb8a62233719c767c3af8892b18585",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Infinite_Drive_Optimal_Urban_Location_of_Dynamic_Wireless_Charging_at_Signalized_Intersections/full.md": {
+    "mtime": 1785586275.0134537,
+    "ast_hash": "228d82cad393ad7ddd8c7d50a1287f5c",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Minimizing_the_energy_depletion_in_wireless_rechargeable_sensor_networks_using_bi-level_metaheur/full.md": {
+    "mtime": 1785586275.0228333,
+    "ast_hash": "fa8582661861ead02da8a8125bd5213e",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Peak_AoI_Minimization_at_Wireless-Powered_Network_Edge_From_the_Perspective_of_Both_Charging_and_Transmitting.pdf-a84be74f-fb17-427c-9f09-73ff009d6e42/Peak_AoI_Minimization_at_Wireless-Powered_Network_Edge.md": {
+    "mtime": 1783617678.698202,
+    "ast_hash": "d12337ed3c45d17a98a085b15bd0eeb1",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Placing_Wireless_Chargers_With_Multiple_Antennas.pdf-bafca2d9-e008-4ed3-9747-5a6b9783c669/Placing_Wireless_Chargers_With_Multiple_Antennas.md": {
+    "mtime": 1783617536.8296947,
+    "ast_hash": "e9ea3c50659b156e779446535e80a0b7",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Planning_dynamic_wireless_charging_infrastructure_for_battery_electric_bus_systems_with_the_join/full.md": {
+    "mtime": 1785586275.035529,
+    "ast_hash": "aabde701b0a0dec5db61e0f41d66a945",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-01-part-002/full.md": {
+    "mtime": 1785590813.4663215,
+    "ast_hash": "dcf443bbb062967e7f53ab267e9d5988",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-02-part-003/full.md": {
+    "mtime": 1785590803.1174562,
+    "ast_hash": "df2a1af01322ba09281f775548fa746b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-03-part-004/full.md": {
+    "mtime": 1785590813.741568,
+    "ast_hash": "18a90cbd05ebd6e25aa862f20eaa51e5",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-04-part-005/full.md": {
+    "mtime": 1785590827.2882721,
+    "ast_hash": "35ca6406db3a4727f232135111a9cd10",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-05-part-006/full.md": {
+    "mtime": 1785590840.4145625,
+    "ast_hash": "a09ed9b44190ace7570c833d3d8d9fdb",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-06-part-007/full.md": {
+    "mtime": 1785590827.5401928,
+    "ast_hash": "1f0bac6828c92ccfc20276781f817c56",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-07-part-008/full.md": {
+    "mtime": 1785590813.9754436,
+    "ast_hash": "5fd12c2497a6c88c8969d163b8c435c1",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-08-part-009/full.md": {
+    "mtime": 1785590814.1777508,
+    "ast_hash": "2dd32e9afb4c3800c94a32bbf7303eca",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-09-part-010/full.md": {
+    "mtime": 1785590827.7554338,
+    "ast_hash": "2dc44aabfb3f257c469a4bea4b5ed671",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-10-part-011/full.md": {
+    "mtime": 1785590827.9875152,
+    "ast_hash": "520f665e23c837ac77b61b8e71160aa3",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-11-part-012/full.md": {
+    "mtime": 1785590840.7939408,
+    "ast_hash": "5eafa0e05f42c6353eb0013d4b2e7f28",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-12-part-013/full.md": {
+    "mtime": 1785590828.2792997,
+    "ast_hash": "606f501c281999929771cc40ab3bc4c4",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-13-part-014/full.md": {
+    "mtime": 1785590828.5236273,
+    "ast_hash": "ba24b54370f9dbf7d2c9129d9d66cf3a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-14-part-015/full.md": {
+    "mtime": 1785590814.3878188,
+    "ast_hash": "0b23449a75054516c4c765410f0746ae",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-15-part-016/full.md": {
+    "mtime": 1785590828.7652667,
+    "ast_hash": "63c08d5b826eddf9023f4ef94c75ace0",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-16-part-017/full.md": {
+    "mtime": 1785590814.7193396,
+    "ast_hash": "d0cea6e1afc8975631258a4309185d7f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-17-part-018/full.md": {
+    "mtime": 1785590814.902629,
+    "ast_hash": "70213c97f473de0bf2c53f852e702a25",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-18-part-019/full.md": {
+    "mtime": 1785590815.1351573,
+    "ast_hash": "c107d61f8c88f78cae08fd62b0448c08",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-19-part-020/full.md": {
+    "mtime": 1785590815.3762617,
+    "ast_hash": "63d28a771d9372e8d0183053463221d6",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-20-part-021/full.md": {
+    "mtime": 1785590815.6545296,
+    "ast_hash": "488ea0046b762c401a240c6e00e2e1c5",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-21-part-022/full.md": {
+    "mtime": 1785590815.932973,
+    "ast_hash": "097f0d316db34ce4e27d1742f3b9426e",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-22-part-023/full.md": {
+    "mtime": 1785590829.0104134,
+    "ast_hash": "a1846c0a093dbce8ed4f86f99bd48595",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-23-part-024/full.md": {
+    "mtime": 1785590816.1284044,
+    "ast_hash": "74ecc017c10f2bfd44920a1ec541bead",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-24-part-025/full.md": {
+    "mtime": 1785590816.3216512,
+    "ast_hash": "39738e68c1725e0be19678da58d85ab1",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-25-part-026/full.md": {
+    "mtime": 1785590816.54308,
+    "ast_hash": "9d40e83907452eeee96b8ba76e9c628f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-26-part-027/full.md": {
+    "mtime": 1785590829.2203991,
+    "ast_hash": "8a34be34f3b52698102dba4df9297238",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-27-part-028/full.md": {
+    "mtime": 1785590829.4099865,
+    "ast_hash": "4ce2d6d957e9bf0d9c426303593e0c12",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-28-part-029/full.md": {
+    "mtime": 1785590816.7918234,
+    "ast_hash": "99bb370e9657614fc2ca8dec33de91e6",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-ch-29-part-030/full.md": {
+    "mtime": 1785590829.6623943,
+    "ast_hash": "868372bce57dd081fc6ff536c0781c5f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/algorithmic-game-theory-front-matter-part-001/full.md": {
+    "mtime": 1785590816.9430425,
+    "ast_hash": "bf4edd414d0d5c641067a8023c7434ea",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-01-part-002/full.md": {
+    "mtime": 1785590740.9045243,
+    "ast_hash": "b4cc82e36339139c02cc829c9bff5f80",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-02-part-003/full.md": {
+    "mtime": 1785590741.2605784,
+    "ast_hash": "e325f7057b84eb2129e2bbc0a5f644e1",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-03-part-004/full.md": {
+    "mtime": 1785590741.5807858,
+    "ast_hash": "91c7f446b4eb8f777ea7d849b6dd3544",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-04-part-005/full.md": {
+    "mtime": 1785590756.4077039,
+    "ast_hash": "9e558bacdc80bacf106a666c44c04124",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-05-part-006/full.md": {
+    "mtime": 1785590741.9074917,
+    "ast_hash": "4310253f7ce30009f31124c4215def7f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-06-part-007/full.md": {
+    "mtime": 1785590756.6563382,
+    "ast_hash": "67729dd6d8b3f8be8ea0eed99adbad56",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-07-part-008/full.md": {
+    "mtime": 1785590742.149534,
+    "ast_hash": "73905cd98365e0f298fcc0e42bd633b8",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-08-part-009/full.md": {
+    "mtime": 1785590742.6849265,
+    "ast_hash": "cf89f9da4e83025ffa444cc0bdcfc23a",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-09-part-010/full.md": {
+    "mtime": 1785590742.9549036,
+    "ast_hash": "5cd5803c4f7e1746b0ceb90119a067da",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-10-part-011/full.md": {
+    "mtime": 1785590743.484217,
+    "ast_hash": "37ce099a577bf90e1ee4d67958562b55",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-11-part-012/full.md": {
+    "mtime": 1785590756.894534,
+    "ast_hash": "b1adc1105ad8875d2bb84cbe6501ec9b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-12-part-013/full.md": {
+    "mtime": 1785590757.2639182,
+    "ast_hash": "daf2f13c6e775cabaa1a1d989e0d9b0c",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-13-part-014/full.md": {
+    "mtime": 1785590743.7801945,
+    "ast_hash": "5c3f301f6a25719e01b1b1a397140456",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-14-part-015/full.md": {
+    "mtime": 1785590744.165239,
+    "ast_hash": "7e580575ca25d1c6bcccd09d90bc24eb",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-15-part-016/full.md": {
+    "mtime": 1785590744.5061636,
+    "ast_hash": "c6219d8612bc2f9a1eafc1c720223ae5",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-16-part-017/full.md": {
+    "mtime": 1785590757.9727175,
+    "ast_hash": "68738a8d707451576eeb18d38243c78c",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-17-part-018/full.md": {
+    "mtime": 1785590744.7252166,
+    "ast_hash": "39e03d4385aac3d9663ee9f9a0480120",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-18-part-019/full.md": {
+    "mtime": 1785590745.0096884,
+    "ast_hash": "f2425ab070a5fc04ff67437c74e5413d",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-19-part-020/full.md": {
+    "mtime": 1785590758.3675973,
+    "ast_hash": "18ca1083caf162cf231aa2ca159c6977",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-20-part-021/full.md": {
+    "mtime": 1785590758.650539,
+    "ast_hash": "43f5f28ef154419902ccd4de4f97e948",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-21-part-022/full.md": {
+    "mtime": 1785590759.1273267,
+    "ast_hash": "990e4b4f8aee50783c26d9ad4aff7c59",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-22-part-023/full.md": {
+    "mtime": 1785590759.7304504,
+    "ast_hash": "c232019053f41d634d74eb762b82376e",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-23-part-024/full.md": {
+    "mtime": 1785590760.057401,
+    "ast_hash": "18deb1db0605e870f9b1c45fc77e06f3",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-24-part-025/full.md": {
+    "mtime": 1785590745.2615619,
+    "ast_hash": "0e6b6b8d960ac8966871a9af886fd279",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-25-part-026/full.md": {
+    "mtime": 1785590745.845255,
+    "ast_hash": "683761b0a976955f6d916c420423d5ab",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-26-part-027/full.md": {
+    "mtime": 1785590760.3639553,
+    "ast_hash": "4cf2816635d38dcf9e7976710237b0e9",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-27-part-028/full.md": {
+    "mtime": 1785590760.8563805,
+    "ast_hash": "48cb49c2b71dbf85ab3d1c341dfbd51c",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-28-part-029/full.md": {
+    "mtime": 1785590746.0783837,
+    "ast_hash": "e11229b074b8fc6ef1d4a1dbcb5d0889",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-29-part-030/full.md": {
+    "mtime": 1785590761.5274837,
+    "ast_hash": "b9e6e39dd73d1fa90df2da90469ceb95",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-ch-30-part-031/full.md": {
+    "mtime": 1785590762.206209,
+    "ast_hash": "2e47598f4919969962003b04cd8042a5",
+    "semantic_hash": ""
+  },
+  "raw/canonical/approximation-algorithms-front-matter-part-001/full.md": {
+    "mtime": 1785590762.349284,
+    "ast_hash": "7491a41a6e87c32ec1830e9f654f2e1c",
+    "semantic_hash": ""
+  },
+  "wiki/concepts/cpt-aoi-peak.md": {
+    "mtime": 1783618160.5532117,
+    "ast_hash": "66cc2fd07d564bb54928ff6364419c40",
+    "semantic_hash": ""
+  },
+  "wiki/concepts/cpt-charging-utility.md": {
+    "mtime": 1783618160.5527053,
+    "ast_hash": "b60a529a218d7d0df3efd22f77a56ec8",
+    "semantic_hash": ""
+  },
+  "wiki/concepts/cpt-concurrent-charging.md": {
+    "mtime": 1783618160.5513277,
+    "ast_hash": "bd29293c3f074df4ac8b2553c57bca69",
+    "semantic_hash": ""
+  },
+  "wiki/concepts/cpt-directional-charging.md": {
+    "mtime": 1783618160.5518665,
+    "ast_hash": "e6ca18276d5311216b8c16457e8efb0b",
+    "semantic_hash": ""
+  },
+  "wiki/concepts/cpt-dynamic-wireless-charging.md": {
+    "mtime": 1785586335.788612,
+    "ast_hash": "8c92e028b287c887e7c420467dd91b62",
+    "semantic_hash": ""
+  },
+  "wiki/concepts/cpt-probabilistic-emr-safety.md": {
+    "mtime": 1785586335.788612,
+    "ast_hash": "4ccfc650d6fbb544ac15486d00436154",
+    "semantic_hash": ""
+  },
+  "wiki/concepts/cpt-wave-interference.md": {
+    "mtime": 1783618160.550823,
+    "ast_hash": "5b10384797d9770bf6b15ff5dc7294bb",
+    "semantic_hash": ""
+  },
+  "wiki/maps/map-domain-keywords.md": {
+    "mtime": 1785592405.9602704,
+    "ast_hash": "6484c93dd1e31271787aacc0ea884be5",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-bilevel-metaheuristic-charging.md": {
+    "mtime": 1785586335.7905586,
+    "ast_hash": "3ecccf99fa3debcd793c252287b48863",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-ccs-cooperative-service.md": {
+    "mtime": 1783618160.5527053,
+    "ast_hash": "d481c34217266ec5275addf950665998",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-ccsp-greedy-scheduling.md": {
+    "mtime": 1783618160.5518665,
+    "ast_hash": "b8e8e0ffc65a39f301022e5ebe8ffb49",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-dwpt-intersection-placement.md": {
+    "mtime": 1785586335.7895854,
+    "ast_hash": "0824b08e0544d4dd9b5da7f5490870b2",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-felkh-3d-directional-uav.md": {
+    "mtime": 1785586335.7905586,
+    "ast_hash": "64a1835656d52d1fc42a9983c6c613b6",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-gain-placement-interference.md": {
+    "mtime": 1783618160.5532117,
+    "ast_hash": "edee06b34f8bcab3d40f3b87e27031e3",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-hipo-placement-obstacles.md": {
+    "mtime": 1783618160.5532117,
+    "ast_hash": "2255a615eeec5d988b5f64fb0c86c22d",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-integrated-dwpt-battery-scheduling.md": {
+    "mtime": 1785586335.7915323,
+    "ast_hash": "d48995aa90dd525e1b7efd7a2833ec03",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-peak-aoi-joint-charge-tx.md": {
+    "mtime": 1783618160.5527053,
+    "ast_hash": "fa5cde6d37e2aecf33b4d7ff62d2f59e",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-ra-dmcs-asymmetric-mobile.md": {
+    "mtime": 1785586335.7895854,
+    "ast_hash": "640369750302619d895a07a76478a398",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-rose-robust-safe-power-scheduling.md": {
+    "mtime": 1785586335.7915323,
+    "ast_hash": "a5cce5fa3408f32b6b345e074feb6d22",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-tide-online-orientation.md": {
+    "mtime": 1783618160.5527053,
+    "ast_hash": "ef2f4f1acdf07f0bdde3fb2fa8ab6964",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-tunable-power-mobile-traj.md": {
+    "mtime": 1783618160.5518665,
+    "ast_hash": "a036fe221204e9776a46bc22b6b9e3c0",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-uav-joint-scheduling-trajectory-pso.md": {
+    "mtime": 1785586335.7895854,
+    "ast_hash": "1059c7f1ec74c11bc84d036398881f15",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-wanda-multi-antenna-placement.md": {
+    "mtime": 1783618160.5518665,
+    "ast_hash": "791fc1b7eb135f69bcd9191c56271fdc",
+    "semantic_hash": ""
+  },
+  "wiki/problems/prob-joint-deployment-online-interference.md": {
+    "mtime": 1784043171.0873697,
+    "ast_hash": "0937429b4f54988d3c58d8ead9956033",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-alzenad-uav-bs-qos.md": {
+    "mtime": 1785586275.0706623,
+    "ast_hash": "d8a66bc74bf538496e58f6fc6c7634eb",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-book-algorithmic-game-theory.md": {
+    "mtime": 1785591461.6459417,
+    "ast_hash": "c8d141f2ba7630ef19774bb22f4f270e",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-book-approximation-algorithms.md": {
+    "mtime": 1785591461.6460738,
+    "ast_hash": "b82e333329890d57cfcca67ef3709c9f",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-chen-peak-aoi-wpt.md": {
+    "mtime": 1785586275.0716398,
+    "ast_hash": "50b2162ab10f1b1dbef8b265f3053416",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-dai-wanda-multi-antenna.md": {
+    "mtime": 1785586275.0726123,
+    "ast_hash": "15796e4fac6434c9e8f99505c535ab73",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-dai2022-rose-robust-safe-charging.md": {
+    "mtime": 1785586275.0735798,
+    "ast_hash": "49ae354ddc55cdd846a492e3a800a380",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-guo-concurrent-ccsp.md": {
+    "mtime": 1785586275.0761597,
+    "ast_hash": "3ae5b2d89be1b1cef6ddf8b4927c8118",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-li2024-dwc-beb-integrated-planning.md": {
+    "mtime": 1785586275.0788484,
+    "ast_hash": "9ef15599f26d9c98d4911ee76c2c7c6c",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-ma-concurrent-gain.md": {
+    "mtime": 1785586275.0828645,
+    "ast_hash": "cc386795b4045a6b691057749fb29497",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-ma-tide-dynamic-power.md": {
+    "mtime": 1785586275.0853894,
+    "ast_hash": "0e9f9971c95471a64aa3173469f59b61",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-wang-hipo-obstacles.md": {
+    "mtime": 1785586275.0873375,
+    "ast_hash": "e6a0b6536b3428d5d763978feb2ec162",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-wu-charging-on-the-move.md": {
+    "mtime": 1785586275.0889144,
+    "ast_hash": "513922379e2d9d0d11ac2492b2229aec",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-xu-cooperative-ccs.md": {
+    "mtime": 1785586275.0904396,
+    "ast_hash": "7345fdfb05a982eb8e4fef1a9bb777ab",
+    "semantic_hash": ""
+  },
+  "wiki/syntheses/syn-core-books-atlas.md": {
+    "mtime": 1785591037.8358047,
+    "ast_hash": "2bbf2862a9ac7c96d627414548ec175a",
+    "semantic_hash": ""
+  },
+  "wiki/syntheses/syn-dynamic-roadway-wpt-infrastructure.md": {
+    "mtime": 1785586366.3076494,
+    "ast_hash": "c8032398da1fca1c0f6e91453512ffb3",
+    "semantic_hash": ""
+  },
+  "wiki/syntheses/syn-interference-aware-concurrent-wpt.md": {
+    "mtime": 1784043343.1258907,
+    "ast_hash": "9bce402c110c7c01051931cc1cd82700",
+    "semantic_hash": ""
+  },
+  "wiki/syntheses/syn-mobile-uav-directional-scheduling.md": {
+    "mtime": 1785592389.734934,
+    "ast_hash": "a373e5a15f26ed5027d2cdc65cdd3f68",
+    "semantic_hash": ""
+  },
+  "wiki/syntheses/syn-mobility-online-service-scheduling.md": {
+    "mtime": 1784043343.7614634,
+    "ast_hash": "4d697befe96d4a29cc6d9f07ac852cc5",
+    "semantic_hash": ""
+  },
+  "wiki/syntheses/syn-wrsn-scheduling-placement.md": {
+    "mtime": 1784041656.6044412,
+    "ast_hash": "cd93fc721f17f52df7da8dd5fbc56f7d",
+    "semantic_hash": ""
+  },
+  "work/core-books/approx-front.txt": {
+    "mtime": 1785590581.7865064,
+    "ast_hash": "49622c3be01a795415bdd65b597ac922",
+    "semantic_hash": ""
+  },
+  "work/core-books/approx-toc.txt": {
+    "mtime": 1785590492.0013623,
+    "ast_hash": "df0efd3a0d8b50da8bc34de04543f181",
+    "semantic_hash": ""
+  },
+  "raw/canonical/3-D_Placement_of_an_Unmanned_Aerial_Vehicle_Base_Station_for_Maximum_Coverage_of_Users_With_Different_QoS_Requirements.pdf-22862a8f-519b-48c9-a820-695a0df5d5e5/3-D_Placement_of_an_Unmanned_Aerial_Vehicle_Base_Station_for_Maximum_C.md": {
+    "mtime": 1783617662.5462034,
+    "ast_hash": "14beaf6235fea6aec8a84fa5145f6780",
+    "semantic_hash": ""
+  },
+  "raw/canonical/3-D_Placement_of_an_Unmanned_Aerial_Vehicle_Base_Station_for_Maximum_Coverage_of_Users_With_Different_QoS_Requirements.pdf-22862a8f-519b-48c9-a820-695a0df5d5e5/full.md": {
+    "mtime": 1784041463.0650308,
+    "ast_hash": "1a34c96403df7d4f7c86e799a6f2c450",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_on_the_Move_Scheduling_Static_Chargers_with_Tunable_Power_for_Mobile_Devices.pdf-b04f915c-4c38-444c-8103-1c9d81579ab7/full.md": {
+    "mtime": 1784041465.5350046,
+    "ast_hash": "48a466fe1d6cae3e4ae8ccd4e6f4166f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrent_Charging_with_Wave_Interference.pdf-a984b0a6-dc76-4283-951d-f75a915cd6eb/Concurrent_Charging_with_Wave_Interference.md": {
+    "mtime": 1783617669.6638002,
+    "ast_hash": "f4ca83489597ad0acad840d43aa1686f",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrent_Charging_with_Wave_Interference.pdf-a984b0a6-dc76-4283-951d-f75a915cd6eb/full.md": {
+    "mtime": 1784041464.3059275,
+    "ast_hash": "b2ad4c55b429526b0cfb87c54b67ed84",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrently_Wireless_Charging_Sensor_Networks_with_Efficient_Scheduling.pdf-ab89513d-dd68-4bde-843f-8060d98fba2e/Concurrently_Wireless_Charging_Sensor_Networks_with_Efficient_Scheduling.md": {
+    "mtime": 1783617651.7648916,
+    "ast_hash": "c361c6f205b4ecf05442b89c51bf78c6",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Concurrently_Wireless_Charging_Sensor_Networks_with_Efficient_Scheduling.pdf-ab89513d-dd68-4bde-843f-8060d98fba2e/full.md": {
+    "mtime": 1784041463.678582,
+    "ast_hash": "009e5631afd16e91cc563821ef586ef5",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Cooperative_Charging_as_Service_Scheduling_for_Mobile_Wireless_Rechargeable_Sensor_Networks.pdf-8bd73c94-27f3-4b2a-aafb-4d318e567433/full.md": {
+    "mtime": 1784041466.151253,
+    "ast_hash": "5b6ace2c6d83bef76dc7d50c4313cf53",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Directional_WPT_Charging_for_Routing-Asymmetric_WRSNs_with_a_Mobile_Charger/full.md": {
+    "mtime": 1785586275.0080616,
+    "ast_hash": "a62bebf5f524c14ad1c4cb84c67d6ba0",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Dynamic_Power_Distribution_Controlling_for_Directional_Chargers.pdf-c51176d4-83bc-464b-8fc3-befdb45d519e/Dynamic_Power_Distribution_Controlling_for_Directional_Chargers.md": {
+    "mtime": 1783617675.007835,
+    "ast_hash": "a6a4519cdee0526d7dc150108dbde762",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Dynamic_Power_Distribution_Controlling_for_Directional_Chargers.pdf-c51176d4-83bc-464b-8fc3-befdb45d519e/full.md": {
+    "mtime": 1784041464.9233918,
+    "ast_hash": "e570a1e7ac7eec90012bdb9ea4bec2a6",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Joint_Scheduling_and_Trajectory_Optimization_of_Charging_UAV_in_Wireless_Rechargeable_Sensor_Net/full.md": {
+    "mtime": 1785586275.0203276,
+    "ast_hash": "fab202af9d8017a4de611c847da74638",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Optimal_3D_Directional_WPT_Charging_via_UAV_for_3D_Wireless_Rechargeable_Sensor_Networks/full.md": {
+    "mtime": 1785586275.0306137,
+    "ast_hash": "71c8ce8ebee5bfde953081d901c2f07b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Peak_AoI_Minimization_at_Wireless-Powered_Network_Edge_From_the_Perspective_of_Both_Charging_and_Transmitting.pdf-a84be74f-fb17-427c-9f09-73ff009d6e42/full.md": {
+    "mtime": 1784041466.7671404,
+    "ast_hash": "8072ef31e4f942d128ba5ddb0dfc74e0",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Placing_Wireless_Chargers_With_Multiple_Antennas.pdf-bafca2d9-e008-4ed3-9747-5a6b9783c669/full.md": {
+    "mtime": 1784041467.3829956,
+    "ast_hash": "79e65eb507670f7cb028c307e17ccdae",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Practical_Heterogeneous_Wireless_Charger_Placement_with_Obstacles.pdf-9d3d72a1-5370-40da-8eac-87463b92da63/Practical_Heterogeneous_Wireless_Charger_Placement_with_Obstacles.md": {
+    "mtime": 1783617625.2724452,
+    "ast_hash": "4638fc4bc8e6f81db80071dbfa379238",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Practical_Heterogeneous_Wireless_Charger_Placement_with_Obstacles.pdf-9d3d72a1-5370-40da-8eac-87463b92da63/full.md": {
+    "mtime": 1784041468.0051417,
+    "ast_hash": "ab7a976376af81d49f8fa6fd874f1f22",
+    "semantic_hash": ""
+  },
+  "raw/canonical/ROSE_Robustly_safe_charging_for_wireless_power_transfer/full.md": {
+    "mtime": 1785586275.0430148,
+    "ast_hash": "7c03f8c87b5b1ed745f5e46c5e4ac4f0",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-binh2025-bilevel-metaheuristic-charging.md": {
+    "mtime": 1785586275.0716398,
+    "ast_hash": "62904a3a5e902b59a5179654d5440c0a",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-gao2024-ra-dmcs-asymmetric-directional.md": {
+    "mtime": 1785586275.074586,
+    "ast_hash": "5b00b9b5ae2032767cd1f046e0d373cb",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-gao2025-felkh-3d-uav.md": {
+    "mtime": 1785586275.075604,
+    "ast_hash": "7c31aba9d4620394b9beaa0de2d13865",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-honma2026-infinite-drive-dwpt.md": {
+    "mtime": 1785586275.0773613,
+    "ast_hash": "127e0bf73b3cc8729bd0ab5febbb4d42",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-liu2021-joint-cuav-scheduling-trajectory.md": {
+    "mtime": 1785586275.081246,
+    "ast_hash": "1a1d08523d49166884c398f6dc0283b6",
+    "semantic_hash": ""
+  },
+  "evals/core-book-retrieval-report.json": {
+    "mtime": 1785657218.0123813,
+    "ast_hash": "ea3df923d2e6cc09e9393e1287ed0fb0",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_Scheduling_of_Clustered_Wireless_Rechargeable_Sensor_Networks_Considering_Dynamic_Selec/7cf30af0-aaed-4300-ae81-8e291a8649ae_content_list.json": {
+    "mtime": 1785592136.2260263,
+    "ast_hash": "d194d4e63571fe9345442046c552f562",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_Scheduling_of_Clustered_Wireless_Rechargeable_Sensor_Networks_Considering_Dynamic_Selec/7cf30af0-aaed-4300-ae81-8e291a8649ae_content_list_v2.json": {
+    "mtime": 1785592136.220186,
+    "ast_hash": "1f5b23b69e053b56ca233c60fc3fffc7",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_Scheduling_of_Clustered_Wireless_Rechargeable_Sensor_Networks_Considering_Dynamic_Selec/7cf30af0-aaed-4300-ae81-8e291a8649ae_model.json": {
+    "mtime": 1785592136.2212396,
+    "ast_hash": "439f6d23d1851081d9cc3cbe494c0408",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_Scheduling_of_Clustered_Wireless_Rechargeable_Sensor_Networks_Considering_Dynamic_Selec/layout.json": {
+    "mtime": 1785592136.2251325,
+    "ast_hash": "6428d32861306aa48a1311ba25315b86",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Collaborative_Charging_Optimization_for_Wireless_Rechargeable_Sensor_Networks_via_Heterogeneous/b3ba6122-e810-414c-92b1-c3db58f08cf2_content_list.json": {
+    "mtime": 1785592134.528942,
+    "ast_hash": "70da2fab9f098d569ac84e08e75a9696",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Collaborative_Charging_Optimization_for_Wireless_Rechargeable_Sensor_Networks_via_Heterogeneous/b3ba6122-e810-414c-92b1-c3db58f08cf2_content_list_v2.json": {
+    "mtime": 1785592134.5739183,
+    "ast_hash": "34353273ad434251c4a1d029804a8798",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Collaborative_Charging_Optimization_for_Wireless_Rechargeable_Sensor_Networks_via_Heterogeneous/b3ba6122-e810-414c-92b1-c3db58f08cf2_model.json": {
+    "mtime": 1785592134.527966,
+    "ast_hash": "a7680b10b090b6c71241584cbffe2101",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Collaborative_Charging_Optimization_for_Wireless_Rechargeable_Sensor_Networks_via_Heterogeneous/layout.json": {
+    "mtime": 1785592134.5798943,
+    "ast_hash": "b912bfb770e6d32ee24ba09ef4c02b37",
+    "semantic_hash": ""
+  },
+  "raw/canonical/ISAC-Enabled_On-Demand_UAV_Charging_for_Wireless_Rechargeable_Sensor_Networks/9127007d-fab8-4f0f-b2b2-e1b4dbf6f057_content_list.json": {
+    "mtime": 1785592122.6196685,
+    "ast_hash": "450f9b67bc6b511f038c1d29ad39ad2c",
+    "semantic_hash": ""
+  },
+  "raw/canonical/ISAC-Enabled_On-Demand_UAV_Charging_for_Wireless_Rechargeable_Sensor_Networks/9127007d-fab8-4f0f-b2b2-e1b4dbf6f057_content_list_v2.json": {
+    "mtime": 1785592122.6185703,
+    "ast_hash": "8431feccaca4c75b30a71226e77680ce",
+    "semantic_hash": ""
+  },
+  "raw/canonical/ISAC-Enabled_On-Demand_UAV_Charging_for_Wireless_Rechargeable_Sensor_Networks/9127007d-fab8-4f0f-b2b2-e1b4dbf6f057_model.json": {
+    "mtime": 1785592122.6110148,
+    "ast_hash": "56a7f832990629cd51560fe6aaa436b8",
+    "semantic_hash": ""
+  },
+  "raw/canonical/ISAC-Enabled_On-Demand_UAV_Charging_for_Wireless_Rechargeable_Sensor_Networks/layout.json": {
+    "mtime": 1785592122.621626,
+    "ast_hash": "44549d7dd08c9873858e75ea4e952718",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Obstacles_avoidance_charging_schedule_for_multiple_mobile_charging_vehicles_in_wireless_recharge/c2f7976a-ebe0-4806-b8f8-341adb638954_content_list.json": {
+    "mtime": 1785592137.8949075,
+    "ast_hash": "1cf595ac30da69f9569994e02ba02cee",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Obstacles_avoidance_charging_schedule_for_multiple_mobile_charging_vehicles_in_wireless_recharge/c2f7976a-ebe0-4806-b8f8-341adb638954_content_list_v2.json": {
+    "mtime": 1785592137.9019165,
+    "ast_hash": "33fc27770d35010c66d8a8d56bb6d998",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Obstacles_avoidance_charging_schedule_for_multiple_mobile_charging_vehicles_in_wireless_recharge/c2f7976a-ebe0-4806-b8f8-341adb638954_model.json": {
+    "mtime": 1785592137.9009533,
+    "ast_hash": "d85d944290637866bd145fa2e7a367f5",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Obstacles_avoidance_charging_schedule_for_multiple_mobile_charging_vehicles_in_wireless_recharge/layout.json": {
+    "mtime": 1785592137.898893,
+    "ast_hash": "b146f197dbdb0ee8089c6848d86d6f3b",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Study_on_charging_strategy_of_wireless_rechargeable_sensor_networks_based_on_dynamic_inhomogeneo/12dabe2e-a440-4e75-9fe7-57f1e6a07442_content_list.json": {
+    "mtime": 1785592135.2163043,
+    "ast_hash": "c9d2f58fd65885820985e9f2e1fe6e19",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Study_on_charging_strategy_of_wireless_rechargeable_sensor_networks_based_on_dynamic_inhomogeneo/12dabe2e-a440-4e75-9fe7-57f1e6a07442_content_list_v2.json": {
+    "mtime": 1785592135.2188425,
+    "ast_hash": "d906a1946de315a50ed64673d5a88674",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Study_on_charging_strategy_of_wireless_rechargeable_sensor_networks_based_on_dynamic_inhomogeneo/12dabe2e-a440-4e75-9fe7-57f1e6a07442_model.json": {
+    "mtime": 1785592135.2163043,
+    "ast_hash": "368232aad8dcb3f37c269882a8933aa3",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Study_on_charging_strategy_of_wireless_rechargeable_sensor_networks_based_on_dynamic_inhomogeneo/layout.json": {
+    "mtime": 1785592135.2325964,
+    "ast_hash": "8e94a7e1d4ce0ad829b58c3e30d22f14",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Charging_Scheduling_of_Clustered_Wireless_Rechargeable_Sensor_Networks_Considering_Dynamic_Selec/full.md": {
+    "mtime": 1785592427.7133822,
+    "ast_hash": "b000b0c050a85987a5e88f1ba80a0e79",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Obstacles_avoidance_charging_schedule_for_multiple_mobile_charging_vehicles_in_wireless_recharge/full.md": {
+    "mtime": 1785592427.7143552,
+    "ast_hash": "0ffd19e1bdc7620b77083ec0b28dcddb",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Study_on_charging_strategy_of_wireless_rechargeable_sensor_networks_based_on_dynamic_inhomogeneo/full.md": {
+    "mtime": 1785592427.712407,
+    "ast_hash": "c3df5eb079cb61eced3a6285b615a295",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-dchsa-adtsa-dec.md": {
+    "mtime": 1785592378.0752559,
+    "ast_hash": "fc57b1729563da5678f9154199014fe8",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-diccs-dynamic-clustering.md": {
+    "mtime": 1785592378.0752559,
+    "ast_hash": "29d4d413ef5eac90207db6cf6c4d1e62",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-ihatrpo-heterogeneous-charging.md": {
+    "mtime": 1785592378.0752559,
+    "ast_hash": "1cff972453d2a5c81b6afac483f6dd8d",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-isac-uav-priority-partial-charging.md": {
+    "mtime": 1785592378.0762286,
+    "ast_hash": "8ecbe314f558aa594f85d90e84379a8a",
+    "semantic_hash": ""
+  },
+  "wiki/methods/mtd-obstacle-aware-multi-mcv.md": {
+    "mtime": 1785592378.0762286,
+    "ast_hash": "dc239493716e6446f53975fe7bb55749",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-liu2026-dchsa-adtsa-clustered.md": {
+    "mtime": 1785592319.2889214,
+    "ast_hash": "09bec162255aca3789fd4c718d08061a",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-tian2025-diccs-clustering.md": {
+    "mtime": 1785592319.287939,
+    "ast_hash": "4a55155ae74ad9d146b857fcc098be20",
+    "semantic_hash": ""
+  },
+  "wiki/syntheses/syn-adaptive-mobile-charger-coordination.md": {
+    "mtime": 1785592378.0762286,
+    "ast_hash": "a312d139f650795a83dbcca6d8efb861",
+    "semantic_hash": ""
+  },
+  "raw/canonical/Collaborative_Charging_Optimization_for_Wireless_Rechargeable_Sensor_Networks_via_Heterogeneous/full.md": {
+    "mtime": 1785592427.712407,
+    "ast_hash": "3cd3fed844fb902365b159e6b9e3bfa0",
+    "semantic_hash": ""
+  },
+  "raw/canonical/ISAC-Enabled_On-Demand_UAV_Charging_for_Wireless_Rechargeable_Sensor_Networks/full.md": {
+    "mtime": 1785592427.7143552,
+    "ast_hash": "a55f756343e5baf44701e8a5492459a9",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-qaisar2026-isac-uav-charging.md": {
+    "mtime": 1785592319.2889214,
+    "ast_hash": "52a42e7399629fe8b1e9bf7e2af99647",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-rahaman2023-obstacle-mcv.md": {
+    "mtime": 1785592319.2889214,
+    "ast_hash": "85b9c01fb38cba3b0fb0a37518dd30a1",
+    "semantic_hash": ""
+  },
+  "wiki/sources/src-yao2026-ihatrpo-heterogeneous-chargers.md": {
+    "mtime": 1785592319.287939,
+    "ast_hash": "29635265b4563b7360abc724c3a1ca4c",
+    "semantic_hash": ""
+  },
+  "design/ui-references/README.md": {
+    "mtime": 1785594787.9178596,
+    "ast_hash": "0f60f8fa34571c6356a3c7a2ebeb585a",
+    "semantic_hash": ""
+  },
+  "design/ui-references/01-research-dashboard.png": {
+    "mtime": 1785594280.846841,
+    "ast_hash": "b9e328a897f93eca24a6af09d3a39667",
+    "semantic_hash": ""
+  },
+  "design/ui-references/02-evidence-first-qa.png": {
+    "mtime": 1785594745.1468658,
+    "ast_hash": "9e7a87f55f139cd395459bef10043347",
+    "semantic_hash": ""
+  },
+  "design/ui-references/03-core-book-reader.png": {
+    "mtime": 1785594545.6424634,
+    "ast_hash": "dd73e6cfd557c53065b3817f79a7168a",
+    "semantic_hash": ""
+  },
+  "apps/desktop/package.json": {
+    "mtime": 1785657183.9439397,
+    "ast_hash": "76a5e29d11d40a145157f9872b02f5ca",
+    "semantic_hash": ""
+  },
+  "apps/desktop/public/data/library.json": {
+    "mtime": 1785657249.8606164,
+    "ast_hash": "0117f4a1e1ec3f48526b3cdb8b06a1ef",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/build.rs": {
+    "mtime": 1785599001.930673,
+    "ast_hash": "1be34a5c61c2c35365de3dab14298f0b",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/capabilities/default.json": {
+    "mtime": 1785598402.180265,
+    "ast_hash": "ad247f7592c89cd616829a7f74b929a5",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/gen/schemas/acl-manifests.json": {
+    "mtime": 1785596249.685533,
+    "ast_hash": "b849cb752c4dc91e746bca7e411dc9ae",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/gen/schemas/capabilities.json": {
+    "mtime": 1785598503.367323,
+    "ast_hash": "7aa19f584ea0f8102269e0d2b33083f0",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/gen/schemas/desktop-schema.json": {
+    "mtime": 1785596249.6895304,
+    "ast_hash": "44a32f28e297a982b5b11885645d377b",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/gen/schemas/windows-schema.json": {
+    "mtime": 1785596249.6895304,
+    "ast_hash": "44a32f28e297a982b5b11885645d377b",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/src/lib.rs": {
+    "mtime": 1785657060.0749686,
+    "ast_hash": "7408acefcda3e2393d99dc4792f13845",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/src/main.rs": {
+    "mtime": 1785599001.9500692,
+    "ast_hash": "c606fa15ae831a39cb2310dde4d4fa4c",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/tauri.conf.json": {
+    "mtime": 1785655964.8408923,
+    "ast_hash": "05a92f4da443b5f41d91ab9069492e52",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/App.tsx": {
+    "mtime": 1785657159.6419106,
+    "ast_hash": "f662f4fe313a55344b3a1169bdaca75c",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/counter.ts": {
+    "mtime": 1785595869.7403953,
+    "ast_hash": "f901580c2252331130bb4d13c0cd858b",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/main.tsx": {
+    "mtime": 1785596034.433947,
+    "ast_hash": "48754d00058c1719cba159718852b29a",
+    "semantic_hash": ""
+  },
+  "apps/desktop/tsconfig.json": {
+    "mtime": 1785596144.9600112,
+    "ast_hash": "39ec315ab1aecba3e138ec6bab4f09fc",
+    "semantic_hash": ""
+  },
+  "apps/desktop/README.md": {
+    "mtime": 1785657183.9454548,
+    "ast_hash": "39cf838c9253268b64b52b93489cd3fe",
+    "semantic_hash": ""
+  },
+  "apps/desktop/public/favicon.svg": {
+    "mtime": 1785595869.697313,
+    "ast_hash": "7e840862161341271697daa99a40d76b",
+    "semantic_hash": ""
+  },
+  "apps/desktop/public/icons.svg": {
+    "mtime": 1785595869.7125564,
+    "ast_hash": "3b4fcfcf393eca4d264dca4a4663bc37",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/icons/128x128.png": {
+    "mtime": 1785595907.624437,
+    "ast_hash": "3a0071e4ad670fad0329d3a5e83d0bf9",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/icons/128x128@2x.png": {
+    "mtime": 1785595907.624437,
+    "ast_hash": "eab2be12c5f8aeaf104a4695dd9171df",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/icons/32x32.png": {
+    "mtime": 1785595907.624437,
+    "ast_hash": "faf8ee6541b945b98db35239b8a75715",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/icons/Square107x107Logo.png": {
+    "mtime": 1785595907.624437,
+    "ast_hash": "d4bc38359e2c01daa08354c55fa4df7c",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/icons/Square142x142Logo.png": {
+    "mtime": 1785595907.624437,
+    "ast_hash": "1e9c0358705085439e5c989fcbd6e988",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/icons/Square150x150Logo.png": {
+    "mtime": 1785595907.6254103,
+    "ast_hash": "084d20bce8096367fc694dfdf72c8ac5",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/icons/Square284x284Logo.png": {
+    "mtime": 1785595907.6254103,
+    "ast_hash": "6a936fe84398f24b7a63a36bddfd58d7",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/icons/Square30x30Logo.png": {
+    "mtime": 1785595907.6254103,
+    "ast_hash": "011e9cb456309157a9fc78c978248e00",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/icons/Square310x310Logo.png": {
+    "mtime": 1785595907.6254103,
+    "ast_hash": "832231852e8e683e6aa2b690d194bdd2",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/icons/Square44x44Logo.png": {
+    "mtime": 1785595907.6254103,
+    "ast_hash": "a06297a35014e770cc33756fafa3b3a8",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/icons/Square71x71Logo.png": {
+    "mtime": 1785595907.6254103,
+    "ast_hash": "a3c80a0af688359094aa685881570eed",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/icons/Square89x89Logo.png": {
+    "mtime": 1785595907.6254103,
+    "ast_hash": "9f91ee8e1c1232ebde61c64d7923038f",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/icons/StoreLogo.png": {
+    "mtime": 1785595907.6254103,
+    "ast_hash": "387b412d411bbd532dd3302d3948bf0e",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/icons/icon.png": {
+    "mtime": 1785595907.626383,
+    "ast_hash": "9fdc4367276aafdd2c05ac214e9553c7",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/assets/hero.png": {
+    "mtime": 1785595869.6826508,
+    "ast_hash": "aead493361b27e7510691c5d7072dfc1",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/assets/typescript.svg": {
+    "mtime": 1785595869.7254887,
+    "ast_hash": "07f132d2ec35a9f4c17c1b9f19a2aac7",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/assets/vite.svg": {
+    "mtime": 1785595869.7359588,
+    "ast_hash": "9960a24288958394ac50e57ff638b036",
+    "semantic_hash": ""
+  },
+  "apps/desktop/scripts/verify-build.mjs": {
+    "mtime": 1785655984.3331745,
+    "ast_hash": "c5b007cfd601d0df82b46e2ff9d6f536",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/components/TabBar.tsx": {
+    "mtime": 1785599240.271095,
+    "ast_hash": "6e0794d7dcf1813dd68952c50fbe2080",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/features/library/LibraryView.tsx": {
+    "mtime": 1785599180.8170712,
+    "ast_hash": "81453389a42441e217a684fe443aa0b5",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/services/desktop.ts": {
+    "mtime": 1785655569.8995426,
+    "ast_hash": "302d76d5a985c6b9e6aa3c012cd8b4e6",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/types.ts": {
+    "mtime": 1785655569.8985322,
+    "ast_hash": "b01b15bd0c55d5538c6a3087fca4d05c",
+    "semantic_hash": ""
+  },
+  "apps/desktop/dashboard-p2-preview.png": {
+    "mtime": 1785597641.6463294,
+    "ast_hash": "d2f77d5d3e48a4130f4979761fee192b",
+    "semantic_hash": ""
+  },
+  "apps/desktop/dashboard-preview.png": {
+    "mtime": 1785596749.4482481,
+    "ast_hash": "1b48e9cca5a48fa60b18a5f4b3587448",
+    "semantic_hash": ""
+  },
+  "apps/desktop/desktop-0.2.1-preview.png": {
+    "mtime": 1785598548.522472,
+    "ast_hash": "6603b7676b7d865dc1b04a27f64d2697",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/features/pages/MarkdownReader.tsx": {
+    "mtime": 1785599816.1757994,
+    "ast_hash": "e8efdcdb66c7e066570a1704b8cbd21f",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/features/pages/PageView.tsx": {
+    "mtime": 1785599149.4295585,
+    "ast_hash": "15e05c8d355168308f1b8f88a51212b6",
+    "semantic_hash": ""
+  },
+  "apps/desktop/desktop-0.3.0-preview.png": {
+    "mtime": 1785599574.3696506,
+    "ast_hash": "ae65b0efc11bf4ceb6fd9bb85524a846",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/src/qa.rs": {
+    "mtime": 1785657042.7916956,
+    "ast_hash": "70861c0bed01e78fd9ebbfa4d04dafa1",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/features/books/CoreBooksView.tsx": {
+    "mtime": 1785657143.7349215,
+    "ast_hash": "73c21d34a411278495876d85e05f5c6b",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/features/comparison/ComparisonView.tsx": {
+    "mtime": 1785652601.8324854,
+    "ast_hash": "0424a2422732adaa5e994689f9f7d88e",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/features/graph/GraphView.tsx": {
+    "mtime": 1785652572.1740847,
+    "ast_hash": "274cffbd26c09e0fdb76ad53b5d40663",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/features/qa/AskView.tsx": {
+    "mtime": 1785657109.0054061,
+    "ast_hash": "d0f274472ce290ecaf3893e6315547af",
+    "semantic_hash": ""
+  },
+  "design/p3-luna-qa-plan.md": {
+    "mtime": 1785654924.7891757,
+    "ast_hash": "a6d329fb9813f4d0c38fa3b61fd56a95",
+    "semantic_hash": ""
+  },
+  "apps/desktop/scripts/verify-p3.mjs": {
+    "mtime": 1785657183.9439397,
+    "ast_hash": "35dd1f2a941447cb83819868ffd69a57",
+    "semantic_hash": ""
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "title": "Spatiotemporal optimization for charging scheduling in wireless rechargeable sensor networks",
+  "authors": [
+    "Y Hong",
+    "Y Yang",
+    "C Luo",
+    "D Li",
+    "Y Lu…"
+  ],
+  "abstract": "… charging model via assigning sensors’ charging priority weights, we introduce the spatio-temporal optimization for charging scheduling … charging requirements and saving the charging …",
+  "published_date": "",
+  "updated_date": "",
+  "year": 2023,
+  "doi": "",
+  "arxiv_id": "",
+  "landing_url": "https://ieeexplore.ieee.org/abstract/document/10177899/",
+  "pdf_url": "",
+  "is_open_access": null,
+  "license": "",
+  "providers": [
+    "serpapi"
+  ],
+  "provider_ids": {
+    "serpapi": "51EtsxGntBYJ"
+  },
+  "matched_queries": [
+    "wireless charging scheduling optimization"
+  ],
+  "score": 11.25,
+  "score_reasons": [
+    "标题命中：charging, optimization, scheduling",
+    "近年文献"
+  ],
+  "local_pdf": "",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "serpapi"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+  "triage_status": "selected",
+  "selected_by_user": true,
+  "acquired_at": "2026-07-14T13:40:03+00:00",
+  "selected_at": "2026-07-14T15:49:13+00:00",
+  "canonicalized_at": "",
+  "triage_note": "用户于 2026-07-14 明确要求下载 selected PDF 并继续 MinerU；本动作仍不把未解析候选写成 wiki 事实。",
+  "candidate_rank": 2,
+  "source_manifest": "raw/inbox/auto-discovered/runs/search-20260714-214003/results.json",
+  "boundary": "selected inbox candidate; not canonical; not wiki evidence"
+}

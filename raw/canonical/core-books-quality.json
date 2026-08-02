@@ -1,0 +1,948 @@
+{
+  "schema": "core-book-quality-v1",
+  "threshold": 0.95,
+  "books": [
+    {
+      "book_id": "approximation-algorithms",
+      "chapter_count": 31,
+      "chapters_measured": 31,
+      "min_token_recall": 1.0,
+      "mean_token_recall": 1.0,
+      "min_token_precision": 0.956444,
+      "mean_token_precision": 0.980252,
+      "passes_95_recall": true,
+      "passes_95_precision": true,
+      "chapters": [
+        {
+          "reference_tokens": 3358,
+          "candidate_tokens": 3421,
+          "token_recall": 1.0,
+          "token_precision": 0.981584,
+          "reference_chars": 38450,
+          "candidate_chars": 38869,
+          "chapter_id": "front-matter",
+          "chapter_title": "Front matter",
+          "path": "raw/canonical/approximation-algorithms/chapters/front-matter-front-matter.md",
+          "source_pages": [
+            1,
+            18
+          ]
+        },
+        {
+          "reference_tokens": 4168,
+          "candidate_tokens": 4229,
+          "token_recall": 1.0,
+          "token_precision": 0.985576,
+          "reference_chars": 26909,
+          "candidate_chars": 27310,
+          "chapter_id": "ch-01",
+          "chapter_title": "Introduction",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-01-introduction.md",
+          "source_pages": [
+            19,
+            32
+          ]
+        },
+        {
+          "reference_tokens": 4193,
+          "candidate_tokens": 4256,
+          "token_recall": 1.0,
+          "token_precision": 0.985197,
+          "reference_chars": 25840,
+          "candidate_chars": 26237,
+          "chapter_id": "ch-02",
+          "chapter_title": "Set Cover",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-02-set-cover.md",
+          "source_pages": [
+            33,
+            44
+          ]
+        },
+        {
+          "reference_tokens": 3919,
+          "candidate_tokens": 3986,
+          "token_recall": 1.0,
+          "token_precision": 0.983191,
+          "reference_chars": 25952,
+          "candidate_chars": 26371,
+          "chapter_id": "ch-03",
+          "chapter_title": "Steiner Tree and TSP",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-03-steiner-tree-and-tsp.md",
+          "source_pages": [
+            45,
+            55
+          ]
+        },
+        {
+          "reference_tokens": 3113,
+          "candidate_tokens": 3182,
+          "token_recall": 1.0,
+          "token_precision": 0.978316,
+          "reference_chars": 20737,
+          "candidate_chars": 21160,
+          "chapter_id": "ch-04",
+          "chapter_title": "Multiway Cut and k-Cut",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-04-multiway-cut-and-k-cut.md",
+          "source_pages": [
+            56,
+            64
+          ]
+        },
+        {
+          "reference_tokens": 2490,
+          "candidate_tokens": 2553,
+          "token_recall": 1.0,
+          "token_precision": 0.975323,
+          "reference_chars": 18052,
+          "candidate_chars": 18447,
+          "chapter_id": "ch-05",
+          "chapter_title": "k-Center",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-05-k-center.md",
+          "source_pages": [
+            65,
+            71
+          ]
+        },
+        {
+          "reference_tokens": 2235,
+          "candidate_tokens": 2300,
+          "token_recall": 1.0,
+          "token_precision": 0.971739,
+          "reference_chars": 24254,
+          "candidate_chars": 24671,
+          "chapter_id": "ch-06",
+          "chapter_title": "Feedback Vertex Set",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-06-feedback-vertex-set.md",
+          "source_pages": [
+            72,
+            78
+          ]
+        },
+        {
+          "reference_tokens": 1983,
+          "candidate_tokens": 2046,
+          "token_recall": 1.0,
+          "token_precision": 0.969208,
+          "reference_chars": 13320,
+          "candidate_chars": 13739,
+          "chapter_id": "ch-07",
+          "chapter_title": "Shortest Superstring",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-07-shortest-superstring.md",
+          "source_pages": [
+            79,
+            85
+          ]
+        },
+        {
+          "reference_tokens": 1909,
+          "candidate_tokens": 1970,
+          "token_recall": 1.0,
+          "token_precision": 0.969036,
+          "reference_chars": 11362,
+          "candidate_chars": 11757,
+          "chapter_id": "ch-08",
+          "chapter_title": "Knapsack",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-08-knapsack.md",
+          "source_pages": [
+            86,
+            91
+          ]
+        },
+        {
+          "reference_tokens": 1673,
+          "candidate_tokens": 1736,
+          "token_recall": 1.0,
+          "token_precision": 0.96371,
+          "reference_chars": 9613,
+          "candidate_chars": 10014,
+          "chapter_id": "ch-09",
+          "chapter_title": "Bin Packing",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-09-bin-packing.md",
+          "source_pages": [
+            92,
+            96
+          ]
+        },
+        {
+          "reference_tokens": 1634,
+          "candidate_tokens": 1699,
+          "token_recall": 1.0,
+          "token_precision": 0.961742,
+          "reference_chars": 9840,
+          "candidate_chars": 10275,
+          "chapter_id": "ch-10",
+          "chapter_title": "Minimum Makespan Scheduling",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-10-minimum-makespan-scheduling.md",
+          "source_pages": [
+            97,
+            101
+          ]
+        },
+        {
+          "reference_tokens": 2666,
+          "candidate_tokens": 2729,
+          "token_recall": 1.0,
+          "token_precision": 0.976915,
+          "reference_chars": 17750,
+          "candidate_chars": 18157,
+          "chapter_id": "ch-11",
+          "chapter_title": "Euclidean TSP",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-11-euclidean-tsp.md",
+          "source_pages": [
+            102,
+            110
+          ]
+        },
+        {
+          "reference_tokens": 5786,
+          "candidate_tokens": 5853,
+          "token_recall": 1.0,
+          "token_precision": 0.988553,
+          "reference_chars": 37392,
+          "candidate_chars": 37827,
+          "chapter_id": "ch-12",
+          "chapter_title": "Introduction to LP-Duality",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-12-introduction-to-lp-duality.md",
+          "source_pages": [
+            111,
+            125
+          ]
+        },
+        {
+          "reference_tokens": 3555,
+          "candidate_tokens": 3624,
+          "token_recall": 1.0,
+          "token_precision": 0.98096,
+          "reference_chars": 24073,
+          "candidate_chars": 24509,
+          "chapter_id": "ch-13",
+          "chapter_title": "Set Cover via Dual Fitting",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-13-set-cover-via-dual-fitting.md",
+          "source_pages": [
+            126,
+            136
+          ]
+        },
+        {
+          "reference_tokens": 2014,
+          "candidate_tokens": 2083,
+          "token_recall": 1.0,
+          "token_precision": 0.966875,
+          "reference_chars": 13166,
+          "candidate_chars": 13608,
+          "chapter_id": "ch-14",
+          "chapter_title": "Rounding Applied to Set Cover",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-14-rounding-applied-to-set-cover.md",
+          "source_pages": [
+            137,
+            142
+          ]
+        },
+        {
+          "reference_tokens": 1603,
+          "candidate_tokens": 1676,
+          "token_recall": 1.0,
+          "token_precision": 0.956444,
+          "reference_chars": 11427,
+          "candidate_chars": 11883,
+          "chapter_id": "ch-15",
+          "chapter_title": "Set Cover via the Primal–Dual Schema",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-15-set-cover-via-the-primal-dual-schema.md",
+          "source_pages": [
+            143,
+            148
+          ]
+        },
+        {
+          "reference_tokens": 2862,
+          "candidate_tokens": 2925,
+          "token_recall": 1.0,
+          "token_precision": 0.978462,
+          "reference_chars": 18606,
+          "candidate_chars": 19032,
+          "chapter_id": "ch-16",
+          "chapter_title": "Maximum Satisﬁability",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-16-maximum-satis-ability.md",
+          "source_pages": [
+            149,
+            157
+          ]
+        },
+        {
+          "reference_tokens": 2136,
+          "candidate_tokens": 2205,
+          "token_recall": 1.0,
+          "token_precision": 0.968707,
+          "reference_chars": 12657,
+          "candidate_chars": 13123,
+          "chapter_id": "ch-17",
+          "chapter_title": "Scheduling on Unrelated Parallel Machines",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-17-scheduling-on-unrelated-parallel-machines.md",
+          "source_pages": [
+            158,
+            163
+          ]
+        },
+        {
+          "reference_tokens": 2874,
+          "candidate_tokens": 2947,
+          "token_recall": 1.0,
+          "token_precision": 0.975229,
+          "reference_chars": 19315,
+          "candidate_chars": 19797,
+          "chapter_id": "ch-18",
+          "chapter_title": "Multicut and Integer Multicommodity Flow in Trees",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-18-multicut-and-integer-multicommodity-flow-in-trees.md",
+          "source_pages": [
+            164,
+            172
+          ]
+        },
+        {
+          "reference_tokens": 4359,
+          "candidate_tokens": 4422,
+          "token_recall": 1.0,
+          "token_precision": 0.985753,
+          "reference_chars": 30198,
+          "candidate_chars": 30606,
+          "chapter_id": "ch-19",
+          "chapter_title": "Multiway Cut",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-19-multiway-cut.md",
+          "source_pages": [
+            173,
+            185
+          ]
+        },
+        {
+          "reference_tokens": 4823,
+          "candidate_tokens": 4890,
+          "token_recall": 1.0,
+          "token_precision": 0.986299,
+          "reference_chars": 28778,
+          "candidate_chars": 29214,
+          "chapter_id": "ch-20",
+          "chapter_title": "Multicut in General Graphs",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-20-multicut-in-general-graphs.md",
+          "source_pages": [
+            186,
+            197
+          ]
+        },
+        {
+          "reference_tokens": 7117,
+          "candidate_tokens": 7180,
+          "token_recall": 1.0,
+          "token_precision": 0.991226,
+          "reference_chars": 42525,
+          "candidate_chars": 42933,
+          "chapter_id": "ch-21",
+          "chapter_title": "Sparsest Cut",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-21-sparsest-cut.md",
+          "source_pages": [
+            198,
+            215
+          ]
+        },
+        {
+          "reference_tokens": 5263,
+          "candidate_tokens": 5326,
+          "token_recall": 1.0,
+          "token_precision": 0.988171,
+          "reference_chars": 36349,
+          "candidate_chars": 36761,
+          "chapter_id": "ch-22",
+          "chapter_title": "Steiner Forest",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-22-steiner-forest.md",
+          "source_pages": [
+            216,
+            230
+          ]
+        },
+        {
+          "reference_tokens": 7497,
+          "candidate_tokens": 7560,
+          "token_recall": 1.0,
+          "token_precision": 0.991667,
+          "reference_chars": 44025,
+          "candidate_chars": 44439,
+          "chapter_id": "ch-23",
+          "chapter_title": "Steiner Network",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-23-steiner-network.md",
+          "source_pages": [
+            231,
+            249
+          ]
+        },
+        {
+          "reference_tokens": 4063,
+          "candidate_tokens": 4126,
+          "token_recall": 1.0,
+          "token_precision": 0.984731,
+          "reference_chars": 26048,
+          "candidate_chars": 26466,
+          "chapter_id": "ch-24",
+          "chapter_title": "Facility Location",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-24-facility-location.md",
+          "source_pages": [
+            250,
+            260
+          ]
+        },
+        {
+          "reference_tokens": 4592,
+          "candidate_tokens": 4655,
+          "token_recall": 1.0,
+          "token_precision": 0.986466,
+          "reference_chars": 31367,
+          "candidate_chars": 31767,
+          "chapter_id": "ch-25",
+          "chapter_title": "k-Median",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-25-k-median.md",
+          "source_pages": [
+            261,
+            272
+          ]
+        },
+        {
+          "reference_tokens": 5127,
+          "candidate_tokens": 5190,
+          "token_recall": 1.0,
+          "token_precision": 0.987861,
+          "reference_chars": 33675,
+          "candidate_chars": 34104,
+          "chapter_id": "ch-26",
+          "chapter_title": "Semideﬁnite Programming",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-26-semide-nite-programming.md",
+          "source_pages": [
+            273,
+            290
+          ]
+        },
+        {
+          "reference_tokens": 6986,
+          "candidate_tokens": 7049,
+          "token_recall": 1.0,
+          "token_precision": 0.991063,
+          "reference_chars": 44560,
+          "candidate_chars": 44974,
+          "chapter_id": "ch-27",
+          "chapter_title": "Shortest Vector",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-27-shortest-vector.md",
+          "source_pages": [
+            291,
+            311
+          ]
+        },
+        {
+          "reference_tokens": 4591,
+          "candidate_tokens": 4654,
+          "token_recall": 1.0,
+          "token_precision": 0.986463,
+          "reference_chars": 28859,
+          "candidate_chars": 29277,
+          "chapter_id": "ch-28",
+          "chapter_title": "Counting Problems",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-28-counting-problems.md",
+          "source_pages": [
+            312,
+            323
+          ]
+        },
+        {
+          "reference_tokens": 12141,
+          "candidate_tokens": 12206,
+          "token_recall": 1.0,
+          "token_precision": 0.994675,
+          "reference_chars": 71131,
+          "candidate_chars": 71565,
+          "chapter_id": "ch-29",
+          "chapter_title": "Hardness of Approximation",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-29-hardness-of-approximation.md",
+          "source_pages": [
+            324,
+            351
+          ]
+        },
+        {
+          "reference_tokens": 18771,
+          "candidate_tokens": 18834,
+          "token_recall": 1.0,
+          "token_precision": 0.996655,
+          "reference_chars": 122353,
+          "candidate_chars": 122763,
+          "chapter_id": "ch-30",
+          "chapter_title": "Open Problems",
+          "path": "raw/canonical/approximation-algorithms/chapters/ch-30-open-problems.md",
+          "source_pages": [
+            352,
+            396
+          ]
+        }
+      ]
+    },
+    {
+      "book_id": "algorithmic-game-theory",
+      "chapter_count": 30,
+      "chapters_measured": 30,
+      "min_token_recall": 1.0,
+      "mean_token_recall": 1.0,
+      "min_token_precision": 0.986173,
+      "mean_token_precision": 0.993905,
+      "passes_95_recall": true,
+      "passes_95_precision": true,
+      "chapters": [
+        {
+          "reference_tokens": 4636,
+          "candidate_tokens": 4701,
+          "token_recall": 1.0,
+          "token_precision": 0.986173,
+          "reference_chars": 55966,
+          "candidate_chars": 56384,
+          "chapter_id": "front-matter",
+          "chapter_title": "Front matter",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/front-matter-front-matter.md",
+          "source_pages": [
+            1,
+            23
+          ]
+        },
+        {
+          "reference_tokens": 13749,
+          "candidate_tokens": 13822,
+          "token_recall": 1.0,
+          "token_precision": 0.994719,
+          "reference_chars": 106041,
+          "candidate_chars": 106514,
+          "chapter_id": "ch-01",
+          "chapter_title": "Basic Solution Concepts and Computational Issues",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-01-basic-solution-concepts-and-computational-issues.md",
+          "source_pages": [
+            24,
+            49
+          ]
+        },
+        {
+          "reference_tokens": 11982,
+          "candidate_tokens": 12055,
+          "token_recall": 1.0,
+          "token_precision": 0.993944,
+          "reference_chars": 93490,
+          "candidate_chars": 93949,
+          "chapter_id": "ch-02",
+          "chapter_title": "The Complexity of Finding Nash Equilibria",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-02-the-complexity-of-finding-nash-equilibria.md",
+          "source_pages": [
+            50,
+            73
+          ]
+        },
+        {
+          "reference_tokens": 14459,
+          "candidate_tokens": 14536,
+          "token_recall": 1.0,
+          "token_precision": 0.994703,
+          "reference_chars": 110221,
+          "candidate_chars": 110712,
+          "chapter_id": "ch-03",
+          "chapter_title": "Equilibrium Computation for Two-Player Games in Strategic",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-03-equilibrium-computation-for-two-player-games-in-strategic.md",
+          "source_pages": [
+            74,
+            99
+          ]
+        },
+        {
+          "reference_tokens": 11849,
+          "candidate_tokens": 11920,
+          "token_recall": 1.0,
+          "token_precision": 0.994044,
+          "reference_chars": 103593,
+          "candidate_chars": 104064,
+          "chapter_id": "ch-04",
+          "chapter_title": "Learning, Regret Minimization, and Equilibria",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-04-learning-regret-minimization-and-equilibria.md",
+          "source_pages": [
+            100,
+            123
+          ]
+        },
+        {
+          "reference_tokens": 15563,
+          "candidate_tokens": 15634,
+          "token_recall": 1.0,
+          "token_precision": 0.995459,
+          "reference_chars": 121890,
+          "candidate_chars": 122363,
+          "chapter_id": "ch-05",
+          "chapter_title": "Combinatorial Algorithms for Market Equilibria",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-05-combinatorial-algorithms-for-market-equilibria.md",
+          "source_pages": [
+            124,
+            155
+          ]
+        },
+        {
+          "reference_tokens": 11086,
+          "candidate_tokens": 11159,
+          "token_recall": 1.0,
+          "token_precision": 0.993458,
+          "reference_chars": 100599,
+          "candidate_chars": 101064,
+          "chapter_id": "ch-06",
+          "chapter_title": "Computation of Market Equilibria by Convex",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-06-computation-of-market-equilibria-by-convex.md",
+          "source_pages": [
+            156,
+            179
+          ]
+        },
+        {
+          "reference_tokens": 11746,
+          "candidate_tokens": 11815,
+          "token_recall": 1.0,
+          "token_precision": 0.99416,
+          "reference_chars": 93463,
+          "candidate_chars": 93904,
+          "chapter_id": "ch-07",
+          "chapter_title": "Graphical Games Michael Kearns",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-07-graphical-games-michael-kearns.md",
+          "source_pages": [
+            180,
+            201
+          ]
+        },
+        {
+          "reference_tokens": 14270,
+          "candidate_tokens": 14349,
+          "token_recall": 1.0,
+          "token_precision": 0.994494,
+          "reference_chars": 110613,
+          "candidate_chars": 111108,
+          "chapter_id": "ch-08",
+          "chapter_title": "Cryptography and Game Theory Yevgeniy Dodis and Tal Rabin",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-08-cryptography-and-game-theory-yevgeniy-dodis-and-tal-rabin.md",
+          "source_pages": [
+            202,
+            229
+          ]
+        },
+        {
+          "reference_tokens": 17800,
+          "candidate_tokens": 17875,
+          "token_recall": 1.0,
+          "token_precision": 0.995804,
+          "reference_chars": 136549,
+          "candidate_chars": 137046,
+          "chapter_id": "ch-09",
+          "chapter_title": "Introduction to Mechanism Design (for Computer Scientists)",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-09-introduction-to-mechanism-design-for-computer-scientists.md",
+          "source_pages": [
+            230,
+            263
+          ]
+        },
+        {
+          "reference_tokens": 12059,
+          "candidate_tokens": 12128,
+          "token_recall": 1.0,
+          "token_precision": 0.994311,
+          "reference_chars": 93432,
+          "candidate_chars": 93874,
+          "chapter_id": "ch-10",
+          "chapter_title": "Mechanism Design without Money",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-10-mechanism-design-without-money.md",
+          "source_pages": [
+            264,
+            287
+          ]
+        },
+        {
+          "reference_tokens": 16420,
+          "candidate_tokens": 16495,
+          "token_recall": 1.0,
+          "token_precision": 0.995453,
+          "reference_chars": 133634,
+          "candidate_chars": 134120,
+          "chapter_id": "ch-11",
+          "chapter_title": "Combinatorial Auctions Liad Blumrosen and Noam Nisan",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-11-combinatorial-auctions-liad-blumrosen-and-noam-nisan.md",
+          "source_pages": [
+            288,
+            321
+          ]
+        },
+        {
+          "reference_tokens": 14951,
+          "candidate_tokens": 15020,
+          "token_recall": 1.0,
+          "token_precision": 0.995406,
+          "reference_chars": 127690,
+          "candidate_chars": 128170,
+          "chapter_id": "ch-12",
+          "chapter_title": "Computationally Efﬁcient Approximation Mechanisms",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-12-computationally-ef-cient-approximation-mechanisms.md",
+          "source_pages": [
+            322,
+            351
+          ]
+        },
+        {
+          "reference_tokens": 15937,
+          "candidate_tokens": 16008,
+          "token_recall": 1.0,
+          "token_precision": 0.995565,
+          "reference_chars": 124599,
+          "candidate_chars": 125057,
+          "chapter_id": "ch-13",
+          "chapter_title": "Proﬁt Maximization in Mechanism Design",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-13-pro-t-maximization-in-mechanism-design.md",
+          "source_pages": [
+            352,
+            383
+          ]
+        },
+        {
+          "reference_tokens": 11634,
+          "candidate_tokens": 11703,
+          "token_recall": 1.0,
+          "token_precision": 0.994104,
+          "reference_chars": 92853,
+          "candidate_chars": 93315,
+          "chapter_id": "ch-14",
+          "chapter_title": "Distributed Algorithmic Mechanism Design",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-14-distributed-algorithmic-mechanism-design.md",
+          "source_pages": [
+            384,
+            405
+          ]
+        },
+        {
+          "reference_tokens": 13403,
+          "candidate_tokens": 13478,
+          "token_recall": 1.0,
+          "token_precision": 0.994435,
+          "reference_chars": 104801,
+          "candidate_chars": 105271,
+          "chapter_id": "ch-15",
+          "chapter_title": "Cost Sharing Kamal Jain and Mohammad Mahdian",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-15-cost-sharing-kamal-jain-and-mohammad-mahdian.md",
+          "source_pages": [
+            406,
+            431
+          ]
+        },
+        {
+          "reference_tokens": 15493,
+          "candidate_tokens": 15564,
+          "token_recall": 1.0,
+          "token_precision": 0.995438,
+          "reference_chars": 131132,
+          "candidate_chars": 131580,
+          "chapter_id": "ch-16",
+          "chapter_title": "Online Mechanisms David C. Parkes",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-16-online-mechanisms-david-c-parkes.md",
+          "source_pages": [
+            432,
+            463
+          ]
+        },
+        {
+          "reference_tokens": 8744,
+          "candidate_tokens": 8817,
+          "token_recall": 1.0,
+          "token_precision": 0.991721,
+          "reference_chars": 69297,
+          "candidate_chars": 69769,
+          "chapter_id": "ch-17",
+          "chapter_title": "Introduction to the Inefﬁciency of Equilibria",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-17-introduction-to-the-inef-ciency-of-equilibria.md",
+          "source_pages": [
+            464,
+            481
+          ]
+        },
+        {
+          "reference_tokens": 12740,
+          "candidate_tokens": 12809,
+          "token_recall": 1.0,
+          "token_precision": 0.994613,
+          "reference_chars": 102732,
+          "candidate_chars": 103172,
+          "chapter_id": "ch-18",
+          "chapter_title": "Routing Games Tim Roughgarden",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-18-routing-games-tim-roughgarden.md",
+          "source_pages": [
+            482,
+            507
+          ]
+        },
+        {
+          "reference_tokens": 15911,
+          "candidate_tokens": 15988,
+          "token_recall": 1.0,
+          "token_precision": 0.995184,
+          "reference_chars": 122963,
+          "candidate_chars": 123459,
+          "chapter_id": "ch-19",
+          "chapter_title": "Network Formation Games and the Potential Function Method",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-19-network-formation-games-and-the-potential-function-method.md",
+          "source_pages": [
+            508,
+            537
+          ]
+        },
+        {
+          "reference_tokens": 12720,
+          "candidate_tokens": 12793,
+          "token_recall": 1.0,
+          "token_precision": 0.994294,
+          "reference_chars": 109423,
+          "candidate_chars": 109883,
+          "chapter_id": "ch-20",
+          "chapter_title": "Selﬁsh Load Balancing Berthold V¨ocking",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-20-sel-sh-load-balancing-berthold-v-ocking.md",
+          "source_pages": [
+            538,
+            563
+          ]
+        },
+        {
+          "reference_tokens": 11787,
+          "candidate_tokens": 11868,
+          "token_recall": 1.0,
+          "token_precision": 0.993175,
+          "reference_chars": 107476,
+          "candidate_chars": 107970,
+          "chapter_id": "ch-21",
+          "chapter_title": "The Price of Anarchy and the Design of Scalable Resource",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-21-the-price-of-anarchy-and-the-design-of-scalable-resource.md",
+          "source_pages": [
+            564,
+            591
+          ]
+        },
+        {
+          "reference_tokens": 10282,
+          "candidate_tokens": 10355,
+          "token_recall": 1.0,
+          "token_precision": 0.99295,
+          "reference_chars": 90807,
+          "candidate_chars": 91287,
+          "chapter_id": "ch-22",
+          "chapter_title": "Incentives and Pricing in Communications Networks",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-22-incentives-and-pricing-in-communications-networks.md",
+          "source_pages": [
+            592,
+            613
+          ]
+        },
+        {
+          "reference_tokens": 9851,
+          "candidate_tokens": 9924,
+          "token_recall": 1.0,
+          "token_precision": 0.992644,
+          "reference_chars": 79956,
+          "candidate_chars": 80406,
+          "chapter_id": "ch-23",
+          "chapter_title": "Incentives in Peer-to-Peer Systems",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-23-incentives-in-peer-to-peer-systems.md",
+          "source_pages": [
+            614,
+            633
+          ]
+        },
+        {
+          "reference_tokens": 11514,
+          "candidate_tokens": 11585,
+          "token_recall": 1.0,
+          "token_precision": 0.993871,
+          "reference_chars": 86683,
+          "candidate_chars": 87151,
+          "chapter_id": "ch-24",
+          "chapter_title": "Cascading Behavior in Networks: Algorithmic",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-24-cascading-behavior-in-networks-algorithmic.md",
+          "source_pages": [
+            634,
+            653
+          ]
+        },
+        {
+          "reference_tokens": 8233,
+          "candidate_tokens": 8302,
+          "token_recall": 1.0,
+          "token_precision": 0.991689,
+          "reference_chars": 67769,
+          "candidate_chars": 68221,
+          "chapter_id": "ch-25",
+          "chapter_title": "Incentives and Information Security",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-25-incentives-and-information-security.md",
+          "source_pages": [
+            654,
+            671
+          ]
+        },
+        {
+          "reference_tokens": 12789,
+          "candidate_tokens": 12860,
+          "token_recall": 1.0,
+          "token_precision": 0.994479,
+          "reference_chars": 102512,
+          "candidate_chars": 102980,
+          "chapter_id": "ch-26",
+          "chapter_title": "Computational Aspects of Prediction Markets",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-26-computational-aspects-of-prediction-markets.md",
+          "source_pages": [
+            672,
+            697
+          ]
+        },
+        {
+          "reference_tokens": 11444,
+          "candidate_tokens": 11513,
+          "token_recall": 1.0,
+          "token_precision": 0.994007,
+          "reference_chars": 92077,
+          "candidate_chars": 92541,
+          "chapter_id": "ch-27",
+          "chapter_title": "Manipulation-Resistant Reputation Systems",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-27-manipulation-resistant-reputation-systems.md",
+          "source_pages": [
+            698,
+            719
+          ]
+        },
+        {
+          "reference_tokens": 8675,
+          "candidate_tokens": 8758,
+          "token_recall": 1.0,
+          "token_precision": 0.990523,
+          "reference_chars": 73349,
+          "candidate_chars": 73881,
+          "chapter_id": "ch-28",
+          "chapter_title": "Sponsored Search Auctions S´ebastien Lahaie, David M. Pennock, Amin Saberi,",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-28-sponsored-search-auctions-s-ebastien-lahaie-david-m-pennock-amin-saberi.md",
+          "source_pages": [
+            720,
+            737
+          ]
+        },
+        {
+          "reference_tokens": 18712,
+          "candidate_tokens": 18781,
+          "token_recall": 1.0,
+          "token_precision": 0.996326,
+          "reference_chars": 178409,
+          "candidate_chars": 178867,
+          "chapter_id": "ch-29",
+          "chapter_title": "Computational Evolutionary Game Theory",
+          "path": "raw/canonical/algorithmic-game-theory/chapters/ch-29-computational-evolutionary-game-theory.md",
+          "source_pages": [
+            738,
+            775
+          ]
+        }
+      ]
+    }
+  ],
+  "passes_95_all": true
+}

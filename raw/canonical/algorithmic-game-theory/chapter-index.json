@@ -1,0 +1,606 @@
+{
+  "schema": "core-book-chapters-v1",
+  "book_id": "algorithmic-game-theory",
+  "chapters": [
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "front-matter",
+      "chapter_number": 0,
+      "chapter_title": "Front matter",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 1,
+      "source_page_end": 23,
+      "printed_page_start": null,
+      "printed_page_end": null,
+      "part_ids": [
+        "algorithmic-game-theory-front-matter-part-001"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/front-matter-front-matter.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/front-matter-front-matter.md",
+      "char_count": 57373
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-01",
+      "chapter_number": 1,
+      "chapter_title": "Basic Solution Concepts and Computational Issues",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 24,
+      "source_page_end": 49,
+      "printed_page_start": 22,
+      "printed_page_end": 49,
+      "part_ids": [
+        "algorithmic-game-theory-ch-01-part-002"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-01-basic-solution-concepts-and-computational-issues.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-01-basic-solution-concepts-and-computational-issues.md",
+      "char_count": 108603
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-02",
+      "chapter_number": 2,
+      "chapter_title": "The Complexity of Finding Nash Equilibria",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 50,
+      "source_page_end": 73,
+      "printed_page_start": 50,
+      "printed_page_end": 73,
+      "part_ids": [
+        "algorithmic-game-theory-ch-02-part-003"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-02-the-complexity-of-finding-nash-equilibria.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-02-the-complexity-of-finding-nash-equilibria.md",
+      "char_count": 95669
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-03",
+      "chapter_number": 3,
+      "chapter_title": "Equilibrium Computation for Two-Player Games in Strategic",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 74,
+      "source_page_end": 99,
+      "printed_page_start": 74,
+      "printed_page_end": 99,
+      "part_ids": [
+        "algorithmic-game-theory-ch-03-part-004"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-03-equilibrium-computation-for-two-player-games-in-strategic.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-03-equilibrium-computation-for-two-player-games-in-strategic.md",
+      "char_count": 113064
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-04",
+      "chapter_number": 4,
+      "chapter_title": "Learning, Regret Minimization, and Equilibria",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 100,
+      "source_page_end": 123,
+      "printed_page_start": 100,
+      "printed_page_end": 123,
+      "part_ids": [
+        "algorithmic-game-theory-ch-04-part-005"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-04-learning-regret-minimization-and-equilibria.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-04-learning-regret-minimization-and-equilibria.md",
+      "char_count": 106418
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-05",
+      "chapter_number": 5,
+      "chapter_title": "Combinatorial Algorithms for Market Equilibria",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 124,
+      "source_page_end": 155,
+      "printed_page_start": 124,
+      "printed_page_end": 155,
+      "part_ids": [
+        "algorithmic-game-theory-ch-05-part-006"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-05-combinatorial-algorithms-for-market-equilibria.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-05-combinatorial-algorithms-for-market-equilibria.md",
+      "char_count": 125568
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-06",
+      "chapter_number": 6,
+      "chapter_title": "Computation of Market Equilibria by Convex",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 156,
+      "source_page_end": 179,
+      "printed_page_start": 156,
+      "printed_page_end": 179,
+      "part_ids": [
+        "algorithmic-game-theory-ch-06-part-007"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-06-computation-of-market-equilibria-by-convex.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-06-computation-of-market-equilibria-by-convex.md",
+      "char_count": 104446
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-07",
+      "chapter_number": 7,
+      "chapter_title": "Graphical Games Michael Kearns",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 180,
+      "source_page_end": 201,
+      "printed_page_start": 180,
+      "printed_page_end": 201,
+      "part_ids": [
+        "algorithmic-game-theory-ch-07-part-008"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-07-graphical-games-michael-kearns.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-07-graphical-games-michael-kearns.md",
+      "char_count": 95573
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-08",
+      "chapter_number": 8,
+      "chapter_title": "Cryptography and Game Theory Yevgeniy Dodis and Tal Rabin",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 202,
+      "source_page_end": 229,
+      "printed_page_start": 202,
+      "printed_page_end": 227,
+      "part_ids": [
+        "algorithmic-game-theory-ch-08-part-009"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-08-cryptography-and-game-theory-yevgeniy-dodis-and-tal-rabin.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-08-cryptography-and-game-theory-yevgeniy-dodis-and-tal-rabin.md",
+      "char_count": 113093
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-09",
+      "chapter_number": 9,
+      "chapter_title": "Introduction to Mechanism Design (for Computer Scientists)",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 230,
+      "source_page_end": 263,
+      "printed_page_start": 228,
+      "printed_page_end": 263,
+      "part_ids": [
+        "algorithmic-game-theory-ch-09-part-010"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-09-introduction-to-mechanism-design-for-computer-scientists.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-09-introduction-to-mechanism-design-for-computer-scientists.md",
+      "char_count": 140841
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-10",
+      "chapter_number": 10,
+      "chapter_title": "Mechanism Design without Money",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 264,
+      "source_page_end": 287,
+      "printed_page_start": 264,
+      "printed_page_end": 287,
+      "part_ids": [
+        "algorithmic-game-theory-ch-10-part-011"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-10-mechanism-design-without-money.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-10-mechanism-design-without-money.md",
+      "char_count": 96271
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-11",
+      "chapter_number": 11,
+      "chapter_title": "Combinatorial Auctions Liad Blumrosen and Noam Nisan",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 288,
+      "source_page_end": 321,
+      "printed_page_start": 288,
+      "printed_page_end": 321,
+      "part_ids": [
+        "algorithmic-game-theory-ch-11-part-012"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-11-combinatorial-auctions-liad-blumrosen-and-noam-nisan.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-11-combinatorial-auctions-liad-blumrosen-and-noam-nisan.md",
+      "char_count": 137255
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-12",
+      "chapter_number": 12,
+      "chapter_title": "Computationally Efﬁcient Approximation Mechanisms",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 322,
+      "source_page_end": 351,
+      "printed_page_start": 322,
+      "printed_page_end": 351,
+      "part_ids": [
+        "algorithmic-game-theory-ch-12-part-013"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-12-computationally-ef-cient-approximation-mechanisms.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-12-computationally-ef-cient-approximation-mechanisms.md",
+      "char_count": 131587
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-13",
+      "chapter_number": 13,
+      "chapter_title": "Proﬁt Maximization in Mechanism Design",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 352,
+      "source_page_end": 383,
+      "printed_page_start": 352,
+      "printed_page_end": 383,
+      "part_ids": [
+        "algorithmic-game-theory-ch-13-part-014"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-13-pro-t-maximization-in-mechanism-design.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-13-pro-t-maximization-in-mechanism-design.md",
+      "char_count": 127627
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-14",
+      "chapter_number": 14,
+      "chapter_title": "Distributed Algorithmic Mechanism Design",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 384,
+      "source_page_end": 405,
+      "printed_page_start": 384,
+      "printed_page_end": 405,
+      "part_ids": [
+        "algorithmic-game-theory-ch-14-part-015"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-14-distributed-algorithmic-mechanism-design.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-14-distributed-algorithmic-mechanism-design.md",
+      "char_count": 95148
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-15",
+      "chapter_number": 15,
+      "chapter_title": "Cost Sharing Kamal Jain and Mohammad Mahdian",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 406,
+      "source_page_end": 431,
+      "printed_page_start": 406,
+      "printed_page_end": 431,
+      "part_ids": [
+        "algorithmic-game-theory-ch-15-part-016"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-15-cost-sharing-kamal-jain-and-mohammad-mahdian.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-15-cost-sharing-kamal-jain-and-mohammad-mahdian.md",
+      "char_count": 107764
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-16",
+      "chapter_number": 16,
+      "chapter_title": "Online Mechanisms David C. Parkes",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 432,
+      "source_page_end": 463,
+      "printed_page_start": 432,
+      "printed_page_end": 461,
+      "part_ids": [
+        "algorithmic-game-theory-ch-16-part-017"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-16-online-mechanisms-david-c-parkes.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-16-online-mechanisms-david-c-parkes.md",
+      "char_count": 135124
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-17",
+      "chapter_number": 17,
+      "chapter_title": "Introduction to the Inefﬁciency of Equilibria",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 464,
+      "source_page_end": 481,
+      "printed_page_start": 462,
+      "printed_page_end": 481,
+      "part_ids": [
+        "algorithmic-game-theory-ch-17-part-018"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-17-introduction-to-the-inef-ciency-of-equilibria.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-17-introduction-to-the-inef-ciency-of-equilibria.md",
+      "char_count": 71044
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-18",
+      "chapter_number": 18,
+      "chapter_title": "Routing Games Tim Roughgarden",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 482,
+      "source_page_end": 507,
+      "printed_page_start": 482,
+      "printed_page_end": 507,
+      "part_ids": [
+        "algorithmic-game-theory-ch-18-part-019"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-18-routing-games-tim-roughgarden.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-18-routing-games-tim-roughgarden.md",
+      "char_count": 105537
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-19",
+      "chapter_number": 19,
+      "chapter_title": "Network Formation Games and the Potential Function Method",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 508,
+      "source_page_end": 537,
+      "printed_page_start": 508,
+      "printed_page_end": 537,
+      "part_ids": [
+        "algorithmic-game-theory-ch-19-part-020"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-19-network-formation-games-and-the-potential-function-method.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-19-network-formation-games-and-the-potential-function-method.md",
+      "char_count": 125880
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-20",
+      "chapter_number": 20,
+      "chapter_title": "Selﬁsh Load Balancing Berthold V¨ocking",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 538,
+      "source_page_end": 563,
+      "printed_page_start": 538,
+      "printed_page_end": 563,
+      "part_ids": [
+        "algorithmic-game-theory-ch-20-part-021"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-20-sel-sh-load-balancing-berthold-v-ocking.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-20-sel-sh-load-balancing-berthold-v-ocking.md",
+      "char_count": 112481
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-21",
+      "chapter_number": 21,
+      "chapter_title": "The Price of Anarchy and the Design of Scalable Resource",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 564,
+      "source_page_end": 591,
+      "printed_page_start": 564,
+      "printed_page_end": 589,
+      "part_ids": [
+        "algorithmic-game-theory-ch-21-part-022"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-21-the-price-of-anarchy-and-the-design-of-scalable-resource.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-21-the-price-of-anarchy-and-the-design-of-scalable-resource.md",
+      "char_count": 110687
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-22",
+      "chapter_number": 22,
+      "chapter_title": "Incentives and Pricing in Communications Networks",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 592,
+      "source_page_end": 613,
+      "printed_page_start": 590,
+      "printed_page_end": 613,
+      "part_ids": [
+        "algorithmic-game-theory-ch-22-part-023"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-22-incentives-and-pricing-in-communications-networks.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-22-incentives-and-pricing-in-communications-networks.md",
+      "char_count": 93152
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-23",
+      "chapter_number": 23,
+      "chapter_title": "Incentives in Peer-to-Peer Systems",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 614,
+      "source_page_end": 633,
+      "printed_page_start": 614,
+      "printed_page_end": 633,
+      "part_ids": [
+        "algorithmic-game-theory-ch-23-part-024"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-23-incentives-in-peer-to-peer-systems.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-23-incentives-in-peer-to-peer-systems.md",
+      "char_count": 82140
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-24",
+      "chapter_number": 24,
+      "chapter_title": "Cascading Behavior in Networks: Algorithmic",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 634,
+      "source_page_end": 653,
+      "printed_page_start": 634,
+      "printed_page_end": 653,
+      "part_ids": [
+        "algorithmic-game-theory-ch-24-part-025"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-24-cascading-behavior-in-networks-algorithmic.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-24-cascading-behavior-in-networks-algorithmic.md",
+      "char_count": 88718
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-25",
+      "chapter_number": 25,
+      "chapter_title": "Incentives and Information Security",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 654,
+      "source_page_end": 671,
+      "printed_page_start": 654,
+      "printed_page_end": 671,
+      "part_ids": [
+        "algorithmic-game-theory-ch-25-part-026"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-25-incentives-and-information-security.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-25-incentives-and-information-security.md",
+      "char_count": 69349
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-26",
+      "chapter_number": 26,
+      "chapter_title": "Computational Aspects of Prediction Markets",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 672,
+      "source_page_end": 697,
+      "printed_page_start": 672,
+      "printed_page_end": 697,
+      "part_ids": [
+        "algorithmic-game-theory-ch-26-part-027"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-26-computational-aspects-of-prediction-markets.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-26-computational-aspects-of-prediction-markets.md",
+      "char_count": 104992
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-27",
+      "chapter_number": 27,
+      "chapter_title": "Manipulation-Resistant Reputation Systems",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 698,
+      "source_page_end": 719,
+      "printed_page_start": 698,
+      "printed_page_end": 719,
+      "part_ids": [
+        "algorithmic-game-theory-ch-27-part-028"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-27-manipulation-resistant-reputation-systems.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-27-manipulation-resistant-reputation-systems.md",
+      "char_count": 94374
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-28",
+      "chapter_number": 28,
+      "chapter_title": "Sponsored Search Auctions S´ebastien Lahaie, David M. Pennock, Amin Saberi,",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 720,
+      "source_page_end": 737,
+      "printed_page_start": 720,
+      "printed_page_end": 737,
+      "part_ids": [
+        "algorithmic-game-theory-ch-28-part-029"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-28-sponsored-search-auctions-s-ebastien-lahaie-david-m-pennock-amin-saberi.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-28-sponsored-search-auctions-s-ebastien-lahaie-david-m-pennock-amin-saberi.md",
+      "char_count": 75507
+    },
+    {
+      "type": "book-chapter",
+      "book_id": "algorithmic-game-theory",
+      "chapter_id": "ch-29",
+      "chapter_number": 29,
+      "chapter_title": "Computational Evolutionary Game Theory",
+      "source_pdf": "raw/inbox/manual-drop/PDF_B.pdf",
+      "source_page_start": 738,
+      "source_page_end": 775,
+      "printed_page_start": 738,
+      "printed_page_end": 775,
+      "part_ids": [
+        "algorithmic-game-theory-ch-29-part-030"
+      ],
+      "ingest_engine": "mineru-precise-v4",
+      "ingest_status": "pending_quality",
+      "path": "raw/canonical/algorithmic-game-theory/chapters/ch-29-computational-evolutionary-game-theory.md",
+      "mineru_path": "raw/canonical/algorithmic-game-theory/mineru/ch-29-computational-evolutionary-game-theory.md",
+      "char_count": 183816
+    }
+  ]
+}

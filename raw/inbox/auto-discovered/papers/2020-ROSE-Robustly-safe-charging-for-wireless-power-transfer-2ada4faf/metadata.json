@@ -1,0 +1,50 @@
+{
+  "title": "ROSE: Robustly safe charging for wireless power transfer",
+  "authors": [
+    "H Dai",
+    "Y Xu",
+    "G Chen",
+    "W Dou",
+    "C Tian…"
+  ],
+  "abstract": "… EMR, the optimization of power scheduling for all chargers is … It is a challenging task since both the optimization goal and … radiation constrained scheduling of wireless charging tasks …",
+  "published_date": "2022-06-01",
+  "updated_date": "",
+  "year": 2022,
+  "doi": "10.1109/tmc.2020.3032591",
+  "arxiv_id": "",
+  "landing_url": "https://doi.org/10.1109/tmc.2020.3032591",
+  "pdf_url": "https://cs.nju.edu.cn/tianchen/lunwen/2022/tmc22-haipeng.pdf",
+  "is_open_access": false,
+  "license": "",
+  "providers": [
+    "serpapi"
+  ],
+  "provider_ids": {
+    "serpapi": "wK8r_BWVzQEJ"
+  },
+  "matched_queries": [
+    "wireless charging scheduling optimization"
+  ],
+  "score": 6.0,
+  "score_reasons": [
+    "标题命中：charging",
+    "摘要命中：optimization, scheduling"
+  ],
+  "local_pdf": "raw/inbox/auto-discovered/papers/2020-ROSE-Robustly-safe-charging-for-wireless-power-transfer-2ada4faf/paper.pdf",
+  "fulltext_resolved_via": "Nanjing University author-hosted copy",
+  "acquisition_method": "auto_discovery",
+  "discovered_via": [
+    "serpapi"
+  ],
+  "discovery_run": "raw/inbox/auto-discovered/runs/search-20260714-214003",
+  "triage_status": "promoted",
+  "selected_by_user": true,
+  "acquired_at": "2026-07-14T13:40:03+00:00",
+  "selected_at": "2026-07-14T15:49:13+00:00",
+  "canonicalized_at": "2026-07-14T16:03:19+00:00",
+  "triage_note": "用户于 2026-07-14 明确要求下载并使用 MinerU；PDF 已校验，MinerU 7/7 成功，现标记进入 canonical，等待 A 编译。",
+  "candidate_rank": 9,
+  "source_manifest": "raw/inbox/auto-discovered/runs/search-20260714-214003/results.json",
+  "boundary": "promoted to canonical; pending wiki ingest"
+}

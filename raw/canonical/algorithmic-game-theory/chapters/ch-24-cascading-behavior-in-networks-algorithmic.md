@@ -1,0 +1,1116 @@
+---
+type: "book-chapter"
+book_id: "algorithmic-game-theory"
+chapter_id: "ch-24"
+chapter_number: 24
+chapter_title: "Cascading Behavior in Networks: Algorithmic"
+source_pdf: "raw/inbox/manual-drop/PDF_B.pdf"
+source_page_start: 634
+source_page_end: 653
+printed_page_start: 634
+printed_page_end: 653
+part_ids: ["algorithmic-game-theory-ch-24-part-025"]
+ingest_engine: "mineru-precise-v4"
+ingest_status: "pending_quality"
+---
+
+# Cascading Behavior in Networks: Algorithmic
+
+P1: SBT
+9780521872829main       CUNY1061-Nisan       0 521 87282 0     July 5, 2007    14:38
+
+
+
+
+                                                             CHAPTER 24
+
+
+                                        Cascading Behavior
+                                     in Networks: Algorithmic
+                                        and Economic Issues
+
+                                                             Jon Kleinberg
+
+
+
+
+                                                                 Abstract
+
+                    The flow of information or influence through a large social network can be thought of as unfolding
+                    with the dynamics of an epidemic: as individuals become aware of new ideas, technologies, fads,
+                    rumors, or gossip, they have the potential to pass them on to their friends and colleagues, causing the
+                    resulting behavior to cascade through the network.
+                        We consider a collection of probabilistic and game-theoretic models for such phenomena proposed
+                    in the mathematical social sciences, as well as recent algorithmic work on the problem by computer
+                    scientists. Building on this, we discuss the implications of cascading behavior in a number of online
+                    settings, including word-of-mouth effects (also known as “viral marketing”) in the success of new
+                    products, and the influence of social networks in the growth of online communities.
+
+
+
+
+                                                          24.1 Introduction
+
+                    The process by which new ideas and new behaviors spread through a population has
+                    long been a fundamental question in the social sciences. New religious beliefs or polit-
+                    ical movements; shifts in society that lead to greater tolerance or greater polarization;
+                    the adoption of new technological, medical, or agricultural innovations; the sudden
+                    success of a new product; the rise to prominence of a celebrity or political candidate;
+                    the emergence of bubbles in financial markets and their subsequent implosion – these
+                    phenomena all share some important qualitative properties. They tend to begin on a
+                    small scale with a few “early adopters”; more and more people begin to adopt them
+                    as they observe their friends, neighbors, or colleagues doing so; and the resulting new
+                    behaviors may eventually spread through the population contagiously, from person to
+                    person, with the dynamics of an epidemic.
+                       People have long been aware of such processes at an anecdotal level; the systematic
+                    study of them developed, in the middle of the 20th century, into an area of sociology
+                    known as the diffusion of innovations. The initial research on this topic was empirical
+                    (see, e.g., Coleman et al., 1966; Rogers, 1995; Strang and Soule, 1998 for background),
+                                                                     613
+P1: SBT
+9780521872829main      CUNY1061-Nisan     0 521 87282 0   July 5, 2007   14:38
+
+
+
+
+                    614                       cascading behavior in networks
+
+                    but in the 1970s economists and mathematical sociologists such as Schelling (1978) and
+                    Granovetter (1978) began formulating basic mathematical models for the mechanisms
+                    by which ideas and behaviors diffuse through a population. There are several reasons
+                    to seek models that capture observed data on diffusion: in addition to helping us
+                    understand, at a fundamental level, how the spread of new ideas “works,” such models
+                    have the potential to help us predict the success or failure of new innovations in their
+                    early stages, and potentially to shape the underlying process so as to increase (or
+                    reduce) the chances of success.
+                       In this chapter, we discuss some of the basic models in this area, as well as suggesting
+                    some current applications to online information systems. While the overall topic is
+                    much too vast even to survey in a brief setting such as this, we hope to convey some
+                    of the game-theoretic and algorithmic grounding of the area, and to highlight some
+                    directions for future work. We also indicate some of the ways in which large-scale
+                    online communities provide rich data for observing social diffusion processes as they
+                    unfold, thus providing the opportunity to develop richer models. Further related work
+                    is discussed briefly in the Notes at the end of the chapter.
+
+
+                               24.2 A First Model: Networked Coordination Games
+
+                    One of the simplest models for social diffusion can be motivated by game-theoretic
+                    considerations. To set the stage for this, notice that many of the motivating scenarios
+                    considered above have the following general flavor: each individual v has certain
+                    friends, acquaintances, or colleagues, and the benefits to v of adopting the new behavior
+                    increase as more and more of these other individuals adopt it. In such a case, simple
+                    self-interest will dictate that v should adopt the new behavior once a sufficient fraction
+                    of v’s neighbors have done so. For example, many new technological, economic, or
+                    social practices become more valuable as the number of people using them increases:
+                    two organizations may find it easier to collaborate on a joint project if they are using
+                    compatible technologies; two people may find it easier to engage in social interaction
+                    – all else being equal – if their beliefs and opinions are similar.
+
+                    Defining the game. Specifically, here is a first model for such situations, based on
+                    work of Morris (2000) that in turn builds on earlier work by Blume (1993), Ellison
+                    (1993), and Young (1998). Consider a graph G = (V , E) in which the nodes are the
+                    individuals in the population, and there is an edge (v, w) if v and w are friends, or
+                    otherwise engaged in some kind of social interaction. Sociologists refer to such a graph
+                    as a social network, a structure in which the nodes are individuals or other social entities
+                    (such as organizations), and the edges represent some type of social tie.
+                       We will study a situation in which each node has a choice between two possible
+                    behaviors: the “old” behavior, labeled A, and the “new” behavior, labeled B. On each
+                    edge (v, w), there is an incentive for v and w to have their behaviors match, which
+                    we model as the following coordination game parametrized by a real number q, with
+                    0 < q < 1.
+                    r If v and w both choose behavior A, they each receive a payoff of q.
+P1: SBT
+9780521872829main      CUNY1061-Nisan      0 521 87282 0   July 5, 2007   14:38
+
+
+
+
+                                    a first model: networked coordination games                               615
+
+                    r If v and w both choose behavior B, they each receive a payoff of 1 − q.
+                    r If v and w choose opposite behaviors, they each receive a payoff of 0.
+
+                    Of course, it is easy to imagine many possible generalizations of this simple game, and
+                    we will explore some of these in the next section as well as in the exercises at the end
+                    of the chapter. But for now, we will keep things deliberately simple.
+                        Node v is playing this game with each of its neighbors in G, and its overall payoff
+                    is simply the sum of the payoffs from these separate games. Notice how q (specifically
+                    its relation to 1 − q) captures the extent to which the new behavior is preferable to the
+                    old behavior at a purely “local” level, taking into account only pairwise interactions.
+                        Suppose that the behaviors of all other nodes are fixed, and node v is trying to select
+                    a behavior for itself. If the degree of node v is dv , and dvA of its neighbors have behavior
+                    A and dvB have behavior B, then the payoff to v from choosing behavior A is qdvA while
+                    the payoff from choosing behavior B is (1 − q)dvB . A simple computation shows that
+                    v should adopt behavior B if dvB > qdv , and behavior A if dvB < qdv . (To handle ties,
+                    we will say that v adopts behavior B if dvB = qdv .) In other words, q is a threshold: a
+                    node should adopt the new behavior if at least a q fraction of its neighbors have done
+                    so. Note that new behaviors for which q is small spread more easily – a node is more
+                    receptive to switching to a new behavior B when q is small.
+
+                    Cascading behavior and the contagion threshold. We can now study a basic model
+                    of cascading behavior in G, simply assuming that each node repeatedly updates its
+                    choice of A or B in response to the current behaviors of its neighbors. Keeping the
+                    model as simple as possible, we assume that each node simultaneously updates its
+                    behavior in each of discrete time steps t = 1, 2, 3, . . .. If S is the set of nodes initially
+                    adopting the new behavior B, we let hq (S) denote the set of nodes adopting B after
+                    one round of updating with threshold q; we let hkq (S) denote the result of applying hq
+                    to S a total of k times in succession – in other words, this is the set of nodes adopting
+                    B after k rounds of updating. Note that nodes may switch from A to B or from B
+                    to A, depending on what their neighbors are doing; it is not necessarily the case, for
+                    example, that S is a subset of h(S).
+                        One of the central questions in such a model is to determine when a small set of
+                    nodes initially adopting a new behavior can eventually convert all (or almost all) of the
+                    population. We formalize this as follows. First, we will assume that the node set of G
+                    is countably infinite, with each node having a finite number of neighbors. (Anything
+                    we refer to as a “graph” in this section will have this property.) We say that a node w
+                                                                                          j
+                    is converted by a set S if, for some k, the node w belongs to hq (S) for all j ≥ k. We
+                    say that a set S is contagious (with respect to hq ) if every node is converted by S – that
+                    is, if a new behavior originating at S eventually spreads to the full set of nodes.
+                        Now, it is easier for a set S to be contagious when the threshold q is small, so the
+                    interesting question is how large a threshold we can have and still observe small sets
+                    spreading a new behavior to everyone. We therefore define the contagion threshold of
+                    the social network G to be the maximum q for which there exists a finite contagious
+                    set. Note that the contagion threshold is a property purely of the topology of G – a
+                    network with large contagion threshold enables even behaviors that spread sluggishly
+                    to potentially reach the full population.
+P1: SBT
+9780521872829main      CUNY1061-Nisan     0 521 87282 0   July 5, 2007   14:38
+
+
+
+
+                    616                       cascading behavior in networks
+
+                    An example and a question. Here is an example to make the definitions
+                    more concrete. Suppose that G is a (two-way) infinite path, with nodes labeled
+                    {. . . , −2, −1, 0, 1, 2, . . .}, and there is a new behavior B with threshold q = 1/2.
+                    Now, first, suppose that the single node 0 initially adopts B. Then in time step t = 1,
+                    nodes 1 and −1 will adopt B, but 0 (observing both 1 and −1 in their initial behaviors
+                    A) will switch to A. As a result, in time step t = 2, nodes 1 and −1 will switch back
+                    to behavior A, and the new behavior will have died out completely.
+                        On the other hand, suppose that the set S = {−1, 0, 1} initially adopts B. Then in
+                    time step t = 1, these three nodes will stay with B, and nodes −2 and 2 will switch to
+                    B. More generally, in time step t = k, nodes {−k, −(k − 1), . . . , k − 1, k} will already
+                    be following behavior B, and nodes −(k + 1) and k + 1 will switch to B. Thus, every
+                    node is converted by S = {−1, 0, 1}, the set S is contagious, and hence the contagion
+                    threshold of G is at least q = 1/2. (Note that it would in fact have been sufficient to
+                    start with the smaller set S  = {0, 1}.)
+                        In fact, 1/2 is the contagion threshold of G: given any finite set S adopting a new
+                    behavior B with threshold q > 1/2, it is easy to see that B will never spread past the
+                    rightmost member of S.
+                        It is instructive to try this oneself on other graphs; if one does, it quickly becomes
+                    clear that while a number of simple graphs have contagion threshold 1/2, it is hard
+                    to find one with a contagion threshold strictly above 1/2. This suggests the following
+                    question: Does there exist a graph G with contagion threshold q > 1/2? We will
+                    shortly answer this question, after first resolving a useful technical issue in the model.
+
+                    Progressive vs. nonprogressive processes. Our model thus far has the property that
+                    as time progresses, nodes can switch from A to B or from B to A, depending on
+                    the states of their neighbors. Many behaviors that one may want to model, however,
+                    are progressive, in the sense that once a node switches from A to B, it remains with
+                    B in all subsequent time steps. (Consider, for example, a professional community
+                    in which the behavior is that of returning to graduate school to receive an advanced
+                    degree. For all intents and purposes, this is a progressive process.) It is worth con-
+                    sidering a variation on our model that incorporates this notion of monotonicity for
+                    two reasons. First, it is useful to be able to capture these types of settings; and sec-
+                    ond, it will turn out to yield useful ways of thinking about the nonprogressive case as
+                    well.
+                       We model the progressive contagion process as follows. As before, time moves in
+                    discrete steps t = 1, 2, 3, . . . . In step t, each node v currently following behavior A
+                    switches to B if at least a q fraction of its neighbors is currently following B. Any
+                    node following behavior B continues to follow it in all subsequent time steps. Now, if
+                    S is the set of nodes initially adopting B, we let hq (S) denote the set of nodes adopting
+                                                                                                k
+                    B after one round of updating in this progressive process, and we let hq (S) denote the
+                    result of applying hq to S a total of i times in succession. We can then define the notion
+                    of converted and contagious with respect to hq exactly as we did for hq .
+                       With a progressive process, it seems intuitively that it should be easier to find finite
+                    contagious sets – after all, in the progressive process, one does not have to worry about
+                    early adopters switching back to the old behavior A and thereby killing the spread of
+                    B. In view of this intuition, it is perhaps a bit surprising that for any graph G, the
+P1: SBT
+9780521872829main      CUNY1061-Nisan     0 521 87282 0      July 5, 2007   14:38
+
+
+
+
+                                   a first model: networked coordination games                           617
+
+                    progressive and nonprogressive models have the same contagion threshold (Morris,
+                    2000).
+
+                      Theorem 24.1 For any graph G, there exists a finite contagious set with respect
+                      to hq if and only if there exists one with respect to hq .
+
+                      proof Clearly, if S is contagious with respect to hq , then it is also contagious
+                      with respect to hq . Hence the crux of the proof is the following: given a set S that
+                      is contagious with respect to hq , we need to identify a set S  that is contagious
+                      with respect to hq .
+                          Thus, let S be contagious with respect to hq . The main observation behind the
+                      proof is the following. Since all nodes of G have finite degree, there is a finite
+                      set S that consists of S together with every node that has a neighbor in S. Since
+                        k
+                      hq (S) eventually grows to include every node of G, there exists some  such
+                                                                    
+                      that hq (S) contains S. We define T = hq (S), and we claim that T is contagious
+                      with respect to hq , which will complete the proof. Thus, intuitively, we watch the
+                      nonprogressive process until it “engulfs” the set of initial adopters S, surrounding
+                      them with all their possible neighbors; this larger set is then a robust enough point
+                      that the process would spread even under the progressive rule from here on.
+                         So why is the set T contagious with respect to hq ? This requires a bit of
+                      manipulation of the definitions of hq and hq , although the details are not that
+                      complicated. We first note the following fact, whose proof is by induction on j is
+                      left an exercise to the reader:
+                                                                  j                  j −1    
+                                   For all X and all j , we have hq (X) = X ∪ hq hq (X) .            (24.1)
+                                               j                                     j −1
+                      In other words, to get hq (X), rather than applying hq to hq (X)), we can instead
+                      apply hq and then add in X.
+                                                               j                       j
+                         For ease of notation, let Sj denote h (S), and let Tj denote h (T ). (Recall also
+                      that T = S .) Now, suppose j > . Then by (24.1) above, we have
+                                                          Sj = S ∪ hq (Sj −1 ).                     (24.2)
+                      But since Sj −1 includes T and hence all the neighbors of S, we have S ⊆ hq (Sj −1 ).
+                      Hence the “S ∪” in (24.2) is superfluous, and we can write Sj = hq (Sj −1 ). By
+                      induction, it now follows that for all j > , we have
+                                                   hjq− (T ) = hjq− (S ) = Sj ,
+                      and hence T is contagious with respect to hq .
+
+                    The contagion threshold is at most 1/2. We now return to our question: does there
+                    exist a graph G whose contagion threshold exceeds 1/2? Thanks to Theorem 24.1,
+                    this question has the same answer regardless of whether we consider the progressive
+                    or nonprogressive process, and it turns out that the analysis is very easy if we consider
+                    the progressive version.
+                       We now show that 1/2 is in fact an upper bound for all graphs (Morris, 2000). Which
+                    can be read as a general statement about contagion on networks: a behavior cannot
+P1: SBT
+9780521872829main      CUNY1061-Nisan     0 521 87282 0   July 5, 2007   14:38
+
+
+
+
+                    618                       cascading behavior in networks
+
+                    spread very far if it requires a strict majority of your friends to convince you to adopt
+                    it.
+
+
+                      Theorem 24.2       The contagion threshold of any graph G is at most 1/2.
+
+
+                      proof Let q > 1/2, and let S be any finite subset of the nodes of G. We show
+                      that S is not contagious with respect to hq .
+                                                              j
+                          Recall our notation that Sj = hq (S). For a set of nodes X, we let δ(X) denote
+                      the set of edges with one end in X and the other end not in X, and we let d(X) be
+                      the cardinality of δ(X). Since all nodes in G have finite degree, d(X) is a natural
+                      number for any finite set of nodes X.
+                          We now claim that for all j > 0 for which Sj −1 ⊂= Sj , we have d(Sj ) < d(Sj −1 ).
+                      To see this, we account for the difference between the sets δ(Sj −1 ) and δ(Sj ) by
+                      allocating it over the separate contributions of the nodes in Sj − Sj −1 . For each
+                      node v in Sj − Sj −1 , its edges into Sj −1 contribute to δ(Sj −1 ) but not δ(Sj ), and
+                      its edges into V − Sj contribute to δ(Sj ) but not δ(Sj −1 ). But since q > 1/2, and
+                      since v decided to switch to B in iteration j , it has strictly more edges into Sj −1
+                      (i.e., the nodes that had already adopted B) than it has into V − Sj . Summing
+                      these strict inequalities over all nodes v in Sj − Sj −1 , we have d(Sj ) < d(Sj −1 ).
+                          Finally, we argue that S is not contagious with respect to hq . Indeed, the
+                      sequence of numbers d(S), d(S1 ), d(S2 ), d(S3 ), . . ., is strictly decreasing as long
+                      as the sets S, S1 , S2 , . . ., remain distinct from one another. But since d(S) is a
+                      natural number, and d(Sj ) ≥ 0 for all j , there must be some value k for which the
+                      sets stop growing, and Sk = Sk+1 = Sk+2 = · · · from then on. Since Sj is finite
+                      for any j , the set Sk in particular is finite, and hence S is not contagious.
+
+
+
+                                   24.3 More General Models of Social Contagion
+
+                    Thus far, we have been considering a very simple model for cascading behavior in a
+                    social network: people switch to a new behavior when a certain threshold fraction of
+                    neighbors have already switched; but in our first model this threshold was the same for
+                    all nodes, and all neighbors had equal “weight” in raising a node toward its threshold.
+                    Clearly a more general model could capture a greater degree of heterogeneity in the
+                    population.
+                        It is useful to mention a few preliminary points here. In this section, we will consider
+                    graphs that may be either finite or infinite. Also, we will work with directed graphs,
+                    enabling us to encode the notion that for two nodes v and w, the influence of v on w
+                    may be different from the influence of w on v. (One can model symmetric relationships
+                    between a pair of nodes in this case by including edges in both directions between them.)
+                    Also, we will consider contagion processes that are progressive, in that a node never
+                    switches back from a new behavior to an old behavior; at this end of this section, we
+                    will discuss a way to encode nonprogressive processes by a reduction to the progressive
+                    case, though by a different means than we saw earlier.
+P1: SBT
+9780521872829main       CUNY1061-Nisan           0 521 87282 0       July 5, 2007      14:38
+
+
+
+
+                                           more general models of social contagion                                                 619
+
+                    A linear threshold models. In a first generalization of the model, we allow nodes to
+                    weigh the influences of their neighbors differently.1 Furthermore, we assume that each
+                    node’s threshold – the fraction of neighbors required for it to adopt the new behavior
+                    – is chosen uniformly at random. Thus, in the Linear Threshold Model, we introduce
+                    the following two ingredients.
+                    r We have a nonnegative weight bvw on each edge (w, v), indicating the influence that w
+                                                       
+                      exerts on v. We will require that w∈N(v) bvw ≤ 1, where N (v) denotes the set of nodes
+                      with edges to v.
+                    r Each node v chooses a threshold θv uniformly at random from [0, 1]; this indicates the
+                      weighted fraction of v’s neighbors that must adopt the behavior before v does.
+
+                    Now, the (progressive) dynamics of the behavior operates just as it did in the previous
+                    section. Some set of nodes S starts out adopting the new behavior B; all other nodes start
+                    out adopting A. We will say that a node is active if it is following B, and accordingly
+                    will say that it has been activated when it switches from A to B.
+                       Time operates in discrete steps t = 1, 2, 3, . . .. At a given time t, any inactive node
+                    v becomes active if its fraction of active neighbors exceeds its threshold:
+                                                          
+                                                                  bvw ≥ θv .
+                                                               active w∈N(v)
+
+                    This in turn may cause other nodes to become active in subsequent time steps, as it
+                    did in the model of the previous section, leading to potentially cascading adoption of
+                    behavior B.
+                       Note how the different thresholds for nodes indicate different predispositions to
+                    adopt B – small θv indicates a more liberal approach toward adoption, while a node
+                    with large θv waits until a greater fraction of its neighbors have already adopted. While
+                    we have motivated the model directly in terms of the thresholds, one can also easily
+                    derive it from a networked coordination game, in which nodes have different payoff
+                    matrices, and different “stakes” in the games with their various neighbors.
+
+                    A general threshold model. Of course, the Linear Threshold Model is still very
+                    simple, in that it assumes influences of neighbors are strictly additive. It would be nice
+                    to express the notion that an individual will adopt a behavior when, for example, two
+                    of her relatives and three of her coworkers do so – a rule that cannot be expressed as a
+                    simple weighted sum.
+                       To handle this richer type of model, we consider the following General Threshold
+                    Model. Each node v now has an arbitrary function gv (·) defined on subsets of its
+                    neighbor set N(v): for any set of neighbors X ⊆ N(v), there is a value gv (X) between
+                    0 and 1. We will assume here that this function is monotone in the sense that if X ⊆ Y ,
+                    then gv (X) ≤ gv (Y ).2
+
+                    1 Given the directed nature of the graph, we adopt the following terminological convention: we say here that w
+
+                      is a neighbor of v if there is an edge (w, v), and we say that w is an outneighbor if there is an edge (v, w).
+                    2 An interesting issue, which has been the subject of qualitative investigation but much less theoretical modeling,
+
+                      is the question of nonmonotone influence – a node may be motivated to adopt a new behavior once a few friends
+                      have done so, but then motivated to abandon it once too many have done so (see e.g., Granovetter, 1978).
+P1: SBT
+9780521872829main      CUNY1061-Nisan      0 521 87282 0    July 5, 2007   14:38
+
+
+
+
+                    620                        cascading behavior in networks
+
+                       Now, the dynamics of adoption proceed just as in the Linear Threshold Model, but
+                    with gv (·) playing the role of the weighed sum. Specifically, each node v chooses a
+                    threshold θv uniformly at random in [0, 1]; there is an initial set S of active nodes;
+                    and for time steps t = 1, 2, 3, . . ., each v becomes active if its set of currently active
+                    neighbors satisfies gv (X) ≥ θv .
+                       This new model is extremely general – it encodes essentially any threshold rule in
+                    which influence increases (or remains constant) as more friends adopt. Moreover, the
+                    assumption that the threshold is selected uniformly at random (rather than from some
+                    other distribution) is essentially without loss of generality, since other distributions can
+                    be represented by appropriately modifying the function gv . We now consider one final
+                    class of models, and then discuss some of the intermediate classes of special cases that
+                    may hold particular interest.
+
+                    A cascade model. Thus far, we have formulated models for the spread of a behavior
+                    strictly in terms of node thresholds – as some people adopt the behavior, the thresholds
+                    of others are exceeded, they too adopt, and the process spreads. It is natural, however,
+                    to ask whether we can pose a different model based more directly on the notion that
+                    new behaviors are contagious: a probabilistic model in which you “catch” the behavior
+                    from your friends. It turns out not to be hard to do this, and moreover, the resulting
+                    model is equivalent to the General Threshold Model.
+                        We define the Cascade Model to incorporate these ideas as follows. Again, there is
+                    an initial active set S, but now the dynamics proceeds as follows: whenever there is an
+                    edge (u, v) such that u is active and v is not, the node u is given one chance to activate
+                    v. This activation succeeds with some probability that depends not just on u and v, but
+                    also on the set of nodes that have already tried and failed to activate v. If u succeeds,
+                    then v may now in turn try to activate some of its (currently inactive) outneighbors; if
+                    u fails, then u joins the set of nodes who have tried and failed to activate v.
+                        This model thus captures the notion of contagion more directly, and also allows us
+                    to incorporate the idea that a node’s receptiveness to influence depends on the past
+                    history of interactions with its neighbors. We make the model concrete as follows. In
+                    place of a function gv , each node v now has an incremental function that takes the form
+                    pv (u, X), where u is a neighbor of v and X is a set of neighbors of v not containing u.
+                    The value pv (u, X) is the probability that u succeeds in activating v, given that the
+                    set X of neighbors has already tried and failed. For our purposes here, we will only
+                    consider functions pv that are order-independent: if a set of neighbors u1 , u2 , . . . , uk all
+                    try to influence v, then the overall probability of success (as determined by successive
+                    applications of pv ) does not depend on the order in which they try.
+                        While the Cascade Model is syntactically different from the General Threshold
+                    Model, we now argue that the two are in fact equivalent: One can translate from a set of
+                    incremental functions pv to a set of threshold functions gv , and vice versa, so that the
+                    resulting processes produce the same distributions on outcomes (Kempe et al., 2005).
+                        We now describe the translations in both directions; further detail behind the proofs
+                    can be found in Kempe et al. (2005). First, suppose we are given an instance of the
+                    General Threshold Model with functions gv ; we define corresponding functions pv as
+                    follows. If a set of nodes X has already tried and failed to activate v, then we know that
+                    v’s threshold θv lies in the interval (gv (X), 1]; subject to this constraint, it is uniformly
+P1: SBT
+9780521872829main      CUNY1061-Nisan       0 521 87282 0   July 5, 2007     14:38
+
+
+
+
+                                       more general models of social contagion                                 621
+
+                    distributed. In order for u to succeed after all the nodes in X have tried and failed, we
+                    must further have θv ≤ gv (X ∪ {u}). Hence we should define the incremental function
+                                                              gv (X ∪ {u}) − gv (X)
+                                                pv (u, X) =                         .
+                                                                   1 − gv (X)
+                    Conversely, suppose that we have incremental functions pv . Then   the probability v is
+                    not activated by a set of neighbors X = {u1 , u2 , . . . , uk } is ki=1 (1 − pv (ui , Xi−1 )),
+                    where we write Xi−1 = {u1 , . . . , ui−1 }. Note that order-independence is crucial here,
+                    to ensure that this quantity is independent of the way in which we label the elements
+                    of X. Hence we can define a threshold function gv by setting
+                                                               
+                                                               k
+                                                gv (X) = 1 −         (1 − pv (ui , Xi−1 ).
+                                                               i=1
+
+                    This completes the translations in both directions, and hence establishes the equivalence
+                    of the two models.
+                       Next we consider some special cases of the Cascade Model that will be of particular
+                    interest to us. (Given the equivalence to the General Threshold Model, these could also
+                    be written in that framework, though not always as simply.)
+                      (i) First, it is easy to encode the notion that v will deterministically activate once it has
+                          k active neighbors: we simply define pv (u, X) = 0 if |X| = k − 1, and pv (u, X) = 1
+                          if |X| = k − 1.
+                     (ii) In contrast, the influence of a node’s neighbors exhibits diminishing returns if it
+                          attenuates as more and more people try and fail to influence it. Thus, we say that a
+                          set of incremental functions pv exhibits diminishing returns if pv (u, X) ≥ pv (u, Y )
+                          whenever X ⊆ Y .
+                    (iii) A particularly simple special case that exhibits diminishing returns is the Independent
+                          Cascade Model, in which u’s influence on v is independent of the set of nodes that
+                          have already tried and failed: pv (u, X) = puv for some parameter puv that depends
+                          only on u and v.
+                    We will see that the contrast between (i) and (ii) above will emerge as a particularly
+                    important qualitative distinction: whether the influence of one’s neighbors in the social
+                    network incorporates some notion of “critical mass” (as in (i)), with a crucial number
+                    of adopters needed for successful influence; or whether the strength of influence simply
+                    decreases steadily (as in (ii)) as one is exposed more and more to the new behavior.
+                    In the next section, we will discuss an algorithmic problem whose computational
+                    complexity is strongly affected by this distinction; and following that, we will discuss
+                    some recent empirical studies that seek to identify the two sides of this dichotomy in
+                    online influence data.
+                       Before this, we briefly discuss a useful way of translating between the progressive
+                    and nonprogressive versions of these cascade processes.
+
+                    Progressive vs. nonprogressive processes (redux). The discussion in this section has
+                    been entirely in terms of progressive processes, where nodes switching from the old
+                    behavior A to the new behavior B never switch back. There is a useful construction
+                    that allows one to study the nonprogressive version of the process by translation to
+P1: SBT
+9780521872829main      CUNY1061-Nisan     0 521 87282 0   July 5, 2007   14:38
+
+
+
+
+                    622                        cascading behavior in networks
+
+                    a progressive one on a different graph (Kempe et al., 2003). As it is a very general
+                    construction, essentially independent of the particular influence rules being used, we
+                    describe it at this level of generality.
+                       Given a graph G on which we have a non-progressive process that may run for up to
+                    T steps, we create a larger graph G built from T copies of G, labeled G1 , G2 , . . . , GT .
+                    Now, let v i be the copy of node v in the graph Gi ; we construct edges (u i−1 , v i )
+                    for each neighbor u of v. As a result, the neighbors of v i in G are just the copies of
+                    v’s neighbors that “live” in the previous time-step. In this way, we can define the same
+                    influence rules on G , node-by-node, that we had in G, and study the non-progressive
+                    process in G as a progressive process in G : some copies of v in G will be an active,
+                    and other will not, reflecting precisely the time steps in which v was active in G.
+
+
+                                         24.4 Finding Influential Sets of Nodes
+
+                    A number of current Internet applications concern domains in which cascading behavior
+                    is a crucial phenomenon, and where a better understanding of cascades could lead to
+                    important insights. One example is viral marketing, where a company tries to use word-
+                    of-mouth effects to market a product with a limited advertising budget, relying on the
+                    fact that early adopters may convince friends and colleagues to use the product, creating
+                    a large wave of adoptions. While word-of-mouth effects have a history in the area of
+                    marketing that long predates the Internet, viral marketing has become a particularly
+                    powerful force in online domains, given the ease with which information spreads, and
+                    the rich data on customer behavior that can be used to facilitate the process.
+                        A second example is the design of search tools to track news, blogs, and other
+                    forms of online discussion about current events. When news of an event first appears,
+                    it generally spreads rapidly through a network of both mainstream news sources and
+                    the larger population of bloggers – as news organizations and individuals learn of
+                    the event, they write their own commentary or versions of the story, and subsequent
+                    waves can occur as new developments take place. As with our first example, news was
+                    studied as a diffusion process long before the appearance of the Internet, but the fact
+                    that news sources are now online provides large-scale, time-resolved data for studying
+                    this diffusion, as well as the opportunity to build tools that can help people track the
+                    development of a news story in real time as it evolves.
+                        There are a number of interesting algorithmic questions related to these processes,
+                    and here we focus on a particular one, posed by Domingos and Richardson (2001) – the
+                    identification of influential sets of nodes. While this is a natural question in the context
+                    of both our examples above, we describe the problem in terms of the viral marketing
+                    framework, where it is particularly easy to express the underlying motivation.
+
+                    The most influential set of nodes. Suppose that we are a firm trying to market a
+                    new product, and we want to take advantage of word-of-mouth effects. One strategy
+                    would be as follows: we collect data on the social network interactions among our
+                    potential customers, we choose a set S of initial adopters, and we market the product
+                    directly to them. Then, assuming they adopt the product, we rely on their influence to
+                    generate a large cascade of adoptions, without our having to rely on any further direct
+P1: SBT
+9780521872829main      CUNY1061-Nisan      0 521 87282 0   July 5, 2007   14:38
+
+
+
+
+                                            finding influential sets of nodes                                623
+
+                    promotion of the product. The question of how one goes about inferring the social
+                    network interactions and building a cascade model for this purpose is an interesting
+                    and largely unexplored topic. Here, however, we assume that all this data is provided
+                    to us, and we focus on the algorithmic problem that comes next: how do we choose the
+                    set S?
+                        We can formulate this question concretely as follows. For any instance of the General
+                    Threshold or Cascade Models, there is a natural influence function f (·) defined as
+                    follows: for a set S of nodes, f (S) is the expected number of active nodes at the end
+                    of the process, assuming that S is the set of nodes that are initially active. (We will
+                    assume in this section that all graphs are finite, so the processes we are considering
+                    terminate in a number of steps that is bounded by the total number of nodes n.) From
+                    the marketer’s point of view, f (S) is the expected number of total sales if they get S
+                    to be the set of initial adopters. Now, given a budget k, how large can we make f (S)
+                    if we are allowed to choose a set S of k initial adopters? In other words, we wish to
+                    maximize f (S) over all sets S of size k.
+                        This turns out to be a hard computational problem. First, for almost any special case
+                    of the models in the previous section – even very simple special cases – it is NP-hard
+                    to find the optimal set S. Moreover, one can construct instances of the model for which
+                    it is NP-hard even to approximate the optimal value of f (S) to within a factor of n1−ε
+                    for any ε > 0, where again n is the number of nodes (Kempe et al., 2003). We leave
+                    the proofs of these statements as exercises to the reader.
+                        Since NP-hardness applies to almost all versions of the model, there is not much we
+                    can do about it; instead, we will try to identify broad subclasses of the models that are
+                    not susceptible to strong inapproximability results, and for which good approximation
+                    results can be obtained.
+
+                    Submodularity as a route to good approximations. While we will not go into the
+                    details of the inapproximability proofs, they rely on constructing a cascade process
+                    for which the resulting influence function f has a “knife-edge” property: as one adds
+                    nodes to S, one initially gets very little spreading, but once exactly the right set has been
+                    added, the process suddenly spreads very widely. And as we will see shortly, this is
+                    actually crucial, since influence functions f that grow in a less pathological way allow
+                    for good approximation algorithms. The key to this is a property called submodularity.
+                       We say that a function f is submodular if adding an element to a set Y causes
+                    a smaller marginal improvement than adding the same element to a subset of Y .
+                    Specifically, f is submodular if for all sets X ⊆ Y and all elements v ∈ Y , we have
+
+                                           f (X ∪ {v}) − f (X) ≥ f (Y ∪ {v}) − f (Y ).
+
+                    Thus, submodularity is a type of diminishing returns property: the benefit of adding
+                    elements decreases as the set to which they are being added grows. We also note that
+                    all the influence functions arising from our models here are monotone, in the sense that
+                    f (φ) = 0 and f (X) ≤ f (Y ) whenever X ⊆ Y .
+                        For such a function f , it is natural to hope that a simple “hill-climbing” approach
+                    might lead to a good approximation for the optimal value over all k-element sets:
+                    since the marginal benefits only decrease as elements are added, it is hard to “hide” a
+P1: SBT
+9780521872829main      CUNY1061-Nisan     0 521 87282 0   July 5, 2007   14:38
+
+
+
+
+                    624                       cascading behavior in networks
+
+                    very large optimum. In fact, this is intuition is formalized in the following theorem of
+                    Nemhauser, Wolsey, and Fisher (1978).
+
+                      Theorem 24.3 Let f be a monotone submodular function, and let S ∗ be the k- el-
+                      ement set achieving the maximum possible value of f . Let S be a k-element set ob-
+                      tained by repeatedly, for k iterations, including the element producing the largest
+                      marginal increase in f . (We can think of S as the result of straightforward hill-
+                      climbing with respect to the function f .) Then f (S) ≥ (1 − 1e )f (S ∗ ) ≥ .63f (S ∗ ).
+
+
+                       This theorem will be our main vehicle for obtaining approximation algorithms for
+                    influence maximization: we will identify instances of the Cascade Model for which
+                    the influence function is submodular (it is always monotone for the models we con-
+                    sider), and this will allow us to obtain good results from hill-climbing. There is one
+                    further wrinkle in our use of Theorem 24.3, however: it is computationally intractable,
+                    even in simple special cases, to evaluate the function f exactly. Fortunately, one can
+                    adapt Theorem 24.3 to show that for any ε > 0, if one can approximately evaluate
+                    f sufficiently accurately (relative to the granularity taken by the values of f , which
+                    are integers in our case), this approximate evaluation of f produces a set S such that
+                    f (S) ≥ (1 − 1e − ε)f (S ∗ ). As we can achieve such approximate evaluation for the in-
+                    fluence functions we are considering here, this will allow us to apply this approximate
+                    form of Theorem 24.3.
+                       We now proceed with the search for broad special cases of the Cascade Model for
+                    which the influence function f is submodular.
+
+                    Diminishing returns and submodularity. It is perhaps easier to think first of instances
+                    for which the resulting function f is not submodular. For example, suppose that every
+                    node v has a sharp threshold  > 1: v requires at least  active neighbors before v itself
+                    becomes active. Then it is easy to construct graphs G on which f (S) remains small
+                    until a sufficient number of nodes have been included in S, and then it abruptly jumps
+                    up; such a function is not submodular.
+                       More generally, instances based on critical mass effects at the level of individual
+                    nodes tend not to yield influence functions that are submodular. But is the opposite
+                    true? Does diminishing returns at the level of individual nodes imply that the influence
+                    function f is submodular? In fact, the following theorem of Kempe, Kleinberg, and
+                    Tardos (2003, 2005) establishes a general sense in which this is the case.
+
+                      Theorem 24.4 For any instance of the Cascade Model in which all the incre-
+                      mental functions pv exhibit diminishing returns, the resulting influence function
+                      f is submodular.
+
+                       An appealing feature of this theorem is the way in which it establishes a “local-to-
+                    global” link: if each individual node experiences influence in a way that exhibits
+                    diminishing returns, then the network as a whole experiences influence (from an
+                    external marketer) in the same way. The search for such cases in which local behavior
+                    implies analogous global behavior is a theme throughout social network research, and
+P1: SBT
+9780521872829main      CUNY1061-Nisan     0 521 87282 0    July 5, 2007   14:38
+
+
+
+
+                                            finding influential sets of nodes                                625
+
+                    finding common principles underlying such effects is an interesting general research
+                    issue.
+                       The proof of Theorem 24.4, while not long, is a bit intricate; so instead we describe
+                    the proof of a special case of this theorem, where the analysis is conceptually very
+                    clean, yet still illustrative of some of the issues involved in proving submodularity.
+                    Recall that in the Independent Cascade Model, defined in the previous section, we
+                    define the incremental functions via pv (u, X) = puv : in other words, the influence of
+                    u on v depends only on u and v, not on the set of other nodes that have already tried
+                    and failed to influence v.
+
+                      Theorem 24.5 For any instance of the Independent Cascade Model, the result-
+                      ing influence function f is submodular.
+
+                      proof Much of the challenge in proving submodularity here is that the com-
+                      putational intractability of our function f also translates into a kind of conceptual
+                      intractability: we do not know enough about its structure to simply “plug it in” to
+                      the submodular inequality and hope to verify it directly. A much more powerful
+                      approach is instead to decompose f into simpler functions, and check submodu-
+                      larity for the parts of this decomposition.
+                          To lay the groundwork for this plan, we start by discussing two useful facts
+                      about submodularity. The first is this: if f1 , f2 , . . . , fr are submodular functions,
+                                                        real numbers, then the function f defined by
+                      and c1 , . . . , cr are nonnegative
+                      the weighted sum f (X) = ri=1 ci fi (X) is also submodular. The second fact
+                      is actually the identification of a simple, useful class of submodular functions,
+                      the following. Suppose that we have a collection of sets C1 , C2 , . . . , Cr , and
+                      for a set X ⊆ {1, 2, . . . , r}, we define f (X) = | ∪i∈X Ci |. For obvious reasons,
+                      we will call such a function f a size-of-union function. Then it is not hard
+                      to verify that any size-of-union function is submodular. As we will see be-
+                      low, such functions will arise naturally in our decomposition of the influence
+                      function f .
+                          Now, consider the following alternate way of viewing the Independent
+                      Cascade Process. In the standard view, each time a node u becomes ac-
+                      tive, it flips a coin of bias puv to determine whether it succeeds in activat-
+                      ing v. Now, in the alternate, equivalent view of the process, suppose that for
+                      each edge (u, v), we flip a coin of bias puv in advance, planning to only
+                      consult the outcome of the coin flip if we ever need to, when u becomes
+                      active.
+                          If there are m edges in the graph, then there are 2m possible collective outcomes
+                      of the coin flips. Let α denote a particular one of these 2m outcomes, and let fα (S)
+                      denote the eventual number of activated nodes, given that S is the initial active
+                      set and α is the outcome of the coin flips. Unlike f , the function fα is easy to
+                      understand, as follows. For each edge (u, v), we say that it is live (with respect
+                                                                                                      α
+                      to α) if the advance coin flip came up heads. For a node s, we let Rs denote
+                      the set of all nodes that are reachable from s on paths consisting entirely of live
+                      edges. It is now easy to check that a node is eventually activated if and only if it
+                      is reachable from some node in S by some path consisting entirely of live edges,
+P1: SBT
+9780521872829main      CUNY1061-Nisan     0 521 87282 0     July 5, 2007   14:38
+
+
+
+
+                    626                       cascading behavior in networks
+
+                      and hence
+                                                                        
+                                                                         
+                                                                   
+                                                          fα (S) =     α 
+                                                                      Rs .
+                                                                     s∈S
+
+                      In other words, each fα is a size-of-union function, and hence submodular.
+                         But this is essentially all we need, since by definition
+                                                          
+                                                  f (S) =      Prob[α] · fα (S).
+                                                              α
+
+                      That is, f is a nonnegative weighted sum of submodular functions, and hence f
+                      is subdmodular, as desired.
+
+                       We close this particular discussion by noting that Theorem 24.4 is not the most
+                    general possible formulation of the local-to-global principle we have been discussing.
+                    In particular, if all the incremental functions pv in an instance of the Cascade Model
+                    exhibit diminishing returns, then in the equivalent instance of the General Threshold
+                    Model, the resulting threshold functions gv are submodular (a related notion of di-
+                    minishing returns). However, the converse does not hold: there exist instances of the
+                    General Threshold Model with submodular threshold functions gv for which the equiv-
+                    alent instance of the Cascade Model has incremental functions pv that do not satisfy
+                    diminishing returns. (An important example is the Linear Threshold Model, which does
+                    not translate into an instance of the Cascade Model with diminishing returns. Despite
+                    this, one can show via a separate analysis that influence functions f arising from the
+                    Linear Threshold Model are always submodular.)
+                       Thus, the General Threshold Model with submodular threshold functions is strictly
+                    more general than the Cascade Model with incremental functions satisfying diminishing
+                    returns. Hence the following very recent result of Mossel and Roch (2007), proving a
+                    conjecture of Kempe et al. (2003), generalizes Theorem 24.4.
+
+                      Theorem 24.6 For any instance of the General Threshold Model in which all
+                      the threshold functions gv are submodular, the resulting influence function f is
+                      submodular.
+
+                    Further direction: Alternate marketing strategies. We conclude this section by
+                    briefly discussing a different strategy through which a marketer could try to take
+                    advantage of word-of-mouth effects. Rather than targeting nodes, as we have been
+                    discussing thus far, one could instead target edges: each time an individual u buys a
+                    product, an incentive is offered for u to recommend the product to a friend v. A number
+                    of online retailers have constructed recommendation incentive programs around this
+                    idea: for example, each time you buy a product, you are given the opportunity to send
+                    an e-mail to a friend with a special offer to buy the product as well; if the friend goes
+                    on to buy it, each of you receives a small cash refund (Leskovec et al., 2006a, 2006b).
+                       Strategies of this type have a different flavor from the targeting of nodes: rather
+                    than trying to create a large cascade by influencing initial adopters, one tries to create
+                    a large cascade in effect by amplifying the force with which influence is transmitted
+                    across edges. (Clearly, one still needs some initial adopters as well for this to succeed.)
+P1: SBT
+9780521872829main      CUNY1061-Nisan     0 521 87282 0   July 5, 2007   14:38
+
+
+
+
+                                    empirical studies of cascades in online data                           627
+
+                    While there has been empirical work on the outcomes of particular recommendation
+                    incentive programs, it is an open question to analyze theoretical models for the result
+                    of such incentives for the problem of maximizing influence.
+
+
+                                24.5 Empirical Studies of Cascades in Online Data
+
+                    As we noted at the outset, there has been a huge amount of empirical work on diffusion
+                    in social networks over the past half century. A crucial challenge in this research is the
+                    fact that the phenomena being studied – the ways in which social network links affect
+                    adoption of innovations – are very hard to measure and assess. Most research of this
+                    type has focused on small or moderately sized groups, which are then studied in detail,
+                    and the resulting analysis has provided fundamental insights into subtle issues such as
+                    the characteristics of adopters at different stages of the innovation.
+                       The theoretical models we have been discussing thus far are motivated at a qualitative
+                    level by this empirical work, but it remains an important problem to relate the models
+                    to real diffusion data at a more precise, quantitative level. One reason why it has been
+                    difficult to do this stems from the type of data available: While existing empirical
+                    studies can address fairly rich questions at the scale at which they operate, the resulting
+                    datasets tend to be too small to provide accurate estimates of basic quantities needed for
+                    assessing the validity of the theoretical models – for example, how adoption probability
+                    depends on structural properties of a node’s network neighbors. What is needed for
+                    this task are large datasets tailored to provide answers to such questions with limited
+                    noise.
+
+                    Diffusion data from online communities. Very recently, large online datasets from
+                    several sources have produced measurements that raise interesting connections to the
+                    theoretical models. One such study was performed on the online blogging and social
+                    networking site LiveJournal (Backstrom et al., 2006). LiveJournal has several million
+                    members and several hundred thousand user-defined communities; members maintain
+                    individual Web pages with personal information, blogs, and – most importantly for our
+                    purposes here – lists of their friends in the system and the communities to which they
+                    belong.
+                       From the lists of friends, we can construct an underlying social network, with an
+                    edge (v, w) if v lists w as a friend. We then treat each community as a behavior that
+                    diffuses through this network: since communities grow by acquiring members over
+                    time, we can study how a member’s likelihood of joining a group depends on the
+                    number of friends he or she has in the group.
+                       Here is a concrete way of formulating this question. At two times t1 and t2 (a few
+                    months apart), snapshots are taken of the social network and community memberships
+                    on LiveJournal. Now, for each number k ≥ 0, consider the set Uk of all pairs (u, C)
+                    such that user u did not belong to community C at time t1 , but had u had k friends in
+                    C at t1 . We let P (k) denote the fraction of pairs (u, C) in the set Uk for which u had
+                    joined C by time t2 . In this way, P (k) serves as an answer to the question: what is the
+                    probability of joining a LiveJournal community, given that you had k friends in it at an
+                    earlier time?
+P1: SBT
+9780521872829main      CUNY1061-Nisan                     0 521 87282 0        July 5, 2007        14:38
+
+
+
+
+                    628                                       cascading behavior in networks
+
+                                                    Probability of joining a community when k friends are already members
+                                        0.025
+
+
+
+                                         0.02
+
+
+
+                                        0.015
+                          Probability
+
+
+
+
+                                         0.01
+
+
+
+                                        0.005
+
+
+
+                                           0
+                                                0     5        10         15       20         25       30   35   40   45    50
+                                                                                               k
+
+                    Figure 24.1. The probability of joining a LiveJournal community as a function of the number
+                    k of friends in the community at an earlier point in time. Error bars represent two standard
+                    errors.
+
+
+                       Figure 24.1 shows a plot of P (k) as a function of k for the LiveJournal data. A
+                    few things are quickly apparent from the plot. First, the dependence on k is clearly
+                    dominated by a diminishing returns effect, in which P (k) grows less quickly as k
+                    increases. Indeed, this dependence is quite smooth, with a good fit to a function of the
+                    form P (k) = ε log k up to moderately large values of k – in particular, this means that
+                    P (k) continues increasing even as k becomes fairly large. Finally, there is an initial but
+                    significant deviation from diminishing returns for k = 0, 1, 2, with P (2) > 2P (1). In
+                    other words, having a second friend in a community gives a significant boost to the
+                    probability of joining, but after that the diminishing returns effect takes over.
+                       Similar diminishing returns effects have been observed recently in other large-scale
+                    datasets that exhibit diffusion-style processes – for example, the probability of publish-
+                    ing a paper at a computer science conference as a function of the number of coauthors
+                    who have previously published there (Backstrom et al., 2006); or the probability of pur-
+                    chasing a DVD in a recommendation incentive program run by a large online retailer,
+                    as a function of the number of friends who sent an e-mail recommendation (Leskovec
+                    et al., 2006). Given how a common effect – diminishing returns – is appearing in
+                    large-scale data from such diverse sources, it is an interesting open question to try find-
+                    ing a reasonable mechanism to explain this, potentially including the approximately
+                    logarithmic functional form of P (k) in terms of k.
+                       Closer analysis of the LiveJournal data also reveals more subtle effects that contribute
+                    to diffusion in a significant way. One that is particularly striking is the connectedness
+                    of a person’s friends. If we look at the pairs in Uk – recall that this consists of users
+                    with k friends in a community they do not initially belong to – it turns out that a user is
+P1: SBT
+9780521872829main      CUNY1061-Nisan      0 521 87282 0   July 5, 2007   14:38
+
+
+
+
+                                     empirical studies of cascades in online data                            629
+
+                    significantly more likely to join a community if his or her k friends have many edges
+                    among themselves than if they do not. In other words, a highly connected set of friends
+                    in a community exerts a greater “gravitational force” than a comparable number of
+                    friends who are not as well connected among themselves. It is an interesting open
+                    question to understand the underlying factors that lead to this effect, to investigate how
+                    broadly it applies by considering related datasets, and to think about ways of extending
+                    the theoretical models to incorporate effects such as the connectedness of a node’s
+                    neighbor set.
+
+                    Relating the empirical and theoretical models. The results shown in Figure 24.1
+                    provide a good means of elaborating on the point made at the start of this section, that
+                    diffusion data from online sources, at very large scales, provides both more and less
+                    than one finds in classical diffusion studies. It provides less in the sense that we know
+                    very little about who individual users on LiveJournal are, what the links between them
+                    mean, or what motivates them to join communities. A LiveJournal user may have a
+                    link to a close friend, or to someone they have barely met, or simply because they are
+                    trying to accumulate as many links on the system as they can. Given this, it is very hard
+                    to ask the kind of nuanced questions that one sees in more traditional diffusion studies,
+                    which deal with smaller datasets for which they have assembled (often at great effort)
+                    a much clearer picture. On the other hand, the fact that the curve in Figure 24.1 is so
+                    smooth is precisely the result of having a dataset large enough to contain hundreds
+                    of thousands of communities diffusing across a network of millions of users – on a
+                    dataset containing just hundreds of individuals, any curve representing P (k) will be
+                    extremely noisy. Indeed, given how many different things the links and community
+                    memberships on LiveJournal mean to different users, the clean logarithmic form of the
+                    resulting curve is perhaps all the more striking, and in need of deeper explanation.
+                       That is a first caveat. A second is that there remains a significant challenge in relating
+                    curves like the one in Figure 24.1 to the theoretical models in the earlier sections. The
+                    models we discussed there all had a discrete, operational flavor: each node follows
+                    a fixed probabilistic rule, and it uses this rule to incorporate information from its
+                    neighbors over time. In contrast, the curve in Figure 24.1 is produced by observing the
+                    full system at one point in time, and then returning to see what has changed at a later
+                    point in time. The dependence of P (k) on k expressed in this way reflects an aggregate
+                    property of the full population, and does not imply anything about any particular
+                    individual’s response to their friends’ behaviors. Even for a specific individual, we
+                    do not know when (or even if) they became aware of their friends behavior between
+                    these two points of time, nor when this translated into a decision by them to act.
+                    In particular, this makes it hard to determine how the notion of diminishing returns
+                    captured in Figure 24.1 is actually aligned with the formal definition of diminishing
+                    returns in Sections 24.3 and 24.4. It is a general and interesting question to explore
+                    frameworks that can incorporate this asynchrony and uncertainty about the way in
+                    which information flows and is acted on by nodes in a social network, leading to a
+                    closer integration of the theoretical and empirical results.
+                       As novel kinds of online information systems continue to proliferate, one sees dif-
+                    fusion processes not just forming part of the underpinnings of the system, but in many
+                    cases built directly into the design as well, in settings such as social search, media
+P1: SBT
+9780521872829main      CUNY1061-Nisan    0 521 87282 0   July 5, 2007   14:38
+
+
+
+
+                    630                      cascading behavior in networks
+
+                    sharing, or community-based question-answering. As part of this process, extremely
+                    rich data are becoming available for studying diffusion processes in online environ-
+                    ments, at a large scale and with very fine time resolution. These developments are
+                    forming a feedback loop that will inevitably drive the formulation of richer theories,
+                    and enable us to pose more incisive questions about the ways in which information,
+                    influence, and behaviors of all kinds spread through human social networks.
+
+
+                                           24.6 Notes and Further Reading
+
+                    The general topic of diffusion in social networks is discussed in the books by Coleman,
+                    Katz, and Menzel (1966), Rogers (1995), and Valente (1995), and the survey by
+                    Strang and Soule (1998). Granovetter (1978) and Schelling (1978) provide some of
+                    the early mathematical models for these processes. Early game-theoretic formulations
+                    of diffusion models were proposed by Blume (1993) and Ellison (1993), and they
+                    form part of the focus of a book by Young (1998). The specific model and results in
+                    Section 24.2 are from Morris (2000), and further game-theoretic models of diffusion
+                    have been explored by Jackson and Yariv (2005). There are also connections at a
+                    technical level between the models used in studying diffusion and some of the more
+                    graph-theoretic techniques that have been applied to evolutionary game theory; see for
+                    example the survey by Lieberman, Hauert, and Nowak (2005) and the paper by Kearns
+                    and Suri (2006).
+                        Models for diffusion are also closely related to work the topic of contact processes
+                    and particle systems studied in the area of probability (Durrett, 1988; Liggett, 1985),
+                    as well as to the long history of work in mathematical epidemiology, which studies
+                    the dynamics of biological (as opposed to social) contagion (Bailey, 1975). There has
+                    been a recent line of work aimed at relating such probabilistic contagion models more
+                    closely to the underlying network structure; see for example the recent work of by
+                    Pastor-Satorras and Vespignani (2000), Newman (2002), and Alon, Benjamini, and
+                    Stacey (2004).
+                        The problem of finding the most influential set of k individuals, as discussed in
+                    Section 24.4, was posed, together with the viral marketing motivation, by Domingos
+                    and Richardson (2001). The search for influential nodes in networks of blogs and news
+                    sources has been considered by Adar et al. (2004), Gruhl et al. (2004), and Kumar et
+                    al. (2004).
+                        The approximation result in Section 24.4 is due to Kempe, Kleinberg, and Tardos
+                    (2003, 2005); the general theorem on which it depends, that hill-climbing provides a
+                    good approximation for arbitrary monotone submodular functions, is due to Fisher,
+                    Nemhauser, and Wolsey (1978). The formulations of the models in Section 24.3 are
+                    also from Kempe et al. (2003), with closely related models proposed independently by
+                    Dodds and Watts (2004).
+                        Recommendation incentive programs, discussed at the end of Section 24.4, are
+                    studied empirically by Leskovec, Adamic, and Huberman (2006) and by Leskovec,
+                    Singh, and Kleinberg (2006); the development of theoretical models for such systems
+                    remains largely an open question. The study of diffusion processes on LiveJournal
+                    discussed in Section 24.5 is from Backstrom, Huttenlocher, Kleinberg, and Lan (2006),
+P1: SBT
+9780521872829main       CUNY1061-Nisan       0 521 87282 0     July 5, 2007    14:38
+
+
+
+
+                                                             bibliography                                             631
+
+                    where a number of more subtle features of diffusion on LiveJournal are investigated as
+                    well. The identification of diminishing returns effects in recommendation incentives is
+                    from Leskovec, Adamic, and Huberman (2006).
+
+
+
+
+                                                             Bibliography
+                    E. Adar, L. Zhang, L.A. Adamic, and R.M. Lukose. Implicit structure and the dynamics of blogspace.
+                       In Workshop on the Weblogging Ecosystem, 2004.
+                    N. Alon, I. Benjamini, and A. Stacey. Percolation on finite graphs and isoperimetric inequalities. Ann.
+                       Probability, 32:1727–1745, 2004.
+                    L. Backstrom, D. Huttenlocher, J. Kleinberg, and X. Lan. Group formation in large social networks:
+                       Membership, growth, and evolution. In Proc. 12th Intl. Conf. on Knowledge Discovery and Data
+                       Mining, 2006.
+                    N. Bailey. The Mathematical Theory of Infectious Diseases and Its Applications. Hafner Press, 1975.
+                    L. Blume. The statistical mechanics of strategic interaction. Games Econ. Behav., 5:387–424, 1993.
+                    J. Coleman, E. Katz, and H. Menzel, Medical Innovations: A Diffusion Study. Bobbs Merrill, 1966.
+                    P. Dodds and D. Watts. Universal behavior in a generalized model of contagion. Physical Review
+                       Letters, 92:218701, 2004.
+                    P. Domingos and M. Richardson. Mining the network value of customers. In Proc. 7th Intl. Conf. on
+                       Knowledge Discovery and Data Mining, pp. 57–66, 2001.
+                    R. Durrett. Lecture Notes on Particle Systems and Percolation. Wadsworth Publishing, 1988.
+                    G. Ellison. Learning, local interaction, and coordination. Econometrica, 61:1047–1071, 1993.
+                    M. Granovetter. Threshold models of collective behavior. Am. J. Sociol., 83:1420–1443, 1978.
+                    D. Gruhl, D. Liben-Nowell, R.V. Guha, and A. Tomkins. Information diffusion through blogspace.
+                       In 13th Intl. World Wide Web Conference, 2004.
+                    M. Jackson and L. Yariv. Diffusion on social networks. Economie Publique, 16:69–82, 2005.
+                    M. Kearns and S. Suri. Networks preserving evolutionary equilibria and the power of randomization.
+                       In Proc. 7th ACM Conference on Electronic Commerce, 2006.
+                    D. Kempe, J. Kleinberg, and É. Tardos. Maximizing the spread of influence in a social network. In
+                       Proc. 9th Intl. Conf. on Knowledge Discovery and Data Mining, pp. 137–146, 2003.
+                    D. Kempe, J. Kleinberg, and É. Tardos. Influential nodes in a diffusion model for social networks. In
+                       Proc. 32nd Intl. Colloq. on Automata, Languages and Programming, pp. 1127–1138, 2005.
+                    R. Kumar, J. Novak, P. Raghavan, and A. Tomkins. Structure and evolution of blogspace. Comm.
+                       ACM, 47(12):35–39, 2004.
+                    J. Leskovec, L. Adamic, and B. Huberman. The dynamics of viral marketing. In Proc. 7th ACM
+                       Conference on Electronic Commerce, 2006a.
+                    J. Leskovec, A. Singh, and J.M. Kleinberg. Patterns of influence in a recommendation network. In
+                       Pacific-Asia Conference on Knowledge Discovery and Data Mining, pp. 380–389, 2006b.
+                    E. Lieberman, C. Hauert, and M. Nowak. Evolutionary dynamics on graphs. Nature, 433:312–316,
+                       2005.
+                    T. Liggett. Interacting Particle Systems. Springer, 1985.
+                    S. Morris. Contagion. Review of Economic Studies, 67:57–78, 2000.
+                    E. Mossel and S. Roch. On the submodularity of influence in social networks. In Proc. 39th ACM
+                       Symp. on Theory of Computing, 2007.
+                    G. Nemhauser, L. Wolsey, and M. Fisher. An analysis of the approximations for maximizing sub-
+                       modular set functions. Math. Programm., 14:265–294, 1978.
+                    M.E.J. Newman. The spread of epidemic disease on networks. Phys. Rev. E, 66:016128, 2002.
+P1: SBT
+9780521872829main      CUNY1061-Nisan       0 521 87282 0     July 5, 2007   14:38
+
+
+
+
+                    632                          cascading behavior in networks
+
+                    R. Pastor-Satorras and A. Vespignani. Epidemic spreading in scale-free networks. Phys. Rev. Letters,
+                       86:3200–3203, 2000.
+                    E. Rogers. Diffusion of innovations. 4th ed. Free Press, 1995.
+                    T. Schelling. Micromotives and Macrobehavior. Norton, 1978.
+                    D. Strang and S. Soule. Diffusion in organizations and social movements: From hybrid corn to poison
+                       pills. Ann. Rev. Sociol., 24:265–290, 1998.
+                    T. Valente. Network Models of the Diffusion of Innovations. Hampton Press, 1995.
+                    H.P. Young. Individual Strategy and Social Structure: An Evolutionary Theory of Institutions. Prince-
+                       ton University Press, 1998.
+
+
+
+                                                               Exercises
+                    24.1 Prove Claim 24.1 in the proof of Theorem 24.1.
+                    24.2 The first model we considered in Section 24.2 was based on a networked coor-
+                         dination game in which, across each edge (v, w), nodes v and w each receive a
+                         payoff of q if they both choose behavior A, they each receive a payoff of 1 − q if
+                         they both choose behavior B, and they each receive a payoff of 0 if they choose
+                         opposite behaviors. Let us call this a coordination game with parameter q.
+                             It is natural to ask what happens if we consider a more general kind of co-
+                         ordination game on each edge. Suppose in particular that, on each edge (v, w),
+                         node v receives payoff u X Y if it chooses strategy X while w chooses strategy Y , for
+                         any choice of X ∈ {A, B} and Y ∈ {A, B}. Moreover, to preserve the coordination
+                         aspect, we assume that it is still better to play matching strategies: u AA > u B A and
+                         u B B > u AB .
+                             While this is indeed a more general kind of game, prove that the results on the
+                         contagion threshold remain the same. Specifically, prove that for any infinite graph
+                         G with finite node degrees, and for any choice of payoffs {u AA, u B A, u AB , u B B }
+                         satisfying u AA > u B A and u B B > u AB , there exists a real number q such that the
+                         following holds: A finite set S is contagious in G with respect to the coordination
+                         game defined by {u AA, u B A, u AB , u B B } if and only if it is contagious in G with
+                         respect to the coordination game with parameter q.
+                    24.3 (a) In Section 24.4, we considered the problem of finding a set S of k nodes that
+                              maximizes the expected number of activated nodes f (S). Show that for some
+                             class of instances of the General Threshold or Cascade Model, finding the
+                             optimal set S is NP-hard.
+                         (b) For some class of instances of the General Threshold or Cascade Model, show
+                             that in fact it is NP-hard to approximate the optimal value of f (S) to within a
+                             factor of n1−ε for any ε > 0, where n is the number of nodes.

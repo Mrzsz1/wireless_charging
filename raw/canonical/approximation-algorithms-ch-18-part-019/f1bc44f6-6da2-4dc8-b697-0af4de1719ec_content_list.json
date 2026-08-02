@@ -1,0 +1,918 @@
+[
+    {
+        "type": "text",
+        "text": "18 Multicut and Integer Multicommodity Flow in Trees",
+        "text_level": 2,
+        "bbox": [
+            221,
+            109,
+            690,
+            151
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "The theory of cuts in graphs occupies a central place not only in the study of exact algorithms, but also approximation algorithms. We will present some key results in the next four chapters. This will also give us the opportunity to develop further the two fundamental algorithm design techniques introduced in Chapters 14 and 15.",
+        "bbox": [
+            220,
+            255,
+            786,
+            326
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "In Chapter 15 we used the primal–dual schema to derive a factor 2 algorithm for the weighted vertex cover problem. This algorithm was particularly easy to obtain because the relaxed dual complementary slackness conditions were automatically satisfied in any integral solution. In this chapter, we will use the primal–dual schema to obtain an algorithm for a generalization of this problem (see Exercise 18.1). This time, enforcing relaxed dual complementary slackness conditions will be a nontrivial part of the algorithm. Furthermore, we will introduce the procedure of reverse delete, which will be used in several other primal–dual algorithms.",
+        "bbox": [
+            220,
+            326,
+            786,
+            456
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "18.1 The problems and their LP-relaxations",
+        "text_level": 2,
+        "bbox": [
+            223,
+            483,
+            670,
+            500
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "The following is an important generalization of the minimum s–t cut problem. In fact, it also generalizes the multiway cut problem (Problem 4.1).",
+        "bbox": [
+            220,
+            513,
+            784,
+            543
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Problem 18.1 (Minimum multicut) Let $G { = } ( V , E )$ be an undirected graph with nonnegative capacity $c _ { e }$ for each edge $e \\in E$ . Let $\\{ ( s _ { 1 } , t _ { 1 } ) , \\ldots , ( s _ { k } , t _ { k } ) \\}$ be a specified set of pairs of vertices, where each pair is distinct, but vertices in diferent pairs are not required to be distinct. A multicut is a set of edges whose removal separates each of the pairs. The problem is to find a minimum capacity multicut in $G _ { \\ l }$",
+        "bbox": [
+            221,
+            549,
+            784,
+            634
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "The minimum $^ { s - t }$ cut problem is the special case of multicut for $k = 1$ Problem 18.1 generalizes multiway cut because separating terminals $s _ { 1 } , \\ldots , s _ { l }$ is equivalent to separating all pairs $( s _ { i } , s _ { j } )$ ), for $1 \\leq i < j \\leq l .$ . This observation implies that the minimum multicut problem is NP-hard even for $k = 3$ , since the multiway cut problem is NP-hard for the case of 3 terminals.",
+        "bbox": [
+            221,
+            634,
+            784,
+            705
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "In Chapter 20 we will obtain an $O ( \\log k )$ factor approximation algorithm for the minimum multicut problem. In this chapter, we will obtain a factor 2 algorithm for the special case when $G$ is restricted to be a tree. Since $G$ is a tree, there is a unique path between $s _ { i }$ and $t _ { i } .$ and the multicut must pick an edge on this path to disconnect $s _ { i }$ from $t _ { i } .$ . Although the problem looks deceptively simple, Exercise 18.1 should convince the reader that this is not so. The minimum multicut problem is NP-hard even if restricted to trees of height 1 and unit capacity edges.",
+        "bbox": [
+            221,
+            705,
+            786,
+            749
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            220,
+            112,
+            786,
+            184
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Since we want to apply LP-duality theory to design the algorithm, let us first give an integer programming formulation for the problem and obtain its LP-relaxation. Introduce a $0 / 1$ variable $d _ { e }$ for each edge $e \\in E .$ , which will be set to 1 if e is picked in the multicut. Let $p _ { i }$ denote the unique path between $s _ { i }$ and $t _ { i }$ in the tree.",
+        "bbox": [
+            220,
+            184,
+            786,
+            256
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{l l} \\text {minimize} & \\sum_ {e \\in E} c _ {e} d _ {e} \\\\ \\text {subject to} & \\sum_ {e \\in p _ {i}} d _ {e} \\geq 1, \\quad i \\in \\{1, \\ldots , k \\} \\\\ & d _ {e} \\in \\{0, 1 \\}, \\quad e \\in E \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            260,
+            267,
+            571,
+            354
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "The LP-relaxation is obtained by replacing the constraint $d _ { e } ~ \\in ~ \\{ 0 , 1 \\}$ by $d _ { e } \\geq 0$ . As in the derivation of LP (13.2), there is no need to add the constraint $d _ { e } \\leq 1$ explicitly.",
+        "bbox": [
+            220,
+            363,
+            784,
+            407
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{l l} \\text { minimize } & \\sum_ {e \\in E} c _ {e} d _ {e} \\\\ \\text { subject   to } & \\sum_ {e \\in p _ {i}} d _ {e} \\geq 1, \\quad i \\in \\{1, \\ldots , k \\} \\\\ & d _ {e} \\geq 0, \\quad e \\in E \\end{array}\\tag{18.1}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            262,
+            419,
+            571,
+            507
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "We can now think of $d _ { e }$ as specifying the fractional extent to which edge e is picked. A solution to this linear program is a fractional multicut: on each path $p _ { i } ,$ the sum of fractions of edges picked is at least 1. In general, minimum fractional multicut may be strictly cheaper than minimum integral multicut. This is illustrated in Example 18.2.",
+        "bbox": [
+            220,
+            517,
+            784,
+            589
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "We will interpret the dual program as specifying a multicommodity flow in $G ,$ , with a separate commodity corresponding to each vertex pair $( s _ { i } , t _ { i } )$ Dual variable $f _ { i }$ will denote the amount of this commodity routed along the unique path from $s _ { i }$ to $t _ { i }$ .",
+        "bbox": [
+            221,
+            589,
+            784,
+            646
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\begin{array}{l l} \\text {maximize} & \\sum_ {i = 1} ^ {k} f _ {i} \\\\ \\text {subject to} & \\sum_ {i: e \\in p _ {i}} f _ {i} \\leq c _ {e}, \\quad e \\in E \\\\ & f _ {i} \\geq 0, \\quad i \\in \\{1, \\ldots , k \\} \\end{array}\\tag{18.2}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            260,
+            659,
+            589,
+            756
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "header",
+        "text": "18.1 The problems and their LP-relaxations",
+        "bbox": [
+            418,
+            87,
+            732,
+            101
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "page_number",
+        "text": "147",
+        "bbox": [
+            759,
+            87,
+            784,
+            99
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "The commodities are routed concurrently. The object is to maximize the sum of the commodities routed, subject to the constraint that the sum of flows routed through an edge is bounded by the capacity of the edge. Notice that the sum of flows through an edge $( u , v )$ includes flow going in either direction, u to v and v to u.",
+        "bbox": [
+            220,
+            112,
+            786,
+            184
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "$\\mathrm { B y }$ the weak duality theorem, a feasible multicommodity flow gives a lower bound on the minimum fractional multicut and hence also on the minimum integral multicut. By the LP-duality theorem, minimum fractional multicut equals maximum multicommodity flow.",
+        "bbox": [
+            220,
+            184,
+            786,
+            242
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Example 18.2 Consider the following graph with unit capacity edges and 3 vertex pairs:",
+        "bbox": [
+            220,
+            248,
+            784,
+            278
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "image",
+        "img_path": "images/bad683bdac0a0b46112d7fcaa79f088be20b4fdf0db89f28e81dea9e66fe1fd5.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "content": "",
+        "bbox": [
+            352,
+            288,
+            653,
+            478
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "The arrows show how to send $3 / 2$ units of flow by sending $1 / 2$ unit of each commodity. Picking each edge to the extent of $1 / 2$ gives a multicut of capacity $3 / 2$ as well. These must be optimal solutions to the primal and dual programs. On the other hand, any integral multicut must pick at least two of the three edges in order to disconnect all three pairs. Hence, minimum integral multicut has capacity 2. ✷",
+        "bbox": [
+            220,
+            495,
+            786,
+            582
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Finally, let us state one more problem.",
+        "bbox": [
+            245,
+            588,
+            536,
+            602
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Problem 18.3 (Integer multicommodity flow) Graph G and the source– sink pairs are specified as in the minimum multicut problem; however, the edge capacities are all integral. A separate commodity is defined for each $( s _ { i } , t _ { i } )$ pair. The object is to maximize the sum of the commodities routed, subject to edge capacity constraints and subject to routing each commodity integrally.",
+        "bbox": [
+            220,
+            608,
+            786,
+            694
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Let us consider this problem when G is restricted to be a tree. If in (18.2), the variables are constrained to be nonnegative integers, we would get an integer programming formulation for this problem. Clearly, the objective function value of this integer program is bounded by that of the linear program (18.2).",
+        "bbox": [
+            221,
+            694,
+            784,
+            753
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "page_number",
+        "text": "148",
+        "bbox": [
+            225,
+            87,
+            250,
+            99
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "header",
+        "text": "18 Multicut and Integer Multicommodity Flow in Trees",
+        "bbox": [
+            277,
+            87,
+            670,
+            101
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Furthermore, the best fractional flow may be strictly larger. For instance, in Example 18.2, maximum integral multicommodity flow is 1, since sending 1 unit of any of the three commodities will saturate two of the edges. This problem is NP-hard, even for trees of height 3 (though the capacity has to be arbitrary).",
+        "bbox": [
+            220,
+            112,
+            786,
+            186
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "18.2 Primal–dual schema based algorithm",
+        "text_level": 2,
+        "bbox": [
+            223,
+            212,
+            650,
+            230
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "We will use the primal–dual schema to obtain an algorithm that simultaneously finds a multicut and an integer multicommodity flow that are within a factor of 2 of each other, provided the given graph is a tree. Hence, we get approximation algorithms for both problems, of factor 2 and $1 / 2$ , respectively.",
+        "bbox": [
+            220,
+            243,
+            784,
+            300
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Let us define the multicut LP to be the primal program. An edge e is saturated if the total flow through it equals its capacity. We will ensure primal complementary slackness conditions, $\\operatorname { i . e . , } \\alpha = 1$ , and relax the dual conditions with $\\beta = 2$ , where α and $\\beta$ are the parameters used in the general description of the primal–dual schema given in Chapter 15.",
+        "bbox": [
+            220,
+            300,
+            784,
+            372
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Primal conditions: For each $\\textstyle e \\in E , d _ { e } \\neq 0 \\Rightarrow \\sum _ { i : \\ e \\in p _ { i } } f _ { i } = c _ { e }$",
+        "bbox": [
+            221,
+            379,
+            697,
+            394
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "\u0001Equivalently, any edge picked in the multicut must be saturated.",
+        "bbox": [
+            221,
+            393,
+            692,
+            407
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Relaxed dual conditions: For each $\\begin{array} { r } { i \\in \\{ 1 , . . . , k \\} , f _ { i } \\neq 0 \\Rightarrow \\sum _ { e \\in p _ { i } } d _ { e } \\leq 2 } \\end{array}$ \u0001Equivalently, at most two edges can be picked from a path carrying nonzero flow. (Clearly, we must pick at least one edge from each $( s _ { i } , t _ { i } )$ ) path simply to ensure the feasibility of the multicut.)",
+        "bbox": [
+            220,
+            413,
+            784,
+            470
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Let us root the tree $G$ at an arbitrary vertex. Define the depth of vertex v to be the length of the path from v to the root; the depth of the root is $0 .$ For two vertices $u , v \\in V$ , let lca(u, v) denote the lowest common ancestor of u and $v ,$ i.e., the minimum depth vertex on the path from u to $v .$ Let $e _ { 1 }$ and $e _ { 2 }$ be two edges on a path from a vertex to the root. $\\operatorname { I f } \\ e _ { 1 }$ occurs before $e _ { 2 }$ on this path, then $e _ { 1 }$ is said to be deeper than $e _ { 2 }$",
+        "bbox": [
+            220,
+            470,
+            784,
+            557
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "The algorithm starts with an empty multicut and flow, and iteratively improves the feasibility of the primal solution and the optimality of the dua solution. In an iteration, it picks the deepest unprocessed vertex, say $v ,$ and greedily routes integral flow between pairs that have v as their lowest common ancestor. When no more flow can be routed between these pairs, all edges that were saturated in this iteration are added to the list $D$ in arbitrary order. When all the vertices have been processed, D will be a multicut; however, it may have redundant edges. To remove them, a reverse delete step is performed: edges are considered in the reverse of the order in which they were added to $D _ { \\ast }$ and if the deletion of edge e from D still gives a valid multicut, e is discarded from D.",
+        "bbox": [
+            220,
+            557,
+            786,
+            714
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "header",
+        "text": "18.2 Primal–dual schema based algorithm",
+        "bbox": [
+            433,
+            87,
+            729,
+            101
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "page_number",
+        "text": "149",
+        "bbox": [
+            759,
+            87,
+            784,
+            99
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "code",
+        "sub_type": "algorithm",
+        "code_caption": [],
+        "code_body": "<div class=\"mineru-algorithm\" style=\"white-space: pre-wrap; font-family:monospace;\">\nAlgorithm 18.4 (Multicut and integer multicommodity flow in trees)\n\n1. Initialization:  $f \\leftarrow 0$ ;  $D \\leftarrow \\emptyset$ .\n\n2. Flow routing: For each vertex v, in nonincreasing order of depth, do:\n    For each pair  $(s_i, t_i)$  such that  $\\text{lca}(s_i, t_i) = v$ , greedily route integral flow from  $s_i$  to  $t_i$ .\n\n    Add to D all edges that were saturated in the current iteration in arbitrary order.\n\n3. Let  $e_1, e_2, \\ldots, e_l$  be the ordered list of edges in D.\n\n4. Reverse delete: For j = l downto 1 do:\n    If  $D - \\{e_j\\}$  is a multicut in G, then  $D \\leftarrow D - \\{e_j\\}$ .\n\n5. Output the flow and multicut D.\n</div>",
+        "bbox": [
+            228,
+            114,
+            783,
+            317
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Lemma 18.5 Let $( s _ { i } , t _ { i } )$ be a pair with nonzero $f l o w ,$ and let lca $( s _ { i } , t _ { i } ) = v$ At most one edge is picked in the multicut from each of the two paths, $s _ { i }$ to v and $t _ { i }$ to v.",
+        "bbox": [
+            221,
+            324,
+            786,
+            368
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Proof: The argument is the same for each path. Suppose two edges e and $e ^ { \\prime }$ are picked from the $s _ { i } - v$ path, with e being the deeper edge. Clearly, $e ^ { \\prime }$ must be in D all through reverse delete. Consider the moment during reverse delete when edge e is being tested. Since e is not discarded, there must be a pair, say $( s _ { j } , t _ { j } )$ , such that e is the only edge of D on the $s _ { j } - t _ { j }$ path. Let u be the lowest common ancestor of $s _ { j }$ and $t _ { j }$ . Since $e ^ { \\prime }$ does not lie on the $s _ { j } - t _ { j }$ path, u must be deeper than $e ^ { \\prime } { \\mathrm { . } }$ and hence deeper than v. After u has been processed, D must contain an edge from the $s _ { j } - t _ { j }$ path, say $e ^ { \\prime \\prime }$",
+        "bbox": [
+            220,
+            384,
+            786,
+            500
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "image",
+        "img_path": "images/daa29a6d76f6daf2f9dc2bcbd973201362b0a4aaed0bf161303984805a2285b9.jpg",
+        "image_caption": [
+            "Since nonzero flow has been routed from $s _ { i }$ to $t _ { i } ,$ , e must be added during or after the iteration in which v is processed. Since v is an ancestor of $u , e$ is added after $e ^ { \\prime \\prime }$ . So $e ^ { \\prime \\prime }$ must be in $D$ when e is being tested. This contradicts the fact that at this moment e is the only edge of $D$ on the $s _ { j } - t _ { j }$ path. ✷"
+        ],
+        "image_footnote": [],
+        "content": "",
+        "bbox": [
+            275,
+            504,
+            731,
+            673
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "page_number",
+        "text": "150",
+        "bbox": [
+            225,
+            87,
+            250,
+            99
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "header",
+        "text": "18 Multicut and Integer Multicommodity Flow in Trees",
+        "bbox": [
+            277,
+            87,
+            670,
+            102
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Theorem 18.6 Algorithm 18.4 achieves approximation guarantees of factor 2 for the minimum multicut problem and factor 1/2 for the maximum integer multicommodity flow problem on trees.",
+        "bbox": [
+            221,
+            112,
+            788,
+            156
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Proof: The flow found at the end of Step 2 is maximal, and since at this point D contains all the saturated edges, D is a multicut. Since the reverse delete step only discards redundant edges, D is a multicut after this step as well. Thus, feasible solutions have been found for both the flow and the multicut.",
+        "bbox": [
+            220,
+            172,
+            786,
+            243
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Since each edge in the multicut is saturated, the primal conditions are satisfied. By Lemma 18.5, at most two edges have been picked in the multicut from each path carrying nonzero flow. Therefore, the relaxed dual conditions are also satisfied. Hence, by Proposition 15.1, the capacity of the multicut found is within twice the flow. Since a feasible flow is a lower bound on the optimal multicut, and a feasible multicut is an upper bound on the optimal integer multicommodity flow, the claim follows. ✷",
+        "bbox": [
+            220,
+            243,
+            786,
+            344
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Finally, we obtain the following approximate min–max relation from Theorem 18.6:",
+        "bbox": [
+            220,
+            349,
+            784,
+            379
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Corollary 18.7 On trees with integer edge capacities,",
+        "bbox": [
+            221,
+            388,
+            626,
+            403
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "equation",
+        "text": "$$\n\\max _ {i n t. f l o w F} | F | \\leq \\min _ {m u l t i c u t C} c (C) \\leq 2 \\cdot \\max _ {i n t. f l o w F} | F |,\n$$",
+        "text_format": "latex",
+        "bbox": [
+            263,
+            414,
+            670,
+            439
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "where $| F |$ represents the value of flow function F and $c ( C )$ represents the capacity of multicut C.",
+        "bbox": [
+            221,
+            453,
+            784,
+            483
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "In Chapter 20 we will present an $O ( \\log k )$ factor algorithm for the minimum multicut problem in general graphs; once again, the lower bound used is an optimal fractional multicut. On the other hand, no nontrivial approximation algorithms are known for the integer multicommodity flow problem in graphs more general than trees. As shown in Example 18.8, even for planar graphs, the integrality gap of an LP analogous to (18.2) is lower bounded by $n / 2$ , where n is the number of source–sink pairs specified.",
+        "bbox": [
+            220,
+            491,
+            786,
+            592
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Example 18.8 Consider the following planar graph with n source–sink pairs. Every edge is of unit capacity. Any pair of paths between the ith and jth source–sink pairs intersect in at least one unit capacity edge. The magnified part shows how this is arranged at each intersection. Thus, sending one unit of any commodity blocks all other commodities. On the other hand, half a unit of each commodity can be routed simultaneously.",
+        "bbox": [
+            220,
+            596,
+            786,
+            684
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "header",
+        "text": "18.2 Primal–dual schema based algorithm",
+        "bbox": [
+            433,
+            87,
+            729,
+            101
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "page_number",
+        "text": "151",
+        "bbox": [
+            759,
+            87,
+            784,
+            99
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "chart",
+        "img_path": "images/0276e5ca0913c2d66b4d476a305c2d5edcd2b9fea018f602fb5ba76f1ca86610.jpg",
+        "content": "",
+        "chart_caption": [],
+        "chart_footnote": [],
+        "bbox": [
+            354,
+            112,
+            636,
+            300
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "18.3 Exercises",
+        "text_level": 2,
+        "bbox": [
+            223,
+            359,
+            376,
+            375
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "18.1 (Garg, Vazirani, and Yannakakis [98]) Give approximation factor preserving reductions between the following pairs of problems:",
+        "bbox": [
+            220,
+            403,
+            784,
+            434
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "(a) cardinality vertex cover and minimum multicut in trees of height 1 and unit capacity edges,",
+        "bbox": [
+            221,
+            439,
+            784,
+            468
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "(b) vertex cover with arbitrary weights and minimum multicut in trees of height 1 and arbitrary edge capacities.",
+        "bbox": [
+            221,
+            468,
+            786,
+            498
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Hint: Given a vertex cover instance $G ,$ construct a height 1 tree that has a leaf corresponding to each vertex of G and a source–sink pair corresponding to each edge of G.",
+        "bbox": [
+            220,
+            502,
+            786,
+            546
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "18.2 The following is a well-studied polynomial time solvable generalization of the maximum matching problem. Given an undirected graph $G = ( V , E )$ and a function $b : V \\to \\mathbf { Z } ^ { + }$ , a b-matching is a set of edges, $E ^ { \\prime } \\subseteq E ,$ with associated multiplicities, m : $E ^ { \\prime } \\to \\mathbf { Z } ^ { + }$ , such that each vertex $v \\in V$ has at most $b ( v )$ edges incident at it, counting multiplicities. The size of this bmatching is the sum of multiplicities of edges in $E ^ { \\prime }$ . The maximum b-matching problem is that of finding a b-matching of maximum size. Show that the following pairs of problems are polynomial time equivalent:",
+        "bbox": [
+            220,
+            560,
+            784,
+            676
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "(a) maximum integer multicommodity flow problem on trees of height 1 and unit capacity edges, and the maximum matching problem,",
+        "bbox": [
+            221,
+            681,
+            784,
+            709
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "(b) maximum integer multicommodity flow problem on trees of height 1 and arbitrary capacity edges, and the maximum b-matching problem.",
+        "bbox": [
+            221,
+            709,
+            784,
+            739
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "page_number",
+        "text": "152",
+        "bbox": [
+            225,
+            87,
+            250,
+            99
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "header",
+        "text": "18 Multicut and Integer Multicommodity Flow in Trees",
+        "bbox": [
+            277,
+            87,
+            670,
+            101
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "18.3 (Garg, Vazirani, and Yannakakis [98]) Give a polynomial time algorithm for computing a maximum integer multicommodity flow on unit capacity trees of arbitrary height.",
+        "bbox": [
+            221,
+            112,
+            786,
+            156
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Hint: Apply dynamic programming, and use a subroutine for the maximum matching problem.",
+        "bbox": [
+            220,
+            156,
+            784,
+            186
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "18.4 If Step 2 of Algorithm 18.4 is modified to include only one saturated edge after each iteration, show that the resulting set D may not even be a multicut.",
+        "bbox": [
+            220,
+            198,
+            786,
+            242
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "18.5 If Step 4 in Algorithm 18.4 is removed, or is changed to a forward delete, show that its approximation factor is unbounded.",
+        "bbox": [
+            220,
+            255,
+            784,
+            285
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "18.6 Modify step 4 in Algorithm 18.4 to: sort edges in D by decreasing capacity and remove redundant edges in this order. What factor can you prove for the modified algorithm?",
+        "bbox": [
+            220,
+            298,
+            784,
+            342
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "18.7 Give tight examples for Algorithm 18.4 for both multicut and integer multicommodity flow.",
+        "bbox": [
+            220,
+            354,
+            784,
+            384
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "18.8 Prove that if e and $e ^ { \\prime }$ are both in D in Step 3 of Algorithm 18.4, and e is deeper than $e ^ { \\prime } .$ , then e is added before or in the same iteration as $e ^ { \\prime }$",
+        "bbox": [
+            221,
+            397,
+            784,
+            426
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "18.9 Find the best integral and fractional multicut and the best multicommodity flow in the following graph. All capacities are 1, and the specified pairs are $( s _ { 1 } , t _ { 1 } ) , \\dotsc , ( s _ { 5 } , t _ { 5 } )$ . Notice that the optimal fractional multicut is not half integral. In contrast, the LP-relaxation of the multiway cut problem always has a half-integral optimal solution (see Chapter 19).",
+        "bbox": [
+            220,
+            439,
+            786,
+            513
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "image",
+        "img_path": "images/7cdd68207fa1f5b519d661350d472de7c6a5e43911080fc732d6b25448547bc7.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "content": "",
+        "bbox": [
+            295,
+            523,
+            710,
+            717
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "header",
+        "text": "18.3 Exercises",
+        "bbox": [
+            621,
+            87,
+            732,
+            99
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "page_number",
+        "text": "153",
+        "bbox": [
+            759,
+            87,
+            784,
+            99
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "18.4 Notes",
+        "text_level": 2,
+        "bbox": [
+            221,
+            112,
+            342,
+            127
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Algorithm 18.4 is due to Garg, Vazirani, and Yannakakis [98]. For recent results on the integer multicommodity flow problem, see Guruswami, Khanna, Rajaraman, Sheperd, and Yannakakis [118].",
+        "bbox": [
+            220,
+            141,
+            786,
+            186
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "header",
+        "text": "154 18 Multicut and Integer Multicommodity Flow in Trees",
+        "bbox": [
+            223,
+            87,
+            670,
+            101
+        ],
+        "page_idx": 8
+    }
+]
