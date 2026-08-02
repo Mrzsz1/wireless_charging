@@ -3,6 +3,8 @@ const checks = [
   ['node',['scripts/verify-build.mjs'],'structural build'],
   ['node',['scripts/verify-config.mjs'],'tauri config'],
   ['node',['e2e/offline-smoke.mjs'],'offline E2E'],
+  ['node',['e2e/gui-smoke.mjs'],'GUI E2E (SKIP when driver/app absent)'],
+  ['node',['scripts/smoke-installer.mjs'],'installer smoke'],
 ]
 for (const [cmd,args,label] of checks) {
   console.log(`\n=== ${label} ===`)

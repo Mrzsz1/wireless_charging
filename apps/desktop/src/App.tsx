@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleHelp,
+  CloudDownload,
   Code2,
   FileText,
   Folder,
@@ -41,10 +42,12 @@ import {
   isDesktopRuntime,
   listPages,
   openLocalPath,
+  processRepositoryChanges,
   rebuildIndex,
   repositoryInfo,
   searchPages,
 } from './services/desktop'
+import { checkAndInstallUpdate } from './services/updater'
 import type { Backlink, PageDetail, PageFilters, PageSummary, RepositoryInfo, SearchResult } from './types'
 
 type Icon = ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
@@ -132,6 +135,7 @@ export default function App() {
   const [notice, setNotice] = useState('')
   const [theme, setTheme] = useState<Theme>(() => readStored('desktop.theme', 'light'))
   const [fontSize, setFontSize] = useState(() => readStored('desktop.font-size', 14))
+  const [updateBusy, setUpdateBusy] = useState(false)
 
   const refreshRepository = useCallback(async () => {
     setLoading(true)
@@ -152,6 +156,27 @@ export default function App() {
   }, [filters, repositoryGeneration])
 
   useEffect(() => { void refreshRepository() }, [refreshRepository])
+  useEffect(() => {
+    if (!repository || !isDesktopRuntime()) return
+    let active = true
+    let polling = false
+    const timer = window.setInterval(async () => {
+      if (!active || polling) return
+      polling = true
+      try {
+        const status = await processRepositoryChanges()
+        if (active && status.processedChanges > 0) {
+          setNotice(`检测到 ${status.processedChanges} 项知识库变更，索引已自动更新`)
+          setRepositoryGeneration((value) => value + 1)
+        }
+      } catch (error) {
+        if (active) setNotice(`自动索引更新失败：${String(error)}`)
+      } finally {
+        polling = false
+      }
+    }, 1500)
+    return () => { active = false; window.clearInterval(timer) }
+  }, [repository?.path])
   useEffect(() => { localStorage.setItem('desktop.nav-collapsed', JSON.stringify(navCollapsed)) }, [navCollapsed])
   useEffect(() => { localStorage.setItem('desktop.context-open', JSON.stringify(contextOpen)) }, [contextOpen])
   useEffect(() => { localStorage.setItem('desktop.workspace-expanded', JSON.stringify(expandedWorkspaceNodes)) }, [expandedWorkspaceNodes])
@@ -243,6 +268,18 @@ export default function App() {
     }
   }
 
+  const handleUpdate = async () => {
+    if (!isDesktopRuntime() || updateBusy) return
+    setUpdateBusy(true)
+    try {
+      await checkAndInstallUpdate((state) => setNotice(state.message))
+    } catch (error) {
+      setNotice(`更新检查失败：${String(error)}`)
+    } finally {
+      setUpdateBusy(false)
+    }
+  }
+
   const handleSearch = async (value: string) => {
     setQuery(value)
     if (!value.trim()) {
@@ -300,6 +337,7 @@ export default function App() {
         <label>主题　<select value={theme} onChange={(event) => setTheme(event.target.value as Theme)}><option value="light">浅色</option><option value="dark">深色</option><option value="system">跟随系统</option></select></label>
         <label>字号　<input type="range" min="12" max="18" value={fontSize} onChange={(event) => setFontSize(Number(event.target.value))} /> {fontSize}px</label>
         <div><h2>Luna 与模型设置</h2><p>模型地址、模型名和密钥环境变量在智能问答页面的设置面板中管理。</p><button className="link-button" onClick={() => activateView('qa')}>前往智能问答</button></div>
+        <div><h2>客户端更新</h2><p>通过签名更新清单检查、下载并安装新版本；发布构建需配置正式更新端点与公钥。</p><button className="refresh-button" disabled={!isDesktopRuntime() || updateBusy} onClick={() => void handleUpdate()}>{updateBusy ? <RefreshCw className="spin" size={14} /> : <CloudDownload size={14} />}{updateBusy ? '正在检查' : '检查更新'}</button></div>
         <div><h2>缓存与日志</h2><p>缓存、任务事件与日志保存在应用数据目录；具体任务产物可在编译中心查看。</p></div>
       </div>
     </div>
@@ -333,11 +371,11 @@ export default function App() {
       </header>
 
       <div className="app-body">
-        <aside className={`app-sidebar ${navCollapsed ? 'collapsed' : 'expanded'}`}>
+        <aside className={`app-sidebar ${navCollapsed ? 'collapsed' : 'expanded'}`} data-testid="sidebar">
           <div className="sidebar-brand"><span className="sidebar-icon"><LibraryBig size={19} /></span>{!navCollapsed && <span className="sidebar-brand-label">工作台</span>}</div>
           <nav className="primary-nav">
             {navigation.map(({ label, view: itemView, icon: NavIcon }) => (
-              <button key={itemView} className={`sidebar-nav-item ${view === itemView ? 'selected' : ''}`} onClick={() => activateView(itemView, label)} title={label}>
+              <button key={itemView} data-testid={`nav-${itemView}`} className={`sidebar-nav-item ${view === itemView ? 'selected' : ''}`} onClick={() => activateView(itemView, label)} title={label}>
                 <span className="sidebar-icon"><NavIcon size={18} /></span>{!navCollapsed && <span className="sidebar-label">{label}</span>}
               </button>
             ))}
@@ -350,7 +388,7 @@ export default function App() {
               {workspaceItems.map((item) => {
                 const expanded = expandedWorkspaceNodes.includes(item.id)
                 return <div className="workspace-node" key={item.id}>
-                  <button className={`tree-item ${expanded ? 'expanded' : ''}`} aria-expanded={item.children ? expanded : undefined} onClick={() => item.children ? toggleWorkspaceNode(item.id) : item.view && activateView(item.view, item.label)}>
+                  <button data-testid={item.id === 'scheduling' ? 'space-toggle' : undefined} className={`tree-item ${expanded ? 'expanded' : ''}`} aria-expanded={item.children ? expanded : undefined} onClick={() => item.children ? toggleWorkspaceNode(item.id) : item.view && activateView(item.view, item.label)}>
                     <span className="tree-leading">{item.children ? (expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />) : <Folder size={14} />}</span><span>{item.label}</span>{item.star && <Star className="star-fill" size={13} />}
                   </button>
                   {item.children && expanded && <div className="workspace-children">{item.children.map((child) => <button className="tree-item tree-child" key={child.id} onClick={() => child.view && activateView(child.view, child.label)}><span className="tree-leading"><ChevronRight size={12} /></span>{child.label}</button>)}</div>}
@@ -361,7 +399,7 @@ export default function App() {
 
           <div className="sidebar-spacer" />
           <div className="sidebar-footer">
-            <button className={`sidebar-nav-item ${view === 'settings' ? 'selected' : ''}`} onClick={() => activateView('settings')}><span className="sidebar-icon"><Settings size={18} /></span>{!navCollapsed && <span className="sidebar-label">设置</span>}</button>
+            <button data-testid="settings" className={`sidebar-nav-item ${view === 'settings' ? 'selected' : ''}`} onClick={() => activateView('settings')}><span className="sidebar-icon"><Settings size={18} /></span>{!navCollapsed && <span className="sidebar-label">设置</span>}</button>
             <button className={`sidebar-nav-item ${view === 'help' ? 'selected' : ''}`} onClick={() => activateView('help')}><span className="sidebar-icon"><CircleHelp size={18} /></span>{!navCollapsed && <span className="sidebar-label">帮助</span>}</button>
           </div>
         </aside>

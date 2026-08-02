@@ -1,5 +1,5 @@
 import { Channel, invoke } from '@tauri-apps/api/core'
-import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatSessionDetail, ChatSessionSummary, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LunaSettings, PageDetail, PageFilters, PageSummary, QuestionContext, RepositoryInfo, SearchResult, StartCompileRequest } from '../types'
+import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatSessionDetail, ChatSessionSummary, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LunaSettings, PageDetail, PageFilters, PageSummary, QuestionContext, RepositoryInfo, RepositoryWatchStatus, SearchResult, StartCompileRequest } from '../types'
 
 type TauriWindow = Window & { __TAURI_INTERNALS__?: unknown }
 
@@ -146,6 +146,12 @@ export async function retryCompileRun(runId: string, onMessage: (event: CompileS
 export async function cancelCompileRun(runId: string): Promise<void> {
   return invoke('cancel_compile_run', { runId })
 }
+
+export async function pauseCompileRun(runId: string): Promise<void> { return invoke('pause_compile_run', { runId }) }
+export async function resumeCompileRun(runId: string): Promise<void> { return invoke('resume_compile_run', { runId }) }
+
+export async function getRepositoryWatchStatus(): Promise<RepositoryWatchStatus> { return invoke('get_repository_watch_status') }
+export async function processRepositoryChanges(): Promise<RepositoryWatchStatus> { return invoke('process_repository_changes') }
 
 export async function rollbackCompileRun(runId: string): Promise<string> {
   return invoke<string>('rollback_compile_run', { runId })

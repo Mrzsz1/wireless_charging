@@ -8,12 +8,13 @@ use std::process::Command;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use tauri::ipc::Channel;
-use tauri::{AppHandle, Manager, State};
+use tauri::{AppHandle, Emitter, Manager, State};
 use uuid::Uuid;
 use walkdir::WalkDir;
 
 mod compile_center;
 mod qa;
+mod repository_watcher;
 
 #[derive(Default)]
 struct RepositoryState {
@@ -25,8 +26,19 @@ struct RepositoryState {
 #[derive(Default)]
 struct AppState {
     repository: Mutex<RepositoryState>,
+    repository_watcher: Mutex<Option<repository_watcher::RepositoryWatcher>>,
     cancellations: Mutex<HashMap<String, Arc<AtomicBool>>>,
     compile_cancellations: Mutex<HashMap<String, Arc<AtomicBool>>>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct RepositoryWatchStatus {
+    active: bool,
+    root: Option<String>,
+    processed_changes: usize,
+    full_rebuild: bool,
+    graph_refresh: bool,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -673,6 +685,16 @@ fn open_repository_state(
     })
 }
 
+fn start_repository_watcher(state: &AppState, root: PathBuf) -> Result<(), String> {
+    let watcher = repository_watcher::RepositoryWatcher::start(root)
+        .map_err(|error| format!("启动知识库监听失败：{error}"))?;
+    *state
+        .repository_watcher
+        .lock()
+        .map_err(|_| "知识库监听状态锁定失败".to_string())? = Some(watcher);
+    Ok(())
+}
+
 #[tauri::command]
 fn choose_repository(app: AppHandle, state: State<'_, AppState>) -> Result<RepositoryInfo, String> {
     let Some(path) = FileDialog::new()
@@ -681,11 +703,15 @@ fn choose_repository(app: AppHandle, state: State<'_, AppState>) -> Result<Repos
     else {
         return Err("用户取消了目录选择".to_string());
     };
-    let mut repository = state
-        .repository
-        .lock()
-        .map_err(|_| "知识库状态锁定失败".to_string())?;
-    open_repository_state(&mut repository, &app, path)
+    let info = {
+        let mut repository = state
+            .repository
+            .lock()
+            .map_err(|_| "知识库状态锁定失败".to_string())?;
+        open_repository_state(&mut repository, &app, path.clone())?
+    };
+    start_repository_watcher(&state, path)?;
+    Ok(info)
 }
 
 #[tauri::command]
@@ -694,11 +720,111 @@ fn open_repository(
     path: String,
     state: State<'_, AppState>,
 ) -> Result<RepositoryInfo, String> {
-    let mut repository = state
+    let root = PathBuf::from(path);
+    let info = {
+        let mut repository = state
+            .repository
+            .lock()
+            .map_err(|_| "知识库状态锁定失败".to_string())?;
+        open_repository_state(&mut repository, &app, root.clone())?
+    };
+    start_repository_watcher(&state, root)?;
+    Ok(info)
+}
+
+#[tauri::command]
+fn get_repository_watch_status(
+    state: State<'_, AppState>,
+) -> Result<RepositoryWatchStatus, String> {
+    let watcher = state
+        .repository_watcher
+        .lock()
+        .map_err(|_| "知识库监听状态锁定失败".to_string())?;
+    Ok(RepositoryWatchStatus {
+        active: watcher.is_some(),
+        root: watcher
+            .as_ref()
+            .map(|item| item.root().to_string_lossy().to_string()),
+        processed_changes: 0,
+        full_rebuild: false,
+        graph_refresh: false,
+    })
+}
+
+#[tauri::command]
+fn process_repository_changes(
+    app: AppHandle,
+    state: State<'_, AppState>,
+) -> Result<RepositoryWatchStatus, String> {
+    let changes = {
+        let mut watcher = state
+            .repository_watcher
+            .lock()
+            .map_err(|_| "知识库监听状态锁定失败".to_string())?;
+        watcher.as_mut().map(|item| item.poll()).unwrap_or_default()
+    };
+    if changes.is_empty() {
+        return get_repository_watch_status(state);
+    }
+
+    let full_rebuild = changes.iter().any(|change| change.full_rebuild);
+    let graph_refresh = changes.iter().any(|change| change.graph_refresh);
+    let changed_files = changes
+        .iter()
+        .map(|change| {
+            serde_json::json!({
+                "path": change.path.to_string_lossy(),
+                "kind": change.kind,
+            })
+        })
+        .collect::<Vec<_>>();
+    let _ = app.emit(
+        "index_update_started",
+        serde_json::json!({ "changeCount": changes.len(), "fullRebuild": full_rebuild }),
+    );
+    let stats = {
+        let mut repository = state
+            .repository
+            .lock()
+            .map_err(|_| "知识库状态锁定失败".to_string())?;
+        let root = repository
+            .root
+            .clone()
+            .ok_or_else(|| "请先选择知识库目录".to_string())?;
+        let connection = repository
+            .db
+            .as_mut()
+            .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
+        let stats = rebuild_connection(connection, &root)?;
+        repository.indexed_pages = stats.page_count;
+        stats
+    };
+    let _ = app.emit(
+        "index_update_completed",
+        serde_json::json!({
+            "changeCount": changes.len(),
+            "pageCount": stats.page_count,
+            "fullRebuild": full_rebuild,
+            "graphRefresh": graph_refresh,
+            "changedFiles": changed_files,
+        }),
+    );
+    if full_rebuild {
+        let _ = app.emit("graph_rebuild_required", ());
+    }
+    let root = state
         .repository
         .lock()
-        .map_err(|_| "知识库状态锁定失败".to_string())?;
-    open_repository_state(&mut repository, &app, PathBuf::from(path))
+        .ok()
+        .and_then(|repository| repository.root.clone())
+        .map(|path| path.to_string_lossy().to_string());
+    Ok(RepositoryWatchStatus {
+        active: true,
+        root,
+        processed_changes: changes.len(),
+        full_rebuild,
+        graph_refresh,
+    })
 }
 
 #[tauri::command]
@@ -2167,6 +2293,40 @@ fn cancel_compile_run(run_id: String, state: State<'_, AppState>) -> Result<(), 
 }
 
 #[tauri::command]
+fn pause_compile_run(run_id: String, state: State<'_, AppState>) -> Result<(), String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
+    compile_center::set_pause_requested(connection, root, &run_id, true)
+}
+
+#[tauri::command]
+fn resume_compile_run(run_id: String, state: State<'_, AppState>) -> Result<(), String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
+    compile_center::set_pause_requested(connection, root, &run_id, false)
+}
+
+#[tauri::command]
 fn rollback_compile_run(run_id: String, state: State<'_, AppState>) -> Result<String, String> {
     let repository = state
         .repository
@@ -2186,6 +2346,8 @@ fn rollback_compile_run(run_id: String, state: State<'_, AppState>) -> Result<St
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .manage(AppState::default())
         .setup(|app| {
             if let Ok(data_dir) = app.path().app_local_data_dir() {
@@ -2194,6 +2356,7 @@ pub fn run() {
                     if let Ok(payload) = serde_json::from_str::<serde_json::Value>(&content) {
                         if let Some(path) = payload.get("path").and_then(|value| value.as_str()) {
                             if Path::new(path).exists() {
+                                let mut opened_ok = false;
                                 if let Ok(mut state) = app.state::<AppState>().repository.lock() {
                                     let opened = open_repository_state(
                                         &mut state,
@@ -2211,6 +2374,13 @@ pub fn run() {
                                             }
                                         }
                                     }
+                                    opened_ok = opened.is_ok();
+                                }
+                                if opened_ok {
+                                    let _ = start_repository_watcher(
+                                        &app.state::<AppState>(),
+                                        PathBuf::from(path),
+                                    );
                                 }
                             }
                         }
@@ -2229,6 +2399,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             choose_repository,
             open_repository,
+            get_repository_watch_status,
+            process_repository_changes,
             rebuild_index,
             repository_info,
             search_pages,
@@ -2261,6 +2433,8 @@ pub fn run() {
             start_compile_run,
             retry_compile_run,
             cancel_compile_run,
+            pause_compile_run,
+            resume_compile_run,
             rollback_compile_run
         ])
         .run(tauri::generate_context!())

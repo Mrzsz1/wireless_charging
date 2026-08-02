@@ -14,7 +14,7 @@ export type IndexStats = {
 }
 
 export type CompileCapability = {
-  taskKind: 'lint' | 'graphify_update' | 'discover' | 'parse' | 'compile_a'
+  taskKind: 'lint' | 'graphify_update' | 'discover' | 'parse' | 'compile_a' | 'full_pipeline'
   label: string
   description: string
   available: boolean
@@ -30,13 +30,14 @@ export type StartCompileRequest = {
   dryRun: boolean
   download: boolean
   force: boolean
+  timeoutSeconds?: number
 }
 
 export type CompileRunSummary = {
   id: string
   taskKind: string
   displayName: string
-  status: 'queued' | 'running' | 'succeeded' | 'failed' | 'cancelled' | 'interrupted' | 'rolled_back'
+  status: 'queued' | 'running' | 'succeeded' | 'failed' | 'cancelled' | 'interrupted' | 'rolled_back' | 'paused' | 'pause_requested' | 'resume_requested' | 'cancel_requested' | 'timed_out'
   currentStage: string
   createdAt: string
   startedAt: string
@@ -44,6 +45,11 @@ export type CompileRunSummary = {
   exitCode?: number | null
   failureReason: string
   retryOf: string
+  timeoutSeconds: number
+  currentStageIndex: number
+  totalStages: number
+  pauseRequested: boolean
+  heartbeat: string
 }
 
 export type CompileRunEvent = {
@@ -60,6 +66,8 @@ export type CompileArtifact = {
   relativePath: string
   operation: string
   rollbackEligible: boolean
+  beforeHash?: string
+  afterHash?: string
 }
 
 export type CompileRunDetail = {
@@ -70,12 +78,20 @@ export type CompileRunDetail = {
 }
 
 export type CompileStreamEvent = {
-  type: 'accepted' | 'stage_started' | 'stdout' | 'stderr' | 'completed' | 'failed' | 'cancelled'
+  type: 'accepted' | 'stage_started' | 'stage_completed' | 'progress' | 'stdout' | 'stderr' | 'paused' | 'resumed' | 'completed' | 'failed' | 'cancelled' | 'timed_out'
   runId: string
   sequence: number
   stage: string
   message: string
   timestamp: string
+}
+
+export type RepositoryWatchStatus = {
+  active: boolean
+  root?: string | null
+  processedChanges: number
+  fullRebuild: boolean
+  graphRefresh: boolean
 }
 
 export type SearchResult = {

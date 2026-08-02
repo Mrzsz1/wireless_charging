@@ -12,11 +12,11 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{mpsc, Arc};
 use std::sync::{Mutex, OnceLock};
 use std::thread;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tauri::ipc::Channel;
 use uuid::Uuid;
 
-pub const COMPILE_SCHEMA_VERSION: i64 = 5;
+pub const COMPILE_SCHEMA_VERSION: i64 = 6;
 static WRITE_LOCKS: OnceLock<Mutex<HashSet<String>>> = OnceLock::new();
 const MAX_BACKUP_BYTES: u64 = 16 * 1024 * 1024;
 
@@ -151,6 +151,8 @@ pub struct StartCompileRequest {
     pub download: bool,
     #[serde(default)]
     pub force: bool,
+    #[serde(default)]
+    pub timeout_seconds: Option<u64>,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -167,6 +169,11 @@ pub struct CompileRunSummary {
     pub exit_code: Option<i32>,
     pub failure_reason: String,
     pub retry_of: String,
+    pub timeout_seconds: u64,
+    pub current_stage_index: u64,
+    pub total_stages: u64,
+    pub pause_requested: bool,
+    pub heartbeat: String,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -252,6 +259,41 @@ pub enum CompileStreamEvent {
         message: String,
         timestamp: String,
     },
+    StageCompleted {
+        run_id: String,
+        sequence: i64,
+        stage: String,
+        message: String,
+        timestamp: String,
+    },
+    Progress {
+        run_id: String,
+        sequence: i64,
+        stage: String,
+        message: String,
+        timestamp: String,
+    },
+    Paused {
+        run_id: String,
+        sequence: i64,
+        stage: String,
+        message: String,
+        timestamp: String,
+    },
+    Resumed {
+        run_id: String,
+        sequence: i64,
+        stage: String,
+        message: String,
+        timestamp: String,
+    },
+    TimedOut {
+        run_id: String,
+        sequence: i64,
+        stage: String,
+        message: String,
+        timestamp: String,
+    },
 }
 
 #[derive(Debug)]
@@ -260,7 +302,7 @@ struct TaskSpec {
     args: Vec<String>,
     label: &'static str,
     stage: &'static str,
-    artifact: Option<(&'static str, &'static str)>,
+    artifacts: Vec<(&'static str, &'static str)>,
 }
 
 fn now() -> String {
@@ -279,7 +321,10 @@ pub fn db_schema(connection: &Connection) -> Result<(), String> {
            display_name TEXT NOT NULL, status TEXT NOT NULL, current_stage TEXT NOT NULL DEFAULT '',
            created_at TEXT NOT NULL, started_at TEXT NOT NULL DEFAULT '', finished_at TEXT NOT NULL DEFAULT '',
            exit_code INTEGER, failure_reason TEXT NOT NULL DEFAULT '', parameters_json TEXT NOT NULL DEFAULT '{}',
-           result_json TEXT NOT NULL DEFAULT '{}', retry_of TEXT NOT NULL DEFAULT '', rollback_of TEXT NOT NULL DEFAULT '');
+           result_json TEXT NOT NULL DEFAULT '{}', retry_of TEXT NOT NULL DEFAULT '', rollback_of TEXT NOT NULL DEFAULT '',
+           timeout_seconds INTEGER NOT NULL DEFAULT 3600, current_stage_index INTEGER NOT NULL DEFAULT 0,
+           total_stages INTEGER NOT NULL DEFAULT 1, pause_requested INTEGER NOT NULL DEFAULT 0,
+           heartbeat TEXT NOT NULL DEFAULT '');
          CREATE TABLE IF NOT EXISTS compile_run_events(
            id INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT NOT NULL, sequence INTEGER NOT NULL,
            event_kind TEXT NOT NULL, stage TEXT NOT NULL DEFAULT '', message TEXT NOT NULL DEFAULT '',
@@ -299,6 +344,15 @@ pub fn db_schema(connection: &Connection) -> Result<(), String> {
         "ALTER TABLE compile_artifacts ADD COLUMN backup_path TEXT NOT NULL DEFAULT ''",
         [],
     );
+    for ddl in [
+        "ALTER TABLE compile_runs ADD COLUMN timeout_seconds INTEGER NOT NULL DEFAULT 3600",
+        "ALTER TABLE compile_runs ADD COLUMN current_stage_index INTEGER NOT NULL DEFAULT 0",
+        "ALTER TABLE compile_runs ADD COLUMN total_stages INTEGER NOT NULL DEFAULT 1",
+        "ALTER TABLE compile_runs ADD COLUMN pause_requested INTEGER NOT NULL DEFAULT 0",
+        "ALTER TABLE compile_runs ADD COLUMN heartbeat TEXT NOT NULL DEFAULT ''",
+    ] {
+        let _ = connection.execute(ddl, []);
+    }
     connection
         .pragma_update(None, "user_version", COMPILE_SCHEMA_VERSION)
         .map_err(|error| format!("compile schema version failed: {error}"))?;
@@ -309,7 +363,8 @@ pub fn recover_interrupted_runs(connection: &Connection) -> Result<usize, String
     connection
         .execute(
             "UPDATE compile_runs SET status='interrupted',finished_at=strftime('%s','now'),
-             failure_reason='Application exited while task was running' WHERE status IN ('queued','running')",
+             failure_reason='Application exited while task was running',pause_requested=0
+             WHERE status IN ('queued','running','pause_requested','paused','resume_requested','cancel_requested')",
             [],
         )
         .map_err(|error| format!("compile recovery failed: {error}"))
@@ -329,7 +384,24 @@ pub fn capabilities(root: &Path) -> Vec<CompileCapability> {
     let graphify = command_exists("graphify");
     let codex = command_exists("codex");
     let tool = |name: &str| root.join("tools").join(name).is_file();
+    let full_pipeline = python
+        && graphify
+        && codex
+        && tool("full_pipeline.py")
+        && tool("paper_search.py")
+        && tool("wiki_lint.py")
+        && tool("export_desktop_data.py");
     let definitions = [
+        (
+            "full_pipeline",
+            "Full pipeline",
+            "discover, optional parse, compile_a, lint, graphify, snapshot, verify",
+            full_pipeline,
+            "Requires py, codex, graphify and pipeline tools",
+            true,
+            true,
+            false,
+        ),
         (
             "lint",
             "Knowledge lint",
@@ -417,6 +489,11 @@ fn summary(row: &rusqlite::Row<'_>) -> rusqlite::Result<CompileRunSummary> {
         exit_code: row.get(8)?,
         failure_reason: row.get(9)?,
         retry_of: row.get(10)?,
+        timeout_seconds: row.get::<_, i64>(11).unwrap_or(3600) as u64,
+        current_stage_index: row.get::<_, i64>(12).unwrap_or(0) as u64,
+        total_stages: row.get::<_, i64>(13).unwrap_or(1) as u64,
+        pause_requested: row.get::<_, i64>(14).unwrap_or(0) != 0,
+        heartbeat: row.get(15).unwrap_or_default(),
     })
 }
 
@@ -425,7 +502,7 @@ pub fn list_runs(
     repository: &str,
     limit: usize,
 ) -> Result<Vec<CompileRunSummary>, String> {
-    let mut statement = connection.prepare("SELECT id,task_kind,display_name,status,current_stage,created_at,started_at,finished_at,exit_code,failure_reason,retry_of FROM compile_runs WHERE repository_path=?1 ORDER BY rowid DESC LIMIT ?2").map_err(|e| e.to_string())?;
+    let mut statement = connection.prepare("SELECT id,task_kind,display_name,status,current_stage,created_at,started_at,finished_at,exit_code,failure_reason,retry_of,timeout_seconds,current_stage_index,total_stages,pause_requested,heartbeat FROM compile_runs WHERE repository_path=?1 ORDER BY rowid DESC LIMIT ?2").map_err(|e| e.to_string())?;
     let rows = statement
         .query_map(params![repository, limit.min(500) as i64], summary)
         .map_err(|e| e.to_string())?
@@ -440,8 +517,8 @@ pub fn get_run(
     run_id: &str,
 ) -> Result<CompileRunDetail, String> {
     let (summary, json): (CompileRunSummary, String) = connection.query_row(
-        "SELECT id,task_kind,display_name,status,current_stage,created_at,started_at,finished_at,exit_code,failure_reason,retry_of,parameters_json FROM compile_runs WHERE repository_path=?1 AND id=?2",
-        params![repository, run_id], |row| Ok((summary(row)?, row.get(11)?)),
+        "SELECT id,task_kind,display_name,status,current_stage,created_at,started_at,finished_at,exit_code,failure_reason,retry_of,timeout_seconds,current_stage_index,total_stages,pause_requested,heartbeat,parameters_json FROM compile_runs WHERE repository_path=?1 AND id=?2",
+        params![repository, run_id], |row| Ok((summary(row)?, row.get(16)?)),
     ).optional().map_err(|e| e.to_string())?.ok_or_else(|| "compile run not found for repository".to_string())?;
     let request = serde_json::from_str(&json).map_err(|e| e.to_string())?;
     let mut event_query = connection.prepare("SELECT sequence,event_kind,stage,message,created_at FROM compile_run_events WHERE run_id=?1 ORDER BY sequence").map_err(|e| e.to_string())?;
@@ -497,15 +574,19 @@ fn inside_repository(root: &Path, value: &str) -> Result<PathBuf, String> {
     Ok(candidate)
 }
 
-fn build_task(root: &Path, request: &StartCompileRequest) -> Result<TaskSpec, String> {
+fn build_task(
+    root: &Path,
+    request: &StartCompileRequest,
+    run_id: Option<&str>,
+) -> Result<TaskSpec, String> {
     match request.task_kind.as_str() {
-        "lint" => Ok(TaskSpec { executable: "py".into(), args: vec!["-3".into(), "tools/wiki_lint.py".into(), "--write-report".into()], label: "Knowledge lint", stage: "lint", artifact: Some(("report", "logs")) }),
-        "graphify_update" => Ok(TaskSpec { executable: "graphify".into(), args: vec!["update".into(), ".".into(), "--force".into()], label: "Update Graphify", stage: "graphify", artifact: Some(("graph", "graphify-out/graph.json")) }),
+        "lint" => Ok(TaskSpec { executable: "py".into(), args: vec!["-3".into(), "tools/wiki_lint.py".into(), "--write-report".into()], label: "Knowledge lint", stage: "lint", artifacts: vec![("report", "logs")] }),
+        "graphify_update" => Ok(TaskSpec { executable: "graphify".into(), args: vec!["update".into(), ".".into(), "--force".into()], label: "Update Graphify", stage: "graphify", artifacts: vec![("graph", "graphify-out")] }),
         "discover" => {
             let mut args = vec!["-3".into(), "tools/paper_search.py".into(), "--preset".into(), "wireless-charging-scheduling".into(), "--new-only".into()];
             if request.dry_run { args.push("--dry-run".into()); }
             if request.download { args.push("--download".into()); }
-            Ok(TaskSpec { executable: "py".into(), args, label: "Discover papers", stage: "discover", artifact: Some(("discovery", "raw/inbox/auto-discovered/runs")) })
+            Ok(TaskSpec { executable: "py".into(), args, label: "Discover papers", stage: "discover", artifacts: vec![("discovery", "raw/inbox/auto-discovered")] })
         }
         "parse" => {
             let input = request.input_path.as_deref().filter(|v| !v.trim().is_empty()).ok_or_else(|| "parse requires inputPath".to_string())?;
@@ -513,11 +594,52 @@ fn build_task(root: &Path, request: &StartCompileRequest) -> Result<TaskSpec, St
             let mut args = vec!["-3".into(), "tools/mineru_to_md.py".into(), input.to_string_lossy().into_owned(), "--output-root".into(), root.join("raw/canonical").to_string_lossy().into_owned()];
             if request.dry_run { args.push("--dry-run".into()); }
             if request.force { args.push("--force".into()); }
-            Ok(TaskSpec { executable: "py".into(), args, label: "Parse PDF", stage: "parse", artifact: Some(("canonical", "raw/canonical")) })
+            Ok(TaskSpec { executable: "py".into(), args, label: "Parse PDF", stage: "parse", artifacts: vec![("canonical", "raw/canonical")] })
         }
-        "compile_a" => Ok(TaskSpec { executable: "codex".into(), args: vec!["exec".into(), "-C".into(), root.to_string_lossy().into_owned(), "--sandbox".into(), "workspace-write".into(), "--ask-for-approval".into(), "never".into(), "--skip-git-repo-check".into(), "--ephemeral".into(), "Read AGENTS.md and schema/agent-a-compile.md. Compile every pending_ingest through the Agent A protocol. Never write wiki/problems or wiki/ideas, never edit vocab.yaml, never delete files, and update index, library-status, logs and Graphify.".into()], label: "Compile A pages", stage: "compile_a", artifact: Some(("wiki", "wiki")) }),
+        "compile_a" => Ok(TaskSpec { executable: "codex".into(), args: vec!["-a".into(), "never".into(), "-s".into(), "workspace-write".into(), "exec".into(), "-C".into(), root.to_string_lossy().into_owned(), "--skip-git-repo-check".into(), "--ephemeral".into(), "Read AGENTS.md and schema/agent-a-compile.md. Compile every pending_ingest through the Agent A protocol. Never write wiki/problems or wiki/ideas, never edit vocab.yaml, never delete files, and update index, library-status, logs and Graphify.".into()], label: "Compile A pages", stage: "compile_a", artifacts: vec![("wiki", "wiki")] }),
+        "full_pipeline" => {
+            let mut args = vec!["-3".into(), "tools/full_pipeline.py".into()];
+            if let Some(run_id) = run_id {
+                args.extend([
+                    "--control-file".into(),
+                    format!(".codegraph/compile-control/{run_id}.pause"),
+                ]);
+            }
+            if let Some(input) = request.input_path.as_deref().filter(|value| !value.trim().is_empty()) {
+                inside_repository(root, input)?;
+                args.extend(["--input-path".into(), input.into()]);
+            }
+            if request.download { args.push("--download".into()); }
+            if request.force { args.push("--force".into()); }
+            Ok(TaskSpec { executable: "py".into(), args, label: "Full knowledge pipeline", stage: "pipeline", artifacts: vec![("discovery", "raw/inbox/auto-discovered"), ("canonical", "raw/canonical"), ("wiki", "wiki"), ("logs", "logs"), ("graph", "graphify-out"), ("snapshot", "apps/desktop/public/data/library.json")] })
+        }
         _ => Err("task kind is not in the compile allowlist".into()),
     }
+}
+
+/// Return ordered stages for a requested pipeline. `parse` is included only when inputPath resolves.
+pub fn build_pipeline(root: &Path, request: &StartCompileRequest) -> Result<Vec<String>, String> {
+    if request.task_kind != "full_pipeline" {
+        return Ok(vec![request.task_kind.clone()]);
+    }
+    let mut stages = vec!["discover".to_string()];
+    if request
+        .input_path
+        .as_deref()
+        .map(|s| !s.trim().is_empty())
+        .unwrap_or(false)
+    {
+        let _ = inside_repository(root, request.input_path.as_deref().unwrap())?;
+        stages.push("parse".into());
+    }
+    stages.extend([
+        "compile_a".into(),
+        "lint".into(),
+        "graphify_update".into(),
+        "rebuild_snapshot".into(),
+        "verify".into(),
+    ]);
+    Ok(stages)
 }
 
 fn redact(input: &str) -> String {
@@ -644,6 +766,56 @@ fn emit_event(
                 timestamp,
             }
         }
+        "stage_completed" => {
+            let (run_id, sequence, stage, message, timestamp) = fields();
+            CompileStreamEvent::StageCompleted {
+                run_id,
+                sequence,
+                stage,
+                message,
+                timestamp,
+            }
+        }
+        "progress" => {
+            let (run_id, sequence, stage, message, timestamp) = fields();
+            CompileStreamEvent::Progress {
+                run_id,
+                sequence,
+                stage,
+                message,
+                timestamp,
+            }
+        }
+        "paused" => {
+            let (run_id, sequence, stage, message, timestamp) = fields();
+            CompileStreamEvent::Paused {
+                run_id,
+                sequence,
+                stage,
+                message,
+                timestamp,
+            }
+        }
+        "resumed" => {
+            let (run_id, sequence, stage, message, timestamp) = fields();
+            CompileStreamEvent::Resumed {
+                run_id,
+                sequence,
+                stage,
+                message,
+                timestamp,
+            }
+        }
+        "timed_out" => {
+            let (run_id, sequence, stage, message, timestamp) = fields();
+            CompileStreamEvent::TimedOut {
+                run_id,
+                sequence,
+                stage,
+                message,
+                timestamp,
+            }
+        }
         _ => {
             let (run_id, sequence, stage, message, timestamp) = fields();
             CompileStreamEvent::Failed {
@@ -658,6 +830,172 @@ fn emit_event(
     let _ = channel.send(event);
 }
 
+fn emit_process_line(
+    connection: &Connection,
+    channel: &Channel<CompileStreamEvent>,
+    run_id: &str,
+    sequence: &mut i64,
+    kind: &str,
+    fallback_stage: &str,
+    line: &str,
+    stage_index: &mut i64,
+    total_stages: i64,
+) {
+    if kind == "stdout" {
+        if let Some(stage) = line.strip_prefix("PIPELINE_STAGE_START ") {
+            *stage_index += 1;
+            let timestamp = now();
+            let _ = connection.execute(
+                "UPDATE compile_runs SET current_stage=?2,current_stage_index=?3,total_stages=?4,heartbeat=?5 WHERE id=?1",
+                params![run_id,stage,*stage_index,total_stages,timestamp],
+            );
+            emit_event(
+                connection,
+                channel,
+                run_id,
+                sequence,
+                "stage_started",
+                stage,
+                &format!("Stage {}/{} started", stage_index, total_stages),
+            );
+            emit_event(
+                connection,
+                channel,
+                run_id,
+                sequence,
+                "progress",
+                stage,
+                &format!("{}/{}", stage_index, total_stages),
+            );
+            return;
+        }
+        if let Some(stage) = line.strip_prefix("PIPELINE_STAGE_COMPLETED ") {
+            emit_event(
+                connection,
+                channel,
+                run_id,
+                sequence,
+                "stage_completed",
+                stage,
+                "Stage completed",
+            );
+            return;
+        }
+        if let Some(stage) = line.strip_prefix("PIPELINE_PAUSED ") {
+            let _ = connection.execute(
+                "UPDATE compile_runs SET status='paused',current_stage=?2,pause_requested=1,heartbeat=?3 WHERE id=?1",
+                params![run_id, stage, now()],
+            );
+            emit_event(
+                connection,
+                channel,
+                run_id,
+                sequence,
+                "paused",
+                stage,
+                "Paused at a safe stage boundary",
+            );
+            return;
+        }
+        if let Some(stage) = line.strip_prefix("PIPELINE_RESUMED ") {
+            let _ = connection.execute(
+                "UPDATE compile_runs SET status='running',current_stage=?2,pause_requested=0,heartbeat=?3 WHERE id=?1",
+                params![run_id, stage, now()],
+            );
+            emit_event(
+                connection,
+                channel,
+                run_id,
+                sequence,
+                "resumed",
+                stage,
+                "Pipeline resumed",
+            );
+            return;
+        }
+        if let Some(rest) = line.strip_prefix("PIPELINE_STAGE_FAILED ") {
+            let stage = rest.split_whitespace().next().unwrap_or(fallback_stage);
+            emit_event(connection, channel, run_id, sequence, "failed", stage, line);
+            return;
+        }
+    }
+    emit_event(
+        connection,
+        channel,
+        run_id,
+        sequence,
+        kind,
+        fallback_stage,
+        line,
+    );
+}
+
+fn pause_control_path(root: &Path, run_id: &str) -> PathBuf {
+    root.join(".codegraph")
+        .join("compile-control")
+        .join(format!("{run_id}.pause"))
+}
+
+fn task_timeout_seconds(request: &StartCompileRequest) -> u64 {
+    request
+        .timeout_seconds
+        .unwrap_or(match request.task_kind.as_str() {
+            "lint" => 600,
+            "graphify_update" | "discover" => 1800,
+            "parse" | "compile_a" | "full_pipeline" => 3600,
+            _ => 1800,
+        })
+        .clamp(10, 86_400)
+}
+
+pub fn set_pause_requested(
+    connection: &Connection,
+    root: &Path,
+    run_id: &str,
+    pause: bool,
+) -> Result<(), String> {
+    let (task_kind, status): (String, String) = connection
+        .query_row(
+            "SELECT task_kind,status FROM compile_runs WHERE repository_path=?1 AND id=?2",
+            params![root.to_string_lossy(), run_id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .map_err(|error| format!("读取任务状态失败：{error}"))?;
+    if task_kind != "full_pipeline" {
+        return Err("仅完整流水线支持阶段边界暂停".to_string());
+    }
+    let control = pause_control_path(root, run_id);
+    if pause {
+        if status != "running" {
+            return Err(format!("任务当前状态不支持暂停：{status}"));
+        }
+        if let Some(parent) = control.parent() {
+            fs::create_dir_all(parent).map_err(|error| error.to_string())?;
+        }
+        fs::write(&control, "pause\n").map_err(|error| error.to_string())?;
+        connection
+            .execute(
+                "UPDATE compile_runs SET status='pause_requested',pause_requested=1,heartbeat=?2 WHERE id=?1",
+                params![run_id, now()],
+            )
+            .map_err(|error| error.to_string())?;
+    } else {
+        if !matches!(status.as_str(), "pause_requested" | "paused") {
+            return Err(format!("任务当前状态不支持继续：{status}"));
+        }
+        if control.exists() {
+            fs::remove_file(&control).map_err(|error| error.to_string())?;
+        }
+        connection
+            .execute(
+                "UPDATE compile_runs SET status='resume_requested',pause_requested=0,heartbeat=?2 WHERE id=?1",
+                params![run_id, now()],
+            )
+            .map_err(|error| error.to_string())?;
+    }
+    Ok(())
+}
+
 pub fn execute_run(
     db_path: &Path,
     root: &Path,
@@ -667,23 +1005,29 @@ pub fn execute_run(
     cancellation: Arc<AtomicBool>,
     retry_of: Option<String>,
 ) -> Result<CompileRunSummary, String> {
-    let spec = build_task(root, &request)?;
+    let spec = build_task(root, &request, Some(&run_id))?;
+    let stage_plan = build_pipeline(root, &request)?;
+    let total_stages = stage_plan.len().max(1) as i64;
     let write = request.task_kind != "lint";
     let _write_guard = RepositoryWriteGuard::acquire(root, write)?;
-    let artifact_path = spec.artifact.map(|(_, path)| root.join(path));
     let backup_root = db_path
         .parent()
         .unwrap_or(root)
         .join("compile-backups")
         .join(&run_id);
-    let before = match artifact_path.as_ref() {
-        Some(path) => snapshot_scope(root, path, Some(&backup_root))?,
-        None => HashMap::new(),
-    };
+    let artifact_scopes = spec
+        .artifacts
+        .iter()
+        .map(|(kind, relative)| {
+            let path = root.join(relative);
+            let before = snapshot_scope(root, &path, Some(&backup_root))?;
+            Ok((*kind, path, before))
+        })
+        .collect::<Result<Vec<_>, String>>()?;
     let connection = Connection::open(db_path).map_err(|e| e.to_string())?;
     db_schema(&connection)?;
     let created = now();
-    connection.execute("INSERT INTO compile_runs(id,repository_path,task_kind,display_name,status,current_stage,created_at,parameters_json,retry_of) VALUES(?1,?2,?3,?4,'queued',?5,?6,?7,?8)", params![run_id,root.to_string_lossy(),request.task_kind,spec.label,spec.stage,created,serde_json::to_string(&request).map_err(|e| e.to_string())?,retry_of.unwrap_or_default()]).map_err(|e| e.to_string())?;
+    connection.execute("INSERT INTO compile_runs(id,repository_path,task_kind,display_name,status,current_stage,created_at,parameters_json,retry_of,timeout_seconds,total_stages) VALUES(?1,?2,?3,?4,'queued',?5,?6,?7,?8,?9,?10)", params![run_id,root.to_string_lossy(),request.task_kind,spec.label,spec.stage,created,serde_json::to_string(&request).map_err(|e| e.to_string())?,retry_of.unwrap_or_default(),task_timeout_seconds(&request) as i64,total_stages]).map_err(|e| e.to_string())?;
     let mut sequence = 0;
     emit_event(
         &connection,
@@ -710,6 +1054,30 @@ pub fn execute_run(
         spec.stage,
         spec.label,
     );
+    if request.dry_run {
+        let stages =
+            build_pipeline(root, &request).unwrap_or_else(|_| vec![request.task_kind.clone()]);
+        connection.execute("UPDATE compile_runs SET status='succeeded',finished_at=?2,total_stages=?3,current_stage_index=?3,heartbeat=?2 WHERE id=?1", params![run_id, now(), stages.len() as i64]).ok();
+        emit_event(
+            &connection,
+            &channel,
+            &run_id,
+            &mut sequence,
+            "progress",
+            "pipeline",
+            &format!("dry-run plan: {}", stages.join(",")),
+        );
+        emit_event(
+            &connection,
+            &channel,
+            &run_id,
+            &mut sequence,
+            "completed",
+            "pipeline",
+            "Dry-run plan completed",
+        );
+        return get_run(&connection, &root.to_string_lossy(), &run_id).map(|d| d.summary);
+    }
     let mut child = match Command::new(&spec.executable)
         .args(&spec.args)
         .current_dir(root)
@@ -752,9 +1120,16 @@ pub fn execute_run(
         });
     }
     drop(sender);
+    let timeout = Duration::from_secs(task_timeout_seconds(&request));
+    let process_started = Instant::now();
+    let mut current_stage_index = if request.task_kind == "full_pipeline" {
+        0
+    } else {
+        1
+    };
     let (final_status, exit_code, reason) = loop {
         while let Ok((kind, line)) = receiver.try_recv() {
-            emit_event(
+            emit_process_line(
                 &connection,
                 &channel,
                 &run_id,
@@ -762,17 +1137,38 @@ pub fn execute_run(
                 kind,
                 spec.stage,
                 &line,
+                &mut current_stage_index,
+                total_stages,
             );
         }
         if cancellation.load(Ordering::SeqCst) {
+            #[cfg(target_os = "windows")]
+            let _ = Command::new("taskkill")
+                .args(["/PID", &child.id().to_string(), "/T", "/F"])
+                .status();
+            #[cfg(not(target_os = "windows"))]
             let _ = child.kill();
             let _ = child.wait();
             break ("cancelled", None, "Task cancelled".to_string());
         }
+        if process_started.elapsed() >= timeout {
+            #[cfg(target_os = "windows")]
+            let _ = Command::new("taskkill")
+                .args(["/PID", &child.id().to_string(), "/T", "/F"])
+                .status();
+            #[cfg(not(target_os = "windows"))]
+            let _ = child.kill();
+            let _ = child.wait();
+            break (
+                "timed_out",
+                None,
+                format!("Task exceeded {} seconds", timeout.as_secs()),
+            );
+        }
         match child.try_wait() {
             Ok(Some(status)) => {
                 while let Ok((kind, line)) = receiver.recv_timeout(Duration::from_millis(20)) {
-                    emit_event(
+                    emit_process_line(
                         &connection,
                         &channel,
                         &run_id,
@@ -780,6 +1176,8 @@ pub fn execute_run(
                         kind,
                         spec.stage,
                         &line,
+                        &mut current_stage_index,
+                        total_stages,
                     );
                 }
                 if status.success() {
@@ -797,7 +1195,7 @@ pub fn execute_run(
     };
     connection.execute("UPDATE compile_runs SET status=?2,finished_at=?3,exit_code=?4,failure_reason=?5,result_json=?6 WHERE id=?1",params![run_id,final_status,now(),exit_code,reason,serde_json::json!({"eventCount":sequence}).to_string()]).map_err(|e|e.to_string())?;
     if final_status == "succeeded" {
-        if let (Some((kind, _)), Some(path)) = (spec.artifact, artifact_path.as_ref()) {
+        for (kind, path, before) in &artifact_scopes {
             let after = snapshot_scope(root, path, None)?;
             let mut paths = before
                 .keys()
@@ -830,7 +1228,7 @@ pub fn execute_run(
                     };
                 connection.execute(
                     "INSERT INTO compile_artifacts(id,run_id,artifact_kind,relative_path,operation,before_hash,after_hash,rollback_eligible,backup_path) VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9)",
-                    params![Uuid::new_v4().to_string(),run_id,kind,relative_path,operation,before_hash,after_hash,if eligible {1} else {0},backup_path],
+                    params![Uuid::new_v4().to_string(),run_id,*kind,relative_path,operation,before_hash,after_hash,if eligible {1} else {0},backup_path],
                 ).map_err(|error| format!("record artifact failed: {error}"))?;
             }
         }
@@ -853,6 +1251,16 @@ pub fn execute_run(
             spec.stage,
             &reason,
         );
+    } else if final_status == "timed_out" {
+        emit_event(
+            &connection,
+            &channel,
+            &run_id,
+            &mut sequence,
+            "timed_out",
+            spec.stage,
+            &reason,
+        );
     } else {
         emit_event(
             &connection,
@@ -863,6 +1271,10 @@ pub fn execute_run(
             spec.stage,
             &reason,
         );
+    }
+    let control = pause_control_path(root, &run_id);
+    if control.exists() {
+        let _ = fs::remove_file(control);
     }
     get_run(&connection, &root.to_string_lossy(), &run_id).map(|d| d.summary)
 }
@@ -969,6 +1381,7 @@ mod tests {
             dry_run: false,
             download: false,
             force: false,
+            timeout_seconds: None,
         }
     }
 
@@ -1050,14 +1463,57 @@ mod tests {
     fn allowlist_and_input_boundary_are_enforced() {
         let root = tempdir().unwrap();
         let outside = tempdir().unwrap();
-        assert!(build_task(root.path(), &request("shell"))
+        assert!(build_task(root.path(), &request("shell"), None)
             .unwrap_err()
             .contains("allowlist"));
         let mut parse = request("parse");
         parse.input_path = Some(outside.path().to_string_lossy().into_owned());
-        assert!(build_task(root.path(), &parse)
+        assert!(build_task(root.path(), &parse, None)
             .unwrap_err()
             .contains("outside repository"));
+    }
+
+    #[test]
+    fn full_pipeline_plan_contains_all_governed_stages() {
+        let root = tempdir().unwrap();
+        let plan = build_pipeline(root.path(), &request("full_pipeline")).unwrap();
+        assert_eq!(
+            plan,
+            vec![
+                "discover",
+                "compile_a",
+                "lint",
+                "graphify_update",
+                "rebuild_snapshot",
+                "verify",
+            ]
+        );
+        let task = build_task(root.path(), &request("full_pipeline"), Some("run-1")).unwrap();
+        assert_eq!(task.executable, "py");
+        assert!(task.args.iter().any(|arg| arg.contains("run-1.pause")));
+    }
+
+    #[test]
+    fn full_pipeline_pause_uses_safe_boundary_control_file() {
+        let root = tempdir().unwrap();
+        let connection = Connection::open_in_memory().unwrap();
+        db_schema(&connection).unwrap();
+        connection.execute(
+            "INSERT INTO compile_runs(id,repository_path,task_kind,display_name,status,current_stage,created_at) VALUES('run',?1,'full_pipeline','Pipeline','running','discover','1')",
+            [root.path().to_string_lossy().to_string()],
+        ).unwrap();
+        set_pause_requested(&connection, root.path(), "run", true).unwrap();
+        assert!(pause_control_path(root.path(), "run").exists());
+        set_pause_requested(&connection, root.path(), "run", false).unwrap();
+        assert!(!pause_control_path(root.path(), "run").exists());
+        let status: String = connection
+            .query_row(
+                "SELECT status FROM compile_runs WHERE id='run'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(status, "resume_requested");
     }
 
     #[test]
