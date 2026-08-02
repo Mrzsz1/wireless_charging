@@ -17,6 +17,7 @@ pub enum ChangeKind {
 #[derive(Debug, Clone)]
 pub struct IndexChange {
     pub path: PathBuf,
+    pub previous_path: Option<PathBuf>,
     pub kind: ChangeKind,
     pub full_rebuild: bool,
     pub graph_refresh: bool,
@@ -30,6 +31,27 @@ pub fn classify_event(event: &Event, root: &Path) -> Vec<IndexChange> {
         EventKind::Remove(_) => ChangeKind::Remove,
         _ => ChangeKind::Other,
     };
+    if kind == ChangeKind::Rename && event.paths.len() >= 2 {
+        let previous = event.paths[0].clone();
+        let path = event.paths[1].clone();
+        let Ok(relative) = path.strip_prefix(root) else {
+            return vec![];
+        };
+        if excluded(relative) {
+            return vec![];
+        }
+        let classification = classify_path(relative);
+        if !classification.interesting {
+            return vec![];
+        }
+        return vec![IndexChange {
+            path,
+            previous_path: Some(previous),
+            kind,
+            full_rebuild: classification.full_rebuild,
+            graph_refresh: classification.graph_refresh,
+        }];
+    }
     event
         .paths
         .iter()
@@ -38,22 +60,41 @@ pub fn classify_event(event: &Event, root: &Path) -> Vec<IndexChange> {
             if excluded(rel) {
                 return None;
             }
-            let s = rel.to_string_lossy().replace('\\', "/");
-            let wiki = s.starts_with("wiki/") && s.ends_with(".md");
-            let schema = s.starts_with("schema/") && s.ends_with(".md");
-            let core = s.starts_with("raw/canonical/core-books");
-            let graph = s == "graphify-out/graph.json";
-            if !(wiki || schema || core || graph) {
+            let classification = classify_path(rel);
+            if !classification.interesting {
                 return None;
             }
             Some(IndexChange {
                 path: p.clone(),
+                previous_path: None,
                 kind: kind.clone(),
-                full_rebuild: schema || core,
-                graph_refresh: graph,
+                full_rebuild: classification.full_rebuild,
+                graph_refresh: classification.graph_refresh,
             })
         })
         .collect()
+}
+
+struct PathClassification {
+    interesting: bool,
+    full_rebuild: bool,
+    graph_refresh: bool,
+}
+
+fn classify_path(relative: &Path) -> PathClassification {
+    let value = relative.to_string_lossy().replace('\\', "/");
+    let wiki = value.starts_with("wiki/") && value.ends_with(".md");
+    let schema =
+        value.starts_with("schema/") && (value.ends_with(".md") || value.ends_with(".yaml"));
+    let core = value.starts_with("raw/canonical/core-books")
+        || value.contains("raw/canonical/algorithmic-game-theory/")
+        || value.contains("raw/canonical/approximation-algorithms/");
+    let graph = value == "graphify-out/graph.json";
+    PathClassification {
+        interesting: wiki || schema || core || graph,
+        full_rebuild: schema || core,
+        graph_refresh: graph,
+    }
 }
 
 fn excluded(rel: &Path) -> bool {
@@ -130,5 +171,27 @@ mod tests {
         let c = classify_event(&e, Path::new("/r"));
         assert_eq!(c.len(), 2);
         assert!(c.iter().any(|x| x.full_rebuild));
+    }
+
+    #[test]
+    fn pairs_rename_paths_and_classifies_yaml_schema() {
+        use notify::event::{ModifyKind, RenameMode};
+        let rename = Event::new(EventKind::Modify(ModifyKind::Name(RenameMode::Both)))
+            .add_path(PathBuf::from("/r/wiki/a.md"))
+            .add_path(PathBuf::from("/r/wiki/b.md"));
+        let changes = classify_event(&rename, Path::new("/r"));
+        assert_eq!(changes.len(), 1);
+        assert_eq!(changes[0].kind, ChangeKind::Rename);
+        assert_eq!(
+            changes[0].previous_path,
+            Some(PathBuf::from("/r/wiki/a.md"))
+        );
+        assert_eq!(changes[0].path, PathBuf::from("/r/wiki/b.md"));
+
+        let schema = Event::new(EventKind::Modify(ModifyKind::Any))
+            .add_path(PathBuf::from("/r/schema/vocab.yaml"));
+        let changes = classify_event(&schema, Path::new("/r"));
+        assert_eq!(changes.len(), 1);
+        assert!(changes[0].full_rebuild);
     }
 }

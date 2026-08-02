@@ -521,6 +521,117 @@ fn resolve_page_summary(
     .map_err(|error| format!("解析Wiki链接失败：{error}"))
 }
 
+fn delete_wiki_page_index(
+    connection: &Connection,
+    wiki_root: &Path,
+    path: &Path,
+) -> Result<(), String> {
+    let id = page_id(wiki_root, path);
+    connection
+        .execute("DELETE FROM pages_fts WHERE page_id=?1", [&id])
+        .map_err(|error| format!("删除页面全文索引失败：{error}"))?;
+    connection
+        .execute("DELETE FROM wikilinks WHERE source_id=?1", [&id])
+        .map_err(|error| format!("删除页面链接索引失败：{error}"))?;
+    connection
+        .execute(
+            "DELETE FROM pages WHERE id=?1 OR source_path=?2",
+            params![id, path.to_string_lossy()],
+        )
+        .map_err(|error| format!("删除页面索引失败：{error}"))?;
+    Ok(())
+}
+
+fn upsert_wiki_page_index(
+    connection: &Connection,
+    wiki_root: &Path,
+    path: &Path,
+) -> Result<(String, String), String> {
+    if !path.is_file() || path.extension().and_then(|value| value.to_str()) != Some("md") {
+        return Err(format!(
+            "增量索引目标不是 Markdown 文件：{}",
+            path.display()
+        ));
+    }
+    let content =
+        fs::read_to_string(path).map_err(|error| format!("读取{}失败：{error}", path.display()))?;
+    let fields = parse_frontmatter(&content);
+    let body = body_without_frontmatter(&content).to_string();
+    let id = page_id(wiki_root, path);
+    let page_type = fields
+        .get("type")
+        .cloned()
+        .unwrap_or_else(|| "page".to_string());
+    let title = fields
+        .get("title")
+        .cloned()
+        .unwrap_or_else(|| fallback_title(&body, path));
+    let year = field_value(&fields, "year");
+    let summary = fields
+        .get("why_relevant")
+        .filter(|value| !value.is_empty())
+        .cloned()
+        .unwrap_or_else(|| summary_from_body(&body));
+    let modified_at = fs::metadata(path)
+        .and_then(|metadata| metadata.modified())
+        .ok()
+        .map(|value| format!("{value:?}"))
+        .unwrap_or_default();
+    let status = field_value(&fields, "status");
+    let epistemic = field_value(&fields, "epistemic");
+    let method_family = field_value(&fields, "method_family");
+    let scenario = field_value(&fields, "scenario");
+    let objectives = field_value(&fields, "objectives");
+    let constraints = field_value(&fields, "constraints");
+    let frontmatter = serialize_frontmatter(&fields);
+    let keywords = [
+        fields.get("paper_keywords").cloned().unwrap_or_default(),
+        method_family.clone(),
+        scenario.clone(),
+        objectives.clone(),
+        constraints.clone(),
+    ]
+    .join(" ");
+
+    delete_wiki_page_index(connection, wiki_root, path)?;
+    connection.execute(
+        "INSERT INTO pages (id,page_type,title,year,summary,body,source_path,modified_at,status,epistemic,method_family,scenario,objectives,constraints,frontmatter) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15)",
+        params![id,page_type,title,year,summary,body,path.to_string_lossy(),modified_at,status,epistemic,method_family,scenario,objectives,constraints,frontmatter],
+    ).map_err(|error| format!("写入页面索引失败：{error}"))?;
+    connection
+        .execute(
+            "INSERT INTO pages_fts (page_id,title,body,keywords) VALUES (?1,?2,?3,?4)",
+            params![id, title, body, keywords],
+        )
+        .map_err(|error| format!("写入全文索引失败：{error}"))?;
+    for target in extract_links(&body) {
+        connection
+            .execute(
+                "INSERT OR IGNORE INTO wikilinks (source_id,target) VALUES (?1,?2)",
+                params![id, target],
+            )
+            .map_err(|error| format!("写入链接索引失败：{error}"))?;
+    }
+    Ok((id, page_type))
+}
+
+fn current_index_stats(connection: &Connection, root: &Path) -> Result<IndexStats, String> {
+    let count = |sql: &str| {
+        connection
+            .query_row(sql, [], |row| row.get::<_, i64>(0))
+            .map(|value| value.max(0) as usize)
+            .map_err(|error| error.to_string())
+    };
+    Ok(IndexStats {
+        path: root.to_string_lossy().to_string(),
+        page_count: count("SELECT COUNT(*) FROM pages")?,
+        source_count: count("SELECT COUNT(*) FROM pages WHERE page_type='source'")?,
+        method_count: count("SELECT COUNT(*) FROM pages WHERE page_type='method'")?,
+        synthesis_count: count("SELECT COUNT(*) FROM pages WHERE page_type='synthesis'")?,
+        chapter_count: count("SELECT COUNT(*) FROM book_chapters")?,
+    })
+}
+
 fn rebuild_connection(connection: &mut Connection, root: &Path) -> Result<IndexStats, String> {
     let wiki_root = root.join("wiki");
     let tx = connection
@@ -554,59 +665,7 @@ fn rebuild_connection(connection: &mut Connection, root: &Path) -> Result<IndexS
         {
             continue;
         }
-        let content = fs::read_to_string(path)
-            .map_err(|error| format!("读取{}失败：{error}", path.display()))?;
-        let fields = parse_frontmatter(&content);
-        let body = body_without_frontmatter(&content).to_string();
-        let id = page_id(&wiki_root, path);
-        let page_type = fields
-            .get("type")
-            .cloned()
-            .unwrap_or_else(|| "page".to_string());
-        let title = fields
-            .get("title")
-            .cloned()
-            .unwrap_or_else(|| fallback_title(&body, path));
-        let year = fields.get("year").cloned().unwrap_or_default();
-        let summary = fields
-            .get("why_relevant")
-            .filter(|value| !value.is_empty())
-            .cloned()
-            .unwrap_or_else(|| summary_from_body(&body));
-        let modified_at = fs::metadata(path)
-            .and_then(|metadata| metadata.modified())
-            .ok()
-            .map(|value| format!("{value:?}"))
-            .unwrap_or_default();
-        tx.execute("INSERT INTO pages (id,page_type,title,year,summary,body,source_path,modified_at) VALUES (?1,?2,?3,?4,?5,?6,?7,?8)", params![id, page_type, title, year, summary, body, path.to_string_lossy().to_string(), modified_at]).map_err(|error| format!("写入页面索引失败：{error}"))?;
-        let status = field_value(&fields, "status");
-        let epistemic = field_value(&fields, "epistemic");
-        let method_family = field_value(&fields, "method_family");
-        let scenario = field_value(&fields, "scenario");
-        let objectives = field_value(&fields, "objectives");
-        let constraints = field_value(&fields, "constraints");
-        let frontmatter = serialize_frontmatter(&fields);
-        tx.execute("UPDATE pages SET status=?2,epistemic=?3,method_family=?4,scenario=?5,objectives=?6,constraints=?7,frontmatter=?8 WHERE id=?1", params![id, status, epistemic, method_family, scenario, objectives, constraints, frontmatter]).map_err(|error| format!("写入页面字段失败：{error}"))?;
-        let keywords = [
-            fields.get("paper_keywords").cloned().unwrap_or_default(),
-            method_family,
-            scenario,
-            objectives,
-            constraints,
-        ]
-        .join(" ");
-        tx.execute(
-            "INSERT INTO pages_fts (page_id,title,body,keywords) VALUES (?1,?2,?3,?4)",
-            params![id, title, body, keywords],
-        )
-        .map_err(|error| format!("写入全文索引失败：{error}"))?;
-        for target in extract_links(&body) {
-            tx.execute(
-                "INSERT OR IGNORE INTO wikilinks (source_id,target) VALUES (?1,?2)",
-                params![id, target],
-            )
-            .map_err(|error| format!("写入链接索引失败：{error}"))?;
-        }
+        let (id, page_type) = upsert_wiki_page_index(&tx, &wiki_root, path)?;
         stats.page_count += 1;
         match page_type.as_str() {
             "source" => stats.source_count += 1,
@@ -774,6 +833,7 @@ fn process_repository_changes(
         .map(|change| {
             serde_json::json!({
                 "path": change.path.to_string_lossy(),
+                "previousPath": change.previous_path.as_ref().map(|path| path.to_string_lossy().to_string()),
                 "kind": change.kind,
             })
         })
@@ -795,7 +855,48 @@ fn process_repository_changes(
             .db
             .as_mut()
             .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
-        let stats = rebuild_connection(connection, &root)?;
+        let stats = if full_rebuild {
+            rebuild_connection(connection, &root)?
+        } else {
+            let wiki_root = root.join("wiki");
+            let tx = connection
+                .transaction()
+                .map_err(|error| format!("开启增量索引事务失败：{error}"))?;
+            for change in &changes {
+                if change.graph_refresh {
+                    continue;
+                }
+                let is_wiki = |path: &Path| {
+                    path.strip_prefix(&wiki_root).is_ok()
+                        && path.extension().and_then(|value| value.to_str()) == Some("md")
+                };
+                match change.kind {
+                    repository_watcher::ChangeKind::Remove => {
+                        if is_wiki(&change.path) {
+                            delete_wiki_page_index(&tx, &wiki_root, &change.path)?;
+                        }
+                    }
+                    repository_watcher::ChangeKind::Rename => {
+                        if let Some(previous) =
+                            change.previous_path.as_ref().filter(|path| is_wiki(path))
+                        {
+                            delete_wiki_page_index(&tx, &wiki_root, previous)?;
+                        }
+                        if is_wiki(&change.path) && change.path.is_file() {
+                            upsert_wiki_page_index(&tx, &wiki_root, &change.path)?;
+                        }
+                    }
+                    _ => {
+                        if is_wiki(&change.path) && change.path.is_file() {
+                            upsert_wiki_page_index(&tx, &wiki_root, &change.path)?;
+                        }
+                    }
+                }
+            }
+            tx.commit()
+                .map_err(|error| format!("提交增量索引事务失败：{error}"))?;
+            current_index_stats(connection, &root)?
+        };
         repository.indexed_pages = stats.page_count;
         stats
     };
@@ -2533,6 +2634,69 @@ mod tests {
             )
             .expect("wikilink");
         assert_eq!(links, "methods/demo");
+    }
+
+    #[test]
+    fn incrementally_upserts_renames_and_deletes_wiki_pages() {
+        let temp = tempfile::tempdir().expect("temp directory");
+        let wiki_root = temp.path().join("wiki");
+        let methods = wiki_root.join("methods");
+        fs::create_dir_all(&methods).expect("methods directory");
+        let original = methods.join("original.md");
+        fs::write(
+            &original,
+            "---\ntype: method\ntitle: Original\nstatus: active\n---\n# Original\n\nFirst body [[sources/a]].",
+        )
+        .expect("original page");
+        let connection = Connection::open_in_memory().expect("sqlite");
+        db_schema(&connection).expect("schema");
+        let (id, page_type) = upsert_wiki_page_index(&connection, &wiki_root, &original)
+            .expect("initial incremental index");
+        assert_eq!(id, "methods/original");
+        assert_eq!(page_type, "method");
+
+        fs::write(
+            &original,
+            "---\ntype: method\ntitle: Updated\nstatus: active\n---\n# Updated\n\nSecond body [[sources/b]].",
+        )
+        .expect("updated page");
+        upsert_wiki_page_index(&connection, &wiki_root, &original).expect("updated index");
+        let fts_count: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM pages_fts WHERE page_id='methods/original'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("fts count");
+        assert_eq!(fts_count, 1);
+        let links = connection
+            .prepare("SELECT target FROM wikilinks WHERE source_id='methods/original'")
+            .expect("links statement")
+            .query_map([], |row| row.get::<_, String>(0))
+            .expect("links")
+            .collect::<Result<Vec<_>, _>>()
+            .expect("link values");
+        assert_eq!(links, vec!["sources/b"]);
+
+        let renamed = methods.join("renamed.md");
+        fs::rename(&original, &renamed).expect("rename page");
+        delete_wiki_page_index(&connection, &wiki_root, &original).expect("delete old id");
+        upsert_wiki_page_index(&connection, &wiki_root, &renamed).expect("index renamed id");
+        assert!(page_summary_by_id(&connection, "methods/original")
+            .expect("old summary")
+            .is_none());
+        assert!(page_summary_by_id(&connection, "methods/renamed")
+            .expect("new summary")
+            .is_some());
+
+        fs::remove_file(&renamed).expect("remove page");
+        delete_wiki_page_index(&connection, &wiki_root, &renamed).expect("delete index");
+        assert_eq!(
+            current_index_stats(&connection, temp.path())
+                .expect("stats")
+                .page_count,
+            0
+        );
     }
 
     #[test]

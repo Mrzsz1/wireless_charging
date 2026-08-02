@@ -1,6 +1,6 @@
 import { X } from 'lucide-react'
 
-export type WorkTab = { id: string; label: string; kind: string; resourceId?: string; nav?: string }
+export type WorkTab = { id: string; label: string; kind: string; resourceId?: string; nav?: string; repositoryPath?: string }
 
 type TabBarProps = {
   tabs: WorkTab[]

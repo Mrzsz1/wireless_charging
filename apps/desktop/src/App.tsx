@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState, type ComponentType } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ComponentType } from 'react'
+import { LogicalPosition, LogicalSize } from '@tauri-apps/api/dpi'
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import {
   Archive,
@@ -98,6 +99,24 @@ const workspaceItems: WorkspaceItem[] = [
 ]
 
 const defaultTab: WorkTab = { id: 'nav-dashboard', label: '研究工作台', kind: 'dashboard', nav: 'dashboard' }
+const WORKSPACE_STATE_VERSION = 2
+
+type PersistedWorkspaceState = {
+  version: number
+  repositoryPath: string
+  tabs: WorkTab[]
+  activeTab: string
+  view: MainView
+}
+
+type PersistedWindowState = {
+  version: number
+  width: number
+  height: number
+  x: number
+  y: number
+  maximized: boolean
+}
 
 function readStored<T>(key: string, fallback: T): T {
   try {
@@ -108,21 +127,27 @@ function readStored<T>(key: string, fallback: T): T {
   }
 }
 
+function readWorkspaceState(): PersistedWorkspaceState {
+  const fallback: PersistedWorkspaceState = { version: WORKSPACE_STATE_VERSION, repositoryPath: '', tabs: [defaultTab], activeTab: defaultTab.id, view: 'dashboard' }
+  const stored = readStored<PersistedWorkspaceState>('desktop.workspace-state.v2', fallback)
+  if (stored.version !== WORKSPACE_STATE_VERSION || !Array.isArray(stored.tabs) || !stored.tabs.length || typeof stored.activeTab !== 'string') return fallback
+  const activeExists = stored.tabs.some((tab) => tab.id === stored.activeTab)
+  return { ...stored, activeTab: activeExists ? stored.activeTab : stored.tabs[0].id, view: activeExists ? stored.view : (stored.tabs[0].kind as MainView) }
+}
+
 function viewLabel(view: MainView) {
   return navigation.find((item) => item.view === view)?.label ?? (view === 'settings' ? '设置' : view === 'help' ? '帮助' : '页面')
 }
 
 export default function App() {
-  const [view, setView] = useState<MainView>(() => readStored('desktop.active-view', 'dashboard'))
+  const bootWorkspace = useRef(readWorkspaceState()).current
+  const [view, setView] = useState<MainView>(bootWorkspace.view)
   const [navCollapsed, setNavCollapsed] = useState(() => readStored('desktop.nav-collapsed', false))
   const [contextOpen, setContextOpen] = useState(() => readStored('desktop.context-open', true))
   const [contextTab, setContextTab] = useState<'evidence' | 'methods'>('evidence')
   const [expandedWorkspaceNodes, setExpandedWorkspaceNodes] = useState<string[]>(() => readStored('desktop.workspace-expanded', ['scheduling']))
-  const [tabs, setTabs] = useState<WorkTab[]>(() => {
-    const stored = readStored<WorkTab[]>('desktop.tabs', [defaultTab])
-    return stored.length ? stored : [defaultTab]
-  })
-  const [activeTab, setActiveTab] = useState(() => readStored('desktop.active-tab', defaultTab.id))
+  const [tabs, setTabs] = useState<WorkTab[]>(bootWorkspace.tabs)
+  const [activeTab, setActiveTab] = useState(bootWorkspace.activeTab)
   const [repository, setRepository] = useState<RepositoryInfo | null>(null)
   const [repositoryGeneration, setRepositoryGeneration] = useState(0)
   const [catalog, setCatalog] = useState<PageSummary[]>([])
@@ -136,6 +161,10 @@ export default function App() {
   const [theme, setTheme] = useState<Theme>(() => readStored('desktop.theme', 'light'))
   const [fontSize, setFontSize] = useState(() => readStored('desktop.font-size', 14))
   const [updateBusy, setUpdateBusy] = useState(false)
+  const globalSearchRef = useRef<HTMLInputElement>(null)
+  const workspaceRef = useRef<HTMLElement>(null)
+  const currentScrollKey = useRef('')
+  const restoredRepository = useRef('')
 
   const refreshRepository = useCallback(async () => {
     setLoading(true)
@@ -177,12 +206,56 @@ export default function App() {
     }, 1500)
     return () => { active = false; window.clearInterval(timer) }
   }, [repository?.path])
+  useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'k' || event.repeat || event.isComposing) return
+      const target = event.target as HTMLElement | null
+      if (target?.closest('[role="dialog"]')) return
+      event.preventDefault()
+      globalSearchRef.current?.focus()
+      globalSearchRef.current?.select()
+    }
+    window.addEventListener('keydown', handleShortcut)
+    return () => window.removeEventListener('keydown', handleShortcut)
+  }, [])
+  useEffect(() => {
+    if (!isDesktopRuntime()) return
+    const appWindow = getCurrentWindow()
+    const stored = readStored<PersistedWindowState | null>('desktop.window-state.v2', null)
+    let disposed = false
+    const unlisten: Array<() => void> = []
+    const saveWindow = async () => {
+      try {
+        const [size, position, maximized] = await Promise.all([appWindow.innerSize(), appWindow.outerPosition(), appWindow.isMaximized()])
+        localStorage.setItem('desktop.window-state.v2', JSON.stringify({ version: WORKSPACE_STATE_VERSION, width: size.width, height: size.height, x: position.x, y: position.y, maximized } satisfies PersistedWindowState))
+      } catch { /* keep the current window state when the platform rejects persistence */ }
+    }
+    void (async () => {
+      try {
+        if (stored?.version === WORKSPACE_STATE_VERSION && stored.width >= 1180 && stored.height >= 720) {
+          await appWindow.setSize(new LogicalSize(stored.width, stored.height))
+          await appWindow.setPosition(new LogicalPosition(stored.x, stored.y))
+          if (stored.maximized) await appWindow.maximize()
+        }
+        const offResize = await appWindow.onResized(() => { void saveWindow() })
+        const offMove = await appWindow.onMoved(() => { void saveWindow() })
+        if (disposed) { offResize(); offMove() } else unlisten.push(offResize, offMove)
+      } catch { /* window persistence is optional outside the native runtime */ }
+    })()
+    return () => { disposed = true; unlisten.forEach((off) => off()); void saveWindow() }
+  }, [])
   useEffect(() => { localStorage.setItem('desktop.nav-collapsed', JSON.stringify(navCollapsed)) }, [navCollapsed])
   useEffect(() => { localStorage.setItem('desktop.context-open', JSON.stringify(contextOpen)) }, [contextOpen])
   useEffect(() => { localStorage.setItem('desktop.workspace-expanded', JSON.stringify(expandedWorkspaceNodes)) }, [expandedWorkspaceNodes])
-  useEffect(() => { localStorage.setItem('desktop.tabs', JSON.stringify(tabs)) }, [tabs])
-  useEffect(() => { localStorage.setItem('desktop.active-tab', JSON.stringify(activeTab)) }, [activeTab])
-  useEffect(() => { localStorage.setItem('desktop.active-view', JSON.stringify(view)) }, [view])
+  useEffect(() => {
+    localStorage.setItem('desktop.workspace-state.v2', JSON.stringify({
+      version: WORKSPACE_STATE_VERSION,
+      repositoryPath: repository?.path ?? bootWorkspace.repositoryPath,
+      tabs,
+      activeTab,
+      view,
+    } satisfies PersistedWorkspaceState))
+  }, [activeTab, bootWorkspace.repositoryPath, repository?.path, tabs, view])
   useEffect(() => {
     localStorage.setItem('desktop.theme', JSON.stringify(theme))
     document.documentElement.dataset.theme = theme
@@ -191,6 +264,18 @@ export default function App() {
     localStorage.setItem('desktop.font-size', JSON.stringify(fontSize))
     document.documentElement.style.fontSize = `${fontSize}px`
   }, [fontSize])
+  useLayoutEffect(() => {
+    const element = workspaceRef.current
+    if (!element) return
+    const stored = readStored<{ version: number; positions: Record<string, number> }>('desktop.scroll-state.v2', { version: WORKSPACE_STATE_VERSION, positions: {} })
+    const positions = stored.version === WORKSPACE_STATE_VERSION ? stored.positions : {}
+    if (currentScrollKey.current) positions[currentScrollKey.current] = element.scrollTop
+    const nextKey = `${repository?.path ?? 'preview'}:${activeTab}`
+    currentScrollKey.current = nextKey
+    localStorage.setItem('desktop.scroll-state.v2', JSON.stringify({ version: WORKSPACE_STATE_VERSION, positions }))
+    const frame = window.requestAnimationFrame(() => { element.scrollTop = positions[nextKey] ?? 0 })
+    return () => window.cancelAnimationFrame(frame)
+  }, [activeTab, page?.id, repository?.path, view])
 
   const activateView = useCallback((nextView: MainView, label = viewLabel(nextView)) => {
     const tabId = `nav-${nextView}`
@@ -210,14 +295,41 @@ export default function App() {
       setView('page')
       setActiveTab(pageId)
       setTabs((current) => current.some((tab) => tab.id === pageId)
-        ? current
-        : [...current, { id: pageId, label: detail.title, kind: 'page', resourceId: pageId }])
+        ? current.map((tab) => tab.id === pageId ? { ...tab, label: detail.title, repositoryPath: repository?.path } : tab)
+        : [...current, { id: pageId, label: detail.title, kind: 'page', resourceId: pageId, repositoryPath: repository?.path }])
+      return true
     } catch (error) {
       setNotice(`页面打开失败：${String(error)}`)
+      return false
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [repository?.path])
+
+  useEffect(() => {
+    const repositoryPath = repository?.path
+    if (!repositoryPath || restoredRepository.current === repositoryPath) return
+    restoredRepository.current = repositoryPath
+    const repositoryChanged = Boolean(bootWorkspace.repositoryPath && bootWorkspace.repositoryPath !== repositoryPath)
+    const validTabs = repositoryChanged
+      ? tabs.filter((tab) => tab.kind !== 'page' || tab.repositoryPath === repositoryPath)
+      : tabs.filter((tab) => tab.kind !== 'page' || !tab.repositoryPath || tab.repositoryPath === repositoryPath)
+    const safeTabs = validTabs.length ? validTabs : [defaultTab]
+    if (safeTabs.length !== tabs.length) setTabs(safeTabs)
+    const target = safeTabs.find((tab) => tab.id === activeTab) ?? safeTabs[safeTabs.length - 1]
+    if (target.kind === 'page' && target.resourceId) {
+      void openPage(target.resourceId).then((opened) => {
+        if (opened) return
+        const fallback = safeTabs.find((tab) => tab.kind !== 'page') ?? defaultTab
+        setTabs((current) => current.filter((tab) => tab.id !== target.id))
+        setActiveTab(fallback.id)
+        setView(fallback.kind as MainView)
+      })
+    } else {
+      setActiveTab(target.id)
+      setView(target.kind as MainView)
+    }
+  }, [activeTab, bootWorkspace.repositoryPath, openPage, repository?.path, tabs])
 
   const selectTab = (tabId: string) => {
     const tab = tabs.find((item) => item.id === tabId)
@@ -404,9 +516,9 @@ export default function App() {
           </div>
         </aside>
 
-        <main className={`main-workspace ${view === 'qa' ? 'qa-active' : ''} ${view === 'compile' ? 'compile-active' : ''}`}>
+        <main ref={workspaceRef} className={`main-workspace ${view === 'qa' ? 'qa-active' : ''} ${view === 'compile' ? 'compile-active' : ''}`}>
           <div className="workspace-toolbar">
-            <div className="global-search"><Search size={17} /><input value={query} onChange={(event) => void handleSearch(event.target.value)} placeholder="搜索论文、方法、模型或问题…" />{query && <button className="clear-search" onClick={() => void handleSearch('')}><X size={14} /></button>}<kbd>Ctrl K</kbd></div>
+            <div className="global-search"><Search size={17} /><input ref={globalSearchRef} data-testid="global-search" value={query} onChange={(event) => void handleSearch(event.target.value)} placeholder="搜索论文、方法、模型或问题…" />{query && <button className="clear-search" onClick={() => void handleSearch('')}><X size={14} /></button>}<kbd>Ctrl K</kbd></div>
             <div className="toolbar-actions"><button className="toolbar-button" onClick={() => activateView('qa')}><Sparkles size={16} />新建问答</button><button className="icon-button" title="刷新知识库快照" onClick={() => void refreshRepository()}><RefreshCw size={16} /></button><button className="icon-button" title={contextOpen ? '收起研究脉络' : '展开研究脉络'} onClick={() => setContextOpen((value) => !value)}>{contextOpen ? <ChevronRight size={17} /> : <ChevronLeft size={17} />}</button></div>
           </div>
           {notice && <div className="notice"><Sparkles size={15} /><span>{notice}</span><button onClick={() => setNotice('')}><X size={14} /></button></div>}
