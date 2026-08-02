@@ -1,0 +1,307 @@
+{
+  "nodes": [
+    {
+      "id": "wiki_sources_src_binh2025_bilevel_metaheuristic_charging_bi_level_metaheuristic_charging_schemes",
+      "label": "Bi-level Metaheuristic Charging Schemes",
+      "file_type": "paper",
+      "source_file": "wiki/sources/src-binh2025-bilevel-metaheuristic-charging.md",
+      "source_location": "L1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_sources_src_binh2025_bilevel_metaheuristic_charging_mlsga_multi_start_local_search_genetic_algorithm",
+      "label": "MLSGA Multi-start Local Search Genetic Algorithm",
+      "file_type": "concept",
+      "source_file": "wiki/sources/src-binh2025-bilevel-metaheuristic-charging.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_sources_src_binh2025_bilevel_metaheuristic_charging_mtbcs_multitasking_bi_level_charging_strategy",
+      "label": "MTBCS Multitasking Bi-level Charging Strategy",
+      "file_type": "concept",
+      "source_file": "wiki/sources/src-binh2025-bilevel-metaheuristic-charging.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_sources_src_gao2024_ra_dmcs_asymmetric_directional_ra_dmcs_asymmetric_directional_mobile_charging",
+      "label": "RA-DMCS Asymmetric Directional Mobile Charging",
+      "file_type": "paper",
+      "source_file": "wiki/sources/src-gao2024-ra-dmcs-asymmetric-directional.md",
+      "source_location": "L1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_sources_src_gao2024_ra_dmcs_asymmetric_directional_kcpg_k_means_charging_position_generation",
+      "label": "KCPG K-means Charging Position Generation",
+      "file_type": "concept",
+      "source_file": "wiki/sources/src-gao2024-ra-dmcs-asymmetric-directional.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_sources_src_gao2024_ra_dmcs_asymmetric_directional_lkh_based_asymmetric_tsp_route_planning",
+      "label": "LKH-based Asymmetric TSP Route Planning",
+      "file_type": "concept",
+      "source_file": "wiki/sources/src-gao2024-ra-dmcs-asymmetric-directional.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_sources_src_gao2025_felkh_3d_uav_felkh_3d_directional_uav_charging",
+      "label": "FELKH-3D Directional UAV Charging",
+      "file_type": "paper",
+      "source_file": "wiki/sources/src-gao2025-felkh-3d-uav.md",
+      "source_location": "L1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_sources_src_gao2025_felkh_3d_uav_cmfeds_minimal_functional_equivalent_direction_set",
+      "label": "cMFEDS Minimal Functional Equivalent Direction Set",
+      "file_type": "concept",
+      "source_file": "wiki/sources/src-gao2025-felkh-3d-uav.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_sources_src_honma2026_infinite_drive_dwpt_infinite_drive_dwpt_intersection_placement",
+      "label": "Infinite Drive DWPT Intersection Placement",
+      "file_type": "paper",
+      "source_file": "wiki/sources/src-honma2026-infinite-drive-dwpt.md",
+      "source_location": "L1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_sources_src_honma2026_infinite_drive_dwpt_mixed_integer_programming_for_dwpt_location_and_battery_sizing",
+      "label": "Mixed Integer Programming for DWPT Location and Battery Sizing",
+      "file_type": "concept",
+      "source_file": "wiki/sources/src-honma2026-infinite-drive-dwpt.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_sources_src_liu2021_joint_cuav_scheduling_trajectory_jstop_joint_cuav_scheduling_and_trajectory_optimization",
+      "label": "JSTOP Joint CUAV Scheduling and Trajectory Optimization",
+      "file_type": "paper",
+      "source_file": "wiki/sources/src-liu2021-joint-cuav-scheduling-trajectory.md",
+      "source_location": "L1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_sources_src_liu2021_joint_cuav_scheduling_trajectory_improved_pso_for_cuav_scheduling_and_trajectory",
+      "label": "Improved PSO for CUAV Scheduling and Trajectory",
+      "file_type": "concept",
+      "source_file": "wiki/sources/src-liu2021-joint-cuav-scheduling-trajectory.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_sources_src_qaisar2026_isac_uav_charging_isac_enabled_on_demand_uav_charging",
+      "label": "ISAC-enabled On-demand UAV Charging",
+      "file_type": "paper",
+      "source_file": "wiki/sources/src-qaisar2026-isac-uav-charging.md",
+      "source_location": "L1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_sources_src_qaisar2026_isac_uav_charging_isac_priority_scheduling_and_partial_charging",
+      "label": "ISAC Priority Scheduling and Partial Charging",
+      "file_type": "concept",
+      "source_file": "wiki/sources/src-qaisar2026-isac-uav-charging.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_sources_src_rahaman2023_obstacle_mcv_obstacle_aware_multi_mobile_charging_vehicle_scheduling",
+      "label": "Obstacle-aware Multi-Mobile Charging Vehicle Scheduling",
+      "file_type": "paper",
+      "source_file": "wiki/sources/src-rahaman2023-obstacle-mcv.md",
+      "source_location": "L1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_sources_src_rahaman2023_obstacle_mcv_anchor_and_projection_point_obstacle_detour_routing",
+      "label": "Anchor and Projection Point Obstacle Detour Routing",
+      "file_type": "concept",
+      "source_file": "wiki/sources/src-rahaman2023-obstacle-mcv.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_sources_src_yao2026_ihatrpo_heterogeneous_chargers_ihatrpo_heterogeneous_charger_collaboration",
+      "label": "IHATRPO Heterogeneous Charger Collaboration",
+      "file_type": "paper",
+      "source_file": "wiki/sources/src-yao2026-ihatrpo-heterogeneous-chargers.md",
+      "source_location": "L1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_sources_src_yao2026_ihatrpo_heterogeneous_chargers_markov_game_for_heterogeneous_charger_coordination",
+      "label": "Markov Game for Heterogeneous Charger Coordination",
+      "file_type": "concept",
+      "source_file": "wiki/sources/src-yao2026-ihatrpo-heterogeneous-chargers.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "wiki_sources_src_binh2025_bilevel_metaheuristic_charging_bi_level_metaheuristic_charging_schemes",
+      "target": "wiki_sources_src_binh2025_bilevel_metaheuristic_charging_mlsga_multi_start_local_search_genetic_algorithm",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "wiki/sources/src-binh2025-bilevel-metaheuristic-charging.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "wiki_sources_src_binh2025_bilevel_metaheuristic_charging_bi_level_metaheuristic_charging_schemes",
+      "target": "wiki_sources_src_binh2025_bilevel_metaheuristic_charging_mtbcs_multitasking_bi_level_charging_strategy",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "wiki/sources/src-binh2025-bilevel-metaheuristic-charging.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "wiki_sources_src_gao2024_ra_dmcs_asymmetric_directional_ra_dmcs_asymmetric_directional_mobile_charging",
+      "target": "wiki_sources_src_gao2024_ra_dmcs_asymmetric_directional_kcpg_k_means_charging_position_generation",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "wiki/sources/src-gao2024-ra-dmcs-asymmetric-directional.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "wiki_sources_src_gao2024_ra_dmcs_asymmetric_directional_ra_dmcs_asymmetric_directional_mobile_charging",
+      "target": "wiki_sources_src_gao2024_ra_dmcs_asymmetric_directional_lkh_based_asymmetric_tsp_route_planning",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "wiki/sources/src-gao2024-ra-dmcs-asymmetric-directional.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "wiki_sources_src_gao2025_felkh_3d_uav_felkh_3d_directional_uav_charging",
+      "target": "wiki_sources_src_gao2025_felkh_3d_uav_cmfeds_minimal_functional_equivalent_direction_set",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "wiki/sources/src-gao2025-felkh-3d-uav.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "wiki_sources_src_honma2026_infinite_drive_dwpt_infinite_drive_dwpt_intersection_placement",
+      "target": "wiki_sources_src_honma2026_infinite_drive_dwpt_mixed_integer_programming_for_dwpt_location_and_battery_sizing",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "wiki/sources/src-honma2026-infinite-drive-dwpt.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "wiki_sources_src_liu2021_joint_cuav_scheduling_trajectory_jstop_joint_cuav_scheduling_and_trajectory_optimization",
+      "target": "wiki_sources_src_liu2021_joint_cuav_scheduling_trajectory_improved_pso_for_cuav_scheduling_and_trajectory",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "wiki/sources/src-liu2021-joint-cuav-scheduling-trajectory.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "wiki_sources_src_qaisar2026_isac_uav_charging_isac_enabled_on_demand_uav_charging",
+      "target": "wiki_sources_src_qaisar2026_isac_uav_charging_isac_priority_scheduling_and_partial_charging",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "wiki/sources/src-qaisar2026-isac-uav-charging.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "wiki_sources_src_rahaman2023_obstacle_mcv_obstacle_aware_multi_mobile_charging_vehicle_scheduling",
+      "target": "wiki_sources_src_rahaman2023_obstacle_mcv_anchor_and_projection_point_obstacle_detour_routing",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "wiki/sources/src-rahaman2023-obstacle-mcv.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "wiki_sources_src_yao2026_ihatrpo_heterogeneous_chargers_ihatrpo_heterogeneous_charger_collaboration",
+      "target": "wiki_sources_src_yao2026_ihatrpo_heterogeneous_chargers_markov_game_for_heterogeneous_charger_coordination",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "wiki/sources/src-yao2026-ihatrpo-heterogeneous-chargers.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

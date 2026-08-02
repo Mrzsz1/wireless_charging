@@ -195,17 +195,17 @@
     "semantic_hash": ""
   },
   ".obsidian/app.json": {
-    "mtime": 1784044036.3723955,
+    "mtime": 1785668041.4763026,
     "ast_hash": "99914b932bd37a50b983c5e7c90ae93b",
     "semantic_hash": ""
   },
   ".obsidian/appearance.json": {
-    "mtime": 1784044036.373842,
+    "mtime": 1785668041.4793148,
     "ast_hash": "99914b932bd37a50b983c5e7c90ae93b",
     "semantic_hash": ""
   },
   ".obsidian/core-plugins.json": {
-    "mtime": 1784044035.889194,
+    "mtime": 1785668041.0317116,
     "ast_hash": "7c877bea49eaeabb100563bd157b9051",
     "semantic_hash": ""
   },
@@ -2830,8 +2830,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/package.json": {
-    "mtime": 1785666408.2742596,
-    "ast_hash": "4a1cab0e3e7cbfb980e3fab49739af94",
+    "mtime": 1785669153.4240398,
+    "ast_hash": "b023ac477dbd3685f50e233acb00b185",
     "semantic_hash": ""
   },
   "apps/desktop/public/data/library.json": {
@@ -2845,8 +2845,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/capabilities/default.json": {
-    "mtime": 1785666178.7600634,
-    "ast_hash": "b03b08f61e7f229332d3b242b4bdc08c",
+    "mtime": 1785668437.8182027,
+    "ast_hash": "e275dae20852a7e8a00dca0253f7cd0f",
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/gen/schemas/acl-manifests.json": {
@@ -2855,8 +2855,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/gen/schemas/capabilities.json": {
-    "mtime": 1785666189.5913973,
-    "ast_hash": "ddd560ac97c176818998e6f0f9690602",
+    "mtime": 1785668629.6891782,
+    "ast_hash": "70bfa9115b1b9db0618a14ff584966c8",
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/gen/schemas/desktop-schema.json": {
@@ -2870,8 +2870,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/src/lib.rs": {
-    "mtime": 1785666178.75909,
-    "ast_hash": "5e45d47fb32db515656a97d711a66e53",
+    "mtime": 1785668629.1655872,
+    "ast_hash": "21b96145f3b132c200517f41e97c98b3",
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/src/main.rs": {
@@ -2880,13 +2880,13 @@
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/tauri.conf.json": {
-    "mtime": 1785666408.273286,
-    "ast_hash": "933fe17c272feebb52bf63e26453131c",
+    "mtime": 1785669163.7368708,
+    "ast_hash": "f2512774509098fa69640fa48f2706d5",
     "semantic_hash": ""
   },
   "apps/desktop/src/App.tsx": {
-    "mtime": 1785666249.6955879,
-    "ast_hash": "3e629cb7e151bc273af5ad233a451680",
+    "mtime": 1785669163.7378705,
+    "ast_hash": "ffc2ea907d95c4d084de2634de3dabe1",
     "semantic_hash": ""
   },
   "apps/desktop/src/counter.ts": {
@@ -3010,8 +3010,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/src/components/TabBar.tsx": {
-    "mtime": 1785599240.271095,
-    "ast_hash": "6e0794d7dcf1813dd68952c50fbe2080",
+    "mtime": 1785668437.8182027,
+    "ast_hash": "567cec2b0422d871e52bd04938c39388",
     "semantic_hash": ""
   },
   "apps/desktop/src/features/library/LibraryView.tsx": {
@@ -3065,8 +3065,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/src/features/books/CoreBooksView.tsx": {
-    "mtime": 1785657143.7349215,
-    "ast_hash": "73c21d34a411278495876d85e05f5c6b",
+    "mtime": 1785669064.7922652,
+    "ast_hash": "54cc52b53729771c35f2e7195ba128a7",
     "semantic_hash": ""
   },
   "apps/desktop/src/features/comparison/ComparisonView.tsx": {
@@ -3075,8 +3075,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/src/features/graph/GraphView.tsx": {
-    "mtime": 1785652572.1740847,
-    "ast_hash": "274cffbd26c09e0fdb76ad53b5d40663",
+    "mtime": 1785669064.7922652,
+    "ast_hash": "041a8e96921dc6ab3beb2cdad2178135",
     "semantic_hash": ""
   },
   "apps/desktop/src/features/qa/AskView.tsx": {
@@ -3100,8 +3100,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/src/compile_center.rs": {
-    "mtime": 1785666490.1652415,
-    "ast_hash": "d52e59f441b05d715f7bfa4b6443acb9",
+    "mtime": 1785666705.859282,
+    "ast_hash": "332be35698533cde87780f1476c63979",
     "semantic_hash": ""
   },
   "apps/desktop/src/features/compile/CompileCenterView.tsx": {
@@ -3115,8 +3115,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/e2e/gui-smoke.mjs": {
-    "mtime": 1785666295.9580178,
-    "ast_hash": "5f49bc2043dbff694dca3b9f89fd866a",
+    "mtime": 1785669064.7932806,
+    "ast_hash": "05164a661ef7984c7a119650daf5e6f3",
     "semantic_hash": ""
   },
   "apps/desktop/e2e/offline-smoke.mjs": {
@@ -3125,33 +3125,43 @@
     "semantic_hash": ""
   },
   "apps/desktop/scripts/build-signed-release.mjs": {
-    "mtime": 1785666408.273286,
-    "ast_hash": "ad9e9fcdcc4a4e85e4995fb2bcba08b1",
+    "mtime": 1785668921.9583662,
+    "ast_hash": "2f8dffeeaf2b1cea82ce074bbbc81dcf",
     "semantic_hash": ""
   },
   "apps/desktop/scripts/smoke-installer.mjs": {
-    "mtime": 1785662860.385456,
-    "ast_hash": "91230a7d019265723710276e22855a35",
+    "mtime": 1785669116.7292228,
+    "ast_hash": "2c4191573a27012fce28f84d9ead66d3",
     "semantic_hash": ""
   },
   "apps/desktop/scripts/verify-config.mjs": {
-    "mtime": 1785662851.684836,
-    "ast_hash": "b2f618b7cdeb03c0d298cdee38f88913",
+    "mtime": 1785669163.7378705,
+    "ast_hash": "e9bdf6e6293bcd51744176d782f98778",
     "semantic_hash": ""
   },
   "apps/desktop/scripts/verify-p5.mjs": {
-    "mtime": 1785664784.529244,
-    "ast_hash": "a7e5a3544f6fff84c4889ea6e7062867",
+    "mtime": 1785669116.7287073,
+    "ast_hash": "73075b4a7e2b59f095b84eec925193ca",
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/src/repository_watcher.rs": {
-    "mtime": 1785665788.5218458,
-    "ast_hash": "a1869cb329249a742fc6f42406f86fe0",
+    "mtime": 1785668629.1796389,
+    "ast_hash": "59e96119b87a44b92aa956e05456b958",
     "semantic_hash": ""
   },
   "apps/desktop/src/services/updater.ts": {
-    "mtime": 1785666147.6000526,
-    "ast_hash": "c3652917b64117c96527fbc73371ab86",
+    "mtime": 1785668921.9593654,
+    "ast_hash": "fa1c2b44d37555a3c6c7dea8e2e40901",
+    "semantic_hash": ""
+  },
+  "apps/desktop/scripts/verify-updater-release.mjs": {
+    "mtime": 1785669123.7250135,
+    "ast_hash": "da027e65e9c56a92f3593c76de382742",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/.updater-release.json": {
+    "mtime": 1785669135.6449833,
+    "ast_hash": "7c865169ae698a04c9a37f7d3d71e966",
     "semantic_hash": ""
   }
 }
