@@ -113,10 +113,10 @@ def render(findings,summary,generated_at):
         lines += [f'## {i}. {names[i]}','']+[f'- **{x.severity.upper()}** `{x.path}` — {x.message}' for x in findings if x.section==i] or ['- 未发现确定性问题'] ; lines.append('')
     return '\n'.join(lines)
 def main(argv:Sequence[str]|None=None):
-    ap=argparse.ArgumentParser(); ap.add_argument('--write-report',action='store_true'); ap.add_argument('--json',action='store_true'); a=ap.parse_args(argv); now=datetime.now().astimezone().isoformat(timespec='seconds'); fs,s=inspect(markdown_files()); report=render(fs,s,now); rp=None
+    ap=argparse.ArgumentParser(); ap.add_argument('--write-report',action='store_true'); ap.add_argument('--json',action='store_true'); ap.add_argument('--strict-graphify',action='store_true'); a=ap.parse_args(argv); now=datetime.now().astimezone().isoformat(timespec='seconds'); fs,s=inspect(markdown_files()); report=render(fs,s,now); rp=None
     if a.write_report:
         LOGS.mkdir(exist_ok=True); rp=LOGS/f'{now[:10]}-wiki-lint.md'; rp.write_text(report,encoding='utf-8'); print(f'ARTIFACT:{rp.relative_to(ROOT).as_posix()}')
     if a.json: print(json.dumps({'generatedAt':now,'summary':s,'findings':[asdict(x) for x in fs]},ensure_ascii=False,indent=2))
     else: print(f"Lint 完成：{s['pages']} 页，{s['errors']} errors，{s['warnings']} warnings，{s['info']} info")
-    return 0
+    return 1 if s['errors'] or (a.strict_graphify and any(x.section==8 and x.severity=='warning' for x in fs)) else 0
 if __name__=='__main__': raise SystemExit(main())

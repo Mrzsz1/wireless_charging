@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Wireless Charging Research Workbench",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "identifier": "com.wirelesscharging.research-workbench",
   "build": {
     "frontendDist": "../dist",

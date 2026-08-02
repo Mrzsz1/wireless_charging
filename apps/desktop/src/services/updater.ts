@@ -1,10 +1,23 @@
 import { relaunch } from '@tauri-apps/plugin-process'
 import { check, type DownloadEvent } from '@tauri-apps/plugin-updater'
+import { getVersion } from '@tauri-apps/api/app'
 
 export type UpdateState =
   | { status: 'current'; message: string }
   | { status: 'available'; message: string; version: string }
   | { status: 'downloading'; message: string; version: string; downloaded: number; total?: number }
+
+export type AppReleaseInfo = {
+  version: string
+  channel: string
+}
+
+export async function getAppReleaseInfo(): Promise<AppReleaseInfo> {
+  return {
+    version: await getVersion(),
+    channel: import.meta.env.VITE_UPDATE_CHANNEL?.trim() || 'stable',
+  }
+}
 
 export async function checkAndInstallUpdate(
   onState: (state: UpdateState) => void,

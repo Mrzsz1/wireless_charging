@@ -48,7 +48,7 @@ import {
   repositoryInfo,
   searchPages,
 } from './services/desktop'
-import { checkAndInstallUpdate } from './services/updater'
+import { checkAndInstallUpdate, getAppReleaseInfo } from './services/updater'
 import type { Backlink, PageDetail, PageFilters, PageSummary, RepositoryInfo, SearchResult } from './types'
 
 type Icon = ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
@@ -161,10 +161,16 @@ export default function App() {
   const [theme, setTheme] = useState<Theme>(() => readStored('desktop.theme', 'light'))
   const [fontSize, setFontSize] = useState(() => readStored('desktop.font-size', 14))
   const [updateBusy, setUpdateBusy] = useState(false)
+  const [releaseInfo, setReleaseInfo] = useState({ version: '0.7.0', channel: 'stable' })
   const globalSearchRef = useRef<HTMLInputElement>(null)
   const workspaceRef = useRef<HTMLElement>(null)
   const currentScrollKey = useRef('')
   const restoredRepository = useRef('')
+
+  useEffect(() => {
+    if (!isDesktopRuntime()) return
+    void getAppReleaseInfo().then(setReleaseInfo).catch(() => undefined)
+  }, [])
 
   const refreshRepository = useCallback(async () => {
     setLoading(true)
@@ -449,7 +455,7 @@ export default function App() {
         <label>主题　<select value={theme} onChange={(event) => setTheme(event.target.value as Theme)}><option value="light">浅色</option><option value="dark">深色</option><option value="system">跟随系统</option></select></label>
         <label>字号　<input type="range" min="12" max="18" value={fontSize} onChange={(event) => setFontSize(Number(event.target.value))} /> {fontSize}px</label>
         <div><h2>Luna 与模型设置</h2><p>模型地址、模型名和密钥环境变量在智能问答页面的设置面板中管理。</p><button className="link-button" onClick={() => activateView('qa')}>前往智能问答</button></div>
-        <div><h2>客户端更新</h2><p>通过签名更新清单检查、下载并安装新版本；发布构建需配置正式更新端点与公钥。</p><button className="refresh-button" disabled={!isDesktopRuntime() || updateBusy} onClick={() => void handleUpdate()}>{updateBusy ? <RefreshCw className="spin" size={14} /> : <CloudDownload size={14} />}{updateBusy ? '正在检查' : '检查更新'}</button></div>
+        <div data-testid="updater-settings"><h2>客户端更新</h2><p>当前版本 {releaseInfo.version} · {releaseInfo.channel} 通道。通过签名更新清单检查、下载并安装新版本；发布构建需配置 HTTPS 更新端点与公钥。</p><button className="refresh-button" disabled={!isDesktopRuntime() || updateBusy} onClick={() => void handleUpdate()}>{updateBusy ? <RefreshCw className="spin" size={14} /> : <CloudDownload size={14} />}{updateBusy ? '正在检查' : '检查更新'}</button></div>
         <div><h2>缓存与日志</h2><p>缓存、任务事件与日志保存在应用数据目录；具体任务产物可在编译中心查看。</p></div>
       </div>
     </div>

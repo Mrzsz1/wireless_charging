@@ -36,7 +36,7 @@ export function GraphView({ onOpenPage }: GraphViewProps) {
   const findPath = async () => { if (!selected || !pathTarget) return; try { setPath(await graphPath(selected.id, pathTarget, 8)) } catch (error) { setNotice(`路径查询失败：${String(error)}`) } }
   const openNode = (node: GraphNode) => { if (node.sourceFile.includes('wiki/')) onOpenPage(node.sourceFile.replace(/^.*wiki[\\/]?/, '').replace(/\\/g, '/').replace(/\.md$/, '')) }
 
-  return <section className="graph-view">
+  return <section className="graph-view" data-testid="graph-view">
     <div className="library-heading"><div><div className="eyebrow">GRAPHIFY KNOWLEDGE MAP</div><h1>知识图谱</h1><p>从社区概览逐步展开局部关系，所有连线均标注为派生关系。</p></div><div className="graph-counts"><span>{graph?.nodeCount ?? 0} 节点</span><span>{graph?.edgeCount ?? 0} 边</span><span>{graph?.communityCount ?? 0} 社区</span></div></div>
     <div className="graph-toolbar"><label className="library-search"><Search size={16} /><input value={query} onChange={(event) => void search(event.target.value)} placeholder="搜索节点或来源文件…" /></label><button className="refresh-button" onClick={() => void load()}><Filter size={15} />重置视图</button></div>
     {notice && <div className="notice"><Network size={15} /><span>{notice}</span></div>}

@@ -56,8 +56,8 @@ export function CoreBooksView({ onOpenLink, target }: CoreBooksViewProps) {
   const selectedBookMeta = useMemo(() => books.find((book) => book.id === selectedBook), [books, selectedBook])
   const pdfUrl = selectedChapter && isDesktopRuntime() ? `${convertFileSrc(selectedChapter.chapter.pdfPath)}#page=${selectedChapter.chapter.physicalPageStart ?? 1}` : ''
 
-  if (loading) return <section className="page-loading"><BookOpen size={22} className="spin" /><span>正在加载核心专著目录…</span></section>
-  return <section className="books-view">
+  if (loading) return <section className="page-loading" data-testid="books-view"><BookOpen size={22} className="spin" /><span>正在加载核心专著目录…</span></section>
+  return <section className="books-view" data-testid="books-view">
     <div className="library-heading"><div><div className="eyebrow">CORE REFERENCE BOOKS</div><h1>核心书籍</h1><p>两本算法专著、61 个章节、1171 个 PDF 物理页。</p></div><div className="book-quality-badge"><ShieldCheck size={15} />检索质量 ≥95%</div></div>
     {notice && <div className="notice"><FileText size={15} /><span>{notice}</span></div>}
     <div className="books-toolbar"><label className="library-search"><Search size={16} /><input value={query} onChange={(event) => void runSearch(event.target.value)} placeholder="搜索章节、算法、模型或术语…" /></label><select value={selectedBook} onChange={(event) => setSelectedBook(event.target.value)} aria-label="选择专著">{books.map((book) => <option key={book.id} value={book.id}>{book.title} · {book.chapterCount}章</option>)}</select></div>

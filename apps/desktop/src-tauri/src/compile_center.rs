@@ -830,6 +830,7 @@ fn emit_event(
     let _ = channel.send(event);
 }
 
+#[allow(clippy::too_many_arguments)]
 fn emit_process_line(
     connection: &Connection,
     channel: &Channel<CompileStreamEvent>,

@@ -1,7 +1,7 @@
 {
   "name": "desktop",
   "private": true,
-  "version": "0.6.0",
+  "version": "0.7.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,7 +16,9 @@
     "smoke:installer": "node scripts/smoke-installer.mjs",
     "e2e:gui": "node e2e/gui-smoke.mjs",
     "e2e:gui:strict": "node e2e/gui-smoke.mjs --strict",
-    "release:signed": "node scripts/build-signed-release.mjs"
+    "verify:p5:strict": "node scripts/verify-p5.mjs --strict",
+    "release:signed": "node scripts/build-signed-release.mjs",
+    "fixture:updater": "node scripts/updater-fixture-server.mjs"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.11.4",
