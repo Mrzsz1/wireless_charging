@@ -1355,6 +1355,35 @@ fn chapter_index(root: &Path, book_id: &str) -> Result<Vec<serde_json::Value>, S
         .ok_or_else(|| "章节索引缺少 chapters 数组".to_string())
 }
 
+fn resolve_repository_file(root: &Path, relative: &str, context: &str) -> Result<PathBuf, String> {
+    let normalized = relative.replace('\\', "/");
+    let path = Path::new(relative);
+    let has_windows_prefix = normalized.len() >= 2
+        && normalized.as_bytes()[1] == b':'
+        && normalized.as_bytes()[0].is_ascii_alphabetic();
+    if normalized.is_empty()
+        || normalized.starts_with('/')
+        || normalized.starts_with("//")
+        || has_windows_prefix
+        || path.is_absolute()
+        || normalized.split('/').any(|part| part == "..")
+    {
+        return Err(format!("章节路径越界：{context}"));
+    }
+    let canonical_root = fs::canonicalize(root)
+        .map_err(|error| format!("解析知识库根目录失败：{} ({error})", root.display()))?;
+    let candidate = root.join(path);
+    let canonical = fs::canonicalize(&candidate)
+        .map_err(|error| format!("章节文件不可读：{context} ({error})"))?;
+    if !canonical.starts_with(&canonical_root) {
+        return Err(format!("章节路径必须位于知识库目录内：{context}"));
+    }
+    if !canonical.is_file() {
+        return Err(format!("章节路径不是文件：{context}"));
+    }
+    Ok(canonical)
+}
+
 fn value_i64(value: Option<&serde_json::Value>) -> Option<i64> {
     value.and_then(|item| item.as_i64())
 }
@@ -1375,7 +1404,8 @@ fn book_chapters(root: &Path, book_id: &str) -> Result<Vec<BookChapter>, String>
                 .and_then(|v| v.as_str())
                 .unwrap_or("")
                 .to_string();
-            let markdown_path = root.join(&relative);
+            let markdown_path =
+                resolve_repository_file(root, &relative, &format!("{book_id}:{chapter_id}"))?;
             let char_count = item
                 .get("char_count")
                 .and_then(|v| v.as_u64())
@@ -1411,6 +1441,64 @@ fn book_chapters(root: &Path, book_id: &str) -> Result<Vec<BookChapter>, String>
             })
         })
         .collect()
+}
+
+fn find_case_insensitive_range(text: &str, term: &str) -> Option<(usize, usize)> {
+    let folded_term = term.to_lowercase();
+    if folded_term.is_empty() {
+        return None;
+    }
+    for (start, _) in text.char_indices() {
+        let mut folded = String::new();
+        for (offset, character) in text[start..].char_indices() {
+            let end = start + offset + character.len_utf8();
+            folded.push_str(&character.to_lowercase().collect::<String>());
+            if folded == folded_term {
+                return Some((start, end));
+            }
+            if !folded_term.starts_with(&folded) || folded.len() > folded_term.len() {
+                break;
+            }
+        }
+    }
+    None
+}
+
+fn slice_chars(text: &str, start: usize, end: usize) -> &str {
+    let start_byte = text
+        .char_indices()
+        .nth(start)
+        .map(|(index, _)| index)
+        .unwrap_or(text.len());
+    let end_byte = text
+        .char_indices()
+        .nth(end)
+        .map(|(index, _)| index)
+        .unwrap_or(text.len());
+    &text[start_byte.min(end_byte)..end_byte.max(start_byte)]
+}
+
+fn build_book_snippet(title: &str, body: &str, terms: &[String]) -> String {
+    if let Some((start, end)) = terms
+        .iter()
+        .find_map(|term| find_case_insensitive_range(body, term))
+    {
+        let before = body[..start].chars().count();
+        let matched_chars = body[start..end].chars().count();
+        let snippet = slice_chars(
+            body,
+            before.saturating_sub(90),
+            before.saturating_add(matched_chars).saturating_add(180),
+        );
+        return snippet.split_whitespace().collect::<Vec<_>>().join(" ");
+    }
+    if terms
+        .iter()
+        .any(|term| find_case_insensitive_range(title, term).is_some())
+    {
+        return body.chars().take(260).collect::<String>();
+    }
+    body.chars().take(260).collect::<String>()
 }
 
 #[tauri::command]
@@ -1536,16 +1624,7 @@ fn search_book_chapters(
             if hits == 0 {
                 continue;
             }
-            let snippet = query_terms
-                .iter()
-                .find_map(|term| {
-                    haystack.find(term).map(|index| {
-                        let start = index.saturating_sub(90);
-                        let end = (index + term.len() + 180).min(body.len());
-                        body.get(start..end).unwrap_or("").replace('\n', " ")
-                    })
-                })
-                .unwrap_or_else(|| body.chars().take(260).collect());
+            let snippet = build_book_snippet(&chapter.title, &body, &query_terms);
             results.push(BookSearchResult {
                 chapter,
                 snippet,
@@ -2828,6 +2907,28 @@ mod tests {
                 "C:/Knowledge/Repo"
             }
         );
+    }
+
+    #[test]
+    fn book_snippet_uses_body_offsets_and_preserves_unicode_boundaries() {
+        let title = "A very long chapter title that must not shift the body offset";
+        let body = format!("前缀🙂{} 中间内容 后缀", "x".repeat(120));
+        let terms = vec!["中间内容".to_string()];
+        let snippet = build_book_snippet(title, &body, &terms);
+        assert!(snippet.contains("中间内容"));
+        assert!(snippet.is_char_boundary(snippet.len()));
+    }
+
+    #[test]
+    fn repository_file_resolution_rejects_escape_paths() {
+        let temp = tempfile::tempdir().expect("repository");
+        let chapter = temp.path().join("chapter.md");
+        fs::write(&chapter, "chapter").expect("chapter");
+        let resolved = resolve_repository_file(temp.path(), "chapter.md", "book:chapter")
+            .expect("valid chapter");
+        assert_eq!(resolved, chapter.canonicalize().expect("canonical chapter"));
+        assert!(resolve_repository_file(temp.path(), "../outside.md", "book:escape").is_err());
+        assert!(resolve_repository_file(temp.path(), "C:/outside.md", "book:drive").is_err());
     }
 
     #[test]
