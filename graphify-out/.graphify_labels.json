@@ -198,5 +198,8 @@
   "196": ".is_iflow",
   "197": ".is_opencode",
   "198": ".supports_cli_agents",
-  "199": "__init__.py"
+  "199": "__init__.py",
+  "200": "Windows 窗口可见性恢复技术设计",
+  "201": "Value",
+  "202": "PermissionEntry"
 }

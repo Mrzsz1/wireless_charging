@@ -2625,7 +2625,7 @@
     "semantic_hash": ""
   },
   "evals/core-book-retrieval-report.json": {
-    "mtime": 1786211199.005961,
+    "mtime": 1786213353.5865147,
     "ast_hash": "ea3df923d2e6cc09e9393e1287ed0fb0",
     "semantic_hash": ""
   },
@@ -2830,8 +2830,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/package.json": {
-    "mtime": 1786210619.733887,
-    "ast_hash": "5ef5de730650734a7e6e75f45deb4d57",
+    "mtime": 1786212984.1448345,
+    "ast_hash": "2ee213f685db8db66746e091b31c916e",
     "semantic_hash": ""
   },
   "apps/desktop/public/data/library.json": {
@@ -2845,8 +2845,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/capabilities/default.json": {
-    "mtime": 1785668437.8182027,
-    "ast_hash": "e275dae20852a7e8a00dca0253f7cd0f",
+    "mtime": 1786212870.5372734,
+    "ast_hash": "a73ee240b0efe11f3df48c2d907a27ab",
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/gen/schemas/acl-manifests.json": {
@@ -2855,8 +2855,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/gen/schemas/capabilities.json": {
-    "mtime": 1785668629.6891782,
-    "ast_hash": "70bfa9115b1b9db0618a14ff584966c8",
+    "mtime": 1786213004.1720254,
+    "ast_hash": "294d1ce8d8f6de984cf47451ecb20dc8",
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/gen/schemas/desktop-schema.json": {
@@ -2880,13 +2880,13 @@
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/tauri.conf.json": {
-    "mtime": 1786210797.3020146,
-    "ast_hash": "6e358ad12845cf4d19ff10b0a13c042e",
+    "mtime": 1786212996.0436058,
+    "ast_hash": "de838160605228288266a3d2950f1ba6",
     "semantic_hash": ""
   },
   "apps/desktop/src/App.tsx": {
-    "mtime": 1786210797.3020146,
-    "ast_hash": "751e1c8343568db4b821849a760d71fc",
+    "mtime": 1786212996.0436058,
+    "ast_hash": "8c9f3e4d4495cce9b77e7a1113494876",
     "semantic_hash": ""
   },
   "apps/desktop/src/counter.ts": {
@@ -2905,8 +2905,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/README.md": {
-    "mtime": 1786210652.9608345,
-    "ast_hash": "849dcc36d5e6be8d5ed05932754f37d2",
+    "mtime": 1786213285.3428082,
+    "ast_hash": "de303355a0654c420da7a586b5084e09",
     "semantic_hash": ""
   },
   "apps/desktop/public/favicon.svg": {
@@ -3005,8 +3005,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/scripts/verify-build.mjs": {
-    "mtime": 1785663600.0319242,
-    "ast_hash": "c6690c68beb5b36a23a58e6fcaa83afe",
+    "mtime": 1786212870.538247,
+    "ast_hash": "81b166701e3fe9a00fa451c1682d0047",
     "semantic_hash": ""
   },
   "apps/desktop/src/components/TabBar.tsx": {
@@ -3115,8 +3115,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/e2e/gui-smoke.mjs": {
-    "mtime": 1786208850.1948655,
-    "ast_hash": "b00e19c5f9e769e6fa6087d95994d8eb",
+    "mtime": 1786212926.2446136,
+    "ast_hash": "553f3d8d130546459bb73ba9810fc1e5",
     "semantic_hash": ""
   },
   "apps/desktop/e2e/offline-smoke.mjs": {
@@ -3130,18 +3130,18 @@
     "semantic_hash": ""
   },
   "apps/desktop/scripts/smoke-installer.mjs": {
-    "mtime": 1785670898.8435185,
-    "ast_hash": "3508feaea34ab17b7c67f76509d1260c",
+    "mtime": 1786212926.242671,
+    "ast_hash": "4a7b4db29dd918d3ee1c6f79b36a991f",
     "semantic_hash": ""
   },
   "apps/desktop/scripts/verify-config.mjs": {
-    "mtime": 1786210979.558226,
-    "ast_hash": "f7610b7eb9a5018e99eca7b9e1bab838",
+    "mtime": 1786212996.0436058,
+    "ast_hash": "630cbeba6fc06fb50eb2c149e0441ff1",
     "semantic_hash": ""
   },
   "apps/desktop/scripts/verify-p5.mjs": {
-    "mtime": 1786208355.0028298,
-    "ast_hash": "f0f3ee7c5b2a99dc79523f3cc86ac1d5",
+    "mtime": 1786212926.2436402,
+    "ast_hash": "cf33389834cfe139a647ff6aea65bd5c",
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/src/repository_watcher.rs": {
@@ -3155,13 +3155,13 @@
     "semantic_hash": ""
   },
   "apps/desktop/scripts/verify-updater-release.mjs": {
-    "mtime": 1785669712.7219245,
-    "ast_hash": "6f77874ce4cfee306364f177e3bd65f1",
+    "mtime": 1786212996.0517566,
+    "ast_hash": "430854935f4a2504b97c53377de799e6",
     "semantic_hash": ""
   },
   ".trellis/.runtime/sessions/codex_019fbd32-2eac-7d32-a633-a332333cd02f.json": {
-    "mtime": 1786209782.6968296,
-    "ast_hash": "d82d331f0c8803a13fafc15ff840f0fd",
+    "mtime": 1786212700.4732208,
+    "ast_hash": "e50e87f8bb79481e6ec85430ce407fb8",
     "semantic_hash": ""
   },
   ".trellis/.template-hashes.json": {
@@ -3314,11 +3314,6 @@
     "ast_hash": "e7a3bd101db25f25fe5e7a64622fd377",
     "semantic_hash": ""
   },
-  ".trellis/tasks/08-09-plan-next-desktop-phase/task.json": {
-    "mtime": 1786209782.697335,
-    "ast_hash": "26dca5ab4e5f88fe8facf1d64aab9ac7",
-    "semantic_hash": ""
-  },
   ".trellis/tasks/archive/2026-08/08-09-08-09-fix-p1-audit-findings/task.json": {
     "mtime": 1786207946.9974349,
     "ast_hash": "35971d5e2f372cc3ce9febc971c7522c",
@@ -3340,8 +3335,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/scripts/updater-fixture-server.mjs": {
-    "mtime": 1785669712.7202227,
-    "ast_hash": "1483cebc10f0abe539a8e0a36ca85592",
+    "mtime": 1786212996.0449412,
+    "ast_hash": "6926998db9160dce4b7c72adc82f6e8c",
     "semantic_hash": ""
   },
   "apps/desktop/src/features/books/bookTarget.ts": {
@@ -3370,8 +3365,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/tests/p1-state.test.ts": {
-    "mtime": 1786207137.3934767,
-    "ast_hash": "1917653e3197a669d2eb960dcc4c3659",
+    "mtime": 1786212870.5372734,
+    "ast_hash": "a8675de15e7ca3fcf91a854091c3d6a2",
     "semantic_hash": ""
   },
   "apps/desktop/tests/search-state.test.ts": {
@@ -3450,8 +3445,8 @@
     "semantic_hash": ""
   },
   ".trellis/spec/frontend/state-management.md": {
-    "mtime": 1786207783.531973,
-    "ast_hash": "ee2e73b9a126f87c3281a73ad20c66a3",
+    "mtime": 1786213274.8254552,
+    "ast_hash": "a6ee3ed8ecad1e77e04625d542923077",
     "semantic_hash": ""
   },
   ".trellis/spec/frontend/type-safety.md": {
@@ -3472,16 +3467,6 @@
   ".trellis/spec/guides/index.md": {
     "mtime": 1786203615.1441963,
     "ast_hash": "3313fd895d945d0e227fcbd280b789a2",
-    "semantic_hash": ""
-  },
-  ".trellis/tasks/08-09-plan-next-desktop-phase/design.md": {
-    "mtime": 1786209672.0450828,
-    "ast_hash": "dcbbedd09203efe42843a8f88b2cf274",
-    "semantic_hash": ""
-  },
-  ".trellis/tasks/08-09-plan-next-desktop-phase/implement.md": {
-    "mtime": 1786209672.045694,
-    "ast_hash": "2b440a161fc0e791869c23d37cf4b0cf",
     "semantic_hash": ""
   },
   ".trellis/tasks/archive/2026-08/08-09-08-09-fix-p1-audit-findings/design.md": {
@@ -3530,13 +3515,58 @@
     "semantic_hash": ""
   },
   ".trellis/workspace/qq155/index.md": {
-    "mtime": 1786209132.8358715,
-    "ast_hash": "a1003653ab4b42c9f18337e08601b964",
+    "mtime": 1786211391.6248522,
+    "ast_hash": "112558c7314a4f55fce2e30b976e7511",
     "semantic_hash": ""
   },
   ".trellis/workspace/qq155/journal-1.md": {
-    "mtime": 1786209132.8259585,
-    "ast_hash": "fe438a7d357eb81f804aea466fde10a1",
+    "mtime": 1786211391.6165216,
+    "ast_hash": "9a546b26981c9ab03bd051b84060d065",
+    "semantic_hash": ""
+  },
+  ".trellis/tasks/08-09-fix-hidden-desktop-window/task.json": {
+    "mtime": 1786212700.4741938,
+    "ast_hash": "6930c568144b8dba1c418234eb39a679",
+    "semantic_hash": ""
+  },
+  ".trellis/tasks/archive/2026-08/08-09-plan-next-desktop-phase/task.json": {
+    "mtime": 1786211370.1480095,
+    "ast_hash": "5122b3a7b2cfd00c7bcc6c5c54c974fa",
+    "semantic_hash": ""
+  },
+  "apps/desktop/scripts/process-lifecycle.mjs": {
+    "mtime": 1786212926.242671,
+    "ast_hash": "8f39335a5baecdd03e5ecf3c09a7fd66",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/lib/windowPlacement.ts": {
+    "mtime": 1786212801.0010881,
+    "ast_hash": "ec01afadd16adc51ae6a35fd5ef49840",
+    "semantic_hash": ""
+  },
+  "apps/desktop/tests/process-lifecycle.test.mjs": {
+    "mtime": 1786212926.242671,
+    "ast_hash": "2d726f5c7038865d58614593a0177fa3",
+    "semantic_hash": ""
+  },
+  ".trellis/tasks/08-09-fix-hidden-desktop-window/design.md": {
+    "mtime": 1786212690.0926554,
+    "ast_hash": "e3978748c23f72e2f8f4f635d3e5b85e",
+    "semantic_hash": ""
+  },
+  ".trellis/tasks/08-09-fix-hidden-desktop-window/implement.md": {
+    "mtime": 1786212690.0926554,
+    "ast_hash": "34ef7fa275975002f883e4d291f06ce8",
+    "semantic_hash": ""
+  },
+  ".trellis/tasks/archive/2026-08/08-09-plan-next-desktop-phase/design.md": {
+    "mtime": 1786209672.0450828,
+    "ast_hash": "dcbbedd09203efe42843a8f88b2cf274",
+    "semantic_hash": ""
+  },
+  ".trellis/tasks/archive/2026-08/08-09-plan-next-desktop-phase/implement.md": {
+    "mtime": 1786209672.045694,
+    "ast_hash": "2b440a161fc0e791869c23d37cf4b0cf",
     "semantic_hash": ""
   }
 }
