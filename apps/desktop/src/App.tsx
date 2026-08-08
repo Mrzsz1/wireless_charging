@@ -29,6 +29,7 @@ import {
   X,
 } from 'lucide-react'
 import { TabBar, type WorkTab } from './components/TabBar'
+import { createLatestRequestGuard } from './lib/latestRequest'
 import { CoreBooksView } from './features/books/CoreBooksView'
 import type { BookTarget } from './features/books/bookTarget'
 import { ComparisonView } from './features/comparison/ComparisonView'
@@ -170,6 +171,7 @@ export default function App() {
   const workspaceRef = useRef<HTMLElement>(null)
   const currentScrollKey = useRef('')
   const restoredRepository = useRef('')
+  const searchRequests = useRef(createLatestRequestGuard()).current
 
   useEffect(() => {
     if (!isDesktopRuntime()) return
@@ -404,15 +406,19 @@ export default function App() {
 
   const handleSearch = async (value: string) => {
     setQuery(value)
+    const token = value.trim() ? searchRequests.next() : searchRequests.invalidate()
     if (!value.trim()) {
       setResults([])
       return
     }
     try {
-      setResults(await searchPages(value, 30))
+      const nextResults = await searchPages(value, 30)
+      if (searchRequests.isCurrent(token)) setResults(nextResults)
     } catch (error) {
-      setResults([])
-      setNotice(`搜索失败：${String(error)}`)
+      if (searchRequests.isCurrent(token)) {
+        setResults([])
+        setNotice(`搜索失败：${String(error)}`)
+      }
     }
   }
 

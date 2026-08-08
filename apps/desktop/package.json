@@ -19,6 +19,7 @@
     "test:e2e-config": "node --test tests/gui-e2e-config.test.mjs",
     "verify:p5:strict": "node scripts/verify-p5.mjs --strict",
     "test:p1": "node --experimental-strip-types --test tests/p1-state.test.ts",
+    "test:p2": "node --experimental-strip-types --test tests/search-state.test.ts",
     "release:signed": "node scripts/build-signed-release.mjs",
     "fixture:updater": "node scripts/updater-fixture-server.mjs"
   },
