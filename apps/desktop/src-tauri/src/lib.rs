@@ -314,11 +314,15 @@ fn db_schema(connection: &Connection) -> Result<(), String> {
         ingest_status TEXT NOT NULL DEFAULT ''
       );
       CREATE VIRTUAL TABLE IF NOT EXISTS book_chapters_fts USING fts5(
-        chapter_id UNINDEXED,
-        title,
-        body
-      );
-      ",
+         chapter_id UNINDEXED,
+         title,
+         body
+       );
+       CREATE TABLE IF NOT EXISTS repository_metadata (
+         key TEXT PRIMARY KEY,
+         value TEXT NOT NULL
+       );
+       ",
         )
         .map_err(|error| format!("初始化SQLite失败：{error}"))?;
     // Older 0.2.x caches were created before the detail/filter columns existed.
@@ -632,6 +636,59 @@ fn current_index_stats(connection: &Connection, root: &Path) -> Result<IndexStat
     })
 }
 
+const REPOSITORY_IDENTITY_KEY: &str = "knowledge_index_repository_id";
+
+fn canonical_repository_root(root: &Path) -> Result<PathBuf, String> {
+    root.canonicalize()
+        .map_err(|error| format!("解析知识库路径失败：{} ({error})", root.display()))
+}
+
+fn repository_identity(root: &Path) -> String {
+    let value = root.to_string_lossy().replace('\\', "/");
+    let value = value.trim_end_matches('/');
+    if cfg!(windows) {
+        value.to_ascii_lowercase()
+    } else {
+        value.to_string()
+    }
+}
+
+fn read_repository_identity(connection: &Connection) -> Result<Option<String>, String> {
+    connection
+        .query_row(
+            "SELECT value FROM repository_metadata WHERE key=?1",
+            [REPOSITORY_IDENTITY_KEY],
+            |row| row.get::<_, String>(0),
+        )
+        .optional()
+        .map_err(|error| format!("读取知识库身份失败：{error}"))
+}
+
+fn write_repository_identity(connection: &Connection, identity: &str) -> Result<(), String> {
+    connection
+        .execute(
+            "INSERT INTO repository_metadata(key,value) VALUES(?1,?2) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            params![REPOSITORY_IDENTITY_KEY, identity],
+        )
+        .map_err(|error| format!("写入知识库身份失败：{error}"))?;
+    Ok(())
+}
+
+fn ensure_repository_index(connection: &mut Connection, root: &Path) -> Result<IndexStats, String> {
+    let identity = repository_identity(root);
+    let stored = read_repository_identity(connection)?;
+    if stored.as_deref() == Some(identity.as_str()) {
+        return current_index_stats(connection, root);
+    }
+
+    // A missing or mismatched identity means the shared database may contain
+    // derived rows from another repository. Rebuild only derived knowledge
+    // tables; chat, compile and app-settings tables are intentionally kept.
+    let stats = rebuild_connection(connection, root)?;
+    write_repository_identity(connection, &identity)?;
+    Ok(stats)
+}
+
 fn rebuild_connection(connection: &mut Connection, root: &Path) -> Result<IndexStats, String> {
     let wiki_root = root.join("wiki");
     let tx = connection
@@ -716,6 +773,7 @@ fn open_repository_state(
     app: &AppHandle,
     root: PathBuf,
 ) -> Result<RepositoryInfo, String> {
+    let root = canonical_repository_root(&root)?;
     validate_repository(&root)?;
     let db_path = repository_db_path(app)?;
     fs::create_dir_all(db_path.parent().unwrap_or(root.as_path()))
@@ -723,10 +781,9 @@ fn open_repository_state(
     let connection =
         Connection::open(&db_path).map_err(|error| format!("打开SQLite失败：{error}"))?;
     db_schema(&connection)?;
-    let indexed_pages = connection
-        .query_row("SELECT COUNT(*) FROM pages", [], |row| row.get::<_, i64>(0))
-        .unwrap_or(0)
-        .max(0) as usize;
+    let mut connection = connection;
+    let stats = ensure_repository_index(&mut connection, &root)?;
+    let indexed_pages = stats.page_count;
     state.root = Some(root.clone());
     state.db = Some(connection);
     state.indexed_pages = indexed_pages;
@@ -2464,17 +2521,6 @@ pub fn run() {
                                         app.handle(),
                                         PathBuf::from(path),
                                     );
-                                    if opened.as_ref().is_ok_and(|info| !info.indexed) {
-                                        let root = state.root.clone();
-                                        if let (Some(root), Some(connection)) =
-                                            (root, state.db.as_mut())
-                                        {
-                                            if let Ok(stats) = rebuild_connection(connection, &root)
-                                            {
-                                                state.indexed_pages = stats.page_count;
-                                            }
-                                        }
-                                    }
                                     opened_ok = opened.is_ok();
                                 }
                                 if opened_ok {
@@ -2696,6 +2742,91 @@ mod tests {
                 .expect("stats")
                 .page_count,
             0
+        );
+    }
+
+    #[test]
+    fn repository_identity_rebuilds_derived_rows_and_preserves_user_tables() {
+        let first = tempfile::tempdir().expect("first repository");
+        let first_wiki = first.path().join("wiki").join("methods");
+        fs::create_dir_all(&first_wiki).expect("first wiki");
+        fs::write(first.path().join("AGENTS.md"), "fixture").expect("first agents");
+        fs::create_dir_all(first.path().join("schema")).expect("first schema");
+        fs::write(
+            first_wiki.join("first.md"),
+            "---\ntype: method\ntitle: First\n---\n# First\n\nfirst repository",
+        )
+        .expect("first page");
+
+        let second = tempfile::tempdir().expect("second repository");
+        let second_wiki = second.path().join("wiki").join("methods");
+        fs::create_dir_all(&second_wiki).expect("second wiki");
+        fs::write(second.path().join("AGENTS.md"), "fixture").expect("second agents");
+        fs::create_dir_all(second.path().join("schema")).expect("second schema");
+        fs::write(
+            second_wiki.join("second.md"),
+            "---\ntype: method\ntitle: Second\n---\n# Second\n\nsecond repository",
+        )
+        .expect("second page");
+
+        let mut connection = Connection::open_in_memory().expect("sqlite");
+        db_schema(&connection).expect("schema");
+        qa::create_session(&connection, first.path(), "preserved").expect("session");
+        connection
+            .execute(
+                "INSERT INTO app_settings(key,value) VALUES('fixture.setting','kept')",
+                [],
+            )
+            .expect("setting");
+
+        let first_root = first.path().canonicalize().expect("canonical first root");
+        ensure_repository_index(&mut connection, &first_root).expect("first index");
+        assert!(page_summary_by_id(&connection, "methods/first")
+            .expect("first summary")
+            .is_some());
+
+        let second_root = second.path().canonicalize().expect("canonical second root");
+        let second_stats =
+            ensure_repository_index(&mut connection, &second_root).expect("second index");
+        assert_eq!(second_stats.page_count, 1);
+        assert!(page_summary_by_id(&connection, "methods/first")
+            .expect("old summary")
+            .is_none());
+        assert!(page_summary_by_id(&connection, "methods/second")
+            .expect("new summary")
+            .is_some());
+        assert_eq!(
+            qa::list_sessions(&connection, first.path(), 10)
+                .expect("sessions")
+                .len(),
+            1
+        );
+        let setting: String = connection
+            .query_row(
+                "SELECT value FROM app_settings WHERE key='fixture.setting'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("setting value");
+        assert_eq!(setting, "kept");
+        assert_eq!(
+            read_repository_identity(&connection)
+                .expect("identity")
+                .as_deref(),
+            Some(repository_identity(&second_root).as_str())
+        );
+    }
+
+    #[test]
+    fn repository_identity_normalizes_separators_and_trailing_slashes() {
+        let identity = repository_identity(Path::new("C:\\Knowledge\\Repo\\"));
+        assert_eq!(
+            identity,
+            if cfg!(windows) {
+                "c:/knowledge/repo"
+            } else {
+                "C:/Knowledge/Repo"
+            }
         );
     }
 

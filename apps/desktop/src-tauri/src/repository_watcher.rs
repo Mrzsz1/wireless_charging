@@ -1,4 +1,7 @@
-use notify::{event::ModifyKind, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
+use notify::{
+    event::{ModifyKind, RenameMode},
+    Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher,
+};
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 use std::sync::mpsc::{self, Receiver};
@@ -24,48 +27,23 @@ pub struct IndexChange {
 }
 
 pub fn classify_event(event: &Event, root: &Path) -> Vec<IndexChange> {
+    if let EventKind::Modify(ModifyKind::Name(mode)) = event.kind {
+        return classify_rename(event, root, mode);
+    }
+
     let kind = match event.kind {
         EventKind::Create(_) => ChangeKind::Create,
-        EventKind::Modify(ModifyKind::Name(_)) => ChangeKind::Rename,
         EventKind::Modify(_) => ChangeKind::Modify,
         EventKind::Remove(_) => ChangeKind::Remove,
         _ => ChangeKind::Other,
     };
-    if kind == ChangeKind::Rename && event.paths.len() >= 2 {
-        let previous = event.paths[0].clone();
-        let path = event.paths[1].clone();
-        let Ok(relative) = path.strip_prefix(root) else {
-            return vec![];
-        };
-        if excluded(relative) {
-            return vec![];
-        }
-        let classification = classify_path(relative);
-        if !classification.interesting {
-            return vec![];
-        }
-        return vec![IndexChange {
-            path,
-            previous_path: Some(previous),
-            kind,
-            full_rebuild: classification.full_rebuild,
-            graph_refresh: classification.graph_refresh,
-        }];
-    }
     event
         .paths
         .iter()
-        .filter_map(|p| {
-            let rel = p.strip_prefix(root).ok()?;
-            if excluded(rel) {
-                return None;
-            }
-            let classification = classify_path(rel);
-            if !classification.interesting {
-                return None;
-            }
+        .filter_map(|path| {
+            let classification = classify_path_for_event(path, root)?;
             Some(IndexChange {
-                path: p.clone(),
+                path: path.clone(),
                 previous_path: None,
                 kind: kind.clone(),
                 full_rebuild: classification.full_rebuild,
@@ -73,6 +51,95 @@ pub fn classify_event(event: &Event, root: &Path) -> Vec<IndexChange> {
             })
         })
         .collect()
+}
+
+fn classify_rename(event: &Event, root: &Path, mode: RenameMode) -> Vec<IndexChange> {
+    match mode {
+        RenameMode::Both if event.paths.len() >= 2 => {
+            let previous = event.paths[0].clone();
+            let path = event.paths[1].clone();
+            let previous_classification = classify_path_for_event(&previous, root);
+            let current_classification = classify_path_for_event(&path, root);
+            if previous_classification.is_none() && current_classification.is_none() {
+                return vec![];
+            }
+            let full_rebuild = previous_classification
+                .as_ref()
+                .is_some_and(|classification| classification.full_rebuild)
+                || current_classification
+                    .as_ref()
+                    .is_some_and(|classification| classification.full_rebuild);
+            let graph_refresh = previous_classification
+                .as_ref()
+                .is_some_and(|classification| classification.graph_refresh)
+                || current_classification
+                    .as_ref()
+                    .is_some_and(|classification| classification.graph_refresh);
+            vec![IndexChange {
+                path,
+                previous_path: Some(previous),
+                kind: ChangeKind::Rename,
+                full_rebuild,
+                graph_refresh,
+            }]
+        }
+        RenameMode::From => event
+            .paths
+            .first()
+            .and_then(|path| {
+                classify_path_for_event(path, root).map(|classification| (path, classification))
+            })
+            .map(|(path, classification)| IndexChange {
+                path: path.clone(),
+                previous_path: None,
+                kind: ChangeKind::Remove,
+                full_rebuild: classification.full_rebuild,
+                graph_refresh: classification.graph_refresh,
+            })
+            .into_iter()
+            .collect(),
+        RenameMode::To => event
+            .paths
+            .first()
+            .and_then(|path| {
+                classify_path_for_event(path, root).map(|classification| (path, classification))
+            })
+            .map(|(path, classification)| IndexChange {
+                path: path.clone(),
+                previous_path: None,
+                kind: ChangeKind::Create,
+                full_rebuild: classification.full_rebuild,
+                graph_refresh: classification.graph_refresh,
+            })
+            .into_iter()
+            .collect(),
+        RenameMode::Any | RenameMode::Other if event.paths.len() >= 2 => {
+            classify_rename(event, root, RenameMode::Both)
+        }
+        RenameMode::Any | RenameMode::Other | RenameMode::Both => event
+            .paths
+            .iter()
+            .filter_map(|path| {
+                let classification = classify_path_for_event(path, root)?;
+                Some(IndexChange {
+                    path: path.clone(),
+                    previous_path: None,
+                    kind: ChangeKind::Rename,
+                    full_rebuild: classification.full_rebuild,
+                    graph_refresh: classification.graph_refresh,
+                })
+            })
+            .collect(),
+    }
+}
+
+fn classify_path_for_event(path: &Path, root: &Path) -> Option<PathClassification> {
+    let relative = path.strip_prefix(root).ok()?;
+    if excluded(relative) {
+        return None;
+    }
+    let classification = classify_path(relative);
+    classification.interesting.then_some(classification)
 }
 
 struct PathClassification {
@@ -156,7 +223,7 @@ impl RepositoryWatcher {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use notify::event::{CreateKind, ModifyKind};
+    use notify::event::{CreateKind, ModifyKind, RenameMode};
     #[test]
     fn excludes_dirs() {
         let e = Event::new(EventKind::Create(CreateKind::File))
@@ -175,7 +242,6 @@ mod tests {
 
     #[test]
     fn pairs_rename_paths_and_classifies_yaml_schema() {
-        use notify::event::{ModifyKind, RenameMode};
         let rename = Event::new(EventKind::Modify(ModifyKind::Name(RenameMode::Both)))
             .add_path(PathBuf::from("/r/wiki/a.md"))
             .add_path(PathBuf::from("/r/wiki/b.md"));
@@ -193,5 +259,51 @@ mod tests {
         let changes = classify_event(&schema, Path::new("/r"));
         assert_eq!(changes.len(), 1);
         assert!(changes[0].full_rebuild);
+    }
+
+    #[test]
+    fn rename_from_and_to_keep_single_path_semantics() {
+        let from = Event::new(EventKind::Modify(ModifyKind::Name(RenameMode::From)))
+            .add_path(PathBuf::from("/r/wiki/a.md"));
+        let from_changes = classify_event(&from, Path::new("/r"));
+        assert_eq!(from_changes.len(), 1);
+        assert_eq!(from_changes[0].kind, ChangeKind::Remove);
+        assert_eq!(from_changes[0].path, PathBuf::from("/r/wiki/a.md"));
+
+        let to = Event::new(EventKind::Modify(ModifyKind::Name(RenameMode::To)))
+            .add_path(PathBuf::from("/r/wiki/b.md"));
+        let to_changes = classify_event(&to, Path::new("/r"));
+        assert_eq!(to_changes.len(), 1);
+        assert_eq!(to_changes[0].kind, ChangeKind::Create);
+        assert_eq!(to_changes[0].path, PathBuf::from("/r/wiki/b.md"));
+    }
+
+    #[test]
+    fn rename_both_keeps_change_when_only_one_endpoint_is_interesting() {
+        let rename = Event::new(EventKind::Modify(ModifyKind::Name(RenameMode::Both)))
+            .add_path(PathBuf::from("/r/wiki/a.md"))
+            .add_path(PathBuf::from("/r/raw/a.pdf"));
+        let changes = classify_event(&rename, Path::new("/r"));
+        assert_eq!(changes.len(), 1);
+        assert_eq!(changes[0].kind, ChangeKind::Rename);
+        assert_eq!(
+            changes[0].previous_path,
+            Some(PathBuf::from("/r/wiki/a.md"))
+        );
+        assert!(!changes[0].full_rebuild);
+    }
+
+    #[test]
+    fn rename_any_with_two_paths_is_paired_like_both() {
+        let rename = Event::new(EventKind::Modify(ModifyKind::Name(RenameMode::Any)))
+            .add_path(PathBuf::from("/r/wiki/a.md"))
+            .add_path(PathBuf::from("/r/wiki/b.md"));
+        let changes = classify_event(&rename, Path::new("/r"));
+        assert_eq!(changes.len(), 1);
+        assert_eq!(
+            changes[0].previous_path,
+            Some(PathBuf::from("/r/wiki/a.md"))
+        );
+        assert_eq!(changes[0].path, PathBuf::from("/r/wiki/b.md"));
     }
 }
