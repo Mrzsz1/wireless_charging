@@ -1,4 +1,4 @@
-# Wireless Charging Research Workbench 0.7.1
+# Wireless Charging Research Workbench 0.7.2
 
 Windows 本地科研工作台：以 Wiki 正文为真相，使用 SQLite FTS5、核心专著章节索引、Graphify 和 Luna 完成阅读、检索、问答与受控编译。
 
@@ -26,6 +26,7 @@ npm run dev
 cd apps/desktop
 npm run test:p1
 npm run test:p2
+npm run test:installer-lifecycle
 npm run build
 npm run verify
 npm run verify:p3
@@ -40,6 +41,12 @@ py -3 tools/wiki_lint.py --strict-graphify
 ```
 
 `test:p2` 覆盖全局搜索最新请求守卫、旧请求失败和清空查询；Rust 测试覆盖专著片段、路径边界、回滚补偿和 watcher 批次重试。
+
+## 窗口显示恢复
+
+0.7.2 起，窗口位置与尺寸按物理像素保存和恢复，并在启动时与当前显示器工作区求交。移除副屏、修改分辨率/DPI 或任务栏工作区后，完全位于屏幕外的旧窗口会回到主显示器中央；合法的负坐标副屏位置仍会保留。最小化状态不会覆盖最后一个正常窗口矩形，启动恢复结束后会执行取消最小化、显示与聚焦。
+
+若旧版本只在任务栏显示缩略图，直接安装并启动 0.7.2 即会迁移 `desktop.window-state.v2`；无需手工清理本地存储。
 
 ## GUI E2E
 
@@ -81,3 +88,4 @@ MSI、NSIS 与 release 可执行文件位于 `src-tauri/target/release/bundle/`�
 - **回滚失败**：在编译中心查看 `failed`/`failed_partial`、失败事件和 result JSON；不要手动删除 staging manifest。
 - **章节无法打开**：检查 `raw/canonical/<book-id>/chapter-index.json` 的 `path` 是否为仓库内相对路径，且目标 Markdown 可读。
 - **GUI E2E 缺依赖**：运行 `npm run test:e2e-config`，再安装 `tauri-driver` 和匹配的 `msedgedriver.exe`。
+- **窗口只在任务栏**：确认运行的是 0.7.2 或更高版本；严格 GUI E2E 会在导航前断言窗口与当前显示器工作区存在交集。

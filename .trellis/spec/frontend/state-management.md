@@ -131,3 +131,84 @@ setMessages((current) => mergeCompletedMessages(current, result))
 <!-- State management mistakes your team has made -->
 
 (To be filled by the team)
+
+## Scenario: DPI-Safe Desktop Window Restoration
+
+### 1. Scope / Trigger
+
+This contract applies whenever the Tauri desktop shell persists or restores
+window geometry. It prevents a window from remaining alive only in the Windows
+taskbar after DPI, resolution, taskbar, or monitor topology changes.
+
+### 2. Signatures
+
+- `parsePersistedWindowState(raw): PersistedWindowState | null`
+- `resolveWindowPlacement(state, monitors, primary, fallbackSize): WindowPlacement`
+- `createPersistedWindowState(rect, maximized): PersistedWindowState`
+- Storage keys: `desktop.window-state.v3` and read-only migration input
+  `desktop.window-state.v2`.
+
+### 3. Contracts
+
+- Persisted `x`, `y`, `width`, and `height` are physical pixels and must be
+  restored with `PhysicalPosition` and `PhysicalSize`; never reinterpret them
+  as logical pixels.
+- Restore against current monitor work areas. A saved rectangle that intersects
+  a monitor is fitted into that work area; a fully off-screen rectangle is
+  centered in the primary work area.
+- Negative coordinates are valid when they intersect a real monitor.
+- Minimized geometry is never persisted. Maximized state preserves the latest
+  normal rectangle and only updates the `maximized` flag.
+- Startup finishes with best-effort `unminimize`, `show`, and `setFocus` after
+  placement; `center` is the fallback when placement APIs fail.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+|---|---|
+| JSON is malformed or dimensions are non-finite/negative/too small | Ignore it and use the centered fallback |
+| Saved rectangle intersects a current monitor | Clamp size and position to that work area |
+| Saved rectangle intersects no current monitor | Center in the primary work area |
+| Primary monitor lookup fails but monitors exist | Use the first current monitor |
+| No monitor API result is available | Use Tauri `center()` and still show/focus |
+| Window is minimized during a move/resize event | Keep the previous normal rectangle |
+
+### 5. Good/Base/Bad Cases
+
+- **Good**: A v2 rectangle at `x=-2858` on a removed monitor migrates to v3 and
+  opens centered on the current primary monitor.
+- **Base**: A normal single-monitor rectangle is restored without changing its
+  visible position.
+- **Bad**: Values returned by `outerPosition()` are restored with
+  `LogicalPosition`; high-DPI scaling can move the window completely off-screen.
+
+### 6. Tests Required (with assertion points)
+
+- Node unit tests cover removed-monitor coordinates, valid negative-coordinate
+  monitors, resolution shrink, corrupt values, and DPI-scaled fallback sizes.
+- Structural verification asserts required Tauri window permissions and the
+  visibility-recovery module wiring.
+- Strict GUI E2E must read the native window rectangle and assert positive
+  intersection area with the active monitor work area before navigation tests.
+- Installer smoke must terminate the complete launched process tree before
+  uninstalling and assert that the process exited.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```tsx
+const position = await appWindow.outerPosition()
+await appWindow.setPosition(new LogicalPosition(position.x, position.y))
+```
+
+#### Correct
+
+```tsx
+const placement = resolveWindowPlacement(saved, monitors, primary, fallback)
+await appWindow.setSize(new PhysicalSize(placement.rect.width, placement.rect.height))
+await appWindow.setPosition(new PhysicalPosition(placement.rect.x, placement.rect.y))
+await appWindow.unminimize()
+await appWindow.show()
+await appWindow.setFocus()
+```
