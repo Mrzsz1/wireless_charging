@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 4
+- **Total Sessions**: 5
 - **Last Active**: 2026-08-09
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~145 | Active |
+| `journal-1.md` | ~182 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 5 | 2026-08-09 | 修复 Windows 客户端离屏窗口并发布 0.7.2 | `1c16dbf`, `c60faef`, `c1fb51f`, `ae28401`, `47d214b` | `master` |
 | 4 | 2026-08-09 | P5.4 desktop correctness closure | `057e875`, `c5cd0c4`, `b22ed16`, `d8d6aa9`, `d17cff6`, `270f0ee`, `6bc642b` | `master` |
 | 3 | 2026-08-09 | 修复 GUI E2E 环境自动发现 | `5690b07` | `master` |
 | 2 | 2026-08-09 | Fix desktop P1 state consistency | `2a7847f`, `412aad9`, `2b88137` | `master` |

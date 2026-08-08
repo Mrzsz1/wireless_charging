@@ -143,3 +143,40 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 5: 修复 Windows 客户端离屏窗口并发布 0.7.2
+
+**Date**: 2026-08-09
+**Task**: 修复 Windows 客户端离屏窗口并发布 0.7.2
+**Branch**: `master`
+
+### Summary
+
+统一窗口状态的物理像素契约，按当前显示器恢复离屏窗口；修复安装 smoke 残留进程，完成严格 GUI/NSIS 验收并生成 0.7.2 EXE、MSI、NSIS。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `1c16dbf` | (see git log) |
+| `c60faef` | (see git log) |
+| `c1fb51f` | (see git log) |
+| `ae28401` | (see git log) |
+| `47d214b` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
