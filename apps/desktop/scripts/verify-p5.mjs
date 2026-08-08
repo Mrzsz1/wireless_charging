@@ -6,6 +6,7 @@ const checks = [
   ['node', ['scripts/verify-updater-release.mjs'], 'signed updater configuration'],
   ['node', ['e2e/offline-smoke.mjs'], 'offline E2E'],
   ['node', ['--test', 'tests/gui-e2e-config.test.mjs'], 'GUI E2E configuration'],
+  ['node', ['--test', 'tests/process-lifecycle.test.mjs'], 'installer process lifecycle'],
   ['node', ['e2e/gui-smoke.mjs', ...(strict ? ['--strict'] : [])], strict ? 'GUI E2E strict' : 'GUI E2E (SKIP when driver/app absent)'],
   ['node', ['scripts/smoke-installer.mjs', ...(strict ? ['--strict'] : [])], strict ? 'installer smoke strict' : 'installer smoke'],
 ]

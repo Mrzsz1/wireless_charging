@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs'
-import { spawnSync } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 import { dirname, extname, resolve } from 'node:path'
+import { assertProcessStaysAlive, terminateProcessTree } from './process-lifecycle.mjs'
 
 const strict = process.argv.includes('--strict') || process.env.E2E_STRICT === '1'
 const installerPath = process.env.INSTALLER_PATH
@@ -30,9 +31,14 @@ if (install.error || install.status !== 0) throw new Error(`installer failed wit
 if (!existsSync(appPath)) throw new Error(`installed application not found: ${appPath}`)
 console.log(`PASS installed application exists: ${appPath}`)
 
-const app = spawnSync(appPath, ['--version'], { encoding: 'utf8', timeout: 15000, windowsHide: true })
-if (app.error && app.error.code !== 'ETIMEDOUT') throw app.error
-console.log('PASS installed application launched')
+const app = spawn(appPath, [], { stdio: 'ignore', windowsHide: true })
+try {
+  await assertProcessStaysAlive(app)
+  console.log(`PASS installed application launched: PID ${app.pid}`)
+} finally {
+  await terminateProcessTree(app)
+}
+console.log('PASS installed application process exited')
 
 if (!existsSync(uninstallerPath)) throw new Error(`uninstaller not found: ${uninstallerPath}`)
 const uninstall = spawnSync(uninstallerPath, ['/S'], { stdio: 'inherit', windowsHide: true })
