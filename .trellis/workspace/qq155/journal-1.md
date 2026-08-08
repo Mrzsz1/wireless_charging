@@ -104,3 +104,42 @@ Fixed watcher rename semantics and repository identity isolation; added idempote
 ### Next Steps
 
 - None - task complete
+
+
+## Session 4: P5.4 desktop correctness closure
+
+**Date**: 2026-08-09
+**Task**: P5.4 desktop correctness closure
+**Branch**: `master`
+
+### Summary
+
+Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe core-book snippets and repository paths, failure-safe multi-file rollback, at-least-once watcher batches with retry/blocked state, strict GUI and installer gates, Graphify refresh, and release documentation. All required gates passed; two-book Recall@5 remains 1.000/0.986667.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `057e875` | (see git log) |
+| `c5cd0c4` | (see git log) |
+| `b22ed16` | (see git log) |
+| `d8d6aa9` | (see git log) |
+| `d17cff6` | (see git log) |
+| `270f0ee` | (see git log) |
+| `6bc642b` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
