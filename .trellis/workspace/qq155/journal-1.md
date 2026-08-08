@@ -71,3 +71,36 @@ Fixed watcher rename semantics and repository identity isolation; added idempote
 ### Next Steps
 
 - None - task complete
+
+
+## Session 3: 修复 GUI E2E 环境自动发现
+
+**Date**: 2026-08-09
+**Task**: 修复 GUI E2E 环境自动发现
+**Branch**: `master`
+
+### Summary
+
+桌面端 GUI E2E 现在自动发现 release/debug Tauri 产物与 Cargo driver，保留显式覆盖；缺少 Windows msedgedriver 时 normal/strict 分别可诊断退出 0/2。新增配置单测、verify:p5 覆盖、README 与前端质量规范；完成 release 构建、严格 GUI E2E、Rust/Python/Node 回归、P3/P4/P5 验证。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `5690b07` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
