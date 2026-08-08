@@ -39,6 +39,10 @@ struct RepositoryWatchStatus {
     processed_changes: usize,
     full_rebuild: bool,
     graph_refresh: bool,
+    pending_changes: usize,
+    retry_attempt: u32,
+    blocked: bool,
+    last_error: Option<String>,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -856,6 +860,10 @@ fn get_repository_watch_status(
         .repository_watcher
         .lock()
         .map_err(|_| "知识库监听状态锁定失败".to_string())?;
+    let status = watcher
+        .as_ref()
+        .map(|item| item.status())
+        .unwrap_or_default();
     Ok(RepositoryWatchStatus {
         active: watcher.is_some(),
         root: watcher
@@ -864,7 +872,74 @@ fn get_repository_watch_status(
         processed_changes: 0,
         full_rebuild: false,
         graph_refresh: false,
+        pending_changes: status.pending_changes,
+        retry_attempt: status.retry_attempt,
+        blocked: status.blocked,
+        last_error: status.last_error,
     })
+}
+
+struct AppliedRepositoryChanges {
+    stats: IndexStats,
+}
+
+fn apply_repository_changes(
+    repository: &mut RepositoryState,
+    changes: &[repository_watcher::IndexChange],
+) -> Result<AppliedRepositoryChanges, String> {
+    let root = repository
+        .root
+        .clone()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_mut()
+        .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
+    let full_rebuild = changes.iter().any(|change| change.full_rebuild);
+    let stats = if full_rebuild {
+        rebuild_connection(connection, &root)?
+    } else {
+        let wiki_root = root.join("wiki");
+        let tx = connection
+            .transaction()
+            .map_err(|error| format!("开启增量索引事务失败：{error}"))?;
+        for change in changes {
+            if change.graph_refresh {
+                continue;
+            }
+            let is_wiki = |path: &Path| {
+                path.strip_prefix(&wiki_root).is_ok()
+                    && path.extension().and_then(|value| value.to_str()) == Some("md")
+            };
+            match change.kind {
+                repository_watcher::ChangeKind::Remove => {
+                    if is_wiki(&change.path) {
+                        delete_wiki_page_index(&tx, &wiki_root, &change.path)?;
+                    }
+                }
+                repository_watcher::ChangeKind::Rename => {
+                    if let Some(previous) =
+                        change.previous_path.as_ref().filter(|path| is_wiki(path))
+                    {
+                        delete_wiki_page_index(&tx, &wiki_root, previous)?;
+                    }
+                    if is_wiki(&change.path) && change.path.is_file() {
+                        upsert_wiki_page_index(&tx, &wiki_root, &change.path)?;
+                    }
+                }
+                _ => {
+                    if is_wiki(&change.path) && change.path.is_file() {
+                        upsert_wiki_page_index(&tx, &wiki_root, &change.path)?;
+                    }
+                }
+            }
+        }
+        tx.commit()
+            .map_err(|error| format!("提交增量索引事务失败：{error}"))?;
+        current_index_stats(connection, &root)?
+    };
+    repository.indexed_pages = stats.page_count;
+    Ok(AppliedRepositoryChanges { stats })
 }
 
 #[tauri::command]
@@ -872,16 +947,17 @@ fn process_repository_changes(
     app: AppHandle,
     state: State<'_, AppState>,
 ) -> Result<RepositoryWatchStatus, String> {
-    let changes = {
+    let batch = {
         let mut watcher = state
             .repository_watcher
             .lock()
             .map_err(|_| "知识库监听状态锁定失败".to_string())?;
-        watcher.as_mut().map(|item| item.poll()).unwrap_or_default()
+        watcher.as_mut().and_then(|item| item.begin_batch())
     };
-    if changes.is_empty() {
+    let Some(batch) = batch else {
         return get_repository_watch_status(state);
-    }
+    };
+    let changes = batch.changes.clone();
 
     let full_rebuild = changes.iter().any(|change| change.full_rebuild);
     let graph_refresh = changes.iter().any(|change| change.graph_refresh);
@@ -899,67 +975,41 @@ fn process_repository_changes(
         "index_update_started",
         serde_json::json!({ "changeCount": changes.len(), "fullRebuild": full_rebuild }),
     );
-    let stats = {
-        let mut repository = state
-            .repository
-            .lock()
-            .map_err(|_| "知识库状态锁定失败".to_string())?;
-        let root = repository
-            .root
-            .clone()
-            .ok_or_else(|| "请先选择知识库目录".to_string())?;
-        let connection = repository
-            .db
-            .as_mut()
-            .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
-        let stats = if full_rebuild {
-            rebuild_connection(connection, &root)?
-        } else {
-            let wiki_root = root.join("wiki");
-            let tx = connection
-                .transaction()
-                .map_err(|error| format!("开启增量索引事务失败：{error}"))?;
-            for change in &changes {
-                if change.graph_refresh {
-                    continue;
-                }
-                let is_wiki = |path: &Path| {
-                    path.strip_prefix(&wiki_root).is_ok()
-                        && path.extension().and_then(|value| value.to_str()) == Some("md")
-                };
-                match change.kind {
-                    repository_watcher::ChangeKind::Remove => {
-                        if is_wiki(&change.path) {
-                            delete_wiki_page_index(&tx, &wiki_root, &change.path)?;
-                        }
-                    }
-                    repository_watcher::ChangeKind::Rename => {
-                        if let Some(previous) =
-                            change.previous_path.as_ref().filter(|path| is_wiki(path))
-                        {
-                            delete_wiki_page_index(&tx, &wiki_root, previous)?;
-                        }
-                        if is_wiki(&change.path) && change.path.is_file() {
-                            upsert_wiki_page_index(&tx, &wiki_root, &change.path)?;
-                        }
-                    }
-                    _ => {
-                        if is_wiki(&change.path) && change.path.is_file() {
-                            upsert_wiki_page_index(&tx, &wiki_root, &change.path)?;
-                        }
-                    }
-                }
-            }
-            tx.commit()
-                .map_err(|error| format!("提交增量索引事务失败：{error}"))?;
-            current_index_stats(connection, &root)?
-        };
-        repository.indexed_pages = stats.page_count;
-        stats
+    let applied = match state.repository.lock() {
+        Ok(mut repository) => apply_repository_changes(&mut repository, &changes),
+        Err(_) => Err("知识库状态锁定失败".to_string()),
     };
+    let applied = match applied {
+        Ok(value) => value,
+        Err(error) => {
+            let retry = state
+                .repository_watcher
+                .lock()
+                .ok()
+                .and_then(|mut watcher| watcher.as_mut()?.fail_batch(batch.id, error.clone()));
+            let _ = app.emit(
+                "index_update_failed",
+                serde_json::json!({
+                    "batchId": batch.id,
+                    "retryAttempt": retry.as_ref().map(|item| item.retry_attempt).unwrap_or(batch.retry_attempt),
+                    "blocked": retry.as_ref().map(|item| item.blocked).unwrap_or(false),
+                    "changeCount": changes.len(),
+                    "error": error,
+                }),
+            );
+            return Err(error);
+        }
+    };
+    if let Ok(mut watcher) = state.repository_watcher.lock() {
+        if let Some(item) = watcher.as_mut() {
+            item.ack_batch(batch.id);
+        }
+    }
+    let stats = applied.stats;
     let _ = app.emit(
         "index_update_completed",
         serde_json::json!({
+            "batchId": batch.id,
             "changeCount": changes.len(),
             "pageCount": stats.page_count,
             "fullRebuild": full_rebuild,
@@ -982,6 +1032,10 @@ fn process_repository_changes(
         processed_changes: changes.len(),
         full_rebuild,
         graph_refresh,
+        pending_changes: 0,
+        retry_attempt: 0,
+        blocked: false,
+        last_error: None,
     })
 }
 
@@ -1001,6 +1055,11 @@ fn rebuild_index(state: State<'_, AppState>) -> Result<IndexStats, String> {
         .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
     let stats = rebuild_connection(connection, &root)?;
     repository.indexed_pages = stats.page_count;
+    if let Ok(mut watcher) = state.repository_watcher.lock() {
+        if let Some(item) = watcher.as_mut() {
+            item.clear_after_full_rebuild();
+        }
+    }
     Ok(stats)
 }
 

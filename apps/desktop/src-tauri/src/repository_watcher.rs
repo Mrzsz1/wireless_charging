@@ -3,6 +3,7 @@ use notify::{
     Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher,
 };
 use serde::Serialize;
+use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::sync::mpsc::{self, Receiver};
 use std::time::{Duration, Instant};
@@ -24,6 +25,33 @@ pub struct IndexChange {
     pub kind: ChangeKind,
     pub full_rebuild: bool,
     pub graph_refresh: bool,
+}
+
+const MAX_AUTOMATIC_RETRIES: u32 = 5;
+
+#[derive(Debug, Clone)]
+pub struct ChangeBatch {
+    pub id: u64,
+    pub changes: Vec<IndexChange>,
+    pub retry_attempt: u32,
+    pub blocked: bool,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct WatcherStatus {
+    pub pending_changes: usize,
+    pub retry_attempt: u32,
+    pub blocked: bool,
+    pub last_error: Option<String>,
+}
+
+struct InFlightBatch {
+    id: u64,
+    changes: Vec<IndexChange>,
+    retry_attempt: u32,
+    blocked: bool,
+    next_retry_at: Instant,
+    last_error: Option<String>,
 }
 
 pub fn classify_event(event: &Event, root: &Path) -> Vec<IndexChange> {
@@ -182,6 +210,9 @@ pub struct RepositoryWatcher {
     rx: Receiver<notify::Result<Event>>,
     root: PathBuf,
     last: Option<Instant>,
+    pending: Vec<IndexChange>,
+    in_flight: Option<InFlightBatch>,
+    next_batch_id: u64,
 }
 impl RepositoryWatcher {
     pub fn start(root: PathBuf) -> notify::Result<Self> {
@@ -195,28 +226,134 @@ impl RepositoryWatcher {
             rx,
             root,
             last: None,
+            pending: Vec::new(),
+            in_flight: None,
+            next_batch_id: 1,
         })
     }
-    pub fn poll(&mut self) -> Vec<IndexChange> {
+
+    fn drain_events(&mut self) {
+        while let Ok(result) = self.rx.try_recv() {
+            match result {
+                Ok(event) => self.pending.extend(classify_event(&event, &self.root)),
+                Err(_error) => self.last = Some(Instant::now()),
+            }
+        }
+        let mut seen = HashSet::new();
+        self.pending.retain(|change| {
+            let key = format!(
+                "{:?}|{}|{}",
+                change.kind,
+                change
+                    .previous_path
+                    .as_ref()
+                    .map(|path| path.to_string_lossy())
+                    .unwrap_or_default(),
+                change.path.to_string_lossy()
+            );
+            seen.insert(key)
+        });
+    }
+
+    pub fn begin_batch(&mut self) -> Option<ChangeBatch> {
+        if let Some(batch) = &self.in_flight {
+            if batch.blocked || Instant::now() < batch.next_retry_at {
+                return None;
+            }
+            return Some(ChangeBatch {
+                id: batch.id,
+                changes: batch.changes.clone(),
+                retry_attempt: batch.retry_attempt,
+                blocked: batch.blocked,
+            });
+        }
         if self
             .last
             .map(|t| t.elapsed() < Duration::from_millis(700))
             .unwrap_or(false)
         {
-            return vec![];
+            return None;
         }
-        let mut out = Vec::new();
-        while let Ok(Ok(ev)) = self.rx.try_recv() {
-            out.extend(classify_event(&ev, &self.root));
+        self.drain_events();
+        if self.pending.is_empty() {
+            return None;
         }
-        if !out.is_empty() {
+        let changes = std::mem::take(&mut self.pending);
+        if !changes.is_empty() {
             self.last = Some(Instant::now());
         }
-        out
+        let id = self.next_batch_id;
+        self.next_batch_id = self.next_batch_id.saturating_add(1);
+        self.in_flight = Some(InFlightBatch {
+            id,
+            changes: changes.clone(),
+            retry_attempt: 0,
+            blocked: false,
+            next_retry_at: Instant::now(),
+            last_error: None,
+        });
+        Some(ChangeBatch {
+            id,
+            changes,
+            retry_attempt: 0,
+            blocked: false,
+        })
+    }
+
+    pub fn ack_batch(&mut self, id: u64) -> bool {
+        if self.in_flight.as_ref().is_some_and(|batch| batch.id == id) {
+            self.in_flight = None;
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn fail_batch(&mut self, id: u64, error: String) -> Option<ChangeBatch> {
+        let batch = self.in_flight.as_mut()?;
+        if batch.id != id {
+            return None;
+        }
+        batch.retry_attempt = batch.retry_attempt.saturating_add(1);
+        batch.blocked = batch.retry_attempt >= MAX_AUTOMATIC_RETRIES;
+        let delay_seconds = 2_u64.pow(batch.retry_attempt.min(4));
+        batch.next_retry_at = Instant::now() + Duration::from_secs(delay_seconds.min(30));
+        batch.last_error = Some(error);
+        Some(ChangeBatch {
+            id: batch.id,
+            changes: batch.changes.clone(),
+            retry_attempt: batch.retry_attempt,
+            blocked: batch.blocked,
+        })
+    }
+
+    pub fn clear_after_full_rebuild(&mut self) {
+        self.pending.clear();
+        self.in_flight = None;
+    }
+
+    pub fn status(&self) -> WatcherStatus {
+        let Some(batch) = &self.in_flight else {
+            return WatcherStatus {
+                pending_changes: self.pending.len(),
+                ..WatcherStatus::default()
+            };
+        };
+        WatcherStatus {
+            pending_changes: self.pending.len() + batch.changes.len(),
+            retry_attempt: batch.retry_attempt,
+            blocked: batch.blocked,
+            last_error: batch.last_error.clone(),
+        }
     }
 
     pub fn root(&self) -> &Path {
         &self.root
+    }
+
+    #[cfg(test)]
+    fn enqueue_for_test(&mut self, changes: Vec<IndexChange>) {
+        self.pending.extend(changes);
     }
 }
 
@@ -305,5 +442,32 @@ mod tests {
             Some(PathBuf::from("/r/wiki/a.md"))
         );
         assert_eq!(changes[0].path, PathBuf::from("/r/wiki/b.md"));
+    }
+
+    #[test]
+    fn change_batch_is_retained_until_ack_and_reports_retry_state() {
+        let directory = tempfile::tempdir().expect("watch root");
+        let mut watcher =
+            RepositoryWatcher::start(directory.path().to_path_buf()).expect("watcher");
+        watcher.enqueue_for_test(vec![IndexChange {
+            path: directory.path().join("wiki/page.md"),
+            previous_path: None,
+            kind: ChangeKind::Modify,
+            full_rebuild: false,
+            graph_refresh: false,
+        }]);
+        let first = watcher.begin_batch().expect("first batch");
+        let same = watcher.begin_batch().expect("in-flight batch is retained");
+        assert_eq!(first.id, same.id);
+        assert_eq!(same.changes.len(), 1);
+        let retry = watcher
+            .fail_batch(first.id, "temporary read failure".to_string())
+            .expect("retry state");
+        assert_eq!(retry.retry_attempt, 1);
+        assert!(!retry.blocked);
+        assert!(watcher.begin_batch().is_none());
+        assert_eq!(watcher.status().pending_changes, 1);
+        assert!(watcher.ack_batch(first.id));
+        assert_eq!(watcher.status().pending_changes, 0);
     }
 }

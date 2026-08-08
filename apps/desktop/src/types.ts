@@ -37,7 +37,7 @@ export type CompileRunSummary = {
   id: string
   taskKind: string
   displayName: string
-  status: 'queued' | 'running' | 'succeeded' | 'failed' | 'cancelled' | 'interrupted' | 'rolled_back' | 'paused' | 'pause_requested' | 'resume_requested' | 'cancel_requested' | 'timed_out'
+  status: 'queued' | 'running' | 'succeeded' | 'failed' | 'failed_partial' | 'cancelled' | 'interrupted' | 'rolled_back' | 'paused' | 'pause_requested' | 'resume_requested' | 'cancel_requested' | 'timed_out'
   currentStage: string
   createdAt: string
   startedAt: string
@@ -92,6 +92,10 @@ export type RepositoryWatchStatus = {
   processedChanges: number
   fullRebuild: boolean
   graphRefresh: boolean
+  pendingChanges: number
+  retryAttempt: number
+  blocked: boolean
+  lastError?: string | null
 }
 
 export type SearchResult = {

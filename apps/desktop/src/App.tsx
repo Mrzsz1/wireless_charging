@@ -206,7 +206,9 @@ export default function App() {
       polling = true
       try {
         const status = await processRepositoryChanges()
-        if (active && status.processedChanges > 0) {
+        if (active && status.blocked) {
+          setNotice(`自动索引已暂停：${status.lastError ?? '请执行完整重建后重试'}`)
+        } else if (active && status.processedChanges > 0) {
           setNotice(`检测到 ${status.processedChanges} 项知识库变更，索引已自动更新`)
           setRepositoryGeneration((value) => value + 1)
           setGraphRefreshVersion((value) => nextGraphRefreshVersion(value, status.graphRefresh))
