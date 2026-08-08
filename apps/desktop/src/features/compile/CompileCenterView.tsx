@@ -11,7 +11,7 @@ type Props = {
 }
 
 const statusLabels: Record<string, string> = {
-  queued: '等待中', running: '运行中', succeeded: '已完成', failed: '失败', cancelled: '已取消', interrupted: '已中断', rolled_back: '已回滚', paused: '已暂停', pause_requested: '等待暂停', resume_requested: '等待继续', cancel_requested: '等待取消', timed_out: '已超时',
+  queued: '等待中', running: '运行中', succeeded: '已完成', failed: '失败', failed_partial: '部分失败（已回滚部分）', cancelled: '已取消', interrupted: '已中断', rolled_back: '已回滚', paused: '已暂停', pause_requested: '等待暂停', resume_requested: '等待继续', cancel_requested: '等待取消', timed_out: '已超时',
 }
 
 const taskIcons = { lint: ShieldCheck, graphify_update: Network, discover: CloudDownload, parse: FileSearch, compile_a: Code2, full_pipeline: Workflow }
