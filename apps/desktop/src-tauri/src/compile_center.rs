@@ -1280,7 +1280,157 @@ pub fn execute_run(
     get_run(&connection, &root.to_string_lossy(), &run_id).map(|d| d.summary)
 }
 
-pub fn rollback_run(connection: &Connection, root: &Path, run_id: &str) -> Result<String, String> {
+#[derive(Clone, Debug)]
+struct RollbackArtifact {
+    relative: String,
+    operation: String,
+    before_hash: String,
+    after_hash: String,
+    backup_path: String,
+}
+
+#[derive(Clone, Debug)]
+struct RollbackJournalEntry {
+    artifact: RollbackArtifact,
+    target: PathBuf,
+    quarantine: PathBuf,
+    staged_backup: Option<PathBuf>,
+}
+
+fn rollback_target(root: &Path, relative: &str) -> Result<PathBuf, String> {
+    let normalized = relative.replace('\\', "/");
+    let path = Path::new(relative);
+    let windows_prefix = normalized.len() >= 2
+        && normalized.as_bytes()[1] == b':'
+        && normalized.as_bytes()[0].is_ascii_alphabetic();
+    if normalized.is_empty()
+        || normalized.starts_with('/')
+        || normalized.starts_with("//")
+        || windows_prefix
+        || path.is_absolute()
+        || normalized.split('/').any(|part| part == "..")
+    {
+        return Err(format!(
+            "rollback artifact path is outside repository: {relative}"
+        ));
+    }
+    let canonical_root = fs::canonicalize(root)
+        .map_err(|error| format!("repository path invalid for rollback: {error}"))?;
+    let target = root.join(path);
+    let mut existing_parent = target.clone();
+    while !existing_parent.exists() {
+        existing_parent = existing_parent
+            .parent()
+            .ok_or_else(|| format!("rollback artifact has no repository parent: {relative}"))?
+            .to_path_buf();
+    }
+    let canonical_parent = fs::canonicalize(&existing_parent)
+        .map_err(|error| format!("rollback artifact parent invalid for {relative}: {error}"))?;
+    if !canonical_parent.starts_with(&canonical_root) {
+        return Err(format!(
+            "rollback artifact is outside repository: {relative}"
+        ));
+    }
+    if target.exists() {
+        let canonical_target = fs::canonicalize(&target)
+            .map_err(|error| format!("rollback artifact target invalid for {relative}: {error}"))?;
+        if !canonical_target.starts_with(&canonical_root) {
+            return Err(format!(
+                "rollback artifact is outside repository: {relative}"
+            ));
+        }
+    }
+    Ok(target)
+}
+
+fn rollback_failure(
+    connection: &Connection,
+    rollback_id: &str,
+    source_run_id: &str,
+    reason: &str,
+    status: &str,
+    journal: &[RollbackJournalEntry],
+) -> Result<String, String> {
+    let applied = journal
+        .iter()
+        .map(|entry| entry.artifact.relative.clone())
+        .collect::<Vec<_>>();
+    let result = serde_json::json!({
+        "error": reason,
+        "compensated": status == "failed",
+        "status": status,
+        "restoredArtifacts": applied,
+    });
+    connection
+        .execute(
+            "UPDATE compile_runs SET status=?2,finished_at=?3,failure_reason=?4,result_json=?5 WHERE id=?1",
+            params![rollback_id, status, now(), reason, result.to_string()],
+        )
+        .map_err(|error| format!("record rollback failure failed: {error}"))?;
+    connection
+        .execute(
+            "INSERT INTO compile_run_events(run_id,sequence,event_kind,stage,message,created_at) VALUES(?1,1,'failed','rollback',?2,?3)",
+            params![rollback_id, format!("Rollback of {source_run_id} failed ({status}): {reason}"), now()],
+        )
+        .map_err(|error| format!("record rollback failure event failed: {error}"))?;
+    Err(format!("rollback failed ({status}): {reason}"))
+}
+
+fn compensate_rollback(journal: &[RollbackJournalEntry]) -> Result<(), String> {
+    let mut errors = Vec::new();
+    for entry in journal.iter().rev() {
+        let result = match entry.artifact.operation.as_str() {
+            "created" | "modified" => {
+                if entry.quarantine.exists() {
+                    if entry.target.exists() {
+                        fs::remove_file(&entry.target)
+                    } else {
+                        Ok(())
+                    }
+                    .and_then(|_| {
+                        if let Some(parent) = entry.target.parent() {
+                            fs::create_dir_all(parent)?;
+                        }
+                        fs::rename(&entry.quarantine, &entry.target)
+                    })
+                } else {
+                    Ok(())
+                }
+            }
+            "deleted" => {
+                if entry.target.exists() {
+                    fs::remove_file(&entry.target)
+                } else {
+                    Ok(())
+                }
+            }
+            _ => Ok(()),
+        };
+        if let Err(error) = result {
+            errors.push(format!("{}: {error}", entry.artifact.relative));
+        }
+    }
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(errors.join("; "))
+    }
+}
+
+pub fn rollback_run(
+    connection: &mut Connection,
+    root: &Path,
+    run_id: &str,
+) -> Result<String, String> {
+    rollback_run_inner(connection, root, run_id, None)
+}
+
+fn rollback_run_inner(
+    connection: &mut Connection,
+    root: &Path,
+    run_id: &str,
+    fail_after: Option<usize>,
+) -> Result<String, String> {
     let _write_guard = RepositoryWriteGuard::acquire(root, true)?;
     let detail = get_run(connection, &root.to_string_lossy(), run_id)?;
     if detail.summary.status != "succeeded" {
@@ -1294,61 +1444,120 @@ pub fn rollback_run(connection: &Connection, root: &Path, run_id: &str) -> Resul
         .map_err(|error| error.to_string())?;
     let artifacts = statement
         .query_map([run_id], |row| {
-            Ok((
-                row.get::<_, String>(0)?,
-                row.get::<_, String>(1)?,
-                row.get::<_, String>(2)?,
-                row.get::<_, String>(3)?,
-                row.get::<_, String>(4)?,
-            ))
+            Ok(RollbackArtifact {
+                relative: row.get(0)?,
+                operation: row.get(1)?,
+                before_hash: row.get(2)?,
+                after_hash: row.get(3)?,
+                backup_path: row.get(4)?,
+            })
         })
         .map_err(|error| error.to_string())?
         .collect::<Result<Vec<_>, _>>()
         .map_err(|error| error.to_string())?;
+    drop(statement);
     if artifacts.is_empty() {
         return Err("task has no rollback material".into());
     }
-    for (relative, operation, _, after_hash, _) in &artifacts {
-        let path = root.join(relative);
-        match operation.as_str() {
+    let mut targets = Vec::with_capacity(artifacts.len());
+    for artifact in &artifacts {
+        let path = rollback_target(root, &artifact.relative)?;
+        match artifact.operation.as_str() {
             "created" | "modified" => {
-                if !path.is_file() || (!after_hash.is_empty() && file_hash(&path) != *after_hash) {
-                    return Err(format!("hash conflict for {relative}"));
+                if !path.is_file()
+                    || (!artifact.after_hash.is_empty() && file_hash(&path) != artifact.after_hash)
+                {
+                    return Err(format!("hash conflict for {}", artifact.relative));
                 }
             }
-            "deleted" if path.exists() => return Err(format!("hash conflict for {relative}")),
-            _ => {}
+            "deleted" if path.exists() => {
+                return Err(format!("hash conflict for {}", artifact.relative))
+            }
+            "deleted" => {}
+            _ => {
+                return Err(format!(
+                    "unsupported rollback operation: {}",
+                    artifact.operation
+                ))
+            }
         }
+        if matches!(artifact.operation.as_str(), "modified" | "deleted") {
+            let backup = PathBuf::from(&artifact.backup_path);
+            if !backup.is_file() || file_hash(&backup) != artifact.before_hash {
+                return Err(format!("rollback backup invalid for {}", artifact.relative));
+            }
+        }
+        targets.push(path);
     }
     let rollback_id = Uuid::new_v4().to_string();
     let timestamp = now();
+    let staging_root = root
+        .join("compile-backups")
+        .join(format!("rollback-{rollback_id}"));
+    fs::create_dir_all(&staging_root)
+        .map_err(|error| format!("create rollback staging failed: {error}"))?;
+    let mut journal = Vec::with_capacity(artifacts.len());
+    for (index, (artifact, target)) in artifacts.iter().zip(targets.iter()).enumerate() {
+        let staged_backup = if matches!(artifact.operation.as_str(), "modified" | "deleted") {
+            let staged = staging_root.join(format!("{index}.backup"));
+            fs::copy(&artifact.backup_path, &staged).map_err(|error| {
+                format!(
+                    "stage rollback backup failed for {}: {error}",
+                    artifact.relative
+                )
+            })?;
+            if file_hash(&staged) != artifact.before_hash {
+                let _ = fs::remove_dir_all(&staging_root);
+                return Err(format!(
+                    "staged rollback backup hash mismatch for {}",
+                    artifact.relative
+                ));
+            }
+            Some(staged)
+        } else {
+            None
+        };
+        journal.push(RollbackJournalEntry {
+            artifact: artifact.clone(),
+            target: target.clone(),
+            quarantine: staging_root.join(format!("{index}.current")),
+            staged_backup,
+        });
+    }
     connection.execute(
         "INSERT INTO compile_runs(id,repository_path,task_kind,display_name,status,current_stage,created_at,started_at,parameters_json,rollback_of)
          VALUES(?1,?2,'rollback','Rollback','running','rollback',?3,?3,'{}',?4)",
         params![rollback_id,root.to_string_lossy(),timestamp,run_id],
     ).map_err(|error| error.to_string())?;
-    for (relative, operation, _, _, backup_path) in &artifacts {
-        let path = root.join(relative);
-        match operation.as_str() {
-            "created" => fs::remove_file(&path)
-                .map_err(|error| format!("remove created artifact {relative} failed: {error}"))?,
-            "modified" | "deleted" => {
-                let backup = PathBuf::from(backup_path);
-                if !backup.is_file() {
-                    return Err(format!("rollback backup missing for {relative}"));
-                }
-                if let Some(parent) = path.parent() {
-                    fs::create_dir_all(parent)
-                        .map_err(|error| format!("restore parent failed: {error}"))?;
-                }
-                fs::copy(&backup, &path)
-                    .map_err(|error| format!("restore {relative} failed: {error}"))?;
-            }
-            _ => {}
+    for (index, entry) in journal.iter().enumerate() {
+        let apply_result = if fail_after == Some(index) {
+            Err("injected rollback apply failure".to_string())
+        } else {
+            apply_rollback_entry(entry)
+        };
+        if let Err(error) = apply_result {
+            let compensation = compensate_rollback(&journal);
+            let status = if compensation.is_ok() {
+                "failed"
+            } else {
+                "failed_partial"
+            };
+            let detail = if let Err(compensation_error) = compensation {
+                format!("{error}; compensation failed: {compensation_error}")
+            } else {
+                error
+            };
+            let result =
+                rollback_failure(connection, &rollback_id, run_id, &detail, status, &journal);
+            let _ = fs::remove_dir_all(&staging_root);
+            return result;
         }
     }
-    connection
-        .execute(
+    let db_result: Result<(), String> = (|| {
+        let tx = connection
+            .transaction()
+            .map_err(|error| format!("begin rollback result transaction failed: {error}"))?;
+        tx.execute(
             "UPDATE compile_runs SET status='succeeded',finished_at=?2,result_json=?3 WHERE id=?1",
             params![
                 rollback_id,
@@ -1356,18 +1565,72 @@ pub fn rollback_run(connection: &Connection, root: &Path, run_id: &str) -> Resul
                 serde_json::json!({"restoredArtifacts":artifacts.len()}).to_string()
             ],
         )
-        .map_err(|error| error.to_string())?;
-    connection
-        .execute(
+        .map_err(|error| format!("update rollback run failed: {error}"))?;
+        tx.execute(
             "UPDATE compile_runs SET status='rolled_back',finished_at=?2 WHERE id=?1",
             params![run_id, now()],
         )
-        .map_err(|error| error.to_string())?;
-    connection.execute(
-        "INSERT INTO compile_run_events(run_id,sequence,event_kind,stage,message,created_at) VALUES(?1,1,'completed','rollback',?2,?3)",
-        params![rollback_id,format!("Restored {} artifact(s) from {run_id}",artifacts.len()),now()],
-    ).map_err(|error| error.to_string())?;
+        .map_err(|error| format!("update source run failed: {error}"))?;
+        tx.execute(
+            "INSERT INTO compile_run_events(run_id,sequence,event_kind,stage,message,created_at) VALUES(?1,1,'completed','rollback',?2,?3)",
+            params![rollback_id,format!("Restored {} artifact(s) from {run_id}",artifacts.len()),now()],
+        )
+        .map_err(|error| format!("write rollback event failed: {error}"))?;
+        tx.commit()
+            .map_err(|error| format!("commit rollback result failed: {error}"))
+    })();
+    if let Err(error) = db_result {
+        let compensation = compensate_rollback(&journal);
+        let status = if compensation.is_ok() {
+            "failed"
+        } else {
+            "failed_partial"
+        };
+        let detail = if let Err(compensation_error) = compensation {
+            format!("database commit failed: {error}; compensation failed: {compensation_error}")
+        } else {
+            format!("database commit failed: {error}")
+        };
+        let result = rollback_failure(connection, &rollback_id, run_id, &detail, status, &journal);
+        let _ = fs::remove_dir_all(&staging_root);
+        return result;
+    }
+    let _ = fs::remove_dir_all(&staging_root);
     Ok(format!("rollback completed: {rollback_id}"))
+}
+
+fn apply_rollback_entry(entry: &RollbackJournalEntry) -> Result<(), String> {
+    match entry.artifact.operation.as_str() {
+        "created" | "modified" => {
+            fs::rename(&entry.target, &entry.quarantine).map_err(|error| {
+                format!("quarantine {} failed: {error}", entry.artifact.relative)
+            })?;
+            if entry.artifact.operation == "modified" {
+                let staged = entry
+                    .staged_backup
+                    .as_ref()
+                    .expect("modified backup staged");
+                if let Some(parent) = entry.target.parent() {
+                    fs::create_dir_all(parent)
+                        .map_err(|error| format!("restore parent failed: {error}"))?;
+                }
+                fs::rename(staged, &entry.target)
+                    .map_err(|error| format!("restore {} failed: {error}", entry.artifact.relative))
+            } else {
+                Ok(())
+            }
+        }
+        "deleted" => {
+            let staged = entry.staged_backup.as_ref().expect("deleted backup staged");
+            if let Some(parent) = entry.target.parent() {
+                fs::create_dir_all(parent)
+                    .map_err(|error| format!("restore parent failed: {error}"))?;
+            }
+            fs::rename(staged, &entry.target)
+                .map_err(|error| format!("restore {} failed: {error}", entry.artifact.relative))
+        }
+        _ => Ok(()),
+    }
 }
 
 #[cfg(test)]
@@ -1421,7 +1684,7 @@ mod tests {
         let backup = directory.path().join("backup/page.md");
         fs::create_dir_all(backup.parent().unwrap()).unwrap();
         fs::write(&backup, "before").unwrap();
-        let connection = Connection::open_in_memory().unwrap();
+        let mut connection = Connection::open_in_memory().unwrap();
         db_schema(&connection).unwrap();
         connection.execute(
             "INSERT INTO compile_runs(id,repository_path,task_kind,display_name,status,current_stage,created_at,parameters_json) VALUES('run',?1,'compile_a','Compile','succeeded','compile_a','1',?2)",
@@ -1431,7 +1694,7 @@ mod tests {
             "INSERT INTO compile_artifacts(id,run_id,artifact_kind,relative_path,operation,before_hash,after_hash,rollback_eligible,backup_path) VALUES('a','run','wiki','wiki/page.md','modified',?1,?2,1,?3)",
             params![file_hash(&backup),file_hash(&target),backup.to_string_lossy()],
         ).unwrap();
-        let result = rollback_run(&connection, &root, "run").unwrap();
+        let result = rollback_run(&mut connection, &root, "run").unwrap();
         assert!(result.starts_with("rollback completed:"));
         assert_eq!(fs::read_to_string(&target).unwrap(), "before");
         let status: String = connection
@@ -1442,6 +1705,96 @@ mod tests {
             )
             .unwrap();
         assert_eq!(status, "rolled_back");
+    }
+
+    #[test]
+    fn rollback_restores_mixed_artifacts_and_compensates_partial_failure() {
+        let directory = tempdir().unwrap();
+        let root = directory.path().join("repository");
+        fs::create_dir_all(root.join("wiki")).unwrap();
+        let created = root.join("wiki/created.md");
+        let modified = root.join("wiki/modified.md");
+        let deleted = root.join("wiki/deleted.md");
+        fs::write(&created, "created-after").unwrap();
+        fs::write(&modified, "modified-after").unwrap();
+        let backup_root = directory.path().join("backup");
+        fs::create_dir_all(&backup_root).unwrap();
+        let modified_backup = backup_root.join("modified.md");
+        let deleted_backup = backup_root.join("deleted.md");
+        fs::write(&modified_backup, "modified-before").unwrap();
+        fs::write(&deleted_backup, "deleted-before").unwrap();
+        let mut connection = Connection::open_in_memory().unwrap();
+        db_schema(&connection).unwrap();
+        connection
+            .execute(
+                "INSERT INTO compile_runs(id,repository_path,task_kind,display_name,status,current_stage,created_at,parameters_json) VALUES('mixed',?1,'compile_a','Compile','succeeded','compile_a','1',?2)",
+                params![root.to_string_lossy(), serde_json::to_string(&request("compile_a")).unwrap()],
+            )
+            .unwrap();
+        let insert = |id: &str,
+                      path: &str,
+                      operation: &str,
+                      before: &str,
+                      after: &str,
+                      backup: &Path| {
+            connection
+                .execute(
+                    "INSERT INTO compile_artifacts(id,run_id,artifact_kind,relative_path,operation,before_hash,after_hash,rollback_eligible,backup_path) VALUES(?1,'mixed','wiki',?2,?3,?4,?5,1,?6)",
+                    params![id, path, operation, before, after, backup.to_string_lossy()],
+                )
+                .unwrap();
+        };
+        insert(
+            "created",
+            "wiki/created.md",
+            "created",
+            "",
+            &file_hash(&created),
+            Path::new(""),
+        );
+        insert(
+            "modified",
+            "wiki/modified.md",
+            "modified",
+            &file_hash(&modified_backup),
+            &file_hash(&modified),
+            &modified_backup,
+        );
+        insert(
+            "deleted",
+            "wiki/deleted.md",
+            "deleted",
+            &file_hash(&deleted_backup),
+            "",
+            &deleted_backup,
+        );
+        let failed = rollback_run_inner(&mut connection, &root, "mixed", Some(1));
+        assert!(failed.is_err(), "unexpected rollback result: {failed:?}");
+        assert_eq!(fs::read_to_string(&created).unwrap(), "created-after");
+        assert_eq!(fs::read_to_string(&modified).unwrap(), "modified-after");
+        assert!(!deleted.exists());
+        let rollback_status: String = connection
+            .query_row(
+                "SELECT status FROM compile_runs WHERE rollback_of='mixed' ORDER BY rowid DESC LIMIT 1",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(rollback_status, "failed");
+        let source_status: String = connection
+            .query_row(
+                "SELECT status FROM compile_runs WHERE id='mixed'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(source_status, "succeeded");
+
+        let result = rollback_run(&mut connection, &root, "mixed").unwrap();
+        assert!(result.starts_with("rollback completed:"));
+        assert!(!created.exists());
+        assert_eq!(fs::read_to_string(&modified).unwrap(), "modified-before");
+        assert_eq!(fs::read_to_string(&deleted).unwrap(), "deleted-before");
     }
 
     #[test]

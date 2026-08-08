@@ -2565,19 +2565,20 @@ fn resume_compile_run(run_id: String, state: State<'_, AppState>) -> Result<(), 
 
 #[tauri::command]
 fn rollback_compile_run(run_id: String, state: State<'_, AppState>) -> Result<String, String> {
-    let repository = state
+    let mut repository = state
         .repository
         .lock()
         .map_err(|_| "知识库状态锁定失败".to_string())?;
     let root = repository
         .root
         .as_ref()
-        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+        .ok_or_else(|| "请先选择知识库目录".to_string())?
+        .clone();
     let connection = repository
         .db
-        .as_ref()
+        .as_mut()
         .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
-    compile_center::rollback_run(connection, root, &run_id)
+    compile_center::rollback_run(connection, &root, &run_id)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
