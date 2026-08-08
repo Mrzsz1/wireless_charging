@@ -21,6 +21,11 @@ const requiredWindowPermissions = [
   'core:window:allow-minimize',
   'core:window:allow-toggle-maximize',
   'core:window:allow-close',
+  'core:window:allow-unmaximize',
+  'core:window:allow-unminimize',
+  'core:window:allow-show',
+  'core:window:allow-set-focus',
+  'core:window:allow-center',
 ]
 
 const checks = [
@@ -30,6 +35,7 @@ const checks = [
   ['built JavaScript asset', /<script[^>]+assets\/index-[^>]+\.js/.test(built)],
   ['built stylesheet asset', /<link[^>]+assets\/index-[^>]+\.css/.test(built)],
   ['window control permissions', requiredWindowPermissions.every((permission) => capabilities.permissions?.includes(permission))],
+  ['window visibility recovery', appSource.includes('resolveWindowPlacement') && appSource.includes('new PhysicalPosition') && appSource.includes('await appWindow.show()') && appSource.includes('await appWindow.unminimize()')],
   ['window controls outside drag region', appSource.includes('className="titlebar-drag-region"') && !appSource.includes('<header className="titlebar" data-tauri-drag-region')],
   ['single expandable sidebar', appSource.includes('className={`app-sidebar ${navCollapsed') && !appSource.includes('navigation-panel') && !appSource.includes('app-rail')],
   ['stage 2 page commands', ['listPages', 'getPage', 'resolveWikilink', 'getBacklinks', 'openLocalPath'].every((name) => serviceSource.includes(name))],

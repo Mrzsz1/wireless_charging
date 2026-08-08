@@ -113,6 +113,17 @@ try {
     }
     console.log(`PASS viewport ${width}x${height}`)
   }
+  const verifyWindowVisible = async () => {
+    const geometry = await browser.execute(() => ({
+      window: { x: window.screenX, y: window.screenY, width: window.outerWidth, height: window.outerHeight },
+      workArea: { x: window.screen.availLeft, y: window.screen.availTop, width: window.screen.availWidth, height: window.screen.availHeight },
+    }))
+    const overlapWidth = Math.max(0, Math.min(geometry.window.x + geometry.window.width, geometry.workArea.x + geometry.workArea.width) - Math.max(geometry.window.x, geometry.workArea.x))
+    const overlapHeight = Math.max(0, Math.min(geometry.window.y + geometry.window.height, geometry.workArea.y + geometry.workArea.height) - Math.max(geometry.window.y, geometry.workArea.y))
+    if (overlapWidth * overlapHeight <= 0) throw new Error(`window is outside the active monitor work area: ${JSON.stringify(geometry)}`)
+    console.log(`PASS window intersects active monitor: ${JSON.stringify(geometry)}`)
+  }
+  await verifyWindowVisible()
   await verifyViewport(1366, 768)
   await requireElement('[data-testid="sidebar"]')
   const search = await requireElement('[data-testid="global-search"]')

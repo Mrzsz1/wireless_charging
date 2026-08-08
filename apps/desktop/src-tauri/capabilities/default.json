@@ -17,6 +17,11 @@
     "core:window:allow-set-size",
     "core:window:allow-set-position",
     "core:window:allow-maximize",
+    "core:window:allow-unmaximize",
+    "core:window:allow-unminimize",
+    "core:window:allow-show",
+    "core:window:allow-set-focus",
+    "core:window:allow-center",
     "updater:default",
     "process:allow-restart"
   ]

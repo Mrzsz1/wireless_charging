@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ComponentType } from 'react'
-import { LogicalPosition, LogicalSize } from '@tauri-apps/api/dpi'
-import { getCurrentWindow } from '@tauri-apps/api/window'
+import { PhysicalPosition, PhysicalSize } from '@tauri-apps/api/dpi'
+import { availableMonitors, getCurrentWindow, primaryMonitor } from '@tauri-apps/api/window'
 import {
   Archive,
   BookOpen,
@@ -30,6 +30,7 @@ import {
 } from 'lucide-react'
 import { TabBar, type WorkTab } from './components/TabBar'
 import { createLatestRequestGuard } from './lib/latestRequest'
+import { createPersistedWindowState, LEGACY_WINDOW_STATE_KEY, parsePersistedWindowState, resolveWindowPlacement, WINDOW_STATE_KEY, type MonitorWorkArea, type PersistedWindowState } from './lib/windowPlacement'
 import { CoreBooksView } from './features/books/CoreBooksView'
 import type { BookTarget } from './features/books/bookTarget'
 import { ComparisonView } from './features/comparison/ComparisonView'
@@ -110,15 +111,6 @@ type PersistedWorkspaceState = {
   tabs: WorkTab[]
   activeTab: string
   view: MainView
-}
-
-type PersistedWindowState = {
-  version: number
-  width: number
-  height: number
-  x: number
-  y: number
-  maximized: boolean
 }
 
 function readStored<T>(key: string, fallback: T): T {
@@ -236,28 +228,84 @@ export default function App() {
   useEffect(() => {
     if (!isDesktopRuntime()) return
     const appWindow = getCurrentWindow()
-    const stored = readStored<PersistedWindowState | null>('desktop.window-state.v2', null)
+    const stored = parsePersistedWindowState(readStored<unknown>(WINDOW_STATE_KEY, null))
+      ?? parsePersistedWindowState(readStored<unknown>(LEGACY_WINDOW_STATE_KEY, null))
     let disposed = false
+    let saveTimer: number | null = null
+    let lastNormalState: PersistedWindowState | null = stored ? { ...stored, maximized: false } : null
     const unlisten: Array<() => void> = []
+    const persistWindowState = (state: PersistedWindowState) => {
+      localStorage.setItem(WINDOW_STATE_KEY, JSON.stringify(state))
+    }
     const saveWindow = async () => {
       try {
-        const [size, position, maximized] = await Promise.all([appWindow.innerSize(), appWindow.outerPosition(), appWindow.isMaximized()])
-        localStorage.setItem('desktop.window-state.v2', JSON.stringify({ version: WORKSPACE_STATE_VERSION, width: size.width, height: size.height, x: position.x, y: position.y, maximized } satisfies PersistedWindowState))
+        const [minimized, maximized] = await Promise.all([appWindow.isMinimized(), appWindow.isMaximized()])
+        if (minimized) return
+        if (maximized) {
+          if (lastNormalState) persistWindowState({ ...lastNormalState, maximized: true })
+          return
+        }
+        const [size, position] = await Promise.all([appWindow.innerSize(), appWindow.outerPosition()])
+        lastNormalState = createPersistedWindowState({ width: size.width, height: size.height, x: position.x, y: position.y }, false)
+        persistWindowState(lastNormalState)
       } catch { /* keep the current window state when the platform rejects persistence */ }
+    }
+    const scheduleSave = () => {
+      if (saveTimer !== null) window.clearTimeout(saveTimer)
+      saveTimer = window.setTimeout(() => {
+        saveTimer = null
+        void saveWindow()
+      }, 180)
+    }
+    const ensureVisible = async () => {
+      try { if (await appWindow.isMinimized()) await appWindow.unminimize() } catch { /* best effort */ }
+      try { await appWindow.show() } catch { /* best effort */ }
+      try { await appWindow.setFocus() } catch { /* best effort */ }
     }
     void (async () => {
       try {
-        if (stored?.version === WORKSPACE_STATE_VERSION && stored.width >= 1180 && stored.height >= 720) {
-          await appWindow.setSize(new LogicalSize(stored.width, stored.height))
-          await appWindow.setPosition(new LogicalPosition(stored.x, stored.y))
-          if (stored.maximized) await appWindow.maximize()
+        const [monitors, primary] = await Promise.all([availableMonitors(), primaryMonitor()])
+        const workAreas: MonitorWorkArea[] = monitors.map((monitor) => ({
+          x: monitor.workArea.position.x,
+          y: monitor.workArea.position.y,
+          width: monitor.workArea.size.width,
+          height: monitor.workArea.size.height,
+          scaleFactor: monitor.scaleFactor,
+          primary: primary !== null
+            && monitor.position.x === primary.position.x
+            && monitor.position.y === primary.position.y
+            && monitor.size.width === primary.size.width
+            && monitor.size.height === primary.size.height,
+        }))
+        const placement = resolveWindowPlacement(stored, workAreas)
+        if (placement) {
+          await appWindow.unmaximize()
+          await appWindow.setSize(new PhysicalSize(placement.state.width, placement.state.height))
+          await appWindow.setPosition(new PhysicalPosition(placement.state.x, placement.state.y))
+          lastNormalState = { ...placement.state, maximized: false }
+          persistWindowState(placement.state)
+          if (placement.state.maximized) await appWindow.maximize()
+        } else {
+          await appWindow.unmaximize()
+          await appWindow.center()
         }
-        const offResize = await appWindow.onResized(() => { void saveWindow() })
-        const offMove = await appWindow.onMoved(() => { void saveWindow() })
+      } catch {
+        try { await appWindow.unmaximize() } catch { /* best effort */ }
+        try { await appWindow.center() } catch { /* best effort */ }
+      }
+      await ensureVisible()
+      try {
+        const offResize = await appWindow.onResized(scheduleSave)
+        const offMove = await appWindow.onMoved(scheduleSave)
         if (disposed) { offResize(); offMove() } else unlisten.push(offResize, offMove)
       } catch { /* window persistence is optional outside the native runtime */ }
     })()
-    return () => { disposed = true; unlisten.forEach((off) => off()); void saveWindow() }
+    return () => {
+      disposed = true
+      if (saveTimer !== null) window.clearTimeout(saveTimer)
+      unlisten.forEach((off) => off())
+      void saveWindow()
+    }
   }, [])
   useEffect(() => { localStorage.setItem('desktop.nav-collapsed', JSON.stringify(navCollapsed)) }, [navCollapsed])
   useEffect(() => { localStorage.setItem('desktop.context-open', JSON.stringify(contextOpen)) }, [contextOpen])
