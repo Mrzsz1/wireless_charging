@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { BookOpen, Bot, Check, ChevronRight, CircleStop, Clipboard, FileText, GitBranch, LoaderCircle, MessageSquarePlus, MoreHorizontal, Plus, RefreshCw, Search, Send, Settings, ShieldCheck, Trash2, X } from 'lucide-react'
 import { askLuna, cancelAnswer, deleteChatSession, getChatSession, getLunaSettings, isDesktopRuntime, listChatSessions, renameChatSession, saveLunaSettings } from '../../services/desktop'
 import type { AnswerStreamEvent, AskResult, ChatMessage, ChatSessionSummary, EvidenceItem, LunaSettings, WaterlineSnapshot } from '../../types'
+import { claimCompletion, createCompletionLedger, mergeCompletedMessages } from './completionState'
 import './AskView.css'
 
 type AskViewProps = {
@@ -74,6 +75,7 @@ export function AskView({ repositoryPath, onOpenPage, onOpenBook, onOpenPath }: 
   const [loadingHistory, setLoadingHistory] = useState(false)
   const [error, setError] = useState('')
   const endRef = useRef<HTMLDivElement>(null)
+  const completionLedger = useRef(createCompletionLedger())
 
   const refreshSessions = async () => {
     if (!isDesktopRuntime() || !repositoryPath) return
@@ -81,6 +83,7 @@ export function AskView({ repositoryPath, onOpenPage, onOpenBook, onOpenPath }: 
   }
 
   useEffect(() => {
+    completionLedger.current = createCompletionLedger(repositoryPath ?? '')
     setActiveSessionId('')
     setMessages([])
     setEvidence([])
@@ -121,8 +124,9 @@ export function AskView({ repositoryPath, onOpenPage, onOpenBook, onOpenPath }: 
   }
 
   const applyCompleted = (result: AskResult) => {
+    if (!claimCompletion(completionLedger.current, repositoryPath ?? '', result.requestId)) return
     setActiveSessionId(result.sessionId)
-    setMessages((current) => [...current.filter((message) => !message.id.startsWith('local-')), result.userMessage, result.assistantMessage])
+    setMessages((current) => mergeCompletedMessages(current, result))
     setEvidence(result.evidence)
     setSelectedEvidence(result.evidence[0] ?? null)
     setWaterline(result.waterline)
@@ -245,7 +249,7 @@ export function AskView({ repositoryPath, onOpenPage, onOpenBook, onOpenPath }: 
       <div className="qa-messages">
         {loadingHistory && <div className="qa-loading"><LoaderCircle size={18} className="spin" />加载会话历史…</div>}
         {!messages.length && phase === 'idle' && <div className="qa-welcome"><div className="qa-orb"><Bot size={28} /></div><h2>先检索，再回答</h2><p>每次提问都会检索 Wiki、两本核心书籍和 Graphify，并把回答绑定到可定位证据。</p><div className="qa-suggestions">{suggestions.map((item) => <button key={item} onClick={() => void submitQuestion(item)}><Plus size={14} /><span>{item}</span><ChevronRight size={14} /></button>)}</div></div>}
-        {messages.map((message) => <article className={`qa-message ${message.role}`} key={message.id}><div className="qa-avatar">{message.role === 'assistant' ? <Bot size={16} /> : '你'}</div><div className="qa-bubble"><div className="qa-message-meta"><strong>{message.role === 'assistant' ? (message.provider === 'offline-evidence' ? '离线证据' : 'Luna') : '研究问题'}</strong><span>{formatTime(message.createdAt)}</span></div>{message.role === 'assistant' ? <MessageContent content={message.content} evidence={message.evidence} onCitation={setSelectedEvidence} /> : <div className="qa-message-content">{message.content}</div>}{message.role === 'assistant' && <div className="qa-message-actions"><button onClick={() => void navigator.clipboard.writeText(message.content)}><Clipboard size={13} />复制</button><button onClick={() => void submitQuestion(lastUserQuestion)} disabled={!lastUserQuestion || phase !== 'idle'}><RefreshCw size={13} />重试</button></div>}</div></article>)}
+        {messages.map((message) => <article data-testid={`qa-message-${message.id}`} className={`qa-message ${message.role}`} key={message.id}><div className="qa-avatar">{message.role === 'assistant' ? <Bot size={16} /> : '你'}</div><div className="qa-bubble"><div className="qa-message-meta"><strong>{message.role === 'assistant' ? (message.provider === 'offline-evidence' ? '离线证据' : 'Luna') : '研究问题'}</strong><span>{formatTime(message.createdAt)}</span></div>{message.role === 'assistant' ? <MessageContent content={message.content} evidence={message.evidence} onCitation={setSelectedEvidence} /> : <div className="qa-message-content">{message.content}</div>}{message.role === 'assistant' && <div className="qa-message-actions"><button onClick={() => void navigator.clipboard.writeText(message.content)}><Clipboard size={13} />复制</button><button onClick={() => void submitQuestion(lastUserQuestion)} disabled={!lastUserQuestion || phase !== 'idle'}><RefreshCw size={13} />重试</button></div>}</div></article>)}
         {phase !== 'idle' && <article className="qa-message assistant streaming"><div className="qa-avatar"><Bot size={16} /></div><div className="qa-bubble"><div className="qa-message-meta"><strong>{phase === 'retrieving' ? '正在检索证据' : '正在组织回答'}</strong><span><LoaderCircle size={13} className="spin" /></span></div>{streamingText ? <MessageContent content={streamingText} evidence={evidence} onCitation={setSelectedEvidence} /> : <div className="qa-retrieval-steps"><span className="active">Wiki FTS5</span><span className={phase === 'generating' ? 'active' : ''}>核心书籍</span><span className={phase === 'generating' ? 'active' : ''}>Graphify</span></div>}</div></article>}
         <div ref={endRef} />
       </div>

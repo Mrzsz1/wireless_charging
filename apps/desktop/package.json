@@ -17,6 +17,7 @@
     "e2e:gui": "node e2e/gui-smoke.mjs",
     "e2e:gui:strict": "node e2e/gui-smoke.mjs --strict",
     "verify:p5:strict": "node scripts/verify-p5.mjs --strict",
+    "test:p1": "node --experimental-strip-types --test tests/p1-state.test.ts",
     "release:signed": "node scripts/build-signed-release.mjs",
     "fixture:updater": "node scripts/updater-fixture-server.mjs"
   },

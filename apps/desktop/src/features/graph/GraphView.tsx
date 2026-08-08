@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { CircleDot, Filter, GitBranch, Network, Search } from 'lucide-react'
 import { graphNeighbors, graphOverview, graphPath, isDesktopRuntime } from '../../services/desktop'
-import type { GraphNode, GraphOverview } from '../../types'
+import type { GraphFilters, GraphNode, GraphOverview } from '../../types'
+import { reconcileGraphPath, reconcileGraphSelection } from './refreshState'
 
-type GraphViewProps = { onOpenPage: (sourceFile: string) => void }
+type GraphViewProps = { onOpenPage: (sourceFile: string) => void; refreshVersion?: number }
 
 function layoutNodes(nodes: GraphNode[]) {
   return nodes.map((node, index) => {
@@ -13,7 +14,7 @@ function layoutNodes(nodes: GraphNode[]) {
   })
 }
 
-export function GraphView({ onOpenPage }: GraphViewProps) {
+export function GraphView({ onOpenPage, refreshVersion = 0 }: GraphViewProps) {
   const [graph, setGraph] = useState<GraphOverview | null>(null)
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<GraphNode | null>(null)
@@ -21,22 +22,34 @@ export function GraphView({ onOpenPage }: GraphViewProps) {
   const [pathTarget, setPathTarget] = useState('')
   const [path, setPath] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
+  const loadRequest = useRef(0)
 
-  const load = async (filters = {}) => {
+  const load = useCallback(async (filters: GraphFilters = {}) => {
     if (!isDesktopRuntime()) { setNotice('知识图谱需要在 Windows 桌面客户端中读取 graphify-out/graph.json'); setLoading(false); return }
+    const request = ++loadRequest.current
     setLoading(true)
-    try { setGraph(await graphOverview({ ...filters, limit: 120 })) } catch (error) { setNotice(`图谱加载失败：${String(error)}`) } finally { setLoading(false) }
-  }
-  useEffect(() => { void load() }, [])
+    try {
+      const next = await graphOverview({ ...filters, limit: 120 })
+      if (request !== loadRequest.current) return
+      setGraph(next)
+      setSelected((current) => reconcileGraphSelection(next, current))
+      setPath((current) => reconcileGraphPath(next, current))
+    } catch (error) {
+      if (request === loadRequest.current) setNotice(`图谱加载失败：${String(error)}`)
+    } finally {
+      if (request === loadRequest.current) setLoading(false)
+    }
+  }, [])
+  useEffect(() => { void load(query.trim() ? { query } : {}) }, [load, query, refreshVersion])
   const positioned = useMemo(() => layoutNodes(graph?.nodes ?? []), [graph])
   const nodeMap = useMemo(() => new Map(positioned.map((item) => [item.node.id, item])), [positioned])
 
-  const search = async (value: string) => { setQuery(value); await load(value ? { query: value } : {}) }
+  const search = (value: string) => { setQuery(value) }
   const expand = async (node: GraphNode) => { setSelected(node); try { setGraph(await graphNeighbors(node.id, 1, 120)) } catch (error) { setNotice(`邻居加载失败：${String(error)}`) } }
   const findPath = async () => { if (!selected || !pathTarget) return; try { setPath(await graphPath(selected.id, pathTarget, 8)) } catch (error) { setNotice(`路径查询失败：${String(error)}`) } }
   const openNode = (node: GraphNode) => { if (node.sourceFile.includes('wiki/')) onOpenPage(node.sourceFile.replace(/^.*wiki[\\/]?/, '').replace(/\\/g, '/').replace(/\.md$/, '')) }
 
-  return <section className="graph-view" data-testid="graph-view">
+  return <section className="graph-view" data-testid="graph-view" data-refresh-version={refreshVersion}>
     <div className="library-heading"><div><div className="eyebrow">GRAPHIFY KNOWLEDGE MAP</div><h1>知识图谱</h1><p>从社区概览逐步展开局部关系，所有连线均标注为派生关系。</p></div><div className="graph-counts"><span>{graph?.nodeCount ?? 0} 节点</span><span>{graph?.edgeCount ?? 0} 边</span><span>{graph?.communityCount ?? 0} 社区</span></div></div>
     <div className="graph-toolbar"><label className="library-search"><Search size={16} /><input value={query} onChange={(event) => void search(event.target.value)} placeholder="搜索节点或来源文件…" /></label><button className="refresh-button" onClick={() => void load()}><Filter size={15} />重置视图</button></div>
     {notice && <div className="notice"><Network size={15} /><span>{notice}</span></div>}

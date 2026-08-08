@@ -30,9 +30,11 @@ import {
 } from 'lucide-react'
 import { TabBar, type WorkTab } from './components/TabBar'
 import { CoreBooksView } from './features/books/CoreBooksView'
+import type { BookTarget } from './features/books/bookTarget'
 import { ComparisonView } from './features/comparison/ComparisonView'
 import { CompileCenterView } from './features/compile/CompileCenterView'
 import { GraphView } from './features/graph/GraphView'
+import { nextGraphRefreshVersion } from './features/graph/refreshState'
 import { LibraryView } from './features/library/LibraryView'
 import { PageView } from './features/pages/PageView'
 import { AskView } from './features/qa/AskView'
@@ -150,6 +152,8 @@ export default function App() {
   const [activeTab, setActiveTab] = useState(bootWorkspace.activeTab)
   const [repository, setRepository] = useState<RepositoryInfo | null>(null)
   const [repositoryGeneration, setRepositoryGeneration] = useState(0)
+  const [bookTarget, setBookTarget] = useState<BookTarget | null>(null)
+  const [graphRefreshVersion, setGraphRefreshVersion] = useState(0)
   const [catalog, setCatalog] = useState<PageSummary[]>([])
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
@@ -203,6 +207,7 @@ export default function App() {
         if (active && status.processedChanges > 0) {
           setNotice(`检测到 ${status.processedChanges} 项知识库变更，索引已自动更新`)
           setRepositoryGeneration((value) => value + 1)
+          setGraphRefreshVersion((value) => nextGraphRefreshVersion(value, status.graphRefresh))
         }
       } catch (error) {
         if (active) setNotice(`自动索引更新失败：${String(error)}`)
@@ -368,8 +373,7 @@ export default function App() {
     try {
       const selected = await chooseRepository()
       setRepository(selected)
-      const stats = await rebuildIndex()
-      setNotice(`知识库已建立索引：${stats.pageCount} 个页面`)
+      setNotice(`知识库已加载索引：${selected.pageCount} 个页面`)
       setRepositoryGeneration((value) => value + 1)
     } catch (error) {
       setNotice(`知识库选择未完成：${String(error)}`)
@@ -466,10 +470,10 @@ export default function App() {
     if (view === 'dashboard') return renderDashboard()
     if (view === 'library' || view === 'methods') return <LibraryView query={query} results={results} catalog={catalog} pageType={view === 'methods' ? 'method' : 'source'} filters={filters} loading={loading} onQueryChange={(value) => void handleSearch(value)} onFiltersChange={setFilters} onOpenResult={(item) => void openPage(item.id)} />
     if (view === 'page' && page) return <PageView page={page} backlinks={backlinks} backlinksLoading={loading} onOpenLink={(id) => void openPage(id)} onOpenPath={(path, reveal) => void openLocalPath(path, reveal)} onReload={() => void openPage(page.id)} />
-    if (view === 'books') return <CoreBooksView onOpenLink={(id) => void openPage(id)} target={null} />
-    if (view === 'graph') return <GraphView onOpenPage={(id) => void openPage(id)} />
+    if (view === 'books') return <CoreBooksView onOpenLink={(id) => void openPage(id)} target={bookTarget} />
+    if (view === 'graph') return <GraphView onOpenPage={(id) => void openPage(id)} refreshVersion={graphRefreshVersion} />
     if (view === 'comparison') return <ComparisonView candidates={catalog} onOpenPage={(id) => void openPage(id)} />
-    if (view === 'qa') return <AskView repositoryPath={repository?.path ?? ''} onOpenPage={(id) => void openPage(id)} onOpenBook={() => activateView('books')} onOpenPath={(path) => void openLocalPath(path)} />
+    if (view === 'qa') return <AskView repositoryPath={repository?.path ?? ''} onOpenPage={(id) => void openPage(id)} onOpenBook={(bookId, chapterId) => { setBookTarget({ bookId, chapterId }); activateView('books') }} onOpenPath={(path) => void openLocalPath(path)} />
     if (view === 'compile') return <CompileCenterView repositoryPath={repository?.path ?? ''} onChooseRepository={() => void handleChooseRepository()} onOpenPath={(path) => void openLocalPath(path)} />
     if (view === 'settings') return renderSettings()
     if (view === 'help') return <div className="placeholder-view"><div className="placeholder-icon"><CircleHelp size={28} /></div><h1>帮助</h1><p>从左侧选择文献、方法、书籍或知识图谱；在智能问答中提出研究问题并打开证据来源。编译中心用于执行 Lint、Graphify 更新和文献编译任务。</p><button className="refresh-button" onClick={() => activateView('dashboard')}>返回工作台</button></div>
