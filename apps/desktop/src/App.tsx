@@ -166,7 +166,7 @@ export default function App() {
   const [theme, setTheme] = useState<Theme>(() => readStored('desktop.theme', 'light'))
   const [fontSize, setFontSize] = useState(() => readStored('desktop.font-size', 14))
   const [updateBusy, setUpdateBusy] = useState(false)
-  const [releaseInfo, setReleaseInfo] = useState({ version: '0.7.0', channel: 'stable' })
+  const [releaseInfo, setReleaseInfo] = useState({ version: '0.7.1', channel: 'stable' })
   const globalSearchRef = useRef<HTMLInputElement>(null)
   const workspaceRef = useRef<HTMLElement>(null)
   const currentScrollKey = useRef('')

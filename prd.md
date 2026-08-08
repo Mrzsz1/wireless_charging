@@ -502,10 +502,10 @@ source.paper_keywords（作者原词 + 来源）
 
 ### 下一阶段
 
-1. 完成 P5.3 发布硬化：生产签名更新、严格 GUI/安装 E2E 与真实完整流水线验收。
-2. 修复客户端重启后的页面/标签/滚动状态恢复，并兑现 `Ctrl+K` 全局搜索。
-3. 将目录监听从“变化后全量重建”升级为单页 upsert/delete/wikilink 局部重算，并保留一键完整重建兜底。
-4. 补齐 Graphify 对新增 Wiki Markdown 的语义覆盖，收敛 Lint 警告并同步 PRD、README、设计文档与发布记录。
+1. 完成 P5.4 桌面端正确性与恢复可靠性收口：搜索响应顺序、核心专著片段/路径、回滚补偿和 watcher 事件重试。
+2. 目标版本为 0.7.1；不新增页面类型，不扩张 Raw/Wiki 写入权限，不改变两书 295 条评测集。
+3. 完成 Rust/TypeScript/Python 回归、严格 GUI/安装门禁、两书 Recall@5 与 Wiki/Graphify 质量复核。
+4. 更新 README、PRD、实施日志和发布产物，保持 0.7.0 可回退。
 
 ---
 
@@ -884,16 +884,46 @@ Tauri 2 Windows Shell
 4. 主线程根据证据亲自阅读即将修改的确切代码，负责实现、集成、测试、Graphify 和 Git 提交。
 
 
-#### 13.12.7 ?????2026-08-02?
+#### 13.12.7 P5.3 实施记录（历史）
 
-1. **P5.3-01 ???**?????????????????????? schema??? active page/backlinks????????????`Ctrl+K` ????? GUI ???
-2. **P5.3-02 ???**?Wiki create/modify/delete/rename ??????? upsert/delete?FTS ? wikilinks ?????Schema ???????Graphify-only ????? Wiki FTS?Rust ? 23 ??????
-3. **P5.3-03 ???**?`full_pipeline.py --fixture-dir` ????????????/????? Graphify host-agent ????? `--strict-graphify` ??????? **1633 nodes / 2525 links / 146 communities**?Wiki ?? Graphify ????? 0?
-4. **P5.3-04 ????????????????**???????? HTTPS ?????????? overlay?? shell ???? `.sig` ??????? manifest fixture ?? no-update/update/tampered?????? 0.7.0 ? stable ?????????? endpoint ????????????????????????????
-5. **P5.3-05 ???**?`verify:p5:strict` ???? release GUI?1366?768/1920?1080 ?????????????Graphify?????????`Ctrl+K`???? NSIS ???????????????? `SKIP`?
-6. **P5.3-06 ???**?README ??????????Graphify?Luna??? E2E?????????P3/P4 ???????????????????????????????
-7. ?????Python **37/37**?Rust **23/23**?Clippy `-D warnings`?Wiki ?? **10/10**??? 295 ???? Algorithmic Game Theory Recall@5 **1.000**?Approximation Algorithms Recall@5 **0.986667**?Wiki Lint **0 errors / 1 warning**??? warning ???????????? B ? `inspired_by` ???
-8. 0.7.0 release ???`apps/desktop/src-tauri/target/release/bundle/msi/Wireless Charging Research Workbench_0.7.0_x64_en-US.msi` ? `apps/desktop/src-tauri/target/release/bundle/nsis/Wireless Charging Research Workbench_0.7.0_x64-setup.exe`?
+P5.3 的代码、测试和 0.7.0 发布产物已由提交 `8eb272b` 及后续 GUI E2E 环境提交完成。仓库历史中的该小节曾出现编码损坏；本次不把损坏文本当作事实来源，实际数字以可复核命令和 Git 产物为准：Rust、Python、前端构建和严格 GUI E2E 均在本阶段重新执行，核心专著评测继续使用 295 条固定问题。
+
+#### 13.13 P5.4：桌面端正确性与恢复可靠性收口（已完成 2026-08-09，版本 0.7.1）
+
+P5.4 关闭代码审查遗留的 `SEARCH-001`、`BOOK-001`、`ROLLBACK-001`、`WATCH-RISK-001` 与 `PATH-RISK-001`，形成以下闭环：
+
+```text
+快速输入 → 仅最新搜索响应可见
+章节索引 → 仓库边界校验 → 字符安全片段 → PDF 页码定位
+目录事件 → in-flight 批次 → 事务成功确认 / 失败退避重试 / blocked
+编译回滚 → 全量预检 → staging → 逆序补偿 → failed/failed_partial/succeeded 终态
+```
+
+范围与硬边界：
+
+1. 全局搜索使用请求 generation 丢弃乱序成功/失败响应；`Ctrl+K` 和既有搜索 DTO 保持兼容。
+2. 专著章节路径拒绝绝对路径、Windows 前缀、`..` 和符号链接越界；片段按字符边界生成，不改排名和评测集。
+3. 多文件回滚在文件系统操作前完成 hash/备份预检，使用 staging 与补偿日志；只有全部恢复并落账才将原 run 标记 `rolled_back`。
+4. watcher 事件在 SQLite 成功前保持 in-flight；失败保留批次并退避，达到上限显示 blocked，完整重建成功后清理已覆盖批次。
+5. 不修改 `raw/`、`wiki/` 正文，不自动晋升候选，不新增 B 类页面，不执行外部搜索。
+
+验收门：
+
+- 全局搜索乱序和旧失败回归通过；
+- 章节片段 Unicode/标题偏移/空正文测试通过；
+- 章节路径越界和 symlink/junction 边界测试通过；
+- created/modified/deleted 混合回滚及第二个 artifact 故障注入通过，失败 run 不留 `running`；
+- watcher rename、去重、重试、blocked 和完整重建清理通过；
+- Algorithmic Game Theory Recall@5 ≥95%，Approximation Algorithms Recall@5 ≥95%，physical-page 锚点保持 100%；
+- 版本文件统一为 0.7.1，严格 GUI/安装门禁无关键 `SKIP`，Git 工作树干净。
+
+实施结果（2026-08-09）：
+
+- Rust `cargo fmt --check`、Clippy（`-D warnings`）与 32 个测试通过；前端 `test:p1` 4/4、`test:p2` 3/3、构建与 `verify`、P3/P4/P5 门禁通过。
+- Python 工具链 37/37、Wiki 10/10、Wiki Lint 0 errors/1 warning、两书 295 条评测通过；Algorithmic Game Theory Recall@5=1.000，Approximation Algorithms Recall@5=0.986667。
+- 发布构建成功：`apps/desktop/src-tauri/target/release/app.exe`、MSI、NSIS；严格 GUI（1366×768、1920×1080）与 NSIS 安装/启动/卸载 smoke 均通过，无关键 `SKIP`。
+- Graphify 已增量更新至 2589 nodes / 4364 edges / 200 communities；`wiki/`、`raw/` 正文未改动。
+- 产物 SHA-256：app `63E048760E42DBDCCE3B27C8AF2AAD1D95777B90EDC06468B3497890456B2626`；MSI `3EF3931E81525B63E365BE12D89CF2FDA488AF747121F7683F63A347F707B8FA`；NSIS `C1EBA0AF177BBD564690432D55C5856328F2F754DE19FBB5B01C1035E40D1B29`。
 
 ---
 
