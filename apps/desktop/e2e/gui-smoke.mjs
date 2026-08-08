@@ -2,26 +2,58 @@ import { existsSync } from 'node:fs'
 import { spawn, spawnSync } from 'node:child_process'
 import { createConnection } from 'node:net'
 import { remote } from 'webdriverio'
+import { formatCandidates, resolveAppPath, resolveDriver } from './gui-config.mjs'
 
 const strict = process.argv.includes('--strict') || process.env.E2E_STRICT === '1'
-const app = process.env.TAURI_APP_PATH
-const driver = process.env.TAURI_DRIVER || 'tauri-driver'
 const nativeDriver = process.env.TAURI_NATIVE_DRIVER
 const directNative = Boolean(nativeDriver)
+const appResolution = resolveAppPath()
+const app = appResolution.path
+const driverResolution = resolveDriver({ explicit: directNative ? nativeDriver : null })
+const driver = driverResolution.executable
+
+const finishUnavailable = (message) => {
+  if (strict) { console.error(message); process.exit(2) }
+  console.log(message); process.exit(0)
+}
+
+if (!app) {
+  const detail = appResolution.explicit
+    ? `TAURI_APP_PATH does not point to a file: ${appResolution.requested}`
+    : `no app.exe found in the default debug/release targets:\n${formatCandidates(appResolution.candidates)}`
+  const msg = `GUI E2E SKIP: ${detail}\nBuild the app or set TAURI_APP_PATH to an existing executable.`
+  finishUnavailable(msg)
+}
+
+const probe = spawnSync(driver, [directNative ? '--version' : '--help'], { stdio: 'ignore', shell: false })
+if (probe.error || probe.status !== 0) {
+  const label = directNative ? 'TAURI_NATIVE_DRIVER' : 'tauri-driver'
+  const detail = driverResolution.explicit
+    ? `${label} is not executable: ${driver}`
+    : `tauri-driver was not found on PATH or Cargo bin (${formatCandidates(driverResolution.candidates)})`
+  const msg = `GUI E2E SKIP: ${detail}\nInstall with cargo install tauri-driver --locked or set TAURI_DRIVER.`
+  finishUnavailable(msg)
+}
+
 if (!app || !existsSync(app)) {
-  const msg = 'GUI E2E SKIP: set TAURI_APP_PATH to the built .exe and install tauri-driver (cargo install tauri-driver --locked).'
-  if (strict) { console.error(msg); process.exit(2) }
-  console.log(msg); process.exit(0)
+  // The resolver already checks this. Keep the guard close to the WebDriver
+  // setup so a concurrently removed build fails with the same contract.
+  const msg = `GUI E2E SKIP: application disappeared before launch: ${app}`
+  finishUnavailable(msg)
 }
-const driverExecutable = directNative ? nativeDriver : driver
-const probe = spawnSync(driverExecutable, [directNative ? '--version' : '--help'], { stdio: 'ignore', shell: false })
-if (probe.status !== 0) {
-  const msg = 'GUI E2E SKIP: tauri-driver unavailable; install with cargo install tauri-driver --locked.'
-  if (strict) { console.error(msg); process.exit(2) }
-  console.log(msg); process.exit(0)
-}
+
 const driverArgs = directNative ? ['--port=4444'] : []
-const driverProcess = spawn(driverExecutable, driverArgs, { shell: false, stdio: process.env.E2E_DRIVER_LOG === '1' ? 'inherit' : 'ignore' })
+const driverProcess = spawn(driver, driverArgs, { shell: false, stdio: process.env.E2E_DRIVER_LOG === '1' ? 'inherit' : 'ignore' })
+const stopDriver = async () => {
+  if (driverProcess.exitCode === null) {
+    if (process.platform === 'win32') {
+      spawnSync('taskkill', ['/PID', String(driverProcess.pid), '/T', '/F'], { stdio: 'ignore' })
+    } else {
+      driverProcess.kill('SIGTERM')
+    }
+  }
+  await new Promise((resolve) => driverProcess.exitCode !== null ? resolve() : driverProcess.once('exit', resolve))
+}
 const waitForPort = async (timeoutMs = 15000) => {
   const deadline = Date.now() + timeoutMs
   while (Date.now() < deadline) {
@@ -37,7 +69,16 @@ const waitForPort = async (timeoutMs = 15000) => {
   }
   throw new Error('tauri-driver did not become ready on port 4444')
 }
-await waitForPort()
+try {
+  await waitForPort()
+} catch (error) {
+  await stopDriver()
+  const detail = error instanceof Error ? error.message : String(error)
+  const nativeHint = process.platform === 'win32' && !directNative
+    ? ' On Windows, install a matching msedgedriver.exe and add it to PATH, or set TAURI_NATIVE_DRIVER.'
+    : ''
+  finishUnavailable(`GUI E2E SKIP: driver failed to start: ${detail}.${nativeHint}`)
+}
 const capabilities = directNative
   ? { browserName: 'webview2', 'ms:edgeOptions': { binary: app, args: [] }, 'wdio:enforceWebDriverClassic': true }
   : { 'tauri:options': { application: app }, browserName: 'wry', 'wdio:enforceWebDriverClassic': true }
@@ -101,10 +142,5 @@ try {
   console.log('PASS GUI E2E launch/navigation probe')
 } finally {
   await browser.deleteSession()
-  if (process.platform === 'win32') {
-    spawnSync('taskkill', ['/PID', String(driverProcess.pid), '/T', '/F'], { stdio: 'ignore' })
-  } else {
-    driverProcess.kill('SIGTERM')
-  }
-  await new Promise((resolve) => driverProcess.exitCode !== null ? resolve() : driverProcess.once('exit', resolve))
+  await stopDriver()
 }

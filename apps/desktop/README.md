@@ -36,8 +36,10 @@ py -3 tools/wiki_lint.py --strict-graphify
 ?? GUI ?????
 
 ```powershell
-$env:TAURI_APP_PATH="ABSOLUTE_PATH_TO_APP.exe"
-$env:TAURI_DRIVER="tauri-driver"
+# Optional overrides; the script auto-discovers the release/debug app and driver.
+# $env:TAURI_APP_PATH="ABSOLUTE_PATH_TO_APP.exe"
+# $env:TAURI_DRIVER="tauri-driver"
+npm run test:e2e-config
 npm run e2e:gui:strict
 ```
 
@@ -99,3 +101,17 @@ npm run release:signed
 - ??????????????????????????/?????????
 - Graphify ??????? host-agent ????? `py -3 tools/graphify_refresh.py`?????? Lint?
 - ??????????????? endpoint????????????
+
+## GUI E2E environment discovery
+
+`e2e:gui` and `e2e:gui:strict` automatically look for `src-tauri/target/release/app.exe` first, then `src-tauri/target/debug/app.exe` (or the platform equivalent). The release build is preferred because it contains the bundled frontend; `TAURI_APP_PATH` remains the authoritative override when a different build is required.
+
+The driver is resolved from `TAURI_DRIVER`, then PATH, then `$CARGO_HOME/bin/tauri-driver(.exe)`. On Windows, `tauri-driver` also needs a matching `msedgedriver.exe` on PATH (or use `TAURI_NATIVE_DRIVER` with its full path). Install the standard driver once with:
+
+```powershell
+cargo install tauri-driver --locked
+npm run test:e2e-config
+npm run e2e:gui:strict
+```
+
+If a required app or driver is missing, normal GUI E2E prints an actionable `SKIP`; strict mode exits non-zero so CI can enforce the prerequisite.
