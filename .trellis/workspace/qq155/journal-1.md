@@ -36,3 +36,38 @@
 ### Next Steps
 
 - None - task complete
+
+
+## Session 2: Fix desktop P1 state consistency
+
+**Date**: 2026-08-09
+**Task**: Fix desktop P1 state consistency
+**Branch**: `master`
+
+### Summary
+
+Fixed watcher rename semantics and repository identity isolation; added idempotent QA completion, book evidence targets, Graphify refresh versioning, regression tests, specs, and passed Rust/Node/Python/build verification.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `2a7847f` | (see git log) |
+| `412aad9` | (see git log) |
+| `2b88137` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
