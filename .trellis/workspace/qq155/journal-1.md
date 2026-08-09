@@ -412,3 +412,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 13: 左侧搜索与新建问答入口
+
+**Date**: 2026-08-09
+**Task**: 左侧搜索与新建问答入口
+**Branch**: `master`
+
+### Summary
+
+参照 Codex 左栏重排全局搜索和新建问答入口，Ctrl+K 可展开侧栏并聚焦搜索；删除内容区顶部工具条、刷新和研究脉络折叠按钮，同时保留研究脉络面板自身控制；补充折叠态与双分辨率严格 GUI E2E。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `e12ba60` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
