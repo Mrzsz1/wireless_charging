@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 
 const source = readFileSync(new URL('../index.html', import.meta.url), 'utf8')
 const built = readFileSync(new URL('../dist/index.html', import.meta.url), 'utf8')
@@ -12,6 +12,11 @@ const comparisonSource = readFileSync(new URL('../src/features/comparison/Compar
 const qaViewSource = readFileSync(new URL('../src/features/qa/AskView.tsx', import.meta.url), 'utf8')
 const researchTrailSource = readFileSync(new URL('../src/features/research-trail/ResearchTrailPanel.tsx', import.meta.url), 'utf8')
 const compileViewSource = readFileSync(new URL('../src/features/compile/CompileCenterView.tsx', import.meta.url), 'utf8')
+const ingestViewSource = readFileSync(new URL('../src/features/ingest/LiteratureIngestView.tsx', import.meta.url), 'utf8')
+const startupPromptSource = readFileSync(new URL('../src/features/ingest/StartupIngestPrompt.tsx', import.meta.url), 'utf8')
+const libraryViewSource = readFileSync(new URL('../src/features/library/LibraryView.tsx', import.meta.url), 'utf8')
+const settingsViewSource = readFileSync(new URL('../src/features/settings/SettingsView.tsx', import.meta.url), 'utf8')
+const stylesSource = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8')
 const rustSource = readFileSync(new URL('../src-tauri/src/lib.rs', import.meta.url), 'utf8')
 const qaRustSource = readFileSync(new URL('../src-tauri/src/qa.rs', import.meta.url), 'utf8')
 const researchTrailRustSource = readFileSync(new URL('../src-tauri/src/research_trail.rs', import.meta.url), 'utf8')
@@ -40,6 +45,9 @@ const checks = [
   ['window visibility recovery', appSource.includes('resolveWindowPlacement') && appSource.includes('new PhysicalPosition') && appSource.includes('await appWindow.show()') && appSource.includes('await appWindow.unminimize()')],
   ['window controls outside drag region', appSource.includes('className="titlebar-drag-region"') && !appSource.includes('<header className="titlebar" data-tauri-drag-region')],
   ['single expandable sidebar', appSource.includes('className={`app-sidebar ${navCollapsed') && !appSource.includes('navigation-panel') && !appSource.includes('app-rail')],
+  ['single-view navigation', !appSource.includes('<TabBar') && !existsSync(new URL('../src/components/TabBar.tsx', import.meta.url))],
+  ['Chinese-only page headings', ![appSource, pageSource, booksSource, graphSource, comparisonSource, qaViewSource, compileViewSource, ingestViewSource, startupPromptSource, libraryViewSource, settingsViewSource].some((value) => value.includes('className="eyebrow"')) && !stylesSource.includes('.eyebrow')],
+  ['collapsed research trail rail', researchTrailSource.includes('context-collapsed-rail') && stylesSource.includes('.context-collapsed-rail') && stylesSource.includes('.main-workspace.qa-active.context-visible')],
   ['stage 2 page commands', ['listPages', 'getPage', 'resolveWikilink', 'getBacklinks', 'openLocalPath'].every((name) => serviceSource.includes(name))],
   ['stage 2 page reader', pageSource.includes('MarkdownReader') && pageSource.includes('\u53cd\u5411\u94fe\u63a5')],
   ['markdown structures', ['markdown-table', 'markdown-code', 'markdown-math', 'markdown-wikilink'].every((name) => markdownSource.includes(name))],

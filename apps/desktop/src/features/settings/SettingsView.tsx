@@ -159,7 +159,7 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
   }))
 
   return <section className="settings-view" data-testid="settings-view">
-    <header className="settings-heading"><div><div className="eyebrow">APPLICATION PREFERENCES</div><div className="settings-title-row"><h1>设置</h1><DelayedHelp testId="settings-page-help" label="集中管理知识库、论文检索、自动入库和客户端偏好。" /></div></div><button className="refresh-button" disabled={busyAction === 'load'} onClick={() => void load()}><RefreshCw className={busyAction === 'load' ? 'spin' : ''} size={14} />刷新状态</button></header>
+    <header className="settings-heading"><div><div className="settings-title-row"><h1>设置</h1><DelayedHelp testId="settings-page-help" label="集中管理知识库、论文检索、自动入库和客户端偏好。" /></div></div><button className="refresh-button" disabled={busyAction === 'load'} onClick={() => void load()}><RefreshCw className={busyAction === 'load' ? 'spin' : ''} size={14} />刷新状态</button></header>
     {error && <div className="settings-alert error">{error}<button onClick={() => setError('')}>关闭</button></div>}
     {message && <div className="settings-alert success"><CheckCircle2 size={15} />{message}<button onClick={() => setMessage('')}>关闭</button></div>}
 

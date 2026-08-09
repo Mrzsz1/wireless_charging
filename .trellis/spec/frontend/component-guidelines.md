@@ -38,9 +38,40 @@ Questions to answer:
 
 ## Styling Patterns
 
-<!-- How styles are applied (CSS modules, styled-components, Tailwind, etc.) -->
+### Single-view desktop navigation
 
-(To be filled by the team)
+The desktop shell is a single-view workspace. Sidebar and titlebar navigation replace the current main view directly; do not render an editor-style work-tab strip above page content.
+
+```tsx
+<main className={`main-workspace ${view === 'qa' ? 'qa-active' : ''}`}>
+  {renderContent()}
+</main>
+```
+
+Keep persisted navigation identifiers only when they are needed for backward-compatible state or scroll restoration. They must not reintroduce visible tabs or require users to close previous views.
+
+### Fixed right-side context rail
+
+`ResearchTrailPanel` is the last flex item in `.app-body`. Its collapsed state must remain a real, fixed-width rail at the far right instead of an absolutely positioned overlay.
+
+```tsx
+<aside className="context-collapsed-rail" data-testid="research-trail-rail">
+  <button data-testid="trail-reopen" aria-label="展开研究脉络" />
+</aside>
+```
+
+For dense views such as QA:
+
+- entering the view collapses the global research trail by default;
+- the user may explicitly reopen it;
+- while it is open, the view must reduce or hide duplicated internal context columns rather than overflow beneath the global panel;
+- GUI E2E must assert the rail touches the right edge and the main content ends before the rail begins.
+
+Do not use `position: absolute` for the collapsed rail because it overlays page content and makes viewport geometry assertions unreliable.
+
+### Chinese page headings
+
+Page and section headings use the Chinese title directly. Do not add uppercase English eyebrow labels above Chinese headings. English technical terms remain valid inside content, metadata, model names, and source titles.
 
 ---
 

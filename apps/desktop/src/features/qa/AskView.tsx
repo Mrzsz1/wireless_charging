@@ -242,7 +242,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
 
   return <section className="qa-view">
     <aside className="qa-sessions">
-      <div className="qa-session-heading"><div><div className="eyebrow">CONVERSATIONS</div><strong>研究会话</strong></div><button className="qa-icon-button" onClick={newSession} title="新建会话"><MessageSquarePlus size={17} /></button></div>
+      <div className="qa-session-heading"><div><strong>研究会话</strong></div><button className="qa-icon-button" onClick={newSession} title="新建会话"><MessageSquarePlus size={17} /></button></div>
       <label className="qa-session-search"><Search size={14} /><input value={sessionQuery} onChange={(event) => setSessionQuery(event.target.value)} placeholder="搜索会话…" />{sessionQuery && <button title="清除搜索" onClick={() => setSessionQuery('')}><X size={13} /></button>}</label>
       <div className="qa-session-list">
         {filteredSessions.map((session) => <div className={`qa-session-item ${activeSessionId === session.id ? 'active' : ''}`} key={session.id}>
@@ -256,7 +256,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     </aside>
 
     <main className="qa-chat">
-      <div className="qa-chat-heading"><div><div className="eyebrow">EVIDENCE FIRST</div><h1>智能问答</h1></div><div className="qa-model-state"><span className={providerReady(settings.answerProvider, settings, codexStatus) ? 'ready' : 'offline'}>{providerReady(settings.answerProvider, settings, codexStatus) ? <Check size={13} /> : <ShieldCheck size={13} />}{providerLabel(settings.answerProvider)}{settings.answerProvider === 'codex-subscription' && codexStatus.ready ? ' · 已登录' : ''}</span><button className="qa-icon-button" data-testid="qa-open-settings" onClick={onOpenSettings} title="前往设置"><Settings size={17} /></button></div></div>
+      <div className="qa-chat-heading"><div><h1>智能问答</h1></div><div className="qa-model-state"><span className={providerReady(settings.answerProvider, settings, codexStatus) ? 'ready' : 'offline'}>{providerReady(settings.answerProvider, settings, codexStatus) ? <Check size={13} /> : <ShieldCheck size={13} />}{providerLabel(settings.answerProvider)}{settings.answerProvider === 'codex-subscription' && codexStatus.ready ? ' · 已登录' : ''}</span><button className="qa-icon-button" data-testid="qa-open-settings" onClick={onOpenSettings} title="前往设置"><Settings size={17} /></button></div></div>
       {error && <div className="qa-error"><span>{error}</span><button onClick={() => setError('')}><X size={14} /></button></div>}
       <div className="qa-messages">
         {loadingHistory && <div className="qa-loading"><LoaderCircle size={18} className="spin" />加载会话历史…</div>}
@@ -269,7 +269,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     </main>
 
     <aside className="qa-evidence-panel">
-      <div className="qa-evidence-heading"><div><div className="eyebrow">AUDIT TRAIL</div><strong>本轮证据</strong></div><span>{evidence.length}</span></div>
+      <div className="qa-evidence-heading"><div><strong>本轮证据</strong></div><span>{evidence.length}</span></div>
       {waterline && <div className="qa-waterline"><strong>库水位</strong><div><span>{waterline.sourceCount}<small>source</small></span><span>{waterline.methodCount}<small>method</small></span><span>{waterline.synthesisCount}<small>synthesis</small></span><span>{waterline.chapterCount}<small>chapters</small></span></div><p>{waterline.yearMin || '未知'}–{waterline.yearMax || '未知'} · 当前仓库</p></div>}
       <div className="qa-evidence-list">{evidence.map((item) => <button className={`qa-evidence-card ${selectedEvidence?.id === item.id ? 'selected' : ''}`} key={item.id} onClick={() => setSelectedEvidence(item)}><span className="qa-evidence-id">{item.id}</span><div><div className="qa-evidence-type">{kindIcon(item.kind)}<span>{tierLabel(item.tier)}</span></div><strong>{item.title}</strong><p>{item.snippet}</p><small>{item.kind === 'book' ? `PDF p.${item.physicalPageStart ?? '?'}–${item.physicalPageEnd ?? '?'}` : item.wikilink || item.sourceLocation || item.sourcePath}</small></div></button>)}</div>
       {!evidence.length && <div className="qa-empty-evidence"><FileText size={23} /><strong>等待检索</strong><span>提问后在这里核验引用、页码和排序理由。</span></div>}

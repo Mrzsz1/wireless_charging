@@ -145,7 +145,7 @@ export function LiteratureIngestView({ repositoryPath, autoStartRequest, onChoos
 
   return <section className="ingest-view" data-testid="literature-ingest">
     <header className="ingest-heading">
-      <div><div className="eyebrow">GOVERNED LITERATURE PIPELINE</div><h1>文献入库</h1><p>把本地 PDF 与最新开放论文送入同一条可审计流水线：预检、去重、解析、A 编译、Lint、Graphify。</p></div>
+      <div><h1>文献入库</h1><p>把本地 PDF 与最新开放论文送入同一条可审计流水线：预检、去重、解析、A 编译、Lint、Graphify。</p></div>
       <div className="ingest-heading-actions"><button className="ingest-button secondary" disabled={loading || busy} onClick={() => void load()}><RefreshCw className={loading ? 'spin' : ''} size={15} />刷新</button><button className="ingest-button secondary" onClick={onOpenCompileCenter}>任务记录<ChevronRight size={15} /></button></div>
     </header>
 
@@ -200,7 +200,7 @@ export function LiteratureIngestView({ repositoryPath, autoStartRequest, onChoos
         </div>
       </section>
       <aside className="ingest-panel candidate-detail">
-        {selectedCandidate ? <><div className="eyebrow">CANDIDATE DETAIL</div><h2>{selectedCandidate.title}</h2><p>{selectedCandidate.abstract || '暂无摘要'}</p><dl><dt>相关度</dt><dd>{selectedCandidate.score.toFixed(2)}</dd><dt>DOI</dt><dd>{selectedCandidate.doi || '—'}</dd><dt>arXiv</dt><dd>{selectedCandidate.arxivId || '—'}</dd><dt>清单</dt><dd title={selectedCandidate.manifestPath}>{selectedCandidate.manifestPath}</dd></dl>
+        {selectedCandidate ? <><h2>{selectedCandidate.title}</h2><p>{selectedCandidate.abstract || '暂无摘要'}</p><dl><dt>相关度</dt><dd>{selectedCandidate.score.toFixed(2)}</dd><dt>DOI</dt><dd>{selectedCandidate.doi || '—'}</dd><dt>arXiv</dt><dd>{selectedCandidate.arxivId || '—'}</dd><dt>清单</dt><dd title={selectedCandidate.manifestPath}>{selectedCandidate.manifestPath}</dd></dl>
           <h3>自动资格解释</h3><div className="qualification-list">{selectedCandidate.qualification.reasons.map((reason) => <div className={reason.passed ? 'passed' : 'failed'} key={reason.code}>{reason.passed ? <Check size={13} /> : <CircleX size={13} />}<span>{reason.message}</span></div>)}</div>
           <label className="candidate-note"><span>人工备注（用于“稍后处理”或“忽略”）</span><textarea value={candidateNote} onChange={(event) => setCandidateNote(event.target.value)} placeholder={selectedCandidate.manualNote || '记录筛选理由…'} /></label>
           <div className="candidate-detail-actions"><button disabled={!selectedCandidate.pdfUrl} onClick={() => void run('download', { candidateIds: [selectedCandidate.candidateId] })}><CloudDownload size={14} />仅下载</button><button onClick={() => void run('candidate', { candidateIds: [selectedCandidate.candidateId] })}><FileCheck2 size={14} />确认添加</button>{selectedCandidate.localPdf && <button onClick={() => onOpenPath(selectedCandidate.localPdf, true)}><ExternalLink size={14} />查看 PDF</button>}</div></> : <div className="ingest-list-empty">选择候选查看资格证据</div>}

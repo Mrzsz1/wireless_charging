@@ -163,28 +163,9 @@ try {
   console.log('PASS research trail refresh, collapse and reopen toolbar')
   const sidebar = await requireElement('[data-testid="sidebar"]')
 
-  const workTabs = await requireElement('[data-testid="work-tabs"]')
-  const activeWorkTab = await requireElement('[data-testid="active-work-tab"]')
-  if (await activeWorkTab.getAttribute('role') !== 'tab' || await activeWorkTab.getAttribute('aria-selected') !== 'true') {
-    throw new Error('Active work tab does not expose the tab selection contract')
-  }
-  const tabVisual = await browser.execute(() => {
-    const active = document.querySelector('.work-tab-shell.active')
-    const track = document.querySelector('[data-testid="work-tabs"]')
-    if (!(active instanceof HTMLElement) || !(track instanceof HTMLElement)) return null
-    const activeStyle = getComputedStyle(active)
-    const indicatorStyle = getComputedStyle(active, '::after')
-    return {
-      trackHeight: track.getBoundingClientRect().height,
-      activeBackground: activeStyle.backgroundColor,
-      indicatorHeight: indicatorStyle.height,
-    }
-  })
-  if (!tabVisual || tabVisual.trackHeight < 38 || tabVisual.trackHeight > 44 || tabVisual.indicatorHeight !== '2px' || tabVisual.activeBackground === 'rgba(0, 0, 0, 0)') {
-    throw new Error(`Work tab visual contract failed: ${JSON.stringify(tabVisual)}`)
-  }
-  if (!(await workTabs.getAttribute('role')).includes('tablist')) throw new Error('Work tab track is not a tablist')
-  console.log('PASS lightweight work tab track')
+  if (await (await browser.$('[data-testid="work-tabs"]')).isExisting()) throw new Error('Removed work tab bar is still visible')
+  if (await (await browser.$('.eyebrow')).isExisting()) throw new Error('English eyebrow heading is still visible')
+  console.log('PASS single-view navigation and Chinese-only headings')
 
   await browser.setWindowSize(1600, 900)
   const workspacePane = await requireElement('[data-testid="sidebar-workspace-pane"]')
@@ -286,6 +267,33 @@ try {
   await requireElement('[data-refresh-version]')
   await (await requireElement('[data-testid="nav-qa"]')).click()
   await requireElement('[data-testid="qa-input"]')
+  await requireElement('[data-testid="research-trail-rail"]')
+  const qaLayout = await browser.execute(() => {
+    const body = document.querySelector('.app-body')
+    const main = document.querySelector('.main-workspace.qa-active')
+    const qa = document.querySelector('.qa-view')
+    const evidence = document.querySelector('.qa-evidence-panel')
+    const rail = document.querySelector('[data-testid="research-trail-rail"]')
+    if (![body, main, qa, evidence, rail].every((item) => item instanceof HTMLElement)) return null
+    const rect = (item) => {
+      const value = item.getBoundingClientRect()
+      return { left: value.left, right: value.right, width: value.width }
+    }
+    return { body: rect(body), main: rect(main), qa: rect(qa), evidence: rect(evidence), rail: rect(rail) }
+  })
+  if (!qaLayout || Math.abs(qaLayout.rail.right - qaLayout.body.right) > 2 || qaLayout.qa.right > qaLayout.rail.left + 2 || qaLayout.evidence.right > qaLayout.qa.right + 2) {
+    throw new Error(`QA layout is clipped or the collapsed trail is not at the far right: ${JSON.stringify(qaLayout)}`)
+  }
+  await (await requireElement('[data-testid="trail-reopen"]')).click()
+  await requireElement('[data-testid="research-trail-panel"]')
+  const openQaLayout = await browser.execute(() => ({
+    contextVisible: document.querySelector('.main-workspace.qa-active')?.classList.contains('context-visible') ?? false,
+    evidenceDisplay: getComputedStyle(document.querySelector('.qa-evidence-panel')).display,
+  }))
+  if (!openQaLayout.contextVisible || openQaLayout.evidenceDisplay !== 'none') throw new Error(`QA did not reserve space for the open research trail: ${JSON.stringify(openQaLayout)}`)
+  await (await requireElement('[data-testid="trail-collapse"]')).click()
+  await requireElement('[data-testid="research-trail-rail"]')
+  console.log('PASS QA width, automatic trail collapse and far-right rail')
   await (await requireElement('[data-testid="qa-open-settings"]')).click()
   const qaSettings = await requireElement('[data-testid="qa-engine-settings"]')
   await browser.waitUntil(async () => (await qaSettings.getAttribute('data-loaded')) === 'true', { timeout: 15000, timeoutMsg: 'QA settings did not finish loading' })

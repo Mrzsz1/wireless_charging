@@ -128,7 +128,7 @@ export function CompileCenterView({ repositoryPath, onChooseRepository, onOpenPa
   if (!repositoryPath) return <section className="compile-empty"><Code2 size={34} /><h1>编译中心</h1><p>选择知识库后才能运行发现、解析、Lint、A 编译与 Graphify 更新任务。</p><button className="refresh-button" onClick={onChooseRepository}><FolderOpen size={16} />选择知识库</button></section>
 
   return <section className="compile-center-view" data-testid="compile-center">
-    <header className="compile-center-heading"><div><div className="eyebrow">AUDITABLE LOCAL PIPELINE</div><h1>编译中心</h1><p>受控运行知识库任务，保留命令阶段、退出码、日志、失败原因和生成物。</p></div><button className="refresh-button" onClick={() => void refresh()}><RefreshCw size={15} />刷新</button></header>
+    <header className="compile-center-heading"><div><h1>编译中心</h1><p>受控运行知识库任务，保留命令阶段、退出码、日志、失败原因和生成物。</p></div><button className="refresh-button" onClick={() => void refresh()}><RefreshCw size={15} />刷新</button></header>
     {error && <div className="compile-alert"><AlertTriangle size={15} /><span>{error}</span><button onClick={() => setError('')}>关闭</button></div>}
     <div className="compile-center-layout">
       <aside className="compile-task-catalog">

@@ -41,7 +41,7 @@ export function PageView({ page, backlinks, backlinksLoading, onOpenLink, onOpen
   const rawMd = page.frontmatter.raw_md || ''
   return <section className="page-view">
     <div className="page-heading page-detail-heading">
-      <div className="page-title-block"><div className="eyebrow">{page.pageType.toUpperCase()} · {page.year || '年份未记录'}</div><h1>{page.title}</h1><p>{page.summary || '本页尚未记录摘要。'}</p></div>
+      <div className="page-title-block"><h1>{page.title}</h1><p>{page.summary || '本页尚未记录摘要。'}</p></div>
       <div className="heading-actions"><button className="refresh-button" onClick={onReload}><RefreshCw size={15} />重新读取</button>{pdfPath && <button className="refresh-button" onClick={() => onOpenPath(pdfPath)}><BookOpen size={15} />打开 PDF</button>}{rawMd && <button className="refresh-button" onClick={() => onOpenPath(rawMd)}><FileText size={15} />打开原始 Markdown</button>}</div>
     </div>
     <div className="page-meta-strip"><span><FileText size={14} />{page.sourcePath}</span><span>{page.modifiedAt ? `更新于 ${page.modifiedAt}` : '更新时间未记录'}</span></div>

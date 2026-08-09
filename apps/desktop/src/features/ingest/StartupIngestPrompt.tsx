@@ -15,7 +15,6 @@ export function StartupIngestPrompt({ prompt, busy, onRun, onSuppressToday, onCa
     <section className="ingest-modal" role="dialog" aria-modal="true" aria-labelledby="ingest-startup-title" data-testid="ingest-startup-prompt">
       <button className="ingest-modal-close" aria-label="关闭" disabled={busy} onClick={onCancel}><X size={17} /></button>
       <div className="ingest-modal-icon"><Radar size={25} /></div>
-      <div className="eyebrow">LITERATURE DISCOVERY</div>
       <h2 id="ingest-startup-title">检查最新研究文献？</h2>
       <p>{fullIngest
         ? `将检索候选，并把最多 ${prompt.settings.maxAutoIngest} 篇满足全部规则的开放论文完整入库。`

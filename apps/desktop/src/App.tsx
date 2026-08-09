@@ -26,7 +26,6 @@ import {
   Star,
   X,
 } from 'lucide-react'
-import { TabBar, type WorkTab } from './components/TabBar'
 import { SidebarWorkspacePane } from './components/SidebarWorkspacePane'
 import { createLatestRequestGuard } from './lib/latestRequest'
 import { createPersistedWindowState, LEGACY_WINDOW_STATE_KEY, parsePersistedWindowState, resolveWindowPlacement, WINDOW_STATE_KEY, type MonitorWorkArea, type PersistedWindowState } from './lib/windowPlacement'
@@ -67,6 +66,7 @@ type Theme = 'light' | 'dark' | 'system'
 
 type NavigationItem = { label: string; view: MainView; icon: Icon }
 type WorkspaceItem = { id: string; label: string; view?: MainView; star?: boolean; children?: WorkspaceItem[] }
+type WorkTab = { id: string; label: string; kind: string; resourceId?: string; nav?: string; repositoryPath?: string }
 
 const navigation: NavigationItem[] = [
   { label: '工作台', view: 'dashboard', icon: Home },
@@ -146,7 +146,7 @@ export default function App() {
   const [view, setView] = useState<MainView>(bootWorkspace.view)
   const [navCollapsed, setNavCollapsed] = useState(() => readStored('desktop.nav-collapsed', false))
   const [sidebarSearchOpen, setSidebarSearchOpen] = useState(false)
-  const [contextOpen, setContextOpen] = useState(() => readStored('desktop.context-open', true))
+  const [contextOpen, setContextOpen] = useState(() => bootWorkspace.view === 'qa' ? false : readStored('desktop.context-open', true))
   const [contextTab, setContextTab] = useState<'evidence' | 'methods'>('evidence')
   const [expandedWorkspaceNodes, setExpandedWorkspaceNodes] = useState<string[]>(() => readStored('desktop.workspace-expanded', ['scheduling']))
   const [tabs, setTabs] = useState<WorkTab[]>(bootWorkspace.tabs)
@@ -341,6 +341,9 @@ export default function App() {
   }, [])
   useEffect(() => { localStorage.setItem('desktop.nav-collapsed', JSON.stringify(navCollapsed)) }, [navCollapsed])
   useEffect(() => { localStorage.setItem('desktop.context-open', JSON.stringify(contextOpen)) }, [contextOpen])
+  useEffect(() => {
+    if (view === 'qa') setContextOpen(false)
+  }, [view])
   useEffect(() => { localStorage.setItem('desktop.workspace-expanded', JSON.stringify(expandedWorkspaceNodes)) }, [expandedWorkspaceNodes])
   useEffect(() => {
     localStorage.setItem('desktop.workspace-state.v2', JSON.stringify({
@@ -427,27 +430,6 @@ export default function App() {
       setView(target.kind as MainView)
     }
   }, [activeTab, bootWorkspace.repositoryPath, openPage, repository?.path, tabs])
-
-  const selectTab = (tabId: string) => {
-    const tab = tabs.find((item) => item.id === tabId)
-    if (!tab) return
-    setActiveTab(tabId)
-    if (tab.kind === 'page' && tab.resourceId) void openPage(tab.resourceId)
-    else setView(tab.kind as MainView)
-  }
-
-  const closeTab = (tabId: string) => {
-    setTabs((current) => {
-      const remaining = current.filter((tab) => tab.id !== tabId)
-      const safe = remaining.length ? remaining : [defaultTab]
-      if (tabId === activeTab) {
-        const next = safe[safe.length - 1]
-        setActiveTab(next.id)
-        setView(next.kind as MainView)
-      }
-      return safe
-    })
-  }
 
   const toggleWorkspaceNode = (id: string) => {
     setExpandedWorkspaceNodes((current) => current.includes(id)
@@ -544,7 +526,7 @@ export default function App() {
   const renderDashboard = () => (
     <>
       <div className="page-heading">
-        <div><div className="eyebrow">LOCAL KNOWLEDGE WORKSPACE</div><h1>研究工作台</h1></div>
+        <div><h1>研究工作台</h1></div>
         <button className="refresh-button" onClick={() => void refreshRepository()}><RefreshCw size={14} />刷新快照</button>
       </div>
       <div className="metrics-grid">
@@ -659,9 +641,8 @@ export default function App() {
           <div className="sidebar-spacer" />
         </aside>
 
-        <main ref={workspaceRef} className={`main-workspace ${view === 'qa' ? 'qa-active' : ''} ${view === 'compile' ? 'compile-active' : ''}`}>
+        <main ref={workspaceRef} className={`main-workspace ${view === 'qa' ? 'qa-active' : ''} ${view === 'qa' && contextOpen ? 'context-visible' : ''} ${view === 'compile' ? 'compile-active' : ''}`}>
           {notice && <div className="notice" data-testid="app-notice"><Sparkles size={15} /><span>{notice}</span><button onClick={() => setNotice('')}><X size={14} /></button></div>}
-          <TabBar tabs={tabs} activeId={activeTab} onSelect={selectTab} onClose={closeTab} />
           {renderContent()}
         </main>
 
