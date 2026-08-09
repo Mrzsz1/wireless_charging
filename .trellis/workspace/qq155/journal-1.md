@@ -180,3 +180,37 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 6: 实现上下文相关研究脉络
+
+**Date**: 2026-08-09
+**Task**: 实现上下文相关研究脉络
+**Branch**: `master`
+
+### Summary
+
+将右侧研究脉络从目录占位升级为页面、问题和搜索驱动的可审计混合检索；新增固定证据、图谱聚焦、0.8.0 发布产物及严格 GUI/安装验收。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `98e522d` | (see git log) |
+| `d5df59b` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
