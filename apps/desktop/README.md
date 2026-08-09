@@ -1,4 +1,4 @@
-# Wireless Charging Research Workbench 0.7.2
+# Wireless Charging Research Workbench 0.8.0
 
 Windows 本地科研工作台：以 Wiki 正文为真相，使用 SQLite FTS5、核心专著章节索引、Graphify 和 Luna 完成阅读、检索、问答与受控编译。
 
@@ -26,6 +26,7 @@ npm run dev
 cd apps/desktop
 npm run test:p1
 npm run test:p2
+npm run test:research-trail
 npm run test:installer-lifecycle
 npm run build
 npm run verify
@@ -40,13 +41,19 @@ py -3 tools/core_book_eval.py
 py -3 tools/wiki_lint.py --strict-graphify
 ```
 
-`test:p2` 覆盖全局搜索最新请求守卫、旧请求失败和清空查询；Rust 测试覆盖专著片段、路径边界、回滚补偿和 watcher 批次重试。
+`test:p2` 覆盖全局搜索最新请求守卫、旧请求失败和清空查询；`test:research-trail` 覆盖固定证据损坏恢复、仓库/上下文隔离与自动排名去重；Rust 测试覆盖专著片段、研究脉络混合检索、路径边界、回滚补偿和 watcher 批次重试。
+
+## 上下文研究脉络
+
+右侧“研究脉络”跟随当前 Wiki 页面、已提交的研究问题或文献库搜索词切换。证据链融合页面出链/反链、Wiki FTS5、两本核心书籍与 Graphify 一跳关系；每项显示关系、归一化分数与检索理由，“相关方法”只返回 `type: method` 页面。Graphify 或书籍索引缺失时面板显示降级通道，不用目录前几项伪装结果。
+
+“添加证据”会并行搜索本地 Wiki 与核心书籍，并按知识库路径和上下文键保存固定项（`desktop.research-trail.pins.v1`）；不会修改 `wiki/`、`raw/` 或 `schema/`。点击证据可打开 Wiki、书籍章节或聚焦 Graphify 节点。
 
 ## 窗口显示恢复
 
 0.7.2 起，窗口位置与尺寸按物理像素保存和恢复，并在启动时与当前显示器工作区求交。移除副屏、修改分辨率/DPI 或任务栏工作区后，完全位于屏幕外的旧窗口会回到主显示器中央；合法的负坐标副屏位置仍会保留。最小化状态不会覆盖最后一个正常窗口矩形，启动恢复结束后会执行取消最小化、显示与聚焦。
 
-若旧版本只在任务栏显示缩略图，直接安装并启动 0.7.2 即会迁移 `desktop.window-state.v2`；无需手工清理本地存储。
+若旧版本只在任务栏显示缩略图，直接安装并启动 0.8.0 即会迁移 `desktop.window-state.v2`；无需手工清理本地存储。
 
 ## GUI E2E
 

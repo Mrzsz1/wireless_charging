@@ -7,6 +7,7 @@ import './AskView.css'
 
 type AskViewProps = {
   repositoryPath?: string
+  onResearchContextChange: (question: string | null) => void
   onOpenPage: (pageId: string, title?: string) => void
   onOpenBook: (bookId: string, chapterId: string) => void
   onOpenPath: (path: string, reveal?: boolean) => void
@@ -57,7 +58,7 @@ function MessageContent({ content, evidence, onCitation }: { content: string; ev
   })}</div>
 }
 
-export function AskView({ repositoryPath, onOpenPage, onOpenBook, onOpenPath }: AskViewProps) {
+export function AskView({ repositoryPath, onResearchContextChange, onOpenPage, onOpenBook, onOpenPath }: AskViewProps) {
   const [sessions, setSessions] = useState<ChatSessionSummary[]>([])
   const [sessionQuery, setSessionQuery] = useState('')
   const [activeSessionId, setActiveSessionId] = useState('')
@@ -88,6 +89,7 @@ export function AskView({ repositoryPath, onOpenPage, onOpenBook, onOpenPath }: 
     setMessages([])
     setEvidence([])
     setWaterline(null)
+    onResearchContextChange(null)
     if (!isDesktopRuntime() || !repositoryPath) return
     void Promise.all([listChatSessions(), getLunaSettings()]).then(([history, luna]) => {
       setSessions(history)
@@ -107,6 +109,8 @@ export function AskView({ repositoryPath, onOpenPage, onOpenBook, onOpenPath }: 
       setActiveSessionId(sessionId)
       setMessages(detail.messages)
       const latestAssistant = [...detail.messages].reverse().find((message) => message.role === 'assistant')
+      const latestQuestion = [...detail.messages].reverse().find((message) => message.role === 'user')?.content ?? null
+      onResearchContextChange(latestQuestion)
       setEvidence(latestAssistant?.evidence ?? [])
       setWaterline(latestAssistant?.waterline ?? null)
       setSelectedEvidence(latestAssistant?.evidence?.[0] ?? null)
@@ -121,6 +125,7 @@ export function AskView({ repositoryPath, onOpenPage, onOpenBook, onOpenPath }: 
     setSelectedEvidence(null)
     setWaterline(null)
     setError('')
+    onResearchContextChange(null)
   }
 
   const applyCompleted = (result: AskResult) => {
@@ -173,6 +178,7 @@ export function AskView({ repositoryPath, onOpenPage, onOpenBook, onOpenPath }: 
     setSelectedEvidence(null)
     setPhase('retrieving')
     setMessages((current) => [...current, localMessage('user', value, 'retrieving')])
+    onResearchContextChange(value)
     try {
       const result = await askLuna({ question: value, sessionId: activeSessionId || undefined, evidenceLimit: 14 }, handleEvent)
       applyCompleted(result)

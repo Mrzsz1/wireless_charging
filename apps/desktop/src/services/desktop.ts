@@ -1,5 +1,5 @@
 import { Channel, invoke } from '@tauri-apps/api/core'
-import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatSessionDetail, ChatSessionSummary, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LunaSettings, PageDetail, PageFilters, PageSummary, QuestionContext, RepositoryInfo, RepositoryWatchStatus, SearchResult, StartCompileRequest } from '../types'
+import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatSessionDetail, ChatSessionSummary, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LunaSettings, PageDetail, PageFilters, PageSummary, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchResult, StartCompileRequest } from '../types'
 
 type TauriWindow = Window & { __TAURI_INTERNALS__?: unknown }
 
@@ -107,6 +107,10 @@ export async function deleteChatSession(sessionId: string): Promise<void> {
 
 export async function prepareQuestion(question: string, limit = 14): Promise<QuestionContext> {
   return invoke<QuestionContext>('prepare_question', { question, limit })
+}
+
+export async function prepareResearchTrail(request: ResearchTrailRequest): Promise<ResearchTrailResponse> {
+  return invoke<ResearchTrailResponse>('prepare_research_trail', { request })
 }
 
 export async function askLuna(request: AskRequest, onMessage: (event: AnswerStreamEvent) => void): Promise<AskResult> {

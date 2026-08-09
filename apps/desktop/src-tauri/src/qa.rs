@@ -273,7 +273,7 @@ fn now_string() -> String {
         .to_string()
 }
 
-fn compact(value: &str, limit: usize) -> String {
+pub(crate) fn compact(value: &str, limit: usize) -> String {
     let normalized = value.split_whitespace().collect::<Vec<_>>().join(" ");
     if normalized.chars().count() <= limit {
         return normalized;
@@ -581,7 +581,7 @@ pub fn get_session(
     Ok(ChatSessionDetail { session, messages })
 }
 
-fn query_terms(question: &str) -> Vec<String> {
+pub(crate) fn query_terms(question: &str) -> Vec<String> {
     let mut terms = question
         .split(|value: char| !value.is_alphanumeric() && value != '-' && value != '_')
         .map(str::trim)
@@ -629,7 +629,7 @@ fn query_terms(question: &str) -> Vec<String> {
     terms
 }
 
-fn fts_query(terms: &[String]) -> String {
+pub(crate) fn fts_query(terms: &[String]) -> String {
     terms
         .iter()
         .filter_map(|term| {

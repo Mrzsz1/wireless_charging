@@ -10,9 +10,11 @@ const booksSource = readFileSync(new URL('../src/features/books/CoreBooksView.ts
 const graphSource = readFileSync(new URL('../src/features/graph/GraphView.tsx', import.meta.url), 'utf8')
 const comparisonSource = readFileSync(new URL('../src/features/comparison/ComparisonView.tsx', import.meta.url), 'utf8')
 const qaViewSource = readFileSync(new URL('../src/features/qa/AskView.tsx', import.meta.url), 'utf8')
+const researchTrailSource = readFileSync(new URL('../src/features/research-trail/ResearchTrailPanel.tsx', import.meta.url), 'utf8')
 const compileViewSource = readFileSync(new URL('../src/features/compile/CompileCenterView.tsx', import.meta.url), 'utf8')
 const rustSource = readFileSync(new URL('../src-tauri/src/lib.rs', import.meta.url), 'utf8')
 const qaRustSource = readFileSync(new URL('../src-tauri/src/qa.rs', import.meta.url), 'utf8')
+const researchTrailRustSource = readFileSync(new URL('../src-tauri/src/research_trail.rs', import.meta.url), 'utf8')
 const compileRustSource = readFileSync(new URL('../src-tauri/src/compile_center.rs', import.meta.url), 'utf8')
 const capabilities = JSON.parse(readFileSync(new URL('../src-tauri/capabilities/default.json', import.meta.url), 'utf8'))
 const data = JSON.parse(readFileSync(new URL('../public/data/library.json', import.meta.url), 'utf8'))
@@ -60,6 +62,10 @@ const checks = [
   ['p4 rust commands', ['get_compile_capabilities', 'start_compile_run', 'retry_compile_run', 'cancel_compile_run', 'rollback_compile_run'].every((name) => rustSource.includes(name))],
   ['p4 task schema', ['compile_runs', 'compile_run_events', 'compile_artifacts', 'COMPILE_SCHEMA_VERSION'].every((name) => compileRustSource.includes(name))],
   ['p4 allowlist and redaction', compileRustSource.includes('task kind is not in the compile allowlist') && compileRustSource.includes('[REDACTED]') && !compileRustSource.includes('cmd /c')],
+  ['contextual research trail service', serviceSource.includes('prepareResearchTrail') && rustSource.includes('prepare_research_trail')],
+  ['contextual research trail interface', ['retrievalReason', 'degradedChannels', '添加证据', '查看脉络图'].every((name) => researchTrailSource.includes(name))],
+  ['contextual research trail retrieval', ['outgoing_link', 'backlink', 'graph_neighbor', 'method_candidates', 'select_diverse'].every((name) => researchTrailRustSource.includes(name))],
+  ['context panel has no catalog fallback', appSource.includes('<ResearchTrailPanel') && !appSource.includes('const relatedMethods = useMemo')],
   ['library source count', data.waterline?.sources === 23],
   ['library method count', data.waterline?.methods === 20],
   ['library chapter count', data.waterline?.chapters === 61],

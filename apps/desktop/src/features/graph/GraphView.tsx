@@ -4,7 +4,7 @@ import { graphNeighbors, graphOverview, graphPath, isDesktopRuntime } from '../.
 import type { GraphFilters, GraphNode, GraphOverview } from '../../types'
 import { reconcileGraphPath, reconcileGraphSelection } from './refreshState'
 
-type GraphViewProps = { onOpenPage: (sourceFile: string) => void; refreshVersion?: number }
+type GraphViewProps = { onOpenPage: (sourceFile: string) => void; refreshVersion?: number; targetNodeId?: string }
 
 function layoutNodes(nodes: GraphNode[]) {
   return nodes.map((node, index) => {
@@ -14,7 +14,7 @@ function layoutNodes(nodes: GraphNode[]) {
   })
 }
 
-export function GraphView({ onOpenPage, refreshVersion = 0 }: GraphViewProps) {
+export function GraphView({ onOpenPage, refreshVersion = 0, targetNodeId = '' }: GraphViewProps) {
   const [graph, setGraph] = useState<GraphOverview | null>(null)
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<GraphNode | null>(null)
@@ -41,6 +41,19 @@ export function GraphView({ onOpenPage, refreshVersion = 0 }: GraphViewProps) {
     }
   }, [])
   useEffect(() => { void load(query.trim() ? { query } : {}) }, [load, query, refreshVersion])
+  useEffect(() => {
+    if (!targetNodeId || !isDesktopRuntime()) return
+    const request = ++loadRequest.current
+    setLoading(true)
+    void graphNeighbors(targetNodeId, 1, 120).then((next) => {
+      if (request !== loadRequest.current) return
+      setGraph(next)
+      setSelected(next.nodes.find((node) => node.id === targetNodeId) ?? null)
+      setPath([])
+    }).catch((error) => {
+      if (request === loadRequest.current) setNotice(`图谱定位失败：${String(error)}`)
+    }).finally(() => { if (request === loadRequest.current) setLoading(false) })
+  }, [targetNodeId])
   const positioned = useMemo(() => layoutNodes(graph?.nodes ?? []), [graph])
   const nodeMap = useMemo(() => new Map(positioned.map((item) => [item.node.id, item])), [positioned])
 

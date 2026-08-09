@@ -941,6 +941,21 @@ P5.4 关闭代码审查遗留的 `SEARCH-001`、`BOOK-001`、`ROLLBACK-001`、`W
 
 0.7.2 发布产物 SHA-256：app `B4595386B5ACC1F35CAE64295704BBD2295FEDF89928353927291273FF6D672A`；MSI `0C8AE406B6A62DDA250410F86C6F5F1581C201C9980C4D0565200F7F6748D88B`；NSIS `A368FE9789F6C1A5808CFE4EB655210916269B071BCEA9714CAC227AE4CA55C4`。
 
+#### 13.15 P5.6：上下文相关研究脉络（已实现 2026-08-09，版本 0.8.0）
+
+右侧“研究脉络”不再把目录前五项伪装为排名结果，而由当前 Wiki 页面、已提交问题或文献库搜索词驱动：
+
+1. 页面上下文融合正文出链、反向链接、Wiki FTS5、两本核心书籍和 Graphify 一跳关系，并排除锚点自身；问题与搜索上下文复用智能问答的同一套中英检索扩展。
+2. 证据项显示来源类型、关系、归一化分数、检索理由与可定位字段；相关方法只允许 `type: method` 页面。
+3. Graphify 或书籍索引缺失时显示 `degradedChannels`，不退回固定目录顺序；请求序列守卫阻止快速切换时旧响应覆盖新上下文。
+4. “添加证据”并行搜索本地 Wiki 与核心书籍，固定项按 repository + contextKey 隔离存入本地状态，不修改知识库正文；支持取消固定。
+5. Wiki、书籍和 Graphify 证据分别打开页面、章节或聚焦图节点；问答仅在提交问题/打开历史时更新锚点，不跟随未提交输入。
+6. 硬边界保持不变：不修改 `raw/`、`wiki/`、`schema/` 正文，不自动晋升候选，不进行默认外搜。
+
+验收基线：Rust 35/35，前端 P1 8/8、P2 3/3、研究脉络状态 3/3；P3/P4/P5、Wiki 10 问、两书 295 条评测和 1366×768/1920×1080 GUI strict 通过；GUI strict 已对真实 0.8.0 release EXE 验证搜索上下文产生研究脉络锚点与证据卡，NSIS 已在隔离目录完成安装、启动、进程退出与卸载。Algorithmic Game Theory Recall@5=1.000，Approximation Algorithms Recall@5=0.986667。
+
+0.8.0 发布产物 SHA-256：app `1F4031EF30225BD181D230191E0A4BCF970152539EEDA6CF89705A692F9059F3`；MSI `EC9AEB4A687CA13B6958EFE9CE5B9EA653C2AFAE91CF012B04481FD16A83CE33`；NSIS `1D50526FA46ACCDD99E871ACE0A2373E5CFE7876A9B3F4FFFC53C9B1A53CA6B9`。
+
 ---
 
 ## 14. 变更规则

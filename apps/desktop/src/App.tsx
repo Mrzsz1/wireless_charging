@@ -40,6 +40,7 @@ import { nextGraphRefreshVersion } from './features/graph/refreshState'
 import { LibraryView } from './features/library/LibraryView'
 import { PageView } from './features/pages/PageView'
 import { AskView } from './features/qa/AskView'
+import { ResearchTrailPanel } from './features/research-trail/ResearchTrailPanel'
 import {
   chooseRepository,
   getBacklinks,
@@ -53,7 +54,7 @@ import {
   searchPages,
 } from './services/desktop'
 import { checkAndInstallUpdate, getAppReleaseInfo } from './services/updater'
-import type { Backlink, PageDetail, PageFilters, PageSummary, RepositoryInfo, SearchResult } from './types'
+import type { Backlink, PageDetail, PageFilters, PageSummary, RepositoryInfo, ResearchTrailRequest, SearchResult } from './types'
 
 type Icon = ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
 type MainView = 'dashboard' | 'qa' | 'library' | 'methods' | 'books' | 'graph' | 'comparison' | 'compile' | 'settings' | 'help' | 'page'
@@ -147,6 +148,8 @@ export default function App() {
   const [repositoryGeneration, setRepositoryGeneration] = useState(0)
   const [bookTarget, setBookTarget] = useState<BookTarget | null>(null)
   const [graphRefreshVersion, setGraphRefreshVersion] = useState(0)
+  const [graphFocusNodeId, setGraphFocusNodeId] = useState('')
+  const [researchRequest, setResearchRequest] = useState<ResearchTrailRequest | null>(null)
   const [catalog, setCatalog] = useState<PageSummary[]>([])
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
@@ -158,7 +161,7 @@ export default function App() {
   const [theme, setTheme] = useState<Theme>(() => readStored('desktop.theme', 'light'))
   const [fontSize, setFontSize] = useState(() => readStored('desktop.font-size', 14))
   const [updateBusy, setUpdateBusy] = useState(false)
-  const [releaseInfo, setReleaseInfo] = useState({ version: '0.7.2', channel: 'stable' })
+  const [releaseInfo, setReleaseInfo] = useState({ version: '0.8.0', channel: 'stable' })
   const globalSearchRef = useRef<HTMLInputElement>(null)
   const workspaceRef = useRef<HTMLElement>(null)
   const currentScrollKey = useRef('')
@@ -347,6 +350,7 @@ export default function App() {
     setTabs((current) => current.some((tab) => tab.id === tabId)
       ? current
       : [...current, { id: tabId, label, kind: nextView, nav: nextView }])
+    if (!['page', 'qa', 'library', 'methods', 'graph'].includes(nextView)) setResearchRequest(null)
   }, [])
 
   const openPage = useCallback(async (pageId: string) => {
@@ -355,6 +359,7 @@ export default function App() {
       const [detail, linked] = await Promise.all([getPage(pageId), getBacklinks(pageId)])
       setPage(detail)
       setBacklinks(linked)
+      setResearchRequest({ kind: 'page', pageId: detail.id, evidenceLimit: 5, methodLimit: 4 })
       setView('page')
       setActiveTab(pageId)
       setTabs((current) => current.some((tab) => tab.id === pageId)
@@ -472,9 +477,15 @@ export default function App() {
     }
   }
 
-  const recentPages = useMemo(() => catalog.slice(0, 5), [catalog])
-  const relatedMethods = useMemo(() => catalog.filter((item) => item.pageType === 'method').slice(0, 4), [catalog])
+  useEffect(() => {
+    if (view !== 'library' && view !== 'methods') return
+    const value = query.trim()
+    if (value.length < 2) { setResearchRequest(null); return }
+    const timer = window.setTimeout(() => setResearchRequest({ kind: 'search', text: value, evidenceLimit: 5, methodLimit: 4 }), 350)
+    return () => window.clearTimeout(timer)
+  }, [query, view])
 
+  const recentPages = useMemo(() => catalog.slice(0, 5), [catalog])
   const renderDashboard = () => (
     <>
       <div className="page-heading">
@@ -527,9 +538,9 @@ export default function App() {
     if (view === 'library' || view === 'methods') return <LibraryView query={query} results={results} catalog={catalog} pageType={view === 'methods' ? 'method' : 'source'} filters={filters} loading={loading} onQueryChange={(value) => void handleSearch(value)} onFiltersChange={setFilters} onOpenResult={(item) => void openPage(item.id)} />
     if (view === 'page' && page) return <PageView page={page} backlinks={backlinks} backlinksLoading={loading} onOpenLink={(id) => void openPage(id)} onOpenPath={(path, reveal) => void openLocalPath(path, reveal)} onReload={() => void openPage(page.id)} />
     if (view === 'books') return <CoreBooksView onOpenLink={(id) => void openPage(id)} target={bookTarget} />
-    if (view === 'graph') return <GraphView onOpenPage={(id) => void openPage(id)} refreshVersion={graphRefreshVersion} />
+    if (view === 'graph') return <GraphView onOpenPage={(id) => void openPage(id)} refreshVersion={graphRefreshVersion} targetNodeId={graphFocusNodeId} />
     if (view === 'comparison') return <ComparisonView candidates={catalog} onOpenPage={(id) => void openPage(id)} />
-    if (view === 'qa') return <AskView repositoryPath={repository?.path ?? ''} onOpenPage={(id) => void openPage(id)} onOpenBook={(bookId, chapterId) => { setBookTarget({ bookId, chapterId }); activateView('books') }} onOpenPath={(path) => void openLocalPath(path)} />
+    if (view === 'qa') return <AskView repositoryPath={repository?.path ?? ''} onResearchContextChange={(question) => setResearchRequest(question ? { kind: 'question', text: question, evidenceLimit: 5, methodLimit: 4 } : null)} onOpenPage={(id) => void openPage(id)} onOpenBook={(bookId, chapterId) => { setBookTarget({ bookId, chapterId }); activateView('books') }} onOpenPath={(path) => void openLocalPath(path)} />
     if (view === 'compile') return <CompileCenterView repositoryPath={repository?.path ?? ''} onChooseRepository={() => void handleChooseRepository()} onOpenPath={(path) => void openLocalPath(path)} />
     if (view === 'settings') return renderSettings()
     if (view === 'help') return <div className="placeholder-view"><div className="placeholder-icon"><CircleHelp size={28} /></div><h1>帮助</h1><p>从左侧选择文献、方法、书籍或知识图谱；在智能问答中提出研究问题并打开证据来源。编译中心用于执行 Lint、Graphify 更新和文献编译任务。</p><button className="refresh-button" onClick={() => activateView('dashboard')}>返回工作台</button></div>
@@ -585,18 +596,14 @@ export default function App() {
         <main ref={workspaceRef} className={`main-workspace ${view === 'qa' ? 'qa-active' : ''} ${view === 'compile' ? 'compile-active' : ''}`}>
           <div className="workspace-toolbar">
             <div className="global-search"><Search size={17} /><input ref={globalSearchRef} data-testid="global-search" value={query} onChange={(event) => void handleSearch(event.target.value)} placeholder="搜索论文、方法、模型或问题…" />{query && <button className="clear-search" onClick={() => void handleSearch('')}><X size={14} /></button>}<kbd>Ctrl K</kbd></div>
-            <div className="toolbar-actions"><button className="toolbar-button" onClick={() => activateView('qa')}><Sparkles size={16} />新建问答</button><button className="icon-button" title="刷新知识库快照" onClick={() => void refreshRepository()}><RefreshCw size={16} /></button><button className="icon-button" title={contextOpen ? '收起研究脉络' : '展开研究脉络'} onClick={() => setContextOpen((value) => !value)}>{contextOpen ? <ChevronRight size={17} /> : <ChevronLeft size={17} />}</button></div>
+            <div className="toolbar-actions"><button className="toolbar-button" onClick={() => activateView('qa')}><Sparkles size={16} />新建问答</button><button className="icon-button" title="刷新知识库快照" onClick={() => void refreshRepository()}><RefreshCw size={16} /></button><button data-testid="context-toggle" className="icon-button" title={contextOpen ? '收起研究脉络' : '展开研究脉络'} onClick={() => setContextOpen((value) => !value)}>{contextOpen ? <ChevronRight size={17} /> : <ChevronLeft size={17} />}</button></div>
           </div>
           {notice && <div className="notice"><Sparkles size={15} /><span>{notice}</span><button onClick={() => setNotice('')}><X size={14} /></button></div>}
           <TabBar tabs={tabs} activeId={activeTab} onSelect={selectTab} onClose={closeTab} />
           {renderContent()}
         </main>
 
-        {contextOpen ? <aside className="context-panel">
-          <div className="context-heading"><h2>研究脉络</h2><button className="icon-button subtle" onClick={() => setContextOpen(false)}><ChevronRight size={17} /></button></div>
-          <div className="context-tabs"><button className={contextTab === 'evidence' ? 'active' : ''} onClick={() => setContextTab('evidence')}>证据链</button><button className={contextTab === 'methods' ? 'active' : ''} onClick={() => setContextTab('methods')}>相关方法</button></div>
-          {contextTab === 'evidence' ? <><div className="evidence-list">{recentPages.map((item, index) => <button className="evidence-item" key={item.id} onClick={() => void openPage(item.id)}><span className="evidence-rank">{index + 1}</span><span><strong>{item.title}</strong><span className="evidence-meta">{item.pageType} · {item.year || '年份未知'}</span><p>{item.summary || '打开页面查看完整证据。'}</p></span><ChevronRight className="evidence-link" size={14} /></button>)}</div>{!recentPages.length && <div className="empty-state">暂无证据条目</div>}<div className="evidence-footer"><button className="link-button" onClick={() => activateView('qa')}>添加证据</button><button className="link-button" onClick={() => activateView('graph')}>查看完整脉络图</button></div></> : <><div className="method-list">{relatedMethods.map((item) => <button className="method-item" key={item.id} onClick={() => void openPage(item.id)}><span><strong>{item.title}</strong><span className="method-tags"><span>{item.methodFamily || '方法'}</span></span><small>{item.summary || '打开页面查看方法详情'}</small></span><Star size={14} /></button>)}</div>{!relatedMethods.length && <div className="empty-state">暂无相关方法</div>}<div className="evidence-footer"><span /><button className="link-button" onClick={() => activateView('methods')}>查看更多方法</button></div></>}
-        </aside> : <button className="context-reopen" aria-label="展开研究脉络" onClick={() => setContextOpen(true)}><ChevronLeft size={16} /></button>}
+        <ResearchTrailPanel open={contextOpen} tab={contextTab} request={researchRequest} repositoryPath={repository?.path ?? ''} refreshVersion={repositoryGeneration + graphRefreshVersion} onClose={() => setContextOpen(false)} onOpen={() => setContextOpen(true)} onTabChange={setContextTab} onOpenPage={(id) => void openPage(id)} onOpenBook={(bookId, chapterId) => { setBookTarget({ bookId, chapterId }); activateView('books') }} onOpenPath={(path) => void openLocalPath(path)} onOpenGraph={(nodeId) => { setGraphFocusNodeId(nodeId ?? ''); activateView('graph') }} onShowMethods={(value) => { activateView('methods'); if (value.trim()) void handleSearch(value) }} />
       </div>
 
       <footer className="statusbar"><span><i className="status-dot" />{repository?.indexed ? '已同步' : '等待索引'}</span><span>{repository?.path || '尚未选择本地知识库'}</span><span>页面 {repository?.pageCount ?? catalog.length}</span><span className="status-graph">Graphify 派生图</span></footer>

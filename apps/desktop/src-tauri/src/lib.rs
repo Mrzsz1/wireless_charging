@@ -15,6 +15,7 @@ use walkdir::WalkDir;
 mod compile_center;
 mod qa;
 mod repository_watcher;
+mod research_trail;
 
 #[derive(Default)]
 struct RepositoryState {
@@ -2255,6 +2256,26 @@ fn prepare_question(
 }
 
 #[tauri::command]
+fn prepare_research_trail(
+    request: research_trail::ResearchTrailRequest,
+    state: State<'_, AppState>,
+) -> Result<research_trail::ResearchTrailResponse, String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "请先建立本地索引".to_string())?;
+    research_trail::prepare(connection, root, request)
+}
+
+#[tauri::command]
 fn cancel_answer(request_id: String, state: State<'_, AppState>) -> Result<(), String> {
     let cancellations = state
         .cancellations
@@ -2711,6 +2732,7 @@ pub fn run() {
             rename_chat_session,
             delete_chat_session,
             prepare_question,
+            prepare_research_trail,
             ask_luna,
             cancel_answer,
             get_compile_capabilities,

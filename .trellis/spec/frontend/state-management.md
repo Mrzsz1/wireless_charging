@@ -132,6 +132,21 @@ setMessages((current) => mergeCompletedMessages(current, result))
 
 (To be filled by the team)
 
+## Scenario: Contextual Research Trail State
+
+### Contracts
+
+- The active anchor is one of `page`, `question`, `search`, or idle. Page anchors are published only after `getPage` succeeds; question anchors are published on submit/history-open, never on each draft keystroke; search anchors use a 350 ms debounce and clear below two characters.
+- Every research-trail request uses a latest-request guard. Repository/context changes invalidate earlier success and failure responses.
+- Pins use `desktop.research-trail-pins.v1` and are isolated by repository path plus backend `contextKey`. Corrupt JSON falls back to an empty versioned store.
+- Pins lead the visible list but do not mutate automatic rank. Duplicate identity is `kind:id`.
+- `GraphView.targetNodeId` is an explicit navigation target and is reconciled against the returned neighborhood.
+
+### Required tests
+
+- Node tests cover corrupt pin data, repository/context isolation, and pin/rank deduplication.
+- Strict GUI E2E must open the panel and prove a library search produces an anchor and at least one auditable result.
+
 ## Scenario: DPI-Safe Desktop Window Restoration
 
 ### 1. Scope / Trigger

@@ -1,7 +1,7 @@
 {
   "name": "desktop",
   "private": true,
-  "version": "0.7.2",
+  "version": "0.8.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -21,6 +21,7 @@
     "verify:p5:strict": "node scripts/verify-p5.mjs --strict",
     "test:p1": "node --experimental-strip-types --test tests/p1-state.test.ts",
     "test:p2": "node --experimental-strip-types --test tests/search-state.test.ts",
+    "test:research-trail": "node --experimental-strip-types --test tests/research-trail-state.test.ts",
     "release:signed": "node scripts/build-signed-release.mjs",
     "fixture:updater": "node scripts/updater-fixture-server.mjs"
   },

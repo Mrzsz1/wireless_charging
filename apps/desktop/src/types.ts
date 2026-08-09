@@ -293,6 +293,55 @@ export type QuestionContext = {
   generatedAt: string
 }
 
+export type ResearchContextAnchor = {
+  kind: 'page' | 'question' | 'search' | 'idle'
+  contextKey: string
+  title: string
+  subtitle: string
+  pageId: string
+  graphNodeId: string
+}
+
+export type ResearchTrailRequest = {
+  kind: 'page' | 'question' | 'search'
+  pageId?: string
+  text?: string
+  evidenceLimit?: number
+  methodLimit?: number
+}
+
+export type ResearchTrailItem = {
+  id: string
+  kind: 'wiki' | 'book' | 'graph'
+  rank: number
+  title: string
+  snippet: string
+  score: number
+  relation: string
+  retrievalReason: string
+  pageId: string
+  pageType: string
+  sourcePath: string
+  wikilink: string
+  bookId: string
+  chapterId: string
+  physicalPageStart?: number | null
+  physicalPageEnd?: number | null
+  markdownPath: string
+  pdfPath: string
+  nodeId: string
+  sourceLocation: string
+  graphPath: string[]
+}
+
+export type ResearchTrailResponse = {
+  anchor: ResearchContextAnchor
+  evidence: ResearchTrailItem[]
+  methods: ResearchTrailItem[]
+  degradedChannels: string[]
+  generatedAt: string
+}
+
 export type ChatSessionSummary = {
   id: string
   title: string
