@@ -247,3 +247,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 8: 完成客户端文献添加与自动入库
+
+**Date**: 2026-08-09
+**Task**: 完成客户端文献添加与自动入库
+**Branch**: `master`
+
+### Summary
+
+完成 Windows 客户端手动添加、待确认、两级自动添加、启动询问、受控编译、去重与审计；通过 Python/Rust/前端/GUI/安装器质量门并发布 0.9.0。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `5fc4723` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
