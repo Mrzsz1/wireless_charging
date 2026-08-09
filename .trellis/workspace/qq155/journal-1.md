@@ -346,3 +346,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 11: Desktop 0.11.0 Codex subscription QA
+
+**Date**: 2026-08-09
+**Task**: Desktop 0.11.0 Codex subscription QA
+**Branch**: `master`
+
+### Summary
+
+集中设置三种回答引擎；新增安全的 Codex ChatGPT 订阅状态、登录、隔离 JSONL 回答与取消清理；完成 fixture、P1-P5、最终 GUI 和 NSIS 发布验证。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `9f169fb` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
