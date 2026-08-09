@@ -445,3 +445,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 14: 编译并安装最新 Windows 客户端
+
+**Date**: 2026-08-09
+**Task**: 编译并安装最新 Windows 客户端
+**Branch**: `master`
+
+### Summary
+
+完成 Tauri 0.11.0 Release 构建，生成 MSI 与 NSIS；清理遗留 installer-smoke 安装路径，安装到当前用户 LocalAppData，更新桌面和开始菜单快捷方式；已安装程序严格 GUI E2E 通过并启动可见窗口。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `d9006d1` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

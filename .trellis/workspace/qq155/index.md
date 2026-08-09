@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 13
+- **Total Sessions**: 14
 - **Last Active**: 2026-08-09
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~447 | Active |
+| `journal-1.md` | ~480 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 14 | 2026-08-09 | 编译并安装最新 Windows 客户端 | `d9006d1` | `master` |
 | 13 | 2026-08-09 | 左侧搜索与新建问答入口 | `e12ba60` | `master` |
 | 12 | 2026-08-09 | 全局搜索显式提交与顶部左对齐 | `4c2a1a4` | `master` |
 | 11 | 2026-08-09 | Desktop 0.11.0 Codex subscription QA | `9f169fb` | `master` |
