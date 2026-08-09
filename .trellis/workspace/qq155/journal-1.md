@@ -544,3 +544,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 17: 单视图导航与问答右栏布局修复
+
+**Date**: 2026-08-10
+**Task**: 单视图导航与问答右栏布局修复
+**Branch**: `master`
+
+### Summary
+
+移除工作区标签栏和英文眉题；问答页默认折叠研究脉络并将折叠控件固定到最右栏；更新静态与 GUI 回归合同，完成构建、安装和验证。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `47d0aff` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 16
+- **Total Sessions**: 17
 - **Last Active**: 2026-08-10
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~546 | Active |
+| `journal-1.md` | ~579 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 17 | 2026-08-10 | 单视图导航与问答右栏布局修复 | `47d0aff` | `master` |
 | 16 | 2026-08-10 | 顶部导航与上下文帮助重设计 | `ede7b11` | `master` |
 | 15 | 2026-08-10 | 桌面页签重设计与我的空间伸缩 | `8f2a6a8` | `master` |
 | 14 | 2026-08-09 | 编译并安装最新 Windows 客户端 | `d9006d1` | `master` |
