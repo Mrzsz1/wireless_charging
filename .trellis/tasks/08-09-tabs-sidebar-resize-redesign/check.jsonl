@@ -1,0 +1,5 @@
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"复核组件语义、键盘操作与 DOM 责任边界。"}
+{"file":".trellis/spec/frontend/state-management.md","reason":"复核 localStorage 解析、回退和持久化时机。"}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"复核新增事件与状态代码不存在宽泛类型。"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"执行最终类型、测试、构建和 GUI 质量检查。"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"确认 UI 改动没有破坏 App 状态流、Tauri 运行和安装版行为。"}

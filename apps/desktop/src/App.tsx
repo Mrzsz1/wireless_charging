@@ -28,6 +28,7 @@ import {
   X,
 } from 'lucide-react'
 import { TabBar, type WorkTab } from './components/TabBar'
+import { SidebarWorkspacePane } from './components/SidebarWorkspacePane'
 import { createLatestRequestGuard } from './lib/latestRequest'
 import { createPersistedWindowState, LEGACY_WINDOW_STATE_KEY, parsePersistedWindowState, resolveWindowPlacement, WINDOW_STATE_KEY, type MonitorWorkArea, type PersistedWindowState } from './lib/windowPlacement'
 import { CoreBooksView } from './features/books/CoreBooksView'
@@ -635,7 +636,7 @@ export default function App() {
             ))}
           </nav>
 
-          {!navCollapsed && <div className="sidebar-expanded-content">
+          {!navCollapsed && <SidebarWorkspacePane>
             <div className="nav-divider" />
             <div className="nav-section-title"><span>我的空间</span><Plus size={14} /></div>
             <div className="workspace-tree">
@@ -649,7 +650,7 @@ export default function App() {
                 </div>
               })}
             </div>
-          </div>}
+          </SidebarWorkspacePane>}
 
           <div className="sidebar-spacer" />
           <div className="sidebar-footer">

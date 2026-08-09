@@ -142,14 +142,76 @@ try {
   await researchTrail.waitForExist({ timeout: 5000, timeoutMsg: 'Research trail panel did not open' })
   console.log('PASS [data-testid="research-trail-panel"]')
   const sidebar = await requireElement('[data-testid="sidebar"]')
+
+  const workTabs = await requireElement('[data-testid="work-tabs"]')
+  const activeWorkTab = await requireElement('[data-testid="active-work-tab"]')
+  if (await activeWorkTab.getAttribute('role') !== 'tab' || await activeWorkTab.getAttribute('aria-selected') !== 'true') {
+    throw new Error('Active work tab does not expose the tab selection contract')
+  }
+  const tabVisual = await browser.execute(() => {
+    const active = document.querySelector('.work-tab-shell.active')
+    const track = document.querySelector('[data-testid="work-tabs"]')
+    if (!(active instanceof HTMLElement) || !(track instanceof HTMLElement)) return null
+    const activeStyle = getComputedStyle(active)
+    const indicatorStyle = getComputedStyle(active, '::after')
+    return {
+      trackHeight: track.getBoundingClientRect().height,
+      activeBackground: activeStyle.backgroundColor,
+      indicatorHeight: indicatorStyle.height,
+    }
+  })
+  if (!tabVisual || tabVisual.trackHeight < 38 || tabVisual.trackHeight > 44 || tabVisual.indicatorHeight !== '2px' || tabVisual.activeBackground === 'rgba(0, 0, 0, 0)') {
+    throw new Error(`Work tab visual contract failed: ${JSON.stringify(tabVisual)}`)
+  }
+  if (!(await workTabs.getAttribute('role')).includes('tablist')) throw new Error('Work tab track is not a tablist')
+  console.log('PASS lightweight work tab track')
+
+  await browser.setWindowSize(1600, 900)
+  const workspacePane = await requireElement('[data-testid="sidebar-workspace-pane"]')
+  const workspaceResizer = await requireElement('[data-testid="sidebar-workspace-resizer"]')
+  if (await workspaceResizer.getAttribute('role') !== 'separator' || await workspaceResizer.getAttribute('aria-orientation') !== 'horizontal') {
+    throw new Error('Workspace resizer does not expose the separator contract')
+  }
+  const paneHeightBeforeDrag = (await workspacePane.getSize()).height
+  await browser.execute(() => {
+    const handle = document.querySelector('[data-testid="sidebar-workspace-resizer"]')
+    if (!(handle instanceof HTMLElement)) throw new Error('Workspace resizer missing')
+    const y = handle.getBoundingClientRect().top + 5
+    const eventOptions = { bubbles: true, pointerId: 41, pointerType: 'mouse', button: 0, buttons: 1, clientX: handle.getBoundingClientRect().left + 30 }
+    handle.dispatchEvent(new PointerEvent('pointerdown', { ...eventOptions, clientY: y }))
+    handle.dispatchEvent(new PointerEvent('pointermove', { ...eventOptions, clientY: y - 40 }))
+    handle.dispatchEvent(new PointerEvent('pointerup', { ...eventOptions, buttons: 0, clientY: y - 40 }))
+  })
+  await browser.waitUntil(async () => (await workspacePane.getSize()).height < paneHeightBeforeDrag - 10, {
+    timeout: 5000,
+    timeoutMsg: 'Dragging upward did not shrink the workspace pane',
+  })
+  const paneHeightAfterDrag = (await workspacePane.getSize()).height
+  await workspaceResizer.click()
+  await browser.execute(() => {
+    const handle = document.querySelector('[data-testid="sidebar-workspace-resizer"]')
+    if (!(handle instanceof HTMLElement)) throw new Error('Workspace resizer missing')
+    handle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
+  })
+  await browser.waitUntil(async () => (await workspacePane.getSize()).height > paneHeightAfterDrag, {
+    timeout: 5000,
+    timeoutMsg: 'ArrowDown did not expand the focused workspace pane',
+  })
+  const persistedWorkspaceHeight = await browser.execute(() => localStorage.getItem('desktop.sidebar-workspace-height.v1'))
+  if (!persistedWorkspaceHeight) throw new Error('Workspace pane height was not persisted')
+  console.log('PASS resizable and keyboard-accessible workspace pane')
+
   if (!(await sidebar.getAttribute('class')).includes('collapsed')) {
     await (await requireElement('button[aria-label="展开或收起侧边栏"]')).click()
     await browser.waitUntil(async () => (await sidebar.getAttribute('class')).includes('collapsed'), { timeout: 5000, timeoutMsg: 'Sidebar did not collapse' })
   }
+  if (await (await browser.$('[data-testid="sidebar-workspace-resizer"]')).isExisting()) throw new Error('Workspace resizer stayed visible after sidebar collapse')
   await requireElement('[data-testid="sidebar-search-trigger"]')
   await requireElement('[data-testid="sidebar-new-qa"]')
   await browser.keys(['\uE009', 'k', '\uE000'])
   await browser.waitUntil(async () => (await sidebar.getAttribute('class')).includes('expanded'), { timeout: 5000, timeoutMsg: 'Ctrl+K did not expand the sidebar' })
+  await requireElement('[data-testid="sidebar-workspace-resizer"]')
+  await verifyViewport(1366, 768)
   const search = await requireElement('[data-testid="global-search"]')
   if (!await search.isFocused()) throw new Error('Ctrl+K did not focus global search')
   await search.setValue('curr')

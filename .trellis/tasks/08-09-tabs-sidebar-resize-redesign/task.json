@@ -1,0 +1,31 @@
+{
+  "id": "tabs-sidebar-resize-redesign",
+  "name": "tabs-sidebar-resize-redesign",
+  "title": "顶部页签重设计与侧栏空间伸缩",
+  "description": "重设计工作区页签样式，并让左侧我的空间区域支持上下拖拽调整高度。",
+  "status": "in_progress",
+  "dev_type": "frontend",
+  "scope": "desktop UI",
+  "package": "apps/desktop",
+  "priority": "P1",
+  "creator": "qq155",
+  "assignee": "qq155",
+  "createdAt": "2026-08-09",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "apps/desktop/src/components/TabBar.tsx",
+    "apps/desktop/src/App.tsx",
+    "apps/desktop/src/styles.css",
+    "apps/desktop/e2e/gui-smoke.mjs"
+  ],
+  "notes": "用户已确认采用轻量文档轨道；实现需等待最终计划批准。",
+  "meta": {}
+}

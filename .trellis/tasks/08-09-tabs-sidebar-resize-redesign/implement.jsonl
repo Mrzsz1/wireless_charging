@@ -1,0 +1,6 @@
+{"file":".trellis/spec/frontend/index.md","reason":"实现前读取前端规范入口与必读清单。"}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"页签与侧栏伸缩组件需要遵循组件边界和可访问性约定。"}
+{"file":".trellis/spec/frontend/state-management.md","reason":"持久化高度和拖动状态必须符合本地状态管理规则。"}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Pointer Event、存储解析与组件 props 必须保持严格类型。"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"执行构建、测试、GUI E2E 和交付质量门。"}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"新增组件与纯函数前检查复用边界，避免继续膨胀 App.tsx。"}
