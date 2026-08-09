@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 8
+- **Total Sessions**: 9
 - **Last Active**: 2026-08-09
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~282 | Active |
+| `journal-1.md` | ~315 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 9 | 2026-08-09 | 修复文献运行卡死与全局搜索 | `6286abe` | `master` |
 | 8 | 2026-08-09 | 完成客户端文献添加与自动入库 | `5fc4723` | `master` |
 | 7 | 2026-08-09 | 更新研究脉络 Graphify 派生图 | `77aaa33` | `master` |
 | 6 | 2026-08-09 | 实现上下文相关研究脉络 | `98e522d`, `d5df59b` | `master` |

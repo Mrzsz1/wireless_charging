@@ -280,3 +280,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 9: 修复文献运行卡死与全局搜索
+
+**Date**: 2026-08-09
+**Task**: 修复文献运行卡死与全局搜索
+**Branch**: `master`
+
+### Summary
+
+发布 0.9.1：长期文献任务后台化、Windows 子进程隐藏、Python UTF-8、FTS5 snippet 修复；严格 GUI 与 NSIS 生命周期通过。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `6286abe` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
