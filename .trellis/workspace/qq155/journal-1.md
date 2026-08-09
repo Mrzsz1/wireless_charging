@@ -313,3 +313,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 10: 桌面端设置集中管理与列表分页 0.10.0
+
+**Date**: 2026-08-09
+**Task**: 桌面端设置集中管理与列表分页 0.10.0
+**Branch**: `master`
+
+### Summary
+
+将文献自动化和论文搜索服务配置集中到设置页，以 Windows Credential Manager 安全保存检索 Key，并为知识库列表增加 10/20/50 分页；完成 0.10.0 release、严格 GUI 和安装生命周期验证。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `b13db4a` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
