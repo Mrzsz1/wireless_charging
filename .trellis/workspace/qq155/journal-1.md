@@ -511,3 +511,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 16: 顶部导航与上下文帮助重设计
+
+**Date**: 2026-08-10
+**Task**: 顶部导航与上下文帮助重设计
+**Branch**: `master`
+
+### Summary
+
+将设置和帮助迁移到标题栏；新增一秒延迟问号帮助提示；重设计研究脉络刷新、折叠和恢复控件；完成 release/NSIS 构建、源码版与安装版严格 GUI E2E，并安装启动 0.11.0。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `ede7b11` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
