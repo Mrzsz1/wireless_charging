@@ -49,7 +49,7 @@ const checks = [
   ['p2 rust commands', ['list_core_books', 'get_book_chapter', 'graph_overview', 'graph_path', 'build_comparison'].every((name) => rustSource.includes(name))],
   ['p3 qa navigation', appSource.includes("label: '\u667a\u80fd\u95ee\u7b54'") && appSource.includes("view: 'qa'") && appSource.includes('<AskView')],
   ['p3 qa service', ['askLuna', 'cancelAnswer', 'listChatSessions', 'getLunaSettings'].every((name) => serviceSource.includes(name))],
-  ['p3 evidence interface', ['\u672c\u8f6e\u8bc1\u636e', '\u5e93\u6c34\u4f4d', 'qa-inline-citation', '\u79bb\u7ebf\u8bc1\u636e\u6a21\u5f0f'].every((name) => qaViewSource.includes(name))],
+  ['p3 evidence interface', ['\u672c\u8f6e\u8bc1\u636e', '\u5e93\u6c34\u4f4d', 'qa-inline-citation', '\u79bb\u7ebf\u8bc1\u636e'].every((name) => qaViewSource.includes(name))],
   ['p3 rust commands', ['prepare_question', 'ask_luna', 'cancel_answer', 'list_chat_sessions', 'save_luna_settings'].every((name) => rustSource.includes(name))],
   ['p3 chat schema', ['chat_sessions', 'chat_messages', 'chat_evidence', 'user_version'].every((name) => qaRustSource.includes(name))],
   ['p3 secret boundary', qaRustSource.includes('env::var(&settings.api_key_env)') && !qaRustSource.includes('luna.api_key"')],

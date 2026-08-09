@@ -170,7 +170,8 @@ export default function App() {
   const [startupIngestPrompt, setStartupIngestPrompt] = useState<StartupPromptState | null>(null)
   const [startupPromptBusy, setStartupPromptBusy] = useState(false)
   const [autoStartRequest, setAutoStartRequest] = useState<{ version: number; mode: 'prepare' | 'automatic' }>({ version: 0, mode: 'prepare' })
-  const [releaseInfo, setReleaseInfo] = useState({ version: '0.10.0', channel: 'stable' })
+  const [releaseInfo, setReleaseInfo] = useState({ version: '0.11.0', channel: 'stable' })
+  const [settingsFocusSection, setSettingsFocusSection] = useState('')
   const globalSearchRef = useRef<HTMLInputElement>(null)
   const workspaceRef = useRef<HTMLElement>(null)
   const currentScrollKey = useRef('')
@@ -534,7 +535,12 @@ export default function App() {
     </>
   )
 
-  const renderSettings = () => <SettingsView repositoryPath={repository?.path ?? ''} theme={theme} fontSize={fontSize} releaseInfo={releaseInfo} updateBusy={updateBusy} desktopRuntime={isDesktopRuntime()} onChooseRepository={() => void handleChooseRepository()} onRebuild={() => void handleRebuild()} onThemeChange={setTheme} onFontSizeChange={setFontSize} onUpdate={() => void handleUpdate()} onOpenQa={() => activateView('qa')} />
+  const openSettings = (section = '') => {
+    setSettingsFocusSection(section)
+    activateView('settings')
+  }
+
+  const renderSettings = () => <SettingsView repositoryPath={repository?.path ?? ''} theme={theme} fontSize={fontSize} releaseInfo={releaseInfo} updateBusy={updateBusy} desktopRuntime={isDesktopRuntime()} focusSection={settingsFocusSection} onChooseRepository={() => void handleChooseRepository()} onRebuild={() => void handleRebuild()} onThemeChange={setTheme} onFontSizeChange={setFontSize} onUpdate={() => void handleUpdate()} />
 
   const renderContent = () => {
     if (loading && view === 'page') return <div className="page-loading"><RefreshCw className="spin" />正在加载页面…</div>
@@ -544,8 +550,8 @@ export default function App() {
     if (view === 'books') return <CoreBooksView onOpenLink={(id) => void openPage(id)} target={bookTarget} />
     if (view === 'graph') return <GraphView onOpenPage={(id) => void openPage(id)} refreshVersion={graphRefreshVersion} targetNodeId={graphFocusNodeId} />
     if (view === 'comparison') return <ComparisonView candidates={catalog} onOpenPage={(id) => void openPage(id)} />
-    if (view === 'ingest') return <LiteratureIngestView repositoryPath={repository?.path ?? ''} autoStartRequest={autoStartRequest} onChooseRepository={() => void handleChooseRepository()} onCompleted={(message) => { setNotice(message); setRepositoryGeneration((value) => value + 1) }} onOpenCompileCenter={() => activateView('compile')} onOpenSettings={() => activateView('settings')} onOpenPath={(path, reveal) => void openLocalPath(path, reveal)} />
-    if (view === 'qa') return <AskView repositoryPath={repository?.path ?? ''} onResearchContextChange={(question) => setResearchRequest(question ? { kind: 'question', text: question, evidenceLimit: 5, methodLimit: 4 } : null)} onOpenPage={(id) => void openPage(id)} onOpenBook={(bookId, chapterId) => { setBookTarget({ bookId, chapterId }); activateView('books') }} onOpenPath={(path) => void openLocalPath(path)} />
+    if (view === 'ingest') return <LiteratureIngestView repositoryPath={repository?.path ?? ''} autoStartRequest={autoStartRequest} onChooseRepository={() => void handleChooseRepository()} onCompleted={(message) => { setNotice(message); setRepositoryGeneration((value) => value + 1) }} onOpenCompileCenter={() => activateView('compile')} onOpenSettings={() => openSettings('literature-automation-settings')} onOpenPath={(path, reveal) => void openLocalPath(path, reveal)} />
+    if (view === 'qa') return <AskView repositoryPath={repository?.path ?? ''} onOpenSettings={() => openSettings('qa-engine-settings')} onResearchContextChange={(question) => setResearchRequest(question ? { kind: 'question', text: question, evidenceLimit: 5, methodLimit: 4 } : null)} onOpenPage={(id) => void openPage(id)} onOpenBook={(bookId, chapterId) => { setBookTarget({ bookId, chapterId }); activateView('books') }} onOpenPath={(path) => void openLocalPath(path)} />
     if (view === 'compile') return <CompileCenterView repositoryPath={repository?.path ?? ''} onChooseRepository={() => void handleChooseRepository()} onOpenPath={(path) => void openLocalPath(path)} />
     if (view === 'settings') return renderSettings()
     if (view === 'help') return <div className="placeholder-view"><div className="placeholder-icon"><CircleHelp size={28} /></div><h1>帮助</h1><p>“文献入库”用于手动添加 PDF、确认自动发现候选，以及运行启动时询问的自动检索；确认添加会执行完整入库，仅下载不会成为正式证据。编译中心用于查看日志、失败原因、生成物和回滚记录。</p><button className="refresh-button" onClick={() => activateView('dashboard')}>返回工作台</button></div>
@@ -593,7 +599,7 @@ export default function App() {
 
           <div className="sidebar-spacer" />
           <div className="sidebar-footer">
-            <button data-testid="settings" className={`sidebar-nav-item ${view === 'settings' ? 'selected' : ''}`} onClick={() => activateView('settings')}><span className="sidebar-icon"><Settings size={18} /></span>{!navCollapsed && <span className="sidebar-label">设置</span>}</button>
+            <button data-testid="settings" className={`sidebar-nav-item ${view === 'settings' ? 'selected' : ''}`} onClick={() => openSettings()}><span className="sidebar-icon"><Settings size={18} /></span>{!navCollapsed && <span className="sidebar-label">设置</span>}</button>
             <button className={`sidebar-nav-item ${view === 'help' ? 'selected' : ''}`} onClick={() => activateView('help')}><span className="sidebar-icon"><CircleHelp size={18} /></span>{!navCollapsed && <span className="sidebar-label">帮助</span>}</button>
           </div>
         </aside>

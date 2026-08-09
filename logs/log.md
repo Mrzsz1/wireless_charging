@@ -264,6 +264,14 @@
 - 文献库、方法库与搜索结果新增 10/20/50 分页，并覆盖筛选重置、越界收敛和空结果。
 - 验收：Rust 45/45、Python 45/45、Wiki 10/10、两书 Recall@5 1.000 / 0.986667，P5 strict GUI 与 NSIS 生命周期通过。
 - 详情：`logs/2026-08-09-desktop-settings-pagination.md`
+
+## [2026-08-09] desktop | ChatGPT/Codex 订阅问答与设置收口 0.11.0
+
+- 设置页统一提供 Codex 订阅、兼容 API、离线证据三种回答引擎；AskView 删除连接参数弹窗并定位到全局设置。
+- Codex 订阅复用官方 ChatGPT 登录状态；证据经 stdin 进入只读、一次性、隔离的 `codex exec`，取消/超时终止完整进程树。
+- fake Codex fixture 覆盖状态、登录启动、JSONL、错误脱敏、超时与取消；自动验证未消耗真实订阅额度。
+- 验收：Rust 53/53、Python 45/45、Wiki 10/10、两书 Recall@5 1.000 / 0.986667、P5、最终 release strict GUI 与 NSIS 安装生命周期通过。
+- 详情：`logs/2026-08-09-desktop-subscription-qa.md`
 ## [2026-08-02] desktop | P5.3 ????????? 0.7.0
 
 - ?????/??/??/????? `Ctrl+K`??? Wiki ???? upsert/delete/rename?

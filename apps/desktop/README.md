@@ -1,6 +1,6 @@
-# Wireless Charging Research Workbench 0.10.0
+# Wireless Charging Research Workbench 0.11.0
 
-Windows 本地科研工作台：以 Wiki 正文为真相，使用 SQLite FTS5、核心专著章节索引、Graphify 和 Luna 完成阅读、检索、问答与受控编译。
+Windows 本地科研工作台：以 Wiki 正文为真相，使用 SQLite FTS5、核心专著章节索引、Graphify，以及 Codex 订阅/兼容 API/离线证据三种回答引擎完成阅读、检索、问答与受控编译。
 
 ## 环境
 
@@ -28,6 +28,8 @@ npm run test:p1
 npm run test:p2
 npm run test:research-trail
 npm run test:ingest
+npm run test:settings-pagination
+npm run test:qa-settings
 npm run test:installer-lifecycle
 npm run build
 npm run verify
@@ -69,6 +71,18 @@ py -3 tools/wiki_lint.py --strict-graphify
 
 文献库、方法库和全局检索结果使用同一分页逻辑：默认每页 10 条，可切换 10/20/50 条；搜索、筛选、排序或页大小变化会回到第一页，结果缩减时当前页自动收敛到有效范围。
 
+## AI 回答引擎与订阅模式
+
+0.11.0 起，回答引擎统一在“设置 → AI 回答引擎”管理，“智能问答”页只负责问题、证据、生成、停止和历史。三个模式按知识库分别保存：
+
+- **Codex 订阅（推荐）**：复用本机 Codex CLI 的官方 ChatGPT 登录状态，无需输入 OpenAI API Key。设置页会显示安装、版本和登录状态；未登录时可启动官方浏览器登录。
+- **兼容 API**：保留原 Luna/OpenAI-compatible endpoint、模型、API Key 环境变量、超时、输出长度和 temperature。Key 仍只从运行环境读取，不写入 SQLite 或日志。
+- **仅离线证据**：只返回 Wiki、核心专著与 Graphify 形成的确定性证据包，适合断网和审计。
+
+Codex 模式仍先执行本地混合召回，再把编号证据经 stdin 交给一次性 `codex exec`。子进程固定为 `read-only` sandbox、`never` approval、ephemeral 和空临时工作目录；客户端不读取 token、cookie 或凭据文件。回答继续使用 `[E#]` 定位来源。停止或超时会终止完整子进程树并清理临时目录。
+
+自动化使用 fake Codex fixture 验证版本/登录状态、JSONL 增量与最终消息、失败脱敏、超时和取消，不消耗真实订阅额度。发布验证只读取了本机登录状态，没有提交真实订阅问题。
+
 ## 上下文研究脉络
 
 右侧“研究脉络”跟随当前 Wiki 页面、已提交的研究问题或文献库搜索词切换。证据链融合页面出链/反链、Wiki FTS5、两本核心书籍与 Graphify 一跳关系；每项显示关系、归一化分数与检索理由，“相关方法”只返回 `type: method` 页面。Graphify 或书籍索引缺失时面板显示降级通道，不用目录前几项伪装结果。
@@ -79,7 +93,7 @@ py -3 tools/wiki_lint.py --strict-graphify
 
 0.7.2 起，窗口位置与尺寸按物理像素保存和恢复，并在启动时与当前显示器工作区求交。移除副屏、修改分辨率/DPI 或任务栏工作区后，完全位于屏幕外的旧窗口会回到主显示器中央；合法的负坐标副屏位置仍会保留。最小化状态不会覆盖最后一个正常窗口矩形，启动恢复结束后会执行取消最小化、显示与聚焦。
 
-若旧版本只在任务栏显示缩略图，直接安装并启动 0.10.0 即会迁移 `desktop.window-state.v2`；无需手工清理本地存储。
+若旧版本只在任务栏显示缩略图，直接安装并启动 0.11.0 即会迁移 `desktop.window-state.v2`；无需手工清理本地存储。
 
 ## GUI E2E
 

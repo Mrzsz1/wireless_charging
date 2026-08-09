@@ -7,12 +7,13 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
-use std::time::SystemTime;
+use std::time::{Duration, SystemTime};
 use tauri::ipc::Channel;
 use tauri::{AppHandle, Emitter, Manager, State};
 use uuid::Uuid;
 use walkdir::WalkDir;
 
+mod codex_subscription;
 mod compile_center;
 mod literature_ingest;
 mod process_support;
@@ -2126,11 +2127,15 @@ fn get_luna_settings(state: State<'_, AppState>) -> Result<qa::LunaSettings, Str
         .repository
         .lock()
         .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
     let connection = repository
         .db
         .as_ref()
         .ok_or_else(|| "请先选择知识库目录".to_string())?;
-    qa::get_luna_settings(connection)
+    qa::get_luna_settings(connection, root, false)
 }
 
 #[tauri::command]
@@ -2142,11 +2147,59 @@ fn save_luna_settings(
         .repository
         .lock()
         .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
     let connection = repository
         .db
         .as_ref()
         .ok_or_else(|| "请先选择知识库目录".to_string())?;
-    qa::save_luna_settings(connection, settings)
+    qa::save_luna_settings(connection, root, settings)
+}
+
+#[tauri::command]
+async fn get_qa_settings(state: State<'_, AppState>) -> Result<qa::LunaSettings, String> {
+    let codex_ready = tauri::async_runtime::spawn_blocking(codex_subscription::get_status)
+        .await
+        .map_err(|error| format!("Codex 状态线程失败：{error}"))?
+        .ready;
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    qa::get_luna_settings(connection, root, codex_ready)
+}
+
+#[tauri::command]
+fn save_qa_settings(
+    settings: qa::LunaSettings,
+    state: State<'_, AppState>,
+) -> Result<qa::LunaSettings, String> {
+    save_luna_settings(settings, state)
+}
+
+#[tauri::command]
+async fn get_codex_subscription_status(
+) -> Result<codex_subscription::CodexSubscriptionStatus, String> {
+    tauri::async_runtime::spawn_blocking(codex_subscription::get_status)
+        .await
+        .map_err(|error| format!("Codex 状态线程失败：{error}"))
+}
+
+#[tauri::command]
+async fn start_codex_login() -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(codex_subscription::start_login)
+        .await
+        .map_err(|error| format!("Codex 登录线程失败：{error}"))?
 }
 
 #[tauri::command]
@@ -2307,6 +2360,10 @@ async fn ask_luna(
     on_event: Channel<qa::AnswerStreamEvent>,
     state: State<'_, AppState>,
 ) -> Result<qa::AskResult, String> {
+    let codex_ready = tauri::async_runtime::spawn_blocking(codex_subscription::get_status)
+        .await
+        .map_err(|error| format!("Codex 状态线程失败：{error}"))?
+        .ready;
     let (context, settings, root, session_id) = {
         let repository = state
             .repository
@@ -2336,7 +2393,7 @@ async fn ask_luna(
             // failed requests therefore cannot leave empty sessions behind.
             Uuid::new_v4().to_string()
         };
-        let settings = qa::get_luna_settings(connection)?;
+        let settings = qa::get_luna_settings(connection, &root, codex_ready)?;
         (context, settings, root, session_id)
     };
 
@@ -2361,32 +2418,66 @@ async fn ask_luna(
         waterline: context.waterline.clone(),
     });
 
-    let remote_settings = settings.clone();
-    let remote_context = context.clone();
-    let stream_channel = on_event.clone();
-    let stream_request_id = request_id.clone();
-    let stream_cancel_flag = cancel_flag.clone();
-    let generated = if settings.endpoint.is_empty() || !settings.api_key_configured {
-        Err("LUNA_NOT_CONFIGURED: endpoint 或 API Key 环境变量尚未配置".to_string())
-    } else {
-        tauri::async_runtime::spawn_blocking(move || {
-            qa::stream_luna(
-                &remote_settings,
-                &remote_context,
-                &stream_cancel_flag,
-                |content| {
-                    stream_channel
-                        .send(qa::AnswerStreamEvent::Token {
-                            request_id: stream_request_id.clone(),
-                            content: content.to_string(),
-                        })
-                        .map_err(|error| format!("LUNA_CHANNEL_ERROR: {error}"))
-                },
-            )
-        })
-        .await
-        .map_err(|error| format!("LUNA_TASK_ERROR: {error}"))?
-    };
+    let generated: Result<(String, String, String), String> =
+        match settings.answer_provider.as_str() {
+            qa::PROVIDER_CODEX if codex_ready => {
+                let prompt = qa::build_codex_prompt(&context);
+                let model = settings.codex_model.clone();
+                let timeout = Duration::from_secs(settings.timeout_seconds);
+                let stream_channel = on_event.clone();
+                let stream_request_id = request_id.clone();
+                let stream_cancel_flag = cancel_flag.clone();
+                tauri::async_runtime::spawn_blocking(move || {
+                    codex_subscription::stream_answer(
+                        &prompt,
+                        &model,
+                        timeout,
+                        &stream_cancel_flag,
+                        |content| {
+                            stream_channel
+                                .send(qa::AnswerStreamEvent::Token {
+                                    request_id: stream_request_id.clone(),
+                                    content: content.to_string(),
+                                })
+                                .map_err(|error| format!("CODEX_CHANNEL_ERROR: {error}"))
+                        },
+                    )
+                    .map(|(answer, model)| (answer, qa::PROVIDER_CODEX.to_string(), model))
+                })
+                .await
+                .map_err(|error| format!("CODEX_TASK_ERROR: {error}"))?
+            }
+            qa::PROVIDER_CODEX => Err("CODEX_NOT_READY: 请在设置中登录 ChatGPT".to_string()),
+            qa::PROVIDER_API if settings.endpoint.is_empty() || !settings.api_key_configured => {
+                Err("LUNA_NOT_CONFIGURED: endpoint 或 API Key 环境变量尚未配置".to_string())
+            }
+            qa::PROVIDER_API => {
+                let remote_settings = settings.clone();
+                let remote_context = context.clone();
+                let stream_channel = on_event.clone();
+                let stream_request_id = request_id.clone();
+                let stream_cancel_flag = cancel_flag.clone();
+                tauri::async_runtime::spawn_blocking(move || {
+                    qa::stream_luna(
+                        &remote_settings,
+                        &remote_context,
+                        &stream_cancel_flag,
+                        |content| {
+                            stream_channel
+                                .send(qa::AnswerStreamEvent::Token {
+                                    request_id: stream_request_id.clone(),
+                                    content: content.to_string(),
+                                })
+                                .map_err(|error| format!("LUNA_CHANNEL_ERROR: {error}"))
+                        },
+                    )
+                    .map(|answer| (answer, "luna".to_string(), remote_settings.model.clone()))
+                })
+                .await
+                .map_err(|error| format!("LUNA_TASK_ERROR: {error}"))?
+            }
+            _ => Err("OFFLINE_SELECTED: 已选择仅离线证据".to_string()),
+        };
 
     if cancel_flag.load(Ordering::SeqCst) {
         let _ = on_event.send(qa::AnswerStreamEvent::Cancelled {
@@ -2399,12 +2490,17 @@ async fn ask_luna(
     }
 
     let (answer, provider, model, offline) = match generated {
-        Ok(answer) => (answer, "luna", settings.model.as_str(), false),
+        Ok((answer, provider, model)) => (answer, provider, model, false),
         Err(error) => {
             let mut answer = qa::offline_answer(&context);
-            answer.push_str("\n\nLuna 状态：");
+            answer.push_str("\n\n回答引擎状态：");
             answer.push_str(&error);
-            (answer, "offline-evidence", "deterministic", true)
+            (
+                answer,
+                qa::PROVIDER_OFFLINE.to_string(),
+                "deterministic".to_string(),
+                true,
+            )
         }
     };
 
@@ -2442,8 +2538,8 @@ async fn ask_luna(
             Some(&session_id),
             &context,
             answer,
-            provider,
-            model,
+            &provider,
+            &model,
         )
     };
     let result = match persisted {
@@ -3052,6 +3148,10 @@ pub fn run() {
             build_comparison,
             get_luna_settings,
             save_luna_settings,
+            get_qa_settings,
+            save_qa_settings,
+            get_codex_subscription_status,
+            start_codex_login,
             list_chat_sessions,
             get_chat_session,
             create_chat_session,

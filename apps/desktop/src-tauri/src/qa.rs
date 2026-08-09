@@ -13,11 +13,18 @@ use uuid::Uuid;
 
 const DEFAULT_MODEL: &str = "gpt-5.6-luna";
 const DEFAULT_KEY_ENV: &str = "LUNA_API_KEY";
+pub const PROVIDER_CODEX: &str = "codex-subscription";
+pub const PROVIDER_API: &str = "compatible-api";
+pub const PROVIDER_OFFLINE: &str = "offline-evidence";
 const QA_SCHEMA_VERSION: i64 = 3;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct LunaSettings {
+    #[serde(default)]
+    pub answer_provider: String,
+    #[serde(default)]
+    pub codex_model: String,
     pub endpoint: String,
     pub model: String,
     pub api_key_env: String,
@@ -31,6 +38,8 @@ pub struct LunaSettings {
 impl Default for LunaSettings {
     fn default() -> Self {
         Self {
+            answer_provider: PROVIDER_OFFLINE.to_string(),
+            codex_model: String::new(),
             endpoint: String::new(),
             model: DEFAULT_MODEL.to_string(),
             api_key_env: DEFAULT_KEY_ENV.to_string(),
@@ -302,42 +311,75 @@ fn setting_map(connection: &Connection) -> Result<HashMap<String, String>, Strin
     Ok(values)
 }
 
-pub fn get_luna_settings(connection: &Connection) -> Result<LunaSettings, String> {
+pub fn get_luna_settings(
+    connection: &Connection,
+    root: &Path,
+    codex_ready: bool,
+) -> Result<LunaSettings, String> {
     let values = setting_map(connection)?;
+    let scoped = |key: &str| {
+        values
+            .get(&format!("{key}::{}", repository_id(root)))
+            .or_else(|| values.get(key))
+    };
     let mut settings = LunaSettings::default();
-    settings.endpoint = values.get("luna.endpoint").cloned().unwrap_or_default();
-    settings.model = values
-        .get("luna.model")
+    settings.endpoint = scoped("luna.endpoint").cloned().unwrap_or_default();
+    settings.model = scoped("luna.model")
         .cloned()
         .filter(|value| !value.trim().is_empty())
         .unwrap_or_else(|| DEFAULT_MODEL.to_string());
-    settings.api_key_env = values
-        .get("luna.api_key_env")
+    settings.api_key_env = scoped("luna.api_key_env")
         .cloned()
         .filter(|value| !value.trim().is_empty())
         .unwrap_or_else(|| DEFAULT_KEY_ENV.to_string());
-    settings.timeout_seconds = values
-        .get("luna.timeout_seconds")
+    settings.timeout_seconds = scoped("luna.timeout_seconds")
         .and_then(|value| value.parse().ok())
         .unwrap_or(90);
-    settings.max_output_tokens = values
-        .get("luna.max_output_tokens")
+    settings.max_output_tokens = scoped("luna.max_output_tokens")
         .and_then(|value| value.parse().ok())
         .unwrap_or(1800);
-    settings.temperature = values
-        .get("luna.temperature")
+    settings.temperature = scoped("luna.temperature")
         .and_then(|value| value.parse().ok())
         .unwrap_or(0.1);
     settings.api_key_configured = env::var(&settings.api_key_env)
         .map(|value| !value.trim().is_empty())
         .unwrap_or(false);
+    settings.codex_model = scoped("qa.codex_model").cloned().unwrap_or_default();
+    settings.answer_provider = scoped("qa.answer_provider")
+        .cloned()
+        .filter(|value| {
+            matches!(
+                value.as_str(),
+                PROVIDER_CODEX | PROVIDER_API | PROVIDER_OFFLINE
+            )
+        })
+        .unwrap_or_else(|| {
+            if !settings.endpoint.is_empty() && settings.api_key_configured {
+                PROVIDER_API.to_string()
+            } else if codex_ready {
+                PROVIDER_CODEX.to_string()
+            } else {
+                PROVIDER_OFFLINE.to_string()
+            }
+        });
     Ok(settings)
 }
 
 pub fn save_luna_settings(
     connection: &Connection,
+    root: &Path,
     mut settings: LunaSettings,
 ) -> Result<LunaSettings, String> {
+    if !matches!(
+        settings.answer_provider.as_str(),
+        PROVIDER_CODEX | PROVIDER_API | PROVIDER_OFFLINE
+    ) {
+        return Err("不支持的问答引擎".to_string());
+    }
+    settings.codex_model = settings.codex_model.trim().to_string();
+    if settings.codex_model.len() > 120 || settings.codex_model.chars().any(char::is_control) {
+        return Err("Codex 模型覆盖格式无效".to_string());
+    }
     settings.endpoint = settings.endpoint.trim().trim_end_matches('/').to_string();
     if !settings.endpoint.is_empty()
         && !settings.endpoint.starts_with("https://")
@@ -363,6 +405,8 @@ pub fn save_luna_settings(
     settings.max_output_tokens = settings.max_output_tokens.clamp(256, 8000);
     settings.temperature = settings.temperature.clamp(0.0, 1.0);
     for (key, value) in [
+        ("qa.answer_provider", settings.answer_provider.clone()),
+        ("qa.codex_model", settings.codex_model.clone()),
         ("luna.endpoint", settings.endpoint.clone()),
         ("luna.model", settings.model.clone()),
         ("luna.api_key_env", settings.api_key_env.clone()),
@@ -373,6 +417,7 @@ pub fn save_luna_settings(
         ),
         ("luna.temperature", settings.temperature.to_string()),
     ] {
+        let key = format!("{key}::{}", repository_id(root));
         connection
             .execute(
                 "INSERT INTO app_settings(key,value) VALUES(?1,?2) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
@@ -380,7 +425,7 @@ pub fn save_luna_settings(
             )
             .map_err(|error| format!("保存Luna设置失败：{error}"))?;
     }
-    get_luna_settings(connection)
+    get_luna_settings(connection, root, false)
 }
 
 pub fn create_session(
@@ -1045,6 +1090,13 @@ fn build_prompt(context: &QuestionContext) -> String {
     )
 }
 
+pub fn build_codex_prompt(context: &QuestionContext) -> String {
+    format!(
+        "你是无线充电调度科研知识库的回答模型。不要调用工具，不要读取文件，不要执行命令，也不要修改任何内容。只能依据下面提供的编号证据回答；每个事实判断必须引用 [E#]。必须先报告库水位，并按‘库内直接证据、相似模型、可迁移算法、核心书籍理论基础、库内尚未覆盖’组织。Graphify 证据只能作为关系提示，不能单独支撑事实。库内未见不等于全球没有。不要编造引用编号。\n\n{}",
+        build_prompt(context)
+    )
+}
+
 pub fn stream_luna<F>(
     settings: &LunaSettings,
     context: &QuestionContext,
@@ -1326,9 +1378,10 @@ mod tests {
 
     #[test]
     fn api_key_is_never_persisted_in_settings() {
-        let (_root, connection) = test_db();
+        let (root, connection) = test_db();
         let settings = save_luna_settings(
             &connection,
+            root.path(),
             LunaSettings {
                 endpoint: "https://example.test/v1/chat/completions".to_string(),
                 ..LunaSettings::default()
@@ -1344,5 +1397,45 @@ mod tests {
             )
             .unwrap();
         assert!(!stored.contains("Bearer"));
+    }
+
+    #[test]
+    fn qa_provider_defaults_to_codex_only_when_ready() {
+        let (root, connection) = test_db();
+        assert_eq!(
+            get_luna_settings(&connection, root.path(), true)
+                .unwrap()
+                .answer_provider,
+            PROVIDER_CODEX
+        );
+        assert_eq!(
+            get_luna_settings(&connection, root.path(), false)
+                .unwrap()
+                .answer_provider,
+            PROVIDER_OFFLINE
+        );
+    }
+
+    #[test]
+    fn qa_settings_are_repository_scoped_with_legacy_fallback() {
+        let (root, connection) = test_db();
+        let repository_a = root.path().join("repository-a");
+        let repository_b = root.path().join("repository-b");
+        save_luna_settings(
+            &connection,
+            &repository_a,
+            LunaSettings {
+                answer_provider: PROVIDER_CODEX.to_string(),
+                codex_model: "subscription-model".to_string(),
+                ..LunaSettings::default()
+            },
+        )
+        .unwrap();
+        let first = get_luna_settings(&connection, &repository_a, false).unwrap();
+        let second = get_luna_settings(&connection, &repository_b, false).unwrap();
+        assert_eq!(first.answer_provider, PROVIDER_CODEX);
+        assert_eq!(first.codex_model, "subscription-model");
+        assert_eq!(second.answer_provider, PROVIDER_OFFLINE);
+        assert!(second.codex_model.is_empty());
     }
 }

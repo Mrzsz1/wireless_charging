@@ -1,5 +1,5 @@
 import { Channel, invoke } from '@tauri-apps/api/core'
-import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatSessionDetail, ChatSessionSummary, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LiteratureCandidate, LiteratureCapability, LiteratureIngestSettings, LunaSettings, ManualImportSession, PageDetail, PageFilters, PageSummary, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchProviderStatus, SearchResult, StartCompileRequest, StartLiteratureRunRequest, StartupPromptState } from '../types'
+import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatSessionDetail, ChatSessionSummary, CodexSubscriptionStatus, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LiteratureCandidate, LiteratureCapability, LiteratureIngestSettings, LunaSettings, ManualImportSession, PageDetail, PageFilters, PageSummary, QaSettings, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchProviderStatus, SearchResult, StartCompileRequest, StartLiteratureRunRequest, StartupPromptState } from '../types'
 
 type TauriWindow = Window & { __TAURI_INTERNALS__?: unknown }
 
@@ -83,6 +83,22 @@ export async function getLunaSettings(): Promise<LunaSettings> {
 
 export async function saveLunaSettings(settings: LunaSettings): Promise<LunaSettings> {
   return invoke<LunaSettings>('save_luna_settings', { settings })
+}
+
+export async function getQaSettings(): Promise<QaSettings> {
+  return invoke<QaSettings>('get_qa_settings')
+}
+
+export async function saveQaSettings(settings: QaSettings): Promise<QaSettings> {
+  return invoke<QaSettings>('save_qa_settings', { settings })
+}
+
+export async function getCodexSubscriptionStatus(): Promise<CodexSubscriptionStatus> {
+  return invoke<CodexSubscriptionStatus>('get_codex_subscription_status')
+}
+
+export async function startCodexLogin(): Promise<string> {
+  return invoke<string>('start_codex_login')
 }
 
 export async function listChatSessions(limit = 100): Promise<ChatSessionSummary[]> {

@@ -992,6 +992,18 @@ P5.4 关闭代码审查遗留的 `SEARCH-001`、`BOOK-001`、`ROLLBACK-001`、`W
 6. 发布产物：app 20,796,416 bytes，SHA-256 `FDCDFCD1E1468C44DA1F9097F7CBED0AB8B274BF98048B61B93F03063F2484C9`；MSI 9,998,336 bytes，SHA-256 `98F21B2D338331179606ECE4ACA1C6879E082B4A14C56A6E56F6DBAFC4BB3C84`；NSIS 6,945,631 bytes，SHA-256 `2A39AA80592D5F10CABA573EBD04AC66620926C323597ECBFAD9BF5ED8DE7205`。
 7. 两个用户失败运行目录保持未跟踪并排除在提交外；Wiki Lint 的 0 errors / 2 个既有 warning 未以客户端改动伪造修复。
 
+#### 13.19 ChatGPT/Codex 订阅问答与设置收口（已完成 2026-08-09，版本 0.11.0）
+
+1. “设置 → AI 回答引擎”统一管理 `Codex 订阅`、`兼容 API` 与 `仅离线证据`；AskView 删除 Luna 参数弹窗，只保留当前引擎状态和设置定位入口。引擎偏好、Codex 模型覆盖与兼容 API 参数继续按知识库隔离。
+2. Codex 订阅模式复用本机 Codex CLI 的官方 ChatGPT 登录状态，不要求 OpenAI API Key。客户端只返回安装、版本、authenticated/ready 和安全诊断，不读取或回显 token、cookie、凭据路径及认证载荷；登录入口只启动官方浏览器流程。
+3. 三种引擎共享原有 Wiki、核心专著与 Graphify 混合召回。Codex 通过 stdin 接收编号证据，固定使用空临时目录、`read-only` sandbox、`never` approval、ephemeral、忽略用户配置/规则，并保持 `[E#]`、库水位和 Graphify 限定语义。
+4. JSONL 仅消费回答增量和最终 agent message，忽略 reasoning/tool/malformed 事件；取消、超时、stdin/输出错误及回调失败均终止 Windows 子进程树并由 RAII 清理临时目录。失败文本不拼接 stderr 或认证内容，半完成对话不持久化。
+5. 设置加载期间引擎页签不可操作，并以 `data-loaded` 明确快照完成状态，关闭了“用户刚切换、异步旧设置随后覆盖”的竞态。GUI strict 覆盖 Ask→Settings 跳转、三个 provider、搜索、分页及 1366×768/1920×1080。
+6. 自动化使用 fake Codex Windows executable 覆盖 version、ChatGPT login status、login launch、JSONL delta/final、非零失败脱敏、hang/timeout 与 cancel；没有提交真实订阅问题或改变真实登录态。
+7. 0.11.0 验收：Rust 53/53、Python 45/45、Wiki Eval 10/10、两书 Recall@5 1.000 / 0.986667；前端状态测试、build、P1–P5、最终 release strict GUI 与 NSIS 隔离安装/启动/退出/卸载全部通过。Wiki Lint 保持 0 errors / 2 个既有 warning。
+8. 发布产物：app 21,342,720 bytes，SHA-256 `F5A27BD6373B79A9F834927C97CA6EA67A5AF11E6D6EB8D9D41E67B5187E1D19`；MSI 10,358,784 bytes，SHA-256 `EBAD51C89A10373E536F71D95B14B04A811DC1842D5BCA3C09039F96F6CD54E8`；NSIS 7,212,562 bytes，SHA-256 `6C542249F5C683EA53C2E1E51B7C2A08D086247838DAE882C2BDF2239E4D874C`。
+9. `raw/inbox/auto-discovered/runs/search-20260809-204315/` 与 `search-20260809-211516/` 保持未跟踪并排除在提交外；未修改 Wiki/Raw/Graphify 正文。
+
 ---
 
 ## 14. 变更规则

@@ -1,19 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { BookOpen, Bot, Check, ChevronRight, CircleStop, Clipboard, FileText, GitBranch, LoaderCircle, MessageSquarePlus, MoreHorizontal, Plus, RefreshCw, Search, Send, Settings, ShieldCheck, Trash2, X } from 'lucide-react'
-import { askLuna, cancelAnswer, deleteChatSession, getChatSession, getLunaSettings, isDesktopRuntime, listChatSessions, renameChatSession, saveLunaSettings } from '../../services/desktop'
-import type { AnswerStreamEvent, AskResult, ChatMessage, ChatSessionSummary, EvidenceItem, LunaSettings, WaterlineSnapshot } from '../../types'
+import { askLuna, cancelAnswer, deleteChatSession, getChatSession, getCodexSubscriptionStatus, getQaSettings, isDesktopRuntime, listChatSessions, renameChatSession } from '../../services/desktop'
+import type { AnswerProvider, AnswerStreamEvent, AskResult, ChatMessage, ChatSessionSummary, CodexSubscriptionStatus, EvidenceItem, QaSettings, WaterlineSnapshot } from '../../types'
 import { claimCompletion, createCompletionLedger, mergeCompletedMessages } from './completionState'
 import './AskView.css'
 
 type AskViewProps = {
   repositoryPath?: string
+  onOpenSettings: () => void
   onResearchContextChange: (question: string | null) => void
   onOpenPage: (pageId: string, title?: string) => void
   onOpenBook: (bookId: string, chapterId: string) => void
   onOpenPath: (path: string, reveal?: boolean) => void
 }
 
-const emptySettings: LunaSettings = {
+const emptySettings: QaSettings = {
+  answerProvider: 'offline-evidence',
+  codexModel: '',
   endpoint: '',
   model: 'gpt-5.6-luna',
   apiKeyEnv: 'LUNA_API_KEY',
@@ -21,6 +24,20 @@ const emptySettings: LunaSettings = {
   maxOutputTokens: 1800,
   temperature: 0.1,
   apiKeyConfigured: false,
+}
+
+const emptyCodexStatus: CodexSubscriptionStatus = { installed: false, version: '', authenticated: false, ready: false, statusLabel: '尚未检测', diagnostic: '' }
+
+function providerLabel(provider: string) {
+  if (provider === 'codex-subscription') return 'Codex 订阅'
+  if (provider === 'luna' || provider === 'compatible-api') return '兼容 API'
+  return '离线证据'
+}
+
+function providerReady(provider: AnswerProvider, settings: QaSettings, codex: CodexSubscriptionStatus) {
+  if (provider === 'codex-subscription') return codex.ready
+  if (provider === 'compatible-api') return settings.apiKeyConfigured && Boolean(settings.endpoint)
+  return true
 }
 
 const suggestions = [
@@ -58,7 +75,7 @@ function MessageContent({ content, evidence, onCitation }: { content: string; ev
   })}</div>
 }
 
-export function AskView({ repositoryPath, onResearchContextChange, onOpenPage, onOpenBook, onOpenPath }: AskViewProps) {
+export function AskView({ repositoryPath, onOpenSettings, onResearchContextChange, onOpenPage, onOpenBook, onOpenPath }: AskViewProps) {
   const [sessions, setSessions] = useState<ChatSessionSummary[]>([])
   const [sessionQuery, setSessionQuery] = useState('')
   const [activeSessionId, setActiveSessionId] = useState('')
@@ -70,9 +87,8 @@ export function AskView({ repositoryPath, onResearchContextChange, onOpenPage, o
   const [evidence, setEvidence] = useState<EvidenceItem[]>([])
   const [selectedEvidence, setSelectedEvidence] = useState<EvidenceItem | null>(null)
   const [waterline, setWaterline] = useState<WaterlineSnapshot | null>(null)
-  const [settings, setSettings] = useState<LunaSettings>(emptySettings)
-  const [settingsDraft, setSettingsDraft] = useState<LunaSettings>(emptySettings)
-  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [settings, setSettings] = useState<QaSettings>(emptySettings)
+  const [codexStatus, setCodexStatus] = useState<CodexSubscriptionStatus>(emptyCodexStatus)
   const [loadingHistory, setLoadingHistory] = useState(false)
   const [error, setError] = useState('')
   const endRef = useRef<HTMLDivElement>(null)
@@ -91,10 +107,10 @@ export function AskView({ repositoryPath, onResearchContextChange, onOpenPage, o
     setWaterline(null)
     onResearchContextChange(null)
     if (!isDesktopRuntime() || !repositoryPath) return
-    void Promise.all([listChatSessions(), getLunaSettings()]).then(([history, luna]) => {
+    void Promise.all([listChatSessions(), getQaSettings(), getCodexSubscriptionStatus()]).then(([history, qa, codex]) => {
       setSessions(history)
-      setSettings(luna)
-      setSettingsDraft(luna)
+      setSettings(qa)
+      setCodexStatus(codex)
     }).catch((cause) => setError(`问答工作区初始化失败：${String(cause)}`))
   }, [repositoryPath])
 
@@ -217,16 +233,6 @@ export function AskView({ repositoryPath, onResearchContextChange, onOpenPage, o
     try { await renameChatSession(session.id, title); await refreshSessions() } catch (cause) { setError(`重命名失败：${String(cause)}`) }
   }
 
-  const persistSettings = async () => {
-    try {
-      const saved = await saveLunaSettings(settingsDraft)
-      setSettings(saved)
-      setSettingsDraft(saved)
-      setSettingsOpen(false)
-      setError('')
-    } catch (cause) { setError(`设置保存失败：${String(cause)}`) }
-  }
-
   const lastUserQuestion = [...messages].reverse().find((message) => message.role === 'user')?.content ?? ''
   const filteredSessions = useMemo(() => {
     const keyword = sessionQuery.trim().toLocaleLowerCase('zh-CN')
@@ -250,12 +256,12 @@ export function AskView({ repositoryPath, onResearchContextChange, onOpenPage, o
     </aside>
 
     <main className="qa-chat">
-      <div className="qa-chat-heading"><div><div className="eyebrow">LUNA · EVIDENCE FIRST</div><h1>智能问答</h1></div><div className="qa-model-state"><span className={settings.apiKeyConfigured && settings.endpoint ? 'ready' : 'offline'}>{settings.apiKeyConfigured && settings.endpoint ? <Check size={13} /> : <ShieldCheck size={13} />}{settings.apiKeyConfigured && settings.endpoint ? `${settings.model} 已配置` : '离线证据模式'}</span><button className="qa-icon-button" onClick={() => setSettingsOpen(true)} title="Luna 设置"><Settings size={17} /></button></div></div>
+      <div className="qa-chat-heading"><div><div className="eyebrow">EVIDENCE FIRST</div><h1>智能问答</h1></div><div className="qa-model-state"><span className={providerReady(settings.answerProvider, settings, codexStatus) ? 'ready' : 'offline'}>{providerReady(settings.answerProvider, settings, codexStatus) ? <Check size={13} /> : <ShieldCheck size={13} />}{providerLabel(settings.answerProvider)}{settings.answerProvider === 'codex-subscription' && codexStatus.ready ? ' · 已登录' : ''}</span><button className="qa-icon-button" data-testid="qa-open-settings" onClick={onOpenSettings} title="前往设置"><Settings size={17} /></button></div></div>
       {error && <div className="qa-error"><span>{error}</span><button onClick={() => setError('')}><X size={14} /></button></div>}
       <div className="qa-messages">
         {loadingHistory && <div className="qa-loading"><LoaderCircle size={18} className="spin" />加载会话历史…</div>}
         {!messages.length && phase === 'idle' && <div className="qa-welcome"><div className="qa-orb"><Bot size={28} /></div><h2>先检索，再回答</h2><p>每次提问都会检索 Wiki、两本核心书籍和 Graphify，并把回答绑定到可定位证据。</p><div className="qa-suggestions">{suggestions.map((item) => <button key={item} onClick={() => void submitQuestion(item)}><Plus size={14} /><span>{item}</span><ChevronRight size={14} /></button>)}</div></div>}
-        {messages.map((message) => <article data-testid={`qa-message-${message.id}`} className={`qa-message ${message.role}`} key={message.id}><div className="qa-avatar">{message.role === 'assistant' ? <Bot size={16} /> : '你'}</div><div className="qa-bubble"><div className="qa-message-meta"><strong>{message.role === 'assistant' ? (message.provider === 'offline-evidence' ? '离线证据' : 'Luna') : '研究问题'}</strong><span>{formatTime(message.createdAt)}</span></div>{message.role === 'assistant' ? <MessageContent content={message.content} evidence={message.evidence} onCitation={setSelectedEvidence} /> : <div className="qa-message-content">{message.content}</div>}{message.role === 'assistant' && <div className="qa-message-actions"><button onClick={() => void navigator.clipboard.writeText(message.content)}><Clipboard size={13} />复制</button><button onClick={() => void submitQuestion(lastUserQuestion)} disabled={!lastUserQuestion || phase !== 'idle'}><RefreshCw size={13} />重试</button></div>}</div></article>)}
+        {messages.map((message) => <article data-testid={`qa-message-${message.id}`} className={`qa-message ${message.role}`} key={message.id}><div className="qa-avatar">{message.role === 'assistant' ? <Bot size={16} /> : '你'}</div><div className="qa-bubble"><div className="qa-message-meta"><strong>{message.role === 'assistant' ? providerLabel(message.provider) : '研究问题'}</strong><span>{formatTime(message.createdAt)}</span></div>{message.role === 'assistant' ? <MessageContent content={message.content} evidence={message.evidence} onCitation={setSelectedEvidence} /> : <div className="qa-message-content">{message.content}</div>}{message.role === 'assistant' && <div className="qa-message-actions"><button onClick={() => void navigator.clipboard.writeText(message.content)}><Clipboard size={13} />复制</button><button onClick={() => void submitQuestion(lastUserQuestion)} disabled={!lastUserQuestion || phase !== 'idle'}><RefreshCw size={13} />重试</button></div>}</div></article>)}
         {phase !== 'idle' && <article className="qa-message assistant streaming"><div className="qa-avatar"><Bot size={16} /></div><div className="qa-bubble"><div className="qa-message-meta"><strong>{phase === 'retrieving' ? '正在检索证据' : '正在组织回答'}</strong><span><LoaderCircle size={13} className="spin" /></span></div>{streamingText ? <MessageContent content={streamingText} evidence={evidence} onCitation={setSelectedEvidence} /> : <div className="qa-retrieval-steps"><span className="active">Wiki FTS5</span><span className={phase === 'generating' ? 'active' : ''}>核心书籍</span><span className={phase === 'generating' ? 'active' : ''}>Graphify</span></div>}</div></article>}
         <div ref={endRef} />
       </div>
@@ -270,6 +276,5 @@ export function AskView({ repositoryPath, onResearchContextChange, onOpenPage, o
       {selectedEvidence && <div className="qa-evidence-detail"><div><strong>{selectedEvidence.id} · 定位信息</strong><button onClick={() => setSelectedEvidence(null)}><X size={13} /></button></div><p>{selectedEvidence.retrievalReason}</p><code>{selectedEvidence.kind === 'book' ? selectedEvidence.markdownPath : selectedEvidence.sourcePath}</code><button className="qa-open-source" onClick={() => openEvidence(selectedEvidence)}>{kindIcon(selectedEvidence.kind)}打开来源</button></div>}
     </aside>
 
-    {settingsOpen && <div className="qa-settings-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setSettingsOpen(false) }}><div className="qa-settings-dialog"><div className="qa-settings-title"><div><div className="eyebrow">MODEL CONNECTION</div><h2>Luna 设置</h2></div><button onClick={() => setSettingsOpen(false)}><X size={17} /></button></div><p className="qa-settings-note">API Key 只从进程环境变量读取，不写入 SQLite、日志或前端持久状态。</p><label>Chat Completions endpoint<input value={settingsDraft.endpoint} onChange={(event) => setSettingsDraft({ ...settingsDraft, endpoint: event.target.value })} placeholder="https://HOST/v1/chat/completions" /></label><label>模型<input value={settingsDraft.model} onChange={(event) => setSettingsDraft({ ...settingsDraft, model: event.target.value })} /></label><label>API Key 环境变量<input value={settingsDraft.apiKeyEnv} onChange={(event) => setSettingsDraft({ ...settingsDraft, apiKeyEnv: event.target.value.toUpperCase() })} /></label><div className="qa-settings-grid"><label>超时（秒）<input type="number" min="10" max="300" value={settingsDraft.timeoutSeconds} onChange={(event) => setSettingsDraft({ ...settingsDraft, timeoutSeconds: Number(event.target.value) })} /></label><label>最大输出 Token<input type="number" min="256" max="8000" value={settingsDraft.maxOutputTokens} onChange={(event) => setSettingsDraft({ ...settingsDraft, maxOutputTokens: Number(event.target.value) })} /></label><label>Temperature<input type="number" min="0" max="1" step="0.1" value={settingsDraft.temperature} onChange={(event) => setSettingsDraft({ ...settingsDraft, temperature: Number(event.target.value) })} /></label></div><div className="qa-key-state"><ShieldCheck size={15} /><span>{settings.apiKeyConfigured ? `${settings.apiKeyEnv} 已检测到` : `${settings.apiKeyEnv} 尚未检测到；保存后仍可使用离线证据模式`}</span></div><div className="qa-settings-actions"><button onClick={() => setSettingsOpen(false)}>取消</button><button className="primary" onClick={() => void persistSettings()}>保存设置</button></div></div></div>}
   </section>
 }

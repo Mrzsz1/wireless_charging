@@ -91,3 +91,72 @@ Search-provider credentials are desktop secrets, not repository configuration.
 - Preserve the existing environment-variable and external-key-file behavior by omitting missing vault values instead of injecting empty environment variables.
 
 Regression tests must use an in-memory credential store and assert that status DTOs contain no secret field, only configured variables are projected, and unknown providers fail closed. Do not save test keys into the developer's real Windows Credential Manager.
+
+## Scenario: Codex Subscription Answer Process
+
+### 1. Scope / Trigger
+
+This contract applies when a desktop answer provider reuses the user's Codex CLI ChatGPT login instead of a conventional API key. It prevents authentication leakage, project-context inheritance, writable agent execution, orphan processes, and subscription-consuming tests.
+
+### 2. Signatures
+
+- `get_codex_subscription_status() -> CodexSubscriptionStatus`
+- `start_codex_login() -> Result<String, String>`
+- `get_qa_settings() -> QaSettings`
+- `save_qa_settings(settings: QaSettings) -> QaSettings`
+- `stream_answer(prompt, model, timeout, cancelled, on_token) -> Result<(answer, model), String>`
+- `CodexSubscriptionStatus = { installed, version, authenticated, ready, statusLabel, diagnostic }`
+- `QaSettings.answerProvider = "codex-subscription" | "compatible-api" | "offline-evidence"`
+
+### 3. Contracts
+
+- Status executes only `codex --version` and `codex login status`; authentication is true only for a successful status containing both `logged in` and `chatgpt`.
+- The WebView receives no token, cookie, credential path, API key, organization identifier, or raw authentication payload.
+- Answer execution uses `codex -a never exec --json --ephemeral --skip-git-repo-check --ignore-user-config --ignore-rules --sandbox read-only --cd <empty-temp> -`. The prompt is stdin-only.
+- The evidence prompt comes from the existing local retrieval pipeline and preserves `[E#]`, waterline, and Graphify limitation language.
+- Windows child processes use `configure_background_command`; cancellation, timeout, stdin/output failure, and stream-callback failure terminate the process tree. A temporary workspace is RAII-cleaned.
+- Settings keys are repository-scoped. API-key values remain runtime-only and are never persisted.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+|---|---|
+| CLI missing/version command fails | `ready=false` with a generic install/check diagnostic |
+| Logged in by a mechanism other than ChatGPT | Do not classify it as subscription-ready |
+| Unknown provider or invalid model/settings value | Reject before execution/persistence |
+| Malformed/reasoning/tool JSONL event | Ignore it; never expose reasoning or tool payloads |
+| Non-zero exit | Return `CODEX_EXIT_ERROR` without stderr/auth payload |
+| Timeout/cancel | Kill the process tree, clean temp files, and do not save a partial assistant message |
+| Codex unavailable | Preserve the deterministic offline evidence path and safe status summary |
+
+### 5. Good/Base/Bad Cases
+
+- **Good**: Local retrieval returns numbered evidence, a fake Codex emits delta/final JSONL, and the stored message records `provider=codex-subscription` with auditable citations.
+- **Base**: Codex is absent or not logged in; settings show the exact readiness state and the question still has an offline evidence path.
+- **Bad**: Passing the prompt as a command argument, inheriting repository rules/hooks, returning stderr verbatim, or relying on dropping `Child` to stop a process.
+
+### 6. Tests Required
+
+- Pure status DTO and version allowlist tests assert that no secret-shaped field crosses IPC.
+- A fake Windows Codex executable covers version, ChatGPT login status, login launch, delta/final JSONL, non-zero stderr, hang/timeout, and cancellation without contacting a service.
+- Command-shape tests assert read-only/ephemeral/never/isolation flags and stdin `-`.
+- Run Rust fmt, Clippy `-D warnings`, the complete Rust suite, frontend provider tests, strict GUI, and isolated installer lifecycle before release.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```rust
+Command::new("codex").args(["exec", prompt]).output()?;
+```
+
+#### Correct
+
+```rust
+let mut child = Command::new("codex")
+    .args(build_exec_args(&empty_workspace, model))
+    .stdin(Stdio::piped())
+    .stdout(Stdio::piped())
+    .spawn()?;
+child.stdin.take().unwrap().write_all(prompt.as_bytes())?;
+```

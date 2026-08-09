@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::process::{Child, Command};
 
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
@@ -17,6 +17,19 @@ pub fn configure_python_command(command: &mut Command) -> &mut Command {
     command
         .env("PYTHONUTF8", "1")
         .env("PYTHONIOENCODING", "utf-8")
+}
+
+pub fn terminate_process_tree(child: &mut Child) {
+    #[cfg(target_os = "windows")]
+    {
+        let mut command = Command::new("taskkill");
+        configure_background_command(&mut command);
+        let _ = command
+            .args(["/PID", &child.id().to_string(), "/T", "/F"])
+            .status();
+    }
+    let _ = child.kill();
+    let _ = child.wait();
 }
 
 #[cfg(test)]

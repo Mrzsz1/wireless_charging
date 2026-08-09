@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
-import { CheckCircle2, CloudDownload, Eye, EyeOff, FolderOpen, KeyRound, LoaderCircle, RefreshCw, Save, Settings2, ShieldCheck, Trash2 } from 'lucide-react'
-import { deleteSearchProviderKey, getLiteratureSettings, listSearchProviderStatuses, saveLiteratureSettings, saveSearchProviderKey, testSearchProvider } from '../../services/desktop'
-import type { LiteratureIngestSettings, SearchProviderStatus } from '../../types'
+import { Bot, CheckCircle2, CloudDownload, Eye, EyeOff, FolderOpen, KeyRound, LoaderCircle, LogIn, RefreshCw, Save, Settings2, ShieldCheck, Trash2 } from 'lucide-react'
+import { deleteSearchProviderKey, getCodexSubscriptionStatus, getLiteratureSettings, getQaSettings, listSearchProviderStatuses, saveLiteratureSettings, saveQaSettings, saveSearchProviderKey, startCodexLogin, testSearchProvider } from '../../services/desktop'
+import type { CodexSubscriptionStatus, LiteratureIngestSettings, QaSettings, SearchProviderStatus } from '../../types'
 import './SettingsView.css'
 
 type Theme = 'light' | 'dark' | 'system'
@@ -13,12 +13,12 @@ type Props = {
   releaseInfo: { version: string; channel: string }
   updateBusy: boolean
   desktopRuntime: boolean
+  focusSection?: string
   onChooseRepository: () => void
   onRebuild: () => void
   onThemeChange: (theme: Theme) => void
   onFontSizeChange: (size: number) => void
   onUpdate: () => void
-  onOpenQa: () => void
 }
 
 const defaultSettings: LiteratureIngestSettings = {
@@ -33,33 +33,65 @@ const defaultSettings: LiteratureIngestSettings = {
   lastSuccessAt: '',
 }
 
+const defaultQaSettings: QaSettings = {
+  answerProvider: 'offline-evidence',
+  codexModel: '',
+  endpoint: '',
+  model: 'gpt-5.6-luna',
+  apiKeyEnv: 'LUNA_API_KEY',
+  timeoutSeconds: 90,
+  maxOutputTokens: 1800,
+  temperature: 0.1,
+  apiKeyConfigured: false,
+}
+
+const emptyCodexStatus: CodexSubscriptionStatus = {
+  installed: false,
+  version: '',
+  authenticated: false,
+  ready: false,
+  statusLabel: '尚未检测',
+  diagnostic: '正在读取本机 Codex 状态。',
+}
+
 function replaceStatus(statuses: SearchProviderStatus[], next: SearchProviderStatus) {
   return statuses.map((item) => item.id === next.id ? next : item)
 }
 
-export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, updateBusy, desktopRuntime, onChooseRepository, onRebuild, onThemeChange, onFontSizeChange, onUpdate, onOpenQa }: Props) {
+export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, updateBusy, desktopRuntime, focusSection, onChooseRepository, onRebuild, onThemeChange, onFontSizeChange, onUpdate }: Props) {
   const [settings, setSettings] = useState(defaultSettings)
+  const [qaSettings, setQaSettings] = useState(defaultQaSettings)
+  const [codexStatus, setCodexStatus] = useState(emptyCodexStatus)
   const [providerStatuses, setProviderStatuses] = useState<SearchProviderStatus[]>([])
   const [keyDrafts, setKeyDrafts] = useState<Record<string, string>>({})
   const [visibleKeys, setVisibleKeys] = useState<Record<string, boolean>>({})
-  const [busyAction, setBusyAction] = useState('')
+  const [busyAction, setBusyAction] = useState('load')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
   const load = useCallback(async () => {
     setBusyAction('load'); setError('')
     try {
-      const [statuses, literature] = await Promise.all([
+      const [statuses, literature, qa, codex] = await Promise.all([
         listSearchProviderStatuses(),
         repositoryPath ? getLiteratureSettings() : Promise.resolve(defaultSettings),
+        repositoryPath ? getQaSettings() : Promise.resolve(defaultQaSettings),
+        getCodexSubscriptionStatus(),
       ])
       setProviderStatuses(statuses)
       setSettings(literature)
+      setQaSettings(qa)
+      setCodexStatus(codex)
     } catch (reason) { setError(`读取设置失败：${String(reason)}`) }
     finally { setBusyAction('') }
   }, [repositoryPath])
 
   useEffect(() => { void load() }, [load])
+  useEffect(() => {
+    if (!focusSection) return
+    const timer = window.setTimeout(() => document.getElementById(focusSection)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
+    return () => window.clearTimeout(timer)
+  }, [focusSection])
 
   const persistLiterature = async () => {
     if (!repositoryPath) return
@@ -68,6 +100,23 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
       setSettings(await saveLiteratureSettings(settings))
       setMessage('文献自动化设置已保存')
     } catch (reason) { setError(`保存失败：${String(reason)}`) }
+    finally { setBusyAction('') }
+  }
+
+  const persistQa = async () => {
+    if (!repositoryPath) return
+    setBusyAction('qa'); setError(''); setMessage('')
+    try {
+      setQaSettings(await saveQaSettings(qaSettings))
+      setMessage('AI 回答引擎设置已保存')
+    } catch (reason) { setError(`保存回答引擎失败：${String(reason)}`) }
+    finally { setBusyAction('') }
+  }
+
+  const beginCodexLogin = async () => {
+    setBusyAction('codex-login'); setError(''); setMessage('')
+    try { setMessage(await startCodexLogin()) }
+    catch (reason) { setError(`启动 ChatGPT 登录失败：${String(reason)}`) }
     finally { setBusyAction('') }
   }
 
@@ -120,7 +169,26 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
 
       <section className="settings-card" data-testid="search-api-settings"><div className="settings-card-title"><KeyRound size={18} /><div><h2>论文搜索服务</h2><p>API Key 保存到 Windows 凭据管理器，不写入知识库、SQLite 或日志。</p></div></div><div className="provider-credential-list">{providerStatuses.map((provider) => <article className="provider-credential" key={provider.id} data-testid={`provider-${provider.id}`}><div className="provider-copy"><div><strong>{provider.label}</strong><span className={provider.configured ? 'configured' : 'missing'}>{provider.requiresKey ? provider.configured ? '已安全配置' : '尚未配置' : '无需 Key'}</span></div><p>{provider.description}</p></div>{provider.requiresKey && <div className="provider-key-editor"><label><span className="sr-only">{provider.label} API Key</span><input aria-label={`${provider.label} API Key`} type={visibleKeys[provider.id] ? 'text' : 'password'} autoComplete="off" value={keyDrafts[provider.id] ?? ''} onChange={(event) => setKeyDrafts((current) => ({ ...current, [provider.id]: event.target.value }))} placeholder={provider.configured ? '输入新 Key 可替换（已保存值不会回显）' : '输入 API Key'} /><button aria-label={visibleKeys[provider.id] ? '隐藏本次输入' : '显示本次输入'} onClick={() => setVisibleKeys((current) => ({ ...current, [provider.id]: !current[provider.id] }))}>{visibleKeys[provider.id] ? <EyeOff size={15} /> : <Eye size={15} />}</button></label><button disabled={!keyDrafts[provider.id]?.trim() || !!busyAction} onClick={() => void persistKey(provider.id)}><Save size={14} />保存</button><button disabled={!provider.configured || !!busyAction} onClick={() => void clearKey(provider.id)}><Trash2 size={14} />清除</button></div>}<button className="provider-test" disabled={(provider.requiresKey && !provider.configured) || !!busyAction} onClick={() => void checkProvider(provider.id)}>{busyAction === `test:${provider.id}` ? <LoaderCircle className="spin" size={14} /> : <ShieldCheck size={14} />}测试连接</button></article>)}</div></section>
 
-      <section className="settings-card compact"><div className="settings-card-title"><ShieldCheck size={18} /><div><h2>Luna 与模型</h2><p>模型地址、模型名和密钥环境变量仍在智能问答设置面板中管理。</p></div><button className="link-button" onClick={onOpenQa}>前往智能问答</button></div></section>
+      <section id="qa-engine-settings" className="settings-card qa-engine-settings" data-testid="qa-engine-settings" data-loaded={busyAction === 'load' ? 'false' : 'true'}>
+        <div className="settings-card-title"><Bot size={18} /><div><h2>AI 回答引擎</h2><p>订阅、兼容 API 与离线模式统一在这里管理；智能问答页面不再保存连接参数。</p></div><button className="settings-save" disabled={!repositoryPath || !!busyAction} onClick={() => void persistQa()}>{busyAction === 'qa' ? <LoaderCircle className="spin" size={14} /> : <Save size={14} />}保存</button></div>
+        <div className="qa-provider-tabs" role="radiogroup" aria-label="AI 回答引擎">
+          <button disabled={busyAction === 'load'} data-testid="qa-provider-tab-codex" role="radio" aria-checked={qaSettings.answerProvider === 'codex-subscription'} className={qaSettings.answerProvider === 'codex-subscription' ? 'active' : ''} onClick={() => setQaSettings((current) => ({ ...current, answerProvider: 'codex-subscription' }))}><ShieldCheck size={15} /><span><strong>Codex 订阅</strong><small>推荐 · 无需 API Key</small></span></button>
+          <button disabled={busyAction === 'load'} data-testid="qa-provider-tab-api" role="radio" aria-checked={qaSettings.answerProvider === 'compatible-api'} className={qaSettings.answerProvider === 'compatible-api' ? 'active' : ''} onClick={() => setQaSettings((current) => ({ ...current, answerProvider: 'compatible-api' }))}><KeyRound size={15} /><span><strong>兼容 API</strong><small>保留 Luna/OpenAI-compatible</small></span></button>
+          <button disabled={busyAction === 'load'} data-testid="qa-provider-tab-offline" role="radio" aria-checked={qaSettings.answerProvider === 'offline-evidence'} className={qaSettings.answerProvider === 'offline-evidence' ? 'active' : ''} onClick={() => setQaSettings((current) => ({ ...current, answerProvider: 'offline-evidence' }))}><FolderOpen size={15} /><span><strong>仅离线证据</strong><small>确定性证据包</small></span></button>
+        </div>
+        {!repositoryPath && <div className="settings-disabled">选择知识库后才能保存回答引擎；本机 Codex 登录状态仍可查看。</div>}
+        {qaSettings.answerProvider === 'codex-subscription' && <div className="qa-provider-pane" data-testid="qa-provider-codex">
+          <div className={`codex-status-card ${codexStatus.ready ? 'ready' : 'missing'}`}><div className="codex-status-icon">{codexStatus.ready ? <CheckCircle2 size={20} /> : <ShieldCheck size={20} />}</div><div><strong>{codexStatus.statusLabel}</strong><span>{codexStatus.version || '未检测到版本'}</span><p>{codexStatus.diagnostic}</p></div><div className="codex-status-actions"><button disabled={busyAction === 'load'} onClick={() => void load()}><RefreshCw className={busyAction === 'load' ? 'spin' : ''} size={14} />刷新状态</button>{!codexStatus.authenticated && <button className="primary" disabled={!codexStatus.installed || !!busyAction} onClick={() => void beginCodexLogin()}>{busyAction === 'codex-login' ? <LoaderCircle className="spin" size={14} /> : <LogIn size={14} />}登录 ChatGPT</button>}</div></div>
+          <label className="qa-model-override"><span>Codex 模型覆盖（可选）</span><input disabled={!repositoryPath} value={qaSettings.codexModel} onChange={(event) => setQaSettings((current) => ({ ...current, codexModel: event.target.value }))} placeholder="留空时跟随 Codex 订阅默认模型" /><small>客户端只使用官方登录状态，不读取或复制 token、cookie、API Key。</small></label>
+        </div>}
+        {qaSettings.answerProvider === 'compatible-api' && <div className="qa-provider-pane" data-testid="qa-provider-api">
+          <p className="qa-provider-note">兼容现有 Chat Completions SSE 服务。API Key 仍只从进程环境变量读取，不写入 SQLite 或日志。</p>
+          <div className="qa-api-fields"><label><span>Chat Completions endpoint</span><input disabled={!repositoryPath} value={qaSettings.endpoint} onChange={(event) => setQaSettings((current) => ({ ...current, endpoint: event.target.value }))} placeholder="https://HOST/v1/chat/completions" /></label><label><span>模型</span><input disabled={!repositoryPath} value={qaSettings.model} onChange={(event) => setQaSettings((current) => ({ ...current, model: event.target.value }))} /></label><label><span>API Key 环境变量</span><input disabled={!repositoryPath} value={qaSettings.apiKeyEnv} onChange={(event) => setQaSettings((current) => ({ ...current, apiKeyEnv: event.target.value.toUpperCase() }))} /></label></div>
+          <div className="settings-number-grid"><label><span>超时（秒）</span><input type="number" min="10" max="300" disabled={!repositoryPath} value={qaSettings.timeoutSeconds} onChange={(event) => setQaSettings((current) => ({ ...current, timeoutSeconds: Number(event.target.value) }))} /></label><label><span>最大输出 Token</span><input type="number" min="256" max="8000" disabled={!repositoryPath} value={qaSettings.maxOutputTokens} onChange={(event) => setQaSettings((current) => ({ ...current, maxOutputTokens: Number(event.target.value) }))} /></label><label><span>Temperature</span><input type="number" min="0" max="1" step="0.1" disabled={!repositoryPath} value={qaSettings.temperature} onChange={(event) => setQaSettings((current) => ({ ...current, temperature: Number(event.target.value) }))} /></label></div>
+          <div className="qa-api-state"><ShieldCheck size={15} /><span>{qaSettings.apiKeyConfigured ? `${qaSettings.apiKeyEnv} 已检测到` : `${qaSettings.apiKeyEnv} 尚未检测到；运行时将降级为离线证据`}</span></div>
+        </div>}
+        {qaSettings.answerProvider === 'offline-evidence' && <div className="qa-provider-pane offline" data-testid="qa-provider-offline"><FolderOpen size={22} /><div><strong>只使用本地确定性证据包</strong><p>仍会检索 Wiki、两本核心专著与 Graphify，但不调用在线回答模型；适合断网、调试和审计。</p></div></div>}
+      </section>
       <section className="settings-card compact" data-testid="updater-settings"><div className="settings-card-title"><CloudDownload size={18} /><div><h2>客户端更新</h2><p>当前版本 {releaseInfo.version} · {releaseInfo.channel} 通道。</p></div><button className="refresh-button" disabled={!desktopRuntime || updateBusy} onClick={onUpdate}>{updateBusy ? <RefreshCw className="spin" size={14} /> : <CloudDownload size={14} />}{updateBusy ? '正在检查' : '检查更新'}</button></div></section>
     </div>
   </section>

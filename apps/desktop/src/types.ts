@@ -345,7 +345,11 @@ export type ComparisonMatrix = {
   columns: ComparisonColumn[]
 }
 
-export type LunaSettings = {
+export type AnswerProvider = 'codex-subscription' | 'compatible-api' | 'offline-evidence'
+
+export type QaSettings = {
+  answerProvider: AnswerProvider
+  codexModel: string
   endpoint: string
   model: string
   apiKeyEnv: string
@@ -353,6 +357,17 @@ export type LunaSettings = {
   maxOutputTokens: number
   temperature: number
   apiKeyConfigured: boolean
+}
+
+export type LunaSettings = QaSettings
+
+export type CodexSubscriptionStatus = {
+  installed: boolean
+  version: string
+  authenticated: boolean
+  ready: boolean
+  statusLabel: string
+  diagnostic: string
 }
 
 export type WaterlineSnapshot = {

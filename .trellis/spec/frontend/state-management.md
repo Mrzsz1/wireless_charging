@@ -244,3 +244,65 @@ await appWindow.setFocus()
 - Pure helper tests cover 66 items at size 10, the six-item last page, empty input, out-of-range pages, all supported sizes, and bounded page-number windows.
 - Structural UI tests verify that credential inputs use `type="password"` by default, settings owns the automation editor, and the ingestion page contains only a settings link.
 - Strict GUI E2E verifies page navigation and both target viewport sizes.
+
+## Scenario: Repository-Scoped Answer Provider Settings
+
+### 1. Scope / Trigger
+
+This contract applies to AI answer-engine selection and connection state. Settings owns all editable provider configuration; `AskView` consumes status and routes users to Settings instead of maintaining a second draft/modal.
+
+### 2. Signatures
+
+- `AnswerProvider = 'codex-subscription' | 'compatible-api' | 'offline-evidence'`
+- `getQaSettings(): Promise<QaSettings>`
+- `saveQaSettings(settings: QaSettings): Promise<QaSettings>`
+- `getCodexSubscriptionStatus(): Promise<CodexSubscriptionStatus>`
+- `SettingsView({ repositoryPath, focusSection? })`
+- `AskView({ repositoryPath, onOpenSettings })`
+
+### 3. Contracts
+
+- `SettingsView` is the only editor for provider selection, Codex login/status/model override, and compatible API fields.
+- Codex status is machine-global and visible without a repository. Provider preference and API settings are repository-scoped and cannot be saved until a repository is selected.
+- `AskView` shows the current provider label/readiness and calls `onOpenSettings`; it contains no endpoint, model, API environment, or temperature draft.
+- Opening from Ask routes to `focusSection='qa-engine-settings'` and scrolls the existing settings page section into view.
+- Initial provider controls remain disabled while asynchronous settings load. `data-loaded` changes to `true` only after the server snapshot has replaced defaults, preventing a late load from overwriting a user click.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+|---|---|
+| No repository selected | Show Codex status; disable repository-scoped saving/edit fields |
+| Initial settings request is pending | Disable provider tabs and expose `data-loaded=false` |
+| Settings request fails | Show a dismissible error; do not claim values were saved |
+| Codex not authenticated | Show login action and diagnostic, never a fake ready badge |
+| Ask settings button clicked | Navigate to the global Settings card, not an Ask modal |
+
+### 5. Good/Base/Bad Cases
+
+- **Good**: Wait for `data-loaded=true`, select a provider, save it, leave/re-enter, and observe the same repository-scoped value.
+- **Base**: Open Settings without a repository and inspect Codex readiness while save remains disabled.
+- **Bad**: Render provider tabs from defaults as immediately interactive; the asynchronous load can revert a just-clicked selection.
+
+### 6. Tests Required
+
+- Structural Node tests assert all three provider editors live in `SettingsView` and the Ask modal/state no longer exists.
+- Type/DTO tests reject secret-shaped Codex status fields.
+- Strict GUI waits for `data-loaded=true`, switches all three provider panes, follows Ask-to-Settings navigation, and verifies 1366×768 plus 1920×1080.
+- Run `npm run test:qa-settings`, `npm run build`, `npm run verify`, and `npm run verify:p5`.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```tsx
+const [settingsOpen, setSettingsOpen] = useState(false)
+return <AskView><LunaSettingsModal /></AskView>
+```
+
+#### Correct
+
+```tsx
+<AskView onOpenSettings={() => openSettings('qa-engine-settings')} />
+<SettingsView focusSection={settingsFocusSection} />
+```
