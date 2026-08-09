@@ -982,6 +982,16 @@ P5.4 关闭代码审查遗留的 `SEARCH-001`、`BOOK-001`、`ROLLBACK-001`、`W
 
 0.9.1 验收：Rust 42/42、Python 45/45、Wiki Eval 10/10、两书 Recall@5 1.000 / 0.986667；前端构建与全部阶段门禁、真实 release strict GUI（含 `curr` 搜索）和 NSIS 隔离安装/启动/退出/卸载全部通过。发布产物：app 20,403,200 bytes，SHA-256 `D095044DEF94BD5FEBAA6A0DD88ADC5258D65610191A46D039EC692DCE3FE0DE`；MSI 9,662,464 bytes，SHA-256 `44BA19C8940AA654DEBE1A77FFA1C5EEB83E06B50DBCBC30A3C336C0F50B4369`；NSIS 6,747,702 bytes，SHA-256 `9823D2D4891BA728693B486ED4F928B07DF50A93743E8E1B44E068C889B6F4C6`。
 
+#### 13.18 设置集中管理、搜索凭据与列表分页（已完成 2026-08-09，版本 0.10.0）
+
+1. 自动文献配置统一迁入“设置 → 文献自动化”，继续按知识库路径保存既有 SQLite 设置；“自动添加”页只保留运行摘要、资格边界、依赖检查、任务记录和“前往设置”入口。
+2. “设置 → 论文搜索服务”覆盖 arXiv、OpenAlex、Tavily 与 Google Scholar（SerpApi）。arXiv 明示无需 Key；其他 Key 保存于 Windows Credential Manager，WebView 只接收已配置状态，从不回显保存值。
+3. 凭据仅在 discovery/literature 允许列表任务启动时注入对应子进程环境；不进入 SQLite、任务参数、manifest、日志或错误文本，并保留原环境变量/外部 Key 文件回退。
+4. 文献库、方法库和全局检索结果在最终筛选排序后分页，默认 10 条并支持 10/20/50；查询、筛选、排序和页大小变化重置第一页，结果收缩时自动收敛。
+5. 0.10.0 验收：Rust 45/45、Python 45/45、Wiki Eval 10/10、两书 Recall@5 1.000 / 0.986667；前端分页/设置测试、构建、P1/P2/P3/P4/P5、真实 release strict GUI（1366×768 与 1920×1080）和 NSIS 隔离安装/启动/退出/卸载全部通过。
+6. 发布产物：app 20,796,416 bytes，SHA-256 `FDCDFCD1E1468C44DA1F9097F7CBED0AB8B274BF98048B61B93F03063F2484C9`；MSI 9,998,336 bytes，SHA-256 `98F21B2D338331179606ECE4ACA1C6879E082B4A14C56A6E56F6DBAFC4BB3C84`；NSIS 6,945,631 bytes，SHA-256 `2A39AA80592D5F10CABA573EBD04AC66620926C323597ECBFAD9BF5ED8DE7205`。
+7. 两个用户失败运行目录保持未跟踪并排除在提交外；Wiki Lint 的 0 errors / 2 个既有 warning 未以客户端改动伪造修复。
+
 ---
 
 ## 14. 变更规则

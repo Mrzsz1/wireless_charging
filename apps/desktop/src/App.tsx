@@ -9,12 +9,10 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleHelp,
-  CloudDownload,
   Code2,
   FileText,
   FilePlus2,
   Folder,
-  FolderOpen,
   Gauge,
   GitBranch,
   Home,
@@ -45,6 +43,7 @@ import { LibraryView } from './features/library/LibraryView'
 import { PageView } from './features/pages/PageView'
 import { AskView } from './features/qa/AskView'
 import { ResearchTrailPanel } from './features/research-trail/ResearchTrailPanel'
+import { SettingsView } from './features/settings/SettingsView'
 import {
   chooseRepository,
   getIngestStartupPrompt,
@@ -171,7 +170,7 @@ export default function App() {
   const [startupIngestPrompt, setStartupIngestPrompt] = useState<StartupPromptState | null>(null)
   const [startupPromptBusy, setStartupPromptBusy] = useState(false)
   const [autoStartRequest, setAutoStartRequest] = useState<{ version: number; mode: 'prepare' | 'automatic' }>({ version: 0, mode: 'prepare' })
-  const [releaseInfo, setReleaseInfo] = useState({ version: '0.9.1', channel: 'stable' })
+  const [releaseInfo, setReleaseInfo] = useState({ version: '0.10.0', channel: 'stable' })
   const globalSearchRef = useRef<HTMLInputElement>(null)
   const workspaceRef = useRef<HTMLElement>(null)
   const currentScrollKey = useRef('')
@@ -535,20 +534,7 @@ export default function App() {
     </>
   )
 
-  const renderSettings = () => (
-    <div className="placeholder-view">
-      <div className="placeholder-icon"><Settings size={28} /></div><h1>设置</h1>
-      <div className="panel" style={{ width: 'min(680px, 100%)', padding: 20, textAlign: 'left', display: 'grid', gap: 16 }}>
-        <div><h2>知识库目录</h2><p>{repository?.path || '尚未选择本地知识库'}</p></div>
-        <div className="heading-actions"><button className="refresh-button" onClick={() => void handleChooseRepository()}><FolderOpen size={14} />选择目录</button><button className="refresh-button" disabled={!repository} onClick={() => void handleRebuild()}><RefreshCw size={14} />重建索引</button></div>
-        <label>主题　<select value={theme} onChange={(event) => setTheme(event.target.value as Theme)}><option value="light">浅色</option><option value="dark">深色</option><option value="system">跟随系统</option></select></label>
-        <label>字号　<input type="range" min="12" max="18" value={fontSize} onChange={(event) => setFontSize(Number(event.target.value))} /> {fontSize}px</label>
-        <div><h2>Luna 与模型设置</h2><p>模型地址、模型名和密钥环境变量在智能问答页面的设置面板中管理。</p><button className="link-button" onClick={() => activateView('qa')}>前往智能问答</button></div>
-        <div data-testid="updater-settings"><h2>客户端更新</h2><p>当前版本 {releaseInfo.version} · {releaseInfo.channel} 通道。通过签名更新清单检查、下载并安装新版本；发布构建需配置 HTTPS 更新端点与公钥。</p><button className="refresh-button" disabled={!isDesktopRuntime() || updateBusy} onClick={() => void handleUpdate()}>{updateBusy ? <RefreshCw className="spin" size={14} /> : <CloudDownload size={14} />}{updateBusy ? '正在检查' : '检查更新'}</button></div>
-        <div><h2>缓存与日志</h2><p>缓存、任务事件与日志保存在应用数据目录；具体任务产物可在编译中心查看。</p></div>
-      </div>
-    </div>
-  )
+  const renderSettings = () => <SettingsView repositoryPath={repository?.path ?? ''} theme={theme} fontSize={fontSize} releaseInfo={releaseInfo} updateBusy={updateBusy} desktopRuntime={isDesktopRuntime()} onChooseRepository={() => void handleChooseRepository()} onRebuild={() => void handleRebuild()} onThemeChange={setTheme} onFontSizeChange={setFontSize} onUpdate={() => void handleUpdate()} onOpenQa={() => activateView('qa')} />
 
   const renderContent = () => {
     if (loading && view === 'page') return <div className="page-loading"><RefreshCw className="spin" />正在加载页面…</div>
@@ -558,7 +544,7 @@ export default function App() {
     if (view === 'books') return <CoreBooksView onOpenLink={(id) => void openPage(id)} target={bookTarget} />
     if (view === 'graph') return <GraphView onOpenPage={(id) => void openPage(id)} refreshVersion={graphRefreshVersion} targetNodeId={graphFocusNodeId} />
     if (view === 'comparison') return <ComparisonView candidates={catalog} onOpenPage={(id) => void openPage(id)} />
-    if (view === 'ingest') return <LiteratureIngestView repositoryPath={repository?.path ?? ''} autoStartRequest={autoStartRequest} onChooseRepository={() => void handleChooseRepository()} onCompleted={(message) => { setNotice(message); setRepositoryGeneration((value) => value + 1) }} onOpenCompileCenter={() => activateView('compile')} onOpenPath={(path, reveal) => void openLocalPath(path, reveal)} />
+    if (view === 'ingest') return <LiteratureIngestView repositoryPath={repository?.path ?? ''} autoStartRequest={autoStartRequest} onChooseRepository={() => void handleChooseRepository()} onCompleted={(message) => { setNotice(message); setRepositoryGeneration((value) => value + 1) }} onOpenCompileCenter={() => activateView('compile')} onOpenSettings={() => activateView('settings')} onOpenPath={(path, reveal) => void openLocalPath(path, reveal)} />
     if (view === 'qa') return <AskView repositoryPath={repository?.path ?? ''} onResearchContextChange={(question) => setResearchRequest(question ? { kind: 'question', text: question, evidenceLimit: 5, methodLimit: 4 } : null)} onOpenPage={(id) => void openPage(id)} onOpenBook={(bookId, chapterId) => { setBookTarget({ bookId, chapterId }); activateView('books') }} onOpenPath={(path) => void openLocalPath(path)} />
     if (view === 'compile') return <CompileCenterView repositoryPath={repository?.path ?? ''} onChooseRepository={() => void handleChooseRepository()} onOpenPath={(path) => void openLocalPath(path)} />
     if (view === 'settings') return renderSettings()

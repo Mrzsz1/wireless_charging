@@ -1,7 +1,7 @@
 {
   "name": "desktop",
   "private": true,
-  "version": "0.9.1",
+  "version": "0.10.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -23,6 +23,8 @@
     "test:p2": "node --experimental-strip-types --test tests/search-state.test.ts",
     "test:research-trail": "node --experimental-strip-types --test tests/research-trail-state.test.ts",
     "test:ingest": "node --experimental-strip-types --test tests/ingest-state.test.ts",
+    "test:pagination": "node --experimental-strip-types --test tests/pagination.test.ts",
+    "test:settings-pagination": "node --experimental-strip-types --test tests/settings-pagination.test.ts",
     "release:signed": "node scripts/build-signed-release.mjs",
     "fixture:updater": "node scripts/updater-fixture-server.mjs"
   },

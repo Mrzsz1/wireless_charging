@@ -19,6 +19,7 @@ mod process_support;
 mod qa;
 mod repository_watcher;
 mod research_trail;
+mod search_credentials;
 
 #[derive(Default)]
 struct RepositoryState {
@@ -2550,6 +2551,40 @@ fn save_literature_settings(
 }
 
 #[tauri::command]
+async fn list_search_provider_statuses(
+) -> Result<Vec<search_credentials::SearchProviderStatus>, String> {
+    tauri::async_runtime::spawn_blocking(search_credentials::list_statuses)
+        .await
+        .map_err(|error| format!("安全凭据状态线程失败：{error}"))?
+}
+
+#[tauri::command]
+async fn save_search_provider_key(
+    provider: String,
+    api_key: String,
+) -> Result<search_credentials::SearchProviderStatus, String> {
+    tauri::async_runtime::spawn_blocking(move || search_credentials::save_key(&provider, &api_key))
+        .await
+        .map_err(|error| format!("安全凭据保存线程失败：{error}"))?
+}
+
+#[tauri::command]
+async fn delete_search_provider_key(
+    provider: String,
+) -> Result<search_credentials::SearchProviderStatus, String> {
+    tauri::async_runtime::spawn_blocking(move || search_credentials::delete_key(&provider))
+        .await
+        .map_err(|error| format!("安全凭据清除线程失败：{error}"))?
+}
+
+#[tauri::command]
+async fn test_search_provider(provider: String) -> Result<String, String> {
+    tauri::async_runtime::spawn_blocking(move || search_credentials::test_provider(&provider))
+        .await
+        .map_err(|error| format!("检索源测试线程失败：{error}"))?
+}
+
+#[tauri::command]
 fn get_ingest_startup_prompt(
     local_date: String,
     state: State<'_, AppState>,
@@ -3029,6 +3064,10 @@ pub fn run() {
             get_literature_capabilities,
             get_literature_settings,
             save_literature_settings,
+            list_search_provider_statuses,
+            save_search_provider_key,
+            delete_search_provider_key,
+            test_search_provider,
             get_ingest_startup_prompt,
             suppress_ingest_prompt_today,
             choose_manual_pdfs,

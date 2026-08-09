@@ -227,3 +227,20 @@ await appWindow.unminimize()
 await appWindow.show()
 await appWindow.setFocus()
 ```
+
+## Scenario: Transient Secrets and Derived List Pagination
+
+### Contracts
+
+- A search-provider API Key draft lives only in the owning settings component. Saving clears the draft; reloading receives provider status only and never reconstructs or displays the saved value.
+- Blank drafts do not call the save command. Clearing an existing credential is a separate, explicit action.
+- List pagination is derived from the final filtered and sorted array. It must not alter backend result limits, BM25 order, catalog order, or the source collection.
+- Search text, type/year/status filters, sort order, or page size changes reset the page to one. If a refreshed result set makes the current page invalid, clamp it to the last valid page.
+- Empty results use the normal empty state and report zero items; do not render `1 / 0` as a valid page.
+- Page-size options are shared constants (`10`, `20`, `50`), page controls are keyboard-accessible, and boundary actions are disabled rather than silently wrapping.
+
+### Required tests
+
+- Pure helper tests cover 66 items at size 10, the six-item last page, empty input, out-of-range pages, all supported sizes, and bounded page-number windows.
+- Structural UI tests verify that credential inputs use `type="password"` by default, settings owns the automation editor, and the ingestion page contains only a settings link.
+- Strict GUI E2E verifies page navigation and both target viewport sizes.

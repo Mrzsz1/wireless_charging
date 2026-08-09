@@ -1,4 +1,5 @@
 use crate::process_support::{configure_background_command, configure_python_command};
+use crate::search_credentials;
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
 use std::collections::hash_map::DefaultHasher;
@@ -312,6 +313,7 @@ struct TaskSpec {
     label: &'static str,
     stage: &'static str,
     artifacts: Vec<(&'static str, &'static str)>,
+    search_credentials: bool,
 }
 
 fn now() -> String {
@@ -644,13 +646,13 @@ fn build_task(
     run_id: Option<&str>,
 ) -> Result<TaskSpec, String> {
     match request.task_kind.as_str() {
-        "lint" => Ok(TaskSpec { executable: "py".into(), args: vec!["-3".into(), "tools/wiki_lint.py".into(), "--write-report".into()], label: "Knowledge lint", stage: "lint", artifacts: vec![("report", "logs")] }),
-        "graphify_update" => Ok(TaskSpec { executable: "graphify".into(), args: vec!["update".into(), ".".into(), "--force".into()], label: "Update Graphify", stage: "graphify", artifacts: vec![("graph", "graphify-out")] }),
+        "lint" => Ok(TaskSpec { executable: "py".into(), args: vec!["-3".into(), "tools/wiki_lint.py".into(), "--write-report".into()], label: "Knowledge lint", stage: "lint", artifacts: vec![("report", "logs")], search_credentials: false }),
+        "graphify_update" => Ok(TaskSpec { executable: "graphify".into(), args: vec!["update".into(), ".".into(), "--force".into()], label: "Update Graphify", stage: "graphify", artifacts: vec![("graph", "graphify-out")], search_credentials: false }),
         "discover" => {
             let mut args = vec!["-3".into(), "tools/paper_search.py".into(), "--preset".into(), "wireless-charging-scheduling".into(), "--new-only".into()];
             if request.dry_run { args.push("--dry-run".into()); }
             if request.download { args.push("--download".into()); }
-            Ok(TaskSpec { executable: "py".into(), args, label: "Discover papers", stage: "discover", artifacts: vec![("discovery", "raw/inbox/auto-discovered")] })
+            Ok(TaskSpec { executable: "py".into(), args, label: "Discover papers", stage: "discover", artifacts: vec![("discovery", "raw/inbox/auto-discovered")], search_credentials: true })
         }
         "parse" => {
             let input = request.input_path.as_deref().filter(|v| !v.trim().is_empty()).ok_or_else(|| "parse requires inputPath".to_string())?;
@@ -658,9 +660,9 @@ fn build_task(
             let mut args = vec!["-3".into(), "tools/mineru_to_md.py".into(), input.to_string_lossy().into_owned(), "--output-root".into(), root.join("raw/canonical").to_string_lossy().into_owned()];
             if request.dry_run { args.push("--dry-run".into()); }
             if request.force { args.push("--force".into()); }
-            Ok(TaskSpec { executable: "py".into(), args, label: "Parse PDF", stage: "parse", artifacts: vec![("canonical", "raw/canonical")] })
+            Ok(TaskSpec { executable: "py".into(), args, label: "Parse PDF", stage: "parse", artifacts: vec![("canonical", "raw/canonical")], search_credentials: false })
         }
-        "compile_a" => Ok(TaskSpec { executable: "codex".into(), args: vec!["-a".into(), "never".into(), "-s".into(), "workspace-write".into(), "exec".into(), "-C".into(), root.to_string_lossy().into_owned(), "--skip-git-repo-check".into(), "--ephemeral".into(), "Read AGENTS.md and schema/agent-a-compile.md. Compile every pending_ingest through the Agent A protocol. Never write wiki/problems or wiki/ideas, never edit vocab.yaml, never delete files, and update index, library-status, logs and Graphify.".into()], label: "Compile A pages", stage: "compile_a", artifacts: vec![("wiki", "wiki")] }),
+        "compile_a" => Ok(TaskSpec { executable: "codex".into(), args: vec!["-a".into(), "never".into(), "-s".into(), "workspace-write".into(), "exec".into(), "-C".into(), root.to_string_lossy().into_owned(), "--skip-git-repo-check".into(), "--ephemeral".into(), "Read AGENTS.md and schema/agent-a-compile.md. Compile every pending_ingest through the Agent A protocol. Never write wiki/problems or wiki/ideas, never edit vocab.yaml, never delete files, and update index, library-status, logs and Graphify.".into()], label: "Compile A pages", stage: "compile_a", artifacts: vec![("wiki", "wiki")], search_credentials: false }),
         "full_pipeline" => {
             let mut args = vec!["-3".into(), "tools/full_pipeline.py".into()];
             if let Some(run_id) = run_id {
@@ -675,7 +677,7 @@ fn build_task(
             }
             if request.download { args.push("--download".into()); }
             if request.force { args.push("--force".into()); }
-            Ok(TaskSpec { executable: "py".into(), args, label: "Full knowledge pipeline", stage: "pipeline", artifacts: vec![("discovery", "raw/inbox/auto-discovered"), ("canonical", "raw/canonical"), ("wiki", "wiki"), ("logs", "logs"), ("graph", "graphify-out"), ("snapshot", "apps/desktop/public/data/library.json")] })
+            Ok(TaskSpec { executable: "py".into(), args, label: "Full knowledge pipeline", stage: "pipeline", artifacts: vec![("discovery", "raw/inbox/auto-discovered"), ("canonical", "raw/canonical"), ("wiki", "wiki"), ("logs", "logs"), ("graph", "graphify-out"), ("snapshot", "apps/desktop/public/data/library.json")], search_credentials: true })
         }
         "literature_prepare" | "literature_manual_ingest" | "literature_candidate_download" | "literature_candidate_ingest" | "literature_auto_ingest" => {
             let manifest = request.run_manifest.as_deref().ok_or_else(|| "literature task requires a trusted run manifest".to_string())?;
@@ -708,6 +710,7 @@ fn build_task(
                 label,
                 stage: "literature",
                 artifacts: vec![("discovery", "raw/inbox/auto-discovered"), ("manual", "raw/inbox/manual-drop"), ("canonical", "raw/canonical"), ("wiki", "wiki"), ("logs", "logs"), ("graph", "graphify-out"), ("snapshot", "apps/desktop/public/data/library.json")],
+                search_credentials: matches!(request.task_kind.as_str(), "literature_prepare" | "literature_auto_ingest"),
             })
         }
         _ => Err("task kind is not in the compile allowlist".into()),
@@ -1213,6 +1216,22 @@ pub fn execute_run(
     configure_background_command(&mut command);
     if matches!(spec.executable.as_str(), "py" | "python" | "python3") {
         configure_python_command(&mut command);
+    }
+    if spec.search_credentials {
+        if let Err(error) = search_credentials::apply_to_command(&mut command) {
+            connection.execute("UPDATE compile_runs SET status='failed',finished_at=?2,failure_reason=?3 WHERE id=?1",params![run_id,now(),error]).ok();
+            emit_event(
+                &connection,
+                &channel,
+                &run_id,
+                &mut sequence,
+                "failed",
+                spec.stage,
+                &error,
+            );
+            return get_run(&connection, &root.to_string_lossy(), &run_id)
+                .map(|detail| detail.summary);
+        }
     }
     let mut child = match command
         .args(&spec.args)

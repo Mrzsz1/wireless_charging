@@ -1,5 +1,5 @@
 import { Channel, invoke } from '@tauri-apps/api/core'
-import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatSessionDetail, ChatSessionSummary, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LiteratureCandidate, LiteratureCapability, LiteratureIngestSettings, LunaSettings, ManualImportSession, PageDetail, PageFilters, PageSummary, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchResult, StartCompileRequest, StartLiteratureRunRequest, StartupPromptState } from '../types'
+import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatSessionDetail, ChatSessionSummary, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LiteratureCandidate, LiteratureCapability, LiteratureIngestSettings, LunaSettings, ManualImportSession, PageDetail, PageFilters, PageSummary, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchProviderStatus, SearchResult, StartCompileRequest, StartLiteratureRunRequest, StartupPromptState } from '../types'
 
 type TauriWindow = Window & { __TAURI_INTERNALS__?: unknown }
 
@@ -171,6 +171,22 @@ export async function getLiteratureSettings(): Promise<LiteratureIngestSettings>
 
 export async function saveLiteratureSettings(settings: LiteratureIngestSettings): Promise<LiteratureIngestSettings> {
   return invoke<LiteratureIngestSettings>('save_literature_settings', { settings })
+}
+
+export async function listSearchProviderStatuses(): Promise<SearchProviderStatus[]> {
+  return invoke<SearchProviderStatus[]>('list_search_provider_statuses')
+}
+
+export async function saveSearchProviderKey(provider: string, apiKey: string): Promise<SearchProviderStatus> {
+  return invoke<SearchProviderStatus>('save_search_provider_key', { provider, apiKey })
+}
+
+export async function deleteSearchProviderKey(provider: string): Promise<SearchProviderStatus> {
+  return invoke<SearchProviderStatus>('delete_search_provider_key', { provider })
+}
+
+export async function testSearchProvider(provider: string): Promise<string> {
+  return invoke<string>('test_search_provider', { provider })
 }
 
 export async function getIngestStartupPrompt(localDate: string): Promise<StartupPromptState> {

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { AlertTriangle, Check, CheckCircle2, ChevronRight, CircleX, CloudDownload, ExternalLink, FileCheck2, FilePlus2, FolderOpen, LoaderCircle, Play, Radar, RefreshCw, Save, Search, Settings2, ShieldCheck, Trash2, UploadCloud } from 'lucide-react'
-import { chooseManualPdfs, discardManualImportSession, getLiteratureCapabilities, getLiteratureSettings, listLiteratureCandidates, saveLiteratureSettings, startLiteratureRun, updateCandidateTriage } from '../../services/desktop'
+import { AlertTriangle, Check, CheckCircle2, ChevronRight, CircleX, CloudDownload, ExternalLink, FileCheck2, FilePlus2, FolderOpen, LoaderCircle, Play, Radar, RefreshCw, Search, Settings, ShieldCheck, Trash2, UploadCloud } from 'lucide-react'
+import { chooseManualPdfs, discardManualImportSession, getLiteratureCapabilities, getLiteratureSettings, listLiteratureCandidates, startLiteratureRun, updateCandidateTriage } from '../../services/desktop'
 import type { CompileStreamEvent, LiteratureCandidate, LiteratureCapability, LiteratureIngestMode, LiteratureIngestSettings, ManualImportSession } from '../../types'
 import { defaultSelectedManualFileIds, filterCandidates, formatBytes, formatEpoch, type CandidateFilter } from './ingestState'
 import './LiteratureIngestView.css'
@@ -11,6 +11,7 @@ type Props = {
   onChooseRepository: () => void
   onCompleted: (message: string) => void
   onOpenCompileCenter: () => void
+  onOpenSettings: () => void
   onOpenPath: (path: string, reveal?: boolean) => void
 }
 
@@ -27,7 +28,7 @@ function eventMessage(event: CompileStreamEvent) {
   return `[${event.stage || event.type}] ${event.message}`
 }
 
-export function LiteratureIngestView({ repositoryPath, autoStartRequest, onChooseRepository, onCompleted, onOpenCompileCenter, onOpenPath }: Props) {
+export function LiteratureIngestView({ repositoryPath, autoStartRequest, onChooseRepository, onCompleted, onOpenCompileCenter, onOpenSettings, onOpenPath }: Props) {
   const [tab, setTab] = useState<Tab>('manual')
   const [settings, setSettings] = useState<LiteratureIngestSettings>(defaultSettings)
   const [capabilities, setCapabilities] = useState<LiteratureCapability[]>([])
@@ -140,13 +141,6 @@ export function LiteratureIngestView({ repositoryPath, autoStartRequest, onChoos
     finally { setBusy(false) }
   }
 
-  const saveSettings = async () => {
-    setBusy(true); setError('')
-    try { setSettings(await saveLiteratureSettings(settings)); onCompleted('自动入库设置已保存') }
-    catch (reason) { setError(String(reason)) }
-    finally { setBusy(false) }
-  }
-
   if (!repositoryPath) return <section className="ingest-empty"><FilePlus2 size={36} /><h1>文献入库</h1><p>先选择知识库目录，再添加本地 PDF、确认候选或运行自动检索。</p><button className="ingest-button primary" onClick={onChooseRepository}><FolderOpen size={16} />选择知识库</button></section>
 
   return <section className="ingest-view" data-testid="literature-ingest">
@@ -219,18 +213,10 @@ export function LiteratureIngestView({ repositoryPath, autoStartRequest, onChoos
         <div className="automation-summary"><div><Radar size={20} /><span><strong>{eligibleCount}</strong><small>当前满足规则</small></span></div><div><FileCheck2 size={20} /><span><strong>{candidates.filter((item) => item.triageStatus === 'pending').length}</strong><small>等待人工确认</small></span></div><div><ShieldCheck size={20} /><span><strong>{allCapabilitiesReady ? '正常' : '受限'}</strong><small>流水线能力</small></span></div></div>
         <button className="ingest-button primary run-automation" disabled={busy || !capabilities.find((item) => item.id === 'discovery')?.available} onClick={() => void run(settings.autoPromoteEnabled ? 'automatic' : 'prepare')}>{busy ? <LoaderCircle className="spin" size={17} /> : <Play size={17} />}{settings.autoPromoteEnabled ? '立即检索并自动入库' : '立即检索最新文献'}</button>
         <p className="automation-boundary">自动完整入库只处理同时满足：主题命中、分数阈值、标题关键词、DOI/arXiv、开放 PDF、无重复的候选，单次最多 {settings.maxAutoIngest} 篇。</p>
+        <div className="automation-config-link" data-testid="automation-settings-link"><div><Settings size={16} /><span><strong>自动化参数已迁入设置</strong><small>{settings.providers.join('、')} · {settings.sinceYear ?? '不限年份'} 起 · 阈值 {settings.minScore}</small></span></div><button className="ingest-button secondary" onClick={onOpenSettings}>前往设置<ChevronRight size={14} /></button></div>
         <h3>依赖检查</h3><div className="capability-grid">{capabilities.map((item) => <div key={item.id} className={item.available ? 'available' : 'unavailable'}>{item.available ? <CheckCircle2 size={15} /> : <AlertTriangle size={15} />}<span><strong>{item.id}</strong><small>{item.reason}</small></span></div>)}</div>
-      </section>
-      <aside className="ingest-panel automation-settings">
-        <div className="ingest-panel-heading"><div><h2><Settings2 size={17} />自动设置</h2></div><button className="ingest-button secondary" disabled={busy} onClick={() => void saveSettings()}><Save size={14} />保存</button></div>
-        <label className="ingest-checkbox"><input type="checkbox" checked={settings.startupPromptEnabled} onChange={(event) => setSettings((current) => ({ ...current, startupPromptEnabled: event.target.checked }))} /><span><strong>启动时询问是否运行</strong><small>弹窗提供“本次运行 / 今天不再提醒 / 取消”</small></span></label>
-        <label className="ingest-checkbox"><input type="checkbox" checked={settings.autoPromoteEnabled} onChange={(event) => setSettings((current) => ({ ...current, autoPromoteEnabled: event.target.checked }))} /><span><strong>允许自动完整入库</strong><small>关闭时只生成候选清单，不写正式 Wiki</small></span></label>
-        <label className="setting-field"><span>相关度阈值</span><input type="number" min={0} max={100} step={0.5} value={settings.minScore} onChange={(event) => setSettings((current) => ({ ...current, minScore: Number(event.target.value) }))} /></label>
-        <label className="setting-field"><span>单次最大入库数</span><input type="number" min={1} max={20} value={settings.maxAutoIngest} onChange={(event) => setSettings((current) => ({ ...current, maxAutoIngest: Number(event.target.value) }))} /></label>
-        <label className="setting-field"><span>起始年份</span><input type="number" min={1990} max={2100} value={settings.sinceYear ?? ''} onChange={(event) => setSettings((current) => ({ ...current, sinceYear: event.target.value ? Number(event.target.value) : null }))} /></label>
-        <fieldset><legend>检索来源</legend>{['arxiv', 'openalex', 'tavily', 'serpapi'].map((provider) => <label className="provider-option" key={provider}><input type="checkbox" checked={settings.providers.includes(provider)} onChange={(event) => setSettings((current) => ({ ...current, providers: event.target.checked ? [...current.providers, provider] : current.providers.filter((item) => item !== provider) }))} />{provider}</label>)}</fieldset>
         <div className="automation-history"><span>上次尝试：{formatEpoch(settings.lastAttemptAt)}</span><span>上次成功：{formatEpoch(settings.lastSuccessAt)}</span></div>
-      </aside>
+      </section>
     </div>}
 
     {(busy || runLog.length > 0) && <section className="ingest-run-strip"><div><span>{busy ? <LoaderCircle className="spin" size={15} /> : <CheckCircle2 size={15} />}{busy ? '任务运行中' : '最近任务输出'}</span><button onClick={onOpenCompileCenter}>在编译中心查看 · {runId || '等待任务编号'} <ChevronRight size={14} /></button></div><pre>{runLog.slice(-8).join('\n') || '正在等待任务事件…'}</pre></section>}

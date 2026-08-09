@@ -1,4 +1,4 @@
-# Wireless Charging Research Workbench 0.9.1
+# Wireless Charging Research Workbench 0.10.0
 
 Windows 本地科研工作台：以 Wiki 正文为真相，使用 SQLite FTS5、核心专著章节索引、Graphify 和 Luna 完成阅读、检索、问答与受控编译。
 
@@ -56,6 +56,19 @@ py -3 tools/wiki_lint.py --strict-graphify
 
 正式入库依赖 Python、MinerU、Codex CLI 与 Graphify；缺失能力会在“自动添加”的依赖检查中显示。候选发现和仅下载可在后续编译能力缺失时独立使用。任务日志、退出码、失败原因与生成物统一在“编译中心”查看。
 
+## 设置、搜索服务与分页
+
+0.10.0 起，“启动时询问是否运行”“允许自动完整入库”、相关度阈值、单次上限、起始年份和检索源统一在左侧“设置 → 文献自动化”中管理。“文献入库 → 自动添加”只显示运行状态、资格边界、依赖检查和任务入口，并提供“前往设置”快捷入口。
+
+“设置 → 论文搜索服务”显示 arXiv、OpenAlex、Tavily 与 Google Scholar（SerpApi）：
+
+- arXiv 无需 API Key；其他服务可保存、测试或显式清除 Key。
+- Key 保存到当前 Windows 用户的 Credential Manager，不写入 SQLite、知识库、任务参数、manifest 或日志。
+- 已保存的 Key 只显示“已安全配置”状态，客户端不回显原值；空输入不会覆盖已有值。
+- 受控检索任务启动时才把所需 Key 注入子进程。原环境变量与外部 Key 文件继续作为兼容回退。
+
+文献库、方法库和全局检索结果使用同一分页逻辑：默认每页 10 条，可切换 10/20/50 条；搜索、筛选、排序或页大小变化会回到第一页，结果缩减时当前页自动收敛到有效范围。
+
 ## 上下文研究脉络
 
 右侧“研究脉络”跟随当前 Wiki 页面、已提交的研究问题或文献库搜索词切换。证据链融合页面出链/反链、Wiki FTS5、两本核心书籍与 Graphify 一跳关系；每项显示关系、归一化分数与检索理由，“相关方法”只返回 `type: method` 页面。Graphify 或书籍索引缺失时面板显示降级通道，不用目录前几项伪装结果。
@@ -66,7 +79,7 @@ py -3 tools/wiki_lint.py --strict-graphify
 
 0.7.2 起，窗口位置与尺寸按物理像素保存和恢复，并在启动时与当前显示器工作区求交。移除副屏、修改分辨率/DPI 或任务栏工作区后，完全位于屏幕外的旧窗口会回到主显示器中央；合法的负坐标副屏位置仍会保留。最小化状态不会覆盖最后一个正常窗口矩形，启动恢复结束后会执行取消最小化、显示与聚焦。
 
-若旧版本只在任务栏显示缩略图，直接安装并启动 0.9.1 即会迁移 `desktop.window-state.v2`；无需手工清理本地存储。
+若旧版本只在任务栏显示缩略图，直接安装并启动 0.10.0 即会迁移 `desktop.window-state.v2`；无需手工清理本地存储。
 
 ## GUI E2E
 
@@ -109,6 +122,7 @@ MSI、NSIS 与 release 可执行文件位于 `src-tauri/target/release/bundle/`�
 - **章节无法打开**：检查 `raw/canonical/<book-id>/chapter-index.json` 的 `path` 是否为仓库内相对路径，且目标 Markdown 可读。
 - **GUI E2E 缺依赖**：运行 `npm run test:e2e-config`，再安装 `tauri-driver` 和匹配的 `msedgedriver.exe`。
 - **文献发现失败**：在“自动添加”检查检索来源和依赖；联网或来源 Key 缺失不会改变已有候选。详细错误在编译中心对应 `literature_*` 任务中查看。
+- **搜索服务未配置**：打开“设置 → 论文搜索服务”检查状态；OpenAlex、Tavily 和 Google Scholar（SerpApi）可分别保存并测试 Key，arXiv 不需要 Key。
 - **文献运行弹出 `py.exe` 或出现 GBK 编码错误**：升级到 0.9.1；该版本将长期任务移出界面线程，隐藏内部 Windows 子进程并固定 Python UTF-8 输出。
 - **搜索提示 `wrong number of arguments to function snippet()`**：升级到 0.9.1 后重试；修复不需要删除知识库或 SQLite 索引。
 - **手动 PDF 被排除**：查看预检中的格式、200MB 上限和重复路径；只有显式勾选重复覆盖后才能重新处理重复 PDF。

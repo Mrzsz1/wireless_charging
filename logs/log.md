@@ -256,6 +256,14 @@
 - 修复 FTS5 `snippet()` 四参数误用；真实 release GUI 已执行 `curr` 搜索并通过。
 - 验收：Rust 42/42、Python 45/45、Wiki 10/10、两书 Recall@5 1.000 / 0.986667，strict GUI 与 NSIS 生命周期通过。
 - 详情：`logs/2026-08-09-desktop-runtime-search-bugs.md`
+
+## [2026-08-09] desktop | 设置集中管理、搜索凭据与分页 0.10.0
+
+- 文献自动化配置迁入统一设置页，自动添加页保留运行状态和“前往设置”入口。
+- 新增 arXiv、OpenAlex、Tavily、Google Scholar（SerpApi）配置；Key 使用 Windows Credential Manager，前端不回显，只有受控检索子进程接收。
+- 文献库、方法库与搜索结果新增 10/20/50 分页，并覆盖筛选重置、越界收敛和空结果。
+- 验收：Rust 45/45、Python 45/45、Wiki 10/10、两书 Recall@5 1.000 / 0.986667，P5 strict GUI 与 NSIS 生命周期通过。
+- 详情：`logs/2026-08-09-desktop-settings-pagination.md`
 ## [2026-08-02] desktop | P5.3 ????????? 0.7.0
 
 - ?????/??/??/????? `Ctrl+K`??? Wiki ???? upsert/delete/rename?

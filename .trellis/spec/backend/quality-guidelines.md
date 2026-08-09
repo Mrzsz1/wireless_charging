@@ -78,3 +78,16 @@ Reviewers must reject synchronous `Command::output`/`wait` calls in Tauri comman
 - Related-method output is restricted to `page_type = 'method'`; it must never fall back to catalog order.
 - Missing Graphify or core-book indexes are reported through `degradedChannels`; a missing optional channel does not turn valid Wiki evidence into an error.
 - Rust tests must cover stable context keys, deduplication/reason merging, direct-link priority, method restriction, and degraded channels. Run fmt, Clippy with `-D warnings`, and the complete Rust suite before commit.
+
+## Desktop Search Credential Contract
+
+Search-provider credentials are desktop secrets, not repository configuration.
+
+- Store them in the current Windows user's Credential Manager under one fixed application service name and a provider allowlist. Never persist them in SQLite, Wiki files, manifests, task arguments, logs, error strings, local storage, or Git.
+- Tauri status DTOs expose provider metadata and a `configured` boolean only. A saved credential is never returned to the WebView, even in masked form.
+- Blank input is a no-op. Deletion is an explicit command. Unknown provider IDs are rejected before any credential-store or network operation.
+- Read credentials only immediately before an approved discovery/literature child process starts, and inject only configured provider variables into that child environment. Tasks outside the search/literature allowlist receive no credential variables.
+- Credential-manager and connection-test failures use generic messages. Never include credential-bearing request URLs, headers, response bodies, or secret values in errors.
+- Preserve the existing environment-variable and external-key-file behavior by omitting missing vault values instead of injecting empty environment variables.
+
+Regression tests must use an in-memory credential store and assert that status DTOs contain no secret field, only configured variables are projected, and unknown providers fail closed. Do not save test keys into the developer's real Windows Credential Manager.

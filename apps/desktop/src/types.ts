@@ -47,6 +47,14 @@ export type LiteratureIngestSettings = {
   lastSuccessAt: string
 }
 
+export type SearchProviderStatus = {
+  id: string
+  label: string
+  description: string
+  requiresKey: boolean
+  configured: boolean
+}
+
 export type StartupPromptState = {
   shouldPrompt: boolean
   mode: 'prepare' | 'automatic'
