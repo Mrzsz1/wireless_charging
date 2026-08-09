@@ -157,8 +157,10 @@ export default function App() {
   const [graphFocusNodeId, setGraphFocusNodeId] = useState('')
   const [researchRequest, setResearchRequest] = useState<ResearchTrailRequest | null>(null)
   const [catalog, setCatalog] = useState<PageSummary[]>([])
+  const [searchDraft, setSearchDraft] = useState('')
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
+  const [searchBusy, setSearchBusy] = useState(false)
   const [filters, setFilters] = useState<PageFilters>({ limit: 200, sort: 'modified' })
   const [page, setPage] = useState<PageDetail | null>(null)
   const [backlinks, setBacklinks] = useState<Backlink[]>([])
@@ -477,22 +479,48 @@ export default function App() {
     }
   }
 
-  const handleSearch = async (value: string) => {
+  const clearSearch = () => {
+    searchRequests.invalidate()
+    setSearchDraft('')
+    setQuery('')
+    setResults([])
+    setSearchBusy(false)
+    setResearchRequest((current) => current?.kind === 'search' ? null : current)
+  }
+
+  const handleSearch = async (value: string, navigateToLibrary = false) => {
     setQuery(value)
-    const token = value.trim() ? searchRequests.next() : searchRequests.invalidate()
-    if (!value.trim()) {
-      setResults([])
+    const normalized = value.trim()
+    if (!normalized) {
+      clearSearch()
       return
     }
+    const token = searchRequests.next()
+    setSearchBusy(true)
+    if (navigateToLibrary) activateView('library')
     try {
-      const nextResults = await searchPages(value, 30)
-      if (searchRequests.isCurrent(token)) setResults(nextResults)
+      const nextResults = await searchPages(normalized, 30)
+      if (searchRequests.isCurrent(token)) {
+        setResults(nextResults)
+        setSearchBusy(false)
+      }
     } catch (error) {
       if (searchRequests.isCurrent(token)) {
         setResults([])
+        setSearchBusy(false)
         setNotice(`搜索失败：${String(error)}`)
       }
     }
+  }
+
+  const submitGlobalSearch = () => {
+    if (searchBusy || !searchDraft.trim()) return
+    void handleSearch(searchDraft, true)
+  }
+
+  const handleLibrarySearch = (value: string) => {
+    setSearchDraft(value)
+    void handleSearch(value)
   }
 
   useEffect(() => {
@@ -545,7 +573,7 @@ export default function App() {
   const renderContent = () => {
     if (loading && view === 'page') return <div className="page-loading"><RefreshCw className="spin" />正在加载页面…</div>
     if (view === 'dashboard') return renderDashboard()
-    if (view === 'library' || view === 'methods') return <LibraryView query={query} results={results} catalog={catalog} pageType={view === 'methods' ? 'method' : 'source'} filters={filters} loading={loading} onQueryChange={(value) => void handleSearch(value)} onFiltersChange={setFilters} onOpenResult={(item) => void openPage(item.id)} />
+    if (view === 'library' || view === 'methods') return <LibraryView query={query} results={results} catalog={catalog} pageType={view === 'methods' ? 'method' : 'source'} filters={filters} loading={loading} onQueryChange={handleLibrarySearch} onFiltersChange={setFilters} onOpenResult={(item) => void openPage(item.id)} />
     if (view === 'page' && page) return <PageView page={page} backlinks={backlinks} backlinksLoading={loading} onOpenLink={(id) => void openPage(id)} onOpenPath={(path, reveal) => void openLocalPath(path, reveal)} onReload={() => void openPage(page.id)} />
     if (view === 'books') return <CoreBooksView onOpenLink={(id) => void openPage(id)} target={bookTarget} />
     if (view === 'graph') return <GraphView onOpenPage={(id) => void openPage(id)} refreshVersion={graphRefreshVersion} targetNodeId={graphFocusNodeId} />
@@ -606,7 +634,15 @@ export default function App() {
 
         <main ref={workspaceRef} className={`main-workspace ${view === 'qa' ? 'qa-active' : ''} ${view === 'compile' ? 'compile-active' : ''}`}>
           <div className="workspace-toolbar">
-            <div className="global-search"><Search size={17} /><input ref={globalSearchRef} data-testid="global-search" value={query} onChange={(event) => void handleSearch(event.target.value)} placeholder="搜索论文、方法、模型或问题…" />{query && <button className="clear-search" onClick={() => void handleSearch('')}><X size={14} /></button>}<kbd>Ctrl K</kbd></div>
+            <form className="global-search" role="search" onSubmit={(event) => { event.preventDefault(); submitGlobalSearch() }}>
+              <Search size={17} />
+              <input ref={globalSearchRef} data-testid="global-search" value={searchDraft} onChange={(event) => setSearchDraft(event.target.value)} placeholder="搜索论文、方法、模型或问题…" />
+              {searchDraft && <button type="button" className="clear-search" data-testid="global-search-clear" aria-label="清空搜索" onClick={clearSearch}><X size={14} /></button>}
+              <kbd>Ctrl K</kbd>
+              <button type="submit" className="global-search-submit" data-testid="global-search-submit" disabled={searchBusy || !searchDraft.trim()} aria-label="提交搜索">
+                {searchBusy ? <RefreshCw className="spin" size={13} /> : <Search size={13} />}<span>{searchBusy ? '搜索中' : '搜索'}</span>
+              </button>
+            </form>
             <div className="toolbar-actions"><button className="toolbar-button" onClick={() => activateView('qa')}><Sparkles size={16} />新建问答</button><button className="icon-button" title="刷新知识库快照" onClick={() => void refreshRepository()}><RefreshCw size={16} /></button><button data-testid="context-toggle" className="icon-button" title={contextOpen ? '收起研究脉络' : '展开研究脉络'} onClick={() => setContextOpen((value) => !value)}>{contextOpen ? <ChevronRight size={17} /> : <ChevronLeft size={17} />}</button></div>
           </div>
           {notice && <div className="notice" data-testid="app-notice"><Sparkles size={15} /><span>{notice}</span><button onClick={() => setNotice('')}><X size={14} /></button></div>}
@@ -614,7 +650,7 @@ export default function App() {
           {renderContent()}
         </main>
 
-        <ResearchTrailPanel open={contextOpen} tab={contextTab} request={researchRequest} repositoryPath={repository?.path ?? ''} refreshVersion={repositoryGeneration + graphRefreshVersion} onClose={() => setContextOpen(false)} onOpen={() => setContextOpen(true)} onTabChange={setContextTab} onOpenPage={(id) => void openPage(id)} onOpenBook={(bookId, chapterId) => { setBookTarget({ bookId, chapterId }); activateView('books') }} onOpenPath={(path) => void openLocalPath(path)} onOpenGraph={(nodeId) => { setGraphFocusNodeId(nodeId ?? ''); activateView('graph') }} onShowMethods={(value) => { activateView('methods'); if (value.trim()) void handleSearch(value) }} />
+        <ResearchTrailPanel open={contextOpen} tab={contextTab} request={researchRequest} repositoryPath={repository?.path ?? ''} refreshVersion={repositoryGeneration + graphRefreshVersion} onClose={() => setContextOpen(false)} onOpen={() => setContextOpen(true)} onTabChange={setContextTab} onOpenPage={(id) => void openPage(id)} onOpenBook={(bookId, chapterId) => { setBookTarget({ bookId, chapterId }); activateView('books') }} onOpenPath={(path) => void openLocalPath(path)} onOpenGraph={(nodeId) => { setGraphFocusNodeId(nodeId ?? ''); activateView('graph') }} onShowMethods={(value) => { activateView('methods'); if (value.trim()) handleLibrarySearch(value) }} />
       </div>
 
       <footer className="statusbar"><span><i className="status-dot" />{repository?.indexed ? '已同步' : '等待索引'}</span><span>{repository?.path || '尚未选择本地知识库'}</span><span>页面 {repository?.pageCount ?? catalog.length}</span><span className="status-graph">Graphify 派生图</span></footer>

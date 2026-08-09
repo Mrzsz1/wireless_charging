@@ -130,14 +130,17 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--sky-400); o
 .main-workspace.qa-active > .qa-view { flex: 1 1 auto; min-height: 0; margin: 0 -24px; }
 .main-workspace.compile-active { display: flex; flex-direction: column; min-height: 0; padding-bottom: 0; overflow: hidden; }
 .main-workspace.compile-active > .compile-center-view { flex: 1 1 auto; min-height: 0; }
-.workspace-toolbar { height: 76px; display: flex; align-items: center; gap: 18px; }
-.global-search { min-width: 280px; max-width: 645px; height: 38px; flex: 1; display: flex; align-items: center; gap: 9px; position: relative; padding: 0 12px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: #7a8791; }
+.workspace-toolbar { height: 76px; display: flex; align-items: center; justify-content: flex-start; gap: 12px; }
+.global-search { width: min(645px, 100%); min-width: 280px; max-width: 645px; height: 38px; flex: 0 1 645px; display: flex; align-items: center; gap: 9px; position: relative; padding: 0 5px 0 12px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: #7a8791; }
 .global-search:focus-within { border-color: var(--sky-400); box-shadow: 0 0 0 3px var(--sky-100); }
 .global-search input { flex: 1; min-width: 0; border: 0; outline: 0; color: var(--text-primary); background: transparent; font-size: 12px; }
 .global-search input::placeholder { color: #9aa5ae; }
 .global-search kbd { padding: 2px 5px; color: var(--text-muted); border: 1px solid var(--divider); border-radius: 4px; font-size: 10px; }
 .clear-search { display: grid; place-items: center; padding: 0; background: transparent; color: var(--text-muted); }
-.toolbar-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.global-search-submit { display: inline-flex; height: 28px; flex: 0 0 auto; align-items: center; justify-content: center; gap: 5px; padding: 0 10px; border-radius: 5px; color: white; background: var(--sky-600); font-size: 11px; font-weight: 650; }
+.global-search-submit:hover:not(:disabled) { background: var(--sky-700); }
+.global-search-submit:disabled { cursor: default; opacity: .52; }
+.toolbar-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 6px; margin-left: 0; }
 .toolbar-button, .icon-button, .refresh-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; background: transparent; color: var(--text-second); border-radius: 6px; }
 .toolbar-button { height: 34px; padding: 0 9px; font-size: 12px; }
 .toolbar-button:hover, .icon-button:hover { background: var(--sky-50); color: var(--sky-700); }
