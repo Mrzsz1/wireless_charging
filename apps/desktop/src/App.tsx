@@ -171,7 +171,7 @@ export default function App() {
   const [startupIngestPrompt, setStartupIngestPrompt] = useState<StartupPromptState | null>(null)
   const [startupPromptBusy, setStartupPromptBusy] = useState(false)
   const [autoStartRequest, setAutoStartRequest] = useState<{ version: number; mode: 'prepare' | 'automatic' }>({ version: 0, mode: 'prepare' })
-  const [releaseInfo, setReleaseInfo] = useState({ version: '0.9.0', channel: 'stable' })
+  const [releaseInfo, setReleaseInfo] = useState({ version: '0.9.1', channel: 'stable' })
   const globalSearchRef = useRef<HTMLInputElement>(null)
   const workspaceRef = useRef<HTMLElement>(null)
   const currentScrollKey = useRef('')
@@ -617,7 +617,7 @@ export default function App() {
             <div className="global-search"><Search size={17} /><input ref={globalSearchRef} data-testid="global-search" value={query} onChange={(event) => void handleSearch(event.target.value)} placeholder="搜索论文、方法、模型或问题…" />{query && <button className="clear-search" onClick={() => void handleSearch('')}><X size={14} /></button>}<kbd>Ctrl K</kbd></div>
             <div className="toolbar-actions"><button className="toolbar-button" onClick={() => activateView('qa')}><Sparkles size={16} />新建问答</button><button className="icon-button" title="刷新知识库快照" onClick={() => void refreshRepository()}><RefreshCw size={16} /></button><button data-testid="context-toggle" className="icon-button" title={contextOpen ? '收起研究脉络' : '展开研究脉络'} onClick={() => setContextOpen((value) => !value)}>{contextOpen ? <ChevronRight size={17} /> : <ChevronLeft size={17} />}</button></div>
           </div>
-          {notice && <div className="notice"><Sparkles size={15} /><span>{notice}</span><button onClick={() => setNotice('')}><X size={14} /></button></div>}
+          {notice && <div className="notice" data-testid="app-notice"><Sparkles size={15} /><span>{notice}</span><button onClick={() => setNotice('')}><X size={14} /></button></div>}
           <TabBar tabs={tabs} activeId={activeTab} onSelect={selectTab} onClose={closeTab} />
           {renderContent()}
         </main>

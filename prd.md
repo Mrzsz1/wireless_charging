@@ -970,6 +970,18 @@ P5.4 关闭代码审查遗留的 `SEARCH-001`、`BOOK-001`、`ROLLBACK-001`、`W
 
 0.9.0 验收：Python 44/44、Rust 40/40、Clippy、前端状态/构建/P3/P4/P5、真实 release strict GUI 与 NSIS 隔离安装/启动/卸载通过；两书 Recall@5 保持 1.000 / 0.986667。发布 SHA-256：app `806C7C48542B55D7E9E4A8652048DE8164999B97C4C343E762DBD5A779FB5F09`；MSI `7CFEE878F1B569BD2551FB252A39A6F0881024A9E0F94B7B889F47BC478F9887`；NSIS `88DA4A0FC307AE6FF337A88BF5B12E1EECFA3DF801A46042AD43EE0D0D8B59B0`。
 
+#### 13.17 客户端运行时与搜索修复（已完成 2026-08-09，版本 0.9.1）
+
+0.9.1 修复两个真实安装版 P0 缺陷：点击文献自动检索后界面无响应、弹出 `py.exe` 并因 GBK 中文输出失败；全局搜索因 SQLite FTS5 `snippet()` 参数数量错误而完全失败。
+
+1. 长期编译和文献任务移入 Tauri 阻塞线程池，候选列举、triage 与能力检查也在释放状态锁后后台执行，保持 IPC 和界面响应。
+2. 新增共享进程配置：Windows 内部子进程使用 `CREATE_NO_WINDOW`；Python 同时设置 `PYTHONUTF8=1`、`PYTHONIOENCODING=utf-8`，CLI stdout/stderr 再做 UTF-8 兜底。
+3. 全局搜索使用六参数 `snippet(pages_fts, 2, '<mark>', '</mark>', ' … ', 24)`，保留 BM25、前缀查询、结果上限与 LIKE fallback。
+4. 回归测试实际建立内存 FTS，覆盖 `curr` 高亮、中文查询和空结果；Python 测试在父环境声明 GBK 时验证中文 JSON 仍为 UTF-8。
+5. 用户失败运行目录 `raw/inbox/auto-discovered/runs/search-20260809-204315/` 保持原状，不纳入发布提交。
+
+0.9.1 验收：Rust 42/42、Python 45/45、Wiki Eval 10/10、两书 Recall@5 1.000 / 0.986667；前端构建与全部阶段门禁、真实 release strict GUI（含 `curr` 搜索）和 NSIS 隔离安装/启动/退出/卸载全部通过。发布产物：app 20,403,200 bytes，SHA-256 `D095044DEF94BD5FEBAA6A0DD88ADC5258D65610191A46D039EC692DCE3FE0DE`；MSI 9,662,464 bytes，SHA-256 `44BA19C8940AA654DEBE1A77FFA1C5EEB83E06B50DBCBC30A3C336C0F50B4369`；NSIS 6,747,702 bytes，SHA-256 `9823D2D4891BA728693B486ED4F928B07DF50A93743E8E1B44E068C889B6F4C6`。
+
 ---
 
 ## 14. 变更规则

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -65,6 +67,30 @@ def candidate(**overrides):
 
 
 class LiteratureIngestTests(unittest.TestCase):
+    def test_cli_forces_utf8_when_parent_console_uses_gbk(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            repository(root)
+            manifest(root, [candidate(title="中文无线充电调度")])
+            environment = os.environ.copy()
+            environment["PYTHONIOENCODING"] = "gbk"
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    str(TOOLS / "literature_ingest.py"),
+                    "--repository",
+                    str(root),
+                    "list-candidates",
+                    "--json",
+                ],
+                capture_output=True,
+                check=False,
+                env=environment,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stderr.decode("utf-8", errors="replace"))
+            payload = json.loads(completed.stdout.decode("utf-8"))
+            self.assertEqual(payload["candidates"][0]["title"], "中文无线充电调度")
+
     def test_candidate_id_is_stable_across_metadata_changes(self) -> None:
         first = candidate(title="Title A")
         second = candidate(title="Changed title", authors=["B"])

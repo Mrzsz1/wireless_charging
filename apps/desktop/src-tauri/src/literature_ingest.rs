@@ -1,3 +1,4 @@
+use crate::process_support::{configure_background_command, configure_python_command};
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -513,7 +514,9 @@ fn load_manual_session(
 }
 
 fn run_python(root: &Path, arguments: &[String]) -> Result<String, String> {
-    let output = Command::new("py")
+    let mut command = Command::new("py");
+    configure_python_command(&mut command);
+    let output = command
         .arg("-3")
         .arg("tools/literature_ingest.py")
         .args(arguments)
@@ -526,8 +529,7 @@ fn run_python(root: &Path, arguments: &[String]) -> Result<String, String> {
     String::from_utf8(output.stdout).map_err(|error| error.to_string())
 }
 
-pub fn list_candidates(connection: &Connection, root: &Path) -> Result<Value, String> {
-    let settings = get_settings(connection, &root.to_string_lossy())?;
+pub fn list_candidates(root: &Path, settings: &LiteratureIngestSettings) -> Result<Value, String> {
     let stdout = run_python(
         root,
         &[
@@ -580,7 +582,12 @@ pub fn update_triage(
 }
 
 fn command_available(command: &str) -> bool {
-    Command::new(command)
+    let mut process = Command::new(command);
+    configure_background_command(&mut process);
+    if matches!(command, "py" | "python" | "python3") {
+        configure_python_command(&mut process);
+    }
+    process
         .arg("--version")
         .output()
         .map(|output| output.status.success())

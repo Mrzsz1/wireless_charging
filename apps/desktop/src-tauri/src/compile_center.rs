@@ -1,3 +1,4 @@
+use crate::process_support::{configure_background_command, configure_python_command};
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
 use std::collections::hash_map::DefaultHasher;
@@ -379,7 +380,12 @@ pub fn recover_interrupted_runs(connection: &Connection) -> Result<usize, String
 }
 
 fn command_exists(program: &str) -> bool {
-    Command::new(program)
+    let mut command = Command::new(program);
+    configure_background_command(&mut command);
+    if matches!(program, "py" | "python" | "python3") {
+        configure_python_command(&mut command);
+    }
+    command
         .arg("--version")
         .stdout(Stdio::null())
         .stderr(Stdio::null())
@@ -1203,7 +1209,12 @@ pub fn execute_run(
         );
         return get_run(&connection, &root.to_string_lossy(), &run_id).map(|d| d.summary);
     }
-    let mut child = match Command::new(&spec.executable)
+    let mut command = Command::new(&spec.executable);
+    configure_background_command(&mut command);
+    if matches!(spec.executable.as_str(), "py" | "python" | "python3") {
+        configure_python_command(&mut command);
+    }
+    let mut child = match command
         .args(&spec.args)
         .current_dir(root)
         .stdin(Stdio::null())
@@ -1274,7 +1285,9 @@ pub fn execute_run(
         }
         if cancellation.load(Ordering::SeqCst) {
             #[cfg(target_os = "windows")]
-            let _ = Command::new("taskkill")
+            let mut command = Command::new("taskkill");
+            configure_background_command(&mut command);
+            let _ = command
                 .args(["/PID", &child.id().to_string(), "/T", "/F"])
                 .status();
             #[cfg(not(target_os = "windows"))]
@@ -1284,7 +1297,9 @@ pub fn execute_run(
         }
         if process_started.elapsed() >= timeout {
             #[cfg(target_os = "windows")]
-            let _ = Command::new("taskkill")
+            let mut command = Command::new("taskkill");
+            configure_background_command(&mut command);
+            let _ = command
                 .args(["/PID", &child.id().to_string(), "/T", "/F"])
                 .status();
             #[cfg(not(target_os = "windows"))]

@@ -15,6 +15,7 @@ use walkdir::WalkDir;
 
 mod compile_center;
 mod literature_ingest;
+mod process_support;
 mod qa;
 mod repository_watcher;
 mod research_trail;
@@ -1098,18 +1099,26 @@ fn search_pages(
         .db
         .as_ref()
         .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    query_pages(connection, &query, limit.unwrap_or(20))
+}
+
+fn query_pages(
+    connection: &Connection,
+    query: &str,
+    limit: usize,
+) -> Result<Vec<SearchResult>, String> {
     let query = query.trim().to_string();
     if query.is_empty() {
         return Ok(Vec::new());
     }
-    let limit = limit.unwrap_or(20).clamp(1, 100) as i64;
+    let limit = limit.clamp(1, 100) as i64;
     let fts_query = query
         .split_whitespace()
         .map(|term| format!("\"{}\"*", term.replace('"', "")))
         .collect::<Vec<_>>()
         .join(" AND ");
     let mut results = Vec::new();
-    let mut statement = connection.prepare("SELECT p.id,p.page_type,p.title,p.year,p.summary,p.source_path,snippet(pages_fts,2,'<mark>','</mark>'),bm25(pages_fts) FROM pages_fts JOIN pages p ON p.id=pages_fts.page_id WHERE pages_fts MATCH ?1 ORDER BY bm25(pages_fts) LIMIT ?2").map_err(|error| format!("准备搜索失败：{error}"))?;
+    let mut statement = connection.prepare("SELECT p.id,p.page_type,p.title,p.year,p.summary,p.source_path,snippet(pages_fts,2,'<mark>','</mark>',' … ',24),bm25(pages_fts) FROM pages_fts JOIN pages p ON p.id=pages_fts.page_id WHERE pages_fts MATCH ?1 ORDER BY bm25(pages_fts) LIMIT ?2").map_err(|error| format!("准备搜索失败：{error}"))?;
     let rows = statement
         .query_map(params![fts_query, limit], |row| {
             Ok(SearchResult {
@@ -2483,18 +2492,22 @@ fn compile_repository_context(state: &State<'_, AppState>) -> Result<(PathBuf, P
 }
 
 #[tauri::command]
-fn get_literature_capabilities(
+async fn get_literature_capabilities(
     state: State<'_, AppState>,
 ) -> Result<Vec<literature_ingest::LiteratureCapability>, String> {
-    let repository = state
-        .repository
-        .lock()
-        .map_err(|_| "知识库状态锁定失败".to_string())?;
-    let root = repository
-        .root
-        .as_ref()
-        .ok_or_else(|| "请先选择知识库目录".to_string())?;
-    Ok(literature_ingest::capabilities(root))
+    let root = {
+        let repository = state
+            .repository
+            .lock()
+            .map_err(|_| "知识库状态锁定失败".to_string())?;
+        repository
+            .root
+            .clone()
+            .ok_or_else(|| "请先选择知识库目录".to_string())?
+    };
+    tauri::async_runtime::spawn_blocking(move || literature_ingest::capabilities(&root))
+        .await
+        .map_err(|error| format!("依赖检查线程失败：{error}"))
 }
 
 #[tauri::command]
@@ -2623,42 +2636,63 @@ fn discard_manual_import_session(
 }
 
 #[tauri::command]
-fn list_literature_candidates(state: State<'_, AppState>) -> Result<serde_json::Value, String> {
-    let repository = state
-        .repository
-        .lock()
-        .map_err(|_| "知识库状态锁定失败".to_string())?;
-    let root = repository
-        .root
-        .as_ref()
-        .ok_or_else(|| "请先选择知识库目录".to_string())?;
-    let connection = repository
-        .db
-        .as_ref()
-        .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
-    literature_ingest::list_candidates(connection, root)
+async fn list_literature_candidates(
+    state: State<'_, AppState>,
+) -> Result<serde_json::Value, String> {
+    let (root, settings) = {
+        let repository = state
+            .repository
+            .lock()
+            .map_err(|_| "知识库状态锁定失败".to_string())?;
+        let root = repository
+            .root
+            .clone()
+            .ok_or_else(|| "请先选择知识库目录".to_string())?;
+        let connection = repository
+            .db
+            .as_ref()
+            .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
+        let settings = literature_ingest::get_settings(connection, &root.to_string_lossy())?;
+        (root, settings)
+    };
+    tauri::async_runtime::spawn_blocking(move || {
+        literature_ingest::list_candidates(&root, &settings)
+    })
+    .await
+    .map_err(|error| format!("候选读取线程失败：{error}"))?
 }
 
 #[tauri::command]
-fn update_candidate_triage(
+async fn update_candidate_triage(
     candidate_ids: Vec<String>,
     status: String,
     note: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<u64, String> {
-    let repository = state
-        .repository
-        .lock()
-        .map_err(|_| "知识库状态锁定失败".to_string())?;
-    let root = repository
-        .root
-        .as_ref()
-        .ok_or_else(|| "请先选择知识库目录".to_string())?;
-    literature_ingest::update_triage(root, &candidate_ids, &status, note.as_deref().unwrap_or(""))
+    let root = {
+        let repository = state
+            .repository
+            .lock()
+            .map_err(|_| "知识库状态锁定失败".to_string())?;
+        repository
+            .root
+            .clone()
+            .ok_or_else(|| "请先选择知识库目录".to_string())?
+    };
+    tauri::async_runtime::spawn_blocking(move || {
+        literature_ingest::update_triage(
+            &root,
+            &candidate_ids,
+            &status,
+            note.as_deref().unwrap_or(""),
+        )
+    })
+    .await
+    .map_err(|error| format!("候选状态线程失败：{error}"))?
 }
 
 #[tauri::command]
-fn start_literature_run(
+async fn start_literature_run(
     request: literature_ingest::StartLiteratureRunRequest,
     on_event: Channel<compile_center::CompileStreamEvent>,
     state: State<'_, AppState>,
@@ -2699,7 +2733,7 @@ fn start_literature_run(
         manual_session_id: request.manual_session_id.clone(),
         run_manifest: Some(manifest_path.to_string_lossy().to_string()),
     };
-    let result = execute_compile_request(&state, compile_request, on_event, None);
+    let result = execute_compile_request(&state, compile_request, on_event, None).await;
     if let Ok(repository) = state.repository.lock() {
         if let (Some(root), Some(connection)) = (repository.root.as_ref(), repository.db.as_ref()) {
             if let Ok(mut settings) =
@@ -2775,7 +2809,7 @@ fn get_compile_run(
     compile_center::get_run(connection, &root.to_string_lossy(), &run_id)
 }
 
-fn execute_compile_request(
+async fn execute_compile_request(
     state: &State<'_, AppState>,
     request: compile_center::StartCompileRequest,
     on_event: Channel<compile_center::CompileStreamEvent>,
@@ -2784,35 +2818,41 @@ fn execute_compile_request(
     let (root, db_path) = compile_repository_context(state)?;
     let run_id = Uuid::new_v4().to_string();
     let cancellation = Arc::new(AtomicBool::new(false));
-    let mut cancellations = state
-        .compile_cancellations
-        .lock()
-        .map_err(|_| "任务取消状态锁定失败".to_string())?;
-    if cancellations.is_empty() {
-        let recovery_connection =
-            Connection::open(&db_path).map_err(|error| format!("打开任务数据库失败：{error}"))?;
-        compile_center::db_schema(&recovery_connection)?;
-        compile_center::recover_interrupted_runs(&recovery_connection)?;
+    {
+        let mut cancellations = state
+            .compile_cancellations
+            .lock()
+            .map_err(|_| "任务取消状态锁定失败".to_string())?;
+        if cancellations.is_empty() {
+            let recovery_connection = Connection::open(&db_path)
+                .map_err(|error| format!("打开任务数据库失败：{error}"))?;
+            compile_center::db_schema(&recovery_connection)?;
+            compile_center::recover_interrupted_runs(&recovery_connection)?;
+        }
+        cancellations.insert(run_id.clone(), cancellation.clone());
     }
-    cancellations.insert(run_id.clone(), cancellation.clone());
-    drop(cancellations);
-    let result = compile_center::execute_run(
-        &db_path,
-        &root,
-        run_id.clone(),
-        request,
-        on_event,
-        cancellation,
-        retry_of,
-    );
+    let worker_run_id = run_id.clone();
+    let worker_cancellation = cancellation.clone();
+    let worker_result = tauri::async_runtime::spawn_blocking(move || {
+        compile_center::execute_run(
+            &db_path,
+            &root,
+            worker_run_id,
+            request,
+            on_event,
+            worker_cancellation,
+            retry_of,
+        )
+    })
+    .await;
     if let Ok(mut cancellations) = state.compile_cancellations.lock() {
         cancellations.remove(&run_id);
     }
-    result
+    worker_result.map_err(|error| format!("编译任务线程失败：{error}"))?
 }
 
 #[tauri::command]
-fn start_compile_run(
+async fn start_compile_run(
     request: compile_center::StartCompileRequest,
     on_event: Channel<compile_center::CompileStreamEvent>,
     state: State<'_, AppState>,
@@ -2820,11 +2860,11 @@ fn start_compile_run(
     if request.task_kind.starts_with("literature_") {
         return Err("文献入库任务必须通过受控文献入口启动".into());
     }
-    execute_compile_request(&state, request, on_event, None)
+    execute_compile_request(&state, request, on_event, None).await
 }
 
 #[tauri::command]
-fn retry_compile_run(
+async fn retry_compile_run(
     run_id: String,
     on_event: Channel<compile_center::CompileStreamEvent>,
     state: State<'_, AppState>,
@@ -2844,7 +2884,7 @@ fn retry_compile_run(
             .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
         compile_center::get_run(connection, &root.to_string_lossy(), &run_id)?.request
     };
-    execute_compile_request(&state, request, on_event, Some(run_id))
+    execute_compile_request(&state, request, on_event, Some(run_id)).await
 }
 
 #[tauri::command]
@@ -3044,6 +3084,33 @@ mod tests {
         let stats = rebuild_connection(&mut connection, temp.path()).expect("index");
         assert_eq!(stats.page_count, 1);
         assert_eq!(stats.source_count, 1);
+    }
+
+    #[test]
+    fn search_pages_uses_valid_fts_snippet_for_prefix_and_unicode_queries() {
+        let temp = tempfile::tempdir().expect("temp directory");
+        let wiki = temp.path().join("wiki").join("methods");
+        fs::create_dir_all(&wiki).expect("wiki directory");
+        fs::write(temp.path().join("AGENTS.md"), "fixture").expect("agents");
+        fs::create_dir_all(temp.path().join("schema")).expect("schema");
+        fs::write(
+            wiki.join("current.md"),
+            "---\ntype: method\ntitle: Current Allocation\nyear: 2026\n---\n# Current Allocation\n\nA current scheduling method for 无线充电调度。",
+        )
+        .expect("page");
+        let mut connection = Connection::open_in_memory().expect("sqlite");
+        db_schema(&connection).expect("schema");
+        rebuild_connection(&mut connection, temp.path()).expect("index");
+
+        let english = query_pages(&connection, "curr", 20).expect("prefix search");
+        assert_eq!(english.len(), 1);
+        assert!(english[0].snippet.contains("<mark>current</mark>"));
+
+        let chinese = query_pages(&connection, "无线充电调度", 20).expect("unicode search");
+        assert_eq!(chinese.len(), 1);
+        assert!(query_pages(&connection, "not-present-anywhere", 20)
+            .expect("empty search")
+            .is_empty());
     }
 
     #[test]

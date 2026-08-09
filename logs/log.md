@@ -248,6 +248,14 @@
 - 新增可信运行清单、PDF 哈希预检、候选稳定 ID/资格原因、SQLite 设置与 session、5 类可审计编译任务。
 - Rust 39/39、前端构建与门禁、strict GUI、NSIS 安装生命周期通过；发布 app/MSI/NSIS 0.9.0。
 - 详情：`logs/2026-08-09-desktop-literature-ingest.md`
+
+## [2026-08-09] desktop | 文献运行时与全局搜索修复 0.9.1
+
+- 修复文献自动检索阻塞 Tauri 命令线程、弹出 `py.exe` 以及中文 JSON 在 GBK 控制台触发 `UnicodeEncodeError`。
+- 长任务与候选操作改为阻塞线程池；内部 Windows 子进程统一隐藏，Python 固定 UTF-8。
+- 修复 FTS5 `snippet()` 四参数误用；真实 release GUI 已执行 `curr` 搜索并通过。
+- 验收：Rust 42/42、Python 45/45、Wiki 10/10、两书 Recall@5 1.000 / 0.986667，strict GUI 与 NSIS 生命周期通过。
+- 详情：`logs/2026-08-09-desktop-runtime-search-bugs.md`
 ## [2026-08-02] desktop | P5.3 ????????? 0.7.0
 
 - ?????/??/??/????? `Ctrl+K`??? Wiki ???? upsert/delete/rename?

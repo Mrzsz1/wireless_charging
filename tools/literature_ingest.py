@@ -589,6 +589,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    configure_stdio_utf8()
     args = build_parser().parse_args(argv)
     root = args.repository.expanduser().resolve()
     if not (root / "AGENTS.md").is_file() or not (root / "wiki").is_dir():
@@ -612,6 +613,13 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 3
         return 0 if not result["failed"] else 2
     return 1
+
+
+def configure_stdio_utf8() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            reconfigure(encoding="utf-8", errors="backslashreplace")
 
 
 if __name__ == "__main__":
