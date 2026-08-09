@@ -30,8 +30,8 @@ test('a stale failure is ignored just like a stale success', () => {
 })
 
 test('global search waits for an explicit form submission', () => {
-  assert.match(appSource, /<form className="global-search" role="search" onSubmit=/)
-  assert.match(appSource, /data-testid="global-search" value=\{searchDraft\} onChange=\{\(event\) => setSearchDraft\(event\.target\.value\)\}/)
+  assert.match(appSource, /<form className="global-search sidebar-global-search" role="search" onSubmit=/)
+  assert.match(appSource, /data-testid="global-search"[^>]+value=\{searchDraft\} onChange=\{\(event\) => setSearchDraft\(event\.target\.value\)\}/)
   assert.match(appSource, /type="submit" className="global-search-submit" data-testid="global-search-submit"/)
   assert.match(appSource, /if \(searchBusy \|\| !searchDraft\.trim\(\)\) return/)
 })
@@ -42,9 +42,22 @@ test('global search can be cleared without publishing stale results', () => {
   assert.match(appSource, /data-testid="global-search-clear" aria-label="清空搜索" onClick=\{clearSearch\}/)
 })
 
-test('toolbar keeps the search and command actions left aligned', () => {
-  const toolbarActions = stylesSource.match(/\.toolbar-actions \{[^}]+\}/)?.[0] ?? ''
-  assert.match(stylesSource, /\.workspace-toolbar \{[^}]*justify-content: flex-start;/)
-  assert.match(toolbarActions, /margin-left: 0;/)
-  assert.doesNotMatch(toolbarActions, /margin-left: auto;/)
+test('search and new-question commands live in the sidebar without the redundant workspace toolbar', () => {
+  const sidebarStart = appSource.indexOf('<aside className={`app-sidebar')
+  const sidebarEnd = appSource.indexOf('</aside>', sidebarStart)
+  const searchForm = appSource.indexOf('data-testid="global-search"')
+  const newQuestion = appSource.indexOf('data-testid="sidebar-new-qa"')
+  assert.ok(sidebarStart >= 0 && sidebarEnd > sidebarStart)
+  assert.ok(searchForm > sidebarStart && searchForm < sidebarEnd)
+  assert.ok(newQuestion > sidebarStart && newQuestion < sidebarEnd)
+  assert.doesNotMatch(appSource, /workspace-toolbar/)
+  assert.doesNotMatch(appSource, /data-testid="context-toggle"/)
+  assert.doesNotMatch(appSource, /title="刷新知识库快照"/)
+  assert.match(stylesSource, /\.sidebar-brand-search \{[^}]*margin-left: auto;/)
+  assert.doesNotMatch(stylesSource, /\.workspace-toolbar \{/)
+})
+
+test('Ctrl+K expands the sidebar before focusing the relocated search input', () => {
+  assert.match(appSource, /const focusGlobalSearch = useCallback\(\(\) => \{\s*setNavCollapsed\(false\)\s*setSidebarSearchOpen\(true\)/)
+  assert.match(appSource, /event\.preventDefault\(\)\s*focusGlobalSearch\(\)/)
 })

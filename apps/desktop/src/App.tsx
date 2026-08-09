@@ -6,7 +6,6 @@ import {
   BookOpen,
   Bot,
   ChevronDown,
-  ChevronLeft,
   ChevronRight,
   CircleHelp,
   Code2,
@@ -24,6 +23,7 @@ import {
   Search,
   Settings,
   Sparkles,
+  SquarePen,
   Star,
   X,
 } from 'lucide-react'
@@ -145,6 +145,7 @@ export default function App() {
   const bootWorkspace = useRef(readWorkspaceState()).current
   const [view, setView] = useState<MainView>(bootWorkspace.view)
   const [navCollapsed, setNavCollapsed] = useState(() => readStored('desktop.nav-collapsed', false))
+  const [sidebarSearchOpen, setSidebarSearchOpen] = useState(false)
   const [contextOpen, setContextOpen] = useState(() => readStored('desktop.context-open', true))
   const [contextTab, setContextTab] = useState<'evidence' | 'methods'>('evidence')
   const [expandedWorkspaceNodes, setExpandedWorkspaceNodes] = useState<string[]>(() => readStored('desktop.workspace-expanded', ['scheduling']))
@@ -180,6 +181,15 @@ export default function App() {
   const restoredRepository = useRef('')
   const promptedRepositories = useRef(new Set<string>())
   const searchRequests = useRef(createLatestRequestGuard()).current
+
+  const focusGlobalSearch = useCallback(() => {
+    setNavCollapsed(false)
+    setSidebarSearchOpen(true)
+    window.setTimeout(() => {
+      globalSearchRef.current?.focus()
+      globalSearchRef.current?.select()
+    }, 0)
+  }, [])
 
   useEffect(() => {
     if (!isDesktopRuntime()) return
@@ -242,12 +252,11 @@ export default function App() {
       const target = event.target as HTMLElement | null
       if (target?.closest('[role="dialog"]')) return
       event.preventDefault()
-      globalSearchRef.current?.focus()
-      globalSearchRef.current?.select()
+      focusGlobalSearch()
     }
     window.addEventListener('keydown', handleShortcut)
     return () => window.removeEventListener('keydown', handleShortcut)
-  }, [])
+  }, [focusGlobalSearch])
   useEffect(() => {
     if (!isDesktopRuntime()) return
     const appWindow = getCurrentWindow()
@@ -600,7 +609,24 @@ export default function App() {
 
       <div className="app-body">
         <aside className={`app-sidebar ${navCollapsed ? 'collapsed' : 'expanded'}`} data-testid="sidebar">
-          <div className="sidebar-brand"><span className="sidebar-icon"><LibraryBig size={19} /></span>{!navCollapsed && <span className="sidebar-brand-label">工作台</span>}</div>
+          <div className="sidebar-brand">
+            <span className="sidebar-icon"><LibraryBig size={19} /></span>
+            {!navCollapsed && <><span className="sidebar-brand-label">工作台</span><button className={`sidebar-brand-search ${sidebarSearchOpen ? 'active' : ''}`} data-testid="sidebar-search-trigger" aria-label="搜索知识库" title="搜索知识库（Ctrl K）" onClick={focusGlobalSearch}><Search size={16} /></button></>}
+          </div>
+          <div className="sidebar-command-area">
+            {navCollapsed && <button className="sidebar-nav-item sidebar-command" data-testid="sidebar-search-trigger" aria-label="搜索知识库" title="搜索知识库（Ctrl K）" onClick={focusGlobalSearch}><span className="sidebar-icon"><Search size={18} /></span></button>}
+            {!navCollapsed && sidebarSearchOpen && <form className="global-search sidebar-global-search" role="search" onSubmit={(event) => { event.preventDefault(); submitGlobalSearch() }}>
+              <Search size={15} />
+              <input ref={globalSearchRef} data-testid="global-search" aria-label="搜索论文、方法、模型或问题" value={searchDraft} onChange={(event) => setSearchDraft(event.target.value)} placeholder="搜索知识库…" />
+              {searchDraft && <button type="button" className="clear-search" data-testid="global-search-clear" aria-label="清空搜索" onClick={clearSearch}><X size={13} /></button>}
+              <button type="submit" className="global-search-submit" data-testid="global-search-submit" disabled={searchBusy || !searchDraft.trim()} aria-label="提交搜索" title="搜索">
+                {searchBusy ? <RefreshCw className="spin" size={13} /> : <Search size={13} />}
+              </button>
+            </form>}
+            <button className={`sidebar-nav-item sidebar-command ${view === 'qa' ? 'selected' : ''}`} data-testid="sidebar-new-qa" onClick={() => activateView('qa')} title="新建问答">
+              <span className="sidebar-icon"><SquarePen size={18} /></span>{!navCollapsed && <span className="sidebar-label">新建问答</span>}
+            </button>
+          </div>
           <nav className="primary-nav">
             {navigation.map(({ label, view: itemView, icon: NavIcon }) => (
               <button key={itemView} data-testid={`nav-${itemView}`} className={`sidebar-nav-item ${view === itemView ? 'selected' : ''}`} onClick={() => activateView(itemView, label)} title={label}>
@@ -633,18 +659,6 @@ export default function App() {
         </aside>
 
         <main ref={workspaceRef} className={`main-workspace ${view === 'qa' ? 'qa-active' : ''} ${view === 'compile' ? 'compile-active' : ''}`}>
-          <div className="workspace-toolbar">
-            <form className="global-search" role="search" onSubmit={(event) => { event.preventDefault(); submitGlobalSearch() }}>
-              <Search size={17} />
-              <input ref={globalSearchRef} data-testid="global-search" value={searchDraft} onChange={(event) => setSearchDraft(event.target.value)} placeholder="搜索论文、方法、模型或问题…" />
-              {searchDraft && <button type="button" className="clear-search" data-testid="global-search-clear" aria-label="清空搜索" onClick={clearSearch}><X size={14} /></button>}
-              <kbd>Ctrl K</kbd>
-              <button type="submit" className="global-search-submit" data-testid="global-search-submit" disabled={searchBusy || !searchDraft.trim()} aria-label="提交搜索">
-                {searchBusy ? <RefreshCw className="spin" size={13} /> : <Search size={13} />}<span>{searchBusy ? '搜索中' : '搜索'}</span>
-              </button>
-            </form>
-            <div className="toolbar-actions"><button className="toolbar-button" onClick={() => activateView('qa')}><Sparkles size={16} />新建问答</button><button className="icon-button" title="刷新知识库快照" onClick={() => void refreshRepository()}><RefreshCw size={16} /></button><button data-testid="context-toggle" className="icon-button" title={contextOpen ? '收起研究脉络' : '展开研究脉络'} onClick={() => setContextOpen((value) => !value)}>{contextOpen ? <ChevronRight size={17} /> : <ChevronLeft size={17} />}</button></div>
-          </div>
           {notice && <div className="notice" data-testid="app-notice"><Sparkles size={15} /><span>{notice}</span><button onClick={() => setNotice('')}><X size={14} /></button></div>}
           <TabBar tabs={tabs} activeId={activeTab} onSelect={selectTab} onClose={closeTab} />
           {renderContent()}

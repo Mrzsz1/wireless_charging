@@ -132,16 +132,25 @@ try {
     await (await requireElement('[data-testid="ingest-prompt-cancel"]')).click()
     console.log('PASS ingest startup prompt cancel')
   }
-  const contextToggle = await requireElement('[data-testid="context-toggle"]')
+  if (await (await browser.$('.workspace-toolbar')).isExisting()) throw new Error('Redundant workspace toolbar is still visible')
+  if (await (await browser.$('[data-testid="context-toggle"]')).isExisting()) throw new Error('Redundant context toggle is still visible')
   let researchTrail = await browser.$('[data-testid="research-trail-panel"]')
   if (!await researchTrail.isExisting()) {
-    await contextToggle.click()
+    await (await requireElement('.context-reopen')).click()
     researchTrail = await browser.$('[data-testid="research-trail-panel"]')
   }
   await researchTrail.waitForExist({ timeout: 5000, timeoutMsg: 'Research trail panel did not open' })
   console.log('PASS [data-testid="research-trail-panel"]')
-  const search = await requireElement('[data-testid="global-search"]')
+  const sidebar = await requireElement('[data-testid="sidebar"]')
+  if (!(await sidebar.getAttribute('class')).includes('collapsed')) {
+    await (await requireElement('button[aria-label="展开或收起侧边栏"]')).click()
+    await browser.waitUntil(async () => (await sidebar.getAttribute('class')).includes('collapsed'), { timeout: 5000, timeoutMsg: 'Sidebar did not collapse' })
+  }
+  await requireElement('[data-testid="sidebar-search-trigger"]')
+  await requireElement('[data-testid="sidebar-new-qa"]')
   await browser.keys(['\uE009', 'k', '\uE000'])
+  await browser.waitUntil(async () => (await sidebar.getAttribute('class')).includes('expanded'), { timeout: 5000, timeoutMsg: 'Ctrl+K did not expand the sidebar' })
+  const search = await requireElement('[data-testid="global-search"]')
   if (!await search.isFocused()) throw new Error('Ctrl+K did not focus global search')
   await search.setValue('curr')
   const searchSubmit = await requireElement('[data-testid="global-search-submit"]')

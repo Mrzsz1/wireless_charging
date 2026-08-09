@@ -1,0 +1,2 @@
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Node 回归、构建、结构验证、严格 GUI E2E 与双分辨率检查。"}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"React/TypeScript 状态、快捷键与表单事件类型复核。"}

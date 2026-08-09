@@ -1,0 +1,2 @@
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"左侧栏命令入口、搜索表单和可访问交互的组件约束。"}
+{"file":".trellis/spec/frontend/state-management.md","reason":"搜索草稿、请求守卫与侧栏展开状态的实现约束。"}
