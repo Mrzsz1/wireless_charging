@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 11
+- **Total Sessions**: 12
 - **Last Active**: 2026-08-09
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~381 | Active |
+| `journal-1.md` | ~414 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 12 | 2026-08-09 | 全局搜索显式提交与顶部左对齐 | `4c2a1a4` | `master` |
 | 11 | 2026-08-09 | Desktop 0.11.0 Codex subscription QA | `9f169fb` | `master` |
 | 10 | 2026-08-09 | 桌面端设置集中管理与列表分页 0.10.0 | `b13db4a` | `master` |
 | 9 | 2026-08-09 | 修复文献运行卡死与全局搜索 | `6286abe` | `master` |

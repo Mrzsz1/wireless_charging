@@ -379,3 +379,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 12: 全局搜索显式提交与顶部左对齐
+
+**Date**: 2026-08-09
+**Task**: 全局搜索显式提交与顶部左对齐
+**Branch**: `master`
+
+### Summary
+
+将顶部全局搜索改为草稿输入后由按钮或 Enter 显式提交，加入忙碌与清空状态、最新请求保护，命令区整体左对齐；补充 Node 回归与严格 GUI E2E，验证 1366x768 和 1920x1080 无溢出。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `4c2a1a4` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
