@@ -214,3 +214,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 7: 更新研究脉络 Graphify 派生图
+
+**Date**: 2026-08-09
+**Task**: 更新研究脉络 Graphify 派生图
+**Branch**: `master`
+
+### Summary
+
+对 0.8.0 研究脉络代码与文档执行 graphify update，刷新 graph.json、HTML、报告、labels 和 manifest。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `77aaa33` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
