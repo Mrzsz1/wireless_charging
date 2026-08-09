@@ -201,5 +201,8 @@
   "199": "__init__.py",
   "200": "Windows 窗口可见性恢复技术设计",
   "201": "Value",
-  "202": "PermissionEntry"
+  "202": "PermissionEntry",
+  "203": "Windows 窗口可见性恢复技术设计",
+  "204": "desktop-schema.json",
+  "205": "windows-schema.json"
 }

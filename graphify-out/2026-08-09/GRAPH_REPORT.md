@@ -1,15 +1,16 @@
-# Graph Report - .  (2026-08-02)
+# Graph Report - wireless_charging  (2026-08-09)
 
 ## Corpus Check
-- cluster-only mode — file stats not available
+- 318 files · ~4,876,977 words
+- Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1633 nodes · 2525 edges · 146 communities (133 shown, 13 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.8)
+- 2652 nodes · 4463 edges · 203 communities (189 shown, 14 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 67 edges (avg confidence: 0.76)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `90152e40`
+- Built from commit: `c1fb51f2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -155,43 +156,99 @@
 - ISAC-enabled On-demand UAV Charging
 - Anchor and Projection Point Obstacle Detour Routing
 - IHATRPO Heterogeneous Charger Collaboration
+- Session 1: 全项目代码缺陷审查与质量报告
+- git_context.py
+- 全项目代码缺陷审查报告
+- CLIAdapter
+- Cross-Layer Thinking Guide
+- P5.4 详细实施计划
+- linear_sync.py
+- Code Reuse Thinking Guide
+- log.py
+- Workspace Index
+- cli_adapter.py
+- trellis_config.py
+- GUI E2E environment contract
+- 技术审查设计
+- Scenario: Repository-Scoped Derived Index
+- Scenario: Idempotent Multi-Channel Research State
+- Thinking Guides
+- 审查执行计划
+- GUI E2E 配置发现技术设计
+- Implement Agent (channel runtime)
+- index.md
+- Component Guidelines
+- index.md
+- Check Agent (channel runtime)
+- Path
+- types.py
+- TaskInfo
+- Directory Structure
+- Logging Guidelines
+- Directory Structure
+- Hook Guidelines
+- Database Guidelines
+- Error Handling
+- Quality Guidelines
+- Quality Guidelines
+- State Management
+- Type Safety
+- implement.md
+- Workspace Index - qq155
+- windows-schema.json
+- Common Duplication Patterns
+- Common Cross-Layer Mistakes
+- .build_resume_command
+- .get_agent_name
+- Before Implementing Cross-Layer Features
+- Mode-Detection Probe Checklist
+- Mode-Detection Probe Checklist
+- .config_dir_name
+- .is_cursor
+- .is_iflow
+- .is_opencode
+- .supports_cli_agents
+- __init__.py
+- Windows 窗口可见性恢复技术设计
+- Value
+- PermissionEntry
 
 ## God Nodes (most connected - your core abstractions)
-1. `AppState` - 51 edges
-2. `Minimizing the energy depletion in wireless rechargeable sensor networks using bi-level metaheuristic charging schemes` - 37 edges
-3. `Study on charging strategy of wireless rechargeable sensor networks based on dynamic inhomogeneous clustering` - 37 edges
-4. `Infinite Drive: Optimal Urban Location of Dynamic Wireless Charging at Signalized Intersections` - 35 edges
-5. `Obstacles Avoidance Charging Schedule for Multiple Mobile Charging Vehicles in Wireless Rechargeable Sensor Networks` - 33 edges
-6. `Placing Wireless Chargers With Multiple Antennas` - 30 edges
-7. `Cooperative Charging as Service: Scheduling for Mobile Wireless Rechargeable Sensor Networks` - 26 edges
-8. `Planning dynamic wireless charging infrastructure for battery electric bus systems with the joint optimization of charging scheduling` - 25 edges
-9. `Charging Scheduling of Clustered Wireless Rechargeable Sensor Networks Considering Dynamic Selection of Cluster Heads` - 24 edges
-10. `Peak AoI Minimization at Wireless-Powered Network Edge: From the Perspective of Both Charging and Transmitting` - 24 edges
+1. `get_repo_root()` - 59 edges
+2. `AppState` - 51 edges
+3. `Minimizing the energy depletion in wireless rechargeable sensor networks using bi-level metaheuristic charging schemes` - 37 edges
+4. `Study on charging strategy of wireless rechargeable sensor networks based on dynamic inhomogeneous clustering` - 37 edges
+5. `Infinite Drive: Optimal Urban Location of Dynamic Wireless Charging at Signalized Intersections` - 35 edges
+6. `Obstacles Avoidance Charging Schedule for Multiple Mobile Charging Vehicles in Wireless Rechargeable Sensor Networks` - 33 edges
+7. `Placing Wireless Chargers With Multiple Antennas` - 30 edges
+8. `Cooperative Charging as Service: Scheduling for Mobile Wireless Rechargeable Sensor Networks` - 26 edges
+9. `cmd_create()` - 25 edges
+10. `Planning dynamic wireless charging infrastructure for battery electric bus systems with the joint optimization of charging scheduling` - 25 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `AppState` --references--> `RepositoryWatcher`  [EXTRACTED]
-  apps/desktop/src-tauri/src/lib.rs → apps/desktop/src-tauri/src/repository_watcher.rs
-- `App()` --calls--> `isDesktopRuntime()`  [EXTRACTED]
-  apps/desktop/src/App.tsx → apps/desktop/src/services/desktop.ts
-- `ComparisonView()` --calls--> `isDesktopRuntime()`  [EXTRACTED]
-  apps/desktop/src/features/comparison/ComparisonView.tsx → apps/desktop/src/services/desktop.ts
-- `GraphView()` --calls--> `isDesktopRuntime()`  [EXTRACTED]
-  apps/desktop/src/features/graph/GraphView.tsx → apps/desktop/src/services/desktop.ts
-- `AskView()` --calls--> `isDesktopRuntime()`  [EXTRACTED]
-  apps/desktop/src/features/qa/AskView.tsx → apps/desktop/src/services/desktop.ts
+- `_auto_commit_workspace()` --calls--> `get_session_auto_commit()`  [INFERRED]
+  .trellis/scripts/add_session.py → .trellis/scripts/common/config.py
+- `_auto_commit_workspace()` --calls--> `get_session_commit_message()`  [INFERRED]
+  .trellis/scripts/add_session.py → .trellis/scripts/common/config.py
+- `_auto_commit_workspace()` --calls--> `run_git()`  [INFERRED]
+  .trellis/scripts/add_session.py → .trellis/scripts/common/git.py
+- `_auto_commit_workspace()` --calls--> `get_current_task()`  [INFERRED]
+  .trellis/scripts/add_session.py → .trellis/scripts/common/paths.py
+- `add_session()` --calls--> `get_max_journal_lines()`  [INFERRED]
+  .trellis/scripts/add_session.py → .trellis/scripts/common/config.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (146 total, 13 thin omitted)
+## Communities (203 total, 14 thin omitted)
 
 ### Community 0 - "lib.rs"
 Cohesion: 0.06
-Nodes (131): AnswerStreamEvent, AppHandle, AppState, ask_luna(), Backlink, body_without_frontmatter(), book_chapters(), BookChapter (+123 more)
+Nodes (146): AnswerStreamEvent, AppHandle, AppliedRepositoryChanges, apply_repository_changes(), AppState, ask_luna(), Backlink, body_without_frontmatter() (+138 more)
 
 ### Community 1 - "compile_center.rs"
 Cohesion: 0.11
-Nodes (55): allowlist_and_input_boundary_are_enforced(), build_pipeline(), build_task(), capabilities(), command_exists(), CompileArtifact, CompileCapability, CompileRunDetail (+47 more)
+Nodes (62): allowlist_and_input_boundary_are_enforced(), apply_rollback_entry(), build_pipeline(), build_task(), capabilities(), command_exists(), compensate_rollback(), CompileArtifact (+54 more)
 
 ### Community 2 - "qa.rs"
 Cohesion: 0.14
@@ -222,16 +279,16 @@ Cohesion: 0.06
 Nodes (35): 1. Introduction, 2. Related works, 3.1. Network model, 3.2. System model, 3.3. Charging model, 3.4. Time constraints, 3.5.1. Charging problem, 3.5.2. Obstacle avoidance problem (+27 more)
 
 ### Community 9 - "App.tsx"
-Cohesion: 0.09
-Nodes (31): App(), defaultTab, Icon, MainView, navigation, NavigationItem, PersistedWindowState, PersistedWorkspaceState (+23 more)
+Cohesion: 0.08
+Nodes (28): defaultTab, Icon, MainView, navigation, NavigationItem, PersistedWorkspaceState, readStored(), readWorkspaceState() (+20 more)
 
 ### Community 10 - "scripts"
-Cohesion: 0.06
-Nodes (33): dependencies, lucide-react, react, react-dom, @tauri-apps/api, @tauri-apps/plugin-process, @tauri-apps/plugin-updater, devDependencies (+25 more)
+Cohesion: 0.05
+Nodes (38): dependencies, lucide-react, react, react-dom, @tauri-apps/api, @tauri-apps/plugin-process, @tauri-apps/plugin-updater, devDependencies (+30 more)
 
 ### Community 11 - "types.ts"
-Cohesion: 0.07
-Nodes (29): ComparisonView(), ComparisonViewProps, LibraryView(), LibraryViewProps, typeLabels, buildComparison(), AskRequest, AskResult (+21 more)
+Cohesion: 0.09
+Nodes (24): displayField(), fieldLabels, PageView(), PageViewProps, AnswerStreamEvent, AskRequest, Backlink, ChatSessionDetail (+16 more)
 
 ### Community 12 - "Placing Wireless Chargers With Multiple Antennas"
 Cohesion: 0.06
@@ -239,11 +296,11 @@ Nodes (30): A. Area Discretization, A. Baseline Setup, A. Candidate Position Set
 
 ### Community 13 - ".updater-release.json"
 Cohesion: 0.07
-Nodes (28): debugApplicationIdSuffix, app, security, windows, enable, scope, build, beforeBuildCommand (+20 more)
+Nodes (59): main(), _get_config_path(), get_default_package(), get_git_packages(), get_hooks(), get_max_journal_lines(), get_packages(), get_session_auto_commit() (+51 more)
 
 ### Community 14 - "desktop.ts"
-Cohesion: 0.13
-Nodes (21): CompileCenterView(), formatTime(), Props, statusLabels, taskIcons, cancelCompileRun(), getCompileCapabilities(), getCompileRun() (+13 more)
+Cohesion: 0.10
+Nodes (30): App(), CompileCenterView(), formatTime(), Props, statusLabels, taskIcons, cancelCompileRun(), chooseRepository() (+22 more)
 
 ### Community 15 - "tauri.conf.json"
 Cohesion: 0.07
@@ -266,8 +323,8 @@ Cohesion: 0.08
 Nodes (24): A. AoI and Latency With a Single Wireless Charger, A. Network Model and Charging Model, A. The Minimum Latency Parallel Charging and Transmitting Scheduling Problem, A. Theoretical Bounds of the Maximum Peak AoI, B. AoI and Latency With Multiple Wireless Chargers, B. AoI Model, B. Optimizing the Charging Latency, B. The Two-Stage Flow Shop Scheduling Based Algorithm (+16 more)
 
 ### Community 20 - "repository_watcher.rs"
-Cohesion: 0.16
-Nodes (19): ChangeKind, classifies_wiki_and_schema(), classify_event(), classify_path(), excluded(), IndexChange, pairs_rename_paths_and_classifies_yaml_schema(), PathClassification (+11 more)
+Cohesion: 0.11
+Nodes (31): change_batch_is_retained_until_ack_and_reports_retry_state(), ChangeBatch, ChangeKind, classifies_wiki_and_schema(), classify_event(), classify_path(), classify_path_for_event(), classify_rename() (+23 more)
 
 ### Community 21 - "P4 编译中心与工作区可靠性实施计划"
 Cohesion: 0.09
@@ -282,24 +339,24 @@ Cohesion: 0.10
 Nodes (19): appSource, booksSource, built, capabilities, checks, comparisonSource, compileRustSource, compileViewSource (+11 more)
 
 ### Community 24 - "CoreBooksView.tsx"
-Cohesion: 0.16
-Nodes (18): CoreBooksView(), CoreBooksViewProps, pageLabel(), inlineText(), isTableSeparator(), MarkdownReader(), MarkdownReaderProps, safeLocalImagePath() (+10 more)
+Cohesion: 0.14
+Nodes (20): BookTarget, chapterLookupId(), matchesBookTarget(), shortChapterId(), CoreBooksView(), CoreBooksViewProps, pageLabel(), MonitorWorkArea (+12 more)
 
 ### Community 25 - "AskView.tsx"
-Cohesion: 0.18
-Nodes (17): AskView(), AskViewProps, emptySettings, formatTime(), kindIcon(), localMessage(), suggestions, tierLabel() (+9 more)
+Cohesion: 0.15
+Nodes (22): AskView(), AskViewProps, emptySettings, formatTime(), kindIcon(), localMessage(), suggestions, tierLabel() (+14 more)
 
 ### Community 26 - "compilerOptions"
 Cohesion: 0.11
 Nodes (18): compilerOptions, allowArbitraryExtensions, allowImportingTsExtensions, erasableSyntaxOnly, jsx, lib, module, moduleDetection (+10 more)
 
 ### Community 27 - "definitions"
-Cohesion: 0.15
-Nodes (13): definitions, Number, PermissionEntry, Target, Value, anyOf, description, anyOf (+5 more)
+Cohesion: 0.13
+Nodes (14): anyOf, definitions, Number, PermissionEntry, Target, description, anyOf, description (+6 more)
 
 ### Community 28 - "definitions"
 Cohesion: 0.13
-Nodes (14): anyOf, definitions, Number, PermissionEntry, Target, description, anyOf, description (+6 more)
+Nodes (14): anyOf, definitions, Number, Target, Value, description, anyOf, description (+6 more)
 
 ### Community 29 - "Algorithmic Game Theory"
 Cohesion: 0.13
@@ -346,8 +403,8 @@ Cohesion: 0.20
 Nodes (10): 2026-08-01 最新文献自动增量, 内容健康度, 库水位, 摘要, 最近 ingest, 本轮已完成 A 编译（自动发现，7）, 核心专著水位, 采集渠道与生命周期 (+2 more)
 
 ### Community 41 - "GraphView.tsx"
-Cohesion: 0.33
-Nodes (8): GraphView(), GraphViewProps, layoutNodes(), graphNeighbors(), graphOverview(), graphPath(), GraphNode, GraphOverview
+Cohesion: 0.25
+Nodes (12): GraphView(), GraphViewProps, layoutNodes(), nextGraphRefreshVersion(), reconcileGraphPath(), reconcileGraphSelection(), graphNeighbors(), graphOverview() (+4 more)
 
 ### Community 42 - "UAV-BS 3D 部署（多 QoS 覆盖）— 边界文献"
 Cohesion: 0.22
@@ -410,12 +467,12 @@ Cohesion: 0.25
 Nodes (7): Cooperative Charging Scheduling（CCS）, 一句话问题, 主要结果, 局限, 方法要点, 系统设定与假设, 链接
 
 ### Community 57 - "README.md"
-Cohesion: 0.29
-Nodes (6): Development (offline), Optional Luna configuration, Optional updater contract, Prerequisites, Verification, Windows packaging
+Cohesion: 0.17
+Nodes (11): GUI E2E, Wireless Charging Research Workbench 0.7.2, 开发, 故障诊断, 核心专著, 测试与质量门, 环境, 知识库监听与恢复 (+3 more)
 
 ### Community 58 - "PageView.tsx"
-Cohesion: 0.33
-Nodes (6): displayField(), fieldLabels, PageView(), PageViewProps, Backlink, PageDetail
+Cohesion: 0.24
+Nodes (11): ComparisonView(), ComparisonViewProps, inlineText(), isTableSeparator(), MarkdownReader(), MarkdownReaderProps, safeLocalImagePath(), tableCells() (+3 more)
 
 ### Community 59 - "主题地图：多设备 / 多充电器 WRSN"
 Cohesion: 0.29
@@ -434,8 +491,8 @@ Cohesion: 0.29
 Nodes (7): DICCS动态非均匀聚类充电, 一句话问题, 主要结果, 局限, 方法要点, 系统设定与假设, 链接
 
 ### Community 63 - "verify-updater-release.mjs"
-Cohesion: 0.33
-Nodes (4): common, insecure, script, secure
+Cohesion: 0.20
+Nodes (9): manifestFor(), startFixtureServer(), common, insecure, noUpdate, script, secure, tampered (+1 more)
 
 ### Community 64 - "default.json"
 Cohesion: 0.33
@@ -506,8 +563,8 @@ Cohesion: 0.33
 Nodes (5): Gaps, 决策维度对照, 可迁移与不可直接混用, 相关页, 移动、UAV与三维定向WPT调度对照
 
 ### Community 81 - "smoke-installer.mjs"
-Cohesion: 0.40
-Nodes (4): app, extension, full, uninstall
+Cohesion: 0.33
+Nodes (9): assertProcessStaysAlive(), delay(), processExited(), terminateProcessTree(), waitForExit(), app, extension, full (+1 more)
 
 ### Community 82 - "Q: 理解当前项目以及架构然后写出架构文档"
 Cohesion: 0.40
@@ -601,6 +658,10 @@ Nodes (4): PSOFKP/PSOD2P 充电UAV调度轨迹联合优化, 来源, 要点, 适�
 Cohesion: 0.40
 Nodes (4): WANDA-ROF / WANDA-ROU, 来源, 要点, 适用条件
 
+### Community 105 - "gui-smoke.mjs"
+Cohesion: 0.14
+Nodes (16): appCandidates(), cargoDriverCandidate(), defaultDesktopRoot, desktopRoots(), e2eDirectory, executableName(), formatCandidates(), isFile() (+8 more)
+
 ### Community 106 - "offline-smoke.mjs"
 Cohesion: 0.50
 Nodes (3): html, required, root
@@ -678,29 +739,245 @@ Cohesion: 0.67
 Nodes (3): Identifier, description, oneOf
 
 ### Community 127 - "desktop-schema.json"
-Cohesion: 0.40
-Nodes (4): anyOf, description, $schema, title
+Cohesion: 0.07
+Nodes (29): 1. 总体边界, 2.1 状态模型, 2.2 兼容性, 2. 全局搜索并发合同, 3.1 安全路径解析, 3.2 字符安全片段, 3. 专著路径与片段合同, 4.1 基本原则 (+21 more)
 
 ### Community 128 - "Identifier"
 Cohesion: 0.67
 Nodes (3): Identifier, description, oneOf
 
 ### Community 129 - "Value"
+Cohesion: 0.07
+Nodes (56): Path, Git command execution utility.  Single source of truth for running git commands, Run a git command and return (returncode, stdout, stderr).      Uses UTF-8 encod, run_git(), count_lines(), Count lines in a file.      Args:         file_path: Path to file.      Returns:, _append_package_git_context(), _append_root_git_context() (+48 more)
+
+### Community 132 - "Bi-level Metaheuristic Charging Schemes"
+Cohesion: 0.11
+Nodes (52): Any, _active_from_ref(), ActiveTask, _as_dict(), _canonical_task_ref(), clear_active_task(), clear_task_from_sessions(), _context_key() (+44 more)
+
+### Community 133 - "RA-DMCS Asymmetric Directional Mobile Charging"
+Cohesion: 0.09
+Nodes (45): ensure_developer(), init_developer(), Path, Ensure developer is initialized, exit if not.      Args:         repo_root: Repo, Show developer information.      Args:         repo_root: Repository root path., Initialize developer.      Creates:         - .trellis/.developer file with deve, show_developer_info(), configure_encoding() (+37 more)
+
+### Community 139 - "cMFEDS Minimal Functional Equivalent Direction Set"
+Cohesion: 0.10
+Nodes (30): add_session(), _auto_commit_workspace(), count_journal_files(), create_new_journal_file(), _extract_journal_num(), generate_session_content(), get_current_session(), get_latest_journal_info() (+22 more)
+
+### Community 140 - "Infinite Drive DWPT Intersection Placement"
+Cohesion: 0.05
+Nodes (83): Path, JSON file I/O utilities.  Provides read_json and write_json as the single source, Read and parse a JSON file.      Returns None if the file doesn't exist, is inva, Write dict to JSON file with pretty formatting.      Returns True on success, Fa, read_json(), write_json(), colored(), Colors (+75 more)
+
+### Community 141 - "Improved PSO for CUAV Scheduling and Trajectory"
+Cohesion: 0.05
+Nodes (41): 1.0 Create task `[required · once]`, 1.1 Requirement exploration `[required · repeatable]`, 1.2 Research `[optional · repeatable]`, 1.3 Configure context `[required · once]`, 1.4 Activate task `[required · once]`, 1.5 Completion criteria, 2.1 Implement `[required · repeatable]`, 2.2 Quality check `[required · repeatable]` (+33 more)
+
+### Community 142 - "ISAC-enabled On-demand UAV Charging"
+Cohesion: 0.18
+Nodes (17): get_tasks_dir(), Get tasks directory path.      Args:         repo_root: Repository root path. De, format_task_stats(), get_task_stats(), list_my_tasks(), list_pending_tasks(), list_tasks_by_assignee(), list_tasks_by_status() (+9 more)
+
+### Community 143 - "Anchor and Projection Point Obstacle Detour Routing"
+Cohesion: 0.07
+Nodes (27): 10. 主要取舍, 1. 设计原则, 2. 影响范围, 3.1 事件分类, 3.2 索引应用, 3. IDX-001：rename 双端分类, 4.1 数据库结构, 4.2 打开流程 (+19 more)
+
+### Community 144 - "IHATRPO Heterogeneous Charger Collaboration"
+Cohesion: 0.09
+Nodes (22): 1.1 修改事件分类, 1.2 提取增量索引 helper, 1.3 添加 Rust 回归测试, 1.4 阶段验证, 2.1 数据库迁移, 2.2 调整打开顺序, 2.3 添加数据库测试, 2.4 阶段验证 (+14 more)
+
+### Community 146 - "Session 1: 全项目代码缺陷审查与质量报告"
+Cohesion: 0.07
+Nodes (29): Git Commits, Git Commits, Git Commits, Git Commits, Journal - qq155 (Part 1), Main Changes, Main Changes, Main Changes (+21 more)
+
+### Community 147 - "git_context.py"
+Cohesion: 0.17
+Nodes (17): main(), get_context_record_json(), Get record-mode context as a dictionary.      Focused on: my active tasks, git s, filter_platform(), get_phase_index(), get_step(), _parse_marker(), _platform_matches() (+9 more)
+
+### Community 148 - "全项目代码缺陷审查报告"
+Cohesion: 0.09
+Nodes (21): 1. 结论摘要, 2.1 导航与证据, 2.2 严重级别定义, 2. 审查方法与范围, 3. 已验证缺陷（按优先级）, 4. 已验证的 P2 问题, 5. 待验证风险, 6. 测试、构建与工具结果 (+13 more)
+
+### Community 149 - "CLIAdapter"
+Cohesion: 0.12
+Nodes (9): CLIAdapter, Get relative path to a trellis command file.          Args:             name: Co, Get environment variables for non-interactive mode.          Returns:, Check if platform is Claude Code., Get CLI executable name.          Note: Cursor doesn't have a CLI tool, returns, Check if platform requires an agent definition file (.md/.toml) to run., Check if platform supports specifying session ID on creation.          Claude Co, Extract session ID from log output (OpenCode only).          OpenCode generates (+1 more)
+
+### Community 150 - "Cross-Layer Thinking Guide"
+Cohesion: 0.12
+Nodes (16): Checklist: After Adding A New Event Kind Or Field, Checklist: After Modifying A Runtime-Parsed Template, Checklist: After Modifying A Runtime-Parsed Template, Checklist: After Modifying Any Command Template, Checklist: After Modifying Any Command Template, Checklist: Before Editing Versioned Docs, Checklist for Cross-Layer Features, Cross-Layer Thinking Guide (+8 more)
+
+### Community 151 - "P5.4 详细实施计划"
+Cohesion: 0.24
+Nodes (15): centeredRect(), clamp(), createPersistedWindowState(), defaultRect(), dimensionsForArea(), finiteNumber(), fitRectToWorkArea(), intersectionArea() (+7 more)
+
+### Community 152 - "linear_sync.py"
+Cohesion: 0.32
+Nodes (13): cmd_archive(), cmd_create(), cmd_start(), cmd_sync(), _get_linear_issue(), _linearis(), _load_config(), Sync prd.md content to Linear issue description. (+5 more)
+
+### Community 153 - "Code Reuse Thinking Guide"
+Cohesion: 0.14
+Nodes (14): After Batch Modifications, Before Writing New Code, Checklist Before Commit, Code Reuse Thinking Guide, Gotcha: Asymmetric Mechanisms Producing Same Output, Gotcha: Python if/elif/else Exhaustive Check, Quick Checklist for New Scripts, Reducers Should Use Exhaustive Structure (+6 more)
+
+### Community 154 - "log.py"
+Cohesion: 0.12
+Nodes (15): 0. 启动前门禁与 Git 安全点, 1.1 SEARCH-001, 1.2 BOOK-001 / PATH-RISK-001, 1.3 ROLLBACK-001, 1.4 WATCH-RISK-001, 1. 先写失败回归测试, 2. 修复全局搜索竞态, 3. 修复专著片段和路径边界 (+7 more)
+
+### Community 155 - "Workspace Index"
+Cohesion: 0.17
+Nodes (11): Active Developers, File Structure, For New Developers, For Returning Developers, Getting Started, Guidelines, Journal File Rules, Overview (+3 more)
+
+### Community 156 - "cli_adapter.py"
+Cohesion: 0.22
+Nodes (10): Platform, detect_platform(), get_cli_adapter(), get_cli_adapter_auto(), _has_other_platform_dir(), CLI Adapter for Multi-Platform Support.  Abstracts differences between Claude Co, Get CLI adapter for the specified platform.      Args:         platform: Platfor, Check if any platform config dir exists besides those in *exclude*. (+2 more)
+
+### Community 157 - "trellis_config.py"
+Cohesion: 0.27
+Nodes (10): _next_content_line(), parse_simple_yaml(), _parse_yaml_block(), Path, Parse a small subset of YAML. See common.config for full doc., Read .trellis/config.yaml. Returns {} on missing or malformed file., Strip ` # …` inline comments while preserving `#` inside quoted strings.      YA, read_trellis_config() (+2 more)
+
+### Community 158 - "GUI E2E environment contract"
+Cohesion: 0.18
+Nodes (11): 1. Scope / Trigger, 2. Signatures, 3. Contracts, 4. Validation & Error Matrix, 5. Good/Base/Bad Cases, 6. Tests Required, 7. Wrong vs Correct, Common Mistake: tauri-driver without the native Edge driver (+3 more)
+
+### Community 159 - "技术审查设计"
+Cohesion: 0.18
+Nodes (10): 1. 审查边界, 2. 证据来源与优先级, 3.1 正确性与状态, 3.2 安全与数据完整性, 3.3 前端交互与跨层契约, 3.4 可验证性, 3. 检查维度, 4. 结论模型 (+2 more)
+
+### Community 160 - "Scenario: Repository-Scoped Derived Index"
+Cohesion: 0.20
+Nodes (10): 1. Scope / Trigger, 2. Signatures, 3. Contracts, 4. Validation & Error Matrix, 5. Good/Base/Bad Cases, 6. Tests Required (with assertion points), 7. Wrong vs Correct, Correct (+2 more)
+
+### Community 161 - "Scenario: Idempotent Multi-Channel Research State"
+Cohesion: 0.20
+Nodes (10): 1. Scope / Trigger, 2. Signatures, 3. Contracts, 4. Validation & Error Matrix, 5. Good/Base/Bad Cases, 6. Tests Required (with assertion points), 7. Wrong vs Correct, Correct (+2 more)
+
+### Community 162 - "Thinking Guides"
+Cohesion: 0.20
+Nodes (10): Available Guides, Contributing, How to Use This Directory, Pre-Modification Rule (CRITICAL), Quick Reference: Thinking Triggers, Thinking Guides, When to Think About Code Reuse, When to Think About Cross-Layer Issues (+2 more)
+
+### Community 163 - "审查执行计划"
+Cohesion: 0.22
+Nodes (8): 审查执行计划, 阶段 1：任务激活与基线, 阶段 2：结构化定位, 阶段 3：静态审查, 阶段 4：动态验证, 阶段 5：报告编写, 阶段 6：质量门与收尾, 风险点与回滚点
+
+### Community 164 - "GUI E2E 配置发现技术设计"
+Cohesion: 0.22
+Nodes (8): GUI E2E 配置发现技术设计, 兼容性与回滚, 启动失败处理, 应用路径, 数据流, 设计边界, 配置优先级, 驱动路径
+
+### Community 165 - "Implement Agent (channel runtime)"
+Cohesion: 0.25
+Nodes (7): Code Standards, Context, Core Responsibilities, Forbidden Operations, Implement Agent (channel runtime), Report Format, Workflow
+
+### Community 166 - "index.md"
+Cohesion: 0.25
+Nodes (4): Backend Development Guidelines, Guidelines Index, How to Fill These Guidelines, Overview
+
+### Community 167 - "Component Guidelines"
+Cohesion: 0.29
+Nodes (7): Accessibility, Common Mistakes, Component Guidelines, Component Structure, Overview, Props Conventions, Styling Patterns
+
+### Community 168 - "index.md"
+Cohesion: 0.25
+Nodes (4): Frontend Development Guidelines, Guidelines Index, How to Fill These Guidelines, Overview
+
+### Community 169 - "Check Agent (channel runtime)"
+Cohesion: 0.29
+Nodes (6): Check Agent (channel runtime), Context, Core Responsibilities, Forbidden Operations, Report Format, Workflow
+
+### Community 170 - "Path"
+Cohesion: 0.38
+Nodes (4): Path, Get platform-specific config directory.          Args:             project_root:, Get path to agent definition file.          Args:             agent: Agent name, Get path to commands directory or specific command file.          Args:
+
+### Community 171 - "types.py"
+Cohesion: 0.33
+Nodes (6): AgentRecord, Core type definitions for Trellis task data.  Provides:     TaskData     — Typed, Shape of an agent entry in registry.json., Shape of task.json on disk.      Used only for type annotations when reading tas, TaskData, TypedDict
+
+### Community 172 - "TaskInfo"
+Cohesion: 0.18
+Nodes (10): 0. 基线与即时证据, 1. 先写失败回归, 2. 实现纯窗口放置模块, 3. 接入 App 启动与持久化, 4. 修复安装 smoke 进程泄漏, 5. 版本与发布, 6. 完整质量门, 7. 严格 GUI 与安装验收 (+2 more)
+
+### Community 173 - "Directory Structure"
+Cohesion: 0.33
+Nodes (6): Directory Layout, Directory Structure, Examples, Module Organization, Naming Conventions, Overview
+
+### Community 174 - "Logging Guidelines"
+Cohesion: 0.29
+Nodes (6): Log Levels, Logging Guidelines, Overview, Structured Logging, What NOT to Log, What to Log
+
+### Community 175 - "Directory Structure"
+Cohesion: 0.29
+Nodes (6): Directory Layout, Directory Structure, Examples, Module Organization, Naming Conventions, Overview
+
+### Community 176 - "Hook Guidelines"
+Cohesion: 0.29
+Nodes (6): Common Mistakes, Custom Hook Patterns, Data Fetching, Hook Guidelines, Naming Conventions, Overview
+
+### Community 177 - "Database Guidelines"
+Cohesion: 0.33
+Nodes (6): Common Mistakes, Database Guidelines, Migrations, Naming Conventions, Overview, Query Patterns
+
+### Community 178 - "Error Handling"
+Cohesion: 0.33
+Nodes (6): API Error Responses, Common Mistakes, Error Handling, Error Handling Patterns, Error Types, Overview
+
+### Community 179 - "Quality Guidelines"
+Cohesion: 0.29
+Nodes (6): Code Review Checklist, Forbidden Patterns, Overview, Quality Guidelines, Required Patterns, Testing Requirements
+
+### Community 180 - "Quality Guidelines"
+Cohesion: 0.33
+Nodes (6): Code Review Checklist, Forbidden Patterns, Overview, Quality Guidelines, Required Patterns, Testing Requirements
+
+### Community 181 - "State Management"
+Cohesion: 0.33
+Nodes (6): Common Mistakes, Overview, Server State, State Categories, State Management, When to Use Global State
+
+### Community 182 - "Type Safety"
+Cohesion: 0.29
+Nodes (6): Common Patterns, Forbidden Patterns, Overview, Type Organization, Type Safety, Validation
+
+### Community 183 - "implement.md"
+Cohesion: 0.33
+Nodes (5): 回滚点, 实施记录, 阶段 1：配置解析, 阶段 2：开发者入口, 阶段 3：验证与提交
+
+### Community 184 - "Workspace Index - qq155"
+Cohesion: 0.33
+Nodes (5): Active Documents, Current Status, Notes, Session History, Workspace Index - qq155
+
+### Community 185 - "windows-schema.json"
+Cohesion: 0.20
+Nodes (10): 1. Scope / Trigger, 2. Signatures, 3. Contracts, 4. Validation & Error Matrix, 5. Good/Base/Bad Cases, 6. Tests Required (with assertion points), 7. Wrong vs Correct, Correct (+2 more)
+
+### Community 186 - "Common Duplication Patterns"
+Cohesion: 0.40
+Nodes (5): Common Duplication Patterns, Pattern 1: Copy-Paste Functions, Pattern 2: Similar Components, Pattern 3: Repeated Constants, Pattern 4: Repeated Payload Field Extraction
+
+### Community 187 - "Common Cross-Layer Mistakes"
+Cohesion: 0.40
+Nodes (5): Common Cross-Layer Mistakes, Mistake 1: Implicit Format Assumptions, Mistake 2: Scattered Validation, Mistake 3: Leaky Abstractions, Mistake 4: Every Consumer Parses The Same Payload
+
+### Community 190 - "Before Implementing Cross-Layer Features"
+Cohesion: 0.50
+Nodes (4): Before Implementing Cross-Layer Features, Step 1: Map the Data Flow, Step 2: Identify Boundaries, Step 3: Define Contracts
+
+### Community 192 - "Mode-Detection Probe Checklist"
+Cohesion: 0.67
+Nodes (3): After implementing:, Before implementing:, Mode-Detection Probe Checklist
+
+### Community 193 - "Mode-Detection Probe Checklist"
+Cohesion: 0.67
+Nodes (3): After implementing:, Before implementing:, Mode-Detection Probe Checklist
+
+### Community 200 - "Windows 窗口可见性恢复技术设计"
+Cohesion: 0.22
+Nodes (8): 1. 根因链, 2. 窗口状态模型, 3. 恢复流程, 4. 保存流程, 5. 权限与兼容, 6. 安装 smoke 生命周期, 7. 回滚, Windows 窗口可见性恢复技术设计
+
+### Community 201 - "Value"
 Cohesion: 0.67
 Nodes (3): Value, anyOf, description
 
-### Community 132 - "Bi-level Metaheuristic Charging Schemes"
+### Community 202 - "PermissionEntry"
 Cohesion: 0.67
-Nodes (3): Bi-level Metaheuristic Charging Schemes, MLSGA Multi-start Local Search Genetic Algorithm, MTBCS Multitasking Bi-level Charging Strategy
-
-### Community 133 - "RA-DMCS Asymmetric Directional Mobile Charging"
-Cohesion: 0.67
-Nodes (3): KCPG K-means Charging Position Generation, LKH-based Asymmetric TSP Route Planning, RA-DMCS Asymmetric Directional Mobile Charging
+Nodes (3): PermissionEntry, anyOf, description
 
 ## Knowledge Gaps
-- **940 isolated node(s):** `probe`, `driverProcess`, `root`, `required`, `html` (+935 more)
+- **1275 isolated node(s):** `e2eDirectory`, `defaultDesktopRoot`, `directNative`, `appResolution`, `driverResolution` (+1270 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **14 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Work-memory lessons
 
@@ -716,17 +993,17 @@ Nodes (3): KCPG K-means Charging Position Generation, LKH-based Asymmetric TSP R
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `graph_overview_from_payload()` connect `lib.rs` to `compile_center.rs`?**
-  _High betweenness centrality (0.011) - this node is a cross-community bridge._
-- **Why does `AppState` connect `lib.rs` to `repository_watcher.rs`?**
+- **Why does `graph_overview_from_payload()` connect `lib.rs` to `repository_watcher.rs`?**
+  _High betweenness centrality (0.031) - this node is a cross-community bridge._
+- **Why does `get_repo_root()` connect `RA-DMCS Asymmetric Directional Mobile Charging` to `Value`, `cMFEDS Minimal Functional Equivalent Direction Set`, `Infinite Drive DWPT Intersection Placement`, `.updater-release.json`, `ISAC-enabled On-demand UAV Charging`, `git_context.py`?**
+  _High betweenness centrality (0.007) - this node is a cross-community bridge._
+- **Why does `execute_compile_request()` connect `lib.rs` to `compile_center.rs`?**
   _High betweenness centrality (0.005) - this node is a cross-community bridge._
-- **Why does `领域关键词地图` connect `领域关键词地图` to `index.md`?**
-  _High betweenness centrality (0.003) - this node is a cross-community bridge._
-- **What connects `probe`, `driverProcess`, `root` to the rest of the system?**
-  _940 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Are the 7 inferred relationships involving `get_repo_root()` (e.g. with `add_session()` and `main()`) actually correct?**
+  _`get_repo_root()` has 7 INFERRED edges - model-reasoned connections that need verification._
+- **What connects `Trellis Python Scripts  This module provides Python implementations of Trellis w`, `Get latest journal file info.      Returns:         Tuple of (file_path, file_nu`, `Get current session number from index.md.` to the rest of the system?**
+  _1459 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `lib.rs` be split into smaller, more focused modules?**
-  _Cohesion score 0.06476983576220217 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.057776535271642906 - nodes in this community are weakly interconnected._
 - **Should `compile_center.rs` be split into smaller, more focused modules?**
-  _Cohesion score 0.11373260738052027 - nodes in this community are weakly interconnected._
-- **Should `qa.rs` be split into smaller, more focused modules?**
-  _Cohesion score 0.13784461152882205 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.10961538461538461 - nodes in this community are weakly interconnected._

@@ -2625,7 +2625,7 @@
     "semantic_hash": ""
   },
   "evals/core-book-retrieval-report.json": {
-    "mtime": 1786213353.5865147,
+    "mtime": 1786272621.9063258,
     "ast_hash": "ea3df923d2e6cc09e9393e1287ed0fb0",
     "semantic_hash": ""
   },
@@ -2830,8 +2830,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/package.json": {
-    "mtime": 1786212984.1448345,
-    "ast_hash": "2ee213f685db8db66746e091b31c916e",
+    "mtime": 1786272523.4195275,
+    "ast_hash": "2a5f1c8358a42fa7d7710744945e8287",
     "semantic_hash": ""
   },
   "apps/desktop/public/data/library.json": {
@@ -2870,8 +2870,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/src/lib.rs": {
-    "mtime": 1786210555.1055639,
-    "ast_hash": "62480a5cfaa801f2ea08c5d5b5c779a7",
+    "mtime": 1786272172.0119102,
+    "ast_hash": "7bb7bf3e6dd54ab99e9a6a8a743f7ab3",
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/src/main.rs": {
@@ -2880,13 +2880,13 @@
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/tauri.conf.json": {
-    "mtime": 1786212996.0436058,
-    "ast_hash": "de838160605228288266a3d2950f1ba6",
+    "mtime": 1786272523.4212942,
+    "ast_hash": "3c3ca243c1e6410cf2b88b3ce9a186e8",
     "semantic_hash": ""
   },
   "apps/desktop/src/App.tsx": {
-    "mtime": 1786212996.0436058,
-    "ast_hash": "8c9f3e4d4495cce9b77e7a1113494876",
+    "mtime": 1786272860.8165433,
+    "ast_hash": "7c53b5018f315bfeaecdc34739c70f1e",
     "semantic_hash": ""
   },
   "apps/desktop/src/counter.ts": {
@@ -2905,8 +2905,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/README.md": {
-    "mtime": 1786213285.3428082,
-    "ast_hash": "de303355a0654c420da7a586b5084e09",
+    "mtime": 1786273132.3491297,
+    "ast_hash": "d3f2542e5ba5afb3853e1aee5cc4c71c",
     "semantic_hash": ""
   },
   "apps/desktop/public/favicon.svg": {
@@ -3005,8 +3005,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/scripts/verify-build.mjs": {
-    "mtime": 1786212870.538247,
-    "ast_hash": "81b166701e3fe9a00fa451c1682d0047",
+    "mtime": 1786272694.7218518,
+    "ast_hash": "f6bde909523e114a322c4732c674d58f",
     "semantic_hash": ""
   },
   "apps/desktop/src/components/TabBar.tsx": {
@@ -3020,13 +3020,13 @@
     "semantic_hash": ""
   },
   "apps/desktop/src/services/desktop.ts": {
-    "mtime": 1785665971.1086955,
-    "ast_hash": "7f6fffd670fa1e780ac90f5789a9eb39",
+    "mtime": 1786272242.6948066,
+    "ast_hash": "4013e2c903f9e7abec20b731c077771f",
     "semantic_hash": ""
   },
   "apps/desktop/src/types.ts": {
-    "mtime": 1786210542.1246119,
-    "ast_hash": "0998dec67929ce8d090e9a65bcf6be9d",
+    "mtime": 1786272242.6948066,
+    "ast_hash": "106322a3eb18b29ded224b892703bcfe",
     "semantic_hash": ""
   },
   "apps/desktop/dashboard-p2-preview.png": {
@@ -3060,8 +3060,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/src-tauri/src/qa.rs": {
-    "mtime": 1785661294.1793566,
-    "ast_hash": "29931173810e6655e7a7a63a0fd29d61",
+    "mtime": 1786272030.2335608,
+    "ast_hash": "28b5e3fa034290a65ef3dc21d77546e4",
     "semantic_hash": ""
   },
   "apps/desktop/src/features/books/CoreBooksView.tsx": {
@@ -3075,13 +3075,13 @@
     "semantic_hash": ""
   },
   "apps/desktop/src/features/graph/GraphView.tsx": {
-    "mtime": 1786207875.2945514,
-    "ast_hash": "c20e8325d653aec91a0d945e069e8089",
+    "mtime": 1786272398.1867948,
+    "ast_hash": "ede408f8b0857d09416ecb83fb822e82",
     "semantic_hash": ""
   },
   "apps/desktop/src/features/qa/AskView.tsx": {
-    "mtime": 1786207887.673076,
-    "ast_hash": "4e4510df2d2a495880b3bbae0f355095",
+    "mtime": 1786272386.1508274,
+    "ast_hash": "93aa70f3895dc224cff8d3016e370d89",
     "semantic_hash": ""
   },
   "design/p3-luna-qa-plan.md": {
@@ -3115,8 +3115,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/e2e/gui-smoke.mjs": {
-    "mtime": 1786212926.2446136,
-    "ast_hash": "553f3d8d130546459bb73ba9810fc1e5",
+    "mtime": 1786272872.4193747,
+    "ast_hash": "c1f15e705bdde8b7a9a8a2ee733ae49a",
     "semantic_hash": ""
   },
   "apps/desktop/e2e/offline-smoke.mjs": {
@@ -3135,8 +3135,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/scripts/verify-config.mjs": {
-    "mtime": 1786212996.0436058,
-    "ast_hash": "630cbeba6fc06fb50eb2c149e0441ff1",
+    "mtime": 1786272664.2247565,
+    "ast_hash": "65e423544c94570765800c8db7ae012d",
     "semantic_hash": ""
   },
   "apps/desktop/scripts/verify-p5.mjs": {
@@ -3155,13 +3155,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/scripts/verify-updater-release.mjs": {
-    "mtime": 1786212996.0517566,
-    "ast_hash": "430854935f4a2504b97c53377de799e6",
-    "semantic_hash": ""
-  },
-  ".trellis/.runtime/sessions/codex_019fbd32-2eac-7d32-a633-a332333cd02f.json": {
-    "mtime": 1786212700.4732208,
-    "ast_hash": "e50e87f8bb79481e6ec85430ce407fb8",
+    "mtime": 1786272664.2257292,
+    "ast_hash": "a162bbc2c4afa9e85a67388a8e740c27",
     "semantic_hash": ""
   },
   ".trellis/.template-hashes.json": {
@@ -3335,8 +3330,8 @@
     "semantic_hash": ""
   },
   "apps/desktop/scripts/updater-fixture-server.mjs": {
-    "mtime": 1786212996.0449412,
-    "ast_hash": "6926998db9160dce4b7c72adc82f6e8c",
+    "mtime": 1786272664.2247565,
+    "ast_hash": "bd70d55132cf2e5fd3c170b1a3b78d92",
     "semantic_hash": ""
   },
   "apps/desktop/src/features/books/bookTarget.ts": {
@@ -3415,8 +3410,8 @@
     "semantic_hash": ""
   },
   ".trellis/spec/backend/quality-guidelines.md": {
-    "mtime": 1786203615.145214,
-    "ast_hash": "2cbd0dd8db8b6f7f9671360b30fbd9ec",
+    "mtime": 1786273037.4105535,
+    "ast_hash": "50d6665c9669cf4186681804d7eff346",
     "semantic_hash": ""
   },
   ".trellis/spec/frontend/component-guidelines.md": {
@@ -3445,8 +3440,8 @@
     "semantic_hash": ""
   },
   ".trellis/spec/frontend/state-management.md": {
-    "mtime": 1786213274.8254552,
-    "ast_hash": "a6ee3ed8ecad1e77e04625d542923077",
+    "mtime": 1786273037.409781,
+    "ast_hash": "36b772ad51af79a18954f35cf2171bbe",
     "semantic_hash": ""
   },
   ".trellis/spec/frontend/type-safety.md": {
@@ -3515,18 +3510,13 @@
     "semantic_hash": ""
   },
   ".trellis/workspace/qq155/index.md": {
-    "mtime": 1786211391.6248522,
-    "ast_hash": "112558c7314a4f55fce2e30b976e7511",
+    "mtime": 1786273462.4639611,
+    "ast_hash": "7cac3f2426f83d5570065144b3f857ef",
     "semantic_hash": ""
   },
   ".trellis/workspace/qq155/journal-1.md": {
-    "mtime": 1786211391.6165216,
-    "ast_hash": "9a546b26981c9ab03bd051b84060d065",
-    "semantic_hash": ""
-  },
-  ".trellis/tasks/08-09-fix-hidden-desktop-window/task.json": {
-    "mtime": 1786212700.4741938,
-    "ast_hash": "6930c568144b8dba1c418234eb39a679",
+    "mtime": 1786273462.4581182,
+    "ast_hash": "5e6c334e1d0571966d8a488925981bc6",
     "semantic_hash": ""
   },
   ".trellis/tasks/archive/2026-08/08-09-plan-next-desktop-phase/task.json": {
@@ -3549,16 +3539,6 @@
     "ast_hash": "2d726f5c7038865d58614593a0177fa3",
     "semantic_hash": ""
   },
-  ".trellis/tasks/08-09-fix-hidden-desktop-window/design.md": {
-    "mtime": 1786212690.0926554,
-    "ast_hash": "e3978748c23f72e2f8f4f635d3e5b85e",
-    "semantic_hash": ""
-  },
-  ".trellis/tasks/08-09-fix-hidden-desktop-window/implement.md": {
-    "mtime": 1786212690.0926554,
-    "ast_hash": "34ef7fa275975002f883e4d291f06ce8",
-    "semantic_hash": ""
-  },
   ".trellis/tasks/archive/2026-08/08-09-plan-next-desktop-phase/design.md": {
     "mtime": 1786209672.0450828,
     "ast_hash": "dcbbedd09203efe42843a8f88b2cf274",
@@ -3567,6 +3547,56 @@
   ".trellis/tasks/archive/2026-08/08-09-plan-next-desktop-phase/implement.md": {
     "mtime": 1786209672.045694,
     "ast_hash": "2b440a161fc0e791869c23d37cf4b0cf",
+    "semantic_hash": ""
+  },
+  ".trellis/tasks/archive/2026-08/08-09-contextual-research-trail/task.json": {
+    "mtime": 1786273455.2835612,
+    "ast_hash": "f2f3ae477b265a1d81bbabff686ca661",
+    "semantic_hash": ""
+  },
+  ".trellis/tasks/archive/2026-08/08-09-fix-hidden-desktop-window/task.json": {
+    "mtime": 1786213491.3163514,
+    "ast_hash": "da8a8740e38f565168f375fe532ee7d9",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src-tauri/src/research_trail.rs": {
+    "mtime": 1786273073.1007872,
+    "ast_hash": "4a094e2773503f5b1f1b1887ac518c64",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/features/research-trail/ResearchTrailPanel.tsx": {
+    "mtime": 1786273251.6943939,
+    "ast_hash": "80319646cc2f22e6de69095fe35de3a0",
+    "semantic_hash": ""
+  },
+  "apps/desktop/src/features/research-trail/researchTrailState.ts": {
+    "mtime": 1786273132.3491297,
+    "ast_hash": "c8d784168170f1f38d28b95564b50575",
+    "semantic_hash": ""
+  },
+  "apps/desktop/tests/research-trail-state.test.ts": {
+    "mtime": 1786272323.4027462,
+    "ast_hash": "db0f99c6bd0669b22b624224bd75a23d",
+    "semantic_hash": ""
+  },
+  ".trellis/tasks/archive/2026-08/08-09-contextual-research-trail/design.md": {
+    "mtime": 1786271638.8896708,
+    "ast_hash": "4d9b5683386787c548f4ac8427f4aa59",
+    "semantic_hash": ""
+  },
+  ".trellis/tasks/archive/2026-08/08-09-contextual-research-trail/implement.md": {
+    "mtime": 1786271638.8896708,
+    "ast_hash": "8f213fd775c6e1f88a23c25ee4c89621",
+    "semantic_hash": ""
+  },
+  ".trellis/tasks/archive/2026-08/08-09-fix-hidden-desktop-window/design.md": {
+    "mtime": 1786212690.0926554,
+    "ast_hash": "e3978748c23f72e2f8f4f635d3e5b85e",
+    "semantic_hash": ""
+  },
+  ".trellis/tasks/archive/2026-08/08-09-fix-hidden-desktop-window/implement.md": {
+    "mtime": 1786212690.0926554,
+    "ast_hash": "34ef7fa275975002f883e4d291f06ce8",
     "semantic_hash": ""
   }
 }
