@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { BookOpen, ChevronLeft, ChevronRight, FileText, GitBranch, LoaderCircle, Network, Pin, PinOff, Plus, RefreshCw, Search, Star } from 'lucide-react'
+import { BookOpen, FileText, GitBranch, LoaderCircle, Network, PanelRightClose, PanelRightOpen, Pin, PinOff, Plus, RefreshCw, Search, Star } from 'lucide-react'
 import { isDesktopRuntime, prepareResearchTrail, searchBookChapters, searchPages } from '../../services/desktop'
 import type { ResearchTrailItem, ResearchTrailRequest, ResearchTrailResponse } from '../../types'
 import { createLatestRequestGuard } from '../../lib/latestRequest'
@@ -103,9 +103,9 @@ export function ResearchTrailPanel(props: Props) {
     setPinStore(next)
   }
 
-  if (!props.open) return <button className="context-reopen" aria-label="展开研究脉络" onClick={props.onOpen}><ChevronLeft size={16} /></button>
+  if (!props.open) return <button className="context-reopen" data-testid="trail-reopen" aria-label="展开研究脉络" title="展开研究脉络" onClick={props.onOpen}><PanelRightOpen size={16} /></button>
   return <aside className="context-panel research-trail-panel" data-testid="research-trail-panel">
-    <div className="context-heading"><div><h2>研究脉络</h2>{data?.anchor ? <small>基于：{data.anchor.title}</small> : <small>随页面、提问或搜索切换</small>}</div><div className="trail-heading-actions"><button className="icon-button subtle" title="刷新研究脉络" onClick={() => setRefreshNonce((value) => value + 1)}><RefreshCw size={14} /></button><button className="icon-button subtle" title="收起研究脉络" onClick={props.onClose}><ChevronRight size={17} /></button></div></div>
+    <div className="context-heading"><div><h2>研究脉络</h2>{data?.anchor ? <small>基于：{data.anchor.title}</small> : <small>随页面、提问或搜索切换</small>}</div><div className="trail-heading-actions"><button className="trail-refresh-button" data-testid="trail-refresh" aria-label="刷新研究脉络" title="刷新研究脉络" onClick={() => setRefreshNonce((value) => value + 1)}><RefreshCw size={13} /><span>刷新</span></button><button className="trail-panel-button" data-testid="trail-collapse" aria-label="收起研究脉络" title="收起研究脉络" onClick={props.onClose}><PanelRightClose size={16} /></button></div></div>
     <div className="context-tabs"><button className={props.tab === 'evidence' ? 'active' : ''} onClick={() => props.onTabChange('evidence')}>证据链</button><button className={props.tab === 'methods' ? 'active' : ''} onClick={() => props.onTabChange('methods')}>相关方法</button></div>
     {data?.anchor.subtitle && <div className="trail-anchor"><Network size={13} /><span>{data.anchor.subtitle}</span></div>}
     {loading && <div className="trail-state"><LoaderCircle className="spin" size={18} />正在检索当前上下文…</div>}

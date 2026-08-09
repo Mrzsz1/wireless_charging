@@ -126,6 +126,18 @@ try {
   await verifyWindowVisible()
   await verifyViewport(1366, 768)
   await requireElement('[data-testid="sidebar"]')
+  await requireElement('.titlebar-app-menu')
+  const topSettings = await requireElement('[data-testid="settings"]')
+  const topHelp = await requireElement('[data-testid="help"]')
+  const menuPlacement = await browser.execute(() => ({
+    settingsInSidebar: Boolean(document.querySelector('[data-testid="sidebar"] [data-testid="settings"]')),
+    helpInSidebar: Boolean(document.querySelector('[data-testid="sidebar"] [data-testid="help"]')),
+    footerExists: Boolean(document.querySelector('.sidebar-footer')),
+  }))
+  if (menuPlacement.settingsInSidebar || menuPlacement.helpInSidebar || menuPlacement.footerExists) {
+    throw new Error(`Settings/help were not fully moved to the titlebar: ${JSON.stringify(menuPlacement)}`)
+  }
+  console.log('PASS settings and help titlebar placement')
   await browser.pause(600)
   const startupPrompt = await browser.$('[data-testid="ingest-startup-prompt"]')
   if (await startupPrompt.isExisting()) {
@@ -141,6 +153,14 @@ try {
   }
   await researchTrail.waitForExist({ timeout: 5000, timeoutMsg: 'Research trail panel did not open' })
   console.log('PASS [data-testid="research-trail-panel"]')
+  const trailRefresh = await requireElement('[data-testid="trail-refresh"]')
+  if (!(await trailRefresh.getText()).includes('刷新')) throw new Error('Research trail refresh control is missing its text label')
+  await (await requireElement('[data-testid="trail-collapse"]')).click()
+  await researchTrail.waitForExist({ reverse: true, timeout: 5000, timeoutMsg: 'Research trail panel did not collapse' })
+  await (await requireElement('[data-testid="trail-reopen"]')).click()
+  researchTrail = await browser.$('[data-testid="research-trail-panel"]')
+  await researchTrail.waitForExist({ timeout: 5000, timeoutMsg: 'Research trail panel did not reopen' })
+  console.log('PASS research trail refresh, collapse and reopen toolbar')
   const sidebar = await requireElement('[data-testid="sidebar"]')
 
   const workTabs = await requireElement('[data-testid="work-tabs"]')
@@ -278,7 +298,7 @@ try {
   console.log('PASS QA settings are centralized with three providers')
   await (await requireElement('[data-testid="nav-compile"]')).click()
   await requireElement('[data-testid="compile-center"]')
-  await (await requireElement('[data-testid="settings"]')).click()
+  await topSettings.click()
   await requireElement('[data-testid="updater-settings"]')
   await requireElement('[data-testid="literature-automation-settings"]')
   await requireElement('[data-testid="search-api-settings"]')
@@ -287,6 +307,30 @@ try {
   await requireElement('[data-testid="provider-openalex"]')
   await requireElement('[data-testid="provider-tavily"]')
   await requireElement('[data-testid="provider-serpapi"]')
+  if (await topSettings.getAttribute('aria-current') !== 'page') throw new Error('Titlebar settings entry has no active-page state')
+  const settingsHelp = await requireElement('[data-testid="settings-page-help"]')
+  await browser.execute((selector) => {
+    const trigger = document.querySelector(selector)
+    if (!(trigger instanceof HTMLElement)) throw new Error('Settings help trigger missing')
+    trigger.dispatchEvent(new PointerEvent('pointerover', { bubbles: true, pointerType: 'mouse' }))
+  }, '[data-testid="settings-page-help"]')
+  await browser.pause(450)
+  if (await (await browser.$('[role="tooltip"]')).isExisting()) throw new Error('Settings help tooltip opened before the one-second delay')
+  await browser.pause(700)
+  const helpTooltip = await requireElement('[role="tooltip"]')
+  if (!(await helpTooltip.getText()).includes('集中管理知识库')) throw new Error('Settings help tooltip did not preserve the explanatory copy')
+  await browser.execute((selector) => {
+    const trigger = document.querySelector(selector)
+    if (!(trigger instanceof HTMLElement)) return
+    trigger.dispatchEvent(new PointerEvent('pointerout', { bubbles: true, pointerType: 'mouse' }))
+  }, '[data-testid="settings-page-help"]')
+  await browser.waitUntil(async () => !await (await browser.$('[role="tooltip"]')).isExisting(), { timeout: 3000, timeoutMsg: 'Settings help tooltip did not close on pointer leave' })
+  console.log('PASS delayed settings help tooltip')
+  await topHelp.click()
+  const helpHeading = await requireElement('.placeholder-view h1')
+  if ((await helpHeading.getText()).trim() !== '帮助') throw new Error('Titlebar help entry did not open the help view')
+  if (await topHelp.getAttribute('aria-current') !== 'page') throw new Error('Titlebar help entry has no active-page state')
+  console.log('PASS titlebar help navigation')
   await verifyViewport(1920, 1080)
   console.log('PASS GUI E2E launch/navigation probe')
 } finally {

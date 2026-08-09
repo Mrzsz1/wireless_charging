@@ -59,16 +59,16 @@ export function SidebarWorkspacePane({ children }: SidebarWorkspacePaneProps) {
     const sidebar = panel?.closest<HTMLElement>('.app-sidebar')
     const footer = sidebar?.querySelector<HTMLElement>('.sidebar-footer')
     const spacer = sidebar?.querySelector<HTMLElement>('.sidebar-spacer')
-    if (!panel || !resizer || !sidebar || !footer) return limits
+    if (!panel || !resizer || !sidebar) return limits
 
     const sidebarRect = sidebar.getBoundingClientRect()
     const panelRect = panel.getBoundingClientRect()
-    const footerRect = footer.getBoundingClientRect()
+    const footerHeight = footer?.getBoundingClientRect().height ?? 0
     const resizerRect = resizer.getBoundingClientRect()
     const spacerMinHeight = spacer ? Number.parseFloat(getComputedStyle(spacer).minHeight) || 0 : 0
     const available = Math.max(
       0,
-      sidebarRect.bottom - footerRect.height - panelRect.top - resizerRect.height - spacerMinHeight,
+      sidebarRect.bottom - footerHeight - panelRect.top - resizerRect.height - spacerMinHeight,
     )
     const max = Math.floor(available)
     return { min: Math.min(SIDEBAR_WORKSPACE_MIN, max), max }

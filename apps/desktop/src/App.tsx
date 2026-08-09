@@ -21,7 +21,6 @@ import {
   Plus,
   RefreshCw,
   Search,
-  Settings,
   Sparkles,
   SquarePen,
   Star,
@@ -600,7 +599,12 @@ export default function App() {
     <div className="app-shell">
       <header className="titlebar">
         <button className="titlebar-menu" aria-label="展开或收起侧边栏" onClick={() => setNavCollapsed((value) => !value)}><Menu size={18} /></button>
-        <div className="titlebar-drag-region" data-tauri-drag-region><span className="window-title">研究工作台</span></div>
+        <div className="titlebar-product" data-tauri-drag-region><span className="window-title">研究工作台</span></div>
+        <nav className="titlebar-app-menu" aria-label="应用菜单">
+          <button data-testid="settings" className={view === 'settings' ? 'active' : ''} aria-current={view === 'settings' ? 'page' : undefined} onClick={() => openSettings()}>设置</button>
+          <button data-testid="help" className={view === 'help' ? 'active' : ''} aria-current={view === 'help' ? 'page' : undefined} onClick={() => activateView('help')}>帮助</button>
+        </nav>
+        <div className="titlebar-drag-region" data-tauri-drag-region />
         <div className="window-actions">
           <button aria-label="最小化" onClick={() => void getCurrentWindow().minimize()}>−</button>
           <button aria-label="最大化或还原" onClick={() => void getCurrentWindow().toggleMaximize()}>□</button>
@@ -653,10 +657,6 @@ export default function App() {
           </SidebarWorkspacePane>}
 
           <div className="sidebar-spacer" />
-          <div className="sidebar-footer">
-            <button data-testid="settings" className={`sidebar-nav-item ${view === 'settings' ? 'selected' : ''}`} onClick={() => openSettings()}><span className="sidebar-icon"><Settings size={18} /></span>{!navCollapsed && <span className="sidebar-label">设置</span>}</button>
-            <button className={`sidebar-nav-item ${view === 'help' ? 'selected' : ''}`} onClick={() => activateView('help')}><span className="sidebar-icon"><CircleHelp size={18} /></span>{!navCollapsed && <span className="sidebar-label">帮助</span>}</button>
-          </div>
         </aside>
 
         <main ref={workspaceRef} className={`main-workspace ${view === 'qa' ? 'qa-active' : ''} ${view === 'compile' ? 'compile-active' : ''}`}>
