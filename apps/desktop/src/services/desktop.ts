@@ -1,5 +1,5 @@
 import { Channel, invoke } from '@tauri-apps/api/core'
-import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatSessionDetail, ChatSessionSummary, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LunaSettings, PageDetail, PageFilters, PageSummary, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchResult, StartCompileRequest } from '../types'
+import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatSessionDetail, ChatSessionSummary, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LiteratureCandidate, LiteratureCapability, LiteratureIngestSettings, LunaSettings, ManualImportSession, PageDetail, PageFilters, PageSummary, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchResult, StartCompileRequest, StartLiteratureRunRequest, StartupPromptState } from '../types'
 
 type TauriWindow = Window & { __TAURI_INTERNALS__?: unknown }
 
@@ -159,4 +159,46 @@ export async function processRepositoryChanges(): Promise<RepositoryWatchStatus>
 
 export async function rollbackCompileRun(runId: string): Promise<string> {
   return invoke<string>('rollback_compile_run', { runId })
+}
+
+export async function getLiteratureCapabilities(): Promise<LiteratureCapability[]> {
+  return invoke<LiteratureCapability[]>('get_literature_capabilities')
+}
+
+export async function getLiteratureSettings(): Promise<LiteratureIngestSettings> {
+  return invoke<LiteratureIngestSettings>('get_literature_settings')
+}
+
+export async function saveLiteratureSettings(settings: LiteratureIngestSettings): Promise<LiteratureIngestSettings> {
+  return invoke<LiteratureIngestSettings>('save_literature_settings', { settings })
+}
+
+export async function getIngestStartupPrompt(localDate: string): Promise<StartupPromptState> {
+  return invoke<StartupPromptState>('get_ingest_startup_prompt', { localDate })
+}
+
+export async function suppressIngestPromptToday(localDate: string): Promise<void> {
+  return invoke('suppress_ingest_prompt_today', { localDate })
+}
+
+export async function chooseManualPdfs(): Promise<ManualImportSession | null> {
+  return invoke<ManualImportSession | null>('choose_manual_pdfs')
+}
+
+export async function discardManualImportSession(sessionId: string): Promise<void> {
+  return invoke('discard_manual_import_session', { sessionId })
+}
+
+export async function listLiteratureCandidates(): Promise<LiteratureCandidate[]> {
+  return invoke<LiteratureCandidate[]>('list_literature_candidates')
+}
+
+export async function updateCandidateTriage(candidateIds: string[], status: LiteratureCandidate['triageStatus'], note?: string): Promise<number> {
+  return invoke<number>('update_candidate_triage', { candidateIds, status, note })
+}
+
+export async function startLiteratureRun(request: StartLiteratureRunRequest, onMessage: (event: CompileStreamEvent) => void): Promise<CompileRunSummary> {
+  const onEvent = new Channel<CompileStreamEvent>()
+  onEvent.onmessage = onMessage
+  return invoke<CompileRunSummary>('start_literature_run', { request, onEvent })
 }

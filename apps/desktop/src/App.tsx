@@ -12,6 +12,7 @@ import {
   CloudDownload,
   Code2,
   FileText,
+  FilePlus2,
   Folder,
   FolderOpen,
   Gauge,
@@ -37,12 +38,16 @@ import { ComparisonView } from './features/comparison/ComparisonView'
 import { CompileCenterView } from './features/compile/CompileCenterView'
 import { GraphView } from './features/graph/GraphView'
 import { nextGraphRefreshVersion } from './features/graph/refreshState'
+import { LiteratureIngestView } from './features/ingest/LiteratureIngestView'
+import { StartupIngestPrompt } from './features/ingest/StartupIngestPrompt'
+import { localDateKey } from './features/ingest/ingestState'
 import { LibraryView } from './features/library/LibraryView'
 import { PageView } from './features/pages/PageView'
 import { AskView } from './features/qa/AskView'
 import { ResearchTrailPanel } from './features/research-trail/ResearchTrailPanel'
 import {
   chooseRepository,
+  getIngestStartupPrompt,
   getBacklinks,
   getPage,
   isDesktopRuntime,
@@ -52,12 +57,13 @@ import {
   rebuildIndex,
   repositoryInfo,
   searchPages,
+  suppressIngestPromptToday,
 } from './services/desktop'
 import { checkAndInstallUpdate, getAppReleaseInfo } from './services/updater'
-import type { Backlink, PageDetail, PageFilters, PageSummary, RepositoryInfo, ResearchTrailRequest, SearchResult } from './types'
+import type { Backlink, PageDetail, PageFilters, PageSummary, RepositoryInfo, ResearchTrailRequest, SearchResult, StartupPromptState } from './types'
 
 type Icon = ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
-type MainView = 'dashboard' | 'qa' | 'library' | 'methods' | 'books' | 'graph' | 'comparison' | 'compile' | 'settings' | 'help' | 'page'
+type MainView = 'dashboard' | 'qa' | 'library' | 'ingest' | 'methods' | 'books' | 'graph' | 'comparison' | 'compile' | 'settings' | 'help' | 'page'
 type Theme = 'light' | 'dark' | 'system'
 
 type NavigationItem = { label: string; view: MainView; icon: Icon }
@@ -67,6 +73,7 @@ const navigation: NavigationItem[] = [
   { label: '工作台', view: 'dashboard', icon: Home },
   { label: '智能问答', view: 'qa', icon: Bot },
   { label: '文献库', view: 'library', icon: FileText },
+  { label: '文献入库', view: 'ingest', icon: FilePlus2 },
   { label: '方法库', view: 'methods', icon: Gauge },
   { label: '核心书籍', view: 'books', icon: BookOpen },
   { label: '知识图谱', view: 'graph', icon: Network },
@@ -161,11 +168,15 @@ export default function App() {
   const [theme, setTheme] = useState<Theme>(() => readStored('desktop.theme', 'light'))
   const [fontSize, setFontSize] = useState(() => readStored('desktop.font-size', 14))
   const [updateBusy, setUpdateBusy] = useState(false)
-  const [releaseInfo, setReleaseInfo] = useState({ version: '0.8.0', channel: 'stable' })
+  const [startupIngestPrompt, setStartupIngestPrompt] = useState<StartupPromptState | null>(null)
+  const [startupPromptBusy, setStartupPromptBusy] = useState(false)
+  const [autoStartRequest, setAutoStartRequest] = useState<{ version: number; mode: 'prepare' | 'automatic' }>({ version: 0, mode: 'prepare' })
+  const [releaseInfo, setReleaseInfo] = useState({ version: '0.9.0', channel: 'stable' })
   const globalSearchRef = useRef<HTMLInputElement>(null)
   const workspaceRef = useRef<HTMLElement>(null)
   const currentScrollKey = useRef('')
   const restoredRepository = useRef('')
+  const promptedRepositories = useRef(new Set<string>())
   const searchRequests = useRef(createLatestRequestGuard()).current
 
   useEffect(() => {
@@ -192,6 +203,13 @@ export default function App() {
   }, [filters, repositoryGeneration])
 
   useEffect(() => { void refreshRepository() }, [refreshRepository])
+  useEffect(() => {
+    if (!repository?.path || !isDesktopRuntime() || promptedRepositories.current.has(repository.path)) return
+    promptedRepositories.current.add(repository.path)
+    void getIngestStartupPrompt(localDateKey()).then((prompt) => {
+      if (prompt.shouldPrompt) setStartupIngestPrompt(prompt)
+    }).catch((error) => setNotice(`启动文献检查读取失败：${String(error)}`))
+  }, [repository?.path])
   useEffect(() => {
     if (!repository || !isDesktopRuntime()) return
     let active = true
@@ -511,7 +529,7 @@ export default function App() {
         </div>
       </section>
       <div className="dashboard-split">
-        <section className="panel"><div className="section-header"><h2>快速入口</h2></div><div className="compile-row"><button className="toolbar-button" onClick={() => activateView('qa')}><Bot size={17} />询问知识库</button><button className="toolbar-button" onClick={() => activateView('comparison')}><GitBranch size={17} />方法对比</button><button className="toolbar-button" onClick={() => activateView('graph')}><Network size={17} />查看图谱</button></div></section>
+        <section className="panel"><div className="section-header"><h2>快速入口</h2></div><div className="compile-row"><button className="toolbar-button" onClick={() => activateView('qa')}><Bot size={17} />询问知识库</button><button className="toolbar-button" onClick={() => activateView('ingest')}><FilePlus2 size={17} />添加文献</button><button className="toolbar-button" onClick={() => activateView('comparison')}><GitBranch size={17} />方法对比</button><button className="toolbar-button" onClick={() => activateView('graph')}><Network size={17} />查看图谱</button></div></section>
         <section className="panel"><div className="section-header"><h2>编译状态</h2><button className="link-button" onClick={() => activateView('compile')}>打开编译中心</button></div><div className="compile-row"><div className="compile-icon"><Archive size={21} /></div><div className="compile-title"><strong>知识库编译流水线</strong><span>任务状态以编译中心记录为准</span></div></div></section>
       </div>
     </>
@@ -540,10 +558,11 @@ export default function App() {
     if (view === 'books') return <CoreBooksView onOpenLink={(id) => void openPage(id)} target={bookTarget} />
     if (view === 'graph') return <GraphView onOpenPage={(id) => void openPage(id)} refreshVersion={graphRefreshVersion} targetNodeId={graphFocusNodeId} />
     if (view === 'comparison') return <ComparisonView candidates={catalog} onOpenPage={(id) => void openPage(id)} />
+    if (view === 'ingest') return <LiteratureIngestView repositoryPath={repository?.path ?? ''} autoStartRequest={autoStartRequest} onChooseRepository={() => void handleChooseRepository()} onCompleted={(message) => { setNotice(message); setRepositoryGeneration((value) => value + 1) }} onOpenCompileCenter={() => activateView('compile')} onOpenPath={(path, reveal) => void openLocalPath(path, reveal)} />
     if (view === 'qa') return <AskView repositoryPath={repository?.path ?? ''} onResearchContextChange={(question) => setResearchRequest(question ? { kind: 'question', text: question, evidenceLimit: 5, methodLimit: 4 } : null)} onOpenPage={(id) => void openPage(id)} onOpenBook={(bookId, chapterId) => { setBookTarget({ bookId, chapterId }); activateView('books') }} onOpenPath={(path) => void openLocalPath(path)} />
     if (view === 'compile') return <CompileCenterView repositoryPath={repository?.path ?? ''} onChooseRepository={() => void handleChooseRepository()} onOpenPath={(path) => void openLocalPath(path)} />
     if (view === 'settings') return renderSettings()
-    if (view === 'help') return <div className="placeholder-view"><div className="placeholder-icon"><CircleHelp size={28} /></div><h1>帮助</h1><p>从左侧选择文献、方法、书籍或知识图谱；在智能问答中提出研究问题并打开证据来源。编译中心用于执行 Lint、Graphify 更新和文献编译任务。</p><button className="refresh-button" onClick={() => activateView('dashboard')}>返回工作台</button></div>
+    if (view === 'help') return <div className="placeholder-view"><div className="placeholder-icon"><CircleHelp size={28} /></div><h1>帮助</h1><p>“文献入库”用于手动添加 PDF、确认自动发现候选，以及运行启动时询问的自动检索；确认添加会执行完整入库，仅下载不会成为正式证据。编译中心用于查看日志、失败原因、生成物和回滚记录。</p><button className="refresh-button" onClick={() => activateView('dashboard')}>返回工作台</button></div>
     return <div className="placeholder-view"><div className="placeholder-icon"><FileText size={28} /></div><h1>页面未加载</h1><p>请重新从文献库打开该页面。</p></div>
   }
 
@@ -607,6 +626,15 @@ export default function App() {
       </div>
 
       <footer className="statusbar"><span><i className="status-dot" />{repository?.indexed ? '已同步' : '等待索引'}</span><span>{repository?.path || '尚未选择本地知识库'}</span><span>页面 {repository?.pageCount ?? catalog.length}</span><span className="status-graph">Graphify 派生图</span></footer>
+      {startupIngestPrompt && <StartupIngestPrompt prompt={startupIngestPrompt} busy={startupPromptBusy} onCancel={() => setStartupIngestPrompt(null)} onSuppressToday={() => {
+        setStartupPromptBusy(true)
+        void suppressIngestPromptToday(localDateKey()).then(() => { setStartupIngestPrompt(null); setNotice('今天不再提醒自动文献检查') }).catch((error) => setNotice(`设置提醒失败：${String(error)}`)).finally(() => setStartupPromptBusy(false))
+      }} onRun={() => {
+        const mode = startupIngestPrompt.mode
+        setStartupIngestPrompt(null)
+        activateView('ingest')
+        setAutoStartRequest((current) => ({ version: current.version + 1, mode }))
+      }} />}
     </div>
   )
 }

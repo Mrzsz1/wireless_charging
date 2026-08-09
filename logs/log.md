@@ -240,6 +240,14 @@
 - 接入固定允许列表任务、SQLite 任务历史、实时 stdout/stderr、取消、重试、仓库隔离、日志脱敏与生成物入口。
 - 验收：`npm run verify:p4`、Rust 16/16、Python 31/31、Wiki 10/10、两书 Recall@5、Clippy、Tauri release 与隐藏启动冒烟全部通过。
 - 详情：`logs/2026-08-02-desktop-p4-compile-center.md`
+
+## [2026-08-09] desktop | 文献入库与两级自动化 0.9.0
+
+- 新增“手动添加 / 待确认 / 自动添加”客户端入口；确认添加执行完整入库，仅下载保持 inbox 候选身份。
+- 启动询问支持本次运行、今天不再提醒、取消；默认自动准备，显式开启后才允许严格合格候选自动正式入库。
+- 新增可信运行清单、PDF 哈希预检、候选稳定 ID/资格原因、SQLite 设置与 session、5 类可审计编译任务。
+- Rust 39/39、前端构建与门禁、strict GUI、NSIS 安装生命周期通过；发布 app/MSI/NSIS 0.9.0。
+- 详情：`logs/2026-08-09-desktop-literature-ingest.md`
 ## [2026-08-02] desktop | P5.3 ????????? 0.7.0
 
 - ?????/??/??/????? `Ctrl+K`??? Wiki ???? upsert/delete/rename?

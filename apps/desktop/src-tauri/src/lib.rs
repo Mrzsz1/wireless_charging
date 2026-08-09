@@ -7,12 +7,14 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
+use std::time::SystemTime;
 use tauri::ipc::Channel;
 use tauri::{AppHandle, Emitter, Manager, State};
 use uuid::Uuid;
 use walkdir::WalkDir;
 
 mod compile_center;
+mod literature_ingest;
 mod qa;
 mod repository_watcher;
 mod research_trail;
@@ -365,6 +367,7 @@ fn db_schema(connection: &Connection) -> Result<(), String> {
         .map_err(|error| format!("创建方法族索引失败：{error}"))?;
     qa::db_schema(connection)?;
     compile_center::db_schema(connection)?;
+    literature_ingest::db_schema(connection)?;
     Ok(())
 }
 
@@ -2480,6 +2483,251 @@ fn compile_repository_context(state: &State<'_, AppState>) -> Result<(PathBuf, P
 }
 
 #[tauri::command]
+fn get_literature_capabilities(
+    state: State<'_, AppState>,
+) -> Result<Vec<literature_ingest::LiteratureCapability>, String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    Ok(literature_ingest::capabilities(root))
+}
+
+#[tauri::command]
+fn get_literature_settings(
+    state: State<'_, AppState>,
+) -> Result<literature_ingest::LiteratureIngestSettings, String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
+    literature_ingest::get_settings(connection, &root.to_string_lossy())
+}
+
+#[tauri::command]
+fn save_literature_settings(
+    settings: literature_ingest::LiteratureIngestSettings,
+    state: State<'_, AppState>,
+) -> Result<literature_ingest::LiteratureIngestSettings, String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
+    literature_ingest::save_settings(connection, &root.to_string_lossy(), &settings)
+}
+
+#[tauri::command]
+fn get_ingest_startup_prompt(
+    local_date: String,
+    state: State<'_, AppState>,
+) -> Result<literature_ingest::StartupPromptState, String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
+    literature_ingest::startup_prompt(connection, &root.to_string_lossy(), &local_date)
+}
+
+#[tauri::command]
+fn suppress_ingest_prompt_today(
+    local_date: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
+    literature_ingest::suppress_today(connection, &root.to_string_lossy(), &local_date)
+}
+
+#[tauri::command]
+fn choose_manual_pdfs(
+    state: State<'_, AppState>,
+) -> Result<Option<literature_ingest::ManualImportSession>, String> {
+    let Some(paths) = FileDialog::new()
+        .set_title("选择要添加到知识库的 PDF")
+        .add_filter("PDF", &["pdf"])
+        .pick_files()
+    else {
+        return Ok(None);
+    };
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
+    literature_ingest::create_manual_session(connection, root, paths).map(Some)
+}
+
+#[tauri::command]
+fn discard_manual_import_session(
+    session_id: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
+    literature_ingest::discard_manual_session(connection, &root.to_string_lossy(), &session_id)
+}
+
+#[tauri::command]
+fn list_literature_candidates(state: State<'_, AppState>) -> Result<serde_json::Value, String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
+    literature_ingest::list_candidates(connection, root)
+}
+
+#[tauri::command]
+fn update_candidate_triage(
+    candidate_ids: Vec<String>,
+    status: String,
+    note: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<u64, String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    literature_ingest::update_triage(root, &candidate_ids, &status, note.as_deref().unwrap_or(""))
+}
+
+#[tauri::command]
+fn start_literature_run(
+    request: literature_ingest::StartLiteratureRunRequest,
+    on_event: Channel<compile_center::CompileStreamEvent>,
+    state: State<'_, AppState>,
+) -> Result<compile_center::CompileRunSummary, String> {
+    let (task_kind, manifest_path) = {
+        let repository = state
+            .repository
+            .lock()
+            .map_err(|_| "知识库状态锁定失败".to_string())?;
+        let root = repository
+            .root
+            .as_ref()
+            .ok_or_else(|| "请先选择知识库目录".to_string())?;
+        let connection = repository
+            .db
+            .as_ref()
+            .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
+        let db_path = connection
+            .path()
+            .map(PathBuf::from)
+            .ok_or_else(|| "任务数据库路径不可用".to_string())?;
+        let destination = db_path.parent().unwrap_or(root).join("literature-runs");
+        let path = literature_ingest::build_run_manifest(connection, root, &request, &destination)?;
+        (
+            literature_ingest::task_kind(&request.mode)?.to_string(),
+            path,
+        )
+    };
+    let compile_request = compile_center::StartCompileRequest {
+        task_kind,
+        input_path: None,
+        dry_run: false,
+        download: request.mode != "manual",
+        force: request.force_duplicates,
+        timeout_seconds: request.timeout_seconds,
+        literature_mode: request.mode.clone(),
+        candidate_ids: request.candidate_ids.clone(),
+        manual_session_id: request.manual_session_id.clone(),
+        run_manifest: Some(manifest_path.to_string_lossy().to_string()),
+    };
+    let result = execute_compile_request(&state, compile_request, on_event, None);
+    if let Ok(repository) = state.repository.lock() {
+        if let (Some(root), Some(connection)) = (repository.root.as_ref(), repository.db.as_ref()) {
+            if let Ok(mut settings) =
+                literature_ingest::get_settings(connection, &root.to_string_lossy())
+            {
+                settings.last_attempt_at = SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap_or_default()
+                    .as_secs()
+                    .to_string();
+                if matches!(
+                    result.as_ref().map(|summary| summary.status.as_str()),
+                    Ok("succeeded" | "failed_partial")
+                ) {
+                    settings.last_success_at = settings.last_attempt_at.clone();
+                }
+                let _ = literature_ingest::save_settings(
+                    connection,
+                    &root.to_string_lossy(),
+                    &settings,
+                );
+            }
+        }
+    }
+    result
+}
+
+#[tauri::command]
 fn get_compile_capabilities(
     state: State<'_, AppState>,
 ) -> Result<Vec<compile_center::CompileCapability>, String> {
@@ -2569,6 +2817,9 @@ fn start_compile_run(
     on_event: Channel<compile_center::CompileStreamEvent>,
     state: State<'_, AppState>,
 ) -> Result<compile_center::CompileRunSummary, String> {
+    if request.task_kind.starts_with("literature_") {
+        return Err("文献入库任务必须通过受控文献入口启动".into());
+    }
     execute_compile_request(&state, request, on_event, None)
 }
 
@@ -2735,6 +2986,16 @@ pub fn run() {
             prepare_research_trail,
             ask_luna,
             cancel_answer,
+            get_literature_capabilities,
+            get_literature_settings,
+            save_literature_settings,
+            get_ingest_startup_prompt,
+            suppress_ingest_prompt_today,
+            choose_manual_pdfs,
+            discard_manual_import_session,
+            list_literature_candidates,
+            update_candidate_triage,
+            start_literature_run,
             get_compile_capabilities,
             list_compile_runs,
             get_compile_run,

@@ -153,6 +153,14 @@ pub struct StartCompileRequest {
     pub force: bool,
     #[serde(default)]
     pub timeout_seconds: Option<u64>,
+    #[serde(default)]
+    pub literature_mode: String,
+    #[serde(default)]
+    pub candidate_ids: Vec<String>,
+    #[serde(default)]
+    pub manual_session_id: String,
+    #[serde(default)]
+    pub run_manifest: Option<String>,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -443,6 +451,56 @@ pub fn capabilities(root: &Path) -> Vec<CompileCapability> {
             true,
         ),
         (
+            "literature_prepare",
+            "Prepare literature candidates",
+            "Discover, deduplicate and download candidates for review",
+            python && tool("literature_ingest.py"),
+            "Requires py and literature_ingest.py",
+            true,
+            true,
+            false,
+        ),
+        (
+            "literature_manual_ingest",
+            "Ingest manual PDFs",
+            "Run a trusted manual PDF batch through the governed pipeline",
+            full_pipeline && tool("literature_ingest.py") && tool("mineru_to_md.py"),
+            "Requires py, codex, graphify, MinerU and literature_ingest.py",
+            true,
+            true,
+            false,
+        ),
+        (
+            "literature_candidate_download",
+            "Download selected candidates",
+            "Download open PDFs without promoting them to the Wiki",
+            python && tool("literature_ingest.py"),
+            "Requires py and literature_ingest.py",
+            true,
+            true,
+            false,
+        ),
+        (
+            "literature_candidate_ingest",
+            "Ingest confirmed candidates",
+            "Download and compile explicitly confirmed candidates",
+            full_pipeline && tool("literature_ingest.py") && tool("mineru_to_md.py"),
+            "Requires py, codex, graphify, MinerU and literature_ingest.py",
+            true,
+            true,
+            false,
+        ),
+        (
+            "literature_auto_ingest",
+            "Automatic governed ingest",
+            "Prepare candidates and automatically ingest only qualified items",
+            full_pipeline && tool("literature_ingest.py") && tool("mineru_to_md.py"),
+            "Requires py, codex, graphify, MinerU and literature_ingest.py",
+            true,
+            true,
+            false,
+        ),
+        (
             "compile_a",
             "Compile A pages",
             "Run the fixed Agent A protocol with Codex",
@@ -613,12 +671,78 @@ fn build_task(
             if request.force { args.push("--force".into()); }
             Ok(TaskSpec { executable: "py".into(), args, label: "Full knowledge pipeline", stage: "pipeline", artifacts: vec![("discovery", "raw/inbox/auto-discovered"), ("canonical", "raw/canonical"), ("wiki", "wiki"), ("logs", "logs"), ("graph", "graphify-out"), ("snapshot", "apps/desktop/public/data/library.json")] })
         }
+        "literature_prepare" | "literature_manual_ingest" | "literature_candidate_download" | "literature_candidate_ingest" | "literature_auto_ingest" => {
+            let manifest = request.run_manifest.as_deref().ok_or_else(|| "literature task requires a trusted run manifest".to_string())?;
+            let manifest = fs::canonicalize(manifest).map_err(|error| format!("literature run manifest invalid: {error}"))?;
+            if manifest.extension().and_then(|value| value.to_str()) != Some("json") {
+                return Err("literature run manifest must be JSON".into());
+            }
+            let payload: serde_json::Value = serde_json::from_slice(&fs::read(&manifest).map_err(|error| error.to_string())?).map_err(|error| error.to_string())?;
+            if payload.get("kind").and_then(|value| value.as_str()) != Some("literature_ingest_run") {
+                return Err("literature run manifest kind is invalid".into());
+            }
+            let label = match request.task_kind.as_str() {
+                "literature_prepare" => "Prepare literature candidates",
+                "literature_manual_ingest" => "Ingest manual PDFs",
+                "literature_candidate_download" => "Download literature candidates",
+                "literature_candidate_ingest" => "Ingest confirmed candidates",
+                _ => "Automatic governed literature ingest",
+            };
+            Ok(TaskSpec {
+                executable: "py".into(),
+                args: vec![
+                    "-3".into(),
+                    "tools/literature_ingest.py".into(),
+                    "--repository".into(),
+                    root.to_string_lossy().into_owned(),
+                    "run".into(),
+                    "--manifest".into(),
+                    manifest.to_string_lossy().into_owned(),
+                ],
+                label,
+                stage: "literature",
+                artifacts: vec![("discovery", "raw/inbox/auto-discovered"), ("manual", "raw/inbox/manual-drop"), ("canonical", "raw/canonical"), ("wiki", "wiki"), ("logs", "logs"), ("graph", "graphify-out"), ("snapshot", "apps/desktop/public/data/library.json")],
+            })
+        }
         _ => Err("task kind is not in the compile allowlist".into()),
     }
 }
 
 /// Return ordered stages for a requested pipeline. `parse` is included only when inputPath resolves.
 pub fn build_pipeline(root: &Path, request: &StartCompileRequest) -> Result<Vec<String>, String> {
+    if request.task_kind.starts_with("literature_") {
+        return Ok(match request.task_kind.as_str() {
+            "literature_prepare" => vec!["discover".into()],
+            "literature_candidate_download" => vec!["download".into()],
+            "literature_manual_ingest" => vec![
+                "stage".into(),
+                "parse".into(),
+                "compile_a".into(),
+                "lint".into(),
+                "graphify_update".into(),
+                "rebuild_snapshot".into(),
+            ],
+            "literature_candidate_ingest" => vec![
+                "download".into(),
+                "parse".into(),
+                "compile_a".into(),
+                "lint".into(),
+                "graphify_update".into(),
+                "rebuild_snapshot".into(),
+            ],
+            "literature_auto_ingest" => vec![
+                "discover".into(),
+                "qualify".into(),
+                "download".into(),
+                "parse".into(),
+                "compile_a".into(),
+                "lint".into(),
+                "graphify_update".into(),
+                "rebuild_snapshot".into(),
+            ],
+            _ => return Err("unknown literature task kind".into()),
+        });
+    }
     if request.task_kind != "full_pipeline" {
         return Ok(vec![request.task_kind.clone()]);
     }
@@ -1128,8 +1252,14 @@ pub fn execute_run(
     } else {
         1
     };
+    let mut literature_result: Option<serde_json::Value> = None;
     let (final_status, exit_code, reason) = loop {
         while let Ok((kind, line)) = receiver.try_recv() {
+            if kind == "stdout" {
+                if let Some(payload) = line.strip_prefix("LITERATURE_RESULT ") {
+                    literature_result = serde_json::from_str(payload).ok();
+                }
+            }
             emit_process_line(
                 &connection,
                 &channel,
@@ -1169,6 +1299,11 @@ pub fn execute_run(
         match child.try_wait() {
             Ok(Some(status)) => {
                 while let Ok((kind, line)) = receiver.recv_timeout(Duration::from_millis(20)) {
+                    if kind == "stdout" {
+                        if let Some(payload) = line.strip_prefix("LITERATURE_RESULT ") {
+                            literature_result = serde_json::from_str(payload).ok();
+                        }
+                    }
                     emit_process_line(
                         &connection,
                         &channel,
@@ -1184,6 +1319,13 @@ pub fn execute_run(
                 if status.success() {
                     break ("succeeded", status.code(), String::new());
                 }
+                if request.task_kind.starts_with("literature_") && status.code() == Some(3) {
+                    break (
+                        "failed_partial",
+                        status.code(),
+                        "some literature items failed; successful items were retained".to_string(),
+                    );
+                }
                 break (
                     "failed",
                     status.code(),
@@ -1194,8 +1336,8 @@ pub fn execute_run(
             Err(error) => break ("failed", None, format!("process status failed: {error}")),
         }
     };
-    connection.execute("UPDATE compile_runs SET status=?2,finished_at=?3,exit_code=?4,failure_reason=?5,result_json=?6 WHERE id=?1",params![run_id,final_status,now(),exit_code,reason,serde_json::json!({"eventCount":sequence}).to_string()]).map_err(|e|e.to_string())?;
-    if final_status == "succeeded" {
+    connection.execute("UPDATE compile_runs SET status=?2,finished_at=?3,exit_code=?4,failure_reason=?5,result_json=?6 WHERE id=?1",params![run_id,final_status,now(),exit_code,reason,serde_json::json!({"eventCount":sequence,"literature":literature_result}).to_string()]).map_err(|e|e.to_string())?;
+    if matches!(final_status, "succeeded" | "failed_partial") {
         for (kind, path, before) in &artifact_scopes {
             let after = snapshot_scope(root, path, None)?;
             let mut paths = before
@@ -1238,9 +1380,17 @@ pub fn execute_run(
             &channel,
             &run_id,
             &mut sequence,
-            "completed",
+            if final_status == "succeeded" {
+                "completed"
+            } else {
+                "failed"
+            },
             spec.stage,
-            "Task completed",
+            if final_status == "succeeded" {
+                "Task completed"
+            } else {
+                "Task completed with item failures; successful items were retained"
+            },
         );
     } else if final_status == "cancelled" {
         emit_event(
@@ -1646,6 +1796,10 @@ mod tests {
             download: false,
             force: false,
             timeout_seconds: None,
+            literature_mode: String::new(),
+            candidate_ids: Vec::new(),
+            manual_session_id: String::new(),
+            run_manifest: None,
         }
     }
 

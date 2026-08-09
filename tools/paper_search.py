@@ -111,6 +111,9 @@ class Paper:
     matched_queries: list[str] = field(default_factory=list)
     score: float = 0.0
     score_reasons: list[str] = field(default_factory=list)
+    candidate_id: str = ""
+    title_matches: list[str] = field(default_factory=list)
+    abstract_matches: list[str] = field(default_factory=list)
     local_pdf: str = ""
     acquisition_method: str = "auto_discovery"
     discovered_via: list[str] = field(default_factory=list)
@@ -723,6 +726,8 @@ def rank_papers(papers: Iterable[Paper], queries: Sequence[SearchQuery]) -> list
         abstract = paper.abstract.casefold()
         title_hits = sorted(term for term in terms if term in title)
         abstract_hits = sorted(term for term in terms if term in abstract and term not in title_hits)
+        paper.title_matches = title_hits
+        paper.abstract_matches = abstract_hits
         score = min(len(title_hits), 8) * 3.0 + min(len(abstract_hits), 8) * 0.75
         reasons: list[str] = []
         if title_hits:
@@ -817,6 +822,13 @@ def run_search(
 
 def paper_identity(paper: Paper) -> str:
     return paper.doi or paper.arxiv_id or normalize_title(paper.title) or "paper"
+
+
+def candidate_id(paper: Paper) -> str:
+    """Return a stable, non-secret identifier shared by discovery runs."""
+
+    identity = paper_identity(paper).casefold().strip()
+    return hashlib.sha256(identity.encode("utf-8")).hexdigest()[:20]
 
 
 def previously_seen_identities(output_root: Path) -> set[str]:
@@ -984,6 +996,7 @@ def save_run(
     acquired_at = utc_now()
     discovery_run = display_path(run_dir)
     for paper in papers:
+        paper.candidate_id = candidate_id(paper)
         paper.acquisition_method = "auto_discovery"
         paper.discovered_via = list(paper.providers)
         paper.discovery_run = discovery_run

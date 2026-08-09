@@ -14,7 +14,7 @@ export type IndexStats = {
 }
 
 export type CompileCapability = {
-  taskKind: 'lint' | 'graphify_update' | 'discover' | 'parse' | 'compile_a' | 'full_pipeline'
+  taskKind: 'lint' | 'graphify_update' | 'discover' | 'parse' | 'compile_a' | 'full_pipeline' | 'literature_prepare' | 'literature_manual_ingest' | 'literature_candidate_download' | 'literature_candidate_ingest' | 'literature_auto_ingest'
   label: string
   description: string
   available: boolean
@@ -30,6 +30,105 @@ export type StartCompileRequest = {
   dryRun: boolean
   download: boolean
   force: boolean
+  timeoutSeconds?: number
+}
+
+export type LiteratureIngestMode = 'prepare' | 'automatic' | 'manual' | 'download' | 'candidate'
+
+export type LiteratureIngestSettings = {
+  startupPromptEnabled: boolean
+  autoPromoteEnabled: boolean
+  minScore: number
+  maxAutoIngest: number
+  providers: string[]
+  sinceYear?: number | null
+  suppressedPromptDate: string
+  lastAttemptAt: string
+  lastSuccessAt: string
+}
+
+export type StartupPromptState = {
+  shouldPrompt: boolean
+  mode: 'prepare' | 'automatic'
+  suppressedToday: boolean
+  settings: LiteratureIngestSettings
+}
+
+export type DuplicateMatch = {
+  kind: string
+  value: string
+  existingId: string
+  existingPath: string
+  title: string
+}
+
+export type ManualFilePreflight = {
+  id: string
+  path: string
+  name: string
+  size: number
+  mtimeNs: number
+  sha256: string
+  valid: boolean
+  selected: boolean
+  errors: string[]
+  duplicateMatches: DuplicateMatch[]
+}
+
+export type ManualImportSession = {
+  id: string
+  files: ManualFilePreflight[]
+  createdAt: string
+}
+
+export type LiteratureCapability = {
+  id: 'discovery' | 'download' | 'parse' | 'compile' | 'graphify'
+  available: boolean
+  reason: string
+}
+
+export type QualificationReason = {
+  code: string
+  passed: boolean
+  message: string
+}
+
+export type LiteratureCandidate = {
+  candidateId: string
+  title: string
+  authors: string[]
+  year?: number | string
+  abstract: string
+  venue: string
+  score: number
+  doi: string
+  arxivId: string
+  pdfUrl: string
+  sourceUrl: string
+  provider: string
+  triageStatus: 'pending' | 'selected' | 'rejected' | 'promoted'
+  localPdf: string
+  manualNote: string
+  titleMatches: string[]
+  abstractMatches: string[]
+  matchedQueries: string[]
+  manifestPath: string
+  discoveryRuns: string[]
+  duplicateMatches: DuplicateMatch[]
+  qualification: {
+    eligible: boolean
+    score: number
+    reasons: QualificationReason[]
+    duplicates: DuplicateMatch[]
+  }
+}
+
+export type StartLiteratureRunRequest = {
+  mode: LiteratureIngestMode
+  candidateIds?: string[]
+  manualSessionId?: string
+  selectedFileIds?: string[]
+  forceDuplicates?: boolean
   timeoutSeconds?: number
 }
 

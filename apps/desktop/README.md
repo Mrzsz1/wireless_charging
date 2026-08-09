@@ -1,4 +1,4 @@
-# Wireless Charging Research Workbench 0.8.0
+# Wireless Charging Research Workbench 0.9.0
 
 Windows 本地科研工作台：以 Wiki 正文为真相，使用 SQLite FTS5、核心专著章节索引、Graphify 和 Luna 完成阅读、检索、问答与受控编译。
 
@@ -27,6 +27,7 @@ cd apps/desktop
 npm run test:p1
 npm run test:p2
 npm run test:research-trail
+npm run test:ingest
 npm run test:installer-lifecycle
 npm run build
 npm run verify
@@ -43,6 +44,18 @@ py -3 tools/wiki_lint.py --strict-graphify
 
 `test:p2` 覆盖全局搜索最新请求守卫、旧请求失败和清空查询；`test:research-trail` 覆盖固定证据损坏恢复、仓库/上下文隔离与自动排名去重；Rust 测试覆盖专著片段、研究脉络混合检索、路径边界、回滚补偿和 watcher 批次重试。
 
+## 文献入库
+
+左侧“文献入库”包含三个入口：
+
+- **手动添加**：选择一个或多个 PDF，先查看格式、大小、SHA-256 与重复预检；“确认添加并完整入库”会继续执行 MinerU、A 编译、Lint、Graphify 和本地快照更新。
+- **待确认**：查看自动发现清单，可搜索、筛选、排序、写备注、稍后处理、忽略、仅下载或确认添加。“仅下载”不会把论文变成正式 Wiki 证据。
+- **自动添加**：默认只检索并准备候选；显式开启“允许自动完整入库”后，才会处理满足全部资格规则的候选，默认阈值 8、单次上限 3。
+
+知识库打开后可显示启动询问，按钮为“本次运行 / 今天不再提醒 / 取消”。“今天不再提醒”只影响当前本地自然日；“立即检索”按钮始终保留。客户端不安装 Windows 服务或计划任务。
+
+正式入库依赖 Python、MinerU、Codex CLI 与 Graphify；缺失能力会在“自动添加”的依赖检查中显示。候选发现和仅下载可在后续编译能力缺失时独立使用。任务日志、退出码、失败原因与生成物统一在“编译中心”查看。
+
 ## 上下文研究脉络
 
 右侧“研究脉络”跟随当前 Wiki 页面、已提交的研究问题或文献库搜索词切换。证据链融合页面出链/反链、Wiki FTS5、两本核心书籍与 Graphify 一跳关系；每项显示关系、归一化分数与检索理由，“相关方法”只返回 `type: method` 页面。Graphify 或书籍索引缺失时面板显示降级通道，不用目录前几项伪装结果。
@@ -53,7 +66,7 @@ py -3 tools/wiki_lint.py --strict-graphify
 
 0.7.2 起，窗口位置与尺寸按物理像素保存和恢复，并在启动时与当前显示器工作区求交。移除副屏、修改分辨率/DPI 或任务栏工作区后，完全位于屏幕外的旧窗口会回到主显示器中央；合法的负坐标副屏位置仍会保留。最小化状态不会覆盖最后一个正常窗口矩形，启动恢复结束后会执行取消最小化、显示与聚焦。
 
-若旧版本只在任务栏显示缩略图，直接安装并启动 0.8.0 即会迁移 `desktop.window-state.v2`；无需手工清理本地存储。
+若旧版本只在任务栏显示缩略图，直接安装并启动 0.9.0 即会迁移 `desktop.window-state.v2`；无需手工清理本地存储。
 
 ## GUI E2E
 
@@ -95,4 +108,6 @@ MSI、NSIS 与 release 可执行文件位于 `src-tauri/target/release/bundle/`�
 - **回滚失败**：在编译中心查看 `failed`/`failed_partial`、失败事件和 result JSON；不要手动删除 staging manifest。
 - **章节无法打开**：检查 `raw/canonical/<book-id>/chapter-index.json` 的 `path` 是否为仓库内相对路径，且目标 Markdown 可读。
 - **GUI E2E 缺依赖**：运行 `npm run test:e2e-config`，再安装 `tauri-driver` 和匹配的 `msedgedriver.exe`。
+- **文献发现失败**：在“自动添加”检查检索来源和依赖；联网或来源 Key 缺失不会改变已有候选。详细错误在编译中心对应 `literature_*` 任务中查看。
+- **手动 PDF 被排除**：查看预检中的格式、200MB 上限和重复路径；只有显式勾选重复覆盖后才能重新处理重复 PDF。
 - **窗口只在任务栏**：确认运行的是 0.7.2 或更高版本；严格 GUI E2E 会在导航前断言窗口与当前显示器工作区存在交集。

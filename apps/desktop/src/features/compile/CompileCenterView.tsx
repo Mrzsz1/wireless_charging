@@ -14,7 +14,19 @@ const statusLabels: Record<string, string> = {
   queued: '等待中', running: '运行中', succeeded: '已完成', failed: '失败', failed_partial: '部分失败（已回滚部分）', cancelled: '已取消', interrupted: '已中断', rolled_back: '已回滚', paused: '已暂停', pause_requested: '等待暂停', resume_requested: '等待继续', cancel_requested: '等待取消', timed_out: '已超时',
 }
 
-const taskIcons = { lint: ShieldCheck, graphify_update: Network, discover: CloudDownload, parse: FileSearch, compile_a: Code2, full_pipeline: Workflow }
+const taskIcons: Partial<Record<CompileCapability['taskKind'], typeof Workflow>> = {
+  lint: ShieldCheck,
+  graphify_update: Network,
+  discover: CloudDownload,
+  parse: FileSearch,
+  compile_a: Code2,
+  full_pipeline: Workflow,
+  literature_prepare: FileSearch,
+  literature_manual_ingest: FileText,
+  literature_candidate_download: CloudDownload,
+  literature_candidate_ingest: FileText,
+  literature_auto_ingest: Workflow,
+}
 
 function formatTime(value: string) {
   if (!value) return '—'
@@ -122,7 +134,7 @@ export function CompileCenterView({ repositoryPath, onChooseRepository, onOpenPa
       <aside className="compile-task-catalog">
         <div className="compile-column-title"><span>任务目录</span><small>{capabilities.filter((item) => item.available).length}/{capabilities.length} 可用</small></div>
         {capabilities.map((capability) => {
-          const Icon = taskIcons[capability.taskKind]
+          const Icon = taskIcons[capability.taskKind] ?? Workflow
           return <button key={capability.taskKind} data-testid={`compile-task-${capability.taskKind}`} className={`compile-task-card ${selectedKind === capability.taskKind ? 'selected' : ''}`} onClick={() => setSelectedKind(capability.taskKind)}>
             <Icon size={17} /><span><strong>{capability.label}</strong><small>{capability.description}</small><em className={capability.available ? 'available' : 'unavailable'}>{capability.reason}</em></span>
           </button>

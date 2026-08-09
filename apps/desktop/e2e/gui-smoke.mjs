@@ -126,6 +126,12 @@ try {
   await verifyWindowVisible()
   await verifyViewport(1366, 768)
   await requireElement('[data-testid="sidebar"]')
+  await browser.pause(600)
+  const startupPrompt = await browser.$('[data-testid="ingest-startup-prompt"]')
+  if (await startupPrompt.isExisting()) {
+    await (await requireElement('[data-testid="ingest-prompt-cancel"]')).click()
+    console.log('PASS ingest startup prompt cancel')
+  }
   const contextToggle = await requireElement('[data-testid="context-toggle"]')
   let researchTrail = await browser.$('[data-testid="research-trail-panel"]')
   if (!await researchTrail.isExisting()) {
@@ -150,6 +156,12 @@ try {
   const trailCard = await browser.$('.trail-card-main')
   await trailCard.waitForExist({ timeout: 15000, timeoutMsg: 'Research trail search returned no auditable item' })
   console.log('PASS contextual research trail search')
+  await (await requireElement('[data-testid="nav-ingest"]')).click()
+  await requireElement('[data-testid="literature-ingest"]')
+  await requireElement('[data-testid="ingest-tab-manual"]')
+  await (await requireElement('[data-testid="ingest-tab-candidates"]')).click()
+  await (await requireElement('[data-testid="ingest-tab-automatic"]')).click()
+  console.log('PASS literature ingest navigation and tabs')
   await (await requireElement('[data-testid="nav-books"]')).click()
   await requireElement('[data-testid="books-view"]')
   await requireElement('[data-testid="book-selector"]')
