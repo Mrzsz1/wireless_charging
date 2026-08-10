@@ -676,3 +676,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 21: Windows 客户端 0.12.0 发布安装
+
+**Date**: 2026-08-11
+**Task**: Windows 客户端 0.12.0 发布安装
+**Branch**: `master`
+
+### Summary
+
+同步版本、构建 MSI/NSIS、静默安装 0.12.0，并验证注册表、可执行文件版本和响应中的主窗口。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `2b213db` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

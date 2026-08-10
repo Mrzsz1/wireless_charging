@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 20
+- **Total Sessions**: 21
 - **Last Active**: 2026-08-11
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~678 | Active |
+| `journal-1.md` | ~711 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 21 | 2026-08-11 | Windows 客户端 0.12.0 发布安装 | `2b213db` | `master` |
 | 20 | 2026-08-11 | LLM Wiki P0/P1 原文检索与知识层深化 | `877e262` | `master` |
 | 19 | 2026-08-11 | 标题栏研究脉络与 Codex CLI 检测修复 | `cf3c94f` | `master` |
 | 18 | 2026-08-11 | 沉浸式通知与右栏折叠控件 | `a309e7e` | `master` |
