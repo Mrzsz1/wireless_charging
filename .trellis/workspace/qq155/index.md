@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 18
+- **Total Sessions**: 19
 - **Last Active**: 2026-08-11
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~612 | Active |
+| `journal-1.md` | ~645 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 19 | 2026-08-11 | 标题栏研究脉络与 Codex CLI 检测修复 | `cf3c94f` | `master` |
 | 18 | 2026-08-11 | 沉浸式通知与右栏折叠控件 | `a309e7e` | `master` |
 | 17 | 2026-08-10 | 单视图导航与问答右栏布局修复 | `47d0aff` | `master` |
 | 16 | 2026-08-10 | 顶部导航与上下文帮助重设计 | `ede7b11` | `master` |

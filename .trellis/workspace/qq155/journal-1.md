@@ -610,3 +610,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 19: 标题栏研究脉络与 Codex CLI 检测修复
+
+**Date**: 2026-08-11
+**Task**: 标题栏研究脉络与 Codex CLI 检测修复
+**Branch**: `master`
+
+### Summary
+
+将研究脉络唯一折叠开关移动到原生窗口按钮前，删除右侧残留轨道；新增 Windows Codex CLI 多路径发现、注册表 PATH 与桌面内置二进制检测，完成单元、静态、严格 GUI E2E、release 构建、NSIS 安装和启动。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `cf3c94f` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
