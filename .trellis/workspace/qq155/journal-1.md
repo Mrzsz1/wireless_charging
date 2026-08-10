@@ -643,3 +643,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 20: LLM Wiki P0/P1 原文检索与知识层深化
+
+**Date**: 2026-08-11
+**Task**: LLM Wiki P0/P1 原文检索与知识层深化
+**Branch**: `master`
+
+### Summary
+
+统一 23/20/7 水位，增加 canonical 论文章节 FTS5 召回，新增系统模型/目标/仿真层，深化五组 source-method，更新 Graphify 并通过质量门禁。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `877e262` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
