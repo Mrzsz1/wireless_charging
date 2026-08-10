@@ -26,6 +26,14 @@ test('Codex status DTO and settings expose no authentication secret', () => {
   assert.doesNotMatch(status, /token|cookie|apiKey|credentialPath/)
 })
 
+test('Windows Codex discovery covers desktop binaries, persistent PATH and script shims', () => {
+  const rust = readFileSync(new URL('../src-tauri/src/codex_subscription.rs', import.meta.url), 'utf8')
+  for (const contract of ['CODEX_CLI_PATH', 'OpenAI', 'Codex', 'read_registry_path', 'codex.exe', 'codex.cmd', 'codex.bat']) {
+    assert.match(rust, new RegExp(contract.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+  }
+  assert.match(rust, /run_fixed_with\(&executable, &\["--version"\]/)
+})
+
 test('App routes the AskView settings action to the global settings section', () => {
   const app = read('../src/App.tsx')
   assert.match(app, /onOpenSettings=\{\(\) => openSettings\('qa-engine-settings'\)\}/)

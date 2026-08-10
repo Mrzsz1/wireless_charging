@@ -18,6 +18,8 @@ import {
   LibraryBig,
   Menu,
   Network,
+  PanelRightClose,
+  PanelRightOpen,
   Plus,
   RefreshCw,
   Search,
@@ -591,6 +593,16 @@ export default function App() {
           <button data-testid="help" className={view === 'help' ? 'active' : ''} aria-current={view === 'help' ? 'page' : undefined} onClick={() => activateView('help')}>帮助</button>
         </nav>
         <div className="titlebar-drag-region" data-tauri-drag-region />
+        <button
+          className={`titlebar-context-toggle ${contextOpen ? 'active' : ''}`}
+          data-testid="trail-toggle"
+          aria-label={contextOpen ? '收起研究脉络' : '展开研究脉络'}
+          aria-pressed={contextOpen}
+          title={contextOpen ? '收起研究脉络' : '展开研究脉络'}
+          onClick={() => setContextOpen((value) => !value)}
+        >
+          {contextOpen ? <PanelRightClose size={16} /> : <PanelRightOpen size={16} />}
+        </button>
         <div className="window-actions">
           <button aria-label="最小化" onClick={() => void getCurrentWindow().minimize()}>−</button>
           <button aria-label="最大化或还原" onClick={() => void getCurrentWindow().toggleMaximize()}>□</button>
@@ -649,7 +661,7 @@ export default function App() {
           {renderContent()}
         </main>
 
-        <ResearchTrailPanel open={contextOpen} tab={contextTab} request={researchRequest} repositoryPath={repository?.path ?? ''} refreshVersion={repositoryGeneration + graphRefreshVersion} onClose={() => setContextOpen(false)} onOpen={() => setContextOpen(true)} onTabChange={setContextTab} onOpenPage={(id) => void openPage(id)} onOpenBook={(bookId, chapterId) => { setBookTarget({ bookId, chapterId }); activateView('books') }} onOpenPath={(path) => void openLocalPath(path)} onOpenGraph={(nodeId) => { setGraphFocusNodeId(nodeId ?? ''); activateView('graph') }} onShowMethods={(value) => { activateView('methods'); if (value.trim()) handleLibrarySearch(value) }} />
+        <ResearchTrailPanel open={contextOpen} tab={contextTab} request={researchRequest} repositoryPath={repository?.path ?? ''} refreshVersion={repositoryGeneration + graphRefreshVersion} onTabChange={setContextTab} onOpenPage={(id) => void openPage(id)} onOpenBook={(bookId, chapterId) => { setBookTarget({ bookId, chapterId }); activateView('books') }} onOpenPath={(path) => void openLocalPath(path)} onOpenGraph={(nodeId) => { setGraphFocusNodeId(nodeId ?? ''); activateView('graph') }} onShowMethods={(value) => { activateView('methods'); if (value.trim()) handleLibrarySearch(value) }} />
       </div>
 
       <footer className="statusbar"><span><i className="status-dot" />{repository?.indexed ? '已同步' : '等待索引'}</span><span>{repository?.path || '尚未选择本地知识库'}</span><span>页面 {repository?.pageCount ?? catalog.length}</span><span className="status-graph">Graphify 派生图</span></footer>

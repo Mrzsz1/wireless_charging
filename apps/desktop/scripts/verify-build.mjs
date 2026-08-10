@@ -21,6 +21,7 @@ const stylesSource = readFileSync(new URL('../src/styles.css', import.meta.url),
 const rustSource = readFileSync(new URL('../src-tauri/src/lib.rs', import.meta.url), 'utf8')
 const qaRustSource = readFileSync(new URL('../src-tauri/src/qa.rs', import.meta.url), 'utf8')
 const researchTrailRustSource = readFileSync(new URL('../src-tauri/src/research_trail.rs', import.meta.url), 'utf8')
+const codexSubscriptionRustSource = readFileSync(new URL('../src-tauri/src/codex_subscription.rs', import.meta.url), 'utf8')
 const compileRustSource = readFileSync(new URL('../src-tauri/src/compile_center.rs', import.meta.url), 'utf8')
 const capabilities = JSON.parse(readFileSync(new URL('../src-tauri/capabilities/default.json', import.meta.url), 'utf8'))
 const data = JSON.parse(readFileSync(new URL('../public/data/library.json', import.meta.url), 'utf8'))
@@ -50,7 +51,8 @@ const checks = [
   ['immersive toast styling', stylesSource.includes('position: fixed') && stylesSource.includes('@keyframes app-toast-exit') && stylesSource.includes('.app-toast.context-open')],
   ['single-view navigation', !appSource.includes('<TabBar') && !existsSync(new URL('../src/components/TabBar.tsx', import.meta.url))],
   ['Chinese-only page headings', ![appSource, pageSource, booksSource, graphSource, comparisonSource, qaViewSource, compileViewSource, ingestViewSource, startupPromptSource, libraryViewSource, settingsViewSource].some((value) => value.includes('className="eyebrow"')) && !stylesSource.includes('.eyebrow')],
-  ['collapsed research trail rail', researchTrailSource.includes('context-collapsed-rail') && stylesSource.includes('.context-collapsed-rail') && stylesSource.includes('align-items: center') && stylesSource.includes('.main-workspace.qa-active.context-visible')],
+  ['titlebar research trail control', appSource.includes('data-testid="trail-toggle"') && appSource.indexOf('data-testid="trail-toggle"') < appSource.indexOf('className="window-actions"') && researchTrailSource.includes('if (!props.open) return null') && !researchTrailSource.includes('trail-collapse') && !stylesSource.includes('.context-collapsed-rail') && stylesSource.includes('.main-workspace.qa-active.context-visible')],
+  ['Windows Codex CLI discovery', ['CODEX_CLI_PATH', 'append_codex_desktop_binaries', 'read_registry_path', 'codex.cmd'].every((name) => codexSubscriptionRustSource.includes(name))],
   ['stage 2 page commands', ['listPages', 'getPage', 'resolveWikilink', 'getBacklinks', 'openLocalPath'].every((name) => serviceSource.includes(name))],
   ['stage 2 page reader', pageSource.includes('MarkdownReader') && pageSource.includes('\u53cd\u5411\u94fe\u63a5')],
   ['markdown structures', ['markdown-table', 'markdown-code', 'markdown-math', 'markdown-wikilink'].every((name) => markdownSource.includes(name))],

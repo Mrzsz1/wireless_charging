@@ -1,9 +1,12 @@
 use crate::process_support::{configure_background_command, terminate_process_tree};
 use serde::Serialize;
 use serde_json::Value;
+use std::collections::HashSet;
 use std::env;
+use std::ffi::{OsStr, OsString};
 use std::fs;
 use std::io::{BufRead, BufReader, Read, Write};
+use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc;
@@ -38,10 +41,195 @@ impl CodexSubscriptionStatus {
     }
 }
 
+fn explicit_executable() -> Option<String> {
+    ["CODEX_CLI_PATH", "WIRELESS_CODEX_BIN"]
+        .into_iter()
+        .find_map(|name| {
+            env::var(name)
+                .ok()
+                .map(|value| value.trim().to_string())
+                .filter(|value| !value.is_empty())
+        })
+}
+
+fn candidate_key(path: &Path) -> String {
+    let value = path.to_string_lossy().to_string();
+    if cfg!(windows) {
+        value.to_ascii_lowercase()
+    } else {
+        value
+    }
+}
+
+fn push_existing_candidate(
+    candidates: &mut Vec<PathBuf>,
+    seen: &mut HashSet<String>,
+    path: PathBuf,
+) {
+    if path.is_file() && seen.insert(candidate_key(&path)) {
+        candidates.push(path);
+    }
+}
+
+#[cfg(windows)]
+fn append_windows_path_candidates(
+    candidates: &mut Vec<PathBuf>,
+    seen: &mut HashSet<String>,
+    path_value: &OsStr,
+    native_only: bool,
+) {
+    let names: &[&str] = if native_only {
+        &["codex.exe"]
+    } else {
+        &["codex.cmd", "codex.bat", "codex"]
+    };
+    for directory in env::split_paths(path_value) {
+        for name in names {
+            push_existing_candidate(candidates, seen, directory.join(name));
+        }
+    }
+}
+
+#[cfg(windows)]
+fn read_registry_path(key: &str) -> Option<OsString> {
+    let mut command = Command::new("reg.exe");
+    configure_background_command(&mut command);
+    let output = command
+        .args(["query", key, "/v", "Path"])
+        .stdin(Stdio::null())
+        .output()
+        .ok()?;
+    if !output.status.success() {
+        return None;
+    }
+    let text = String::from_utf8_lossy(&output.stdout);
+    text.lines().find_map(|line| {
+        let marker = line.find("REG_")?;
+        let after_type = &line[marker..];
+        let value_start = after_type.find(char::is_whitespace)?;
+        let value = after_type[value_start..].trim();
+        (!value.is_empty()).then(|| OsString::from(value))
+    })
+}
+
+#[cfg(windows)]
+fn append_codex_desktop_binaries(
+    candidates: &mut Vec<PathBuf>,
+    seen: &mut HashSet<String>,
+    local_app_data: &Path,
+) {
+    let bin_root = local_app_data.join("OpenAI").join("Codex").join("bin");
+    let mut discovered = fs::read_dir(&bin_root)
+        .into_iter()
+        .flatten()
+        .filter_map(Result::ok)
+        .map(|entry| entry.path().join("codex.exe"))
+        .filter(|path| path.is_file())
+        .collect::<Vec<_>>();
+    discovered.sort_by_key(|path| {
+        fs::metadata(path)
+            .and_then(|metadata| metadata.modified())
+            .ok()
+    });
+    for path in discovered.into_iter().rev() {
+        push_existing_candidate(candidates, seen, path);
+    }
+}
+
+fn discovered_executables() -> Vec<PathBuf> {
+    let mut candidates = Vec::new();
+    let mut seen = HashSet::new();
+
+    #[cfg(windows)]
+    {
+        if let Some(local_app_data) = env::var_os("LOCALAPPDATA") {
+            let local_app_data = PathBuf::from(local_app_data);
+            append_codex_desktop_binaries(&mut candidates, &mut seen, &local_app_data);
+            push_existing_candidate(
+                &mut candidates,
+                &mut seen,
+                local_app_data
+                    .join("Microsoft")
+                    .join("WinGet")
+                    .join("Links")
+                    .join("codex.exe"),
+            );
+            push_existing_candidate(
+                &mut candidates,
+                &mut seen,
+                local_app_data
+                    .join("Microsoft")
+                    .join("WindowsApps")
+                    .join("codex.exe"),
+            );
+        }
+
+        let process_path = env::var_os("PATH");
+        if let Some(path) = process_path.as_deref() {
+            append_windows_path_candidates(&mut candidates, &mut seen, path, true);
+        }
+        let registry_paths = [
+            read_registry_path(r"HKCU\Environment"),
+            read_registry_path(
+                r"HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment",
+            ),
+        ];
+        for path in registry_paths.iter().flatten() {
+            append_windows_path_candidates(&mut candidates, &mut seen, path, true);
+        }
+        if let Some(path) = process_path.as_deref() {
+            append_windows_path_candidates(&mut candidates, &mut seen, path, false);
+        }
+        for path in registry_paths.iter().flatten() {
+            append_windows_path_candidates(&mut candidates, &mut seen, path, false);
+        }
+
+        if let Some(app_data) = env::var_os("APPDATA") {
+            let app_data = PathBuf::from(app_data);
+            for name in ["codex.cmd", "codex.exe", "codex.bat"] {
+                push_existing_candidate(
+                    &mut candidates,
+                    &mut seen,
+                    app_data.join("npm").join(name),
+                );
+            }
+        }
+        if let Some(profile) = env::var_os("USERPROFILE") {
+            let profile = PathBuf::from(profile);
+            for path in [
+                profile.join(".local").join("bin").join("codex.exe"),
+                profile.join(".cargo").join("bin").join("codex.exe"),
+                profile.join("scoop").join("shims").join("codex.exe"),
+                profile.join("scoop").join("shims").join("codex.cmd"),
+            ] {
+                push_existing_candidate(&mut candidates, &mut seen, path);
+            }
+        }
+    }
+
+    #[cfg(not(windows))]
+    if let Some(path) = env::var_os("PATH") {
+        for directory in env::split_paths(&path) {
+            push_existing_candidate(&mut candidates, &mut seen, directory.join("codex"));
+        }
+    }
+
+    candidates
+}
+
 fn executable() -> String {
-    env::var("WIRELESS_CODEX_BIN")
-        .ok()
-        .filter(|value| !value.trim().is_empty())
+    if let Some(explicit) = explicit_executable() {
+        return explicit;
+    }
+    discovered_executables()
+        .into_iter()
+        .find_map(|candidate| {
+            let executable = candidate.to_string_lossy().into_owned();
+            match run_fixed_with(&executable, &["--version"], STATUS_TIMEOUT) {
+                Ok((true, stdout, _)) if safe_version(&stdout) != "Codex CLI" => Some(executable),
+                _ => None,
+            }
+        })
         .unwrap_or_else(|| "codex".to_string())
 }
 
@@ -500,6 +688,34 @@ mod tests {
         assert_eq!(safe_version("token=secret"), "Codex CLI");
     }
 
+    #[cfg(windows)]
+    #[test]
+    fn windows_discovery_finds_desktop_binary_and_custom_path_shim_without_duplicates() {
+        let fixture = tempfile::tempdir().unwrap();
+        let local_app_data = fixture.path().join("Local App Data");
+        let desktop_binary = local_app_data
+            .join("OpenAI")
+            .join("Codex")
+            .join("bin")
+            .join("release-id")
+            .join("codex.exe");
+        fs::create_dir_all(desktop_binary.parent().unwrap()).unwrap();
+        fs::write(&desktop_binary, b"fixture").unwrap();
+
+        let node_dir = fixture.path().join("custom node");
+        fs::create_dir_all(&node_dir).unwrap();
+        let node_shim = node_dir.join("codex.cmd");
+        fs::write(&node_shim, b"@echo off\r\n").unwrap();
+        let path_value = env::join_paths([node_dir.clone(), node_dir]).unwrap();
+
+        let mut candidates = Vec::new();
+        let mut seen = HashSet::new();
+        append_codex_desktop_binaries(&mut candidates, &mut seen, &local_app_data);
+        append_windows_path_candidates(&mut candidates, &mut seen, path_value.as_os_str(), false);
+
+        assert_eq!(candidates, vec![desktop_binary, node_shim]);
+    }
+
     #[test]
     fn exec_arguments_isolate_the_workspace_and_keep_the_prompt_on_stdin() {
         let workspace = std::path::Path::new("C:/fixture/codex-workspace");
@@ -530,7 +746,7 @@ mod tests {
              exit /b 3"
         );
         let (_status_workspace, status_fixture) =
-            write_windows_fixture("fake-codex-status", &status_body);
+            write_windows_fixture("fake codex status", &status_body);
         let executable = status_fixture.to_string_lossy();
         let status = get_status_with(&executable);
         assert!(status.ready);

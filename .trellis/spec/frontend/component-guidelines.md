@@ -50,24 +50,26 @@ The desktop shell is a single-view workspace. Sidebar and titlebar navigation re
 
 Keep persisted navigation identifiers only when they are needed for backward-compatible state or scroll restoration. They must not reintroduce visible tabs or require users to close previous views.
 
-### Fixed right-side context rail
+### Titlebar-owned research trail control
 
-`ResearchTrailPanel` is the last flex item in `.app-body`. Its collapsed state must remain a real, fixed-width rail at the far right instead of an absolutely positioned overlay.
+`ResearchTrailPanel` is the last flex item in `.app-body` only while it is open. The single collapse/reopen control lives in the titlebar between `.titlebar-drag-region` and `.window-actions`.
 
 ```tsx
-<aside className="context-collapsed-rail" data-testid="research-trail-rail">
-  <button data-testid="trail-reopen" aria-label="展开研究脉络" />
-</aside>
+<div className="titlebar-drag-region" data-tauri-drag-region />
+<button data-testid="trail-toggle" aria-pressed={contextOpen} />
+<div className="window-actions">...</div>
 ```
+
+When closed, `ResearchTrailPanel` returns `null`. Do not retain a fixed-width rail, content-edge floating button, or duplicate collapse button in the panel header. This lets the main workspace consume the full released width and keeps the window-level control in one predictable location.
 
 For dense views such as QA:
 
 - entering the view collapses the global research trail by default;
 - the user may explicitly reopen it;
 - while it is open, the view must reduce or hide duplicated internal context columns rather than overflow beneath the global panel;
-- GUI E2E must assert the rail touches the right edge and the main content ends before the rail begins.
+- GUI E2E must assert the closed main content reaches the app-body right edge and the toggle remains immediately before the native window controls.
 
-Do not use `position: absolute` for the collapsed rail because it overlays page content and makes viewport geometry assertions unreliable.
+Do not reintroduce an absolute overlay or collapsed rail: both obscure content geometry and split one state across multiple controls.
 
 ### Chinese page headings
 

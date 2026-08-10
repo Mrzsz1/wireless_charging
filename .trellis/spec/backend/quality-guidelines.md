@@ -48,6 +48,67 @@ Questions to answer:
 
 <!-- What reviewers should check -->
 
+## Scenario: Windows Codex CLI discovery for GUI processes
+
+### 1. Scope / Trigger
+
+This contract applies whenever the Tauri backend detects, launches, or streams from the Codex CLI on Windows. GUI processes may inherit a stale or reduced `PATH`, and npm installs may expose only `.cmd`/`.bat` shims.
+
+### 2. Signatures
+
+- `explicit_executable() -> Option<String>`
+- `discovered_executables() -> Vec<PathBuf>`
+- `append_windows_path_candidates(candidates, seen, path, native_only)`
+- `append_codex_desktop_binaries(candidates, seen, local_app_data)`
+- `executable() -> String`
+- Optional environment overrides: `CODEX_CLI_PATH`, then legacy `WIRELESS_CODEX_BIN`.
+
+### 3. Contracts
+
+- An explicit non-empty override is authoritative.
+- Automatic discovery prefers native Codex desktop binaries under `%LOCALAPPDATA%\OpenAI\Codex\bin\*\codex.exe`, then native PATH candidates, then script shims.
+- Automatic discovery reads both the current process PATH and persisted HKCU/HKLM PATH values so installing Codex does not require a Windows sign-out before the app can refresh.
+- Candidate paths are file-checked, case-insensitively deduplicated on Windows, and accepted only when `--version` returns an allowlisted `codex-cli ...` line.
+- Status, login, and answer streaming must use the same resolver. The public status DTO must never expose token, cookie, credential path, or API key fields.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+|---|---|
+| `CODEX_CLI_PATH` is non-empty | Use it without replacing it with auto-discovery |
+| Process PATH lacks Codex but desktop binary exists | Detect the desktop binary and report its version |
+| PATH contains duplicate entries | Probe each normalized path at most once |
+| Candidate exists but `--version` fails or is unsafe | Continue to the next automatic candidate |
+| No candidate succeeds | Fall back to `codex` and return the existing unavailable diagnostic |
+| Version succeeds but `login status` fails | Report installed=true, authenticated=false, and a login-status diagnostic |
+
+### 5. Good/Base/Bad Cases
+
+- **Good**: Explorer launches the installed client with an old PATH; `%LOCALAPPDATA%\OpenAI\Codex\bin\<release>\codex.exe` is found and ChatGPT login status is reported.
+- **Base**: A terminal-launched client resolves `codex.exe` or `codex.cmd` from PATH and behaves as before.
+- **Bad**: Call only `Command::new("codex")`; a valid CLI then appears as “未安装” because the GUI process cannot resolve the command name.
+
+### 6. Tests Required
+
+- Rust tests create a spaced local-app-data path and custom Node directory, then assert desktop binary discovery, shim discovery, ordering, and deduplication.
+- The Windows fixture exercises `--version`, `login status`, interactive login, JSONL streaming, failure redaction, timeout, and cancellation.
+- Structural frontend tests assert the status DTO remains secret-free and all Windows candidate types remain wired.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```rust
+Command::new("codex").arg("--version").spawn()?;
+```
+
+#### Correct
+
+```rust
+let executable = executable();
+run_fixed_with(&executable, &["--version"], STATUS_TIMEOUT)?;
+```
+
 ## Desktop Process and Search Reliability Contract
 
 The Windows desktop backend has three non-negotiable runtime contracts:

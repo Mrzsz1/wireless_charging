@@ -11,6 +11,7 @@ const appResolution = resolveAppPath()
 const app = appResolution.path
 const driverResolution = resolveDriver({ explicit: directNative ? nativeDriver : null })
 const driver = driverResolution.executable
+const hostHasCodex = process.platform === 'win32' && spawnSync('where.exe', ['codex'], { stdio: 'ignore', shell: false }).status === 0
 
 const finishUnavailable = (message) => {
   if (strict) { console.error(message); process.exit(2) }
@@ -171,36 +172,51 @@ try {
   }
   if (await (await browser.$('.workspace-toolbar')).isExisting()) throw new Error('Redundant workspace toolbar is still visible')
   if (await (await browser.$('[data-testid="context-toggle"]')).isExisting()) throw new Error('Redundant context toggle is still visible')
+  const trailToggle = await requireElement('[data-testid="trail-toggle"]')
+  const titlebarToggleLayout = await browser.execute(() => {
+    const toggle = document.querySelector('[data-testid="trail-toggle"]')
+    const actions = document.querySelector('.window-actions')
+    const drag = document.querySelector('.titlebar-drag-region')
+    if (![toggle, actions, drag].every((item) => item instanceof HTMLElement)) return null
+    const toggleRect = toggle.getBoundingClientRect()
+    const actionsRect = actions.getBoundingClientRect()
+    const dragRect = drag.getBoundingClientRect()
+    return { toggleLeft: toggleRect.left, toggleRight: toggleRect.right, actionsLeft: actionsRect.left, dragRight: dragRect.right }
+  })
+  if (!titlebarToggleLayout || titlebarToggleLayout.dragRight > titlebarToggleLayout.toggleLeft + 2 || titlebarToggleLayout.toggleRight > titlebarToggleLayout.actionsLeft + 2) {
+    throw new Error(`Research trail toggle is not between titlebar drag region and window controls: ${JSON.stringify(titlebarToggleLayout)}`)
+  }
   let researchTrail = await browser.$('[data-testid="research-trail-panel"]')
   if (!await researchTrail.isExisting()) {
-    await (await requireElement('.context-reopen')).click()
+    await trailToggle.click()
     researchTrail = await browser.$('[data-testid="research-trail-panel"]')
   }
   await researchTrail.waitForExist({ timeout: 5000, timeoutMsg: 'Research trail panel did not open' })
   console.log('PASS [data-testid="research-trail-panel"]')
   const trailRefresh = await requireElement('[data-testid="trail-refresh"]')
   if (!(await trailRefresh.getText()).includes('刷新')) throw new Error('Research trail refresh control is missing its text label')
-  await (await requireElement('[data-testid="trail-collapse"]')).click()
+  await trailToggle.click()
   await researchTrail.waitForExist({ reverse: true, timeout: 5000, timeoutMsg: 'Research trail panel did not collapse' })
-  const centeredRail = await browser.execute(() => {
-    const rail = document.querySelector('[data-testid="research-trail-rail"]')
-    const trigger = document.querySelector('[data-testid="trail-reopen"]')
-    if (!(rail instanceof HTMLElement) || !(trigger instanceof HTMLElement)) return null
-    const railRect = rail.getBoundingClientRect()
-    const triggerRect = trigger.getBoundingClientRect()
+  const collapsedLayout = await browser.execute(() => {
+    const body = document.querySelector('.app-body')
+    const main = document.querySelector('.main-workspace')
+    const toggle = document.querySelector('[data-testid="trail-toggle"]')
+    if (![body, main, toggle].every((item) => item instanceof HTMLElement)) return null
+    const bodyRect = body.getBoundingClientRect()
+    const mainRect = main.getBoundingClientRect()
     return {
-      centerDelta: Math.abs((railRect.top + railRect.height / 2) - (triggerRect.top + triggerRect.height / 2)),
-      inside: triggerRect.left >= railRect.left && triggerRect.right <= railRect.right,
-      triggerHeight: triggerRect.height,
+      rightDelta: Math.abs(bodyRect.right - mainRect.right),
+      pressed: toggle.getAttribute('aria-pressed'),
+      legacyRail: Boolean(document.querySelector('[data-testid="research-trail-rail"], [data-testid="trail-reopen"]')),
     }
   })
-  if (!centeredRail || centeredRail.centerDelta > 2 || !centeredRail.inside || centeredRail.triggerHeight < 40) {
-    throw new Error(`Collapsed research trail trigger is not centered in its rail: ${JSON.stringify(centeredRail)}`)
+  if (!collapsedLayout || collapsedLayout.rightDelta > 2 || collapsedLayout.pressed !== 'false' || collapsedLayout.legacyRail) {
+    throw new Error(`Collapsed research trail still reserves a rail or has stale state: ${JSON.stringify(collapsedLayout)}`)
   }
-  await (await requireElement('[data-testid="trail-reopen"]')).click()
+  await trailToggle.click()
   researchTrail = await browser.$('[data-testid="research-trail-panel"]')
   await researchTrail.waitForExist({ timeout: 5000, timeoutMsg: 'Research trail panel did not reopen' })
-  console.log('PASS research trail refresh, collapse and reopen toolbar')
+  console.log('PASS titlebar research trail placement, refresh, collapse and reopen')
   const sidebar = await requireElement('[data-testid="sidebar"]')
 
   if (await (await browser.$('[data-testid="work-tabs"]')).isExisting()) throw new Error('Removed work tab bar is still visible')
@@ -307,38 +323,46 @@ try {
   await requireElement('[data-refresh-version]')
   await (await requireElement('[data-testid="nav-qa"]')).click()
   await requireElement('[data-testid="qa-input"]')
-  await requireElement('[data-testid="research-trail-rail"]')
   const qaLayout = await browser.execute(() => {
     const body = document.querySelector('.app-body')
     const main = document.querySelector('.main-workspace.qa-active')
     const qa = document.querySelector('.qa-view')
     const evidence = document.querySelector('.qa-evidence-panel')
-    const rail = document.querySelector('[data-testid="research-trail-rail"]')
-    if (![body, main, qa, evidence, rail].every((item) => item instanceof HTMLElement)) return null
+    const toggle = document.querySelector('[data-testid="trail-toggle"]')
+    if (![body, main, qa, evidence, toggle].every((item) => item instanceof HTMLElement)) return null
     const rect = (item) => {
       const value = item.getBoundingClientRect()
       return { left: value.left, right: value.right, width: value.width }
     }
-    return { body: rect(body), main: rect(main), qa: rect(qa), evidence: rect(evidence), rail: rect(rail) }
+    return { body: rect(body), main: rect(main), qa: rect(qa), evidence: rect(evidence), pressed: toggle.getAttribute('aria-pressed'), legacyRail: Boolean(document.querySelector('[data-testid="research-trail-rail"]')) }
   })
-  if (!qaLayout || Math.abs(qaLayout.rail.right - qaLayout.body.right) > 2 || qaLayout.qa.right > qaLayout.rail.left + 2 || qaLayout.evidence.right > qaLayout.qa.right + 2) {
-    throw new Error(`QA layout is clipped or the collapsed trail is not at the far right: ${JSON.stringify(qaLayout)}`)
+  if (!qaLayout || Math.abs(qaLayout.main.right - qaLayout.body.right) > 2 || Math.abs(qaLayout.qa.right - qaLayout.body.right) > 2 || qaLayout.evidence.right > qaLayout.qa.right + 2 || qaLayout.pressed !== 'false' || qaLayout.legacyRail) {
+    throw new Error(`QA layout is clipped or the collapsed trail still reserves space: ${JSON.stringify(qaLayout)}`)
   }
-  await (await requireElement('[data-testid="trail-reopen"]')).click()
+  await (await requireElement('[data-testid="trail-toggle"]')).click()
   await requireElement('[data-testid="research-trail-panel"]')
   const openQaLayout = await browser.execute(() => ({
     contextVisible: document.querySelector('.main-workspace.qa-active')?.classList.contains('context-visible') ?? false,
     evidenceDisplay: getComputedStyle(document.querySelector('.qa-evidence-panel')).display,
   }))
   if (!openQaLayout.contextVisible || openQaLayout.evidenceDisplay !== 'none') throw new Error(`QA did not reserve space for the open research trail: ${JSON.stringify(openQaLayout)}`)
-  await (await requireElement('[data-testid="trail-collapse"]')).click()
-  await requireElement('[data-testid="research-trail-rail"]')
-  console.log('PASS QA width, automatic trail collapse and far-right rail')
+  await (await requireElement('[data-testid="trail-toggle"]')).click()
+  await (await browser.$('[data-testid="research-trail-panel"]')).waitForExist({ reverse: true, timeout: 5000 })
+  console.log('PASS QA width, automatic trail collapse and titlebar-only control')
   await (await requireElement('[data-testid="qa-open-settings"]')).click()
   const qaSettings = await requireElement('[data-testid="qa-engine-settings"]')
   await browser.waitUntil(async () => (await qaSettings.getAttribute('data-loaded')) === 'true', { timeout: 15000, timeoutMsg: 'QA settings did not finish loading' })
   await (await requireElement('[data-testid="qa-provider-tab-codex"]')).click()
   await requireElement('[data-testid="qa-provider-codex"]')
+  if (hostHasCodex) {
+    const statusCard = await requireElement('.codex-status-card')
+    await browser.waitUntil(async () => !(await statusCard.getText()).includes('正在读取本机 Codex 状态'), { timeout: 15000, timeoutMsg: 'Codex status did not finish loading' })
+    const statusText = await statusCard.getText()
+    if (statusText.includes('Codex CLI 未安装') || statusText.includes('未检测到版本')) {
+      throw new Error(`Installed Codex CLI was not detected by the GUI process: ${statusText}`)
+    }
+    console.log('PASS installed Codex CLI detection from GUI environment')
+  }
   await (await requireElement('[data-testid="qa-provider-tab-api"]')).click()
   await requireElement('[data-testid="qa-provider-api"]')
   await (await requireElement('[data-testid="qa-provider-tab-offline"]')).click()
