@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs'
 const source = readFileSync(new URL('../index.html', import.meta.url), 'utf8')
 const built = readFileSync(new URL('../dist/index.html', import.meta.url), 'utf8')
 const appSource = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8')
+const toastSource = readFileSync(new URL('../src/components/AppToast.tsx', import.meta.url), 'utf8')
 const serviceSource = readFileSync(new URL('../src/services/desktop.ts', import.meta.url), 'utf8')
 const pageSource = readFileSync(new URL('../src/features/pages/PageView.tsx', import.meta.url), 'utf8')
 const markdownSource = readFileSync(new URL('../src/features/pages/MarkdownReader.tsx', import.meta.url), 'utf8')
@@ -45,9 +46,11 @@ const checks = [
   ['window visibility recovery', appSource.includes('resolveWindowPlacement') && appSource.includes('new PhysicalPosition') && appSource.includes('await appWindow.show()') && appSource.includes('await appWindow.unminimize()')],
   ['window controls outside drag region', appSource.includes('className="titlebar-drag-region"') && !appSource.includes('<header className="titlebar" data-tauri-drag-region')],
   ['single expandable sidebar', appSource.includes('className={`app-sidebar ${navCollapsed') && !appSource.includes('navigation-panel') && !appSource.includes('app-rail')],
+  ['immersive toast lifecycle', appSource.includes('<AppToast') && !appSource.includes('className="notice"') && ['TOAST_HOLD_MS', 'TOAST_EXIT_MS', 'aria-live="polite"', "exiting ? 'exiting'"].every((name) => toastSource.includes(name))],
+  ['immersive toast styling', stylesSource.includes('position: fixed') && stylesSource.includes('@keyframes app-toast-exit') && stylesSource.includes('.app-toast.context-open')],
   ['single-view navigation', !appSource.includes('<TabBar') && !existsSync(new URL('../src/components/TabBar.tsx', import.meta.url))],
   ['Chinese-only page headings', ![appSource, pageSource, booksSource, graphSource, comparisonSource, qaViewSource, compileViewSource, ingestViewSource, startupPromptSource, libraryViewSource, settingsViewSource].some((value) => value.includes('className="eyebrow"')) && !stylesSource.includes('.eyebrow')],
-  ['collapsed research trail rail', researchTrailSource.includes('context-collapsed-rail') && stylesSource.includes('.context-collapsed-rail') && stylesSource.includes('.main-workspace.qa-active.context-visible')],
+  ['collapsed research trail rail', researchTrailSource.includes('context-collapsed-rail') && stylesSource.includes('.context-collapsed-rail') && stylesSource.includes('align-items: center') && stylesSource.includes('.main-workspace.qa-active.context-visible')],
   ['stage 2 page commands', ['listPages', 'getPage', 'resolveWikilink', 'getBacklinks', 'openLocalPath'].every((name) => serviceSource.includes(name))],
   ['stage 2 page reader', pageSource.includes('MarkdownReader') && pageSource.includes('\u53cd\u5411\u94fe\u63a5')],
   ['markdown structures', ['markdown-table', 'markdown-code', 'markdown-math', 'markdown-wikilink'].every((name) => markdownSource.includes(name))],

@@ -21,11 +21,11 @@ import {
   Plus,
   RefreshCw,
   Search,
-  Sparkles,
   SquarePen,
   Star,
   X,
 } from 'lucide-react'
+import { AppToast } from './components/AppToast'
 import { SidebarWorkspacePane } from './components/SidebarWorkspacePane'
 import { createLatestRequestGuard } from './lib/latestRequest'
 import { createPersistedWindowState, LEGACY_WINDOW_STATE_KEY, parsePersistedWindowState, resolveWindowPlacement, WINDOW_STATE_KEY, type MonitorWorkArea, type PersistedWindowState } from './lib/windowPlacement'
@@ -166,7 +166,7 @@ export default function App() {
   const [page, setPage] = useState<PageDetail | null>(null)
   const [backlinks, setBacklinks] = useState<Backlink[]>([])
   const [loading, setLoading] = useState(true)
-  const [notice, setNotice] = useState('')
+  const [notice, setNoticeState] = useState({ id: 0, message: '' })
   const [theme, setTheme] = useState<Theme>(() => readStored('desktop.theme', 'light'))
   const [fontSize, setFontSize] = useState(() => readStored('desktop.font-size', 14))
   const [updateBusy, setUpdateBusy] = useState(false)
@@ -181,6 +181,10 @@ export default function App() {
   const restoredRepository = useRef('')
   const promptedRepositories = useRef(new Set<string>())
   const searchRequests = useRef(createLatestRequestGuard()).current
+
+  const setNotice = useCallback((message: string) => {
+    setNoticeState((current) => ({ id: current.id + 1, message }))
+  }, [])
 
   const focusGlobalSearch = useCallback(() => {
     setNavCollapsed(false)
@@ -642,7 +646,6 @@ export default function App() {
         </aside>
 
         <main ref={workspaceRef} className={`main-workspace ${view === 'qa' ? 'qa-active' : ''} ${view === 'qa' && contextOpen ? 'context-visible' : ''} ${view === 'compile' ? 'compile-active' : ''}`}>
-          {notice && <div className="notice" data-testid="app-notice"><Sparkles size={15} /><span>{notice}</span><button onClick={() => setNotice('')}><X size={14} /></button></div>}
           {renderContent()}
         </main>
 
@@ -650,6 +653,7 @@ export default function App() {
       </div>
 
       <footer className="statusbar"><span><i className="status-dot" />{repository?.indexed ? '已同步' : '等待索引'}</span><span>{repository?.path || '尚未选择本地知识库'}</span><span>页面 {repository?.pageCount ?? catalog.length}</span><span className="status-graph">Graphify 派生图</span></footer>
+      {notice.message && <AppToast key={notice.id} message={notice.message} contextOpen={contextOpen} onDismiss={() => setNoticeState((current) => current.id === notice.id ? { ...current, message: '' } : current)} />}
       {startupIngestPrompt && <StartupIngestPrompt prompt={startupIngestPrompt} busy={startupPromptBusy} onCancel={() => setStartupIngestPrompt(null)} onSuppressToday={() => {
         setStartupPromptBusy(true)
         void suppressIngestPromptToday(localDateKey()).then(() => { setStartupIngestPrompt(null); setNotice('今天不再提醒自动文献检查') }).catch((error) => setNotice(`设置提醒失败：${String(error)}`)).finally(() => setStartupPromptBusy(false))

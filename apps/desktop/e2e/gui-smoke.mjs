@@ -138,6 +138,31 @@ try {
     throw new Error(`Settings/help were not fully moved to the titlebar: ${JSON.stringify(menuPlacement)}`)
   }
   console.log('PASS settings and help titlebar placement')
+  const toast = await requireElement('[data-testid="app-notice"]')
+  const toastLayout = await browser.execute(() => {
+    const item = document.querySelector('[data-testid="app-notice"]')
+    const main = document.querySelector('.main-workspace')
+    if (!(item instanceof HTMLElement) || !(main instanceof HTMLElement)) return null
+    const rect = item.getBoundingClientRect()
+    const style = getComputedStyle(item)
+    return {
+      position: style.position,
+      top: rect.top,
+      rightGap: document.documentElement.clientWidth - rect.right,
+      insideMain: main.contains(item),
+      role: item.getAttribute('role'),
+      live: item.getAttribute('aria-live'),
+    }
+  })
+  if (!toastLayout || toastLayout.position !== 'fixed' || toastLayout.top < 40 || toastLayout.rightGap < 10 || toastLayout.insideMain || toastLayout.role !== 'status' || toastLayout.live !== 'polite') {
+    throw new Error(`Immersive toast layout/accessibility contract failed: ${JSON.stringify(toastLayout)}`)
+  }
+  await browser.execute(() => document.querySelector('[data-testid="app-notice"]')?.dispatchEvent(new MouseEvent('mouseover', { bubbles: true })))
+  await browser.pause(3800)
+  if (!await toast.isExisting()) throw new Error('Toast disappeared while hovered')
+  await browser.execute(() => document.querySelector('[data-testid="app-notice"]')?.dispatchEvent(new MouseEvent('mouseout', { bubbles: true })))
+  await toast.waitForExist({ reverse: true, timeout: 5500, timeoutMsg: 'Toast did not fade out after hover ended' })
+  console.log('PASS fixed toast placement, hover pause and automatic fade')
   await browser.pause(600)
   const startupPrompt = await browser.$('[data-testid="ingest-startup-prompt"]')
   if (await startupPrompt.isExisting()) {
@@ -157,6 +182,21 @@ try {
   if (!(await trailRefresh.getText()).includes('刷新')) throw new Error('Research trail refresh control is missing its text label')
   await (await requireElement('[data-testid="trail-collapse"]')).click()
   await researchTrail.waitForExist({ reverse: true, timeout: 5000, timeoutMsg: 'Research trail panel did not collapse' })
+  const centeredRail = await browser.execute(() => {
+    const rail = document.querySelector('[data-testid="research-trail-rail"]')
+    const trigger = document.querySelector('[data-testid="trail-reopen"]')
+    if (!(rail instanceof HTMLElement) || !(trigger instanceof HTMLElement)) return null
+    const railRect = rail.getBoundingClientRect()
+    const triggerRect = trigger.getBoundingClientRect()
+    return {
+      centerDelta: Math.abs((railRect.top + railRect.height / 2) - (triggerRect.top + triggerRect.height / 2)),
+      inside: triggerRect.left >= railRect.left && triggerRect.right <= railRect.right,
+      triggerHeight: triggerRect.height,
+    }
+  })
+  if (!centeredRail || centeredRail.centerDelta > 2 || !centeredRail.inside || centeredRail.triggerHeight < 40) {
+    throw new Error(`Collapsed research trail trigger is not centered in its rail: ${JSON.stringify(centeredRail)}`)
+  }
   await (await requireElement('[data-testid="trail-reopen"]')).click()
   researchTrail = await browser.$('[data-testid="research-trail-panel"]')
   await researchTrail.waitForExist({ timeout: 5000, timeoutMsg: 'Research trail panel did not reopen' })

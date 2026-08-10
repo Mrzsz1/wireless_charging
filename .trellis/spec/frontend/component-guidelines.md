@@ -73,6 +73,33 @@ Do not use `position: absolute` for the collapsed rail because it overlays page 
 
 Page and section headings use the Chinese title directly. Do not add uppercase English eyebrow labels above Chinese headings. English technical terms remain valid inside content, metadata, model names, and source titles.
 
+### Transient application notifications
+
+Shell-level status messages use `components/AppToast.tsx`; they must not render inside `.main-workspace` because an inline banner shifts page content and scroll geometry.
+
+```tsx
+{notice.message && <AppToast
+  key={notice.id}
+  message={notice.message}
+  contextOpen={contextOpen}
+  onDismiss={() => setNoticeState((current) =>
+    current.id === notice.id ? { ...current, message: '' } : current
+  )}
+/>}
+```
+
+Interaction contract:
+
+- every publication increments an ID, including repeated text, so the lifecycle restarts;
+- the toast holds for 3600 ms, fades for 450 ms, then clears only its own ID;
+- pointer hover pauses dismissal and pointer leave starts a fresh hold interval;
+- the component keeps the latest `onDismiss` callback in a ref so parent re-renders do not reset its timer effect;
+- the root uses `role="status"`, `aria-live="polite"`, and an explicitly labelled close button;
+- the toast is fixed below the native titlebar and offsets left when the full research-trail panel is open;
+- preserve inline `.notice` styling for view-local errors or results that belong to page layout.
+
+Strict GUI E2E must verify fixed positioning outside `.main-workspace`, hover pause, automatic removal, and the accessibility attributes.
+
 ---
 
 ## Accessibility
