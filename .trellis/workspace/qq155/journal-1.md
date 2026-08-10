@@ -577,3 +577,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 18: 沉浸式通知与右栏折叠控件
+
+**Date**: 2026-08-11
+**Task**: 沉浸式通知与右栏折叠控件
+**Branch**: `master`
+
+### Summary
+
+将应用级通知改为右上角固定 Toast，支持悬停暂停、自动渐隐和重复消息重置；将研究脉络折叠入口改为最右栏纵向居中胶囊，并完成构建、安装和 GUI 验证。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `a309e7e` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
