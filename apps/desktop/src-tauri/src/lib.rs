@@ -291,6 +291,23 @@ fn db_schema(connection: &Connection) -> Result<(), String> {
         body,
         keywords
       );
+      CREATE TABLE IF NOT EXISTS paper_sections (
+        id TEXT PRIMARY KEY,
+        page_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        section_title TEXT NOT NULL,
+        source_path TEXT NOT NULL,
+        pdf_path TEXT NOT NULL DEFAULT '',
+        line_start INTEGER NOT NULL,
+        line_end INTEGER NOT NULL,
+        body TEXT NOT NULL
+      );
+      CREATE VIRTUAL TABLE IF NOT EXISTS paper_sections_fts USING fts5(
+        section_id UNINDEXED,
+        title,
+        section_title,
+        body
+      );
       CREATE TABLE IF NOT EXISTS wikilinks (
         source_id TEXT NOT NULL,
         target TEXT NOT NULL,
@@ -299,6 +316,7 @@ fn db_schema(connection: &Connection) -> Result<(), String> {
       CREATE INDEX IF NOT EXISTS idx_pages_type ON pages(page_type);
       CREATE INDEX IF NOT EXISTS idx_pages_year ON pages(year);
       CREATE INDEX IF NOT EXISTS idx_wikilinks_target ON wikilinks(target);
+      CREATE INDEX IF NOT EXISTS idx_paper_sections_page ON paper_sections(page_id);
       CREATE TABLE IF NOT EXISTS books (
         id TEXT PRIMARY KEY,
         title TEXT NOT NULL,
@@ -443,6 +461,151 @@ fn extract_links(body: &str) -> Vec<String> {
     links
 }
 
+#[derive(Debug, Clone)]
+struct PaperSectionChunk {
+    section_title: String,
+    line_start: usize,
+    line_end: usize,
+    body: String,
+}
+
+const PAPER_SECTION_MAX_CHARS: usize = 6_000;
+
+fn markdown_heading(line: &str) -> Option<String> {
+    let trimmed = line.trim_start();
+    let marker_len = trimmed.chars().take_while(|value| *value == '#').count();
+    if !(1..=4).contains(&marker_len) {
+        return None;
+    }
+    let remainder = trimmed.get(marker_len..)?.strip_prefix(' ')?;
+    let title = remainder.trim().trim_end_matches('#').trim();
+    (!title.is_empty()).then(|| title.to_string())
+}
+
+fn push_paper_section_chunks(
+    output: &mut Vec<PaperSectionChunk>,
+    section_title: &str,
+    lines: &[(usize, String)],
+) {
+    let meaningful = lines.iter().any(|(_, line)| !line.trim().is_empty());
+    if !meaningful {
+        return;
+    }
+    let mut current: Vec<(usize, String)> = Vec::new();
+    let mut current_chars = 0usize;
+    for (line_number, line) in lines {
+        let line_chars = line.chars().count() + 1;
+        if !current.is_empty()
+            && current_chars + line_chars > PAPER_SECTION_MAX_CHARS
+            && (line.trim().is_empty() || current_chars >= PAPER_SECTION_MAX_CHARS)
+        {
+            let body = current
+                .iter()
+                .map(|(_, value)| value.as_str())
+                .collect::<Vec<_>>()
+                .join("\n")
+                .trim()
+                .to_string();
+            if !body.is_empty() {
+                output.push(PaperSectionChunk {
+                    section_title: section_title.to_string(),
+                    line_start: current.first().map(|item| item.0).unwrap_or(1),
+                    line_end: current.last().map(|item| item.0).unwrap_or(1),
+                    body,
+                });
+            }
+            current.clear();
+            current_chars = 0;
+        }
+        current.push((*line_number, line.clone()));
+        current_chars += line_chars;
+    }
+    let body = current
+        .iter()
+        .map(|(_, value)| value.as_str())
+        .collect::<Vec<_>>()
+        .join("\n")
+        .trim()
+        .to_string();
+    if !body.is_empty() {
+        output.push(PaperSectionChunk {
+            section_title: section_title.to_string(),
+            line_start: current.first().map(|item| item.0).unwrap_or(1),
+            line_end: current.last().map(|item| item.0).unwrap_or(1),
+            body,
+        });
+    }
+}
+
+fn split_paper_markdown(content: &str, fallback_title: &str) -> Vec<PaperSectionChunk> {
+    let normalized = content.strip_prefix('\u{feff}').unwrap_or(content);
+    let mut output = Vec::new();
+    let mut section_title = fallback_title.to_string();
+    let mut section_lines: Vec<(usize, String)> = Vec::new();
+    let mut in_frontmatter = normalized.starts_with("---");
+
+    for (index, line) in normalized.lines().enumerate() {
+        let line_number = index + 1;
+        if in_frontmatter {
+            if line_number > 1 && line.trim() == "---" {
+                in_frontmatter = false;
+            }
+            continue;
+        }
+        if let Some(heading) = markdown_heading(line) {
+            push_paper_section_chunks(&mut output, &section_title, &section_lines);
+            section_title = heading;
+            section_lines.clear();
+        }
+        section_lines.push((line_number, line.to_string()));
+    }
+    push_paper_section_chunks(&mut output, &section_title, &section_lines);
+    output
+}
+
+fn repository_raw_file(root: &Path, relative: &str) -> Option<PathBuf> {
+    let raw_root = root.join("raw/canonical").canonicalize().ok()?;
+    let candidate = root.join(relative.replace('/', std::path::MAIN_SEPARATOR_STR));
+    let canonical = candidate.canonicalize().ok()?;
+    (canonical.is_file() && canonical.starts_with(raw_root)).then_some(canonical)
+}
+
+fn index_paper_sections(
+    connection: &Connection,
+    root: &Path,
+    page_id: &str,
+    title: &str,
+    fields: &HashMap<String, String>,
+) -> Result<(), String> {
+    if field_value(fields, "source_type") == "book" {
+        return Ok(());
+    }
+    let raw_md = field_value(fields, "raw_md");
+    let Some(raw_path) = repository_raw_file(root, &raw_md) else {
+        return Ok(());
+    };
+    let content = fs::read_to_string(&raw_path)
+        .map_err(|error| format!("读取论文原文 {} 失败：{error}", raw_path.display()))?;
+    let pdf_path = repository_raw_file(root, &field_value(fields, "pdf_path"))
+        .map(|path| path.to_string_lossy().to_string())
+        .unwrap_or_default();
+    for (index, chunk) in split_paper_markdown(&content, title)
+        .into_iter()
+        .enumerate()
+    {
+        let id = format!("{page_id}#{}", index + 1);
+        connection.execute(
+            "INSERT INTO paper_sections (id,page_id,title,section_title,source_path,pdf_path,line_start,line_end,body) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9)",
+            params![id,page_id,title,chunk.section_title,raw_path.to_string_lossy(),pdf_path,chunk.line_start as i64,chunk.line_end as i64,chunk.body],
+        ).map_err(|error| format!("写入论文分节索引失败：{error}"))?;
+        connection.execute(
+            "INSERT INTO paper_sections_fts (section_id,title,section_title,body) VALUES (?1,?2,?3,?4)",
+            params![id,title,chunk.section_title,chunk.body],
+        ).map_err(|error| format!("写入论文分节全文索引失败：{error}"))?;
+    }
+    Ok(())
+}
+
 fn page_id(wiki_root: &Path, path: &Path) -> String {
     path.strip_prefix(wiki_root)
         .unwrap_or(path)
@@ -543,6 +706,15 @@ fn delete_wiki_page_index(
 ) -> Result<(), String> {
     let id = page_id(wiki_root, path);
     connection
+        .execute(
+            "DELETE FROM paper_sections_fts WHERE section_id IN (SELECT id FROM paper_sections WHERE page_id=?1)",
+            [&id],
+        )
+        .map_err(|error| format!("删除论文分节全文索引失败：{error}"))?;
+    connection
+        .execute("DELETE FROM paper_sections WHERE page_id=?1", [&id])
+        .map_err(|error| format!("删除论文分节索引失败：{error}"))?;
+    connection
         .execute("DELETE FROM pages_fts WHERE page_id=?1", [&id])
         .map_err(|error| format!("删除页面全文索引失败：{error}"))?;
     connection
@@ -627,6 +799,12 @@ fn upsert_wiki_page_index(
             )
             .map_err(|error| format!("写入链接索引失败：{error}"))?;
     }
+    if page_type == "source" {
+        let root = wiki_root
+            .parent()
+            .ok_or_else(|| "Wiki 目录缺少知识库父目录".to_string())?;
+        index_paper_sections(connection, root, &id, &title, &fields)?;
+    }
     Ok((id, page_type))
 }
 
@@ -648,6 +826,8 @@ fn current_index_stats(connection: &Connection, root: &Path) -> Result<IndexStat
 }
 
 const REPOSITORY_IDENTITY_KEY: &str = "knowledge_index_repository_id";
+const KNOWLEDGE_INDEX_SCHEMA_KEY: &str = "knowledge_index_schema_version";
+const KNOWLEDGE_INDEX_SCHEMA_VERSION: &str = "2";
 
 fn canonical_repository_root(root: &Path) -> Result<PathBuf, String> {
     root.canonicalize()
@@ -675,6 +855,17 @@ fn read_repository_identity(connection: &Connection) -> Result<Option<String>, S
         .map_err(|error| format!("读取知识库身份失败：{error}"))
 }
 
+fn read_index_schema_version(connection: &Connection) -> Result<Option<String>, String> {
+    connection
+        .query_row(
+            "SELECT value FROM repository_metadata WHERE key=?1",
+            [KNOWLEDGE_INDEX_SCHEMA_KEY],
+            |row| row.get::<_, String>(0),
+        )
+        .optional()
+        .map_err(|error| format!("读取知识索引版本失败：{error}"))
+}
+
 fn write_repository_identity(connection: &Connection, identity: &str) -> Result<(), String> {
     connection
         .execute(
@@ -685,10 +876,23 @@ fn write_repository_identity(connection: &Connection, identity: &str) -> Result<
     Ok(())
 }
 
+fn write_index_schema_version(connection: &Connection) -> Result<(), String> {
+    connection
+        .execute(
+            "INSERT INTO repository_metadata(key,value) VALUES(?1,?2) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            params![KNOWLEDGE_INDEX_SCHEMA_KEY, KNOWLEDGE_INDEX_SCHEMA_VERSION],
+        )
+        .map_err(|error| format!("写入知识索引版本失败：{error}"))?;
+    Ok(())
+}
+
 fn ensure_repository_index(connection: &mut Connection, root: &Path) -> Result<IndexStats, String> {
     let identity = repository_identity(root);
     let stored = read_repository_identity(connection)?;
-    if stored.as_deref() == Some(identity.as_str()) {
+    let schema_version = read_index_schema_version(connection)?;
+    if stored.as_deref() == Some(identity.as_str())
+        && schema_version.as_deref() == Some(KNOWLEDGE_INDEX_SCHEMA_VERSION)
+    {
         return current_index_stats(connection, root);
     }
 
@@ -697,6 +901,7 @@ fn ensure_repository_index(connection: &mut Connection, root: &Path) -> Result<I
     // tables; chat, compile and app-settings tables are intentionally kept.
     let stats = rebuild_connection(connection, root)?;
     write_repository_identity(connection, &identity)?;
+    write_index_schema_version(connection)?;
     Ok(stats)
 }
 
@@ -709,6 +914,10 @@ fn rebuild_connection(connection: &mut Connection, root: &Path) -> Result<IndexS
         .map_err(|error| format!("清理页面索引失败：{error}"))?;
     tx.execute("DELETE FROM pages_fts", [])
         .map_err(|error| format!("清理全文索引失败：{error}"))?;
+    tx.execute("DELETE FROM paper_sections", [])
+        .map_err(|error| format!("清理论文分节索引失败：{error}"))?;
+    tx.execute("DELETE FROM paper_sections_fts", [])
+        .map_err(|error| format!("清理论文分节全文索引失败：{error}"))?;
     tx.execute("DELETE FROM wikilinks", [])
         .map_err(|error| format!("清理链接索引失败：{error}"))?;
     tx.execute("DELETE FROM books", [])
@@ -3223,6 +3432,83 @@ mod tests {
         let stats = rebuild_connection(&mut connection, temp.path()).expect("index");
         assert_eq!(stats.page_count, 1);
         assert_eq!(stats.source_count, 1);
+    }
+
+    #[test]
+    fn indexes_canonical_paper_sections_with_locations_and_keeps_wiki_evidence() {
+        let temp = tempfile::tempdir().expect("temp directory");
+        let wiki = temp.path().join("wiki").join("sources");
+        let raw = temp.path().join("raw/canonical/demo");
+        fs::create_dir_all(&wiki).expect("wiki directory");
+        fs::create_dir_all(&raw).expect("raw directory");
+        fs::write(temp.path().join("AGENTS.md"), "fixture").expect("agents");
+        fs::create_dir_all(temp.path().join("schema")).expect("schema");
+        fs::write(
+            raw.join("full.md"),
+            "---\ntitle: Demo raw\n---\n# System Model\n\nConcurrent wireless charging uses constructive interference.\n\n## 算法\n\n调度算法从无线充电器集合中选择并发子集。",
+        )
+        .expect("raw markdown");
+        fs::write(raw.join("paper.pdf"), "%PDF-fixture").expect("pdf");
+        fs::write(
+            wiki.join("demo.md"),
+            "---\ntype: source\ntitle: Demo Paper\nyear: 2025\nsource_type: paper\nraw_md: raw/canonical/demo/full.md\npdf_path: raw/canonical/demo/paper.pdf\n---\n# Demo Paper\n\nA Wiki summary about concurrent interference scheduling.",
+        )
+        .expect("page");
+        let mut connection = Connection::open_in_memory().expect("sqlite");
+        db_schema(&connection).expect("schema");
+        rebuild_connection(&mut connection, temp.path()).expect("index");
+
+        let section_count: i64 = connection
+            .query_row("SELECT COUNT(*) FROM paper_sections", [], |row| row.get(0))
+            .expect("section count");
+        assert_eq!(section_count, 2);
+        let context = qa::prepare_question(
+            &connection,
+            temp.path(),
+            "concurrent interference scheduling algorithm",
+            10,
+        )
+        .expect("question context");
+        assert!(context.evidence.iter().any(|item| item.kind == "wiki"));
+        let paper = context
+            .evidence
+            .iter()
+            .find(|item| item.kind == "paper")
+            .expect("paper evidence");
+        assert_eq!(paper.page_id, "sources/demo");
+        assert!(paper.source_location.contains("原文第"));
+        assert!(paper.wikilink.contains("sources/demo"));
+
+        let chinese = qa::prepare_question(&connection, temp.path(), "调度算法", 10)
+            .expect("Chinese paper query");
+        assert!(chinese.evidence.iter().any(|item| {
+            item.kind == "paper"
+                && item.source_location.contains("算法")
+                && item.snippet.contains("调度算法")
+        }));
+    }
+
+    #[test]
+    fn rejects_source_raw_paths_outside_canonical_root() {
+        let temp = tempfile::tempdir().expect("temp directory");
+        let wiki = temp.path().join("wiki").join("sources");
+        fs::create_dir_all(&wiki).expect("wiki directory");
+        fs::create_dir_all(temp.path().join("raw/canonical")).expect("raw directory");
+        fs::write(temp.path().join("outside.md"), "# Outside\nsecret").expect("outside");
+        fs::write(temp.path().join("AGENTS.md"), "fixture").expect("agents");
+        fs::create_dir_all(temp.path().join("schema")).expect("schema");
+        fs::write(
+            wiki.join("demo.md"),
+            "---\ntype: source\ntitle: Demo Paper\nyear: 2025\nsource_type: paper\nraw_md: outside.md\n---\n# Demo Paper\n\nSummary.",
+        )
+        .expect("page");
+        let mut connection = Connection::open_in_memory().expect("sqlite");
+        db_schema(&connection).expect("schema");
+        rebuild_connection(&mut connection, temp.path()).expect("index");
+        let section_count: i64 = connection
+            .query_row("SELECT COUNT(*) FROM paper_sections", [], |row| row.get(0))
+            .expect("section count");
+        assert_eq!(section_count, 0);
     }
 
     #[test]

@@ -1011,3 +1011,18 @@ P5.4 关闭代码审查遗留的 `SEARCH-001`、`BOOK-001`、`ROLLBACK-001`、`W
 - 与本 PRD 冲突的实现或临时约定，**以本文件为准**，除非用户显式修订本文件。  
 - 修订时：更新对应章节 + 在 §11 决策日志追加一行（日期 + 变更说明）。  
 - 词表具体 id 列表、maps 主题名等执行细节可在不违反本 PRD 原则的前提下迭代；**原则性冲突必须先改 PRD**。
+
+#### 13.20 LLM Wiki 内容深化与论文原文证据检索（2026-08-11，P0 + P1）
+
+结构审查见 `logs/2026-08-11-llmwiki-structure-audit.md`。审查确认现有分层与治理规则正确，但 Wiki 仍偏“目录 + 摘要卡”：23 个 source 和 20 个 method 缺少足够的形式化模型、算法细节、实验条件与原文锚点，且 21 篇论文的 canonical Markdown 未进入桌面端常规问答检索链。
+
+本阶段锁定以下产品要求：
+
+1. **P0 数据一致性**：`wiki/index.md`、`map-home`、`library-status`、固定评测答案和 Graphify 必须反映同一实际水位；不得以硬编码旧数字作为运行时事实。
+2. **P0 原文证据链**：桌面端从 source 的 `raw_md` 只读生成章节级 SQLite FTS 索引，保留论文、章节、raw 路径和起止行号；问答同时召回 Wiki 摘要、论文原文、核心书籍和 Graphify，Graphify 只作关系提示。
+3. **P1 知识表达**：source 与 method 从摘要模板升级为研究档案，覆盖模型、变量、目标、约束、算法流程、理论性质、实验、量化结果、局限和证据定位；原文未报告的内容必须显式标注，不得补造。
+4. **P1 复用层**：第一批建立 system-model、objective、dataset-or-sim 页面，并深化 CCSP、GAIN、TIDE、CUAV 联合调度轨迹和 IHATRPO 五组 source/method。
+5. **阅读路径**：模型与目标地图采用“系统模型 → 优化目标 → 可用方法 → 原文证据”路径，每页先给 TL;DR 与适用边界，再展开技术细节。
+6. **硬边界**：Raw 正文只读；不新增 B 类页面，不修改正式词表，不默认外搜，不用 Graphify `--wiki` 覆盖 Wiki。
+
+阶段验收以 Trellis 任务 `.trellis/tasks/08-11-llmwiki-depth-retrieval/` 为准：Wiki Lint 0 errors，论文原文章节双语召回与位置字段通过回归，新增不少于 4 个 system-model、4 个 objective、1 个 dataset-or-sim，五组样板完成深化，Graphify 不再遗漏现有 source，并完成一次 Rust、Python、前端和检索评测。

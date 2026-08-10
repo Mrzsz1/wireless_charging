@@ -27,38 +27,79 @@ pdf_path: "raw/canonical/Collaborative_Charging_Optimization_for_Wireless_Rechar
 raw_md: "raw/canonical/Collaborative_Charging_Optimization_for_Wireless_Rechargeable_Sensor_Networks_via_Heterogeneous/full.md"
 why_relevant: "以空中AAV和地面SV组成异构移动充电器，联合优化充电效率、移动能耗和节点死亡率。"
 ingest_status: ingested
-updated: 2026-08-01
+updated: 2026-08-11
 ---
 
 # 异构移动充电器协同优化
 
-## 一句话问题
+## TL;DR
 
-如何让续航和机动性不同的空中充电器与地面充电器在动态WRSN中形成互补分工。
+论文把空中 AAV 与地面 SV 的协同充电视为异构 Markov game，用共享全局状态、独立策略、信赖域更新、自注意力和 Beta 有界动作采样，联合优化充电效率、移动距离和节点死亡率。结果是仿真中的策略性能，不是确定性调度保证。
 
-## 系统设定与假设
+## 何时使用 / 何时不使用
 
-- AAV与地面智能车SV共同服务传感器节点，动作空间连续且多智能体异构。
-- 同时考虑充电效率、移动能耗和节点死亡率，环境状态随节点能量变化。
-- 当前实验区域不含障碍物。
+- **使用**：空地充电器能力不同、动作连续、节点能量动态变化、可承担离线训练。
+- **不使用**：缺少全局状态、必须分散执行、需要硬实时/可证明近似比，或环境障碍与动力学未建模。
 
-## 方法要点
+## 系统模型与假设
 
-- 将协同调度表述为Markov game。
-- IHATRPO在异构agent trust-region策略优化中加入自注意力状态处理和Beta采样。
-- 由学习到的策略形成空地充电器的区域分工。
+AAV 与 SV 为两个异构 agent，服务二维区域内的传感器。系统记录节点位置与能量、AAV/SV 位置和能量预算；充电与移动能耗模型分别定义。论文当前采用全局可观测状态，且 raw 行 394 明确说明集中训练与集中执行，不能误标为 CTDE。
 
-## 主要结果
+模型与符号见 raw §III，行 87–160。
 
-- 论文报告IHATRPO相对原始HATRPO总体性能提高51%。
-- 在其实验设置中，节点死亡率由超过90%降至10%以下，并观察到AAV与SV的互补覆盖模式。
+## 变量、目标与约束
 
-## 局限
+- 状态：所有节点能量与位置、AAV/SV 位置；
+- 动作：各 agent 的有界连续移动方向和距离；
+- 三个目标：提高充电效率 $f_1$、降低移动距离 $f_2$、降低节点死亡指标 $f_3$；
+- 奖励：$r_i^t=\lambda_1f_{1,t}^i-\lambda_2f_{2,t}^i-\lambda_3f_{3,t}$。
 
-- 结论来自仿真，且未纳入障碍、超大规模网络和更多异构充电代理。
-- 多目标reward及结果依赖训练分布，不能直接等同于确定性近似保证。
+完整问题与 reward 见 raw §IV–§V-A，行 161–329。权重改变会改变目标偏好，reward 提升不能替代各物理指标报告。
 
-## 链接
+## 算法流程
 
-- 方法：[[../methods/mtd-ihatrpo-heterogeneous-charging]]
-- 综合：[[../syntheses/syn-adaptive-mobile-charger-coordination]] · [[../syntheses/syn-mobile-uav-directional-scheduling]]
+1. 两个 agent 用自注意力从全局状态提取节点关系特征。
+2. Actor 构造 Beta 分布，在动作边界内采样方向和距离。
+3. 环境执行动作并计算充电效率、移动距离、死亡率组合奖励。
+4. 轨迹缓冲区计算 GAE；critic 更新价值网络。
+5. Actor 使用 HATRPO/TRPO 信赖域、共轭梯度和线搜索更新。
+
+Algorithm 1 见 raw 行 270–322。
+
+## 理论性质与复杂度
+
+raw §V-C（行 388–419）给出训练和执行的时间/空间复杂度。注意力动作选择含 $N^2h$ 项；训练成本还受 agent 数、episode、步数、网络参数、共轭梯度和线搜索影响。执行期主要保留策略参数并计算注意力/动作。原文未给近似比或对分布外状态的保证。
+
+## 实验设置与基线
+
+- 100m×100m、100 个节点、AAV/SV 发射功率 3W、接收阈值 5mW、节点容量 2J、充电半径 6m。
+- Actor/Critic 各两层 256 单元，自注意力 4 heads、embedding 256，训练 $6.5\times10^5$ iterations。
+- Baselines：PPO、DDPG、MADDPG、HAPPO、HATRPO。
+- 测试节点密度、区域大小、半径、能量预算、初始能量/位置分布、多个随机种子和 95% 置信区间。
+
+详见 raw §VI-A，行 425–450。
+
+## 定量结果
+
+- 自注意力与 Beta sampling 组合相对原始 HATRPO 的总体 reward 提升约 **51%**（raw 行 556）。
+- 曲线约在 200k iterations 后呈收敛趋势；论文同时报告各子目标与敏感性。
+- “死亡率降至 10% 以下”等图形结论必须结合对应配置和图读取；不把单个曲线读数当作跨场景保证。
+
+## 局限与失效条件
+
+- 仅仿真，未纳入障碍、通信延迟、定位误差和真实飞行动力学。
+- 依赖全局状态与集中执行。
+- 加权 reward、训练分布和随机种子影响策略；不存在确定性安全保证。
+- 论文年份按 2025 arXiv，DOI 对应 2026 early access，版本差异需保留。
+
+## 证据定位
+
+- Raw：`raw/canonical/Collaborative_Charging_Optimization_for_Wireless_Rechargeable_Sensor_Networks_via_Heterogeneous/full.md`
+- 模型：§III，行 87–160；问题/reward：§IV–§V-A，行 161–329；算法/复杂度：§V-B–C，行 331–419；实验：§VI，行 421–636。
+
+## 相关页面
+
+- 模型：[[sys-heterogeneous-mobile-charger-coordination]] · [[sys-mobile-uav-routing-scheduling]]
+- 目标：[[obj-energy-and-mobility-cost]] · [[obj-multi-objective-survivability]]
+- 方法：[[mtd-ihatrpo-heterogeneous-charging]]
+- 综合：[[syn-adaptive-mobile-charger-coordination]] · [[syn-mobile-uav-directional-scheduling]]

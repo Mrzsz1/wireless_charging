@@ -2,7 +2,7 @@
 type: map
 title: Wiki 索引 index
 status: active
-updated: 2026-07-14
+updated: 2026-08-11
 ---
 
 # Wiki 索引
@@ -44,6 +44,11 @@ updated: 2026-07-14
 | [[sources/src-gao2025-felkh-3d-uav]] | 三维定向 UAV 充电 FELKH-3D | 2025 | auto | active |
 | [[sources/src-li2024-dwc-beb-integrated-planning]] | BEB 动态充电设施与调度联合规划 | 2024 | auto | active |
 | [[sources/src-dai2022-rose-robust-safe-charging]] | 概率EMR安全功率调度 ROSE | 2022 | auto | active |
+| [[sources/src-yao2026-ihatrpo-heterogeneous-chargers]] | 异构 AAV/SV 协同充电与 IHATRPO | 2025/2026 | auto | active |
+| [[sources/src-tian2025-diccs-clustering]] | 动态非均匀聚类与混合优先级 | 2025 | auto | active |
+| [[sources/src-liu2026-dchsa-adtsa-clustered]] | 动态簇头选择与双阈值充电 | 2026 | auto | active |
+| [[sources/src-qaisar2026-isac-uav-charging]] | ISAC 状态估计、在线队列与部分充电 | 2026 | auto | active |
+| [[sources/src-rahaman2023-obstacle-mcv]] | 有障碍多 MCV 分区与绕行调度 | 2023/2026 | auto | active |
 
 ## Core books
 
@@ -85,6 +90,11 @@ updated: 2026-07-14
 | [[methods/mtd-felkh-3d-directional-uav]] | FELKH-3D定向UAV | heuristic |
 | [[methods/mtd-integrated-dwpt-battery-scheduling]] | DWPT设施电池调度联合规划 | ilp_milp |
 | [[methods/mtd-rose-robust-safe-power-scheduling]] | ROSE鲁棒安全功率 | convex_opt |
+| [[methods/mtd-ihatrpo-heterogeneous-charging]] | IHATRPO 异构移动充电器协同 | rl |
+| [[methods/mtd-diccs-dynamic-clustering]] | DICCS 动态聚类与混合优先级 | heuristic |
+| [[methods/mtd-dchsa-adtsa-dec]] | 动态簇头与自适应双阈值 | heuristic |
+| [[methods/mtd-isac-uav-priority-partial-charging]] | ISAC-UAV 在线队列与部分充电 | online_algorithm |
+| [[methods/mtd-obstacle-aware-multi-mcv]] | 有障碍多 MCV 时空协同 | heuristic |
 
 ## Syntheses
 
@@ -95,14 +105,26 @@ updated: 2026-07-14
 | [[syntheses/syn-mobility-online-service-scheduling]] | 移动性、在线请求、成本与 AoI 的适用边界 |
 | [[syntheses/syn-mobile-uav-directional-scheduling]] | 移动、UAV与三维定向WPT调度 |
 | [[syntheses/syn-dynamic-roadway-wpt-infrastructure]] | 道路动态无线充电基础设施与调度 |
+| [[syntheses/syn-adaptive-mobile-charger-coordination]] | 异构、聚类、部分充电与障碍下的移动协同 |
+| [[syntheses/syn-core-books-atlas]] | 两本核心书籍的理论章节导航 |
 
-## 待实例化的 A 类槽位
+## 可复用系统模型
 
-| 类型 | 当前数量 | 说明 |
-|------|----------|------|
-| System Models | 0 | 目录已就位；内容足够且可回链 source 时再编译 |
-| Objectives | 0 | 目录已就位；不为填空而建页 |
-| Datasets / Sims | 0 | 目录已就位；出现可复现设定时再编译 |
+- [[system-models/sys-interference-aware-concurrent-static]]：静态多充电器相干干涉。
+- [[system-models/sys-online-directional-request]]：在线请求与定向朝向控制。
+- [[system-models/sys-mobile-uav-routing-scheduling]]：移动/UAV 路径—调度耦合。
+- [[system-models/sys-heterogeneous-mobile-charger-coordination]]：异构移动充电器协同。
+
+## 优化目标
+
+- [[objectives/obj-full-charge-completion-time]]：全充满完成时间。
+- [[objectives/obj-aggregate-charging-utility]]：总体充电效用。
+- [[objectives/obj-energy-and-mobility-cost]]：能效与移动成本。
+- [[objectives/obj-multi-objective-survivability]]：多目标生存性。
+
+## 数据与仿真
+
+- [[datasets-sims/data-wrsn-simulation-evidence-protocol]]：WRSN 调度仿真和证据报告的最小协议。
 
 ## Problems / Ideas
 
@@ -113,33 +135,12 @@ updated: 2026-07-14
 
 ## 统计
 
-- source 页：**23**（21篇论文/预印本 + 2本核心专著；含1篇边界 needs_review）  
-- synthesis 数：**5**；10 条真实问答回归用例已建立  
-- 最新增量5篇均已保留正式DOI、arXiv或预印本版本provenance；版本差异在source页单列。  
-- 论文关键词：**20/21** paper/preprint source 有作者关键词，见 [[maps/map-domain-keywords]]  
-- 来源：已编译 source 为 **9 manual / 7 auto-discovery**；自动发现 canonical 待编译数为 **0**  
-- 自动发现状态：**46 pending / 6 selected（全文受限）/ 14 rejected / 12 promoted**  
-- B 层：**1 problem / 0 idea**；problem 已由用户授权 Agent 正式化  
-- 上次更新索引：2026-08-01 自动发现 7 篇文献完成 A 编译  
-
-## 2026-08-01 最新文献增量（5篇）
-
-| source | 一句话 | year | 来源 |
-|---|---|---:|---|
-| [[sources/src-yao2026-ihatrpo-heterogeneous-chargers]] | 异构AAV/SV协同充电与IHATRPO | 2025/2026 early access | arXiv |
-| [[sources/src-tian2025-diccs-clustering]] | 动态非均匀聚类、停靠点与混合优先级 | 2025 | SerpApi |
-| [[sources/src-liu2026-dchsa-adtsa-clustered]] | 动态簇头选择反馈到自适应双阈值充电 | 2026 | SerpApi |
-| [[sources/src-qaisar2026-isac-uav-charging]] | ISAC状态估计驱动在线队列和部分充电 | 2026 | arXiv |
-| [[sources/src-rahaman2023-obstacle-mcv]] | 有障碍多移动充电车的分区与绕行调度 | 2023 preprint / 2026 record | SerpApi |
-
-### 新方法
-
-- [[methods/mtd-ihatrpo-heterogeneous-charging]]
-- [[methods/mtd-diccs-dynamic-clustering]]
-- [[methods/mtd-dchsa-adtsa-dec]]
-- [[methods/mtd-isac-uav-priority-partial-charging]]
-- [[methods/mtd-obstacle-aware-multi-mcv]]
-
-### 新综合
-
-- [[syntheses/syn-adaptive-mobile-charger-coordination]]
+- source 页：**23**（21篇论文/预印本 + 2本核心专著；含1篇边界 needs_review）
+- method / concept：**20 / 7**；system-model / objective / dataset-or-sim：**4 / 4 / 1**
+- synthesis 数：**7**；10 条真实问答回归用例已建立
+- 最新增量5篇均已保留正式DOI、arXiv或预印本版本provenance；版本差异在source页单列。
+- 论文关键词：**20/21** paper/preprint source 有作者关键词，见 [[maps/map-domain-keywords]]
+- 来源：论文已编译 source 为 **9 manual / 12 auto-discovery**，另有 2 本 manual 核心专著；自动发现 canonical 待编译数为 **0**
+- 自动发现状态：**46 pending / 6 selected（全文受限）/ 14 rejected / 12 promoted**
+- B 层：**1 problem / 0 idea**；problem 已由用户授权 Agent 正式化
+- 上次内容更新：2026-08-11 完成 P0/P1 结构深化与论文原文章节检索

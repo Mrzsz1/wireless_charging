@@ -9,6 +9,11 @@ core_reference_book_count: 2
 book_chapter_count: 61
 book_page_count: 1171
 synthesis_count: 7
+method_count: 20
+concept_count: 7
+system_model_count: 4
+objective_count: 4
+dataset_or_sim_count: 1
 source_metadata_complete_count: 23
 source_with_paper_keywords_count: 20
 paper_keyword_occurrence_count: 90
@@ -30,8 +35,8 @@ manual_drop_pending_count: 0
 year_min: 2017
 year_max: 2026
 last_ingest_at: 2026-08-01
-last_content_update_at: 2026-08-01
-updated: 2026-08-01
+last_content_update_at: 2026-08-11
+updated: 2026-08-11
 ---
 
 # 库水位
@@ -44,6 +49,8 @@ updated: 2026-08-01
 |------|-----|
 | source 页数量 | **23**（21篇论文/预印本 + 2本核心专著） |
 | synthesis 页数量 | **7** |
+| method / concept | **20 / 7** |
+| system-model / objective / dataset-or-sim | **4 / 4 / 1** |
 | source 元数据完整度 | **23/23** 已有 year、venue、来源与raw路径；论文、预印本与专著分开标注 |
 | 论文关键词覆盖 | **20/21** 有作者 Keywords / Index Terms；90 次出现、74 个大小写归一原词 |
 | canonical 来源 | 手动 **11**（9篇论文 + 2本专著）· 自动发现 **12**（已完成 A 编译） |
@@ -52,7 +59,7 @@ updated: 2026-08-01
 | 文献年份跨度 | **2017–2026**（正式卷期与预印本年份分开解释） |
 | 上次 ingest | **2026-08-01** |
 | 最近转换 | **2026-08-01**（最新5篇公开 PDF 由 MinerU 转换，0失败） |
-| 内容层最近更新 | **2026-08-01**（最新5篇完成 A 编译并更新综合页） |
+| 内容层最近更新 | **2026-08-11**（P0/P1 结构深化、原文证据检索与模型/目标层） |
 | 核心 WRSN 充电 | 8 篇 active |
 | 边界文献 | 1 篇 UAV-BS QoS（needs_review） |
 | vocab 版本 | `2026-07-10-seed-v1`（draft_seed） |
@@ -97,7 +104,8 @@ updated: 2026-08-01
 | 指标 | 当前值 | 说明 |
 |------|--------|------|
 | source : synthesis | 23 : 7 | 最新自动发现批次已纳入跨文献比较 |
-| 问答回归用例 | 10 | 5 solve · 3 novelty · 2 relationship；答案基线待生成 |
+| 问答回归用例 | 10 | 5 solve · 3 novelty · 2 relationship；答案基线已存在，水位改为动态校验 |
+| 可复用知识层 | 4 system-model · 4 objective · 1 dataset-or-sim | 从模型/目标进入，不依赖先知道论文名 |
 | 正式 B 页 | 1 problem / 0 idea | [[../problems/prob-joint-deployment-online-interference]] 已获用户授权；算法 idea 因硬件动作假设未锁定而暂缓 |
 
 ## 领域重心（本批）

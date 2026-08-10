@@ -11,6 +11,13 @@ from typing import Iterable,Sequence
 ROOT=Path(__file__).resolve().parents[1]; WIKI=ROOT/'wiki'; LOGS=ROOT/'logs'
 WIKILINK=re.compile(r'\[\[([^\]|#]+)(?:#[^\]|]+)?(?:\|[^\]]+)?\]\]')
 TYPES={'source':('sources','src-'),'concept':('concepts','cpt-'),'system-model':('system-models','sys-'),'objective':('objectives','obj-'),'method':('methods','mtd-'),'dataset-or-sim':('datasets-sims','data-'),'synthesis':('syntheses','syn-'),'problem':('problems','prob-'),'idea':('ideas','idea-')}
+DEEP_REQUIRED={
+    'source': [('TL;DR',),('何时使用','适用'),('系统模型','系统设定'),('目标','约束'),('算法','方法'),('理论','复杂度','NP-hard'),('实验','仿真'),('局限','失效'),('证据',)],
+    'method': [('TL;DR',),('何时使用','适用条件'),('输入','输出'),('算法','步骤'),('复杂度','理论保证','原文未报告'),('失效','适用边界'),('证据','来源')],
+    'system-model': [('TL;DR',),('何时使用','使用条件','适用边界'),('形式化','变量','状态'),('证据',)],
+    'objective': [('TL;DR',),('形式化','统一表达','常见表达'),('权衡','使用检查','适用'),('证据',)],
+    'dataset-or-sim': [('TL;DR',),('记录','设置'),('证据','样板'),('比较','复现')],
+}
 @dataclass
 class Finding: section:int; severity:str; path:str; message:str
 def frontmatter(text):
@@ -69,6 +76,11 @@ def inspect(files:Iterable[Path]):
             if fm.get('acquisition_method')=='auto_discovery':
                 for k in ('discovered_via','discovery_run'):
                     if not fm.get(k): f.append(Finding(1,'warning',rel,f'auto source 缺少字段: {k}'))
+        if fm.get('updated','') >= '2026-08-11' and typ in DEEP_REQUIRED:
+            missing_groups=[group for group in DEEP_REQUIRED[typ] if not any(term.casefold() in t.casefold() for term in group)]
+            if missing_groups:
+                labels=['/'.join(group) for group in missing_groups]
+                f.append(Finding(3,'warning',rel,'研究档案缺少结构：'+ '、'.join(labels)))
         resolved_links=[]
         for m in WIKILINK.finditer(t):
             raw=m.group(1).strip(); hits=resolve_link(p,raw,targets)
@@ -93,6 +105,21 @@ def inspect(files:Iterable[Path]):
     for title,ps in titles.items():
         if len(ps)>1:
             for p in ps:f.append(Finding(5,'warning',p.relative_to(ROOT).as_posix(),f'重复标题: {title}'))
+    actual=Counter(frontmatter(cache[p][0]).get('type','') for p in files)
+    status=ROOT/'wiki/maps/library-status.md'
+    if status.exists():
+        sfm=frontmatter(status.read_text(encoding='utf-8-sig'))
+        declared={'source':sfm.get('source_count'),'synthesis':sfm.get('synthesis_count')}
+        for typ,value in declared.items():
+            if value and value.isdigit() and int(value)!=actual[typ]:
+                f.append(Finding(2,'warning','wiki/maps/library-status.md',f'{typ} 水位声明 {value} 与实际 {actual[typ]} 不一致'))
+    home=ROOT/'wiki/maps/map-home.md'
+    if home.exists():
+        home_text=home.read_text(encoding='utf-8-sig')
+        expected_tokens=(f"{actual['source']} sources",f"{actual['method']} methods",f"{actual['synthesis']} syntheses")
+        for token in expected_tokens:
+            if token not in home_text:
+                f.append(Finding(2,'warning','wiki/maps/map-home.md',f'总图未声明当前实际水位：{token}'))
     g=ROOT/'graphify-out/graph.json'
     if not g.exists(): f.append(Finding(8,'info','graphify-out/graph.json','Graphify 图不存在'))
     else:
@@ -108,7 +135,7 @@ def inspect(files:Iterable[Path]):
     summary={'pages':len(files),'errors':sum(x.severity=='error' for x in f),'warnings':sum(x.severity=='warning' for x in f),'info':sum(x.severity=='info' for x in f),'broken_links':sum('未解析 wikilink' in x.message for x in f),'orphans':sum(x.section==4 for x in f)}
     return f,summary
 def render(findings,summary,generated_at):
-    names={1:'Schema 完整性',2:'链接',3:'覆盖缺口',4:'孤儿页',5:'重复与歧义',6:'A/B 污染',7:'冲突表述',8:'Graphify 一致性'}; lines=[f'# Lint Report — {generated_at[:10]}','', '## Summary','',f"{summary['pages']} 页；{summary['errors']} errors；{summary['warnings']} warnings；{summary['info']} info",'']
+    names={1:'Schema 完整性',2:'链接与水位',3:'覆盖缺口与详细度',4:'孤儿页',5:'重复与歧义',6:'A/B 污染',7:'冲突表述',8:'Graphify 一致性'}; lines=[f'# Lint Report — {generated_at[:10]}','', '## Summary','',f"{summary['pages']} 页；{summary['errors']} errors；{summary['warnings']} warnings；{summary['info']} info",'']
     for i in range(1,9):
         lines += [f'## {i}. {names[i]}','']+[f'- **{x.severity.upper()}** `{x.path}` — {x.message}' for x in findings if x.section==i] or ['- 未发现确定性问题'] ; lines.append('')
     return '\n'.join(lines)

@@ -27,42 +27,71 @@ pdf_path: "raw/canonical/Concurrent_Charging_with_Wave_Interference.pdf-a984b0a6
 raw_md: "raw/canonical/Concurrent_Charging_with_Wave_Interference.pdf-a984b0a6-dc76-4283-951d-f75a915cd6eb/full.md"
 why_relevant: "GAIN：利用建设性干涉做充电器部署+传感器落点"
 ingest_status: ingested
-updated: 2026-07-14
+updated: 2026-08-11
 ---
 
 # Concurrent Charging with Wave Interference（GAIN）
 
-## 一句话问题
+## TL;DR
 
-如何在并发充电下**同时**利用建设性干涉的高功率区、规避破坏性干涉，联合部署充电器与传感器位置以最大化充电 utility。
+GAIN 在部署阶段联合决定充电器位置和传感器在 PoI 周围可部署圆盘内的落点，使建设性干涉增强区靠近需求点并最大化总体充电效用。问题 NP-hard；方案使用最大覆盖集合、几何离散和边际收益贪心，没有给出全局近似比。
 
-## 系统设定与假设
+## 何时使用 / 何时不使用
 
-- 固定数量全向充电器；PoI 周围有传感器可部署圆盘（SDD）
-- 多充电器覆盖重叠 → 波干涉；功率非简单可加
-- 传感器可在 PoI 附近有限范围内微调位置
+- **使用**：部署前可调整充电器位置，传感器允许在 PoI 邻域内微移，场景几何长期稳定。
+- **不使用**：传感器位置完全固定、请求在线变化，或部署误差远大于波长尺度。
 
-## 方法要点
+## 系统模型与假设
 
-- **GAIN** 问题：充电器放置 + 传感器选最高功率点
-- 建立含干涉的实用充电模型；研究增强区分布规律
-- 充电器放置：最大化到达各 SDD 中心的“波功率基础”
-- 部署区域离散/划分子区，在有限候选中选最优传感器位置
-- 文称相对对比算法平均提升约 **40.48%** utility
+场景包含固定数量全向充电器、PoI，以及每个 PoI 周围的 sensor deployable disk（SDD）。处于多个覆盖区的传感器接收相干叠加功率；效用函数对低于阈值的功率不计收益，并在高功率处饱和。
 
-## 主要结果
+## 变量、目标与约束
 
-- 仿真 + 现场实验
-- 模型与增强区规律可用于其他场景
+- 充电器位置集合 $C$；
+- 每个 PoI 的传感器位置位于对应 SDD 内；
+- 目标：最大化所有传感器的总 charging utility；
+- 约束：充电器数量固定，位置属于候选部署区域，传感器不离开 SDD。
 
-## 局限
+问题 P1 及 NP-hard 结论见 raw §II-D，行 127–138。
 
-- 依赖传感器可微移；随机抛洒难达 mm 级精度
-- 部署后功率分布相对固定（对比动态定向控制见 TIDE）
-- 固定部署依赖场景几何稳定；跨场景复用需重新测量干涉分布
+## 算法流程
 
-## 链接
+1. 从 PoI 覆盖关系提取 maximal covering sets（MCS）及候选充电器区域。
+2. 用以 PoI 为中心的同心圆把连续候选区域离散为子区域。
+3. 以加性功率基础的边际收益贪心选择固定数量的充电器位置，使增强区靠近 PoI。
+4. 对两个充电器覆盖的 PoI 分析条纹状增强区；对三个及以上覆盖分析点状增强区。
+5. 在每个 SDD 内寻找预测高功率位置放置传感器。
 
+## 理论性质与复杂度
+
+- GAIN 为 NP-hard（Theorem 1）。
+- 候选区域和子区域数量受 PoI 覆盖组合及离散精度影响；传感器局部搜索还受并发波数量影响。
+- 原文未报告整体算法的近似比，也未给出可直接跨规模引用的统一大 O 复杂度。
+
+## 实验设置与基线
+
+论文分别报告 simulation setup、baseline setup、performance comparison 和 field experiments；详见 raw §V–VI，行 366–424。仿真与实测应分开解释，不能把几何模型精度直接等同于现场部署精度。
+
+## 定量结果
+
+论文报告相对其比较算法，充电效用平均提高 **40.48%**（摘要、贡献及结论，raw 行 29、67、443）。该百分比依赖其 PoI、SDD、充电器数量和 baseline，不能直接与 TIDE 的在线提升百分比横比。
+
+## 局限与失效条件
+
+- 需要传感器在 SDD 内实现较精细的落点控制。
+- 部署完成后功率分布近似固定，不能响应动态请求。
+- 相位、反射与遮挡变化会移动增强/减弱区域。
+- 使用加性功率作为部署代理与最终相干效用之间存在模型差异。
+
+## 证据定位
+
+- Raw：`raw/canonical/Concurrent_Charging_with_Wave_Interference.pdf-a984b0a6-dc76-4283-951d-f75a915cd6eb/full.md`
+- 模型与问题：§II，行 69–138；部署算法：§III–IV，行 139–365；实验：§V–VI，行 366–424。
+
+## 相关页面
+
+- 模型：[[sys-interference-aware-concurrent-static]]
+- 目标：[[obj-aggregate-charging-utility]]
 - 概念：[[cpt-wave-interference]] · [[cpt-concurrent-charging]]
 - 方法：[[mtd-gain-placement-interference]]
 - 综合：[[syn-wrsn-scheduling-placement]] · [[syn-interference-aware-concurrent-wpt]]

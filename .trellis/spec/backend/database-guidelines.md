@@ -103,6 +103,51 @@ if read_repository_identity(connection)?.as_deref() == Some(identity.as_str()) {
 
 ## Query Patterns
 
+## Scenario: Canonical Paper Section Index
+
+### 1. Scope / Trigger
+
+This contract applies when a `source` Wiki page declares `raw_md` and the
+desktop knowledge index is built or upgraded. It exists so question answering
+can retrieve auditable primary-source passages instead of depending only on a
+short Wiki summary.
+
+### 2. Storage and identity
+
+- `paper_sections` stores `page_id`, section title, canonical Markdown/PDF
+  paths, raw line range, and section body.
+- `paper_sections_fts` is a content-bearing FTS5 table keyed by the stable
+  `paper_sections.id`.
+- Only files whose canonical path is under the active repository's
+  `raw/canonical/` directory are eligible. A path escape or a missing raw file
+  fails closed and leaves no paper-section rows for that source page.
+- The derived index schema version is stored in `repository_metadata` under
+  `knowledge_index_schema_version`. A missing or older version forces a full
+  derived-index rebuild but preserves chats, settings, and compile history.
+
+### 3. Chunking and retrieval
+
+- Markdown headings define the primary semantic boundary. Oversized sections
+  are split deterministically at no more than 6000 Unicode characters.
+- Every chunk keeps a real one-based raw line range; the UI and prompt expose
+  that range as the audit location.
+- Question retrieval returns these rows as `kind = paper` and
+  `tier = primary_source`. Wiki summaries and paper passages are separate
+  identities and must coexist after deduplication.
+- When all channels are available, final evidence preserves Wiki, primary
+  paper, and core-book diversity. Graph hints never replace primary evidence.
+
+### 4. Required validation
+
+- A repository fixture with a canonical paper must produce searchable section
+  rows, retain line locations, and return both its Wiki summary and raw paper
+  evidence for the same question.
+- A `raw_md` path outside `raw/canonical/` must be rejected.
+- Schema-version mismatch must rebuild paper rows without deleting a chat
+  session or `app_settings` row.
+- Run Rust formatting, Clippy with `-D warnings`, the complete Rust suite, the
+  frontend build, Wiki lint, and retrieval evaluation before commit.
+
 <!-- How should queries be written? Batch operations? -->
 
 (To be filled by the team)

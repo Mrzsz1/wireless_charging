@@ -10,28 +10,53 @@ constraints: [mobility, min_soc]
 objectives: [max_efficiency, min_energy, max_completion_rate, multi_objective]
 method_family: rl
 problem_class: routing_with_charging
-updated: 2026-08-01
+updated: 2026-08-11
 ---
 
-# IHATRPO异构移动充电器协同策略优化
+# IHATRPO 异构移动充电器协同策略优化
 
-## 输入与输出
+## TL;DR
 
-- 输入：节点状态、空中AAV与地面SV状态、能量预算和多目标权重。
-- 输出：两类充电器的连续移动与服务策略。
+IHATRPO 在 HATRPO 上增加自注意力状态编码和 Beta 有界动作采样，为 AAV/SV 分别训练策略；信赖域约束提高更新稳定性，但仍是依赖训练分布的多智能体强化学习方案。
 
-## 算法骨架
+## 何时使用 / 适用边界
 
-1. 将异构协作表述为Markov game；
-2. 自注意力编码复杂环境状态；
-3. 在HATRPO信赖域更新中引入Beta采样，处理连续动作；
-4. 以充电效率、移动能耗和死亡率的组合reward训练协同策略。
+- 动作连续、agent 能力不同、目标多维且显式优化难。
+- 需要全局状态；当前实现是集中训练与集中执行。
+- 不适合缺少训练预算、需要形式化安全/近似保证或存在未建模障碍的部署。
 
-## 适用边界
+## 输入 / 输出与变量
 
-- 适合动作连续、agent能力不同且难以手工分解的空地协同问题。
-- 训练结果不提供确定性近似比，障碍和分布外状态需要重新验证。
+- 输入：节点位置/能量、AAV/SV 位置与预算、目标权重 $\lambda_1,\lambda_2,\lambda_3$。
+- 动作：每个 agent 的方向和距离，由 Beta 分布限制在边界内。
+- 输出：AAV 与 SV 的策略参数和逐时隙移动/服务动作。
 
-## 来源
+## 算法步骤
 
-- [[../sources/src-yao2026-ihatrpo-heterogeneous-chargers]]
+1. 构造异构 Markov game 和共享全局状态。
+2. 自注意力编码节点之间的依赖。
+3. Actor 输出 Beta 参数并采样有界连续动作。
+4. 收集轨迹，按充电效率、距离和死亡率计算奖励。
+5. 用 GAE 更新 critic；用 HATRPO/TRPO 的 KL 信赖域、共轭梯度和线搜索更新 actor。
+
+## 复杂度与理论保证
+
+- 注意力部分含节点规模的 $N^2h$ 项；训练还受 agent 数、episodes、horizon、网络参数、共轭梯度和线搜索影响。
+- raw §V-C（行 388–419）给出完整训练/执行及空间复杂度表达式。
+- 原文未报告收敛到全局最优、近似比或硬安全保证。
+
+## 实验验证
+
+对比 PPO、DDPG、MADDPG、HAPPO、HATRPO；报告密度、区域、半径、预算、初始状态、随机种子和消融。完整组件相对 HATRPO 总 reward 提高约 51%，但应同时查看三个子目标。
+
+## 失效边界
+
+- 分布外地形、障碍和状态噪声需要重新训练/验证。
+- 集中执行的通信或状态收集失败会破坏策略输入。
+- reward 权重可隐藏某一物理指标退化。
+
+## 证据与来源
+
+- [[src-yao2026-ihatrpo-heterogeneous-chargers]]
+- Raw Markov game/reward 行 235–329；Algorithm 1 行 270–322；复杂度行 388–419；实验行 425–556。
+- 模型：[[sys-heterogeneous-mobile-charger-coordination]]；目标：[[obj-multi-objective-survivability]]。

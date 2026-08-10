@@ -761,6 +761,72 @@ fn wiki_candidates(connection: &Connection, terms: &[String]) -> Result<Vec<Cand
     Ok(candidates)
 }
 
+fn paper_candidates(connection: &Connection, terms: &[String]) -> Result<Vec<Candidate>, String> {
+    if terms.is_empty() {
+        return Ok(Vec::new());
+    }
+    let index_available = connection
+        .query_row(
+            "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type='table' AND name='paper_sections_fts')",
+            [],
+            |row| row.get::<_, bool>(0),
+        )
+        .map_err(|error| format!("检查论文原文索引失败：{error}"))?;
+    if !index_available {
+        return Ok(Vec::new());
+    }
+    let query = fts_query(terms);
+    let mut statement = connection
+        .prepare(
+            "SELECT s.id,s.page_id,s.title,s.section_title,s.source_path,s.pdf_path,
+                    s.line_start,s.line_end,
+                    snippet(paper_sections_fts,3,'','',' … ',72),
+                    bm25(paper_sections_fts,0.0,7.0,5.0,1.0)
+             FROM paper_sections_fts
+             JOIN paper_sections s ON s.id=paper_sections_fts.section_id
+             WHERE paper_sections_fts MATCH ?1
+             ORDER BY bm25(paper_sections_fts,0.0,7.0,5.0,1.0) LIMIT 24",
+        )
+        .map_err(|error| format!("准备论文原文证据检索失败：{error}"))?;
+    let rows = statement
+        .query_map([query], |row| {
+            let section_id: String = row.get(0)?;
+            let page_id: String = row.get(1)?;
+            let paper_title: String = row.get(2)?;
+            let section_title: String = row.get(3)?;
+            let source_path: String = row.get(4)?;
+            let rank: f64 = row.get(9)?;
+            let line_start: i64 = row.get(6)?;
+            let line_end: i64 = row.get(7)?;
+            Ok(Candidate {
+                kind: "paper".to_string(),
+                tier: "primary_source".to_string(),
+                title: format!("{paper_title} · {section_title}"),
+                snippet: compact(&row.get::<_, String>(8)?, 1_200),
+                score: 1.0 / (1.0 + rank.abs()) + 0.32,
+                page_id: page_id.clone(),
+                page_type: "source".to_string(),
+                source_path: source_path.clone(),
+                wikilink: format!("[[{page_id}]]"),
+                book_id: String::new(),
+                chapter_id: String::new(),
+                physical_page_start: None,
+                physical_page_end: None,
+                markdown_path: source_path,
+                pdf_path: row.get(5)?,
+                node_id: section_id,
+                source_location: format!("{section_title} · 原文第 {line_start}–{line_end} 行"),
+                relation: String::new(),
+                retrieval_reason:
+                    "canonical 论文原文章节 FTS5 命中；可直接支撑事实并回到 raw 行号核验"
+                        .to_string(),
+            })
+        })
+        .map_err(|error| format!("检索论文原文证据失败：{error}"))?;
+    rows.collect::<Result<Vec<_>, _>>()
+        .map_err(|error| format!("解析论文原文证据失败：{error}"))
+}
+
 fn book_candidates(connection: &Connection, terms: &[String]) -> Result<Vec<Candidate>, String> {
     if terms.is_empty() {
         return Ok(Vec::new());
@@ -943,12 +1009,15 @@ pub fn prepare_question(
     }
     let terms = query_terms(question);
     let mut candidates = wiki_candidates(connection, &terms)?;
+    candidates.extend(paper_candidates(connection, &terms)?);
     candidates.extend(book_candidates(connection, &terms)?);
     candidates.extend(graph_candidates(root, &terms));
     candidates.sort_by(|left, right| right.score.total_cmp(&left.score));
     let mut seen = HashSet::new();
     candidates.retain(|candidate| {
-        let key = if !candidate.page_id.is_empty() {
+        let key = if candidate.kind == "paper" {
+            format!("paper:{}", candidate.node_id)
+        } else if !candidate.page_id.is_empty() {
             format!("wiki:{}", candidate.page_id)
         } else if !candidate.chapter_id.is_empty() {
             format!("book:{}", candidate.chapter_id)
@@ -962,7 +1031,7 @@ pub fn prepare_question(
     // Preserve source diversity after global ranking: when a channel produced a
     // useful candidate, the final evidence package keeps at least one Wiki and
     // one core-book result instead of letting a single channel occupy all slots.
-    for required_kind in ["wiki", "book"] {
+    for required_kind in ["wiki", "paper", "book"] {
         if selected
             .iter()
             .any(|candidate| candidate.kind == required_kind)
@@ -1041,6 +1110,8 @@ pub fn offline_answer(context: &QuestionContext) -> String {
                 (Some(start), None) => format!("，PDF physical page {start}"),
                 _ => String::new(),
             }
+        } else if item.kind == "paper" {
+            format!("，{}，{}", item.wikilink, item.source_location)
         } else if !item.wikilink.is_empty() {
             format!("，{}", item.wikilink)
         } else {
@@ -1061,7 +1132,7 @@ fn build_prompt(context: &QuestionContext) -> String {
     let mut evidence_text = String::new();
     for item in &context.evidence {
         evidence_text.push_str(&format!(
-            "[{}] kind={} tier={} title={} source={} pages={:?}-{:?}\n{}\n\n",
+            "[{}] kind={} tier={} title={} source={} location={} pages={:?}-{:?}\n{}\n\n",
             item.id,
             item.kind,
             item.tier,
@@ -1071,6 +1142,7 @@ fn build_prompt(context: &QuestionContext) -> String {
             } else {
                 &item.source_path
             },
+            item.source_location,
             item.physical_page_start,
             item.physical_page_end,
             item.snippet,
@@ -1092,7 +1164,7 @@ fn build_prompt(context: &QuestionContext) -> String {
 
 pub fn build_codex_prompt(context: &QuestionContext) -> String {
     format!(
-        "你是无线充电调度科研知识库的回答模型。不要调用工具，不要读取文件，不要执行命令，也不要修改任何内容。只能依据下面提供的编号证据回答；每个事实判断必须引用 [E#]。必须先报告库水位，并按‘库内直接证据、相似模型、可迁移算法、核心书籍理论基础、库内尚未覆盖’组织。Graphify 证据只能作为关系提示，不能单独支撑事实。库内未见不等于全球没有。不要编造引用编号。\n\n{}",
+        "你是无线充电调度科研知识库的回答模型。不要调用工具，不要读取文件，不要执行命令，也不要修改任何内容。只能依据下面提供的编号证据回答；每个事实判断必须引用 [E#]。必须先报告库水位，并按‘库内直接证据、相似模型、可迁移算法、核心书籍理论基础、库内尚未覆盖’组织。kind=paper 是 canonical 论文原文章节，可直接支撑其片段包含的事实，并应保留 sourceLocation；kind=wiki 是结构化导航与综合；kind=book 是核心书籍理论证据。Graphify 证据只能作为关系提示，不能单独支撑事实。库内未见不等于全球没有。不要编造引用编号。\n\n{}",
         build_prompt(context)
     )
 }

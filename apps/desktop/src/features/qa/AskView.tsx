@@ -58,7 +58,7 @@ function localMessage(role: 'user' | 'assistant', content: string, status: ChatM
 }
 
 function tierLabel(tier: EvidenceItem['tier']) {
-  return tier === 'direct' ? '直接证据' : tier === 'similar_model' ? '相似模型' : tier === 'transferable_method' ? '可迁移算法' : tier === 'theory' ? '理论基础' : '图谱提示'
+  return tier === 'primary_source' ? '论文原文' : tier === 'direct' ? '直接证据' : tier === 'similar_model' ? '相似模型' : tier === 'transferable_method' ? '可迁移算法' : tier === 'theory' ? '理论基础' : '图谱提示'
 }
 
 function kindIcon(kind: EvidenceItem['kind']) {
@@ -213,6 +213,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
   const openEvidence = (item: EvidenceItem) => {
     setSelectedEvidence(item)
     if (item.kind === 'wiki' && item.pageId) onOpenPage(item.pageId, item.title)
+    else if (item.kind === 'paper' && item.sourcePath) onOpenPath(item.sourcePath)
     else if (item.kind === 'book' && item.bookId && item.chapterId) onOpenBook(item.bookId, item.chapterId)
     else if (item.kind === 'book' && item.pdfPath) onOpenPath(item.pdfPath)
     else if (item.sourcePath) onOpenPage(item.sourcePath, item.title)
@@ -271,7 +272,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     <aside className="qa-evidence-panel">
       <div className="qa-evidence-heading"><div><strong>本轮证据</strong></div><span>{evidence.length}</span></div>
       {waterline && <div className="qa-waterline"><strong>库水位</strong><div><span>{waterline.sourceCount}<small>source</small></span><span>{waterline.methodCount}<small>method</small></span><span>{waterline.synthesisCount}<small>synthesis</small></span><span>{waterline.chapterCount}<small>chapters</small></span></div><p>{waterline.yearMin || '未知'}–{waterline.yearMax || '未知'} · 当前仓库</p></div>}
-      <div className="qa-evidence-list">{evidence.map((item) => <button className={`qa-evidence-card ${selectedEvidence?.id === item.id ? 'selected' : ''}`} key={item.id} onClick={() => setSelectedEvidence(item)}><span className="qa-evidence-id">{item.id}</span><div><div className="qa-evidence-type">{kindIcon(item.kind)}<span>{tierLabel(item.tier)}</span></div><strong>{item.title}</strong><p>{item.snippet}</p><small>{item.kind === 'book' ? `PDF p.${item.physicalPageStart ?? '?'}–${item.physicalPageEnd ?? '?'}` : item.wikilink || item.sourceLocation || item.sourcePath}</small></div></button>)}</div>
+      <div className="qa-evidence-list">{evidence.map((item) => <button className={`qa-evidence-card ${selectedEvidence?.id === item.id ? 'selected' : ''}`} key={item.id} onClick={() => setSelectedEvidence(item)}><span className="qa-evidence-id">{item.id}</span><div><div className="qa-evidence-type">{kindIcon(item.kind)}<span>{tierLabel(item.tier)}</span></div><strong>{item.title}</strong><p>{item.snippet}</p><small>{item.kind === 'book' ? `PDF p.${item.physicalPageStart ?? '?'}–${item.physicalPageEnd ?? '?'}` : item.kind === 'paper' ? item.sourceLocation || item.sourcePath : item.wikilink || item.sourceLocation || item.sourcePath}</small></div></button>)}</div>
       {!evidence.length && <div className="qa-empty-evidence"><FileText size={23} /><strong>等待检索</strong><span>提问后在这里核验引用、页码和排序理由。</span></div>}
       {selectedEvidence && <div className="qa-evidence-detail"><div><strong>{selectedEvidence.id} · 定位信息</strong><button onClick={() => setSelectedEvidence(null)}><X size={13} /></button></div><p>{selectedEvidence.retrievalReason}</p><code>{selectedEvidence.kind === 'book' ? selectedEvidence.markdownPath : selectedEvidence.sourcePath}</code><button className="qa-open-source" onClick={() => openEvidence(selectedEvidence)}>{kindIcon(selectedEvidence.kind)}打开来源</button></div>}
     </aside>

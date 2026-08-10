@@ -384,8 +384,8 @@ export type WaterlineSnapshot = {
 
 export type EvidenceItem = {
   id: string
-  kind: 'wiki' | 'book' | 'graph'
-  tier: 'direct' | 'similar_model' | 'transferable_method' | 'theory' | 'graph_hint'
+  kind: 'wiki' | 'paper' | 'book' | 'graph'
+  tier: 'primary_source' | 'direct' | 'similar_model' | 'transferable_method' | 'theory' | 'graph_hint'
   title: string
   snippet: string
   score: number

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from collections import Counter
 from pathlib import Path
 from typing import Any, Sequence
@@ -86,6 +87,10 @@ def validate_contract(payload: dict[str, Any], wiki_root: Path) -> list[str]:
 
 def validate_answers(payload: dict[str, Any], answers_dir: Path) -> list[str]:
     errors: list[str] = []
+    library_status = ROOT / "wiki" / "maps" / "library-status.md"
+    status_text = library_status.read_text(encoding="utf-8-sig")
+    match = re.search(r"^source_count:\s*(\d+)", status_text, re.M)
+    source_count = int(match.group(1)) if match else None
     for case in payload["cases"]:
         case_id = case["id"]
         answer_path = answers_dir / f"{case_id}.md"
@@ -98,6 +103,9 @@ def validate_answers(payload: dict[str, Any], answers_dir: Path) -> list[str]:
                 errors.append(f"{case_id}: 答案缺少 [[{link}]]")
         if case["waterline_required"] and "库水位" not in answer:
             errors.append(f"{case_id}: 答案未明确说明库水位")
+        if case["waterline_required"] and source_count is not None:
+            if not re.search(rf"\b{source_count}\s*篇\s*source\b", answer, re.I):
+                errors.append(f"{case_id}: 答案水位不是当前 {source_count} 篇 source")
         normalized = answer.casefold()
         missing_mentions = []
         for mention in case.get("must_mention", []):

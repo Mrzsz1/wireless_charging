@@ -47,6 +47,22 @@ class WikiEvalTests(unittest.TestCase):
             answer.write_text("库水位。", encoding="utf-8")
             errors = wiki_eval.validate_answers(one_case, Path(temp_dir))
         self.assertTrue(any("必提概念" in error for error in errors))
+    def test_answer_check_rejects_stale_source_waterline(self) -> None:
+        status = (ROOT / "wiki" / "maps" / "library-status.md").read_text(encoding="utf-8-sig")
+        source_count = int(next(line.split(":", 1)[1] for line in status.splitlines() if line.startswith("source_count:")))
+        payload = {
+            "cases": [{
+                "id": "stale-waterline",
+                "expected_wikilinks": [],
+                "waterline_required": True,
+                "must_mention": [],
+            }]
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            answer = Path(temp_dir) / "stale-waterline.md"
+            answer.write_text(f"库水位：{source_count - 1} 篇 source。", encoding="utf-8")
+            errors = wiki_eval.validate_answers(payload, Path(temp_dir))
+        self.assertTrue(any(f"{source_count} 篇 source" in error for error in errors))
 
 
 if __name__ == "__main__":

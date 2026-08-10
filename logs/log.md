@@ -272,6 +272,15 @@
 - fake Codex fixture 覆盖状态、登录启动、JSONL、错误脱敏、超时与取消；自动验证未消耗真实订阅额度。
 - 验收：Rust 53/53、Python 45/45、Wiki 10/10、两书 Recall@5 1.000 / 0.986667、P5、最终 release strict GUI 与 NSIS 安装生命周期通过。
 - 详情：`logs/2026-08-09-desktop-subscription-qa.md`
+
+## [2026-08-11] wiki + desktop | LLM Wiki P0/P1 内容深化与原文召回
+
+- 统一库水位为 23 source / 20 method / 7 synthesis，新增 4 system-model、4 objective、1 dataset-or-sim。
+- SQLite 新增 canonical 论文章节 FTS5 索引，问答可同时保留 Wiki 摘要、论文原文、核心书籍与 Graphify 提示。
+- 深化 CCSP、GAIN、TIDE、CUAV、IHATRPO 五组 source/method，补全模型、算法、理论、实验和 raw 行号。
+- Graphify 更新为 2828 nodes / 4822 edges / 215 communities，75 个 Wiki 页全部纳入。
+- 验收：Wiki 0 errors；Wiki Eval 10/10；两书 Recall@5 均高于 95%；Python 46/46；Rust 56/56；Clippy 与前端 build 通过。
+- 详情：`logs/2026-08-11-llmwiki-p0-p1-implementation.md`
 ## [2026-08-02] desktop | P5.3 ????????? 0.7.0
 
 - ?????/??/??/????? `Ctrl+K`??? Wiki ???? upsert/delete/rename?
