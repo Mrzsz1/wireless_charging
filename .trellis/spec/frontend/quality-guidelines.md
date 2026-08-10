@@ -109,3 +109,21 @@ if (!app) finishUnavailable('GUI E2E SKIP: build the app or set TAURI_APP_PATH')
 ### Common Mistake: tauri-driver without the native Edge driver
 
 `tauri-driver` can be installed and executable while still exiting immediately because Windows cannot find a matching `msedgedriver.exe`. Keep the native driver on PATH or set `TAURI_NATIVE_DRIVER`; the smoke script reports this as an environment skip rather than an opaque stack trace.
+
+## Windows release version synchronization contract
+
+- A desktop release version is one atomic value across `package.json`, the root
+  package entry in `package-lock.json`, `src-tauri/Cargo.toml`, the `app`
+  package in `Cargo.lock`, and `src-tauri/tauri.conf.json`.
+- Release-related fixtures must move with the current version: the no-update
+  manifest equals the current version and the update fixture uses the next
+  patch version. `verify-config.mjs` must assert the same current version.
+- Run the configuration and updater fixture validators before `tauri build`.
+  The build is accepted only when both MSI and NSIS bundles contain the target
+  version in their file names.
+- After a silent NSIS installation, verify the uninstall registry
+  `DisplayVersion`, the installed executable's product version, and a live,
+  responding main window. A successful installer exit code alone is not
+  sufficient evidence of a usable release.
+- Generated `target/` bundles are local artifacts and are not added to Git;
+  commit version declarations, release notes, and the Trellis task only.

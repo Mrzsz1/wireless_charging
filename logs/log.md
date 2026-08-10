@@ -281,6 +281,13 @@
 - Graphify 更新为 2828 nodes / 4822 edges / 215 communities，75 个 Wiki 页全部纳入。
 - 验收：Wiki 0 errors；Wiki Eval 10/10；两书 Recall@5 均高于 95%；Python 46/46；Rust 56/56；Clippy 与前端 build 通过。
 - 详情：`logs/2026-08-11-llmwiki-p0-p1-implementation.md`
+
+## [2026-08-11] desktop | Windows 客户端 0.12.0 发布与安装
+
+- 统一 npm、Cargo、Tauri 与 updater fixture 版本为 0.12.0。
+- release 构建生成 MSI 与 NSIS；NSIS 已静默安装到当前 Windows 用户。
+- 注册表、可执行文件 ProductVersion 和实际启动进程均确认为 0.12.0。
+- 详情：`logs/2026-08-11-desktop-0120-release-install.md`
 ## [2026-08-02] desktop | P5.3 ????????? 0.7.0
 
 - ?????/??/??/????? `Ctrl+K`??? Wiki ???? upsert/delete/rename?

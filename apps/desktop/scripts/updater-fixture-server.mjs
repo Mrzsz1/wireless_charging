@@ -3,7 +3,7 @@ import { createServer } from 'node:http'
 import { fileURLToPath } from 'node:url'
 
 export function manifestFor(mode, origin, artifactPath = '/fixture-update.zip', signature = 'LOCAL_FIXTURE_SIGNATURE') {
-  const version = mode === 'no-update' ? '0.11.0' : '0.11.1'
+  const version = mode === 'no-update' ? '0.12.0' : '0.12.1'
   return {
     version,
     notes: `local updater fixture: ${mode}`,
