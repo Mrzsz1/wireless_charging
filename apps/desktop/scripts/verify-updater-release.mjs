@@ -30,7 +30,7 @@ const origin = 'http://127.0.0.1:4179'
 const noUpdate = manifestFor('no-update', origin)
 const update = manifestFor('update', origin)
 const tampered = manifestFor('tampered', origin)
-if (noUpdate.version !== '0.12.2' || update.version !== '0.12.3') throw new Error('updater fixture versions are invalid')
+if (noUpdate.version !== '0.12.3' || update.version !== '0.12.4') throw new Error('updater fixture versions are invalid')
 if (update.platforms['windows-x86_64'].signature === tampered.platforms['windows-x86_64'].signature) {
   throw new Error('tampered updater fixture must change the signature')
 }
