@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 29
+- **Total Sessions**: 30
 - **Last Active**: 2026-08-13
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~978 | Active |
+| `journal-1.md` | ~1011 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 30 | 2026-08-13 | 迁移问答完整性到结构化 Role 契约 | `0ce7006` | `master` |
 | 29 | 2026-08-13 | 修复结构化回答章节契约并完成发行编译 | `09905a4` | `master` |
 | 28 | 2026-08-12 | 智能问答准确率与上下文工程整改 | `7b40ce0` | `master` |
 | 27 | 2026-08-12 | 智能问答第二轮可靠性修复与 0.12.3 发布 | `6592a21`, `69e73f1`, `d43a029` | `master` |

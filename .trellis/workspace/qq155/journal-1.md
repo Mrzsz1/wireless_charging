@@ -976,3 +976,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 30: 迁移问答完整性到结构化 Role 契约
+
+**Date**: 2026-08-13
+**Task**: 迁移问答完整性到结构化 Role 契约
+**Branch**: `master`
+
+### Summary
+
+删除结构化回答路径对最终 Markdown 固定中文短语的搜索，新增 intent-specific claim role 契约、提示词和兼容别名校验，完成聚焦回归与 0.12.4 Tauri 正式发行编译。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `0ce7006` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
