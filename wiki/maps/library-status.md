@@ -14,6 +14,8 @@ concept_count: 7
 system_model_count: 4
 objective_count: 4
 dataset_or_sim_count: 1
+source_research_profile_count: 21
+method_research_profile_count: 20
 source_metadata_complete_count: 23
 source_with_paper_keywords_count: 20
 paper_keyword_occurrence_count: 90
@@ -35,8 +37,8 @@ manual_drop_pending_count: 0
 year_min: 2017
 year_max: 2026
 last_ingest_at: 2026-08-01
-last_content_update_at: 2026-08-11
-updated: 2026-08-11
+last_content_update_at: 2026-08-12
+updated: 2026-08-12
 ---
 
 # 库水位
@@ -59,7 +61,7 @@ updated: 2026-08-11
 | 文献年份跨度 | **2017–2026**（正式卷期与预印本年份分开解释） |
 | 上次 ingest | **2026-08-01** |
 | 最近转换 | **2026-08-01**（最新5篇公开 PDF 由 MinerU 转换，0失败） |
-| 内容层最近更新 | **2026-08-11**（P0/P1 结构深化、原文证据检索与模型/目标层） |
+| 内容层最近更新 | **2026-08-12**（P2 完成 21 篇论文 source 与 20 个 method 的研究档案化，并升级原文证据评测） |
 | 核心 WRSN 充电 | 8 篇 active |
 | 边界文献 | 1 篇 UAV-BS QoS（needs_review） |
 | vocab 版本 | `2026-07-10-seed-v1`（draft_seed） |
@@ -104,8 +106,9 @@ updated: 2026-08-11
 | 指标 | 当前值 | 说明 |
 |------|--------|------|
 | source : synthesis | 23 : 7 | 最新自动发现批次已纳入跨文献比较 |
-| 问答回归用例 | 10 | 5 solve · 3 novelty · 2 relationship；答案基线已存在，水位改为动态校验 |
+| 问答回归用例 | 10 | Gold Contract v2：5 solve · 3 novelty · 2 relationship；逐题要求 Wiki + paper、允许 source ID、原文章节/行号、关键约束与边界 |
 | 可复用知识层 | 4 system-model · 4 objective · 1 dataset-or-sim | 从模型/目标进入，不依赖先知道论文名 |
+| 研究档案详细度 | 21/21 论文 source · 20/20 method | source 覆盖模型、变量、目标、算法、理论、实验、定量结果、局限与 raw 行号；method 覆盖输入输出、步骤、保证与失效边界 |
 | 正式 B 页 | 1 problem / 0 idea | [[../problems/prob-joint-deployment-online-interference]] 已获用户授权；算法 idea 因硬件动作假设未锁定而暂缓 |
 
 ## 领域重心（本批）

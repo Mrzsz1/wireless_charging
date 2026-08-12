@@ -627,12 +627,66 @@ pub fn get_session(
 }
 
 pub(crate) fn query_terms(question: &str) -> Vec<String> {
-    let mut terms = question
+    let raw_terms = question
         .split(|value: char| !value.is_alphanumeric() && value != '-' && value != '_')
         .map(str::trim)
         .filter(|value| value.chars().count() >= 2)
         .map(|value| value.to_lowercase())
         .collect::<Vec<_>>();
+    // Put bilingual domain expansions before long Chinese clauses. FTS5's
+    // unicode tokenizer can keep a whole Chinese clause as one token; if raw
+    // clauses consume the limit first, canonical English papers receive no
+    // usable query term even though the Wiki summary is recalled correctly.
+    let mut terms = Vec::new();
+    for (needle, additions) in [
+        ("开关组合", &["ccsp", "charger set", "charging cycle"][..]),
+        (
+            "已知轨迹",
+            &["charging on the move", "known trajectory", "tunable power"][..],
+        ),
+        (
+            "发起充电请求",
+            &[
+                "dynamic power distribution",
+                "online charging request",
+                "neighbor set",
+            ][..],
+        ),
+        (
+            "充电费",
+            &[
+                "cooperative charging",
+                "charging as service",
+                "cost sharing",
+                "shapley",
+            ][..],
+        ),
+        ("部分充电", &["partial charging", "on-demand charging"][..]),
+        (
+            "波干涉",
+            &[
+                "wave interference",
+                "concurrent charging",
+                "dynamic power distribution",
+            ][..],
+        ),
+        (
+            "城市路口",
+            &[
+                "infinite drive",
+                "signalized intersections",
+                "dynamic wireless charging",
+            ][..],
+        ),
+        (
+            "实时调度",
+            &["real-time scheduling", "charging scheduling"][..],
+        ),
+    ] {
+        if question.contains(needle) {
+            terms.extend(additions.iter().map(|value| value.to_string()));
+        }
+    }
     for (needle, additions) in [
         ("无线充电", &["wireless charging", "wpt"][..]),
         ("调度", &["scheduling", "schedule"][..]),
@@ -668,9 +722,10 @@ pub(crate) fn query_terms(question: &str) -> Vec<String> {
             terms.extend(additions.iter().map(|value| value.to_string()));
         }
     }
+    terms.extend(raw_terms);
     let mut seen = HashSet::new();
     terms.retain(|value| seen.insert(value.clone()));
-    terms.truncate(12);
+    terms.truncate(20);
     terms
 }
 
@@ -825,6 +880,78 @@ fn paper_candidates(connection: &Connection, terms: &[String]) -> Result<Vec<Can
         .map_err(|error| format!("检索论文原文证据失败：{error}"))?;
     rows.collect::<Result<Vec<_>, _>>()
         .map_err(|error| format!("解析论文原文证据失败：{error}"))
+}
+
+fn linked_paper_candidates(
+    connection: &Connection,
+    wiki: &[Candidate],
+) -> Result<Vec<Candidate>, String> {
+    let mut candidates = Vec::new();
+    let mut seen = HashSet::new();
+    for source in wiki
+        .iter()
+        .filter(|candidate| candidate.page_type == "source")
+        .filter(|candidate| seen.insert(candidate.page_id.clone()))
+        .take(8)
+    {
+        let candidate = connection
+            .query_row(
+                "SELECT id,page_id,title,section_title,source_path,pdf_path,line_start,line_end,body
+                 FROM paper_sections
+                 WHERE page_id=?1
+                   AND lower(section_title) NOT LIKE '%references%'
+                   AND lower(section_title) NOT LIKE '%acknowledg%'
+                 ORDER BY CASE
+                   WHEN lower(section_title) LIKE '%abstract%' THEN 0
+                   WHEN lower(section_title) LIKE '%problem%' THEN 1
+                   WHEN lower(section_title) LIKE '%model%' THEN 2
+                   WHEN lower(section_title) LIKE '%introduction%' THEN 3
+                   ELSE 4 END,
+                   line_start
+                 LIMIT 1",
+                [&source.page_id],
+                |row| {
+                    let section_id: String = row.get(0)?;
+                    let page_id: String = row.get(1)?;
+                    let paper_title: String = row.get(2)?;
+                    let section_title: String = row.get(3)?;
+                    let source_path: String = row.get(4)?;
+                    let line_start: i64 = row.get(6)?;
+                    let line_end: i64 = row.get(7)?;
+                    Ok(Candidate {
+                        kind: "paper".to_string(),
+                        tier: "primary_source".to_string(),
+                        title: format!("{paper_title} · {section_title}"),
+                        snippet: compact(&row.get::<_, String>(8)?, 1_200),
+                        score: source.score + 0.18,
+                        page_id: page_id.clone(),
+                        page_type: "source".to_string(),
+                        source_path: source_path.clone(),
+                        wikilink: format!("[[{page_id}]]"),
+                        book_id: String::new(),
+                        chapter_id: String::new(),
+                        physical_page_start: None,
+                        physical_page_end: None,
+                        markdown_path: source_path,
+                        pdf_path: row.get(5)?,
+                        node_id: section_id,
+                        source_location: format!(
+                            "{section_title} · 原文第 {line_start}–{line_end} 行"
+                        ),
+                        relation: "wiki_source_to_primary".to_string(),
+                        retrieval_reason:
+                            "Wiki source 命中后下钻其 canonical 原文；用于保证摘要结论可回到 primary source 核验"
+                                .to_string(),
+                    })
+                },
+            )
+            .optional()
+            .map_err(|error| format!("按Wiki source下钻论文原文失败：{error}"))?;
+        if let Some(candidate) = candidate {
+            candidates.push(candidate);
+        }
+    }
+    Ok(candidates)
 }
 
 fn book_candidates(connection: &Connection, terms: &[String]) -> Result<Vec<Candidate>, String> {
@@ -1008,8 +1135,10 @@ pub fn prepare_question(
         return Err("问题至少需要两个字符".to_string());
     }
     let terms = query_terms(question);
-    let mut candidates = wiki_candidates(connection, &terms)?;
+    let wiki = wiki_candidates(connection, &terms)?;
+    let mut candidates = wiki.clone();
     candidates.extend(paper_candidates(connection, &terms)?);
+    candidates.extend(linked_paper_candidates(connection, &wiki)?);
     candidates.extend(book_candidates(connection, &terms)?);
     candidates.extend(graph_candidates(root, &terms));
     candidates.sort_by(|left, right| right.score.total_cmp(&left.score));
@@ -1047,6 +1176,68 @@ pub fn prepare_question(
                 selected.pop();
             }
             selected.push(candidate);
+        }
+    }
+    // A paper reached through a Wiki source is most useful as an auditable
+    // pair: the structured page explains the claim and the canonical section
+    // verifies it. Keep both sides instead of allowing paper boosts to evict
+    // the very Wiki page that supplied the provenance link.
+    let paired_pages = selected
+        .iter()
+        .filter(|candidate| {
+            candidate.kind == "paper" && candidate.relation == "wiki_source_to_primary"
+        })
+        .map(|candidate| candidate.page_id.clone())
+        .take(8)
+        .collect::<Vec<_>>();
+    for page_id in paired_pages {
+        if selected
+            .iter()
+            .any(|candidate| candidate.kind == "wiki" && candidate.page_id == page_id)
+        {
+            continue;
+        }
+        let Some(wiki_pair) = candidates
+            .iter()
+            .find(|candidate| candidate.kind == "wiki" && candidate.page_id == page_id)
+            .cloned()
+        else {
+            continue;
+        };
+        if selected.len() >= maximum {
+            let removable = selected
+                .iter()
+                .rposition(|candidate| candidate.kind == "graph")
+                .or_else(|| {
+                    selected.iter().rposition(|candidate| {
+                        candidate.kind == "wiki"
+                            && candidate.page_type != "source"
+                            && candidate.page_id != page_id
+                            && selected
+                                .iter()
+                                .filter(|item| item.kind == candidate.kind)
+                                .count()
+                                > 1
+                    })
+                })
+                .or_else(|| {
+                    selected.iter().rposition(|candidate| {
+                        !(candidate.kind == "paper"
+                            && candidate.relation == "wiki_source_to_primary"
+                            && candidate.page_id == page_id)
+                            && selected
+                                .iter()
+                                .filter(|item| item.kind == candidate.kind)
+                                .count()
+                                > 1
+                    })
+                });
+            if let Some(index) = removable {
+                selected.remove(index);
+            }
+        }
+        if selected.len() < maximum {
+            selected.push(wiki_pair);
         }
     }
     selected.sort_by(|left, right| right.score.total_cmp(&left.score));

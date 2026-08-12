@@ -1026,3 +1026,17 @@ P5.4 关闭代码审查遗留的 `SEARCH-001`、`BOOK-001`、`ROLLBACK-001`、`W
 6. **硬边界**：Raw 正文只读；不新增 B 类页面，不修改正式词表，不默认外搜，不用 Graphify `--wiki` 覆盖 Wiki。
 
 阶段验收以 Trellis 任务 `.trellis/tasks/08-11-llmwiki-depth-retrieval/` 为准：Wiki Lint 0 errors，论文原文章节双语召回与位置字段通过回归，新增不少于 4 个 system-model、4 个 objective、1 个 dataset-or-sim，五组样板完成深化，Graphify 不再遗漏现有 source，并完成一次 Rust、Python、前端和检索评测。
+
+#### 13.21 LLM Wiki P2：全量研究档案与原文证据评测（2026-08-12）
+
+P2 将 P1 的五组深度样板扩展到全部论文与方法页，并把固定问答从“链接命中”升级为可审计的原文证据契约：
+
+1. 21 篇论文/预印本 source 均采用 TL;DR、使用边界、模型、变量、目标/约束、算法、理论、实验、定量结果、局限和 canonical 行号结构；2 本核心专著继续走章节检索，不机械套论文模板。
+2. 20 个 method 均记录输入、输出、算法步骤、复杂度/保证、实验口径和失效边界；原文未报告的保证必须明示，不得把启发式结果扩写为普适定理。
+3. `evals/gold_questions.json` 升级为 Gold Contract v2。每个固定问题同时声明 Wiki 与 paper 两类证据、允许的 primary source、原文位置要求、关键约束和边界陈述。
+4. Python 静态评测拒绝替换字符/典型乱码，校验当前库水位、关键概念、原文行号和边界；Rust 在真实派生 SQLite 索引上验证 Wiki 命中、paper source ID 与 `sourceLocation`。
+5. DWPT 新颖性用例反映当前库已有 Honma 2026 与 Li 2024：设施部署/计划调度属于部分重叠，随机车辆实时调度仍未完整覆盖，不再使用“库内没有 DWPT”的旧判断。
+6. 原有治理边界不变：raw 正文只读，不新增 B 类 problem/idea，不修改 `vocab.yaml`，不默认外搜，Graphify 仅为可重建派生层。
+7. 桌面端检索同步保留 Wiki source 与 primary paper 证据对，同时继续保留核心书籍通道；P2 客户端版本为 0.12.1，并完成 Windows MSI/NSIS 构建与本机安装验证。
+
+阶段验收以 `.trellis/tasks/08-11-llmwiki-p2-full-depth-eval/` 为准：Wiki Lint 0 errors、Gold 10/10、Rust 真实 evidence contract、两书 Recall@5 ≥95%、Graphify 覆盖全部 Wiki，并完成 Python、Rust 与前端构建回归。

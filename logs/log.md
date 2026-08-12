@@ -294,3 +294,11 @@
 - ?? full pipeline fixture?Graphify ??????????????? updater ??????? manifest fixture?
 - `verify:p5:strict` ???? GUI ???? NSIS ??/??/???Python 37/37?Rust 23/23?Wiki 10/10??? Recall@5 ??? 95%?
 - Graphify 1633 nodes / 2525 links / 146 communities????`logs/2026-08-02-desktop-p53-release-hardening.md`?
+## [2026-08-12] compile | P2 全量研究档案与 Gold Contract v2
+
+- 将剩余 16 篇论文 source 与 15 个 method 按 P1 研究档案结构深化；全库达到 21/21 论文 source、20/20 method。
+- 固定问答升级为 Wiki + primary paper + source location + critical constraints + boundary 的 Gold Contract v2。
+- 修正 DWPT 新颖性水位：Honma 2026 与 Li 2024 构成部署/计划层部分重叠，实时车辆调度仍是边界。
+- Graphify 更新为 3263 nodes / 5464 edges / 199 communities；Wiki 0 errors，Gold 10/10，两书 Recall@5 均超过 95%，Python 49/49、Rust 56/56。
+- 客户端同步发布并安装 0.12.1；MSI/NSIS、GUI E2E、注册表版本、ProductVersion 与启动探针通过。
+- 未修改 raw 正文、B 类页面或 `schema/vocab.yaml`；详情见 [[2026-08-12-llmwiki-p2-full-depth-eval]]。

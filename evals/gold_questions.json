@@ -1,6 +1,6 @@
 {
-  "version": "2026-07-14-v1",
-  "scope": "current_wiki_only",
+  "version": "2026-08-12-v2",
+  "scope": "current_wiki_and_canonical_primary_sources",
   "cases": [
     {
       "id": "solve-interference-switching",
@@ -8,7 +8,14 @@
       "question": "多个同频静态充电器同时工作时出现破坏性干涉，怎样调度开关组合以缩短全网充满时间？",
       "expected_wikilinks": ["src-guo-concurrent-ccsp", "mtd-ccsp-greedy-scheduling", "syn-interference-aware-concurrent-wpt", "maps/library-status"],
       "must_mention": ["非线性叠加", "开关组合", "完成时间", "适用前提"],
-      "waterline_required": true
+      "waterline_required": true,
+      "evidence_contract": {
+        "required_kinds": ["wiki", "paper"],
+        "paper_sources": ["sources/src-guo-concurrent-ccsp"],
+        "source_location_required": true,
+        "critical_constraints": ["同频", "静态", "全充满"],
+        "boundary_statement_required": true
+      }
     },
     {
       "id": "solve-mobile-known-trajectory",
@@ -16,7 +23,14 @@
       "question": "接收设备沿已知轨迹移动、充电器静止且功率可调时，当前库有什么可直接使用的方法？",
       "expected_wikilinks": ["src-wu-charging-on-the-move", "mtd-tunable-power-mobile-traj", "syn-mobility-online-service-scheduling", "maps/library-status"],
       "must_mention": ["轨迹已知", "分段常数", "功率可加", "总功率预算"],
-      "waterline_required": true
+      "waterline_required": true,
+      "evidence_contract": {
+        "required_kinds": ["wiki", "paper"],
+        "paper_sources": ["sources/src-wu-charging-on-the-move"],
+        "source_location_required": true,
+        "critical_constraints": ["轨迹已知", "功率可调", "总功率预算"],
+        "boundary_statement_required": true
+      }
     },
     {
       "id": "solve-online-directional-requests",
@@ -24,7 +38,14 @@
       "question": "固定传感器在线发起充电请求，定向充电器可以旋转且存在波干涉，应该参考哪套方案？",
       "expected_wikilinks": ["src-ma-tide-dynamic-power", "mtd-tide-online-orientation", "syn-interference-aware-concurrent-wpt", "maps/library-status"],
       "must_mention": ["在线请求", "候选朝向", "neighbor set", "波干涉"],
-      "waterline_required": true
+      "waterline_required": true,
+      "evidence_contract": {
+        "required_kinds": ["wiki", "paper"],
+        "paper_sources": ["sources/src-ma-tide-dynamic-power"],
+        "source_location_required": true,
+        "critical_constraints": ["在线请求", "固定传感器", "定向充电器"],
+        "boundary_statement_required": true
+      }
     },
     {
       "id": "solve-peak-aoi",
@@ -32,7 +53,14 @@
       "question": "无线供能边缘网络中既要安排充电又要安排数据传输，如何降低最坏节点的峰值 AoI？",
       "expected_wikilinks": ["src-chen-peak-aoi-wpt", "mtd-peak-aoi-joint-charge-tx", "cpt-aoi-peak", "maps/library-status"],
       "must_mention": ["充传联合", "最大峰值 AoI", "充电时延", "带宽约束"],
-      "waterline_required": true
+      "waterline_required": true,
+      "evidence_contract": {
+        "required_kinds": ["wiki", "paper"],
+        "paper_sources": ["sources/src-chen-peak-aoi-wpt"],
+        "source_location_required": true,
+        "critical_constraints": ["充传联合", "最大峰值 AoI", "带宽约束"],
+        "boundary_statement_required": true
+      }
     },
     {
       "id": "solve-paid-cooperative-service",
@@ -40,7 +68,14 @@
       "question": "无线充电按服务收费、设备可以移动到不同充电器时，怎样兼顾充电费和移动成本？",
       "expected_wikilinks": ["src-xu-cooperative-ccs", "mtd-ccs-cooperative-service", "syn-mobility-online-service-scheduling", "maps/library-status"],
       "must_mention": ["成本分摊", "充电成本", "移动成本", "Nash"],
-      "waterline_required": true
+      "waterline_required": true,
+      "evidence_contract": {
+        "required_kinds": ["wiki", "paper"],
+        "paper_sources": ["sources/src-xu-cooperative-ccs"],
+        "source_location_required": true,
+        "critical_constraints": ["付费服务", "成本分摊", "移动成本"],
+        "boundary_statement_required": true
+      }
     },
     {
       "id": "novelty-joint-placement-online-interference",
@@ -48,23 +83,44 @@
       "question": "idea：先部署多充电器，再根据在线请求联合切换开关与朝向，在波干涉下优化长期公平效用。当前库是否已经覆盖？",
       "expected_wikilinks": ["src-guo-concurrent-ccsp", "src-ma-concurrent-gain", "src-ma-tide-dynamic-power", "syn-interference-aware-concurrent-wpt", "maps/library-status"],
       "must_mention": ["部分重叠", "部署", "在线", "公平", "基于当前知识库"],
-      "waterline_required": true
+      "waterline_required": true,
+      "evidence_contract": {
+        "required_kinds": ["wiki", "paper"],
+        "paper_sources": ["sources/src-guo-concurrent-ccsp", "sources/src-ma-concurrent-gain", "sources/src-ma-tide-dynamic-power"],
+        "source_location_required": true,
+        "critical_constraints": ["部署", "在线", "长期公平"],
+        "boundary_statement_required": true
+      }
     },
     {
       "id": "novelty-mobile-partial-deadline",
       "type": "novelty",
       "question": "idea：对沿未知轨迹移动的设备做在线部分充电，并保证每个请求的截止时间。当前库是否已有完整解法？",
-      "expected_wikilinks": ["src-wu-charging-on-the-move", "syn-mobility-online-service-scheduling", "syn-wrsn-scheduling-placement", "maps/library-status"],
+      "expected_wikilinks": ["src-wu-charging-on-the-move", "src-qaisar2026-isac-uav-charging", "syn-mobility-online-service-scheduling", "syn-wrsn-scheduling-placement", "maps/library-status"],
       "must_mention": ["未完整覆盖", "已知轨迹", "部分充电", "截止时间", "基于当前知识库"],
-      "waterline_required": true
+      "waterline_required": true,
+      "evidence_contract": {
+        "required_kinds": ["wiki", "paper"],
+        "paper_sources": ["sources/src-wu-charging-on-the-move", "sources/src-qaisar2026-isac-uav-charging"],
+        "source_location_required": true,
+        "critical_constraints": ["未知轨迹", "在线", "截止时间"],
+        "boundary_statement_required": true
+      }
     },
     {
       "id": "novelty-dwpt-ev-scheduling",
       "type": "novelty",
       "question": "idea：在城市路口联合优化动态无线充电道路部署与车辆实时调度。当前库能否支持新颖性判断？",
-      "expected_wikilinks": ["syn-wrsn-scheduling-placement", "maps/library-status"],
-      "must_mention": ["证据不足", "EV", "DWPT", "候选不计入水位", "基于当前知识库"],
-      "waterline_required": true
+      "expected_wikilinks": ["src-honma2026-infinite-drive-dwpt", "src-li2024-dwc-beb-integrated-planning", "mtd-dwpt-intersection-placement", "syn-dynamic-roadway-wpt-infrastructure", "maps/library-status"],
+      "must_mention": ["部分重叠", "EV", "DWPT", "实时调度", "基于当前知识库"],
+      "waterline_required": true,
+      "evidence_contract": {
+        "required_kinds": ["wiki", "paper"],
+        "paper_sources": ["sources/src-honma2026-infinite-drive-dwpt", "sources/src-li2024-dwc-beb-integrated-planning"],
+        "source_location_required": true,
+        "critical_constraints": ["城市路口", "设施部署", "实时调度"],
+        "boundary_statement_required": true
+      }
     },
     {
       "id": "relation-gain-tide",
@@ -72,7 +128,14 @@
       "question": "GAIN 和 TIDE 都利用波干涉，它们的决策阶段、可控变量和适用场景有什么关系？",
       "expected_wikilinks": ["src-ma-concurrent-gain", "src-ma-tide-dynamic-power", "syn-interference-aware-concurrent-wpt", "maps/library-status"],
       "must_mention": ["部署阶段", "在线运行", "传感器位置", "充电器朝向"],
-      "waterline_required": true
+      "waterline_required": true,
+      "evidence_contract": {
+        "required_kinds": ["wiki", "paper"],
+        "paper_sources": ["sources/src-ma-concurrent-gain", "sources/src-ma-tide-dynamic-power"],
+        "source_location_required": true,
+        "critical_constraints": ["部署阶段", "在线运行", "波干涉"],
+        "boundary_statement_required": true
+      }
     },
     {
       "id": "relation-additive-vs-interference",
@@ -80,7 +143,14 @@
       "question": "为什么 HIPO/WANDA 的放置结论不能直接替代 CCSP/TIDE 的干涉感知调度？",
       "expected_wikilinks": ["src-wang-hipo-obstacles", "src-dai-wanda-multi-antenna", "src-guo-concurrent-ccsp", "src-ma-tide-dynamic-power", "syn-interference-aware-concurrent-wpt", "maps/library-status"],
       "must_mention": ["功率可加", "波干涉", "几何覆盖", "模型边界"],
-      "waterline_required": true
+      "waterline_required": true,
+      "evidence_contract": {
+        "required_kinds": ["wiki", "paper"],
+        "paper_sources": ["sources/src-wang-hipo-obstacles", "sources/src-dai-wanda-multi-antenna", "sources/src-guo-concurrent-ccsp", "sources/src-ma-tide-dynamic-power"],
+        "source_location_required": true,
+        "critical_constraints": ["功率可加", "波干涉", "几何覆盖"],
+        "boundary_statement_required": true
+      }
     }
   ]
 }

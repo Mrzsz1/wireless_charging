@@ -2,18 +2,16 @@
 
 ## 0. 库水位与范围
 
-基于当前知识库：23 篇 source，年份 2017–2026，上次 ingest：2026-08-01。以下判断仅相对当前知识库。
+基于当前知识库的 **23 篇 source** 判断，见 [[maps/library-status]]。
 
-## 1. 重叠
+## 判断
 
-[[src-wu-charging-on-the-move]] 处理**已知轨迹**和可调功率；[[syn-mobility-online-service-scheduling]] 汇总了移动、在线请求和服务目标的边界；[[syn-wrsn-scheduling-placement]] 提供WRSN调度对照。
+当前**未完整覆盖**。[[src-wu-charging-on-the-move]]提供的是**已知轨迹**下的离线可调功率调度；[[src-qaisar2026-isac-uav-charging]]具有在线队列和**部分充电**，但服务端是单 UAV，未给出未知移动接收端每请求**截止时间**保证。相关边界见 [[syn-mobility-online-service-scheduling]] 与 [[syn-wrsn-scheduling-placement]]。
 
-## 2. 覆盖判断
+## 原文证据
 
-结论：**未完整覆盖**。当前证据没有同时保证未知轨迹、在线**部分充电**和每个请求的**截止时间**。已有方法的已知轨迹前提不能直接升级为在线保证。
+- 已知轨迹模型：原文第 60–135 行；ISAC 在线队列与部分充电：原文第 86–150 行。
 
-## 3. 剩余gap
+## 边界
 
-需要定义轨迹信息模型、部分充电收益、截止时间违约代价和在线竞争比；这是库内gap，不是全球新颖性结论。
-
-证据水位：[[maps/library-status]]
+“未知轨迹 + 在线 + 截止时间保证”仍是缺口；已有部分充电不等于 deadline-feasible，也不构成全球新颖性结论。

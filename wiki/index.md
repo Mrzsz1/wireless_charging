@@ -2,12 +2,14 @@
 type: map
 title: Wiki 索引 index
 status: active
-updated: 2026-08-11
+updated: 2026-08-12
 ---
 
 # Wiki 索引
 
 > 先读本页 + [[maps/library-status|库水位]]，再钻取。图查询：`graphify query`。
+
+> 2026-08-12：21 篇论文 source 与 20 个 method 均已升级为可核验研究档案。进入页面后优先读“何时使用 / 何时不使用”和“证据定位”，再迁移算法。
 
 ## 导航
 
@@ -143,4 +145,4 @@ updated: 2026-08-11
 - 来源：论文已编译 source 为 **9 manual / 12 auto-discovery**，另有 2 本 manual 核心专著；自动发现 canonical 待编译数为 **0**
 - 自动发现状态：**46 pending / 6 selected（全文受限）/ 14 rejected / 12 promoted**
 - B 层：**1 problem / 0 idea**；problem 已由用户授权 Agent 正式化
-- 上次内容更新：2026-08-11 完成 P0/P1 结构深化与论文原文章节检索
+- 上次内容更新：2026-08-12 完成 P2 全量研究档案与 Gold Contract v2 原文证据门禁

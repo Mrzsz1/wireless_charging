@@ -2,18 +2,16 @@
 
 ## 0. 库水位
 
-基于当前知识库：23 篇 source，年份 2017–2026，上次 ingest：2026-08-01。
+当前为 **23 篇 source**，见 [[maps/library-status]]。
 
-## 1. 直接可用
+## 回答
 
-参考 [[src-xu-cooperative-ccs]] 与 [[mtd-ccs-cooperative-service]]。设备可以移动到不同充电器，方法先做服务分组/分配，再用联盟形成机制和 **Nash** 稳定分摊，联合考虑**充电成本**与**移动成本**。
+使用 [[src-xu-cooperative-ccs]] 与 [[mtd-ccs-cooperative-service]]：先把设备分配到付费充电器，再以比例法或 Shapley value 做组内**成本分摊**，同时计入**充电成本**和**移动成本**。小规模可用 CCSA 近似优化；大规模可用联盟形成博弈 CCSGA，并收敛到纯 **Nash** 均衡。关系见 [[syn-mobility-online-service-scheduling]]。
 
-## 2. 适用前提
+## 原文证据
 
-设备可主动移动、充电器服务有价格或成本、分组合作可执行。[[syn-mobility-online-service-scheduling]] 提醒：成本分摊模型不等价于AoI或干涉感知功率控制。
+- 服务与成本模型：[[src-xu-cooperative-ccs]]，原文第 84–149 行；成本分摊：原文第 150–187 行；优化与博弈算法：原文第 188–474 行。
 
-## 3. 库内未见
+## 边界
 
-当前库未见把Nash成本分摊与在线请求、波干涉和实时功率预算统一起来的实现。
-
-证据水位：[[maps/library-status]]
+付费服务、固定充电距离和论文的价格/移动成本模型是必要边界；均衡不等于全局社会成本最优，也不直接覆盖波干涉。

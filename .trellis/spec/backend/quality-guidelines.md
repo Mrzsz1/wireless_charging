@@ -140,6 +140,65 @@ Reviewers must reject synchronous `Command::output`/`wait` calls in Tauri comman
 - Missing Graphify or core-book indexes are reported through `degradedChannels`; a missing optional channel does not turn valid Wiki evidence into an error.
 - Rust tests must cover stable context keys, deduplication/reason merging, direct-link priority, method restriction, and degraded channels. Run fmt, Clippy with `-D warnings`, and the complete Rust suite before commit.
 
+## Scenario: Auditable Wiki and Primary-Paper Evidence Pairing
+
+### 1. Scope / Trigger
+
+Apply this contract whenever `qa::prepare_question` ranking, bilingual expansion, paper-section indexing, or evidence limits change. It prevents a strong paper boost from evicting the Wiki source that explains the claim, while retaining the independent core-book channel.
+
+### 2. Signatures
+
+- `query_terms(question: &str) -> Vec<String>`
+- `linked_paper_candidates(connection: &Connection, wiki: &[Candidate]) -> Result<Vec<Candidate>, String>`
+- `prepare_question(connection, root, question, limit) -> Result<QuestionContext, String>`
+- Paired paper marker: `relation = "wiki_source_to_primary"`.
+
+### 3. Contracts
+
+- Put bilingual domain expansions before unsplit Chinese clauses and deduplicate before applying the term cap.
+- When a recalled Wiki candidate has `page_type = "source"`, down-drill to one non-reference canonical paper section with a real line range.
+- A paired paper exposes the same `page_id`, `kind = "paper"`, `tier = "primary_source"`, and `source_location` containing `原文第 x–y 行`.
+- Final evidence preserves at least one Wiki, paper, and book result when each channel produced a candidate. Adding Wiki/paper pairs may remove duplicate-channel or graph candidates, never the sole book result.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+|---|---|
+| Wiki source has an indexed canonical section | Return the Wiki item and its paired paper when the evidence limit permits |
+| Wiki source has no paper section | Keep the Wiki result; do not fabricate a location |
+| Direct paper FTS misses a Chinese question | Use the matched Wiki source to down-drill its canonical section |
+| Pair insertion reaches the limit | Evict graph or a duplicate-channel item; preserve sole Wiki/paper/book representatives |
+| Section is References/Acknowledgements | Exclude it from pair selection |
+
+### 5. Good/Base/Bad Cases
+
+- **Good**: a Chinese scheduling query returns `[[src-...]]`, the corresponding canonical section with raw line range, and a core-book chapter with physical pages.
+- **Base**: only Wiki evidence exists; the answer remains usable and clearly lacks primary-paper location.
+- **Bad**: sorting all candidates and truncating once, which can return many boosted paper sections but lose the Wiki provenance or sole book result.
+
+### 6. Tests Required
+
+- Real-repository Gold Contract regression: all ten cases recall an expected Wiki page and an allowed paper source with `原文第` and `行`.
+- Real-repository mixed-channel regression: a generic scheduling query retains Wiki and book evidence; every book result has a physical page.
+- Run Rust fmt, Clippy `-D warnings`, complete Rust tests, frontend build, and release GUI E2E before packaging.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```rust
+candidates.sort_by(score);
+let evidence = candidates.into_iter().take(limit).collect();
+```
+
+#### Correct
+
+```rust
+let wiki = wiki_candidates(connection, &terms)?;
+candidates.extend(linked_paper_candidates(connection, &wiki)?);
+// Rank, deduplicate, preserve channel diversity, then preserve Wiki/paper pairs.
+```
+
 ## Desktop Search Credential Contract
 
 Search-provider credentials are desktop secrets, not repository configuration.

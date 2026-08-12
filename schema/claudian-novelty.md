@@ -16,8 +16,9 @@
 4. 检索：若可调用 graphify，先 graphify query / path 找重叠节点；再精读 sources / methods / syntheses / problems / ideas。
 5. 冲突文献并列，不选边。
 6. 每个判断必须带 [[wikilink]] 证据。无证据则标「库内未见」，不要升级为「领域创新」。
-7. 语言：中文主述。
-8. 不以 graph.html 社区颜色代替文献证据。
+7. 对重叠模型、关键约束与边界判断，同时给出 canonical 原文定位（至少精确到“原文第 x–y 行”），并保留 Wiki 页 + primary paper 证据对。
+8. 语言：中文主述。
+9. 不以 graph.html 社区颜色代替文献证据。
 
 ## 输出结构（必须遵守）
 ### 0. 库水位与时效声明

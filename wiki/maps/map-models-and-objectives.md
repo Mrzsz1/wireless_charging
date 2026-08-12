@@ -2,7 +2,7 @@
 type: map
 title: 主题 · 系统模型与目标
 status: active
-updated: 2026-08-11
+updated: 2026-08-12
 ---
 
 # 系统模型与目标：从问题到证据
@@ -28,6 +28,8 @@ updated: 2026-08-11
 | 同时优化效率、距离和节点生存 | [[obj-multi-objective-survivability]] | reward 提升不等于各物理目标同比改善 |
 
 ## 3. 方法与原文证据
+
+下列入口以及 [[../index|总索引]] 中的其余方法均已研究档案化：方法页先给输入/输出与保证，source 页再给实验、定量结果和 canonical 行号。检索命中方法名后仍须下钻 source，不以摘要替代原文证据。
 
 | 模型 → 目标 | 可用方法 | 主要 source |
 |---|---|---|

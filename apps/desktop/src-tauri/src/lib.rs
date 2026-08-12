@@ -3827,7 +3827,6 @@ mod tests {
             serde_json::from_str(include_str!("../../../../evals/gold_questions.json"))
                 .expect("gold questions");
         let cases = payload["cases"].as_array().expect("cases");
-        let mut matched = 0usize;
         let mut missed = Vec::new();
         for case in cases {
             let question = case["question"].as_str().expect("question");
@@ -3838,33 +3837,50 @@ mod tests {
                 .filter_map(|value| value.as_str())
                 .filter(|value| !value.contains("library-status"))
                 .collect::<Vec<_>>();
+            let contract = case["evidence_contract"]
+                .as_object()
+                .expect("evidence contract");
+            let paper_sources = contract["paper_sources"]
+                .as_array()
+                .expect("paper sources")
+                .iter()
+                .filter_map(|value| value.as_str())
+                .collect::<Vec<_>>();
             let context = qa::prepare_question(&connection, &root, question, 20)
                 .unwrap_or_else(|error| panic!("question failed: {question}: {error}"));
-            let hit = context.evidence.iter().any(|item| {
+            let wiki_hit = context.evidence.iter().any(|item| {
                 item.kind == "wiki"
                     && expected
                         .iter()
                         .any(|target| item.page_id.trim_end_matches(".md").ends_with(target))
             });
-            if hit {
-                matched += 1;
-            } else {
+            let paper_hit = context.evidence.iter().any(|item| {
+                item.kind == "paper"
+                    && paper_sources
+                        .iter()
+                        .any(|target| item.page_id.trim_end_matches(".md").ends_with(target))
+                    && !item.source_location.is_empty()
+                    && item.source_location.contains("原文第")
+                    && item.source_location.contains('行')
+            });
+            if !wiki_hit || !paper_hit {
                 missed.push(format!(
-                    "{} -> {:?}",
+                    "{} -> wiki_hit={wiki_hit}, paper_hit={paper_hit}, evidence={:?}",
                     case["id"].as_str().unwrap_or("unknown"),
                     context
                         .evidence
                         .iter()
-                        .filter(|item| item.kind == "wiki")
-                        .map(|item| item.page_id.as_str())
+                        .map(|item| format!(
+                            "{}:{}:{}",
+                            item.kind, item.page_id, item.source_location
+                        ))
                         .collect::<Vec<_>>()
                 ));
             }
         }
-        assert_eq!(
-            matched,
-            cases.len(),
-            "每个固定问题至少召回一个预期 Wiki 证据；missed={missed:?}"
+        assert!(
+            missed.is_empty(),
+            "每个固定问题必须同时召回预期 Wiki 与可定位的 primary paper 证据；missed={missed:?}"
         );
     }
 

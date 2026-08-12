@@ -11,6 +11,10 @@ from typing import Any, Sequence
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_GOLD = ROOT / "evals" / "gold_questions.json"
 EXPECTED_COUNTS = {"solve": 5, "novelty": 3, "relationship": 2}
+GOLD_VERSION = "2026-08-12-v2"
+VALID_EVIDENCE_KINDS = {"wiki", "paper"}
+MOJIBAKE_MARKERS = ("\ufffd", "���", "锟斤拷", "鈥", "鈫")
+SOURCE_LOCATION_RE = re.compile(r"原文第\s*\d+\s*[–—-]\s*\d+\s*行")
 
 # Gold questions use concise Chinese labels; answers may use a documented
 # equivalent phrasing. Keep this mapping small and explicit so the check does
@@ -31,9 +35,21 @@ class EvalContractError(ValueError):
     pass
 
 
+def mojibake_markers(text: str) -> list[str]:
+    """Return known lossy-decoding markers without guessing a reverse codec."""
+
+    return [marker for marker in MOJIBAKE_MARKERS if marker in text]
+
+
 def load_gold(path: Path) -> dict[str, Any]:
     try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
+        text = path.read_text(encoding="utf-8")
+        markers = mojibake_markers(text)
+        if markers:
+            raise EvalContractError(
+                f"题集包含疑似编码损坏标记: {', '.join(repr(item) for item in markers)}"
+            )
+        payload = json.loads(text)
     except (OSError, json.JSONDecodeError) as exc:
         raise EvalContractError(f"无法读取题集 {path}: {exc}") from exc
     if not isinstance(payload, dict) or not isinstance(payload.get("cases"), list):
@@ -52,6 +68,8 @@ def wiki_ids(wiki_root: Path) -> set[str]:
 
 def validate_contract(payload: dict[str, Any], wiki_root: Path) -> list[str]:
     errors: list[str] = []
+    if payload.get("version") != GOLD_VERSION:
+        errors.append(f"题集版本应为 {GOLD_VERSION}，实际 {payload.get('version')!r}")
     cases = payload["cases"]
     if len(cases) != 10:
         errors.append(f"应有 10 个用例，实际 {len(cases)}")
@@ -82,6 +100,29 @@ def validate_contract(payload: dict[str, Any], wiki_root: Path) -> list[str]:
         for link in links:
             if link not in existing:
                 errors.append(f"{case_id}: wikilink 目标不存在: {link}")
+        contract = case.get("evidence_contract")
+        if not isinstance(contract, dict):
+            errors.append(f"{case_id}: 缺少 evidence_contract")
+            continue
+        required_kinds = contract.get("required_kinds")
+        if not isinstance(required_kinds, list) or set(required_kinds) != VALID_EVIDENCE_KINDS:
+            errors.append(f"{case_id}: required_kinds 必须同时且仅包含 wiki、paper")
+        paper_sources = contract.get("paper_sources")
+        if not isinstance(paper_sources, list) or not paper_sources:
+            errors.append(f"{case_id}: paper_sources 必须是非空数组")
+        else:
+            for source in paper_sources:
+                if not isinstance(source, str) or not source.startswith("sources/src-"):
+                    errors.append(f"{case_id}: 非法 paper source id: {source!r}")
+                elif source not in existing:
+                    errors.append(f"{case_id}: paper source 不存在: {source}")
+        if contract.get("source_location_required") is not True:
+            errors.append(f"{case_id}: source_location_required 必须为 true")
+        critical = contract.get("critical_constraints")
+        if not isinstance(critical, list) or not critical:
+            errors.append(f"{case_id}: critical_constraints 必须是非空数组")
+        if contract.get("boundary_statement_required") is not True:
+            errors.append(f"{case_id}: boundary_statement_required 必须为 true")
     return errors
 
 
@@ -98,6 +139,9 @@ def validate_answers(payload: dict[str, Any], answers_dir: Path) -> list[str]:
             errors.append(f"{case_id}: 缺少答案文件 {answer_path}")
             continue
         answer = answer_path.read_text(encoding="utf-8")
+        markers = mojibake_markers(answer)
+        if markers:
+            errors.append(f"{case_id}: 答案包含疑似编码损坏标记")
         for link in case["expected_wikilinks"]:
             if f"[[{link}" not in answer and f"[[{Path(link).name}" not in answer:
                 errors.append(f"{case_id}: 答案缺少 [[{link}]]")
@@ -116,6 +160,21 @@ def validate_answers(payload: dict[str, Any], answers_dir: Path) -> list[str]:
             errors.append(
                 f"{case_id}: 答案缺少必提概念: {', '.join(missing_mentions)}"
             )
+        contract = case.get("evidence_contract", {})
+        critical_missing = [
+            item
+            for item in contract.get("critical_constraints", [])
+            if item.casefold() not in normalized
+        ]
+        if critical_missing:
+            errors.append(
+                f"{case_id}: 答案缺少关键约束: {', '.join(critical_missing)}"
+            )
+        if contract.get("source_location_required"):
+            if "原文证据" not in answer or not SOURCE_LOCATION_RE.search(answer):
+                errors.append(f"{case_id}: 答案缺少可核验的原文行号证据")
+        if contract.get("boundary_statement_required") and "边界" not in answer:
+            errors.append(f"{case_id}: 答案缺少证据边界说明")
     return errors
 
 

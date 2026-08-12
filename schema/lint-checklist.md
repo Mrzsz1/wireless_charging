@@ -36,6 +36,15 @@
 - system-model / objective / dataset-or-sim 是否至少覆盖两个 source 或一个核心理论锚点
 - raw 位置只写可信章节/行号；没有页映射时不得伪造 PDF page
 
+### 3.2 Gold Contract v2 问答证据门禁（2026-08-12 起）
+
+- 每个固定问题至少声明一个预期 Wiki 页和一个允许的 primary paper source；不得只检索 synthesis/method 后省略原始文献
+- 每份固定答案必须同时给出 `[[wikilink]]` 与 canonical 原文定位，定位格式至少包含“原文第 x–y 行”
+- `critical_constraints` 中的关键约束必须逐项出现在答案正文，不能用宽泛摘要替代模型边界
+- novelty / partial 判断必须说明本库边界；“库内未见”不得升级为全球新颖性结论
+- Gold JSON 与固定答案必须是无乱码 UTF-8；出现 U+FFFD、典型 mojibake 或字段缺失时评测直接失败
+- 客户端召回须保留 Wiki 归纳页与其 primary paper 的证据对；paper boost 不得把来源 Wiki 页挤出最终证据集
+
 ### 4. 孤儿页
 
 - 无入链的 wiki 页（除 maps/index 自身）
