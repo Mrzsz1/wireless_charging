@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { claimCompletion, createCompletionLedger, mergeCompletedMessages } from '../src/features/qa/completionState.ts'
+import { claimCompletion, createCompletionLedger, mergeCompletedMessages, repositoryIdentity, retryQuestionFor, rollbackOptimisticMessages } from '../src/features/qa/completionState.ts'
 import { chapterLookupId, matchesBookTarget, shortChapterId } from '../src/features/books/bookTarget.ts'
 import { nextGraphRefreshVersion, reconcileGraphPath, reconcileGraphSelection } from '../src/features/graph/refreshState.ts'
 import { intersectionArea, parsePersistedWindowState, resolveWindowPlacement, type MonitorWorkArea } from '../src/lib/windowPlacement.ts'
@@ -19,6 +19,7 @@ const message = (id: string, role: ChatMessage['role']): ChatMessage => ({
   model: 'test',
   requestId: 'request-1',
   evidence: [],
+  citationValidation: null,
 })
 
 const result: AskResult = {
@@ -29,6 +30,7 @@ const result: AskResult = {
   evidence: [],
   waterline: { sourceCount: 0, methodCount: 0, synthesisCount: 0, chapterCount: 0, yearMin: '', yearMax: '', lastIngestAt: '', repositoryPath: 'repo-a', capturedAt: '' },
   offline: true,
+  citationValidation: { citedIds: [], unknownIds: [], citationPrecision: 0, hasCitations: false, supported: true },
 }
 
 test('completion claim is idempotent and resets when repository changes', () => {
@@ -36,6 +38,26 @@ test('completion claim is idempotent and resets when repository changes', () => 
   assert.equal(claimCompletion(ledger, 'repo-a', 'request-1'), true)
   assert.equal(claimCompletion(ledger, 'repo-a', 'request-1'), false)
   assert.equal(claimCompletion(ledger, 'repo-b', 'request-1'), true)
+})
+
+test('repository identity normalizes Windows separators and case', () => {
+  assert.equal(repositoryIdentity('E:\\Knowledge\\Repo\\'), 'e:/knowledge/repo')
+})
+
+test('assistant retry binds to its preceding completed user message', () => {
+  const messages = [
+    { id: 'u1', role: 'user', content: 'first', status: 'completed' },
+    { id: 'a1', role: 'assistant', content: 'answer 1', status: 'completed' },
+    { id: 'u2', role: 'user', content: 'second', status: 'completed' },
+    { id: 'a2', role: 'assistant', content: 'answer 2', status: 'completed' },
+  ] as ChatMessage[]
+  assert.equal(retryQuestionFor(messages, 1), 'first')
+  assert.equal(retryQuestionFor(messages, 3), 'second')
+})
+
+test('failed request removes only its optimistic message', () => {
+  const messages = [{ id: 'saved' }, { id: 'local-1' }] as ChatMessage[]
+  assert.deepEqual(rollbackOptimisticMessages(messages, 'local-1').map((item) => item.id), ['saved'])
 })
 
 test('completed messages replace local placeholders without duplicating history', () => {

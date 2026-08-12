@@ -2369,10 +2369,6 @@ fn save_luna_settings(
 
 #[tauri::command]
 async fn get_qa_settings(state: State<'_, AppState>) -> Result<qa::LunaSettings, String> {
-    let codex_ready = tauri::async_runtime::spawn_blocking(codex_subscription::get_status)
-        .await
-        .map_err(|error| format!("Codex 状态线程失败：{error}"))?
-        .ready;
     let repository = state
         .repository
         .lock()
@@ -2385,7 +2381,7 @@ async fn get_qa_settings(state: State<'_, AppState>) -> Result<qa::LunaSettings,
         .db
         .as_ref()
         .ok_or_else(|| "请先选择知识库目录".to_string())?;
-    qa::get_luna_settings(connection, root, codex_ready)
+    qa::get_luna_settings(connection, root, false)
 }
 
 #[tauri::command]
@@ -2569,11 +2565,7 @@ async fn ask_luna(
     on_event: Channel<qa::AnswerStreamEvent>,
     state: State<'_, AppState>,
 ) -> Result<qa::AskResult, String> {
-    let codex_ready = tauri::async_runtime::spawn_blocking(codex_subscription::get_status)
-        .await
-        .map_err(|error| format!("Codex 状态线程失败：{error}"))?
-        .ready;
-    let (context, settings, root, session_id) = {
+    let (mut context, settings, root, session_id, authoritative_repository_id) = {
         let repository = state
             .repository
             .lock()
@@ -2583,6 +2575,10 @@ async fn ask_luna(
             .as_ref()
             .ok_or_else(|| "请先选择知识库目录".to_string())?
             .clone();
+        let authoritative_repository_id = qa::repository_id(&root);
+        if request.repository_id != authoritative_repository_id {
+            return Err("REPOSITORY_CHANGED: 当前知识库已切换，请重新提问".to_string());
+        }
         let connection = repository
             .db
             .as_ref()
@@ -2602,9 +2598,58 @@ async fn ask_luna(
             // failed requests therefore cannot leave empty sessions behind.
             Uuid::new_v4().to_string()
         };
-        let settings = qa::get_luna_settings(connection, &root, codex_ready)?;
-        (context, settings, root, session_id)
+        let settings = qa::get_luna_settings(connection, &root, false)?;
+        (
+            context,
+            settings,
+            root,
+            session_id,
+            authoritative_repository_id,
+        )
     };
+    context.conversation = {
+        let repository = state
+            .repository
+            .lock()
+            .map_err(|_| "知识库状态锁定失败".to_string())?;
+        if repository
+            .root
+            .as_ref()
+            .map(|value| qa::repository_id(value))
+            != Some(authoritative_repository_id.clone())
+        {
+            return Err("REPOSITORY_CHANGED: 当前知识库已切换，请重新提问".to_string());
+        }
+        let connection = repository
+            .db
+            .as_ref()
+            .ok_or_else(|| "请先建立本地索引".to_string())?;
+        qa::conversation_history(connection, &root, request.session_id.as_deref())?
+    };
+
+    let codex_ready = if settings.answer_provider == qa::PROVIDER_CODEX {
+        tauri::async_runtime::spawn_blocking(codex_subscription::get_status)
+            .await
+            .map_err(|error| format!("Codex 状态线程失败：{error}"))?
+            .ready
+    } else {
+        false
+    };
+
+    {
+        let repository = state
+            .repository
+            .lock()
+            .map_err(|_| "知识库状态锁定失败".to_string())?;
+        if repository
+            .root
+            .as_ref()
+            .map(|value| qa::repository_id(value))
+            != Some(authoritative_repository_id.clone())
+        {
+            return Err("REPOSITORY_CHANGED: 当前知识库已切换，请重新提问".to_string());
+        }
+    }
 
     let request_id = context.request_id.clone();
     let cancel_flag = Arc::new(AtomicBool::new(false));
@@ -2685,7 +2730,12 @@ async fn ask_luna(
                 .await
                 .map_err(|error| format!("LUNA_TASK_ERROR: {error}"))?
             }
-            _ => Err("OFFLINE_SELECTED: 已选择仅离线证据".to_string()),
+            qa::PROVIDER_OFFLINE => Ok((
+                qa::offline_answer(&context),
+                qa::PROVIDER_OFFLINE.to_string(),
+                "deterministic".to_string(),
+            )),
+            _ => Err("PROVIDER_INVALID: 不支持的回答引擎".to_string()),
         };
 
     if cancel_flag.load(Ordering::SeqCst) {
@@ -2699,19 +2749,74 @@ async fn ask_luna(
     }
 
     let (answer, provider, model, offline) = match generated {
-        Ok((answer, provider, model)) => (answer, provider, model, false),
+        Ok((answer, provider, model)) => {
+            let offline = provider == qa::PROVIDER_OFFLINE;
+            (answer, provider, model, offline)
+        }
         Err(error) => {
-            let mut answer = qa::offline_answer(&context);
-            answer.push_str("\n\n回答引擎状态：");
-            answer.push_str(&error);
-            (
-                answer,
-                qa::PROVIDER_OFFLINE.to_string(),
-                "deterministic".to_string(),
-                true,
-            )
+            let code = error
+                .split(':')
+                .next()
+                .unwrap_or("ANSWER_FAILED")
+                .to_string();
+            let message = error
+                .split_once(':')
+                .map(|(_, value)| value.trim())
+                .unwrap_or("回答引擎失败")
+                .to_string();
+            if let Ok(mut repository) = state.repository.lock() {
+                if repository
+                    .root
+                    .as_ref()
+                    .map(|value| qa::repository_id(value))
+                    == Some(authoritative_repository_id.clone())
+                {
+                    if let Some(connection) = repository.db.as_mut() {
+                        let _ = qa::persist_failure(
+                            connection,
+                            &root,
+                            request.session_id.as_deref(),
+                            &request_id,
+                            &code,
+                            &message,
+                            &settings.answer_provider,
+                        );
+                    }
+                }
+            }
+            let _ = on_event.send(qa::AnswerStreamEvent::Failed {
+                request_id: request_id.clone(),
+                code,
+                message,
+                retryable: true,
+            });
+            if let Ok(mut cancellations) = state.cancellations.lock() {
+                cancellations.remove(&request_id);
+            }
+            return Err(error);
         }
     };
+
+    // Generation may outlive a repository switch. The frontend also ignores
+    // stale generations, while this authoritative check prevents old output
+    // from being streamed by the offline provider or reaching persistence.
+    {
+        let repository = state
+            .repository
+            .lock()
+            .map_err(|_| "知识库状态锁定失败".to_string())?;
+        if repository
+            .root
+            .as_ref()
+            .map(|value| qa::repository_id(value))
+            != Some(authoritative_repository_id.clone())
+        {
+            if let Ok(mut cancellations) = state.cancellations.lock() {
+                cancellations.remove(&request_id);
+            }
+            return Err("REPOSITORY_CHANGED: 当前知识库已切换，旧回答已丢弃".to_string());
+        }
+    }
 
     if offline {
         let characters = answer.chars().collect::<Vec<_>>();
@@ -2737,6 +2842,14 @@ async fn ask_luna(
             .repository
             .lock()
             .map_err(|_| "知识库状态锁定失败".to_string())?;
+        if repository
+            .root
+            .as_ref()
+            .map(|value| qa::repository_id(value))
+            != Some(authoritative_repository_id.clone())
+        {
+            return Err("REPOSITORY_CHANGED: 当前知识库已切换，旧回答未保存".to_string());
+        }
         let connection = repository
             .db
             .as_mut()
@@ -2754,10 +2867,40 @@ async fn ask_luna(
     let result = match persisted {
         Ok(result) => result,
         Err(error) => {
+            let code = error
+                .split(':')
+                .next()
+                .unwrap_or("PERSIST_FAILED")
+                .to_string();
+            let message = error
+                .split_once(':')
+                .map(|(_, value)| value.trim())
+                .unwrap_or(error.as_str())
+                .to_string();
+            if let Ok(mut repository) = state.repository.lock() {
+                if repository
+                    .root
+                    .as_ref()
+                    .map(|value| qa::repository_id(value))
+                    == Some(authoritative_repository_id.clone())
+                {
+                    if let Some(connection) = repository.db.as_mut() {
+                        let _ = qa::persist_failure(
+                            connection,
+                            &root,
+                            request.session_id.as_deref(),
+                            &request_id,
+                            &code,
+                            &message,
+                            &provider,
+                        );
+                    }
+                }
+            }
             let _ = on_event.send(qa::AnswerStreamEvent::Failed {
                 request_id: request_id.clone(),
-                code: "PERSIST_FAILED".to_string(),
-                message: error.clone(),
+                code,
+                message,
                 retryable: true,
             });
             if let Ok(mut cancellations) = state.cancellations.lock() {

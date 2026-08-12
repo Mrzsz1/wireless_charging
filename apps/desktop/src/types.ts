@@ -410,9 +410,20 @@ export type QuestionContext = {
   requestId: string
   question: string
   intent: 'solve' | 'novelty' | 'relationship'
+  conversation: ConversationTurn[]
   evidence: EvidenceItem[]
   waterline: WaterlineSnapshot
   generatedAt: string
+}
+
+export type ConversationTurn = { role: string; content: string }
+
+export type CitationValidation = {
+  citedIds: string[]
+  unknownIds: string[]
+  citationPrecision: number
+  hasCitations: boolean
+  supported: boolean
 }
 
 export type ResearchContextAnchor = {
@@ -487,6 +498,7 @@ export type ChatMessage = {
   requestId: string
   evidence: EvidenceItem[]
   waterline?: WaterlineSnapshot | null
+  citationValidation?: CitationValidation | null
 }
 
 export type ChatSessionDetail = {
@@ -498,6 +510,7 @@ export type AskRequest = {
   question: string
   sessionId?: string
   evidenceLimit?: number
+  repositoryId: string
 }
 
 export type AskResult = {
@@ -508,6 +521,7 @@ export type AskResult = {
   evidence: EvidenceItem[]
   waterline: WaterlineSnapshot
   offline: boolean
+  citationValidation: CitationValidation
 }
 
 export type AnswerStreamEvent =

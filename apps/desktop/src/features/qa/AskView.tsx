@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { BookOpen, Bot, Check, ChevronRight, CircleStop, Clipboard, FileText, GitBranch, LoaderCircle, MessageSquarePlus, MoreHorizontal, Plus, RefreshCw, Search, Send, Settings, ShieldCheck, Trash2, X } from 'lucide-react'
 import { askLuna, cancelAnswer, deleteChatSession, getChatSession, getCodexSubscriptionStatus, getQaSettings, isDesktopRuntime, listChatSessions, renameChatSession } from '../../services/desktop'
 import type { AnswerProvider, AnswerStreamEvent, AskResult, ChatMessage, ChatSessionSummary, CodexSubscriptionStatus, EvidenceItem, QaSettings, WaterlineSnapshot } from '../../types'
-import { claimCompletion, createCompletionLedger, mergeCompletedMessages } from './completionState'
+import { claimCompletion, createCompletionLedger, mergeCompletedMessages, repositoryIdentity, retryQuestionFor, rollbackOptimisticMessages } from './completionState'
 import './AskView.css'
 
 type AskViewProps = {
@@ -54,7 +54,7 @@ function formatTime(value: string) {
 }
 
 function localMessage(role: 'user' | 'assistant', content: string, status: ChatMessage['status']): ChatMessage {
-  return { id: `local-${Date.now()}-${role}`, sessionId: '', role, content, status, createdAt: String(Date.now()), errorCode: '', errorMessage: '', provider: role === 'assistant' ? 'pending' : 'local', model: '', requestId: '', evidence: [] }
+  return { id: `local-${Date.now()}-${role}`, sessionId: '', role, content, status, createdAt: String(Date.now()), errorCode: '', errorMessage: '', provider: role === 'assistant' ? 'pending' : 'local', model: '', requestId: '', evidence: [], citationValidation: null }
 }
 
 function tierLabel(tier: EvidenceItem['tier']) {
@@ -93,6 +93,9 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
   const [error, setError] = useState('')
   const endRef = useRef<HTMLDivElement>(null)
   const completionLedger = useRef(createCompletionLedger())
+  const repositoryGeneration = useRef(0)
+  const activeRequestId = useRef('')
+  const mountedRepositoryPath = useRef<string | null | undefined>(null)
 
   const refreshSessions = async () => {
     if (!isDesktopRuntime() || !repositoryPath) return
@@ -100,6 +103,12 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
   }
 
   useEffect(() => {
+    if (mountedRepositoryPath.current === repositoryPath) return
+    mountedRepositoryPath.current = repositoryPath
+    repositoryGeneration.current += 1
+    const staleRequest = activeRequestId.current
+    activeRequestId.current = ''
+    if (staleRequest && isDesktopRuntime()) void cancelAnswer(staleRequest).catch(() => undefined)
     completionLedger.current = createCompletionLedger(repositoryPath ?? '')
     setActiveSessionId('')
     setMessages([])
@@ -107,7 +116,10 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     setWaterline(null)
     onResearchContextChange(null)
     if (!isDesktopRuntime() || !repositoryPath) return
-    void Promise.all([listChatSessions(), getQaSettings(), getCodexSubscriptionStatus()]).then(([history, qa, codex]) => {
+    const generation = repositoryGeneration.current
+    void Promise.all([listChatSessions(), getQaSettings()]).then(async ([history, qa]) => {
+      const codex = qa.answerProvider === 'codex-subscription' ? await getCodexSubscriptionStatus() : emptyCodexStatus
+      if (generation !== repositoryGeneration.current) return
       setSessions(history)
       setSettings(qa)
       setCodexStatus(codex)
@@ -144,7 +156,8 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     onResearchContextChange(null)
   }
 
-  const applyCompleted = (result: AskResult) => {
+  const applyCompleted = (result: AskResult, generation = repositoryGeneration.current) => {
+    if (generation !== repositoryGeneration.current) return
     if (!claimCompletion(completionLedger.current, repositoryPath ?? '', result.requestId)) return
     setActiveSessionId(result.sessionId)
     setMessages((current) => mergeCompletedMessages(current, result))
@@ -153,13 +166,16 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     setWaterline(result.waterline)
     setStreamingText('')
     setRequestId('')
+    activeRequestId.current = ''
     setPhase('idle')
     void refreshSessions()
   }
 
-  const handleEvent = (event: AnswerStreamEvent) => {
+  const handleEvent = (event: AnswerStreamEvent, generation: number, optimisticId: string, originalSessionId: string) => {
+    if (generation !== repositoryGeneration.current) return
     if (event.type === 'started') {
       setRequestId(event.payload.requestId)
+      activeRequestId.current = event.payload.requestId
       setActiveSessionId(event.payload.sessionId)
     } else if (event.type === 'retrieval_started') {
       setPhase('retrieving')
@@ -171,14 +187,24 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     } else if (event.type === 'token') {
       setStreamingText((current) => current + event.payload.content)
     } else if (event.type === 'completed') {
-      applyCompleted(event.payload.result)
+      applyCompleted(event.payload.result, generation)
     } else if (event.type === 'failed') {
       setError(`${event.payload.code}：${event.payload.message}`)
+      setMessages((current) => rollbackOptimisticMessages(current, optimisticId))
       setPhase('idle')
+      setStreamingText('')
+      setRequestId('')
+      activeRequestId.current = ''
+      setActiveSessionId(originalSessionId)
+      void refreshSessions()
     } else if (event.type === 'cancelled') {
       setError('本轮问答已停止，未写入会话历史。')
+      setMessages((current) => rollbackOptimisticMessages(current, optimisticId))
       setPhase('idle')
+      setStreamingText('')
       setRequestId('')
+      activeRequestId.current = ''
+      setActiveSessionId(originalSessionId)
     }
   }
 
@@ -193,15 +219,27 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     setEvidence([])
     setSelectedEvidence(null)
     setPhase('retrieving')
-    setMessages((current) => [...current, localMessage('user', value, 'retrieving')])
+    const generation = repositoryGeneration.current
+    const originalSessionId = activeSessionId
+    const optimistic = localMessage('user', value, 'retrieving')
+    let terminalEventHandled = false
+    setMessages((current) => [...current, optimistic])
     onResearchContextChange(value)
     try {
-      const result = await askLuna({ question: value, sessionId: activeSessionId || undefined, evidenceLimit: 14 }, handleEvent)
-      applyCompleted(result)
+      const result = await askLuna({ question: value, sessionId: originalSessionId || undefined, evidenceLimit: 14, repositoryId: repositoryIdentity(repositoryPath) }, (event) => {
+        if (event.type === 'failed' || event.type === 'cancelled') terminalEventHandled = true
+        handleEvent(event, generation, optimistic.id, originalSessionId)
+      })
+      applyCompleted(result, generation)
     } catch (cause) {
-      if (!String(cause).includes('已取消')) setError(`问答执行失败：${String(cause)}`)
+      if (generation !== repositoryGeneration.current) return
+      if (!terminalEventHandled && !String(cause).includes('已取消')) setError(`问答执行失败：${String(cause)}`)
+      setMessages((current) => rollbackOptimisticMessages(current, optimistic.id))
+      setStreamingText('')
       setPhase('idle')
       setRequestId('')
+      activeRequestId.current = ''
+      setActiveSessionId(originalSessionId)
     }
   }
 
@@ -212,7 +250,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
 
   const openEvidence = (item: EvidenceItem) => {
     setSelectedEvidence(item)
-    if (item.kind === 'wiki' && item.pageId) onOpenPage(item.pageId, item.title)
+    if ((item.kind === 'wiki' || item.kind === 'graph') && item.pageId) onOpenPage(item.pageId, item.title)
     else if (item.kind === 'paper' && item.sourcePath) onOpenPath(item.sourcePath)
     else if (item.kind === 'book' && item.bookId && item.chapterId) onOpenBook(item.bookId, item.chapterId)
     else if (item.kind === 'book' && item.pdfPath) onOpenPath(item.pdfPath)
@@ -234,7 +272,6 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     try { await renameChatSession(session.id, title); await refreshSessions() } catch (cause) { setError(`重命名失败：${String(cause)}`) }
   }
 
-  const lastUserQuestion = [...messages].reverse().find((message) => message.role === 'user')?.content ?? ''
   const filteredSessions = useMemo(() => {
     const keyword = sessionQuery.trim().toLocaleLowerCase('zh-CN')
     if (!keyword) return sessions
@@ -262,7 +299,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
       <div className="qa-messages">
         {loadingHistory && <div className="qa-loading"><LoaderCircle size={18} className="spin" />加载会话历史…</div>}
         {!messages.length && phase === 'idle' && <div className="qa-welcome"><div className="qa-orb"><Bot size={28} /></div><h2>先检索，再回答</h2><p>每次提问都会检索 Wiki、两本核心书籍和 Graphify，并把回答绑定到可定位证据。</p><div className="qa-suggestions">{suggestions.map((item) => <button key={item} onClick={() => void submitQuestion(item)}><Plus size={14} /><span>{item}</span><ChevronRight size={14} /></button>)}</div></div>}
-        {messages.map((message) => <article data-testid={`qa-message-${message.id}`} className={`qa-message ${message.role}`} key={message.id}><div className="qa-avatar">{message.role === 'assistant' ? <Bot size={16} /> : '你'}</div><div className="qa-bubble"><div className="qa-message-meta"><strong>{message.role === 'assistant' ? providerLabel(message.provider) : '研究问题'}</strong><span>{formatTime(message.createdAt)}</span></div>{message.role === 'assistant' ? <MessageContent content={message.content} evidence={message.evidence} onCitation={setSelectedEvidence} /> : <div className="qa-message-content">{message.content}</div>}{message.role === 'assistant' && <div className="qa-message-actions"><button onClick={() => void navigator.clipboard.writeText(message.content)}><Clipboard size={13} />复制</button><button onClick={() => void submitQuestion(lastUserQuestion)} disabled={!lastUserQuestion || phase !== 'idle'}><RefreshCw size={13} />重试</button></div>}</div></article>)}
+        {messages.map((message, index) => { const retryQuestion = message.role === 'assistant' ? retryQuestionFor(messages, index) : ''; return <article data-testid={`qa-message-${message.id}`} className={`qa-message ${message.role} ${message.status}`} key={message.id}><div className="qa-avatar">{message.role === 'assistant' ? <Bot size={16} /> : '你'}</div><div className="qa-bubble"><div className="qa-message-meta"><strong>{message.role === 'assistant' ? providerLabel(message.provider) : '研究问题'}</strong><span>{message.status === 'failed' ? '失败' : formatTime(message.createdAt)}</span></div>{message.status === 'failed' ? <div className="qa-message-content">{message.errorCode}：{message.errorMessage || '本轮回答生成失败'}</div> : message.role === 'assistant' ? <MessageContent content={message.content} evidence={message.evidence} onCitation={setSelectedEvidence} /> : <div className="qa-message-content">{message.content}</div>}{message.role === 'assistant' && <div className="qa-message-actions"><button onClick={() => void navigator.clipboard.writeText(message.content)}><Clipboard size={13} />复制</button><button onClick={() => void submitQuestion(retryQuestion)} disabled={!retryQuestion || phase !== 'idle'}><RefreshCw size={13} />重试</button></div>}</div></article> })}
         {phase !== 'idle' && <article className="qa-message assistant streaming"><div className="qa-avatar"><Bot size={16} /></div><div className="qa-bubble"><div className="qa-message-meta"><strong>{phase === 'retrieving' ? '正在检索证据' : '正在组织回答'}</strong><span><LoaderCircle size={13} className="spin" /></span></div>{streamingText ? <MessageContent content={streamingText} evidence={evidence} onCitation={setSelectedEvidence} /> : <div className="qa-retrieval-steps"><span className="active">Wiki FTS5</span><span className={phase === 'generating' ? 'active' : ''}>核心书籍</span><span className={phase === 'generating' ? 'active' : ''}>Graphify</span></div>}</div></article>}
         <div ref={endRef} />
       </div>

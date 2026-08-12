@@ -30,3 +30,19 @@ export function mergeCompletedMessages(messages: ChatMessage[], result: AskResul
   const retained = messages.filter((message) => !message.id.startsWith('local-') && !completedIds.has(message.id))
   return [...retained, result.userMessage, result.assistantMessage]
 }
+
+export function repositoryIdentity(repositoryPath = ''): string {
+  return repositoryPath.replace(/\\/g, '/').replace(/\/+$/, '').toLocaleLowerCase('en-US')
+}
+
+export function retryQuestionFor(messages: ChatMessage[], assistantIndex: number): string {
+  for (let index = assistantIndex - 1; index >= 0; index -= 1) {
+    if (messages[index]?.role === 'user' && messages[index]?.status === 'completed') return messages[index].content
+    if (messages[index]?.role === 'assistant') break
+  }
+  return ''
+}
+
+export function rollbackOptimisticMessages(messages: ChatMessage[], localMessageId: string): ChatMessage[] {
+  return messages.filter((message) => message.id !== localMessageId)
+}

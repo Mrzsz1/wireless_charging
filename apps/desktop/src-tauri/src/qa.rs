@@ -16,7 +16,9 @@ const DEFAULT_KEY_ENV: &str = "LUNA_API_KEY";
 pub const PROVIDER_CODEX: &str = "codex-subscription";
 pub const PROVIDER_API: &str = "compatible-api";
 pub const PROVIDER_OFFLINE: &str = "offline-evidence";
-const QA_SCHEMA_VERSION: i64 = 3;
+const QA_SCHEMA_VERSION: i64 = 4;
+const HISTORY_MESSAGE_LIMIT: usize = 8;
+const HISTORY_CHARACTER_BUDGET: usize = 12_000;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -97,9 +99,27 @@ pub struct QuestionContext {
     pub request_id: String,
     pub question: String,
     pub intent: String,
+    pub conversation: Vec<ConversationTurn>,
     pub evidence: Vec<EvidenceItem>,
     pub waterline: WaterlineSnapshot,
     pub generated_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct ConversationTurn {
+    pub role: String,
+    pub content: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct CitationValidation {
+    pub cited_ids: Vec<String>,
+    pub unknown_ids: Vec<String>,
+    pub citation_precision: f64,
+    pub has_citations: bool,
+    pub supported: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -129,6 +149,7 @@ pub struct ChatMessage {
     pub request_id: String,
     pub evidence: Vec<EvidenceItem>,
     pub waterline: Option<WaterlineSnapshot>,
+    pub citation_validation: Option<CitationValidation>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -144,6 +165,8 @@ pub struct AskRequest {
     pub question: String,
     pub session_id: Option<String>,
     pub evidence_limit: Option<usize>,
+    #[serde(default)]
+    pub repository_id: String,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -156,6 +179,7 @@ pub struct AskResult {
     pub evidence: Vec<EvidenceItem>,
     pub waterline: WaterlineSnapshot,
     pub offline: bool,
+    pub citation_validation: CitationValidation,
 }
 
 #[allow(clippy::large_enum_variant)]
@@ -245,6 +269,7 @@ pub fn db_schema(connection: &Connection) -> Result<(), String> {
               provider TEXT NOT NULL DEFAULT '',
               model TEXT NOT NULL DEFAULT '',
               request_id TEXT NOT NULL DEFAULT '',
+              citation_validation TEXT NOT NULL DEFAULT '',
               FOREIGN KEY(session_id) REFERENCES chat_sessions(id) ON DELETE CASCADE
             );
             CREATE TABLE IF NOT EXISTS chat_evidence (
@@ -268,6 +293,17 @@ pub fn db_schema(connection: &Connection) -> Result<(), String> {
             ",
         )
         .map_err(|error| format!("初始化问答数据库失败：{error}"))?;
+    let has_validation = connection
+        .prepare("SELECT citation_validation FROM chat_messages LIMIT 0")
+        .is_ok();
+    if !has_validation {
+        connection
+            .execute(
+                "ALTER TABLE chat_messages ADD COLUMN citation_validation TEXT NOT NULL DEFAULT ''",
+                [],
+            )
+            .map_err(|error| format!("迁移问答引用校验字段失败：{error}"))?;
+    }
     connection
         .pragma_update(None, "user_version", QA_SCHEMA_VERSION)
         .map_err(|error| format!("更新数据库版本失败：{error}"))?;
@@ -290,8 +326,11 @@ pub(crate) fn compact(value: &str, limit: usize) -> String {
     normalized.chars().take(limit).collect::<String>() + "…"
 }
 
-fn repository_id(root: &Path) -> String {
-    root.to_string_lossy().replace('\\', "/").to_lowercase()
+pub fn repository_id(root: &Path) -> String {
+    root.to_string_lossy()
+        .replace('\\', "/")
+        .trim_end_matches('/')
+        .to_lowercase()
 }
 
 fn setting_map(connection: &Connection) -> Result<HashMap<String, String>, String> {
@@ -587,7 +626,7 @@ pub fn get_session(
         .ok_or_else(|| "会话不存在或不属于当前知识库".to_string())?;
     let mut statement = connection
         .prepare(
-            "SELECT id,session_id,role,content,status,created_at,error_code,error_message,waterline,provider,model,request_id
+            "SELECT id,session_id,role,content,status,created_at,error_code,error_message,waterline,provider,model,request_id,citation_validation
              FROM chat_messages WHERE session_id=?1 ORDER BY created_at,rowid",
         )
         .map_err(|error| format!("准备历史消息查询失败：{error}"))?;
@@ -607,6 +646,7 @@ pub fn get_session(
                 provider: row.get(9)?,
                 model: row.get(10)?,
                 request_id: row.get(11)?,
+                citation_validation: serde_json::from_str(&row.get::<_, String>(12)?).ok(),
                 evidence: Vec::new(),
             })
         })
@@ -624,6 +664,60 @@ pub fn get_session(
         .map(|message| compact(&message.content, 80))
         .unwrap_or_default();
     Ok(ChatSessionDetail { session, messages })
+}
+
+pub fn conversation_history(
+    connection: &Connection,
+    root: &Path,
+    session_id: Option<&str>,
+) -> Result<Vec<ConversationTurn>, String> {
+    let Some(session_id) = session_id.filter(|value| !value.trim().is_empty()) else {
+        return Ok(Vec::new());
+    };
+    let owned = connection
+        .query_row(
+            "SELECT EXISTS(SELECT 1 FROM chat_sessions WHERE id=?1 AND repository_id=?2)",
+            params![session_id, repository_id(root)],
+            |row| row.get::<_, bool>(0),
+        )
+        .map_err(|error| format!("检查多轮会话失败：{error}"))?;
+    if !owned {
+        return Err("会话不存在或不属于当前知识库".to_string());
+    }
+    let mut statement = connection
+        .prepare(
+            "SELECT role,content FROM chat_messages
+             WHERE session_id=?1 AND status='completed' AND role IN ('user','assistant')
+             ORDER BY created_at DESC,rowid DESC LIMIT ?2",
+        )
+        .map_err(|error| format!("准备多轮历史失败：{error}"))?;
+    let rows = statement
+        .query_map(params![session_id, HISTORY_MESSAGE_LIMIT as i64], |row| {
+            Ok(ConversationTurn {
+                role: row.get(0)?,
+                content: row.get(1)?,
+            })
+        })
+        .map_err(|error| format!("读取多轮历史失败：{error}"))?;
+    let mut newest = rows
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|error| format!("解析多轮历史失败：{error}"))?;
+    newest.reverse();
+    let mut remaining = HISTORY_CHARACTER_BUDGET;
+    let mut selected = Vec::new();
+    for mut turn in newest.into_iter().rev() {
+        if remaining == 0 {
+            break;
+        }
+        let count = turn.content.chars().count();
+        if count > remaining {
+            turn.content = turn.content.chars().take(remaining).collect();
+        }
+        remaining = remaining.saturating_sub(turn.content.chars().count());
+        selected.push(turn);
+    }
+    selected.reverse();
+    Ok(selected)
 }
 
 pub(crate) fn query_terms(question: &str) -> Vec<String> {
@@ -748,6 +842,38 @@ fn intent(question: &str) -> String {
         "relationship".to_string()
     } else {
         "solve".to_string()
+    }
+}
+
+fn intent_bonus(intent: &str, candidate: &Candidate) -> f64 {
+    match intent {
+        "novelty" => match (candidate.kind.as_str(), candidate.page_type.as_str()) {
+            ("paper", _) | ("wiki", "source") | ("wiki", "synthesis") => 0.42,
+            ("graph", _) => 0.08,
+            _ => 0.0,
+        },
+        "relationship" => match candidate.kind.as_str() {
+            "graph" => 0.48,
+            "wiki" => 0.24,
+            _ => 0.0,
+        },
+        _ => match (candidate.kind.as_str(), candidate.page_type.as_str()) {
+            ("wiki", "method") | ("paper", _) => 0.34,
+            ("book", _) => 0.18,
+            _ => 0.0,
+        },
+    }
+}
+
+fn apply_intent(intent: &str, candidates: &mut [Candidate]) {
+    for candidate in candidates {
+        let bonus = intent_bonus(intent, candidate);
+        candidate.score += bonus;
+        if bonus > 0.0 {
+            candidate
+                .retrieval_reason
+                .push_str(&format!("；{intent} 意图加权 +{bonus:.2}"));
+        }
     }
 }
 
@@ -1003,7 +1129,7 @@ fn book_candidates(connection: &Connection, terms: &[String]) -> Result<Vec<Cand
         .map_err(|error| format!("解析核心书籍证据失败：{error}"))
 }
 
-fn graph_candidates(root: &Path, terms: &[String]) -> Vec<Candidate> {
+fn graph_candidates(connection: &Connection, root: &Path, terms: &[String]) -> Vec<Candidate> {
     let graph_path = root.join("graphify-out/graph.json");
     let Ok(content) = fs::read_to_string(graph_path) else {
         return Vec::new();
@@ -1016,6 +1142,46 @@ fn graph_candidates(root: &Path, terms: &[String]) -> Vec<Candidate> {
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default();
+    let links = payload
+        .get("links")
+        .or_else(|| payload.get("edges"))
+        .and_then(Value::as_array)
+        .cloned()
+        .unwrap_or_default();
+    let labels = nodes
+        .iter()
+        .filter_map(|node| {
+            Some((
+                node.get("id")?.as_str()?.to_string(),
+                node.get("label")
+                    .or_else(|| node.get("name"))?
+                    .as_str()?
+                    .to_string(),
+            ))
+        })
+        .collect::<HashMap<_, _>>();
+    let mut adjacency: HashMap<String, Vec<(String, String)>> = HashMap::new();
+    for link in links {
+        let Some(source) = link.get("source").and_then(Value::as_str) else {
+            continue;
+        };
+        let Some(target) = link.get("target").and_then(Value::as_str) else {
+            continue;
+        };
+        let relation = link
+            .get("relation")
+            .and_then(Value::as_str)
+            .unwrap_or("related_to")
+            .to_string();
+        adjacency
+            .entry(source.to_string())
+            .or_default()
+            .push((target.to_string(), relation.clone()));
+        adjacency
+            .entry(target.to_string())
+            .or_default()
+            .push((source.to_string(), relation));
+    }
     let mut candidates = Vec::new();
     for node in nodes {
         let label = node
@@ -1028,7 +1194,19 @@ fn graph_candidates(root: &Path, terms: &[String]) -> Vec<Candidate> {
             .or_else(|| node.get("sourceFile"))
             .and_then(Value::as_str)
             .unwrap_or_default();
-        if source_file.is_empty() {
+        let normalized_source = source_file.replace('\\', "/");
+        let source_path =
+            if normalized_source.starts_with("wiki/") && normalized_source.ends_with(".md") {
+                normalized_source.clone()
+            } else if normalized_source.contains("/wiki/") && normalized_source.ends_with(".md") {
+                normalized_source
+                    .split_once("/wiki/")
+                    .map(|(_, suffix)| format!("wiki/{suffix}"))
+                    .unwrap_or_default()
+            } else {
+                String::new()
+            };
+        if source_path.is_empty() || !root.join(&source_path).is_file() {
             continue;
         }
         let haystack = format!("{label} {source_file}").to_lowercase();
@@ -1039,40 +1217,69 @@ fn graph_candidates(root: &Path, terms: &[String]) -> Vec<Candidate> {
         if hits == 0 {
             continue;
         }
+        let node_id = node
+            .get("id")
+            .and_then(Value::as_str)
+            .unwrap_or(label)
+            .to_string();
+        let neighbors = adjacency
+            .get(&node_id)
+            .into_iter()
+            .flatten()
+            .take(4)
+            .map(|(id, relation)| {
+                format!(
+                    "{}→{}",
+                    relation,
+                    labels.get(id).map(String::as_str).unwrap_or(id)
+                )
+            })
+            .collect::<Vec<_>>();
+        let community = node
+            .get("community")
+            .and_then(Value::as_i64)
+            .map(|value| value.to_string())
+            .unwrap_or_default();
+        // Graphify source paths are provenance hints rather than stable desktop
+        // identifiers. Resolve them through the canonical pages index so a
+        // graph citation always opens an existing Wiki page.
+        let indexed_page = connection
+            .query_row(
+                "SELECT id,page_type FROM pages WHERE replace(source_path,'\\','/')=?1 LIMIT 1",
+                [&source_path],
+                |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)),
+            )
+            .optional()
+            .ok()
+            .flatten();
+        let Some((page_id, page_type)) = indexed_page else {
+            continue;
+        };
         candidates.push(Candidate {
             kind: "graph".to_string(),
             tier: "graph_hint".to_string(),
             title: label.to_string(),
-            snippet: "Graphify 关系候选；需回到 Wiki 正文核验。".to_string(),
-            score: 0.15 + hits as f64 * 0.04,
-            page_id: String::new(),
-            page_type: node
-                .get("type")
-                .or_else(|| node.get("node_type"))
-                .and_then(Value::as_str)
-                .unwrap_or_default()
-                .to_string(),
-            source_path: source_file.to_string(),
-            wikilink: String::new(),
+            snippet: if neighbors.is_empty() { "Graphify 关系候选；需回到 Wiki 正文核验。".to_string() } else { format!("Graphify 一跳关系：{}", neighbors.join("；")) },
+            score: 0.15 + hits as f64 * 0.04 + (!neighbors.is_empty()) as usize as f64 * 0.08,
+            page_id: page_id.clone(),
+            page_type,
+            source_path,
+            wikilink: format!("[[{page_id}]]"),
             book_id: String::new(),
             chapter_id: String::new(),
             physical_page_start: None,
             physical_page_end: None,
             markdown_path: String::new(),
             pdf_path: String::new(),
-            node_id: node
-                .get("id")
-                .and_then(Value::as_str)
-                .unwrap_or(label)
-                .to_string(),
+            node_id,
             source_location: node
                 .get("source_location")
                 .or_else(|| node.get("sourceLocation"))
                 .and_then(Value::as_str)
                 .unwrap_or_default()
                 .to_string(),
-            relation: String::new(),
-            retrieval_reason: format!("Graphify 节点命中 {hits} 个查询词；仅作关系提示"),
+            relation: if neighbors.is_empty() { "graph_node".to_string() } else { "graph_one_hop".to_string() },
+            retrieval_reason: format!("Graphify 节点命中 {hits} 个查询词；community={community}；一跳关系 {}；已回链 Wiki，仅作关系提示", neighbors.join("、")),
         });
     }
     candidates.sort_by(|left, right| right.score.total_cmp(&left.score));
@@ -1134,18 +1341,22 @@ pub fn prepare_question(
     if question.chars().count() < 2 {
         return Err("问题至少需要两个字符".to_string());
     }
+    let question_intent = intent(question);
     let terms = query_terms(question);
     let wiki = wiki_candidates(connection, &terms)?;
     let mut candidates = wiki.clone();
     candidates.extend(paper_candidates(connection, &terms)?);
     candidates.extend(linked_paper_candidates(connection, &wiki)?);
     candidates.extend(book_candidates(connection, &terms)?);
-    candidates.extend(graph_candidates(root, &terms));
+    candidates.extend(graph_candidates(connection, root, &terms));
+    apply_intent(&question_intent, &mut candidates);
     candidates.sort_by(|left, right| right.score.total_cmp(&left.score));
     let mut seen = HashSet::new();
     candidates.retain(|candidate| {
         let key = if candidate.kind == "paper" {
             format!("paper:{}", candidate.node_id)
+        } else if candidate.kind == "graph" {
+            format!("graph:{}", candidate.node_id)
         } else if !candidate.page_id.is_empty() {
             format!("wiki:{}", candidate.page_id)
         } else if !candidate.chapter_id.is_empty() {
@@ -1160,22 +1371,44 @@ pub fn prepare_question(
     // Preserve source diversity after global ranking: when a channel produced a
     // useful candidate, the final evidence package keeps at least one Wiki and
     // one core-book result instead of letting a single channel occupy all slots.
-    for required_kind in ["wiki", "paper", "book"] {
+    let required_kinds: &[&str] = match question_intent.as_str() {
+        "relationship" => &["wiki", "graph"],
+        _ => &["wiki", "paper", "book"],
+    };
+    for required_kind in required_kinds {
         if selected
             .iter()
-            .any(|candidate| candidate.kind == required_kind)
+            .any(|candidate| candidate.kind == *required_kind)
         {
             continue;
         }
         if let Some(candidate) = candidates
             .iter()
-            .find(|candidate| candidate.kind == required_kind)
+            .find(|candidate| candidate.kind == *required_kind)
             .cloned()
         {
             if selected.len() >= maximum {
                 selected.pop();
             }
             selected.push(candidate);
+        }
+    }
+    // Solution and novelty questions need a reusable method when one was
+    // recalled; raw source evidence alone does not answer "how" questions.
+    if matches!(question_intent.as_str(), "solution" | "novelty")
+        && !selected
+            .iter()
+            .any(|candidate| candidate.page_type == "method")
+    {
+        if let Some(method) = candidates
+            .iter()
+            .find(|candidate| candidate.page_type == "method")
+            .cloned()
+        {
+            if selected.len() >= maximum {
+                selected.pop();
+            }
+            selected.push(method);
         }
     }
     // A paper reached through a Wiki source is most useful as an auditable
@@ -1271,11 +1504,57 @@ pub fn prepare_question(
     Ok(QuestionContext {
         request_id: Uuid::new_v4().to_string(),
         question: question.to_string(),
-        intent: intent(question),
+        intent: question_intent,
+        conversation: Vec::new(),
         evidence,
         waterline: waterline(connection, root)?,
         generated_at: now_string(),
     })
+}
+
+pub fn validate_citations(answer: &str, evidence: &[EvidenceItem]) -> CitationValidation {
+    let known = evidence
+        .iter()
+        .map(|item| item.id.as_str())
+        .collect::<HashSet<_>>();
+    let bytes = answer.as_bytes();
+    let mut cited = Vec::new();
+    let mut index = 0;
+    while index + 3 < bytes.len() {
+        if bytes[index] == b'[' && bytes.get(index + 1) == Some(&b'E') {
+            let mut end = index + 2;
+            while end < bytes.len() && bytes[end].is_ascii_digit() {
+                end += 1;
+            }
+            if end > index + 2 && bytes.get(end) == Some(&b']') {
+                let id = &answer[index + 1..end];
+                if !cited.iter().any(|value| value == id) {
+                    cited.push(id.to_string());
+                }
+                index = end + 1;
+                continue;
+            }
+        }
+        index += 1;
+    }
+    let unknown_ids = cited
+        .iter()
+        .filter(|id| !known.contains(id.as_str()))
+        .cloned()
+        .collect::<Vec<_>>();
+    let valid = cited.len().saturating_sub(unknown_ids.len());
+    let has_citations = !cited.is_empty();
+    CitationValidation {
+        cited_ids: cited.clone(),
+        unknown_ids: unknown_ids.clone(),
+        citation_precision: if cited.is_empty() {
+            0.0
+        } else {
+            valid as f64 / cited.len() as f64
+        },
+        has_citations,
+        supported: unknown_ids.is_empty() && (evidence.is_empty() || has_citations),
+    }
 }
 
 pub fn offline_answer(context: &QuestionContext) -> String {
@@ -1320,6 +1599,23 @@ pub fn offline_answer(context: &QuestionContext) -> String {
 }
 
 fn build_prompt(context: &QuestionContext) -> String {
+    let history = if context.conversation.is_empty() {
+        "（无历史）".to_string()
+    } else {
+        context
+            .conversation
+            .iter()
+            .map(|turn| {
+                let role = if turn.role == "assistant" {
+                    "助手"
+                } else {
+                    "用户"
+                };
+                format!("{role}：{}", turn.content)
+            })
+            .collect::<Vec<_>>()
+            .join("\n")
+    };
     let mut evidence_text = String::new();
     for item in &context.evidence {
         evidence_text.push_str(&format!(
@@ -1340,7 +1636,8 @@ fn build_prompt(context: &QuestionContext) -> String {
         ));
     }
     format!(
-        "问题：{}\n意图：{}\n库水位：source={} method={} synthesis={} chapters={} years={}..{}\n\n证据：\n{}",
+        "会话历史（仅用于理解指代，不是本轮证据；历史引用编号不得沿用）：\n{}\n\n问题：{}\n意图：{}\n库水位：source={} method={} synthesis={} chapters={} years={}..{}\n\n本轮证据：\n{}",
+        history,
         context.question,
         context.intent,
         context.waterline.source_count,
@@ -1454,6 +1751,7 @@ fn make_message(
     request_id: &str,
     evidence: Vec<EvidenceItem>,
     waterline: Option<WaterlineSnapshot>,
+    citation_validation: Option<CitationValidation>,
 ) -> ChatMessage {
     ChatMessage {
         id: Uuid::new_v4().to_string(),
@@ -1469,6 +1767,7 @@ fn make_message(
         request_id: request_id.to_string(),
         evidence,
         waterline,
+        citation_validation,
     }
 }
 
@@ -1481,6 +1780,18 @@ pub fn persist_exchange(
     provider: &str,
     model: &str,
 ) -> Result<AskResult, String> {
+    let citation_validation = validate_citations(&answer, &context.evidence);
+    if !citation_validation.supported {
+        let reason = if !citation_validation.unknown_ids.is_empty() {
+            format!(
+                "回答包含未知证据编号：{}",
+                citation_validation.unknown_ids.join(", ")
+            )
+        } else {
+            "回答未引用本轮任何有效证据".to_string()
+        };
+        return Err(format!("CITATION_VALIDATION_FAILED: {reason}"));
+    }
     let session = if let Some(id) = session_id {
         let existing = connection
             .query_row(
@@ -1507,6 +1818,7 @@ pub fn persist_exchange(
         &context.request_id,
         Vec::new(),
         Some(context.waterline.clone()),
+        None,
     );
     let assistant_message = make_message(
         &session,
@@ -1518,14 +1830,15 @@ pub fn persist_exchange(
         &context.request_id,
         context.evidence.clone(),
         Some(context.waterline.clone()),
+        Some(citation_validation.clone()),
     );
     let tx = connection
         .transaction()
         .map_err(|error| format!("开启会话保存事务失败：{error}"))?;
     for message in [&user_message, &assistant_message] {
         tx.execute(
-            "INSERT INTO chat_messages(id,session_id,role,content,status,created_at,error_code,error_message,waterline,provider,model,request_id)
-             VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12)",
+            "INSERT INTO chat_messages(id,session_id,role,content,status,created_at,error_code,error_message,waterline,provider,model,request_id,citation_validation)
+             VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13)",
             params![
                 message.id,
                 message.session_id,
@@ -1539,6 +1852,7 @@ pub fn persist_exchange(
                 message.provider,
                 message.model,
                 message.request_id,
+                message.citation_validation.as_ref().and_then(|value| serde_json::to_string(value).ok()).unwrap_or_default(),
             ],
         )
         .map_err(|error| format!("保存会话消息失败：{error}"))?;
@@ -1570,13 +1884,120 @@ pub fn persist_exchange(
         evidence: context.evidence.clone(),
         waterline: context.waterline.clone(),
         offline: provider == "offline-evidence",
+        citation_validation,
     })
+}
+
+pub fn persist_failure(
+    connection: &mut Connection,
+    root: &Path,
+    session_id: Option<&str>,
+    request_id: &str,
+    code: &str,
+    message: &str,
+    provider: &str,
+) -> Result<ChatMessage, String> {
+    let existing = session_id.and_then(|id| {
+        connection
+            .query_row(
+                "SELECT id FROM chat_sessions WHERE id=?1 AND repository_id=?2",
+                params![id, repository_id(root)],
+                |row| row.get::<_, String>(0),
+            )
+            .optional()
+            .ok()
+            .flatten()
+    });
+    let Some(session) = existing else {
+        return Err("失败请求没有可写入的既有会话".to_string());
+    };
+    let mut failure = make_message(
+        &session,
+        "assistant",
+        "本轮回答生成失败。".to_string(),
+        "failed",
+        provider,
+        "",
+        request_id,
+        Vec::new(),
+        None,
+        None,
+    );
+    failure.error_code = compact(code, 80);
+    failure.error_message = compact(message, 240);
+    let tx = connection
+        .transaction()
+        .map_err(|error| format!("开启失败状态事务失败：{error}"))?;
+    tx.execute(
+        "INSERT INTO chat_messages(id,session_id,role,content,status,created_at,error_code,error_message,waterline,provider,model,request_id,citation_validation)
+         VALUES(?1,?2,?3,?4,?5,?6,?7,?8,'',?9,'',?10,'')",
+        params![failure.id, failure.session_id, failure.role, failure.content, failure.status,
+            failure.created_at, failure.error_code, failure.error_message, failure.provider, failure.request_id],
+    ).map_err(|error| format!("保存失败状态失败：{error}"))?;
+    tx.execute(
+        "UPDATE chat_sessions SET updated_at=?2 WHERE id=?1",
+        params![session, now_string()],
+    )
+    .map_err(|error| format!("更新失败会话时间失败：{error}"))?;
+    tx.commit()
+        .map_err(|error| format!("提交失败状态失败：{error}"))?;
+    Ok(failure)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use tempfile::tempdir;
+
+    fn candidate(kind: &str, page_type: &str) -> Candidate {
+        Candidate {
+            kind: kind.to_string(),
+            tier: String::new(),
+            title: "candidate".to_string(),
+            snippet: String::new(),
+            score: 1.0,
+            page_id: String::new(),
+            page_type: page_type.to_string(),
+            source_path: String::new(),
+            wikilink: String::new(),
+            book_id: String::new(),
+            chapter_id: String::new(),
+            physical_page_start: None,
+            physical_page_end: None,
+            markdown_path: String::new(),
+            pdf_path: String::new(),
+            node_id: String::new(),
+            source_location: String::new(),
+            relation: String::new(),
+            retrieval_reason: String::new(),
+        }
+    }
+
+    fn evidence(id: &str) -> EvidenceItem {
+        EvidenceItem {
+            id: id.to_string(),
+            kind: "wiki".to_string(),
+            tier: "direct".to_string(),
+            title: "Evidence".to_string(),
+            snippet: "Supported statement".to_string(),
+            score: 1.0,
+            rank: 1,
+            page_id: "source.md".to_string(),
+            page_type: "source".to_string(),
+            source_path: "wiki/sources/source.md".to_string(),
+            wikilink: "[[source]]".to_string(),
+            book_id: String::new(),
+            chapter_id: String::new(),
+            physical_page_start: None,
+            physical_page_end: None,
+            markdown_path: String::new(),
+            pdf_path: String::new(),
+            node_id: String::new(),
+            source_location: String::new(),
+            relation: String::new(),
+            retrieval_reason: String::new(),
+        }
+    }
 
     fn test_db() -> (tempfile::TempDir, Connection) {
         let root = tempdir().unwrap();
@@ -1609,6 +2030,24 @@ mod tests {
     }
 
     #[test]
+    fn migrates_existing_chat_messages_with_citation_validation() {
+        let connection = Connection::open_in_memory().unwrap();
+        connection
+            .execute_batch(
+                "CREATE TABLE chat_messages(
+                    id TEXT PRIMARY KEY,session_id TEXT,role TEXT,content TEXT,status TEXT,
+                    created_at TEXT,error_code TEXT,error_message TEXT,waterline TEXT,
+                    provider TEXT,model TEXT,request_id TEXT
+                );",
+            )
+            .unwrap();
+        db_schema(&connection).unwrap();
+        assert!(connection
+            .prepare("SELECT citation_validation FROM chat_messages LIMIT 0")
+            .is_ok());
+    }
+
+    #[test]
     fn sessions_are_isolated_by_repository() {
         let (root, connection) = test_db();
         let other = tempdir().unwrap();
@@ -1637,6 +2076,125 @@ mod tests {
         assert!(context.evidence.iter().any(|item| item.kind == "wiki"));
         assert!(context.evidence.iter().any(|item| item.kind == "book"));
         assert!(context.evidence.iter().all(|item| item.id.starts_with('E')));
+    }
+
+    #[test]
+    fn conversation_history_is_repository_scoped_bounded_and_completed_only() {
+        let (root, connection) = test_db();
+        let session = create_session(&connection, root.path(), "history").unwrap();
+        for index in 0..10 {
+            connection
+                .execute(
+                    "INSERT INTO chat_messages(id,session_id,role,content,status,created_at)
+                 VALUES(?1,?2,?3,?4,'completed',?5)",
+                    params![
+                        format!("m{index}"),
+                        session.id,
+                        if index % 2 == 0 { "user" } else { "assistant" },
+                        format!("turn-{index}"),
+                        format!("{index:02}")
+                    ],
+                )
+                .unwrap();
+        }
+        connection
+            .execute(
+                "INSERT INTO chat_messages(id,session_id,role,content,status,created_at)
+             VALUES('failed',?1,'assistant','must-not-appear','failed','99')",
+                [&session.id],
+            )
+            .unwrap();
+        let history = conversation_history(&connection, root.path(), Some(&session.id)).unwrap();
+        assert_eq!(history.len(), HISTORY_MESSAGE_LIMIT);
+        assert_eq!(history.first().unwrap().content, "turn-2");
+        assert_eq!(history.last().unwrap().content, "turn-9");
+        assert!(history.iter().all(|turn| turn.content != "must-not-appear"));
+
+        let other = tempdir().unwrap();
+        assert!(conversation_history(&connection, other.path(), Some(&session.id)).is_err());
+    }
+
+    #[test]
+    fn prompt_includes_history_but_marks_it_non_evidence() {
+        let (root, connection) = test_db();
+        let mut context = prepare_question(&connection, root.path(), "charging", 4).unwrap();
+        context.conversation = vec![ConversationTurn {
+            role: "user".to_string(),
+            content: "Earlier constraint".to_string(),
+        }];
+        let prompt = build_codex_prompt(&context);
+        assert!(prompt.contains("Earlier constraint"));
+        assert!(prompt.contains("历史引用编号不得沿用"));
+    }
+
+    #[test]
+    fn citation_validation_rejects_missing_and_unknown_ids() {
+        let items = vec![evidence("E1"), evidence("E2")];
+        let valid = validate_citations("Claim [E1] and detail [E2].", &items);
+        assert!(valid.supported);
+        assert_eq!(valid.citation_precision, 1.0);
+
+        let unknown = validate_citations("Claim [E9].", &items);
+        assert!(!unknown.supported);
+        assert_eq!(unknown.unknown_ids, vec!["E9"]);
+        assert!(!validate_citations("Claim without citation.", &items).supported);
+    }
+
+    #[test]
+    fn intent_weights_change_candidate_priority() {
+        let graph = candidate("graph", "concept");
+        let method = candidate("wiki", "method");
+        let paper = candidate("paper", "source");
+        assert!(intent_bonus("relationship", &graph) > intent_bonus("relationship", &method));
+        assert!(intent_bonus("solve", &method) > intent_bonus("solve", &graph));
+        assert!(intent_bonus("novelty", &paper) > intent_bonus("novelty", &graph));
+    }
+
+    #[test]
+    fn graph_candidates_require_canonical_wiki_source_and_resolve_page_id() {
+        let (root, connection) = test_db();
+        fs::create_dir_all(root.path().join("wiki/methods")).unwrap();
+        fs::write(root.path().join("wiki/methods/charging.md"), "# Charging").unwrap();
+        connection.execute(
+            "INSERT INTO pages VALUES('charging.md','method','Charging','2026','charging relation','wiki/methods/charging.md','1')",
+            [],
+        ).unwrap();
+        fs::write(
+            root.path().join("graphify-out/graph.json"),
+            serde_json::to_vec(&json!({
+                "nodes": [
+                    {"id":"n1","label":"charging","source_file":"wiki/methods/charging.md","community":7},
+                    {"id":"n2","label":"scheduler","source_file":"raw/not-canonical.md"}
+                ],
+                "links": [{"source":"n1","target":"n2","relation":"uses"}]
+            })).unwrap(),
+        ).unwrap();
+        let found = graph_candidates(&connection, root.path(), &["charging".to_string()]);
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0].page_id, "charging.md");
+        assert_eq!(found[0].relation, "graph_one_hop");
+        assert!(found[0].retrieval_reason.contains("community=7"));
+        assert!(found[0].snippet.contains("uses→scheduler"));
+    }
+
+    #[test]
+    fn failed_generation_is_persisted_without_an_optimistic_user_message() {
+        let (root, mut connection) = test_db();
+        let session = create_session(&connection, root.path(), "failure").unwrap();
+        persist_failure(
+            &mut connection,
+            root.path(),
+            Some(&session.id),
+            "request",
+            "LUNA_HTTP_ERROR",
+            "HTTP 500",
+            PROVIDER_API,
+        )
+        .unwrap();
+        let detail = get_session(&connection, root.path(), &session.id).unwrap();
+        assert_eq!(detail.messages.len(), 1);
+        assert_eq!(detail.messages[0].status, "failed");
+        assert_eq!(detail.messages[0].error_code, "LUNA_HTTP_ERROR");
     }
 
     #[test]
