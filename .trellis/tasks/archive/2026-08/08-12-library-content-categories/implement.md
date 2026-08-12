@@ -17,7 +17,7 @@
 - [x] 运行分类测试、现有分页/搜索测试、前端 build、P5/GUI E2E。
 - [x] 运行 Wiki/Python/Rust必要门禁并检查 raw/vocab 边界。
 - [x] 版本升至 0.12.2，构建 MSI/NSIS、静默安装并验证版本和启动。
-- [ ] 更新 PRD/日志/Trellis spec，Git 提交、归档与 journal。
+- [x] 更新 PRD/日志/Trellis spec，Git 提交、归档与 journal。
 
 ## 验证命令
 

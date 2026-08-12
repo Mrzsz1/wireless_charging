@@ -28,7 +28,7 @@
 - [x] 分类控件有 `aria-pressed`、稳定 test id 和清晰焦点态。
 - [x] 类型过滤单元测试、前端 build、P5/GUI E2E、Rust/Python必要回归通过。
 - [x] 0.12.2 安装包构建、静默安装、版本与启动探针通过。
-- [ ] Git 提交、Trellis 归档和 journal 完成；raw 正文与 `schema/vocab.yaml` 未修改。
+- [x] Git 提交、Trellis 归档和 journal 完成；raw 正文与 `schema/vocab.yaml` 未修改。
 
 ## 不在范围
 
