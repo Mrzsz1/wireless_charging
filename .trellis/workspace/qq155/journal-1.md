@@ -842,3 +842,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 26: 生成并安装智能问答 P0-P1 客户端
+
+**Date**: 2026-08-12
+**Task**: 生成并安装智能问答 P0-P1 客户端
+**Branch**: `master`
+
+### Summary
+
+构建 0.12.2 NSIS 安装器、校验 SHA-256、通过安装器 smoke、静默安装并验证已安装 Windows 客户端窗口正常启动。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `0ef2382` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
