@@ -111,6 +111,7 @@ Citation tokens immediately following sentence punctuation on the same line rema
 - Evidence-backed Codex/API generations use `qa-structured-answer-v1` JSON rather than model-authored Markdown. Each claim carries explicit `evidenceIds`; backend validation checks existence and at least one non-Graphify source directly from this array, then deterministically renders Markdown. Punctuation, prose line breaks, headings, labels, and source locations are therefore never rediscovered as claim boundaries.
 - Every structured section carries a stable machine ID plus its canonical display title. The backend owns the ordered `id/title` contract and emits it to the model as a JSON array; never serialize required headings by joining them with a natural-language delimiter because a title may contain that delimiter. New output must include IDs. Title-only v1 output remains readable when it maps exactly, and the legacy adjacent literature sections `主题` + `模型与方法` are merged without changing claims or `evidenceIds`.
 - The structured contract contains ordered sections, optional short group labels, claims, and a separate supplement array. The supplement cannot carry evidence tokens or repository locations and the rendered mixed-answer projection retains the existing trusted-context isolation boundary.
+- Each structured claim carries a stable intent-specific `role` independent from its display `label`. Completeness checks the observed role set before persistence and never searches rendered Markdown for exact Chinese phrases. `requiredElements` and `missingElements` remain human-readable projections of the role contract for UI/audit compatibility. Role-less v1 payloads may use only an explicit bounded label-alias map; arbitrary claim prose is never scanned to infer a role.
 - The backend appends one generated `参考证据` section. It renders only `[E#]`, source kind, and compact location; full title/path metadata remains in the evidence payload and audit bundle rather than visible answer prose.
 - Persisted content remains Markdown source text. The desktop renders Markdown, GFM tables, fenced code, and KaTeX through a lazy-loaded renderer.
 - Raw HTML is not enabled. Remote images are replaced by text placeholders rather than fetched. Only `http(s)` links are emitted as external anchors.
@@ -143,6 +144,7 @@ Citation tokens immediately following sentence punctuation on the same line rema
 - `gold_questions.json` is explicitly development/regression and cannot support a production accuracy claim. `heldout_questions.json` is the independently curated/frozen production entry; `tools/qa_accuracy_eval.py` reports claim precision and Wilson intervals only after exact claim coverage, canonical evidence checksum verification, two independent blinded reviews, and third-reviewer adjudication of every disagreement.
 - Production fixture tests build the shared prompt, enforce the answer schema, persist the answer, and reload an identical manifest through both full and paginated history paths.
 - Structured-answer regressions cover canonical section IDs, title-only v1 compatibility, the legacy literature split merge, explicit expected/actual contract arrays, dedicated structural error propagation, and preservation of genuine citation failures.
+- Role regressions cover natural display labels with explicit roles, missing required roles, unknown roles, bounded legacy label aliases, and proof that required Chinese phrases need not occur in rendered Markdown.
 - Diagnostics tests serialize the DTO and assert that only aggregate timing/count metadata crosses the Rust/TypeScript boundary.
 
 ## 11. Wrong vs Correct Edge Cases
@@ -154,6 +156,7 @@ Citation tokens immediately following sentence punctuation on the same line rema
 - Repair source diversity with `selected.pop()`; later repairs can silently evict an earlier required channel or the only method.
 - Apply a global citation regex to Markdown source; this mutates code/math and creates nested links.
 - Join canonical section titles with `、` inside a prompt; `主题、模型与方法` becomes indistinguishable from two separate sections.
+- Search rendered Markdown for `模型或方法` or `证据边界`; equivalent display wording produces false completeness failures.
 
 ### Correct
 
@@ -162,3 +165,4 @@ Citation tokens immediately following sentence punctuation on the same line rema
 - Remove only the lowest-scored unprotected candidate and skip a repair when the evidence budget has no safe slot.
 - Project citation links with a Markdown-aware scanner that preserves literal regions.
 - Serialize the ordered section contract as JSON objects such as `{"id":"topic_methods","title":"主题、模型与方法"}` and validate IDs before rendering backend-owned titles.
+- Validate explicit claim roles such as `model_or_method` and `evidence_boundary`; allow labels such as `求解方法` or `模型边界` without changing completeness semantics.

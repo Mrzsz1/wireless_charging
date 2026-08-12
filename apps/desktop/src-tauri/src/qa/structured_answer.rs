@@ -36,6 +36,8 @@ struct StructuredGroup {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct StructuredClaim {
     #[serde(default)]
+    role: String,
+    #[serde(default)]
     label: String,
     text: String,
     evidence_ids: Vec<String>,
@@ -45,6 +47,79 @@ struct StructuredClaim {
 pub struct StructuredRenderResult {
     pub markdown: String,
     pub validation: CitationValidation,
+    pub roles: Vec<String>,
+}
+
+fn legacy_role(intent: &str, label: &str) -> Option<&'static str> {
+    let label = label.trim().trim_end_matches([':', '：']);
+    let aliases: &[(&str, &[&str])] = match intent {
+        "literature" => &[
+            ("paper_title", &["论文标题"]),
+            ("question_relevance", &["与问题的关系"]),
+            (
+                "model_or_method",
+                &[
+                    "模型或方法",
+                    "模型与方法",
+                    "模型",
+                    "方法",
+                    "求解方法",
+                    "优化方法",
+                    "控制对象",
+                    "动态输入",
+                    "复杂度处理",
+                    "安全判据",
+                    "概率化建模",
+                    "部署变量",
+                    "优化目标",
+                    "信号叠加",
+                ],
+            ),
+            (
+                "evidence_boundary",
+                &["证据边界", "模型边界", "本轮证据范围"],
+            ),
+            ("source_location", &["来源定位", "复现定位"]),
+        ],
+        "novelty" => &[
+            ("coverage_matrix", &["覆盖矩阵"]),
+            ("covered_topics", &["已覆盖主题"]),
+            ("evidence_gap", &["证据缺口"]),
+            ("knowledge_boundary", &["当前知识库边界"]),
+        ],
+        "relationship" => &[
+            ("common_object", &["共同对象"]),
+            ("assumptions", &["假设"]),
+            ("objectives", &["目标"]),
+            ("constraints", &["约束"]),
+            ("algorithm_mechanism", &["算法机制"]),
+            ("guarantees", &["保证"]),
+            ("cost", &["代价"]),
+            ("applicable_scenario", &["适用场景"]),
+        ],
+        _ => &[
+            ("research_object", &["研究对象"]),
+            ("variables", &["变量"]),
+            ("objective", &["目标函数"]),
+            ("constraints", &["约束"]),
+            ("solution_steps", &["求解步骤"]),
+            ("guarantee", &["可证明保证"]),
+            ("failure_boundary", &["失效边界"]),
+        ],
+    };
+    let exact = aliases
+        .iter()
+        .find_map(|(role, labels)| labels.contains(&label).then_some(*role));
+    if exact.is_some() {
+        return exact;
+    }
+    if intent == "literature" && label.ends_with("边界") {
+        return Some("evidence_boundary");
+    }
+    if intent == "literature" && label.ends_with("定位") {
+        return Some("source_location");
+    }
+    None
 }
 
 fn normalized_title(value: &str) -> String {
@@ -186,7 +261,12 @@ pub fn parse_validate_render(
     let mut graph_only_claims = Vec::new();
     let mut claim_count = 0;
     let mut cited_claim_count = 0;
+    let mut roles = Vec::new();
     let mut markdown = String::new();
+    let allowed_roles = super::context::required_answer_role_contract(intent)
+        .into_iter()
+        .map(|role| role.id)
+        .collect::<HashSet<_>>();
 
     for (contract, section) in &sections {
         let title = contract.title;
@@ -207,6 +287,20 @@ pub fn parse_validate_render(
             }
             for claim in &group.claims {
                 claim_count += 1;
+                let role = if claim.role.trim().is_empty() {
+                    legacy_role(intent, &claim.label)
+                } else {
+                    let role = claim.role.trim();
+                    if !allowed_roles.contains(role) {
+                        return Err(format!("结构化回答包含未知 claim role：{role}"));
+                    }
+                    Some(role)
+                };
+                if let Some(role) = role {
+                    if !roles.iter().any(|existing| existing == role) {
+                        roles.push(role.to_string());
+                    }
+                }
                 let text = claim.text.trim();
                 if text.is_empty() {
                     unsupported_claims.push("空声明".to_string());
@@ -297,6 +391,7 @@ pub fn parse_validate_render(
     let mixed = supported && !model_supplement_claims.is_empty();
     Ok(StructuredRenderResult {
         markdown,
+        roles,
         validation: CitationValidation {
             citation_precision: if cited_ids.is_empty() && unknown_ids.is_empty() {
                 0.0
@@ -441,5 +536,63 @@ mod tests {
         assert!(error.contains("章节 id 应为"));
         assert!(error.contains("topic_methods"));
         assert!(error.contains("wrong"));
+    }
+
+    #[test]
+    fn explicit_roles_allow_natural_labels_and_reject_unknown_roles() {
+        let sections = super::super::context::required_answer_section_contract("literature")
+            .into_iter()
+            .enumerate()
+            .map(|(index, section)| {
+                let role = if index == 0 {
+                    "model_or_method"
+                } else {
+                    "paper_title"
+                };
+                json!({
+                    "id": section.id,
+                    "title": section.title,
+                    "groups": [{
+                        "label": "fixture",
+                        "claims": [{
+                            "role": role,
+                            "label": "完全自由的展示标签",
+                            "text": "有证据的自然语言内容",
+                            "evidenceIds": ["E1"]
+                        }]
+                    }]
+                })
+            })
+            .collect::<Vec<_>>();
+        let raw = json!({
+            "schemaVersion": SCHEMA_VERSION,
+            "sections": sections,
+            "supplement": []
+        })
+        .to_string();
+        let result = parse_validate_render(&raw, "literature", &[evidence("E1")]).unwrap();
+        assert!(result.roles.contains(&"model_or_method".to_string()));
+        assert!(result.markdown.contains("完全自由的展示标签"));
+
+        let invalid = raw.replacen("model_or_method", "invented_role", 1);
+        let error = parse_validate_render(&invalid, "literature", &[evidence("E1")]).unwrap_err();
+        assert!(error.contains("未知 claim role：invented_role"));
+    }
+
+    #[test]
+    fn legacy_labels_map_to_roles_without_scanning_claim_prose() {
+        assert_eq!(
+            legacy_role("literature", "求解方法"),
+            Some("model_or_method")
+        );
+        assert_eq!(
+            legacy_role("literature", "GAIN边界"),
+            Some("evidence_boundary")
+        );
+        assert_eq!(
+            legacy_role("literature", "ROSE定位"),
+            Some("source_location")
+        );
+        assert_eq!(legacy_role("literature", "任意说明"), None);
     }
 }

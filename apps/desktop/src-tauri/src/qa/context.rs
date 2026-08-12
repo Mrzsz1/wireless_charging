@@ -6,7 +6,7 @@ use sha2::{Digest, Sha256};
 use std::path::Path;
 use std::time::UNIX_EPOCH;
 
-pub const PROMPT_VERSION: &str = "qa-prompt-v6";
+pub const PROMPT_VERSION: &str = "qa-prompt-v7";
 pub const ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-rrf-v3";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v2";
@@ -419,6 +419,13 @@ pub struct AnswerSectionContract {
     pub title: &'static str,
 }
 
+#[derive(Debug, Serialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct AnswerRoleContract {
+    pub id: &'static str,
+    pub title: &'static str,
+}
+
 pub fn required_answer_section_contract(intent: &str) -> Vec<AnswerSectionContract> {
     let values: &[AnswerSectionContract] = if intent == "literature" {
         &[
@@ -470,47 +477,133 @@ pub fn required_answer_section_contract(intent: &str) -> Vec<AnswerSectionContra
     values.to_vec()
 }
 
-pub fn required_answer_elements(intent: &str) -> Vec<String> {
-    let values: &[&str] = match intent {
+pub fn required_answer_role_contract(intent: &str) -> Vec<AnswerRoleContract> {
+    let values: &[AnswerRoleContract] = match intent {
         "literature" => &[
-            "论文标题",
-            "与问题的关系",
-            "模型或方法",
-            "证据边界",
-            "来源定位",
+            AnswerRoleContract {
+                id: "paper_title",
+                title: "论文标题",
+            },
+            AnswerRoleContract {
+                id: "question_relevance",
+                title: "与问题的关系",
+            },
+            AnswerRoleContract {
+                id: "model_or_method",
+                title: "模型或方法",
+            },
+            AnswerRoleContract {
+                id: "evidence_boundary",
+                title: "证据边界",
+            },
+            AnswerRoleContract {
+                id: "source_location",
+                title: "来源定位",
+            },
         ],
-        "novelty" => &["覆盖矩阵", "已覆盖主题", "证据缺口", "当前知识库边界"],
+        "novelty" => &[
+            AnswerRoleContract {
+                id: "coverage_matrix",
+                title: "覆盖矩阵",
+            },
+            AnswerRoleContract {
+                id: "covered_topics",
+                title: "已覆盖主题",
+            },
+            AnswerRoleContract {
+                id: "evidence_gap",
+                title: "证据缺口",
+            },
+            AnswerRoleContract {
+                id: "knowledge_boundary",
+                title: "当前知识库边界",
+            },
+        ],
         "relationship" => &[
-            "共同对象",
-            "假设",
-            "目标",
-            "约束",
-            "算法机制",
-            "保证",
-            "代价",
-            "适用场景",
+            AnswerRoleContract {
+                id: "common_object",
+                title: "共同对象",
+            },
+            AnswerRoleContract {
+                id: "assumptions",
+                title: "假设",
+            },
+            AnswerRoleContract {
+                id: "objectives",
+                title: "目标",
+            },
+            AnswerRoleContract {
+                id: "constraints",
+                title: "约束",
+            },
+            AnswerRoleContract {
+                id: "algorithm_mechanism",
+                title: "算法机制",
+            },
+            AnswerRoleContract {
+                id: "guarantees",
+                title: "保证",
+            },
+            AnswerRoleContract {
+                id: "cost",
+                title: "代价",
+            },
+            AnswerRoleContract {
+                id: "applicable_scenario",
+                title: "适用场景",
+            },
         ],
         _ => &[
-            "研究对象",
-            "变量",
-            "目标函数",
-            "约束",
-            "求解步骤",
-            "可证明保证",
-            "失效边界",
+            AnswerRoleContract {
+                id: "research_object",
+                title: "研究对象",
+            },
+            AnswerRoleContract {
+                id: "variables",
+                title: "变量",
+            },
+            AnswerRoleContract {
+                id: "objective",
+                title: "目标函数",
+            },
+            AnswerRoleContract {
+                id: "constraints",
+                title: "约束",
+            },
+            AnswerRoleContract {
+                id: "solution_steps",
+                title: "求解步骤",
+            },
+            AnswerRoleContract {
+                id: "guarantee",
+                title: "可证明保证",
+            },
+            AnswerRoleContract {
+                id: "failure_boundary",
+                title: "失效边界",
+            },
         ],
     };
-    values.iter().map(|value| (*value).to_string()).collect()
+    values.to_vec()
+}
+
+pub fn required_answer_elements(intent: &str) -> Vec<String> {
+    required_answer_role_contract(intent)
+        .into_iter()
+        .map(|role| role.title.to_string())
+        .collect()
 }
 
 fn answer_contract(intent: &str, has_evidence: bool) -> String {
     if has_evidence {
         let section_contract = required_answer_section_contract(intent);
         let section_contract_json = prompt_json(&section_contract, "[]");
+        let role_contract = required_answer_role_contract(intent);
+        let role_contract_json = prompt_json(&role_contract, "[]");
         return format!(
-            "只输出一个 JSON object，结构严格为：{{\"schemaVersion\":\"qa-structured-answer-v1\",\"sections\":[{{\"id\":string,\"title\":string,\"groups\":[{{\"label\":string,\"claims\":[{{\"label\":string,\"text\":string,\"evidenceIds\":[\"E1\"]}}]}}]}}],\"supplement\":[]}}。sections 必须逐项复制以下 JSON 数组中的 id、title 和顺序，不得拆分、合并或改写标题：{}。每一条事实、边界判断、复现建议都必须是独立 claim；结构标题和论文分组名放 label，不要伪装成 claim。每条 claim 的 text 不写 [E#]，只在 evidenceIds 中列本轮编号；不得为空，不得使用未知编号，且至少一个证据必须不是 graph。论文分组 label 使用短称或论文序号，不复制冗长路径。需要覆盖的内容标签：{}。完整参考证据由程序生成，不要自行添加。",
+            "只输出一个 JSON object，结构严格为：{{\"schemaVersion\":\"qa-structured-answer-v1\",\"sections\":[{{\"id\":string,\"title\":string,\"groups\":[{{\"label\":string,\"claims\":[{{\"role\":string,\"label\":string,\"text\":string,\"evidenceIds\":[\"E1\"]}}]}}]}}],\"supplement\":[]}}。sections 必须逐项复制以下 JSON 数组中的 id、title 和顺序，不得拆分、合并或改写标题：{}。每条 claim 的 role 必须取自以下 JSON 数组的 id，并且全部必需 role 至少出现一次；title 仅解释业务含义，不要求作为 label 原样输出：{}。每一条事实、边界判断、复现建议都必须是独立 claim；结构标题和论文分组名放 label，不要伪装成 claim。每条 claim 的 text 不写 [E#]，只在 evidenceIds 中列本轮编号；不得为空，不得使用未知编号，且至少一个证据必须不是 graph。论文分组 label 使用短称或论文序号，不复制冗长路径。完整参考证据由程序生成，不要自行添加。",
             section_contract_json,
-            required_answer_elements(intent).join("、")
+            role_contract_json
         );
     }
     let intent_requirements = if intent == "literature" {
@@ -618,6 +711,7 @@ pub fn validate_answer_completeness(
     answer: &str,
     claim_count: usize,
     applicable: bool,
+    structured_roles: Option<&[String]>,
 ) -> AnswerCompletenessValidation {
     let required_sections = required_answer_sections(intent);
     let required_elements = required_answer_elements(intent);
@@ -638,10 +732,11 @@ pub fn validate_answer_completeness(
         .filter(|heading| !answer.lines().any(|line| line.trim() == heading.as_str()))
         .cloned()
         .collect::<Vec<_>>();
-    let missing_elements = required_elements
-        .iter()
-        .filter(|element| !answer.contains(element.as_str()))
-        .cloned()
+    let observed_roles = structured_roles.unwrap_or_default();
+    let missing_elements = required_answer_role_contract(intent)
+        .into_iter()
+        .filter(|role| !observed_roles.iter().any(|observed| observed == role.id))
+        .map(|role| role.title.to_string())
         .collect::<Vec<_>>();
     let minimum_claim_count = if intent == "literature" { 2 } else { 3 };
     AnswerCompletenessValidation {
@@ -835,9 +930,16 @@ mod tests {
             .collect::<Vec<_>>()
             .join("\n")
             + "\n研究对象、变量、目标函数、约束、求解步骤、可证明保证、失效边界 [E1]。";
-        assert!(validate_answer_completeness("solve", &answer, 6, true).complete);
-        assert!(!validate_answer_completeness("solve", "## 结论\n内容 [E1]。", 1, true).complete);
-        assert!(validate_answer_completeness("solve", "", 0, false).complete);
+        let roles = required_answer_role_contract("solve")
+            .into_iter()
+            .map(|role| role.id.to_string())
+            .collect::<Vec<_>>();
+        assert!(validate_answer_completeness("solve", &answer, 6, true, Some(&roles)).complete);
+        assert!(
+            !validate_answer_completeness("solve", "## 结论\n内容 [E1]。", 1, true, Some(&roles))
+                .complete
+        );
+        assert!(validate_answer_completeness("solve", "", 0, false, None).complete);
     }
 
     #[test]
@@ -859,7 +961,11 @@ mod tests {
             })
             .collect::<Vec<_>>()
             .join("\n");
-        let validation = validate_answer_completeness("literature", &answer, 2, true);
+        let roles = required_answer_role_contract("literature")
+            .into_iter()
+            .map(|role| role.id.to_string())
+            .collect::<Vec<_>>();
+        let validation = validate_answer_completeness("literature", &answer, 2, true, Some(&roles));
         assert!(validation.complete, "{validation:?}");
         assert_eq!(validation.minimum_claim_count, 2);
     }
@@ -869,7 +975,36 @@ mod tests {
         let contract = answer_contract("literature", true);
         assert!(contract.contains("\"id\":\"topic_methods\""));
         assert!(contract.contains("\"title\":\"主题、模型与方法\""));
+        assert!(contract.contains("\"id\":\"model_or_method\""));
+        assert!(contract.contains("\"id\":\"evidence_boundary\""));
         assert!(!contract.contains("sections 按顺序且完整使用这些标题"));
+    }
+
+    #[test]
+    fn structured_completeness_uses_roles_not_markdown_phrases() {
+        let roles = required_answer_role_contract("literature")
+            .into_iter()
+            .map(|role| role.id.to_string())
+            .collect::<Vec<_>>();
+        let answer = required_answer_sections("literature")
+            .into_iter()
+            .map(|heading| format!("{heading}\n完全不含固定业务短语的内容。"))
+            .collect::<Vec<_>>()
+            .join("\n");
+        let complete = validate_answer_completeness("literature", &answer, 5, true, Some(&roles));
+        assert!(complete.complete, "{complete:?}");
+        assert!(!answer.contains("模型或方法"));
+        assert!(!answer.contains("证据边界"));
+
+        let missing = validate_answer_completeness(
+            "literature",
+            &answer,
+            5,
+            true,
+            Some(&roles[..roles.len() - 1]),
+        );
+        assert!(!missing.complete);
+        assert_eq!(missing.missing_elements, vec!["来源定位"]);
     }
 
     #[test]

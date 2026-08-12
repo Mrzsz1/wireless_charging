@@ -2832,29 +2832,36 @@ pub fn audit_generated_answer(
     let structured = metadata.enforce_answer_schema
         && !context.evidence.is_empty()
         && metadata.provider != PROVIDER_OFFLINE;
-    let (answer, citation_repair, citation_validation, structured_answer_error) = if structured {
-        match structured_answer::parse_validate_render(answer, &context.intent, &context.evidence) {
-            Ok(result) => (
-                result.markdown,
-                CitationRepair::default(),
-                result.validation,
-                None,
-            ),
-            Err(error) => {
-                let validation = structured_answer::invalid_validation(&error);
-                (
-                    answer.to_string(),
+    let (answer, citation_repair, citation_validation, structured_answer_error, structured_roles) =
+        if structured {
+            match structured_answer::parse_validate_render(
+                answer,
+                &context.intent,
+                &context.evidence,
+            ) {
+                Ok(result) => (
+                    result.markdown,
                     CitationRepair::default(),
-                    validation,
-                    Some(error),
-                )
+                    result.validation,
+                    None,
+                    Some(result.roles),
+                ),
+                Err(error) => {
+                    let validation = structured_answer::invalid_validation(&error);
+                    (
+                        answer.to_string(),
+                        CitationRepair::default(),
+                        validation,
+                        Some(error),
+                        Some(Vec::new()),
+                    )
+                }
             }
-        }
-    } else {
-        let (answer, citation_repair) = repair_unknown_citations(answer, &context.evidence);
-        let citation_validation = validate_citations(&answer, &context.evidence);
-        (answer, citation_repair, citation_validation, None)
-    };
+        } else {
+            let (answer, citation_repair) = repair_unknown_citations(answer, &context.evidence);
+            let citation_validation = validate_citations(&answer, &context.evidence);
+            (answer, citation_repair, citation_validation, None, None)
+        };
     let completeness = context::validate_answer_completeness(
         &context.intent,
         &answer,
@@ -2862,6 +2869,7 @@ pub fn audit_generated_answer(
         metadata.enforce_answer_schema
             && !context.evidence.is_empty()
             && metadata.provider != PROVIDER_OFFLINE,
+        structured_roles.as_deref(),
     );
     let envelope = context::build_prompt_envelope(context);
     let run_manifest = context::build_run_manifest(
@@ -3059,6 +3067,7 @@ mod tests {
     }
 
     fn structured_fixture_answer(intent: &str, evidence_id: &str, complete: bool) -> String {
+        let required_roles = context::required_answer_role_contract(intent);
         let sections = context::required_answer_section_contract(intent)
             .into_iter()
             .enumerate()
@@ -3068,16 +3077,34 @@ mod tests {
                 } else {
                     "Fixture claim is supported"
                 };
+                let claims = if index == 0 {
+                    required_roles
+                        .iter()
+                        .enumerate()
+                        .filter(|(role_index, _)| complete || *role_index == 0)
+                        .map(|(role_index, role)| {
+                            json!({
+                                "role": role.id,
+                                "label": format!("natural-label-{role_index}"),
+                                "text": text,
+                                "evidenceIds": [evidence_id]
+                            })
+                        })
+                        .collect::<Vec<_>>()
+                } else {
+                    vec![json!({
+                        "role": required_roles[0].id,
+                        "label": format!("claim-{index}"),
+                        "text": text,
+                        "evidenceIds": [evidence_id]
+                    })]
+                };
                 json!({
                     "id": section.id,
                     "title": section.title,
                     "groups": [{
                         "label": "fixture",
-                        "claims": [{
-                            "label": format!("claim-{index}"),
-                            "text": text,
-                            "evidenceIds": [evidence_id]
-                        }]
+                        "claims": claims
                     }]
                 })
             })
