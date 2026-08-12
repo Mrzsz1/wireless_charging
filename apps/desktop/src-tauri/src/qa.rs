@@ -6,8 +6,9 @@ use std::collections::{HashMap, HashSet};
 use std::env;
 use std::fs;
 use std::io::{BufRead, BufReader};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex, OnceLock};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use uuid::Uuid;
 
@@ -19,6 +20,8 @@ pub const PROVIDER_OFFLINE: &str = "offline-evidence";
 const QA_SCHEMA_VERSION: i64 = 4;
 const HISTORY_MESSAGE_LIMIT: usize = 8;
 const HISTORY_CHARACTER_BUDGET: usize = 12_000;
+pub const NO_EVIDENCE_NOTICE: &str =
+    "当前知识库没有检索到参考来源。以下内容来自模型的一般知识，未经本库证据核验。";
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -99,6 +102,7 @@ pub struct QuestionContext {
     pub request_id: String,
     pub question: String,
     pub intent: String,
+    pub retrieval_query: RetrievalQuery,
     pub conversation: Vec<ConversationTurn>,
     pub evidence: Vec<EvidenceItem>,
     pub waterline: WaterlineSnapshot,
@@ -108,8 +112,20 @@ pub struct QuestionContext {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct ConversationTurn {
+    pub id: String,
     pub role: String,
     pub content: String,
+    pub request_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct RetrievalQuery {
+    pub original_question: String,
+    pub resolved_question: String,
+    pub entities: Vec<String>,
+    pub intent: String,
+    pub used_history_message_ids: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
@@ -120,6 +136,14 @@ pub struct CitationValidation {
     pub citation_precision: f64,
     pub has_citations: bool,
     pub supported: bool,
+    #[serde(default = "default_grounding_status")]
+    pub grounding_status: String,
+    #[serde(default)]
+    pub zero_evidence: bool,
+}
+
+fn default_grounding_status() -> String {
+    "supported".to_string()
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -162,6 +186,8 @@ pub struct ChatSessionDetail {
 #[derive(Debug, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct AskRequest {
+    #[serde(default)]
+    pub request_id: String,
     pub question: String,
     pub session_id: Option<String>,
     pub evidence_limit: Option<usize>,
@@ -180,6 +206,14 @@ pub struct AskResult {
     pub waterline: WaterlineSnapshot,
     pub offline: bool,
     pub citation_validation: CitationValidation,
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct FailedExchange {
+    pub session_id: String,
+    pub user_message: ChatMessage,
+    pub assistant_message: ChatMessage,
 }
 
 #[allow(clippy::large_enum_variant)]
@@ -216,6 +250,7 @@ pub enum AnswerStreamEvent {
         code: String,
         message: String,
         retryable: bool,
+        exchange: Option<FailedExchange>,
     },
     Cancelled {
         request_id: String,
@@ -244,6 +279,44 @@ struct Candidate {
     relation: String,
     retrieval_reason: String,
 }
+
+#[derive(Clone)]
+struct GraphNeighbor {
+    label: String,
+    relation: String,
+}
+
+#[derive(Clone)]
+struct GraphSearchNode {
+    id: String,
+    label: String,
+    description: String,
+    source_file: String,
+    source_location: String,
+    community: String,
+    community_name: String,
+    neighbors: Vec<GraphNeighbor>,
+}
+
+#[derive(Clone)]
+struct GraphSearchIndex {
+    nodes: Vec<GraphSearchNode>,
+}
+
+#[derive(Clone, PartialEq, Eq)]
+struct GraphCacheKey {
+    path: PathBuf,
+    length: u64,
+    modified_nanos: u128,
+}
+
+#[derive(Default)]
+struct GraphCache {
+    key: Option<GraphCacheKey>,
+    index: Option<Arc<GraphSearchIndex>>,
+}
+
+static GRAPH_CACHE: OnceLock<Mutex<GraphCache>> = OnceLock::new();
 
 pub fn db_schema(connection: &Connection) -> Result<(), String> {
     connection
@@ -686,7 +759,7 @@ pub fn conversation_history(
     }
     let mut statement = connection
         .prepare(
-            "SELECT role,content FROM chat_messages
+            "SELECT id,role,content,request_id FROM chat_messages
              WHERE session_id=?1 AND status='completed' AND role IN ('user','assistant')
              ORDER BY created_at DESC,rowid DESC LIMIT ?2",
         )
@@ -694,8 +767,10 @@ pub fn conversation_history(
     let rows = statement
         .query_map(params![session_id, HISTORY_MESSAGE_LIMIT as i64], |row| {
             Ok(ConversationTurn {
-                role: row.get(0)?,
-                content: row.get(1)?,
+                id: row.get(0)?,
+                role: row.get(1)?,
+                content: row.get(2)?,
+                request_id: row.get(3)?,
             })
         })
         .map_err(|error| format!("读取多轮历史失败：{error}"))?;
@@ -718,6 +793,143 @@ pub fn conversation_history(
     }
     selected.reverse();
     Ok(selected)
+}
+
+fn contains_reference(question: &str) -> bool {
+    let lower = question.to_lowercase();
+    [
+        "它", "它们", "二者", "两者", "这些", "上述", "前者", "后者", "they", "them", "these",
+        "those", "both",
+    ]
+    .iter()
+    .any(|marker| lower.contains(marker))
+}
+
+fn push_entity(entities: &mut Vec<String>, seen: &mut HashSet<String>, value: &str) {
+    let clean = value
+        .trim_matches(|character: char| {
+            !character.is_alphanumeric() && character != '-' && character != '_'
+        })
+        .trim();
+    let evidence_id = clean.strip_prefix('E').is_some_and(|digits| {
+        !digits.is_empty() && digits.chars().all(|character| character.is_ascii_digit())
+    });
+    if clean.chars().count() >= 2
+        && clean.chars().count() <= 80
+        && !evidence_id
+        && seen.insert(clean.to_lowercase())
+    {
+        entities.push(clean.to_string());
+    }
+}
+
+fn extract_history_entities(connection: &Connection, history: &[ConversationTurn]) -> Vec<String> {
+    let mut entities = Vec::new();
+    let mut seen = HashSet::new();
+
+    for turn in history.iter().rev().filter(|turn| turn.role == "user") {
+        for token in turn.content.split(|character: char| {
+            !character.is_ascii_alphanumeric() && character != '-' && character != '_'
+        }) {
+            let clean = token.trim_matches(|character: char| {
+                !character.is_alphanumeric() && character != '-' && character != '_'
+            });
+            let has_letter = clean
+                .chars()
+                .any(|character| character.is_ascii_alphabetic());
+            let model_like = has_letter
+                && clean.chars().all(|character| {
+                    character.is_ascii_uppercase()
+                        || character.is_ascii_digit()
+                        || matches!(character, '-' | '_')
+                });
+            if model_like {
+                push_entity(&mut entities, &mut seen, clean);
+            }
+        }
+        if entities.len() >= 8 {
+            break;
+        }
+    }
+
+    if entities.len() < 8 {
+        let history_text = history
+            .iter()
+            .rev()
+            .take(4)
+            .map(|turn| turn.content.to_lowercase())
+            .collect::<Vec<_>>()
+            .join("\n");
+        if let Ok(mut statement) = connection.prepare(
+            "SELECT id,title FROM pages WHERE length(title) BETWEEN 2 AND 80 ORDER BY length(title) DESC",
+        ) {
+            if let Ok(rows) = statement.query_map([], |row| {
+                Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
+            }) {
+                for row in rows.flatten() {
+                    for candidate in [row.1.as_str(), row.0.trim_end_matches(".md")] {
+                        if history_text.contains(&candidate.to_lowercase()) {
+                            push_entity(&mut entities, &mut seen, candidate);
+                            break;
+                        }
+                    }
+                    if entities.len() >= 8 {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    let mut remaining_characters = 256;
+    entities
+        .into_iter()
+        .take(8)
+        .filter(|entity| {
+            let length = entity.chars().count();
+            if length > remaining_characters {
+                false
+            } else {
+                remaining_characters -= length;
+                true
+            }
+        })
+        .collect()
+}
+
+pub fn build_retrieval_query(
+    connection: &Connection,
+    question: &str,
+    history: &[ConversationTurn],
+) -> RetrievalQuery {
+    let original_question = question.trim().to_string();
+    let question_intent = intent(&original_question);
+    let entities = if contains_reference(&original_question) {
+        extract_history_entities(connection, history)
+    } else {
+        Vec::new()
+    };
+    let resolved_question = if entities.is_empty() {
+        original_question.clone()
+    } else {
+        format!("{} 相关实体：{}", original_question, entities.join("；"))
+    };
+    let used_history_message_ids = if entities.is_empty() {
+        Vec::new()
+    } else {
+        history
+            .iter()
+            .rev()
+            .take(4)
+            .map(|turn| turn.id.clone())
+            .collect()
+    };
+    RetrievalQuery {
+        original_question,
+        resolved_question,
+        entities,
+        intent: question_intent,
+        used_history_message_ids,
+    }
 }
 
 pub(crate) fn query_terms(question: &str) -> Vec<String> {
@@ -1129,14 +1341,22 @@ fn book_candidates(connection: &Connection, terms: &[String]) -> Result<Vec<Cand
         .map_err(|error| format!("解析核心书籍证据失败：{error}"))
 }
 
-fn graph_candidates(connection: &Connection, root: &Path, terms: &[String]) -> Vec<Candidate> {
-    let graph_path = root.join("graphify-out/graph.json");
-    let Ok(content) = fs::read_to_string(graph_path) else {
-        return Vec::new();
-    };
-    let Ok(payload) = serde_json::from_str::<Value>(&content) else {
-        return Vec::new();
-    };
+fn graph_cache_key(graph_path: &Path) -> Option<GraphCacheKey> {
+    let metadata = fs::metadata(graph_path).ok()?;
+    let modified_nanos = metadata
+        .modified()
+        .ok()?
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_nanos();
+    Some(GraphCacheKey {
+        path: graph_path.to_path_buf(),
+        length: metadata.len(),
+        modified_nanos,
+    })
+}
+
+fn parse_graph_index(payload: &Value) -> GraphSearchIndex {
     let nodes = payload
         .get("nodes")
         .and_then(Value::as_array)
@@ -1160,7 +1380,7 @@ fn graph_candidates(connection: &Connection, root: &Path, terms: &[String]) -> V
             ))
         })
         .collect::<HashMap<_, _>>();
-    let mut adjacency: HashMap<String, Vec<(String, String)>> = HashMap::new();
+    let mut adjacency: HashMap<String, Vec<GraphNeighbor>> = HashMap::new();
     for link in links {
         let Some(source) = link.get("source").and_then(Value::as_str) else {
             continue;
@@ -1176,24 +1396,107 @@ fn graph_candidates(connection: &Connection, root: &Path, terms: &[String]) -> V
         adjacency
             .entry(source.to_string())
             .or_default()
-            .push((target.to_string(), relation.clone()));
+            .push(GraphNeighbor {
+                label: labels
+                    .get(target)
+                    .cloned()
+                    .unwrap_or_else(|| target.to_string()),
+                relation: relation.clone(),
+            });
         adjacency
             .entry(target.to_string())
             .or_default()
-            .push((source.to_string(), relation));
+            .push(GraphNeighbor {
+                label: labels
+                    .get(source)
+                    .cloned()
+                    .unwrap_or_else(|| source.to_string()),
+                relation,
+            });
     }
+    let nodes = nodes
+        .into_iter()
+        .map(|node| {
+            let id = node
+                .get("id")
+                .and_then(Value::as_str)
+                .unwrap_or_default()
+                .to_string();
+            GraphSearchNode {
+                label: node
+                    .get("label")
+                    .or_else(|| node.get("name"))
+                    .and_then(Value::as_str)
+                    .unwrap_or_default()
+                    .to_string(),
+                description: node
+                    .get("description")
+                    .or_else(|| node.get("summary"))
+                    .and_then(Value::as_str)
+                    .unwrap_or_default()
+                    .to_string(),
+                source_file: node
+                    .get("source_file")
+                    .or_else(|| node.get("sourceFile"))
+                    .and_then(Value::as_str)
+                    .unwrap_or_default()
+                    .to_string(),
+                source_location: node
+                    .get("source_location")
+                    .or_else(|| node.get("sourceLocation"))
+                    .and_then(Value::as_str)
+                    .unwrap_or_default()
+                    .to_string(),
+                community: node
+                    .get("community")
+                    .map(|value| {
+                        value
+                            .as_str()
+                            .map(str::to_string)
+                            .unwrap_or_else(|| value.to_string())
+                    })
+                    .unwrap_or_default(),
+                community_name: node
+                    .get("community_name")
+                    .or_else(|| node.get("communityName"))
+                    .and_then(Value::as_str)
+                    .unwrap_or_default()
+                    .to_string(),
+                neighbors: adjacency.remove(&id).unwrap_or_default(),
+                id,
+            }
+        })
+        .collect();
+    GraphSearchIndex { nodes }
+}
+
+fn load_graph_index(root: &Path) -> Option<Arc<GraphSearchIndex>> {
+    let graph_path = root.join("graphify-out/graph.json");
+    let key = graph_cache_key(&graph_path)?;
+    let cache = GRAPH_CACHE.get_or_init(|| Mutex::new(GraphCache::default()));
+    if let Ok(cache) = cache.lock() {
+        if cache.key.as_ref() == Some(&key) {
+            return cache.index.clone();
+        }
+    }
+    let content = fs::read_to_string(&graph_path).ok()?;
+    let payload = serde_json::from_str::<Value>(&content).ok()?;
+    let index = Arc::new(parse_graph_index(&payload));
+    if let Ok(mut cache) = cache.lock() {
+        cache.key = Some(key);
+        cache.index = Some(index.clone());
+    }
+    Some(index)
+}
+
+fn graph_candidates(connection: &Connection, root: &Path, terms: &[String]) -> Vec<Candidate> {
+    let Some(index) = load_graph_index(root) else {
+        return Vec::new();
+    };
     let mut candidates = Vec::new();
-    for node in nodes {
-        let label = node
-            .get("label")
-            .or_else(|| node.get("name"))
-            .and_then(Value::as_str)
-            .unwrap_or_default();
-        let source_file = node
-            .get("source_file")
-            .or_else(|| node.get("sourceFile"))
-            .and_then(Value::as_str)
-            .unwrap_or_default();
+    for node in &index.nodes {
+        let label = node.label.as_str();
+        let source_file = node.source_file.as_str();
         let normalized_source = source_file.replace('\\', "/");
         let source_path =
             if normalized_source.starts_with("wiki/") && normalized_source.ends_with(".md") {
@@ -1209,37 +1512,67 @@ fn graph_candidates(connection: &Connection, root: &Path, terms: &[String]) -> V
         if source_path.is_empty() || !root.join(&source_path).is_file() {
             continue;
         }
-        let haystack = format!("{label} {source_file}").to_lowercase();
-        let hits = terms
+        let page_title = connection
+            .query_row(
+                "SELECT title FROM pages WHERE replace(source_path,'\\','/')=?1 LIMIT 1",
+                [&source_path],
+                |row| row.get::<_, String>(0),
+            )
+            .optional()
+            .ok()
+            .flatten()
+            .unwrap_or_default();
+        let node_haystack = format!(
+            "{} {} {} {} {} {} {}",
+            label,
+            node.description,
+            source_file,
+            node.source_location,
+            node.community,
+            node.community_name,
+            page_title
+        )
+        .to_lowercase();
+        let relation_haystack = node
+            .neighbors
             .iter()
-            .filter(|term| haystack.contains(term.as_str()))
+            .map(|neighbor| neighbor.relation.as_str())
+            .collect::<Vec<_>>()
+            .join(" ")
+            .to_lowercase();
+        let neighbor_haystack = node
+            .neighbors
+            .iter()
+            .map(|neighbor| neighbor.label.as_str())
+            .collect::<Vec<_>>()
+            .join(" ")
+            .to_lowercase();
+        let node_hits = terms
+            .iter()
+            .filter(|term| node_haystack.contains(term.as_str()))
             .count();
-        if hits == 0 {
+        let relation_hits = terms
+            .iter()
+            .filter(|term| relation_haystack.contains(term.as_str()))
+            .count();
+        let neighbor_hits = terms
+            .iter()
+            .filter(|term| neighbor_haystack.contains(term.as_str()))
+            .count();
+        if node_hits + relation_hits + neighbor_hits == 0 {
             continue;
         }
-        let node_id = node
-            .get("id")
-            .and_then(Value::as_str)
-            .unwrap_or(label)
-            .to_string();
-        let neighbors = adjacency
-            .get(&node_id)
-            .into_iter()
-            .flatten()
+        let node_id = if node.id.is_empty() {
+            label.to_string()
+        } else {
+            node.id.clone()
+        };
+        let neighbors = node
+            .neighbors
+            .iter()
             .take(4)
-            .map(|(id, relation)| {
-                format!(
-                    "{}→{}",
-                    relation,
-                    labels.get(id).map(String::as_str).unwrap_or(id)
-                )
-            })
+            .map(|neighbor| format!("{}→{}", neighbor.relation, neighbor.label))
             .collect::<Vec<_>>();
-        let community = node
-            .get("community")
-            .and_then(Value::as_i64)
-            .map(|value| value.to_string())
-            .unwrap_or_default();
         // Graphify source paths are provenance hints rather than stable desktop
         // identifiers. Resolve them through the canonical pages index so a
         // graph citation always opens an existing Wiki page.
@@ -1260,7 +1593,11 @@ fn graph_candidates(connection: &Connection, root: &Path, terms: &[String]) -> V
             tier: "graph_hint".to_string(),
             title: label.to_string(),
             snippet: if neighbors.is_empty() { "Graphify 关系候选；需回到 Wiki 正文核验。".to_string() } else { format!("Graphify 一跳关系：{}", neighbors.join("；")) },
-            score: 0.15 + hits as f64 * 0.04 + (!neighbors.is_empty()) as usize as f64 * 0.08,
+            score: 0.15
+                + node_hits as f64 * 0.05
+                + relation_hits as f64 * 0.08
+                + neighbor_hits as f64 * 0.07
+                + (!neighbors.is_empty()) as usize as f64 * 0.04,
             page_id: page_id.clone(),
             page_type,
             source_path,
@@ -1272,14 +1609,22 @@ fn graph_candidates(connection: &Connection, root: &Path, terms: &[String]) -> V
             markdown_path: String::new(),
             pdf_path: String::new(),
             node_id,
-            source_location: node
-                .get("source_location")
-                .or_else(|| node.get("sourceLocation"))
-                .and_then(Value::as_str)
-                .unwrap_or_default()
-                .to_string(),
-            relation: if neighbors.is_empty() { "graph_node".to_string() } else { "graph_one_hop".to_string() },
-            retrieval_reason: format!("Graphify 节点命中 {hits} 个查询词；community={community}；一跳关系 {}；已回链 Wiki，仅作关系提示", neighbors.join("、")),
+            source_location: node.source_location.clone(),
+            relation: if relation_hits > 0 {
+                "graph_relation".to_string()
+            } else if neighbor_hits > 0 {
+                "graph_neighbor".to_string()
+            } else if neighbors.is_empty() {
+                "graph_node".to_string()
+            } else {
+                "graph_one_hop".to_string()
+            },
+            retrieval_reason: format!(
+                "Graphify nodeHits={node_hits} relationHits={relation_hits} neighborHits={neighbor_hits}；community={} {}；一跳关系 {}；已回链 Wiki，仅作关系提示",
+                node.community,
+                node.community_name,
+                neighbors.join("、")
+            ),
         });
     }
     candidates.sort_by(|left, right| right.score.total_cmp(&left.score));
@@ -1337,18 +1682,53 @@ pub fn prepare_question(
     question: &str,
     limit: usize,
 ) -> Result<QuestionContext, String> {
+    prepare_question_with_history(
+        connection,
+        root,
+        question,
+        limit,
+        &Uuid::new_v4().to_string(),
+        Vec::new(),
+        None,
+    )
+}
+
+fn check_cancelled(cancelled: Option<&AtomicBool>) -> Result<(), String> {
+    if cancelled.is_some_and(|flag| flag.load(Ordering::SeqCst)) {
+        Err("QUESTION_CANCELLED: 用户停止了问答".to_string())
+    } else {
+        Ok(())
+    }
+}
+
+pub fn prepare_question_with_history(
+    connection: &Connection,
+    root: &Path,
+    question: &str,
+    limit: usize,
+    request_id: &str,
+    conversation: Vec<ConversationTurn>,
+    cancelled: Option<&AtomicBool>,
+) -> Result<QuestionContext, String> {
     let question = question.trim();
     if question.chars().count() < 2 {
         return Err("问题至少需要两个字符".to_string());
     }
-    let question_intent = intent(question);
-    let terms = query_terms(question);
+    check_cancelled(cancelled)?;
+    let retrieval_query = build_retrieval_query(connection, question, &conversation);
+    let question_intent = retrieval_query.intent.clone();
+    let terms = query_terms(&retrieval_query.resolved_question);
     let wiki = wiki_candidates(connection, &terms)?;
+    check_cancelled(cancelled)?;
     let mut candidates = wiki.clone();
     candidates.extend(paper_candidates(connection, &terms)?);
+    check_cancelled(cancelled)?;
     candidates.extend(linked_paper_candidates(connection, &wiki)?);
+    check_cancelled(cancelled)?;
     candidates.extend(book_candidates(connection, &terms)?);
+    check_cancelled(cancelled)?;
     candidates.extend(graph_candidates(connection, root, &terms));
+    check_cancelled(cancelled)?;
     apply_intent(&question_intent, &mut candidates);
     candidates.sort_by(|left, right| right.score.total_cmp(&left.score));
     let mut seen = HashSet::new();
@@ -1502,10 +1882,11 @@ pub fn prepare_question(
         })
         .collect();
     Ok(QuestionContext {
-        request_id: Uuid::new_v4().to_string(),
+        request_id: request_id.to_string(),
         question: question.to_string(),
         intent: question_intent,
-        conversation: Vec::new(),
+        retrieval_query,
+        conversation,
         evidence,
         waterline: waterline(connection, root)?,
         generated_at: now_string(),
@@ -1544,6 +1925,10 @@ pub fn validate_citations(answer: &str, evidence: &[EvidenceItem]) -> CitationVa
         .collect::<Vec<_>>();
     let valid = cited.len().saturating_sub(unknown_ids.len());
     let has_citations = !cited.is_empty();
+    let zero_evidence = evidence.is_empty();
+    let unverified =
+        zero_evidence && answer.starts_with(NO_EVIDENCE_NOTICE) && unknown_ids.is_empty();
+    let supported = !zero_evidence && unknown_ids.is_empty() && has_citations;
     CitationValidation {
         cited_ids: cited.clone(),
         unknown_ids: unknown_ids.clone(),
@@ -1553,7 +1938,59 @@ pub fn validate_citations(answer: &str, evidence: &[EvidenceItem]) -> CitationVa
             valid as f64 / cited.len() as f64
         },
         has_citations,
-        supported: unknown_ids.is_empty() && (evidence.is_empty() || has_citations),
+        supported,
+        grounding_status: if supported {
+            "supported"
+        } else if unverified {
+            "unverified"
+        } else {
+            "invalid"
+        }
+        .to_string(),
+        zero_evidence,
+    }
+}
+
+pub fn normalize_unverified_answer(answer: &str) -> String {
+    let mut body = answer.trim().to_string();
+    let mut search_from = 0;
+    while let Some(relative_start) = body[search_from..].find("[E") {
+        let start = search_from + relative_start;
+        let suffix = &body[start + 2..];
+        let digits = suffix
+            .chars()
+            .take_while(|character| character.is_ascii_digit())
+            .count();
+        if digits == 0 || suffix.chars().nth(digits) != Some(']') {
+            search_from = start + 2;
+            continue;
+        }
+        body.replace_range(start..start + digits + 3, "[无来源]");
+        search_from = start + "[无来源]".len();
+    }
+    search_from = 0;
+    while let Some(relative_start) = body[search_from..].find("[[") {
+        let start = search_from + relative_start;
+        let Some(relative_end) = body[start + 2..].find("]]") else {
+            search_from = start + 2;
+            continue;
+        };
+        let end = start + 2 + relative_end;
+        let label = body[start + 2..end]
+            .split_once('|')
+            .map(|(_, label)| label)
+            .unwrap_or(&body[start + 2..end])
+            .to_string();
+        let replacement = format!("{label}（无来源）");
+        body.replace_range(start..end + 2, &replacement);
+        search_from = start + replacement.len();
+    }
+    if body.starts_with(NO_EVIDENCE_NOTICE) {
+        body
+    } else if body.is_empty() {
+        NO_EVIDENCE_NOTICE.to_string()
+    } else {
+        format!("{NO_EVIDENCE_NOTICE}\n\n{body}")
     }
 }
 
@@ -1569,8 +2006,9 @@ pub fn offline_answer(context: &QuestionContext) -> String {
         if waterline.year_max.is_empty() { "未知" } else { &waterline.year_max },
     );
     if context.evidence.is_empty() {
-        answer.push_str("当前索引未召回可用证据。请换用更具体的模型、约束、目标或算法关键词。");
-        return answer;
+        return format!(
+            "{NO_EVIDENCE_NOTICE}\n\n当前为离线证据模式，不生成模型回答。请换用更具体的模型、约束、目标或算法关键词，或先补充相关文献。"
+        );
     }
     answer.push_str("已召回以下可审计证据，配置 Luna 后可基于同一证据包生成完整回答：\n\n");
     for item in &context.evidence {
@@ -1651,6 +2089,12 @@ fn build_prompt(context: &QuestionContext) -> String {
 }
 
 pub fn build_codex_prompt(context: &QuestionContext) -> String {
+    if context.evidence.is_empty() {
+        return format!(
+            "你是无线充电调度科研助手。不要调用工具，不要读取文件，不要执行命令。当前知识库没有召回任何参考来源。请基于你的一般知识回答用户问题，但必须清楚表达不确定性和可能需要核验的部分；禁止声称内容来自当前知识库，禁止输出任何 [E数字] 引用、wikilink、论文行号或书籍页码。\n\n{}",
+            build_prompt(context)
+        );
+    }
     format!(
         "你是无线充电调度科研知识库的回答模型。不要调用工具，不要读取文件，不要执行命令，也不要修改任何内容。只能依据下面提供的编号证据回答；每个事实判断必须引用 [E#]。必须先报告库水位，并按‘库内直接证据、相似模型、可迁移算法、核心书籍理论基础、库内尚未覆盖’组织。kind=paper 是 canonical 论文原文章节，可直接支撑其片段包含的事实，并应保留 sourceLocation；kind=wiki 是结构化导航与综合；kind=book 是核心书籍理论证据。Graphify 证据只能作为关系提示，不能单独支撑事实。库内未见不等于全球没有。不要编造引用编号。\n\n{}",
         build_prompt(context)
@@ -1681,7 +2125,11 @@ where
         .timeout(Duration::from_secs(settings.timeout_seconds))
         .build()
         .map_err(|error| format!("LUNA_CLIENT_ERROR: {error}"))?;
-    let system = "你是无线充电调度科研知识库的问答模型。只能依据编号证据回答；每个事实判断必须引用 [E#]。必须先报告库水位，并按‘库内直接证据、相似模型、可迁移算法、核心书籍理论基础、库内尚未覆盖’组织。Graphify 证据只能作为关系提示，不能单独支撑事实。库内未见不等于全球没有。不要编造引用编号。";
+    let system = if context.evidence.is_empty() {
+        "你是无线充电调度科研助手。当前知识库没有参考来源。基于一般知识回答并清楚标注不确定性；禁止声称来自当前知识库，禁止输出 [E数字]、wikilink、论文行号或书籍页码。"
+    } else {
+        "你是无线充电调度科研知识库的问答模型。只能依据编号证据回答；每个事实判断必须引用 [E#]。必须先报告库水位，并按‘库内直接证据、相似模型、可迁移算法、核心书籍理论基础、库内尚未覆盖’组织。Graphify 证据只能作为关系提示，不能单独支撑事实。库内未见不等于全球没有。不要编造引用编号。"
+    };
     let response = client
         .post(&settings.endpoint)
         .bearer_auth(api_key)
@@ -1781,7 +2229,7 @@ pub fn persist_exchange(
     model: &str,
 ) -> Result<AskResult, String> {
     let citation_validation = validate_citations(&answer, &context.evidence);
-    if !citation_validation.supported {
+    if !citation_validation.supported && citation_validation.grounding_status != "unverified" {
         let reason = if !citation_validation.unknown_ids.is_empty() {
             format!(
                 "回答包含未知证据编号：{}",
@@ -1792,27 +2240,35 @@ pub fn persist_exchange(
         };
         return Err(format!("CITATION_VALIDATION_FAILED: {reason}"));
     }
-    let session = if let Some(id) = session_id {
-        let existing = connection
+    let existing = if let Some(id) = session_id {
+        connection
             .query_row(
                 "SELECT id FROM chat_sessions WHERE id=?1 AND repository_id=?2",
                 params![id, repository_id(root)],
                 |row| row.get::<_, String>(0),
             )
             .optional()
-            .map_err(|error| format!("检查会话失败：{error}"))?;
-        match existing {
-            Some(existing) => existing,
-            None => create_session_with_id(connection, root, id, &context.question)?.id,
-        }
+            .map_err(|error| format!("检查会话失败：{error}"))?
     } else {
-        create_session(connection, root, &context.question)?.id
+        None
+    };
+    let create_new_session = existing.is_none();
+    let session = existing.unwrap_or_else(|| {
+        session_id
+            .filter(|id| !id.trim().is_empty())
+            .map(str::to_string)
+            .unwrap_or_else(|| Uuid::new_v4().to_string())
+    });
+    let message_status = if citation_validation.grounding_status == "unverified" {
+        "unverified"
+    } else {
+        "completed"
     };
     let user_message = make_message(
         &session,
         "user",
         context.question.clone(),
-        "completed",
+        message_status,
         "local",
         "retrieval",
         &context.request_id,
@@ -1824,7 +2280,7 @@ pub fn persist_exchange(
         &session,
         "assistant",
         answer,
-        "completed",
+        message_status,
         provider,
         model,
         &context.request_id,
@@ -1835,6 +2291,21 @@ pub fn persist_exchange(
     let tx = connection
         .transaction()
         .map_err(|error| format!("开启会话保存事务失败：{error}"))?;
+    if create_new_session {
+        let timestamp = now_string();
+        let title = compact(&context.question, 48);
+        tx.execute(
+            "INSERT INTO chat_sessions(id,repository_id,title,created_at,updated_at) VALUES(?1,?2,?3,?4,?5)",
+            params![
+                session,
+                repository_id(root),
+                if title.is_empty() { "新对话" } else { &title },
+                timestamp,
+                timestamp
+            ],
+        )
+        .map_err(|error| format!("创建问答会话失败：{error}"))?;
+    }
     for message in [&user_message, &assistant_message] {
         tx.execute(
             "INSERT INTO chat_messages(id,session_id,role,content,status,created_at,error_code,error_message,waterline,provider,model,request_id,citation_validation)
@@ -1888,15 +2359,18 @@ pub fn persist_exchange(
     })
 }
 
-pub fn persist_failure(
+#[allow(clippy::too_many_arguments)]
+pub fn persist_failure_exchange(
     connection: &mut Connection,
     root: &Path,
     session_id: Option<&str>,
+    reserved_session_id: &str,
+    question: &str,
     request_id: &str,
     code: &str,
     message: &str,
     provider: &str,
-) -> Result<ChatMessage, String> {
+) -> Result<FailedExchange, String> {
     let existing = session_id.and_then(|id| {
         connection
             .query_row(
@@ -1908,9 +2382,22 @@ pub fn persist_failure(
             .ok()
             .flatten()
     });
-    let Some(session) = existing else {
-        return Err("失败请求没有可写入的既有会话".to_string());
-    };
+    let create_new_session = existing.is_none();
+    let session = existing.unwrap_or_else(|| reserved_session_id.to_string());
+    let mut user = make_message(
+        &session,
+        "user",
+        question.to_string(),
+        "failed",
+        "local",
+        "retrieval",
+        request_id,
+        Vec::new(),
+        None,
+        None,
+    );
+    user.error_code = compact(code, 80);
+    user.error_message = compact(message, 240);
     let mut failure = make_message(
         &session,
         "assistant",
@@ -1928,12 +2415,29 @@ pub fn persist_failure(
     let tx = connection
         .transaction()
         .map_err(|error| format!("开启失败状态事务失败：{error}"))?;
-    tx.execute(
-        "INSERT INTO chat_messages(id,session_id,role,content,status,created_at,error_code,error_message,waterline,provider,model,request_id,citation_validation)
-         VALUES(?1,?2,?3,?4,?5,?6,?7,?8,'',?9,'',?10,'')",
-        params![failure.id, failure.session_id, failure.role, failure.content, failure.status,
-            failure.created_at, failure.error_code, failure.error_message, failure.provider, failure.request_id],
-    ).map_err(|error| format!("保存失败状态失败：{error}"))?;
+    if create_new_session {
+        let timestamp = now_string();
+        let title = compact(question, 48);
+        tx.execute(
+            "INSERT INTO chat_sessions(id,repository_id,title,created_at,updated_at) VALUES(?1,?2,?3,?4,?5)",
+            params![
+                session,
+                repository_id(root),
+                if title.is_empty() { "新对话" } else { &title },
+                timestamp,
+                timestamp
+            ],
+        )
+        .map_err(|error| format!("创建失败问答会话失败：{error}"))?;
+    }
+    for message in [&user, &failure] {
+        tx.execute(
+            "INSERT INTO chat_messages(id,session_id,role,content,status,created_at,error_code,error_message,waterline,provider,model,request_id,citation_validation)
+             VALUES(?1,?2,?3,?4,?5,?6,?7,?8,'',?9,?10,?11,'')",
+            params![message.id, message.session_id, message.role, message.content, message.status,
+                message.created_at, message.error_code, message.error_message, message.provider, message.model, message.request_id],
+        ).map_err(|error| format!("保存失败状态失败：{error}"))?;
+    }
     tx.execute(
         "UPDATE chat_sessions SET updated_at=?2 WHERE id=?1",
         params![session, now_string()],
@@ -1941,7 +2445,11 @@ pub fn persist_failure(
     .map_err(|error| format!("更新失败会话时间失败：{error}"))?;
     tx.commit()
         .map_err(|error| format!("提交失败状态失败：{error}"))?;
-    Ok(failure)
+    Ok(FailedExchange {
+        session_id: session,
+        user_message: user,
+        assistant_message: failure,
+    })
 }
 
 #[cfg(test)]
@@ -2115,12 +2623,72 @@ mod tests {
     }
 
     #[test]
+    fn follow_up_retrieval_resolves_ccsp_and_gain_without_reusing_old_citations() {
+        let (root, connection) = test_db();
+        for (id, title, body) in [
+            ("ccsp.md", "CCSP", "CCSP charger set constraint"),
+            ("gain.md", "GAIN", "GAIN interference constraint"),
+        ] {
+            connection
+                .execute(
+                    "INSERT INTO pages VALUES(?1,'method',?2,'2024',?3,?4,'1')",
+                    params![id, title, body, format!("wiki/methods/{id}")],
+                )
+                .unwrap();
+            connection
+                .execute(
+                    "INSERT INTO pages_fts VALUES(?1,?2,?3,'constraint')",
+                    params![id, title, body],
+                )
+                .unwrap();
+        }
+        let history = vec![
+            ConversationTurn {
+                id: "u1".to_string(),
+                role: "user".to_string(),
+                content: "介绍 CCSP 和 GAIN。".to_string(),
+                request_id: "old-request".to_string(),
+            },
+            ConversationTurn {
+                id: "a1".to_string(),
+                role: "assistant".to_string(),
+                content: "CCSP 见 [E1]，GAIN 见 [E2]。".to_string(),
+                request_id: "old-request".to_string(),
+            },
+        ];
+        let context = prepare_question_with_history(
+            &connection,
+            root.path(),
+            "它们的约束有什么区别？",
+            10,
+            "new-request",
+            history,
+            None,
+        )
+        .unwrap();
+        assert_eq!(context.retrieval_query.entities, vec!["CCSP", "GAIN"]);
+        assert!(context.retrieval_query.resolved_question.contains("CCSP"));
+        assert!(context.retrieval_query.resolved_question.contains("GAIN"));
+        assert!(context
+            .evidence
+            .iter()
+            .any(|item| item.page_id == "ccsp.md"));
+        assert!(context
+            .evidence
+            .iter()
+            .any(|item| item.page_id == "gain.md"));
+        assert!(context.evidence.iter().all(|item| item.id != "E9"));
+    }
+
+    #[test]
     fn prompt_includes_history_but_marks_it_non_evidence() {
         let (root, connection) = test_db();
         let mut context = prepare_question(&connection, root.path(), "charging", 4).unwrap();
         context.conversation = vec![ConversationTurn {
+            id: "history-1".to_string(),
             role: "user".to_string(),
             content: "Earlier constraint".to_string(),
+            request_id: "history-request".to_string(),
         }];
         let prompt = build_codex_prompt(&context);
         assert!(prompt.contains("Earlier constraint"));
@@ -2138,6 +2706,17 @@ mod tests {
         assert!(!unknown.supported);
         assert_eq!(unknown.unknown_ids, vec!["E9"]);
         assert!(!validate_citations("Claim without citation.", &items).supported);
+
+        let normalized = normalize_unverified_answer(
+            "Malformed [Example then model knowledge [E1] [[sources/demo|Demo]].",
+        );
+        assert!(!normalized.contains("[E1]"));
+        assert!(!normalized.contains("[["));
+        let unverified = validate_citations(&normalized, &[]);
+        assert!(!unverified.supported);
+        assert!(unverified.zero_evidence);
+        assert_eq!(unverified.grounding_status, "unverified");
+        assert!(unverified.unknown_ids.is_empty());
     }
 
     #[test]
@@ -2163,7 +2742,7 @@ mod tests {
             root.path().join("graphify-out/graph.json"),
             serde_json::to_vec(&json!({
                 "nodes": [
-                    {"id":"n1","label":"charging","source_file":"wiki/methods/charging.md","community":7},
+                    {"id":"n1","label":"charging","source_file":"wiki/methods/charging.md","source_location":"line 42","community":7,"community_name":"power systems"},
                     {"id":"n2","label":"scheduler","source_file":"raw/not-canonical.md"}
                 ],
                 "links": [{"source":"n1","target":"n2","relation":"uses"}]
@@ -2175,16 +2754,46 @@ mod tests {
         assert_eq!(found[0].relation, "graph_one_hop");
         assert!(found[0].retrieval_reason.contains("community=7"));
         assert!(found[0].snippet.contains("uses→scheduler"));
+        let relation_only = graph_candidates(&connection, root.path(), &["uses".to_string()]);
+        assert_eq!(relation_only.len(), 1);
+        assert_eq!(relation_only[0].relation, "graph_relation");
+        let neighbor_only = graph_candidates(&connection, root.path(), &["scheduler".to_string()]);
+        assert_eq!(neighbor_only.len(), 1);
+        assert_eq!(neighbor_only[0].relation, "graph_neighbor");
+        assert_eq!(
+            graph_candidates(&connection, root.path(), &["power systems".to_string()]).len(),
+            1
+        );
+        assert_eq!(
+            graph_candidates(&connection, root.path(), &["line 42".to_string()]).len(),
+            1
+        );
+        fs::write(
+            root.path().join("graphify-out/graph.json"),
+            serde_json::to_vec(&json!({
+                "nodes": [
+                    {"id":"n1","label":"charging","source_file":"wiki/methods/charging.md","source_location":"line 42","community":7,"community_name":"power systems"},
+                    {"id":"n2","label":"scheduler","source_file":"raw/not-canonical.md"}
+                ],
+                "links": [{"source":"n1","target":"n2","relation":"supports_longer"}]
+            })).unwrap(),
+        ).unwrap();
+        let refreshed =
+            graph_candidates(&connection, root.path(), &["supports_longer".to_string()]);
+        assert_eq!(refreshed.len(), 1);
+        assert!(refreshed[0].snippet.contains("supports_longer"));
     }
 
     #[test]
-    fn failed_generation_is_persisted_without_an_optimistic_user_message() {
+    fn failed_generation_persists_paired_question_and_error() {
         let (root, mut connection) = test_db();
         let session = create_session(&connection, root.path(), "failure").unwrap();
-        persist_failure(
+        persist_failure_exchange(
             &mut connection,
             root.path(),
             Some(&session.id),
+            &session.id,
+            "failed question",
             "request",
             "LUNA_HTTP_ERROR",
             "HTTP 500",
@@ -2192,9 +2801,66 @@ mod tests {
         )
         .unwrap();
         let detail = get_session(&connection, root.path(), &session.id).unwrap();
-        assert_eq!(detail.messages.len(), 1);
-        assert_eq!(detail.messages[0].status, "failed");
-        assert_eq!(detail.messages[0].error_code, "LUNA_HTTP_ERROR");
+        assert_eq!(detail.messages.len(), 2);
+        assert_eq!(detail.messages[0].role, "user");
+        assert_eq!(detail.messages[0].content, "failed question");
+        assert_eq!(detail.messages[1].status, "failed");
+        assert_eq!(detail.messages[1].error_code, "LUNA_HTTP_ERROR");
+    }
+
+    #[test]
+    fn first_turn_failure_creates_a_recoverable_session() {
+        let (root, mut connection) = test_db();
+        let exchange = persist_failure_exchange(
+            &mut connection,
+            root.path(),
+            None,
+            "reserved-session",
+            "first failed question",
+            "request",
+            "LUNA_HTTP_ERROR",
+            "HTTP 500",
+            PROVIDER_API,
+        )
+        .unwrap();
+        assert_eq!(exchange.session_id, "reserved-session");
+        let detail = get_session(&connection, root.path(), "reserved-session").unwrap();
+        assert_eq!(detail.messages.len(), 2);
+        assert!(detail
+            .messages
+            .iter()
+            .all(|message| message.status == "failed"));
+        assert!(
+            conversation_history(&connection, root.path(), Some("reserved-session"))
+                .unwrap()
+                .is_empty()
+        );
+    }
+
+    #[test]
+    fn zero_evidence_exchange_is_unverified_and_excluded_from_history() {
+        let (root, mut connection) = test_db();
+        let mut context = prepare_question(&connection, root.path(), "unknown subject", 4).unwrap();
+        context.evidence.clear();
+        let answer = normalize_unverified_answer("A model-only answer.");
+        let result = persist_exchange(
+            &mut connection,
+            root.path(),
+            Some("unverified-session"),
+            &context,
+            answer,
+            PROVIDER_CODEX,
+            "fixture",
+        )
+        .unwrap();
+        assert_eq!(result.user_message.status, "unverified");
+        assert_eq!(result.assistant_message.status, "unverified");
+        assert_eq!(result.citation_validation.grounding_status, "unverified");
+        assert!(
+            conversation_history(&connection, root.path(), Some("unverified-session"))
+                .unwrap()
+                .is_empty()
+        );
     }
 
     #[test]

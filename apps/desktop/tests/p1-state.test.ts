@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { claimCompletion, createCompletionLedger, mergeCompletedMessages, repositoryIdentity, retryQuestionFor, rollbackOptimisticMessages } from '../src/features/qa/completionState.ts'
+import { claimCompletion, createCompletionLedger, mergeCompletedMessages, mergeFailedMessages, repositoryIdentity, retryQuestionFor, rollbackOptimisticMessages } from '../src/features/qa/completionState.ts'
 import { chapterLookupId, matchesBookTarget, shortChapterId } from '../src/features/books/bookTarget.ts'
 import { nextGraphRefreshVersion, reconcileGraphPath, reconcileGraphSelection } from '../src/features/graph/refreshState.ts'
 import { intersectionArea, parsePersistedWindowState, resolveWindowPlacement, type MonitorWorkArea } from '../src/lib/windowPlacement.ts'
@@ -30,7 +30,7 @@ const result: AskResult = {
   evidence: [],
   waterline: { sourceCount: 0, methodCount: 0, synthesisCount: 0, chapterCount: 0, yearMin: '', yearMax: '', lastIngestAt: '', repositoryPath: 'repo-a', capturedAt: '' },
   offline: true,
-  citationValidation: { citedIds: [], unknownIds: [], citationPrecision: 0, hasCitations: false, supported: true },
+  citationValidation: { citedIds: [], unknownIds: [], citationPrecision: 0, hasCitations: false, supported: true, groundingStatus: 'supported', zeroEvidence: false },
 }
 
 test('completion claim is idempotent and resets when repository changes', () => {
@@ -53,6 +53,23 @@ test('assistant retry binds to its preceding completed user message', () => {
   ] as ChatMessage[]
   assert.equal(retryQuestionFor(messages, 1), 'first')
   assert.equal(retryQuestionFor(messages, 3), 'second')
+})
+
+test('failed and unverified exchanges keep the exact question retryable', () => {
+  const failedUser = { ...message('failed-user', 'user'), content: 'failed question', status: 'failed' as const, requestId: 'failed-request' }
+  const failedAssistant = { ...message('failed-assistant', 'assistant'), status: 'failed' as const, requestId: 'failed-request' }
+  const unverifiedUser = { ...message('unverified-user', 'user'), content: 'unverified question', status: 'unverified' as const, requestId: 'unverified-request' }
+  const unverifiedAssistant = { ...message('unverified-assistant', 'assistant'), status: 'unverified' as const, requestId: 'unverified-request' }
+  const messages = [failedUser, failedAssistant, unverifiedUser, unverifiedAssistant]
+  assert.equal(retryQuestionFor(messages, 1), 'failed question')
+  assert.equal(retryQuestionFor(messages, 3), 'unverified question')
+})
+
+test('persisted failed exchange replaces the optimistic user message', () => {
+  const user = { ...message('failed-user', 'user'), status: 'failed' as const }
+  const assistant = { ...message('failed-assistant', 'assistant'), status: 'failed' as const }
+  const merged = mergeFailedMessages([message('history', 'assistant'), { ...message('local-request-user', 'user'), id: 'local-request-user' }], 'local-request-user', { userMessage: user, assistantMessage: assistant })
+  assert.deepEqual(merged.map((item) => item.id), ['history', 'failed-user', 'failed-assistant'])
 })
 
 test('failed request removes only its optimistic message', () => {

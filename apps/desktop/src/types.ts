@@ -410,13 +410,14 @@ export type QuestionContext = {
   requestId: string
   question: string
   intent: 'solve' | 'novelty' | 'relationship'
+  retrievalQuery: { originalQuestion: string; resolvedQuestion: string; entities: string[]; intent: string; usedHistoryMessageIds: string[] }
   conversation: ConversationTurn[]
   evidence: EvidenceItem[]
   waterline: WaterlineSnapshot
   generatedAt: string
 }
 
-export type ConversationTurn = { role: string; content: string }
+export type ConversationTurn = { id: string; role: string; content: string; requestId: string }
 
 export type CitationValidation = {
   citedIds: string[]
@@ -424,6 +425,8 @@ export type CitationValidation = {
   citationPrecision: number
   hasCitations: boolean
   supported: boolean
+  groundingStatus: 'supported' | 'unverified' | 'invalid'
+  zeroEvidence: boolean
 }
 
 export type ResearchContextAnchor = {
@@ -489,7 +492,7 @@ export type ChatMessage = {
   sessionId: string
   role: 'user' | 'assistant' | 'system'
   content: string
-  status: 'pending' | 'retrieving' | 'generating' | 'completed' | 'failed' | 'cancelled'
+  status: 'pending' | 'retrieving' | 'generating' | 'completed' | 'unverified' | 'failed' | 'cancelled'
   createdAt: string
   errorCode: string
   errorMessage: string
@@ -507,6 +510,7 @@ export type ChatSessionDetail = {
 }
 
 export type AskRequest = {
+  requestId: string
   question: string
   sessionId?: string
   evidenceLimit?: number
@@ -530,7 +534,7 @@ export type AnswerStreamEvent =
   | { type: 'retrieval_completed'; payload: { requestId: string; evidence: EvidenceItem[]; waterline: WaterlineSnapshot } }
   | { type: 'token'; payload: { requestId: string; content: string } }
   | { type: 'completed'; payload: { requestId: string; result: AskResult } }
-  | { type: 'failed'; payload: { requestId: string; code: string; message: string; retryable: boolean } }
+  | { type: 'failed'; payload: { requestId: string; code: string; message: string; retryable: boolean; exchange?: { sessionId: string; userMessage: ChatMessage; assistantMessage: ChatMessage } | null } }
   | { type: 'cancelled'; payload: { requestId: string } }
 
 export type DashboardData = {

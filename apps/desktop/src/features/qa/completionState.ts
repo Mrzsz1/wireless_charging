@@ -36,11 +36,21 @@ export function repositoryIdentity(repositoryPath = ''): string {
 }
 
 export function retryQuestionFor(messages: ChatMessage[], assistantIndex: number): string {
+  const assistant = messages[assistantIndex]
   for (let index = assistantIndex - 1; index >= 0; index -= 1) {
-    if (messages[index]?.role === 'user' && messages[index]?.status === 'completed') return messages[index].content
+    const message = messages[index]
+    if (message?.role === 'user' && ['completed', 'failed', 'unverified'].includes(message.status)) {
+      if (!assistant?.requestId || !message.requestId || assistant.requestId === message.requestId) return message.content
+    }
     if (messages[index]?.role === 'assistant') break
   }
   return ''
+}
+
+export function mergeFailedMessages(messages: ChatMessage[], localMessageId: string, exchange: { userMessage: ChatMessage; assistantMessage: ChatMessage }): ChatMessage[] {
+  const ids = new Set([exchange.userMessage.id, exchange.assistantMessage.id])
+  const retained = messages.filter((message) => message.id !== localMessageId && !ids.has(message.id))
+  return [...retained, exchange.userMessage, exchange.assistantMessage]
 }
 
 export function rollbackOptimisticMessages(messages: ChatMessage[], localMessageId: string): ChatMessage[] {

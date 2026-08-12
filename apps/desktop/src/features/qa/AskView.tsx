@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { BookOpen, Bot, Check, ChevronRight, CircleStop, Clipboard, FileText, GitBranch, LoaderCircle, MessageSquarePlus, MoreHorizontal, Plus, RefreshCw, Search, Send, Settings, ShieldCheck, Trash2, X } from 'lucide-react'
 import { askLuna, cancelAnswer, deleteChatSession, getChatSession, getCodexSubscriptionStatus, getQaSettings, isDesktopRuntime, listChatSessions, renameChatSession } from '../../services/desktop'
 import type { AnswerProvider, AnswerStreamEvent, AskResult, ChatMessage, ChatSessionSummary, CodexSubscriptionStatus, EvidenceItem, QaSettings, WaterlineSnapshot } from '../../types'
-import { claimCompletion, createCompletionLedger, mergeCompletedMessages, repositoryIdentity, retryQuestionFor, rollbackOptimisticMessages } from './completionState'
+import { claimCompletion, createCompletionLedger, mergeCompletedMessages, mergeFailedMessages, repositoryIdentity, retryQuestionFor, rollbackOptimisticMessages } from './completionState'
 import './AskView.css'
 
 type AskViewProps = {
@@ -53,8 +53,8 @@ function formatTime(value: string) {
   return new Date(timestamp).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
 }
 
-function localMessage(role: 'user' | 'assistant', content: string, status: ChatMessage['status']): ChatMessage {
-  return { id: `local-${Date.now()}-${role}`, sessionId: '', role, content, status, createdAt: String(Date.now()), errorCode: '', errorMessage: '', provider: role === 'assistant' ? 'pending' : 'local', model: '', requestId: '', evidence: [], citationValidation: null }
+function localMessage(role: 'user' | 'assistant', content: string, status: ChatMessage['status'], requestId = ''): ChatMessage {
+  return { id: `local-${requestId || Date.now()}-${role}`, sessionId: '', role, content, status, createdAt: String(Date.now()), errorCode: '', errorMessage: '', provider: role === 'assistant' ? 'pending' : 'local', model: '', requestId, evidence: [], citationValidation: null }
 }
 
 function tierLabel(tier: EvidenceItem['tier']) {
@@ -190,12 +190,17 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
       applyCompleted(event.payload.result, generation)
     } else if (event.type === 'failed') {
       setError(`${event.payload.code}：${event.payload.message}`)
-      setMessages((current) => rollbackOptimisticMessages(current, optimisticId))
+      if (event.payload.exchange) {
+        setMessages((current) => mergeFailedMessages(current, optimisticId, event.payload.exchange!))
+        setActiveSessionId(event.payload.exchange.sessionId)
+      } else {
+        setMessages((current) => rollbackOptimisticMessages(current, optimisticId))
+        setActiveSessionId(originalSessionId)
+      }
       setPhase('idle')
       setStreamingText('')
       setRequestId('')
       activeRequestId.current = ''
-      setActiveSessionId(originalSessionId)
       void refreshSessions()
     } else if (event.type === 'cancelled') {
       setError('本轮问答已停止，未写入会话历史。')
@@ -221,18 +226,22 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     setPhase('retrieving')
     const generation = repositoryGeneration.current
     const originalSessionId = activeSessionId
-    const optimistic = localMessage('user', value, 'retrieving')
+    const clientRequestId = crypto.randomUUID()
+    setRequestId(clientRequestId)
+    activeRequestId.current = clientRequestId
+    const optimistic = localMessage('user', value, 'retrieving', clientRequestId)
     let terminalEventHandled = false
     setMessages((current) => [...current, optimistic])
     onResearchContextChange(value)
     try {
-      const result = await askLuna({ question: value, sessionId: originalSessionId || undefined, evidenceLimit: 14, repositoryId: repositoryIdentity(repositoryPath) }, (event) => {
+      const result = await askLuna({ requestId: clientRequestId, question: value, sessionId: originalSessionId || undefined, evidenceLimit: 14, repositoryId: repositoryIdentity(repositoryPath) }, (event) => {
         if (event.type === 'failed' || event.type === 'cancelled') terminalEventHandled = true
         handleEvent(event, generation, optimistic.id, originalSessionId)
       })
       applyCompleted(result, generation)
     } catch (cause) {
       if (generation !== repositoryGeneration.current) return
+      if (terminalEventHandled) return
       if (!terminalEventHandled && !String(cause).includes('已取消')) setError(`问答执行失败：${String(cause)}`)
       setMessages((current) => rollbackOptimisticMessages(current, optimistic.id))
       setStreamingText('')
@@ -299,7 +308,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
       <div className="qa-messages">
         {loadingHistory && <div className="qa-loading"><LoaderCircle size={18} className="spin" />加载会话历史…</div>}
         {!messages.length && phase === 'idle' && <div className="qa-welcome"><div className="qa-orb"><Bot size={28} /></div><h2>先检索，再回答</h2><p>每次提问都会检索 Wiki、两本核心书籍和 Graphify，并把回答绑定到可定位证据。</p><div className="qa-suggestions">{suggestions.map((item) => <button key={item} onClick={() => void submitQuestion(item)}><Plus size={14} /><span>{item}</span><ChevronRight size={14} /></button>)}</div></div>}
-        {messages.map((message, index) => { const retryQuestion = message.role === 'assistant' ? retryQuestionFor(messages, index) : ''; return <article data-testid={`qa-message-${message.id}`} className={`qa-message ${message.role} ${message.status}`} key={message.id}><div className="qa-avatar">{message.role === 'assistant' ? <Bot size={16} /> : '你'}</div><div className="qa-bubble"><div className="qa-message-meta"><strong>{message.role === 'assistant' ? providerLabel(message.provider) : '研究问题'}</strong><span>{message.status === 'failed' ? '失败' : formatTime(message.createdAt)}</span></div>{message.status === 'failed' ? <div className="qa-message-content">{message.errorCode}：{message.errorMessage || '本轮回答生成失败'}</div> : message.role === 'assistant' ? <MessageContent content={message.content} evidence={message.evidence} onCitation={setSelectedEvidence} /> : <div className="qa-message-content">{message.content}</div>}{message.role === 'assistant' && <div className="qa-message-actions"><button onClick={() => void navigator.clipboard.writeText(message.content)}><Clipboard size={13} />复制</button><button onClick={() => void submitQuestion(retryQuestion)} disabled={!retryQuestion || phase !== 'idle'}><RefreshCw size={13} />重试</button></div>}</div></article> })}
+          {messages.map((message, index) => { const retryQuestion = message.role === 'assistant' ? retryQuestionFor(messages, index) : ''; return <article data-testid={`qa-message-${message.id}`} className={`qa-message ${message.role} ${message.status}`} key={message.id}><div className="qa-avatar">{message.role === 'assistant' ? <Bot size={16} /> : '你'}</div><div className="qa-bubble"><div className="qa-message-meta"><strong>{message.role === 'assistant' ? providerLabel(message.provider) : '研究问题'}</strong><span>{message.status === 'failed' ? '失败' : message.status === 'unverified' ? '无参考来源 · 未验证' : formatTime(message.createdAt)}</span></div>{message.role === 'assistant' && message.status === 'failed' ? <div className="qa-message-content">{message.errorCode}：{message.errorMessage || '本轮回答生成失败'}</div> : message.role === 'assistant' ? <MessageContent content={message.content} evidence={message.evidence} onCitation={setSelectedEvidence} /> : <div className="qa-message-content">{message.content}</div>}{message.role === 'assistant' && <div className="qa-message-actions"><button onClick={() => void navigator.clipboard.writeText(message.content)}><Clipboard size={13} />复制</button><button onClick={() => void submitQuestion(retryQuestion)} disabled={!retryQuestion || phase !== 'idle'}><RefreshCw size={13} />重试</button></div>}</div></article> })}
         {phase !== 'idle' && <article className="qa-message assistant streaming"><div className="qa-avatar"><Bot size={16} /></div><div className="qa-bubble"><div className="qa-message-meta"><strong>{phase === 'retrieving' ? '正在检索证据' : '正在组织回答'}</strong><span><LoaderCircle size={13} className="spin" /></span></div>{streamingText ? <MessageContent content={streamingText} evidence={evidence} onCitation={setSelectedEvidence} /> : <div className="qa-retrieval-steps"><span className="active">Wiki FTS5</span><span className={phase === 'generating' ? 'active' : ''}>核心书籍</span><span className={phase === 'generating' ? 'active' : ''}>Graphify</span></div>}</div></article>}
         <div ref={endRef} />
       </div>
