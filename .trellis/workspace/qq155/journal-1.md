@@ -809,3 +809,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 25: 完成智能问答 P0-P1
+
+**Date**: 2026-08-12
+**Task**: 完成智能问答 P0-P1
+**Branch**: `master`
+
+### Summary
+
+完成真实多轮上下文、后端引用校验、意图感知召回、仓库竞态隔离及全部 P1 失败/重试/Graphify/Codex 状态语义；P2 保持待定。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `dcb0cb4` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
