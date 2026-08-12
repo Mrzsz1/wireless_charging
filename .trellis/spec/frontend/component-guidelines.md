@@ -112,6 +112,10 @@ Strict GUI E2E must verify fixed positioning outside `.main-workspace`, hover pa
 
 During an active QA request, render an event-driven processing chain and elapsed time. `retrieval_started`, `retrieval_completed`, first token, and `validation_started` are authoritative transitions for local retrieval, evidence organization, model Thinking/generation, and citation/completeness validation. This chain is an operational audit projection, not model chain-of-thought. Clear its monotonic timer and transient state on completion, failure, cancellation, and repository change; use `aria-live="polite"` and respect reduced motion.
 
+For Codex subscription mode, the per-turn model and reasoning-effort controls live in the composer footer, not in a settings card or the chat header. Populate them from the local Codex list-visible model catalog, restrict the effort menu to the selected model's reported capabilities, and keep an “automatic” fallback when the catalog is missing. Persist selection as the next default but always send the current selection in the request snapshot. Use transparent blue-gray 10px controls, a 1px hover/focus border, keyboard labels, and horizontal overflow on narrow widths; do not add a floating selector panel or a second set of model controls in Settings.
+
+`mixed` QA messages remain fully visible but use the amber citation-summary treatment to distinguish the explicitly labelled model-supplement section. The summary must continue to say that semantic entailment is not automatically checked.
+
 ### Contextual help convention
 
 Use `components/DelayedHelp.tsx` for optional page- or section-level explanatory copy that would otherwise create persistent visual noise. Do not hide field values, validation errors, security state, or action consequences in a tooltip.

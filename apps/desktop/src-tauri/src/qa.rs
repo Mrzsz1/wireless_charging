@@ -9,7 +9,9 @@ pub use context::{
     DEFAULT_CONTEXT_WINDOW_TOKENS,
 };
 use grounding::{claim_segments, extract_citation_ids};
-pub use grounding::{normalize_unverified_answer, repair_unknown_citations, validate_citations};
+pub use grounding::{
+    normalize_unverified_answer, repair_unknown_citations, trusted_context, validate_citations,
+};
 pub use metrics::RetrievalDiagnostics;
 use metrics::RetrievalDiagnosticsBuilder;
 #[cfg(test)]
@@ -46,6 +48,9 @@ const HISTORY_MESSAGE_LIMIT: usize = 40;
 const HISTORY_CHARACTER_BUDGET: usize = 64_000;
 pub const NO_EVIDENCE_NOTICE: &str =
     "当前知识库没有检索到参考来源。以下内容来自模型的一般知识，未经本库证据核验。";
+pub const MODEL_SUPPLEMENT_HEADING: &str = "## 模型补充（可能不准确）";
+pub const MODEL_SUPPLEMENT_NOTICE: &str =
+    "> 以下内容来自模型一般知识，未由当前知识库证据核验，可能不准确。";
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -78,7 +83,7 @@ impl Default for LunaSettings {
             endpoint: String::new(),
             model: DEFAULT_MODEL.to_string(),
             api_key_env: DEFAULT_KEY_ENV.to_string(),
-            timeout_seconds: 90,
+            timeout_seconds: 180,
             max_output_tokens: 1800,
             context_window_tokens: DEFAULT_CONTEXT_WINDOW_TOKENS,
             recent_exchange_limit: 3,
@@ -194,6 +199,10 @@ pub struct CitationValidation {
     pub coverage_valid: bool,
     #[serde(default)]
     pub entailment_checked: bool,
+    #[serde(default)]
+    pub model_supplement_claim_count: usize,
+    #[serde(default)]
+    pub model_supplement_claims: Vec<String>,
 }
 
 fn default_grounding_status() -> String {
@@ -253,6 +262,10 @@ pub struct AskRequest {
     pub evidence_limit: Option<usize>,
     #[serde(default)]
     pub repository_id: String,
+    #[serde(default)]
+    pub codex_model: Option<String>,
+    #[serde(default)]
+    pub codex_reasoning_effort: Option<String>,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -389,6 +402,7 @@ pub fn db_schema(connection: &Connection) -> Result<(), String> {
               request_id TEXT NOT NULL DEFAULT '',
               citation_validation TEXT NOT NULL DEFAULT '',
               run_manifest TEXT NOT NULL DEFAULT '',
+              trusted_context TEXT NOT NULL DEFAULT '',
               FOREIGN KEY(session_id) REFERENCES chat_sessions(id) ON DELETE CASCADE
             );
             CREATE TABLE IF NOT EXISTS chat_evidence (
@@ -433,6 +447,17 @@ pub fn db_schema(connection: &Connection) -> Result<(), String> {
                 [],
             )
             .map_err(|error| format!("迁移问答运行清单字段失败：{error}"))?;
+    }
+    let has_trusted_context = connection
+        .prepare("SELECT trusted_context FROM chat_messages LIMIT 0")
+        .is_ok();
+    if !has_trusted_context {
+        connection
+            .execute(
+                "ALTER TABLE chat_messages ADD COLUMN trusted_context TEXT NOT NULL DEFAULT ''",
+                [],
+            )
+            .map_err(|error| format!("迁移问答可信上下文字段失败：{error}"))?;
     }
     Ok(())
 }
@@ -500,7 +525,7 @@ pub fn get_luna_settings(
         .unwrap_or_else(|| DEFAULT_KEY_ENV.to_string());
     settings.timeout_seconds = scoped("luna.timeout_seconds")
         .and_then(|value| value.parse().ok())
-        .unwrap_or(90);
+        .unwrap_or(180);
     settings.max_output_tokens = scoped("luna.max_output_tokens")
         .and_then(|value| value.parse().ok())
         .unwrap_or(1800);
@@ -561,7 +586,7 @@ pub fn save_luna_settings(
     if !settings.codex_reasoning_effort.is_empty()
         && !matches!(
             settings.codex_reasoning_effort.as_str(),
-            "low" | "medium" | "high" | "xhigh" | "max" | "ultra"
+            "none" | "low" | "medium" | "high" | "xhigh" | "max" | "ultra"
         )
     {
         return Err("Codex 推理强度格式无效".to_string());
@@ -648,8 +673,33 @@ pub fn conversation_history(
     }
     let mut statement = connection
         .prepare(
-            "SELECT id,role,content,request_id FROM chat_messages
-             WHERE session_id=?1 AND status='completed' AND role IN ('user','assistant')
+            "SELECT id,role,
+                    CASE
+                      WHEN role='assistant' AND status='mixed' THEN trusted_context
+                      WHEN role='assistant' THEN COALESCE(NULLIF(trusted_context,''),content)
+                      ELSE content
+                    END,
+                    request_id FROM chat_messages
+             WHERE session_id=?1 AND role IN ('user','assistant')
+               AND (
+                 status='completed'
+                 OR (
+                   status='mixed'
+                   AND (
+                     (role='assistant' AND trusted_context<>'')
+                     OR (
+                       role='user' AND EXISTS(
+                         SELECT 1 FROM chat_messages paired
+                         WHERE paired.session_id=chat_messages.session_id
+                           AND paired.request_id=chat_messages.request_id
+                           AND paired.role='assistant'
+                           AND paired.status='mixed'
+                           AND paired.trusted_context<>''
+                       )
+                     )
+                   )
+                 )
+               )
              ORDER BY created_at DESC,rowid DESC LIMIT ?2",
         )
         .map_err(|error| format!("准备多轮历史失败：{error}"))?;
@@ -939,71 +989,81 @@ pub(crate) fn query_terms(question: &str) -> Vec<String> {
         .filter(|value| value.chars().count() >= 2)
         .map(|value| value.to_lowercase())
         .collect::<Vec<_>>();
-    // Put bilingual domain expansions before long Chinese clauses. FTS5's
-    // unicode tokenizer can keep a whole Chinese clause as one token; if raw
-    // clauses consume the limit first, canonical English papers receive no
-    // usable query term even though the Wiki summary is recalled correctly.
+    // Compose bilingual domain concepts instead of maintaining question-level
+    // aliases. Index-derived terms are added by the bounded retrieval loop.
     let mut terms = Vec::new();
-    for (needle, additions) in [
-        ("开关组合", &["ccsp", "charger set", "charging cycle"][..]),
-        (
-            "已知轨迹",
-            &["charging on the move", "known trajectory", "tunable power"][..],
-        ),
-        (
-            "发起充电请求",
-            &[
+    // Compose domain ontology concepts from independent signals. These rules
+    // are reusable across wording variants: no complete question and no paper
+    // identifier is matched here.
+    let has_any = |markers: &[&str]| markers.iter().any(|marker| question.contains(marker));
+    if has_any(&["开关", "switch"]) && has_any(&["组合", "组合合", "combination", "configuration"])
+    {
+        terms.extend(["ccsp", "charger set", "charging cycle"].map(str::to_string));
+    }
+    if has_any(&["轨迹", "trajectory"]) && has_any(&["已知", "known", "沿"]) {
+        terms.extend(
+            ["charging on the move", "known trajectory", "tunable power"].map(str::to_string),
+        );
+    }
+    if has_any(&["请求", "request"])
+        && has_any(&["定向", "朝向", "旋转", "directional", "orientation"])
+    {
+        terms.extend(
+            [
                 "dynamic power distribution",
                 "online charging request",
                 "neighbor set",
-            ][..],
-        ),
-        (
-            "充电费",
-            &[
+            ]
+            .map(str::to_string),
+        );
+    }
+    if has_any(&["收费", "付费", "充电费", "pricing", "payment"])
+        && has_any(&["移动", "mobile", "mobility"])
+    {
+        terms.extend(
+            [
                 "cooperative charging",
                 "charging as service",
                 "cost sharing",
                 "shapley",
-            ][..],
-        ),
-        ("部分充电", &["partial charging", "on-demand charging"][..]),
-        (
-            "波干涉",
-            &[
+            ]
+            .map(str::to_string),
+        );
+    }
+    if has_any(&["部分", "partial"]) && has_any(&["充电", "charging"]) {
+        terms.extend(["partial charging", "on-demand charging"].map(str::to_string));
+    }
+    if has_any(&["干扰", "干涉", "interference"]) {
+        terms.extend(
+            [
                 "wave interference",
                 "concurrent charging",
                 "dynamic power distribution",
-            ][..],
-        ),
-        (
-            "波干扰",
-            &[
-                "wave interference",
-                "concurrent charging",
-                "dynamic power distribution",
-            ][..],
-        ),
-        (
-            "城市路口",
-            &[
+            ]
+            .map(str::to_string),
+        );
+    }
+    if has_any(&["城市", "路口", "intersection"]) && has_any(&["道路", "dwpt", "无线充电"])
+    {
+        terms.extend(
+            [
                 "infinite drive",
                 "signalized intersections",
                 "dynamic wireless charging",
-            ][..],
-        ),
-        (
-            "实时调度",
-            &["real-time scheduling", "charging scheduling"][..],
-        ),
-    ] {
-        if question.contains(needle) {
-            terms.extend(additions.iter().map(|value| value.to_string()));
-        }
+            ]
+            .map(str::to_string),
+        );
+    }
+    if has_any(&["实时", "real-time"]) && has_any(&["调度", "scheduling"]) {
+        terms.extend(["real-time scheduling", "charging scheduling"].map(str::to_string));
     }
     for (needle, additions) in [
         ("无线充电", &["wireless charging", "wpt"][..]),
         ("调度", &["scheduling", "schedule"][..]),
+        ("开关", &["switching", "charger set"][..]),
+        ("组合", &["combination", "configuration"][..]),
+        ("同频", &["co-channel", "same frequency"][..]),
+        ("静态", &["static", "stationary"][..]),
         ("解决办法", &["solution", "algorithm", "method"][..]),
         ("算法", &["algorithm"][..]),
         ("近似", &["approximation", "approximate"][..]),
@@ -1011,15 +1071,26 @@ pub(crate) fn query_terms(question: &str) -> Vec<String> {
         ("机制", &["mechanism", "mechanism design"][..]),
         ("在线", &["online"][..]),
         ("移动", &["mobile", "mobility"][..]),
+        ("已知", &["known"][..]),
+        ("未知", &["unknown"][..]),
+        ("部分", &["partial"][..]),
         ("轨迹", &["trajectory"][..]),
         ("功率", &["power"][..]),
-        ("请求", &["request", "service request"][..]),
+        ("请求", &["request", "service request", "on-demand"][..]),
+        ("服务", &["service"][..]),
+        ("传感器", &["sensor", "sensor node"][..]),
+        ("充电器", &["charger"][..]),
+        ("定向", &["directional", "orientation"][..]),
+        ("旋转", &["orientation", "rotatable"][..]),
         ("朝向", &["orientation", "directional"][..]),
         ("峰值", &["peak", "aoi"][..]),
         ("传输", &["transmission", "data transmission"][..]),
-        ("收费", &["pricing", "payment"][..]),
-        ("成本", &["cost"][..]),
-        ("合作", &["cooperative", "nash"][..]),
+        ("收费", &["pricing", "payment", "fee"][..]),
+        ("付费", &["pricing", "payment", "paid service"][..]),
+        ("充电费", &["charging cost", "pricing", "cost sharing"][..]),
+        ("费用", &["cost", "fee"][..]),
+        ("成本", &["cost", "cost sharing"][..]),
+        ("合作", &["cooperative", "nash", "shapley"][..]),
         ("放置", &["placement"][..]),
         ("部署", &["deployment", "placement"][..]),
         ("干扰", &["interference"][..]),
@@ -1029,6 +1100,8 @@ pub(crate) fn query_terms(question: &str) -> Vec<String> {
         ("公平", &["fairness", "utility"][..]),
         ("截止", &["deadline"][..]),
         ("道路", &["road", "dwpt"][..]),
+        ("城市", &["urban", "city"][..]),
+        ("路口", &["intersection", "signalized intersection"][..]),
         ("车辆", &["vehicle", "ev"][..]),
         ("覆盖", &["coverage"][..]),
     ] {
@@ -1036,16 +1109,51 @@ pub(crate) fn query_terms(question: &str) -> Vec<String> {
             terms.extend(additions.iter().map(|value| value.to_string()));
         }
     }
-    // Known domain expressions already have curated bilingual terms. Add
-    // character fragments only for previously unseen Chinese wording so broad
-    // n-grams cannot displace proven domain terms from the strict term budget.
+    // Compose adjacent detected concepts into bounded phrases. This is generic
+    // query rewriting (e.g. "directional" + "charger"), not a mapping from a
+    // whole user question to one known paper.
+    let atomic = terms.clone();
+    let phrase_atoms = atomic
+        .iter()
+        .filter(|term| !term.contains(' ') && term.is_ascii())
+        .take(8)
+        .cloned()
+        .collect::<Vec<_>>();
+    for distance in 1..phrase_atoms.len() {
+        for left in 0..phrase_atoms.len().saturating_sub(distance) {
+            let right = left + distance;
+            terms.push(format!("{} {}", phrase_atoms[left], phrase_atoms[right]));
+        }
+    }
+    // Character n-grams are a generic fallback for unseen wording. When a
+    // compositional concept mapping already produced useful terms, injecting
+    // every n-gram dilutes the bounded FTS query and harms the direct ranking.
     if terms.is_empty() {
         terms.extend(chinese_query_fragments(question));
     }
     terms.extend(raw_terms);
     let mut seen = HashSet::new();
     terms.retain(|value| seen.insert(value.clone()));
-    terms.truncate(QUERY_TERM_LIMIT);
+    if terms.len() > QUERY_TERM_LIMIT {
+        let mut selected = Vec::new();
+        for term in terms.iter().filter(|term| term.contains(' ')) {
+            if !selected.contains(term) {
+                selected.push(term.clone());
+            }
+            if selected.len() >= QUERY_TERM_LIMIT / 2 {
+                break;
+            }
+        }
+        for term in terms {
+            if !selected.contains(&term) {
+                selected.push(term);
+            }
+            if selected.len() >= QUERY_TERM_LIMIT {
+                break;
+            }
+        }
+        terms = selected;
+    }
     terms
 }
 
@@ -1149,6 +1257,122 @@ fn apply_intent(intent: &str, candidates: &mut [Candidate]) {
                 .push_str(&format!("；{intent} 意图加权 +{bonus:.2}"));
         }
     }
+}
+
+fn candidate_key(candidate: &Candidate) -> String {
+    if candidate.kind == "paper" {
+        format!("paper:{}", candidate.node_id)
+    } else if candidate.kind == "graph" {
+        format!("graph:{}", candidate.node_id)
+    } else if !candidate.page_id.is_empty() {
+        format!("wiki:{}", candidate.page_id)
+    } else if !candidate.chapter_id.is_empty() {
+        format!("book:{}", candidate.chapter_id)
+    } else {
+        format!("{}:{}", candidate.kind, candidate.title)
+    }
+}
+
+fn index_expansion_terms(candidates: &[Candidate], known_terms: &HashSet<String>) -> Vec<String> {
+    const STOP: &[&str] = &[
+        "the", "and", "with", "for", "from", "using", "based", "wireless", "charging", "无线",
+        "充电", "调度", "模型", "方法", "研究",
+    ];
+    let mut terms = Vec::new();
+    let mut seen = known_terms.clone();
+    for candidate in candidates.iter().take(12) {
+        let expansion_text = format!("{} {}", candidate.title, candidate.wikilink);
+        for token in
+            expansion_text.split(|character: char| !character.is_alphanumeric() && character != '-')
+        {
+            let clean = token.trim().to_lowercase();
+            if clean.chars().count() >= 3
+                && clean.chars().count() <= 40
+                && !STOP.contains(&clean.as_str())
+                && seen.insert(clean.clone())
+            {
+                terms.push(clean);
+            }
+            if terms.len() >= 12 {
+                return terms;
+            }
+        }
+    }
+    terms
+}
+
+fn evidence_sufficient(intent: &str, candidates: &[Candidate]) -> bool {
+    let primary = candidates
+        .iter()
+        .filter(|candidate| candidate.kind != "graph")
+        .count();
+    let has_wiki = candidates.iter().any(|candidate| candidate.kind == "wiki");
+    let has_paper = candidates.iter().any(|candidate| candidate.kind == "paper");
+    let has_method = candidates
+        .iter()
+        .any(|candidate| candidate.page_type == "method");
+    match intent {
+        INTENT_LITERATURE => primary >= 4 && has_paper,
+        INTENT_RELATIONSHIP => primary >= 5 && has_wiki,
+        INTENT_SOLVE | INTENT_NOVELTY => primary >= 6 && (has_method || has_paper),
+        _ => primary >= 6,
+    }
+}
+
+fn retrieve_pass(
+    connection: &Connection,
+    root: &Path,
+    terms: &[String],
+    diagnostics: &mut RetrievalDiagnosticsBuilder,
+    pass: usize,
+    cancelled: Option<&AtomicBool>,
+) -> Result<Vec<Candidate>, String> {
+    let suffix = if pass == 1 {
+        String::new()
+    } else {
+        format!("-p{pass}")
+    };
+    let channel_started = Instant::now();
+    let wiki = wiki_candidates(connection, terms)?;
+    diagnostics.record(&format!("wiki{suffix}"), channel_started, wiki.len());
+    check_cancelled(cancelled)?;
+    let channel_started = Instant::now();
+    let linked_papers = linked_paper_candidates(connection, &wiki, terms)?;
+    diagnostics.record(
+        &format!("linked-paper{suffix}"),
+        channel_started,
+        linked_papers.len(),
+    );
+    let channel_started = Instant::now();
+    let papers = paper_candidates(connection, terms)?;
+    diagnostics.record(&format!("paper{suffix}"), channel_started, papers.len());
+    let channel_started = Instant::now();
+    let books = book_candidates(connection, terms)?;
+    diagnostics.record(&format!("book{suffix}"), channel_started, books.len());
+    check_cancelled(cancelled)?;
+    let channel_started = Instant::now();
+    let graph_result = graph::graph_candidates(connection, root, terms, cancelled)?;
+    diagnostics.record(
+        &format!("graph{suffix}"),
+        channel_started,
+        graph_result.candidates.len(),
+    );
+    diagnostics.add_cancel_checks(graph_result.cancel_check_count + 6);
+    let mut candidates = Vec::new();
+    extend_fused_channel(&mut candidates, "wiki", wiki);
+    extend_fused_channel(&mut candidates, "paper", papers);
+    extend_fused_channel(&mut candidates, "linked-paper", linked_papers);
+    extend_fused_channel(&mut candidates, "book", books);
+    extend_fused_channel(&mut candidates, "graph", graph_result.candidates);
+    // Expansion passes improve recall but must not displace stronger direct-query
+    // hits merely because each pass receives a fresh reciprocal-rank score.
+    if pass > 1 {
+        let expansion_penalty = 1.0 * (pass.saturating_sub(1) as f64);
+        for candidate in &mut candidates {
+            candidate.score -= expansion_penalty;
+        }
+    }
+    Ok(candidates)
 }
 
 fn wiki_candidates(connection: &Connection, terms: &[String]) -> Result<Vec<Candidate>, String> {
@@ -1823,51 +2047,57 @@ pub fn prepare_question_with_history_and_budget(
     let mut diagnostics = RetrievalDiagnosticsBuilder::new();
     let retrieval_query = build_retrieval_query(connection, question, &conversation);
     let question_intent = retrieval_query.intent.clone();
-    let terms = query_terms(&retrieval_query.resolved_question);
-    let channel_started = Instant::now();
-    let wiki = wiki_candidates(connection, &terms)?;
-    diagnostics.record("wiki", channel_started, wiki.len());
-    check_cancelled(cancelled)?;
-    let channel_started = Instant::now();
-    let linked_papers = linked_paper_candidates(connection, &wiki, &terms)?;
-    diagnostics.record("linked-paper", channel_started, linked_papers.len());
+    let initial_terms = query_terms(&retrieval_query.resolved_question);
+    let mut known_terms = initial_terms.iter().cloned().collect::<HashSet<_>>();
     let mut candidates = Vec::new();
-    extend_fused_channel(&mut candidates, "wiki", wiki);
-    let channel_started = Instant::now();
-    let papers = paper_candidates(connection, &terms)?;
-    diagnostics.record("paper", channel_started, papers.len());
-    extend_fused_channel(&mut candidates, "paper", papers);
-    check_cancelled(cancelled)?;
-    extend_fused_channel(&mut candidates, "linked-paper", linked_papers);
-    check_cancelled(cancelled)?;
-    let channel_started = Instant::now();
-    let books = book_candidates(connection, &terms)?;
-    diagnostics.record("book", channel_started, books.len());
-    extend_fused_channel(&mut candidates, "book", books);
-    check_cancelled(cancelled)?;
-    let channel_started = Instant::now();
-    let graph_result = graph::graph_candidates(connection, root, &terms, cancelled)?;
-    diagnostics.record("graph", channel_started, graph_result.candidates.len());
-    diagnostics.add_cancel_checks(graph_result.cancel_check_count + 6);
-    extend_fused_channel(&mut candidates, "graph", graph_result.candidates);
-    check_cancelled(cancelled)?;
+    let mut pass_terms = initial_terms;
+    for pass in 1..=3 {
+        let before = candidates.iter().map(candidate_key).collect::<HashSet<_>>();
+        let pass_candidates = retrieve_pass(
+            connection,
+            root,
+            &pass_terms,
+            &mut diagnostics,
+            pass,
+            cancelled,
+        )?;
+        candidates.extend(pass_candidates);
+        let after = candidates.iter().map(candidate_key).collect::<HashSet<_>>();
+        let gain = after.len().saturating_sub(before.len());
+        diagnostics.record_pass(gain);
+        if evidence_sufficient(&question_intent, &candidates) {
+            diagnostics.stop("sufficient");
+            break;
+        }
+        if pass == 3 {
+            diagnostics.stop("max_passes");
+            break;
+        }
+        if pass > 1 && gain < 2 {
+            diagnostics.stop("low_gain");
+            break;
+        }
+        let mut next = index_expansion_terms(&candidates, &known_terms);
+        if next.is_empty() {
+            next = chinese_query_fragments(&retrieval_query.resolved_question)
+                .into_iter()
+                .filter(|term| known_terms.insert(term.clone()))
+                .collect();
+        } else {
+            for term in &next {
+                known_terms.insert(term.clone());
+            }
+        }
+        if next.is_empty() {
+            diagnostics.stop("no_novel_terms");
+            break;
+        }
+        pass_terms = next;
+    }
     apply_intent(&question_intent, &mut candidates);
     candidates.sort_by(|left, right| right.score.total_cmp(&left.score));
     let mut seen = HashSet::new();
-    candidates.retain(|candidate| {
-        let key = if candidate.kind == "paper" {
-            format!("paper:{}", candidate.node_id)
-        } else if candidate.kind == "graph" {
-            format!("graph:{}", candidate.node_id)
-        } else if !candidate.page_id.is_empty() {
-            format!("wiki:{}", candidate.page_id)
-        } else if !candidate.chapter_id.is_empty() {
-            format!("book:{}", candidate.chapter_id)
-        } else {
-            format!("graph:{}", candidate.node_id)
-        };
-        seen.insert(key)
-    });
+    candidates.retain(|candidate| seen.insert(candidate_key(candidate)));
     let maximum = limit.clamp(4, 30);
     let mut selected = diverse_top_candidates(&candidates, maximum);
     // Preserve source diversity after global ranking: when a channel produced a
@@ -1917,6 +2147,44 @@ pub fn prepare_question_with_history_and_budget(
             if selected.len() < maximum {
                 selected.push(method);
             }
+        }
+    }
+    // For every strongly recalled structured source page, keep its best
+    // query-matched primary section when available. This turns the generic Wiki
+    // recall into an auditable Wiki/paper pair without any question-specific ID.
+    let source_page_ids = selected
+        .iter()
+        .filter(|candidate| candidate.kind == "wiki" && candidate.page_type == "source")
+        .take(6)
+        .map(|candidate| candidate.page_id.clone())
+        .collect::<Vec<_>>();
+    for page_id in source_page_ids {
+        if selected
+            .iter()
+            .any(|candidate| candidate.kind == "paper" && candidate.page_id == page_id)
+        {
+            continue;
+        }
+        let Some(paper_pair) = candidates
+            .iter()
+            .filter(|candidate| {
+                candidate.kind == "paper"
+                    && candidate.page_id == page_id
+                    && candidate.relation != "wiki_source_to_primary_fallback"
+            })
+            .max_by(|left, right| left.score.total_cmp(&right.score))
+            .cloned()
+        else {
+            continue;
+        };
+        if selected.len() >= maximum {
+            let protect_method = matches!(question_intent.as_str(), INTENT_SOLVE | INTENT_NOVELTY);
+            remove_lowest_unprotected(&mut selected, required_kinds, protect_method, |candidate| {
+                candidate.kind == "wiki" && candidate.page_id == page_id
+            });
+        }
+        if selected.len() < maximum {
+            selected.push(paper_pair);
         }
     }
     // A paper reached through a Wiki source is most useful as an auditable
@@ -2442,11 +2710,12 @@ pub fn persist_exchange_with_metadata(
             .map(str::to_string)
             .unwrap_or_else(|| Uuid::new_v4().to_string())
     });
-    let message_status = if citation_validation.grounding_status == "unverified" {
-        "unverified"
-    } else {
-        "completed"
+    let message_status = match citation_validation.grounding_status.as_str() {
+        "unverified" => "unverified",
+        "mixed" => "mixed",
+        _ => "completed",
     };
+    let assistant_trusted_context = trusted_context(&answer, &citation_validation.grounding_status);
     let user_message = make_message(
         &session,
         "user",
@@ -2493,8 +2762,8 @@ pub fn persist_exchange_with_metadata(
     }
     for message in [&user_message, &assistant_message] {
         tx.execute(
-            "INSERT INTO chat_messages(id,session_id,role,content,status,created_at,error_code,error_message,waterline,provider,model,request_id,citation_validation,run_manifest)
-             VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14)",
+            "INSERT INTO chat_messages(id,session_id,role,content,status,created_at,error_code,error_message,waterline,provider,model,request_id,citation_validation,run_manifest,trusted_context)
+             VALUES(?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15)",
             params![
                 message.id,
                 message.session_id,
@@ -2510,6 +2779,7 @@ pub fn persist_exchange_with_metadata(
                 message.request_id,
                 message.citation_validation.as_ref().and_then(|value| serde_json::to_string(value).ok()).unwrap_or_default(),
                 message.run_manifest.as_ref().and_then(|value| serde_json::to_string(value).ok()).unwrap_or_default(),
+                if message.role == "assistant" { assistant_trusted_context.as_str() } else { "" },
             ],
         )
         .map_err(|error| format!("保存会话消息失败：{error}"))?;
@@ -2815,6 +3085,9 @@ mod tests {
         assert!(connection
             .prepare("SELECT run_manifest FROM chat_messages LIMIT 0")
             .is_ok());
+        assert!(connection
+            .prepare("SELECT trusted_context FROM chat_messages LIMIT 0")
+            .is_ok());
     }
 
     #[test]
@@ -2973,6 +3246,33 @@ mod tests {
 
         let other = tempdir().unwrap();
         assert!(conversation_history(&connection, other.path(), Some(&session.id)).is_err());
+    }
+
+    #[test]
+    fn mixed_history_reads_only_persisted_trusted_context() {
+        let (root, connection) = test_db();
+        let session = create_session(&connection, root.path(), "mixed history").unwrap();
+        connection
+            .execute(
+                "INSERT INTO chat_messages(id,session_id,role,content,status,created_at,request_id)
+                 VALUES('mixed-user',?1,'user','这个问题','mixed','01','request-mixed')",
+                [&session.id],
+            )
+            .unwrap();
+        connection
+            .execute(
+                "INSERT INTO chat_messages(id,session_id,role,content,status,created_at,request_id,trusted_context)
+                 VALUES('mixed-assistant',?1,'assistant','可验证内容。模型补充不得进入下轮。','mixed','02','request-mixed','可验证内容。')",
+                [&session.id],
+            )
+            .unwrap();
+
+        let history = conversation_history(&connection, root.path(), Some(&session.id)).unwrap();
+        assert_eq!(history.len(), 2);
+        assert_eq!(history[1].content, "可验证内容。");
+        assert!(history
+            .iter()
+            .all(|turn| !turn.content.contains("模型补充")));
     }
 
     #[test]
@@ -3284,9 +3584,10 @@ mod tests {
     }
 
     #[test]
-    fn wave_interference_aliases_prioritize_canonical_paper_terms() {
+    fn query_terms_compose_domain_concepts_without_question_aliases() {
         let terms = query_terms("有没有关于波干扰的论文");
-        assert_eq!(terms.first().map(String::as_str), Some("wave interference"));
+        assert!(terms.iter().any(|term| term == "interference"));
+        assert!(terms.iter().any(|term| term == "wave interference"));
         assert!(terms.iter().any(|term| term == "concurrent charging"));
     }
 
@@ -3317,6 +3618,30 @@ mod tests {
         let terms = query_terms("异构充电器协同优化");
         assert!(terms.iter().any(|term| term.contains("异构充电")));
         assert!(terms.len() <= QUERY_TERM_LIMIT);
+    }
+
+    #[test]
+    fn bounded_retrieval_reports_passes_and_an_explicit_stop_reason() {
+        let (root, connection) = test_db();
+        connection.execute("INSERT INTO pages VALUES('mtd-demo.md','method','Novel Heterogeneous Scheduler','2024','novel heterogeneous scheduling method','wiki/methods/mtd-demo.md','1')", []).unwrap();
+        connection.execute("INSERT INTO pages_fts VALUES('mtd-demo.md','Novel Heterogeneous Scheduler','novel heterogeneous scheduling method','scheduler')", []).unwrap();
+
+        let context = prepare_question(
+            &connection,
+            root.path(),
+            "异构充电器协同优化还有哪些办法",
+            10,
+        )
+        .unwrap();
+        assert!((1..=3).contains(&context.retrieval_diagnostics.pass_count));
+        assert_eq!(
+            context.retrieval_diagnostics.candidate_gains.len(),
+            context.retrieval_diagnostics.pass_count
+        );
+        assert!(matches!(
+            context.retrieval_diagnostics.stop_reason.as_str(),
+            "sufficient" | "low_gain" | "no_novel_terms" | "max_passes"
+        ));
     }
 
     #[test]

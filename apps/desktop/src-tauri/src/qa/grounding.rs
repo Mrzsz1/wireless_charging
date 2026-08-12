@@ -1,4 +1,7 @@
-use super::{compact, CitationRepair, CitationValidation, EvidenceItem, NO_EVIDENCE_NOTICE};
+use super::{
+    compact, CitationRepair, CitationValidation, EvidenceItem, MODEL_SUPPLEMENT_HEADING,
+    MODEL_SUPPLEMENT_NOTICE, NO_EVIDENCE_NOTICE,
+};
 use std::collections::HashMap;
 
 #[derive(Debug)]
@@ -520,10 +523,11 @@ pub fn validate_citations(answer: &str, evidence: &[EvidenceItem]) -> CitationVa
     let zero_evidence = evidence.is_empty();
     let unverified =
         zero_evidence && answer.starts_with(NO_EVIDENCE_NOTICE) && unknown_ids.is_empty();
-    let claims = if zero_evidence {
-        Vec::new()
-    } else {
-        let segments = claim_segments(answer);
+    let supplement_start = answer.find(MODEL_SUPPLEMENT_HEADING);
+    let supplement_notice_present =
+        supplement_start.is_some_and(|start| answer[start..].contains(MODEL_SUPPLEMENT_NOTICE));
+    let factual_claims = |value: &str| {
+        let segments = claim_segments(value);
         segments
             .iter()
             .enumerate()
@@ -538,10 +542,30 @@ pub fn validate_citations(answer: &str, evidence: &[EvidenceItem]) -> CitationVa
             .map(|(_, segment)| segment.clone())
             .collect::<Vec<_>>()
     };
+    let claims = if zero_evidence {
+        Vec::new()
+    } else if let Some(start) = supplement_start {
+        let mut claims = factual_claims(&answer[..start])
+            .into_iter()
+            .map(|claim| (claim, false))
+            .collect::<Vec<_>>();
+        claims.extend(
+            factual_claims(&answer[start + MODEL_SUPPLEMENT_HEADING.len()..])
+                .into_iter()
+                .map(|claim| (claim, true)),
+        );
+        claims
+    } else {
+        factual_claims(answer)
+            .into_iter()
+            .map(|claim| (claim, false))
+            .collect()
+    };
     let mut cited_claim_count = 0;
     let mut unsupported_claims = Vec::new();
     let mut graph_only_claims = Vec::new();
-    for claim in &claims {
+    let mut model_supplement_claims = Vec::new();
+    for (claim, is_supplement) in &claims {
         let claim_ids = extract_citation_ids(claim);
         let known_kinds = claim_ids
             .iter()
@@ -549,6 +573,19 @@ pub fn validate_citations(answer: &str, evidence: &[EvidenceItem]) -> CitationVa
             .collect::<Vec<_>>();
         let claim_has_unknown = claim_ids.iter().any(|id| !known.contains_key(id.as_str()));
         let graph_only = !known_kinds.is_empty() && known_kinds.iter().all(|kind| *kind == "graph");
+        if *is_supplement {
+            if claim.trim().trim_start_matches('>').trim()
+                == MODEL_SUPPLEMENT_NOTICE.trim_start_matches('>').trim()
+            {
+                continue;
+            }
+            if supplement_notice_present && claim_ids.is_empty() {
+                model_supplement_claims.push(compact(claim, 180));
+            } else {
+                unsupported_claims.push(compact(claim, 180));
+            }
+            continue;
+        }
         if graph_only {
             graph_only_claims.push(compact(claim, 180));
         }
@@ -558,14 +595,20 @@ pub fn validate_citations(answer: &str, evidence: &[EvidenceItem]) -> CitationVa
             unsupported_claims.push(compact(claim, 180));
         }
     }
-    let claim_count = claims.len();
+    let claim_count = claims
+        .iter()
+        .filter(|(_, is_supplement)| !is_supplement)
+        .count();
     let citation_coverage = if claim_count == 0 {
         0.0
     } else {
         cited_claim_count as f64 / claim_count as f64
     };
     let syntax_valid = unknown_ids.is_empty();
-    let coverage_valid = claim_count > 0 && cited_claim_count == claim_count;
+    let coverage_valid =
+        claim_count > 0 && cited_claim_count == claim_count && unsupported_claims.is_empty();
+    let mixed =
+        !zero_evidence && syntax_valid && coverage_valid && !model_supplement_claims.is_empty();
     let supported = !zero_evidence && syntax_valid && coverage_valid;
     CitationValidation {
         cited_ids: cited.clone(),
@@ -577,7 +620,9 @@ pub fn validate_citations(answer: &str, evidence: &[EvidenceItem]) -> CitationVa
         },
         has_citations,
         supported,
-        grounding_status: if supported {
+        grounding_status: if mixed {
+            "mixed"
+        } else if supported {
             "supported"
         } else if unverified {
             "unverified"
@@ -594,7 +639,20 @@ pub fn validate_citations(answer: &str, evidence: &[EvidenceItem]) -> CitationVa
         syntax_valid,
         coverage_valid,
         entailment_checked: false,
+        model_supplement_claim_count: model_supplement_claims.len(),
+        model_supplement_claims,
     }
+}
+
+pub fn trusted_context(answer: &str, grounding_status: &str) -> String {
+    if !matches!(grounding_status, "supported" | "mixed") {
+        return String::new();
+    }
+    let verified = answer
+        .find(MODEL_SUPPLEMENT_HEADING)
+        .map(|start| &answer[..start])
+        .unwrap_or(answer);
+    remove_citation_tokens(verified).trim().to_string()
 }
 
 pub fn normalize_unverified_answer(answer: &str) -> String {
@@ -792,5 +850,54 @@ mod tests {
         assert!(repaired.contains("[E4]"));
         assert!(!repaired.contains("removal [E8]"));
         assert!(repaired.contains("[E7](https://example.test/[E1])"));
+    }
+
+    #[test]
+    fn mixed_answer_keeps_verified_claims_and_isolates_model_supplement() {
+        let answer = format!(
+            "## 结论\n当前库支持这个结论 [E1]。\n\n{MODEL_SUPPLEMENT_HEADING}\n{MODEL_SUPPLEMENT_NOTICE}\n模型推测该方向还可能使用自适应算法。"
+        );
+        let validation = validate_citations(&answer, &[evidence("E1")]);
+
+        assert!(validation.supported, "{validation:?}");
+        assert_eq!(validation.grounding_status, "mixed");
+        assert_eq!(validation.claim_count, 1);
+        assert_eq!(validation.cited_claim_count, 1);
+        assert_eq!(validation.model_supplement_claim_count, 1);
+        assert!(validation.unsupported_claims.is_empty());
+        let trusted = trusted_context(&answer, &validation.grounding_status);
+        assert!(trusted.contains("当前库支持这个结论"));
+        assert!(!trusted.contains("[E1]"));
+        assert!(!trusted.contains("自适应算法"));
+        assert!(!trusted.contains(MODEL_SUPPLEMENT_HEADING));
+    }
+
+    #[test]
+    fn repeated_claim_text_before_and_after_boundary_is_classified_by_section() {
+        let answer = format!(
+            "重复的结论内容 [E1]。\n\n{MODEL_SUPPLEMENT_HEADING}\n{MODEL_SUPPLEMENT_NOTICE}\n重复的结论内容。"
+        );
+        let validation = validate_citations(&answer, &[evidence("E1")]);
+
+        assert_eq!(validation.grounding_status, "mixed", "{validation:?}");
+        assert_eq!(validation.claim_count, 1);
+        assert_eq!(validation.model_supplement_claim_count, 1);
+    }
+
+    #[test]
+    fn supplement_requires_exact_notice_and_must_not_use_citations() {
+        let missing_notice =
+            format!("可验证结论 [E1]。\n\n{MODEL_SUPPLEMENT_HEADING}\n未经验证的模型结论。");
+        assert_eq!(
+            validate_citations(&missing_notice, &[evidence("E1")]).grounding_status,
+            "invalid"
+        );
+        let cited_supplement = format!(
+            "可验证结论 [E1]。\n\n{MODEL_SUPPLEMENT_HEADING}\n{MODEL_SUPPLEMENT_NOTICE}\n模型结论 [E1]。"
+        );
+        assert_eq!(
+            validate_citations(&cited_supplement, &[evidence("E1")]).grounding_status,
+            "invalid"
+        );
     }
 }

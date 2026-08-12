@@ -2967,11 +2967,15 @@ async fn ask_luna(
     let (effective_codex_model, effective_codex_effort) = codex_status
         .as_ref()
         .map(|status| {
-            codex_subscription::resolve_model_selection(
-                &settings.codex_model,
-                &settings.codex_reasoning_effort,
-                status,
-            )
+            let requested_model = request
+                .codex_model
+                .as_deref()
+                .unwrap_or(settings.codex_model.as_str());
+            let requested_effort = request
+                .codex_reasoning_effort
+                .as_deref()
+                .unwrap_or(settings.codex_reasoning_effort.as_str());
+            codex_subscription::resolve_model_selection(requested_model, requested_effort, status)
         })
         .unwrap_or_else(|| {
             (
@@ -3002,7 +3006,7 @@ async fn ask_luna(
                 let prompt = qa::build_codex_prompt(&context);
                 let model = effective_codex_model.clone();
                 let reasoning_effort = effective_codex_effort.clone();
-                let timeout = Duration::from_secs(settings.timeout_seconds);
+                let timeout = Duration::from_secs(settings.timeout_seconds.max(180));
                 let stream_channel = on_event.clone();
                 let stream_request_id = request_id.clone();
                 let stream_cancel_flag = cancel_flag.clone();

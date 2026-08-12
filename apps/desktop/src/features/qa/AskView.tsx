@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { BookOpen, Bot, Check, CheckCircle2, ChevronRight, CircleStop, Clipboard, FileText, GitBranch, LoaderCircle, MessageSquarePlus, MoreHorizontal, Plus, RefreshCw, Search, Send, Settings, ShieldCheck, Trash2, X } from 'lucide-react'
-import { askLuna, cancelAnswer, deleteChatSession, getChatSessionPage, getCodexSubscriptionStatus, getQaSettings, isDesktopRuntime, listChatSessionsPage, renameChatSession } from '../../services/desktop'
+import { askLuna, cancelAnswer, deleteChatSession, getChatSessionPage, getCodexSubscriptionStatus, getQaSettings, isDesktopRuntime, listChatSessionsPage, renameChatSession, saveQaSettings } from '../../services/desktop'
 import type { AnswerProvider, AnswerStreamEvent, AskResult, ChatMessage, ChatSessionSummary, CodexSubscriptionStatus, ContextBudget, EvidenceItem, QaRunManifest, QaSettings, RetrievalDiagnostics, WaterlineSnapshot } from '../../types'
 import { claimCompletion, createCompletionLedger, mergeCompletedMessages, mergeFailedMessages, repositoryIdentity, retryQuestionFor, rollbackOptimisticMessages } from './completionState'
 import { appendUniqueSessions, buildAuditBundle, citationSummary, evidenceEmptyState, prependUniqueMessages } from './qaPresentation'
@@ -26,7 +26,7 @@ const emptySettings: QaSettings = {
   endpoint: '',
   model: 'gpt-5.6-luna',
   apiKeyEnv: 'LUNA_API_KEY',
-  timeoutSeconds: 90,
+  timeoutSeconds: 180,
   maxOutputTokens: 1800,
   contextWindowTokens: 32768,
   recentExchangeLimit: 3,
@@ -48,13 +48,7 @@ function providerReady(provider: AnswerProvider, settings: QaSettings, codex: Co
   return true
 }
 
-function codexSelectionLabel(settings: QaSettings, codex: CodexSubscriptionStatus) {
-  const model = settings.codexModel || codex.configuredModel
-  const option = codex.availableModels.find((item) => item.id === model)
-  const effort = settings.codexReasoningEffort || codex.configuredReasoningEffort || option?.defaultReasoningEffort
-  const effortLabel: Record<string, string> = { low: '低', medium: '中', high: '高', xhigh: '极高', max: '最大', ultra: 'Ultra' }
-  return [option?.displayName || model, effort ? effortLabel[effort] || effort : ''].filter(Boolean).join(' · ')
-}
+const effortLabels: Record<string, string> = { none: '无', low: '低', medium: '中', high: '高', xhigh: '极高', max: '最大', ultra: 'Ultra' }
 
 const suggestions = [
   '有没有适合在线无线充电请求调度的解决办法？',
@@ -214,6 +208,21 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
       setCodexStatus(codex)
     }).catch((cause) => setError(`问答工作区初始化失败：${String(cause)}`))
   }, [repositoryPath])
+
+  const effectiveCodexModel = settings.codexModel || codexStatus.configuredModel
+  const selectedCodexOption = codexStatus.availableModels.find((item) => item.id === effectiveCodexModel)
+  const supportedEfforts = selectedCodexOption?.supportedReasoningEfforts ?? []
+  const configuredEffortSupported = effectiveCodexModel === codexStatus.configuredModel
+    && (!supportedEfforts.length || supportedEfforts.includes(codexStatus.configuredReasoningEffort))
+  const automaticEffort = configuredEffortSupported
+    ? codexStatus.configuredReasoningEffort || selectedCodexOption?.defaultReasoningEffort || ''
+    : selectedCodexOption?.defaultReasoningEffort || ''
+
+  const persistComposerSelection = (next: QaSettings) => {
+    setSettings(next)
+    if (!repositoryPath || !isDesktopRuntime()) return
+    void saveQaSettings(next).catch((cause) => setError(`模型选择保存失败：${String(cause)}`))
+  }
 
   useEffect(() => {
     if (!repositoryPath || !isDesktopRuntime()) return
@@ -392,7 +401,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     setMessages((current) => [...current, optimistic])
     onResearchContextChange(value)
     try {
-      const result = await askLuna({ requestId: clientRequestId, question: value, sessionId: originalSessionId || undefined, evidenceLimit: 14, repositoryId: repositoryIdentity(repositoryPath) }, (event) => {
+      const result = await askLuna({ requestId: clientRequestId, question: value, sessionId: originalSessionId || undefined, evidenceLimit: 14, repositoryId: repositoryIdentity(repositoryPath), codexModel: settings.codexModel, codexReasoningEffort: settings.codexReasoningEffort }, (event) => {
         if (event.type === 'failed' || event.type === 'cancelled') terminalEventHandled = true
         handleEvent(event, generation, optimistic.id, originalSessionId)
       })
@@ -443,6 +452,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
   const thinkingSteps = [
     { label: '理解问题', state: 'done' },
     { label: '检索本地知识库', state: phase === 'retrieving' ? 'active' : 'done' },
+    { label: '扩展查询与再次检索', state: phase === 'retrieving' ? 'active' : 'done' },
     { label: '整理证据上下文', state: phase === 'retrieving' ? 'waiting' : 'done' },
     { label: 'Thinking', state: phase === 'generating' && !hasFirstToken ? 'active' : phase === 'retrieving' ? 'waiting' : 'done' },
     { label: '生成回答', state: phase === 'generating' && hasFirstToken ? 'active' : phase === 'validating' ? 'done' : 'waiting' },
@@ -466,23 +476,23 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     </aside>
 
     <main className="qa-chat">
-      <div className="qa-chat-heading"><div><h1>智能问答</h1></div><div className="qa-model-state"><span className={providerReady(settings.answerProvider, settings, codexStatus) ? 'ready' : 'offline'}>{providerReady(settings.answerProvider, settings, codexStatus) ? <Check size={13} /> : <ShieldCheck size={13} />}{providerLabel(settings.answerProvider)}{settings.answerProvider === 'codex-subscription' && codexStatus.ready ? ` · ${codexSelectionLabel(settings, codexStatus) || '已登录'}` : ''}</span><button className="qa-icon-button" data-testid="qa-open-settings" onClick={onOpenSettings} title="前往设置"><Settings size={17} /></button></div></div>
+      <div className="qa-chat-heading"><div><h1>智能问答</h1></div><div className="qa-model-state"><span className={providerReady(settings.answerProvider, settings, codexStatus) ? 'ready' : 'offline'}>{providerReady(settings.answerProvider, settings, codexStatus) ? <Check size={13} /> : <ShieldCheck size={13} />}{providerLabel(settings.answerProvider)} · {providerReady(settings.answerProvider, settings, codexStatus) ? '已就绪' : '未就绪'}</span><button className="qa-icon-button" data-testid="qa-open-settings" onClick={onOpenSettings} title="前往设置"><Settings size={17} /></button></div></div>
       {error && <div className="qa-error"><span>{error}</span><button onClick={() => setError('')}><X size={14} /></button></div>}
       <div className="qa-messages" ref={messagesRef}>
         {loadingHistory && <div className="qa-loading"><LoaderCircle size={18} className="spin" />加载会话历史…</div>}
         {messageHasMore && <button className="qa-load-older" onClick={() => void loadOlderMessages()} disabled={loadingOlderMessages}>{loadingOlderMessages ? '加载中…' : '加载更早消息'}</button>}
         {!messages.length && phase === 'idle' && <div className="qa-welcome"><div className="qa-orb"><Bot size={28} /></div><h2>先检索，再回答</h2><p>每次提问都会检索 Wiki、两本核心书籍和 Graphify，并把回答绑定到可定位证据。</p><div className="qa-suggestions">{suggestions.map((item) => <button key={item} onClick={() => void submitQuestion(item)}><Plus size={14} /><span>{item}</span><ChevronRight size={14} /></button>)}</div></div>}
-          {messages.map((message, index) => { const retryQuestion = message.role === 'assistant' ? retryQuestionFor(messages, index) : ''; return <article data-testid={`qa-message-${message.id}`} className={`qa-message ${message.role} ${message.status}`} key={message.id}><div className="qa-avatar">{message.role === 'assistant' ? <Bot size={16} /> : '你'}</div><div className="qa-bubble"><div className="qa-message-meta"><strong>{message.role === 'assistant' ? providerLabel(message.provider) : '研究问题'}</strong><span>{message.status === 'failed' ? '失败' : message.status === 'unverified' ? '无参考来源 · 未验证' : formatTime(message.createdAt)}</span></div>{message.role === 'assistant' && message.status === 'failed' ? <div className="qa-message-content">{message.errorCode}：{message.errorMessage || '本轮回答生成失败'}</div> : message.role === 'assistant' ? <MessageContent content={message.content} evidence={message.evidence} onCitation={setSelectedEvidence} /> : <div className="qa-message-content">{message.content}</div>}{message.role === 'assistant' && message.status !== 'failed' && <CitationStatus message={message} />}{message.role === 'assistant' && <div className="qa-message-actions"><button onClick={() => void navigator.clipboard.writeText(message.content)}><Clipboard size={13} />复制回答</button><button onClick={() => void navigator.clipboard.writeText(buildAuditBundle(retryQuestion, message))}><Clipboard size={13} />复制审计包</button><button onClick={() => void submitQuestion(retryQuestion)} disabled={!retryQuestion || phase !== 'idle'}><RefreshCw size={13} />重试</button></div>}</div></article> })}
+          {messages.map((message, index) => { const retryQuestion = message.role === 'assistant' ? retryQuestionFor(messages, index) : ''; return <article data-testid={`qa-message-${message.id}`} className={`qa-message ${message.role} ${message.status}`} key={message.id}><div className="qa-avatar">{message.role === 'assistant' ? <Bot size={16} /> : '你'}</div><div className="qa-bubble"><div className="qa-message-meta"><strong>{message.role === 'assistant' ? providerLabel(message.provider) : '研究问题'}</strong><span>{message.status === 'failed' ? '失败' : message.status === 'unverified' ? '无参考来源 · 未验证' : message.status === 'mixed' ? '含模型补充' : formatTime(message.createdAt)}</span></div>{message.role === 'assistant' && message.status === 'failed' ? <div className="qa-message-content">{message.errorCode}：{message.errorMessage || '本轮回答生成失败'}</div> : message.role === 'assistant' ? <MessageContent content={message.content} evidence={message.evidence} onCitation={setSelectedEvidence} /> : <div className="qa-message-content">{message.content}</div>}{message.role === 'assistant' && message.status !== 'failed' && <CitationStatus message={message} />}{message.role === 'assistant' && <div className="qa-message-actions"><button onClick={() => void navigator.clipboard.writeText(message.content)}><Clipboard size={13} />复制回答</button><button onClick={() => void navigator.clipboard.writeText(buildAuditBundle(retryQuestion, message))}><Clipboard size={13} />复制审计包</button><button onClick={() => void submitQuestion(retryQuestion)} disabled={!retryQuestion || phase !== 'idle'}><RefreshCw size={13} />重试</button></div>}</div></article> })}
         {phase !== 'idle' && <article className="qa-message assistant streaming" aria-live="polite"><div className="qa-avatar"><Bot size={16} /></div><div className="qa-bubble"><div className="qa-message-meta"><strong>Thinking · {elapsedSeconds}s</strong><span><LoaderCircle size={13} className="spin" /></span></div><div className="qa-thinking-chain">{thinkingSteps.map((step) => <div className={step.state} key={step.label}>{step.state === 'done' ? <CheckCircle2 size={13} /> : step.state === 'active' ? <LoaderCircle size={13} className="spin" /> : <span className="qa-step-dot" />}<span>{step.label}</span></div>)}</div>{streamingText && <MessageContent content={streamingText} evidence={evidence} onCitation={setSelectedEvidence} />}</div></article>}
         <div ref={endRef} />
       </div>
-      <div className="qa-composer"><textarea ref={composerRef} data-testid="qa-input" value={question} onChange={(event) => setQuestion(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void submitQuestion() } }} placeholder="询问模型、约束、算法、解决办法或新颖性…" rows={3} disabled={phase !== 'idle'} /><div className="qa-composer-footer"><span>Enter 发送 · Shift+Enter 换行 · 默认不外搜</span>{phase === 'idle' ? <button className="qa-send" onClick={() => void submitQuestion()} disabled={!question.trim()}><Send size={15} />发送</button> : <button className="qa-stop" onClick={() => void stopAnswer()} disabled={!requestId}><CircleStop size={15} />停止</button>}</div></div>
+      <div className="qa-composer"><textarea ref={composerRef} data-testid="qa-input" value={question} onChange={(event) => setQuestion(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void submitQuestion() } }} placeholder="询问模型、约束、算法、解决办法或新颖性…" rows={3} disabled={phase !== 'idle'} /><div className="qa-composer-footer"><div className="qa-composer-controls"><span className={providerReady(settings.answerProvider, settings, codexStatus) ? 'ready' : 'offline'}><ShieldCheck size={12} />{providerLabel(settings.answerProvider)}</span>{settings.answerProvider === 'codex-subscription' && <><label title="选择本轮 Codex 模型"><span className="sr-only">Codex 模型</span><select aria-label="Codex 模型" disabled={phase !== 'idle'} value={settings.codexModel} onChange={(event) => persistComposerSelection({ ...settings, codexModel: event.target.value, codexReasoningEffort: '' })}><option value="">自动 · {codexStatus.configuredModel || 'Codex 默认'}</option>{codexStatus.availableModels.map((model) => <option key={model.id} value={model.id}>{model.displayName}</option>)}</select></label><label title="选择本轮推理强度"><span className="sr-only">推理强度</span><select aria-label="推理强度" disabled={phase !== 'idle'} value={settings.codexReasoningEffort} onChange={(event) => persistComposerSelection({ ...settings, codexReasoningEffort: event.target.value })}><option value="">自动 · {effortLabels[automaticEffort] || automaticEffort || '模型默认'}</option>{supportedEfforts.map((effort) => <option key={effort} value={effort}>{effortLabels[effort] || effort}</option>)}</select></label></>}</div>{phase === 'idle' ? <button className="qa-send" onClick={() => void submitQuestion()} disabled={!question.trim()}><Send size={15} />发送</button> : <button className="qa-stop" onClick={() => void stopAnswer()} disabled={!requestId}><CircleStop size={15} />停止</button>}</div></div>
     </main>
 
     <aside className="qa-evidence-panel">
       <div className="qa-evidence-heading"><div><strong>本轮证据</strong></div><span>{evidence.length}</span></div>
       {waterline && <div className="qa-waterline"><strong>库水位</strong><div><span>{waterline.sourceCount}<small>source</small></span><span>{waterline.methodCount}<small>method</small></span><span>{waterline.synthesisCount}<small>synthesis</small></span><span>{waterline.chapterCount}<small>chapters</small></span></div><p>{waterline.yearMin || '未知'}–{waterline.yearMax || '未知'} · 当前仓库</p></div>}
-      {retrievalDiagnostics && <div className="qa-retrieval-diagnostics"><div><strong>检索诊断</strong><span>{retrievalDiagnostics.totalMs} ms · 选中 {retrievalDiagnostics.selectedCount}</span></div><p>{retrievalDiagnostics.channels.map((channel) => `${channel.name} ${channel.candidateCount}/${channel.durationMs}ms`).join(' · ')}</p><small>取消检查点 {retrievalDiagnostics.cancelCheckCount}</small></div>}
+      {retrievalDiagnostics && <div className="qa-retrieval-diagnostics"><div><strong>检索诊断</strong><span>{retrievalDiagnostics.totalMs} ms · {retrievalDiagnostics.passCount || 1} 轮 · 选中 {retrievalDiagnostics.selectedCount}</span></div><p>{retrievalDiagnostics.channels.map((channel) => `${channel.name} ${channel.candidateCount}/${channel.durationMs}ms`).join(' · ')}</p><small>停止：{retrievalDiagnostics.stopReason || '单轮完成'} · 增益 {(retrievalDiagnostics.candidateGains ?? []).join('/')} · 取消检查点 {retrievalDiagnostics.cancelCheckCount}</small></div>}
       {contextBudget && <div className="qa-context-budget"><div><strong>上下文预算</strong><span>{contextBudget.estimatedTotalTokens}/{contextBudget.inputBudgetTokens}</span></div><p>契约 {contextBudget.researchContractTokens} · 记忆 {contextBudget.sessionMemoryTokens} · 近期 {contextBudget.recentHistoryTokens} · 问题 {contextBudget.currentQueryTokens} · 证据 {contextBudget.evidenceTokens} · 序列化 {contextBudget.serializationOverheadTokens}</p><small>输出预留 {contextBudget.outputReserveTokens} · 空余 {contextBudget.freeTokens} · 最近 {contextBudget.recentExchangeCount} 轮 · 压缩 {contextBudget.compactedMessageCount} 条{contextBudget.truncated ? ' · 已裁剪' : ''}</small>{runManifest && <small>快照 {runManifest.indexSnapshotId.slice(0, 19)}… · {runManifest.promptVersion}/{runManifest.answerSchemaVersion} · 结构{runManifest.answerCompleteness.complete ? '通过' : '未通过'}</small>}</div>}
       <div className="qa-evidence-list">{evidence.map((item) => <button className={`qa-evidence-card ${selectedEvidence?.id === item.id ? 'selected' : ''}`} key={item.id} onClick={() => setSelectedEvidence(item)}><span className="qa-evidence-id">{item.id}</span><div><div className="qa-evidence-type">{kindIcon(item.kind)}<span>{tierLabel(item.tier)}</span></div><strong>{item.title}</strong><p>{item.snippet}</p><small>{item.kind === 'book' ? `PDF p.${item.physicalPageStart ?? '?'}–${item.physicalPageEnd ?? '?'}` : item.kind === 'paper' ? item.sourceLocation || item.sourcePath : item.wikilink || item.sourceLocation || item.sourcePath}</small></div></button>)}</div>
       {emptyEvidence && <div className={`qa-empty-evidence ${emptyEvidence.kind}`}><FileText size={23} /><strong>{emptyEvidence.title}</strong><span>{emptyEvidence.detail}</span></div>}

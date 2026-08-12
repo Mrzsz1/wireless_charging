@@ -132,7 +132,10 @@ fn safe_identifier(value: &str) -> bool {
 }
 
 fn valid_reasoning_effort(value: &str) -> bool {
-    matches!(value, "low" | "medium" | "high" | "xhigh" | "max" | "ultra")
+    matches!(
+        value,
+        "none" | "low" | "medium" | "high" | "xhigh" | "max" | "ultra"
+    )
 }
 
 fn codex_home() -> Option<PathBuf> {
@@ -843,6 +846,12 @@ where
     });
 
     let started = Instant::now();
+    let mut last_activity = started;
+    let idle_timeout = timeout;
+    let hard_timeout = timeout
+        .saturating_mul(4)
+        .max(Duration::from_secs(600))
+        .min(Duration::from_secs(1800));
     let mut answer = String::new();
     let mut resolved_model = model.trim().to_string();
     let status = loop {
@@ -851,13 +860,21 @@ where
             let _ = stderr_reader.join();
             return Err("CODEX_CANCELLED: 用户停止了生成".to_string());
         }
-        if started.elapsed() >= timeout {
+        if started.elapsed() >= hard_timeout {
             terminate_process_tree(&mut child);
             let _ = stderr_reader.join();
-            return Err("CODEX_TIMEOUT: 订阅回答超时".to_string());
+            return Err("CODEX_TOTAL_TIMEOUT: 订阅回答超过总时限".to_string());
+        }
+        if last_activity.elapsed() >= idle_timeout {
+            terminate_process_tree(&mut child);
+            let _ = stderr_reader.join();
+            return Err("CODEX_IDLE_TIMEOUT: 订阅回答长时间无活动".to_string());
         }
         match receiver.recv_timeout(POLL_INTERVAL) {
             Ok(OutputLine::Line(line)) => {
+                if serde_json::from_str::<Value>(&line).is_ok() {
+                    last_activity = Instant::now();
+                }
                 if let Some(observed) = event_model(&line) {
                     resolved_model = observed;
                 }
@@ -1118,6 +1135,27 @@ mod tests {
         assert_eq!(result.1, "provider-default-unreported");
         assert_eq!(streamed, "fixture [E1]");
 
+        let (_active_workspace, active_fixture) = write_windows_fixture(
+            "fake-codex-active",
+            "echo {\"type\":\"message.delta\",\"delta\":\"first \"}\r\n\
+             ping 127.0.0.1 -n 2 >nul\r\n\
+             echo {\"type\":\"message.delta\",\"delta\":\"second\"}\r\n\
+             ping 127.0.0.1 -n 2 >nul\r\n\
+             echo {\"type\":\"item.completed\",\"item\":{\"type\":\"agent_message\",\"text\":\"first second\"}}\r\n\
+             exit /b 0",
+        );
+        let active = stream_answer_with(
+            &active_fixture.to_string_lossy(),
+            "question text",
+            "",
+            "",
+            Duration::from_millis(1_500),
+            &AtomicBool::new(false),
+            |_| Ok(()),
+        )
+        .unwrap();
+        assert_eq!(active.0, "first second");
+
         let (_failure_workspace, failure_fixture) = write_windows_fixture(
             "fake-codex-failure",
             "echo Authorization: fixture-secret 1>&2\r\nexit /b 7",
@@ -1147,7 +1185,7 @@ mod tests {
             |_| Ok(()),
         )
         .unwrap_err();
-        assert!(timeout_error.starts_with("CODEX_TIMEOUT"));
+        assert!(timeout_error.starts_with("CODEX_IDLE_TIMEOUT"));
 
         let cancel_error = stream_answer_with(
             &hang_fixture.to_string_lossy(),
@@ -1201,6 +1239,20 @@ mod tests {
         assert_eq!(
             resolve_model_selection("", "ultra", &selection_status),
             ("gpt-5.6-sol".to_string(), "medium".to_string())
+        );
+        assert_eq!(
+            resolve_model_selection("gpt-5.6-sol", "xhigh", &selection_status),
+            ("gpt-5.6-sol".to_string(), "xhigh".to_string())
+        );
+
+        let uncached_status = CodexSubscriptionStatus {
+            available_models: Vec::new(),
+            model_catalog_status: "missing".to_string(),
+            ..selection_status
+        };
+        assert_eq!(
+            resolve_model_selection("gpt-5.6-fixture", "none", &uncached_status),
+            ("gpt-5.6-fixture".to_string(), "none".to_string())
         );
     }
 }

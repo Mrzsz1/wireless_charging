@@ -104,6 +104,8 @@ test('QA citation summary exposes coverage and semantic verification boundary', 
   assert.equal(linkEvidenceCitations('claim [E1]'), 'claim [E1](evidence:E1)')
   assert.equal(linkEvidenceCitations('`[E1]` and $[E2]$ then [E3]'), '`[E1]` and $[E2]$ then [E3](evidence:E3)')
   assert.equal(linkEvidenceCitations('[E1](https://example.test)'), '[E1](https://example.test)')
+  assert.equal(linkEvidenceCitations('[label [E1]](https://example.test/[E2]) and [E3]'), '[label [E1]](https://example.test/[E2]) and [E3](evidence:E3)')
+  assert.equal(linkEvidenceCitations('![image [E1]](https://example.test/[E2].png)'), '![image [E1]](https://example.test/[E2].png)')
 })
 
 test('QA audit bundle keeps the question answer evidence and manifest boundary', () => {

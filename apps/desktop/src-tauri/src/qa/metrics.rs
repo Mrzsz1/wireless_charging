@@ -18,12 +18,20 @@ pub struct RetrievalDiagnostics {
     pub channels: Vec<RetrievalChannelDiagnostic>,
     pub selected_count: usize,
     pub cancel_check_count: usize,
+    #[serde(default)]
+    pub pass_count: usize,
+    #[serde(default)]
+    pub stop_reason: String,
+    #[serde(default)]
+    pub candidate_gains: Vec<usize>,
 }
 
 pub(super) struct RetrievalDiagnosticsBuilder {
     started_at: Instant,
     channels: Vec<RetrievalChannelDiagnostic>,
     cancel_check_count: usize,
+    candidate_gains: Vec<usize>,
+    stop_reason: String,
 }
 
 impl RetrievalDiagnosticsBuilder {
@@ -32,6 +40,8 @@ impl RetrievalDiagnosticsBuilder {
             started_at: Instant::now(),
             channels: Vec::new(),
             cancel_check_count: 0,
+            candidate_gains: Vec::new(),
+            stop_reason: String::new(),
         }
     }
 
@@ -47,12 +57,23 @@ impl RetrievalDiagnosticsBuilder {
         self.cancel_check_count += count;
     }
 
+    pub(super) fn record_pass(&mut self, candidate_gain: usize) {
+        self.candidate_gains.push(candidate_gain);
+    }
+
+    pub(super) fn stop(&mut self, reason: &str) {
+        self.stop_reason = reason.to_string();
+    }
+
     pub(super) fn finish(self, selected_count: usize) -> RetrievalDiagnostics {
         RetrievalDiagnostics {
             total_ms: elapsed_ms(self.started_at),
             channels: self.channels,
             selected_count,
             cancel_check_count: self.cancel_check_count,
+            pass_count: self.candidate_gains.len(),
+            stop_reason: self.stop_reason,
+            candidate_gains: self.candidate_gains,
         }
     }
 }

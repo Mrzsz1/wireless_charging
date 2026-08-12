@@ -16,7 +16,7 @@ export function evidenceEmptyState(phase: QaPhase, waterline: WaterlineSnapshot 
 }
 
 export type CitationSummary = {
-  tone: 'supported' | 'unverified' | 'invalid'
+  tone: 'supported' | 'mixed' | 'unverified' | 'invalid'
   label: string
   detail: string
 }
@@ -25,6 +25,13 @@ export function citationSummary(validation?: CitationValidation | null): Citatio
   if (!validation) return null
   if (validation.groundingStatus === 'unverified') {
     return { tone: 'unverified', label: '无参考来源 · 未验证', detail: '本轮内容不进入后续对话上下文。' }
+  }
+  if (validation.groundingStatus === 'mixed') {
+    return {
+      tone: 'mixed',
+      label: '证据回答 + 模型补充',
+      detail: `${validation.citedClaimCount}/${validation.claimCount} 条库内事实已引用；${validation.modelSupplementClaimCount ?? 0} 条模型补充可能不准确，且不进入后续可信上下文。语义未自动核验。`,
+    }
   }
   if (!validation.supported) {
     const unsupportedClaims = validation.unsupportedClaims ?? []
@@ -52,6 +59,35 @@ export function linkEvidenceCitations(content: string): string {
   let index = 0
   while (index < content.length) {
     const marker = content[index]
+    // Preserve complete Markdown links/images, including both label and target.
+    // Citation-looking text in either region is literal Markdown content and
+    // must not be projected into a nested evidence link.
+    const linkStart = marker === '[' || (marker === '!' && content[index + 1] === '[')
+    if (linkStart && content[index - 1] !== '\\') {
+      const labelStart = marker === '!' ? index + 1 : index
+      let labelEnd = labelStart + 1
+      let labelDepth = 1
+      while (labelEnd < content.length && labelDepth > 0) {
+        if (content[labelEnd] === '[' && content[labelEnd - 1] !== '\\') labelDepth += 1
+        if (content[labelEnd] === ']' && content[labelEnd - 1] !== '\\') labelDepth -= 1
+        labelEnd += 1
+      }
+      labelEnd -= 1
+      if (labelEnd >= 0 && content[labelEnd + 1] === '(') {
+        let targetEnd = labelEnd + 2
+        let depth = 1
+        while (targetEnd < content.length && depth > 0) {
+          if (content[targetEnd] === '(' && content[targetEnd - 1] !== '\\') depth += 1
+          if (content[targetEnd] === ')' && content[targetEnd - 1] !== '\\') depth -= 1
+          targetEnd += 1
+        }
+        if (depth === 0) {
+          result += content.slice(index, targetEnd)
+          index = targetEnd
+          continue
+        }
+      }
+    }
     // Preserve code spans/fences and math source verbatim. Citation-looking
     // tokens inside executable examples or formulas are content, not evidence.
     if ((marker === '`' || marker === '$') && content[index - 1] !== '\\') {
@@ -69,9 +105,7 @@ export function linkEvidenceCitations(content: string): string {
       const match = content.slice(index).match(/^\[(E\d+)\]/)
       if (match) {
         const end = index + match[0].length
-        // Do not create nested links when persisted Markdown already linked the
-        // label explicitly.
-        result += content[end] === '(' ? match[0] : `[${match[1]}](evidence:${match[1]})`
+        result += `[${match[1]}](evidence:${match[1]})`
         index = end
         continue
       }

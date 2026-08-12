@@ -506,12 +506,15 @@ export type RetrievalDiagnostics = {
   channels: RetrievalChannelDiagnostic[]
   selectedCount: number
   cancelCheckCount: number
+  passCount: number
+  stopReason: string
+  candidateGains: number[]
 }
 
 export type QuestionContext = {
   requestId: string
   question: string
-  intent: 'solve' | 'novelty' | 'relationship'
+  intent: 'solve' | 'novelty' | 'relationship' | 'literature'
   retrievalQuery: { originalQuestion: string; resolvedQuestion: string; entities: string[]; intent: string; usedHistoryMessageIds: string[] }
   conversation: ConversationTurn[]
   evidence: EvidenceItem[]
@@ -529,7 +532,7 @@ export type CitationValidation = {
   citationPrecision: number
   hasCitations: boolean
   supported: boolean
-  groundingStatus: 'supported' | 'unverified' | 'invalid'
+  groundingStatus: 'supported' | 'mixed' | 'unverified' | 'invalid'
   zeroEvidence: boolean
   claimCount: number
   citedClaimCount: number
@@ -539,6 +542,8 @@ export type CitationValidation = {
   syntaxValid: boolean
   coverageValid: boolean
   entailmentChecked: boolean
+  modelSupplementClaimCount: number
+  modelSupplementClaims: string[]
 }
 
 export type ResearchContextAnchor = {
@@ -604,7 +609,7 @@ export type ChatMessage = {
   sessionId: string
   role: 'user' | 'assistant' | 'system'
   content: string
-  status: 'pending' | 'retrieving' | 'generating' | 'completed' | 'unverified' | 'failed' | 'cancelled'
+  status: 'pending' | 'retrieving' | 'generating' | 'completed' | 'mixed' | 'unverified' | 'failed' | 'cancelled'
   createdAt: string
   errorCode: string
   errorMessage: string
@@ -639,6 +644,8 @@ export type AskRequest = {
   sessionId?: string
   evidenceLimit?: number
   repositoryId: string
+  codexModel?: string
+  codexReasoningEffort?: string
 }
 
 export type AskResult = {

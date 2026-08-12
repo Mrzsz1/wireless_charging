@@ -41,7 +41,7 @@ const defaultQaSettings: QaSettings = {
   endpoint: '',
   model: 'gpt-5.6-luna',
   apiKeyEnv: 'LUNA_API_KEY',
-  timeoutSeconds: 90,
+  timeoutSeconds: 180,
   maxOutputTokens: 1800,
   contextWindowTokens: 32768,
   recentExchangeLimit: 3,
@@ -62,8 +62,6 @@ const emptyCodexStatus: CodexSubscriptionStatus = {
   modelCatalogStatus: 'missing',
 }
 
-const reasoningLabels: Record<string, string> = { low: '低', medium: '中', high: '高', xhigh: '极高', max: '最大', ultra: 'Ultra' }
-
 function replaceStatus(statuses: SearchProviderStatus[], next: SearchProviderStatus) {
   return statuses.map((item) => item.id === next.id ? next : item)
 }
@@ -78,12 +76,6 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
   const [busyAction, setBusyAction] = useState('load')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
-  const effectiveCodexModel = qaSettings.codexModel || codexStatus.configuredModel
-  const selectedCodexOption = codexStatus.availableModels.find((item) => item.id === effectiveCodexModel)
-  const supportedReasoningEfforts = selectedCodexOption?.supportedReasoningEfforts ?? []
-  const configuredEffortSupported = !supportedReasoningEfforts.length || supportedReasoningEfforts.includes(codexStatus.configuredReasoningEffort)
-  const automaticReasoningEffort = configuredEffortSupported ? codexStatus.configuredReasoningEffort || selectedCodexOption?.defaultReasoningEffort || '' : selectedCodexOption?.defaultReasoningEffort || ''
-
   const load = useCallback(async () => {
     setBusyAction('load'); setError('')
     try {
@@ -195,10 +187,7 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
         <div className="settings-number-grid"><label><span>上下文窗口 Token</span><input type="number" min="8192" max="1000000" step="1024" disabled={!repositoryPath} value={qaSettings.contextWindowTokens} onChange={(event) => setQaSettings((current) => ({ ...current, contextWindowTokens: Number(event.target.value) }))} /></label><label><span>保留近期完整轮次</span><input type="number" min="1" max="8" step="1" disabled={!repositoryPath} value={qaSettings.recentExchangeLimit} onChange={(event) => setQaSettings((current) => ({ ...current, recentExchangeLimit: Number(event.target.value) }))} /></label></div><p className="qa-provider-note">研究契约、会话记忆、近期完整轮次、本轮问题和证据包采用显式预算，同时预留最大输出 Token 与安全余量。</p>
         {qaSettings.answerProvider === 'codex-subscription' && <div className="qa-provider-pane" data-testid="qa-provider-codex">
           <div className={`codex-status-card ${codexStatus.ready ? 'ready' : 'missing'}`}><div className="codex-status-icon">{codexStatus.ready ? <CheckCircle2 size={20} /> : <ShieldCheck size={20} />}</div><div><strong>{codexStatus.statusLabel}</strong><span>{codexStatus.version || '未检测到版本'}</span><p>{codexStatus.diagnostic}</p></div><div className="codex-status-actions"><button disabled={busyAction === 'load'} onClick={() => void load()}><RefreshCw className={busyAction === 'load' ? 'spin' : ''} size={14} />刷新状态</button>{!codexStatus.authenticated && <button className="primary" disabled={!codexStatus.installed || !!busyAction} onClick={() => void beginCodexLogin()}>{busyAction === 'codex-login' ? <LoaderCircle className="spin" size={14} /> : <LogIn size={14} />}登录 ChatGPT</button>}</div></div>
-          <div className="qa-api-fields qa-codex-selection">
-            <label><span>Codex 模型</span><select disabled={!repositoryPath} value={qaSettings.codexModel} onChange={(event) => setQaSettings((current) => ({ ...current, codexModel: event.target.value, codexReasoningEffort: '' }))}><option value="">自动（{codexStatus.configuredModel || 'Codex 默认'}）</option>{codexStatus.availableModels.map((model) => <option key={model.id} value={model.id}>{model.displayName}</option>)}{qaSettings.codexModel && !codexStatus.availableModels.some((model) => model.id === qaSettings.codexModel) && <option value={qaSettings.codexModel}>{qaSettings.codexModel}（当前未发现）</option>}</select></label>
-            <label><span>推理强度</span><select disabled={!repositoryPath} value={qaSettings.codexReasoningEffort} onChange={(event) => setQaSettings((current) => ({ ...current, codexReasoningEffort: event.target.value }))}><option value="">自动（{reasoningLabels[automaticReasoningEffort] || automaticReasoningEffort || '模型默认'}）</option>{supportedReasoningEfforts.map((effort) => <option key={effort} value={effort}>{reasoningLabels[effort] || effort}</option>)}</select></label>
-          </div><small className="qa-provider-note">已从本机 Codex 识别 {codexStatus.availableModels.length} 个可选模型；客户端只读取模型元数据，不读取或复制 token、cookie、API Key。</small>
+          <small className="qa-provider-note">已从本机 Codex 识别 {codexStatus.availableModels.length} 个可选模型。每次对话的模型与推理强度在智能问答输入框中选择；客户端只读取模型元数据，不读取或复制 token、cookie、API Key。</small>
         </div>}
         {qaSettings.answerProvider === 'compatible-api' && <div className="qa-provider-pane" data-testid="qa-provider-api">
           <p className="qa-provider-note">兼容现有 Chat Completions SSE 服务。API Key 仍只从进程环境变量读取，不写入 SQLite 或日志。</p>

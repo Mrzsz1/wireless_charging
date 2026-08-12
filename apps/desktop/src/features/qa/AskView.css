@@ -2,4 +2,13 @@
 .qa-load-more,.qa-load-older{display:block;margin:9px auto;border:1px solid #c4dce8;background:#fff;color:#26789f;border-radius:4px;padding:6px 10px;font-size:10px;cursor:pointer}.qa-load-more:disabled,.qa-load-older:disabled{opacity:.55;cursor:wait}
 .qa-retrieval-diagnostics{margin:0 12px 10px;padding:9px 10px;border:1px solid #dce7ed;border-radius:5px;background:#f6fafc;color:#667f8f;font-size:9px}.qa-retrieval-diagnostics>div{display:flex;align-items:center;justify-content:space-between;gap:7px}.qa-retrieval-diagnostics strong{color:#365c73;font-size:10px}.qa-retrieval-diagnostics p{margin:6px 0 4px;line-height:1.55;overflow-wrap:anywhere}.qa-retrieval-diagnostics small{font-size:8px;color:#8495a0}
 .qa-context-budget{margin:0 12px 10px;padding:9px 10px;border:1px solid #cfe0e9;border-radius:5px;background:#f8fbfd;color:#607887;font-size:9px}.qa-context-budget>div{display:flex;align-items:center;justify-content:space-between;gap:7px}.qa-context-budget strong{color:#315c74;font-size:10px}.qa-context-budget p{margin:6px 0 4px;line-height:1.55}.qa-context-budget small{display:block;margin-top:3px;font-size:8px;line-height:1.45;color:#80939f;overflow-wrap:anywhere}
-@media(prefers-reduced-motion:reduce){.qa-thinking-chain .spin{animation:none}}
+@media(prefers-reduced-motion:reduce){.qa-thinking-chain .spin{animation:none}}.qa-composer-footer{gap:10px;padding-left:10px}
+.qa-composer-controls{min-width:0;display:flex;align-items:center;gap:4px;overflow-x:auto;color:#6b8192}
+.qa-composer-controls>span{display:flex;align-items:center;gap:4px;white-space:nowrap;font-size:9px;padding:4px 6px}
+.qa-composer-controls>span.ready{color:#39775d}
+.qa-composer-controls label{display:block;min-width:0}
+.qa-composer-controls select{max-width:160px;border:1px solid transparent;border-radius:4px;background:transparent;color:#526d7f;padding:4px 20px 4px 6px;font:inherit;font-size:10px;outline:0}
+.qa-composer-controls select:hover,.qa-composer-controls select:focus-visible{border-color:#b9d7e6;background:#f6fafc}
+.qa-composer-controls select:disabled{opacity:.55}
+.qa-citation-status.mixed{border-color:#e4d098;background:#fff9eb;color:#7c6324}
+.qa-message.mixed .qa-bubble{border-color:#dfce9e;background:#fffdf7}

@@ -4,7 +4,7 @@ import test from 'node:test'
 
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8')
 
-test('all answer engine editing lives in SettingsView', () => {
+test('provider connection settings stay global while per-turn Codex controls live in composer', () => {
   const settings = read('../src/features/settings/SettingsView.tsx')
   const ask = read('../src/features/qa/AskView.tsx')
   assert.match(settings, /data-testid="qa-engine-settings"/)
@@ -13,9 +13,12 @@ test('all answer engine editing lives in SettingsView', () => {
   assert.match(settings, /证据浏览模式/)
   assert.match(settings, /上下文窗口 Token/)
   assert.match(settings, /getCodexSubscriptionStatus/)
-  assert.match(settings, /自动（\{codexStatus\.configuredModel/)
-  assert.match(settings, /supportedReasoningEfforts/)
-  assert.match(settings, /codexReasoningEffort/)
+  assert.doesNotMatch(settings, /qa-codex-selection/)
+  assert.match(settings, /每次对话的模型与推理强度在智能问答输入框中选择/)
+  assert.match(ask, /aria-label="Codex 模型"/)
+  assert.match(ask, /aria-label="推理强度"/)
+  assert.match(ask, /supportedReasoningEfforts/)
+  assert.match(ask, /codexReasoningEffort/)
   assert.match(ask, /data-testid="qa-open-settings"/)
   assert.doesNotMatch(ask, /Luna 设置|qa-settings-dialog|saveLunaSettings|settingsDraft/)
 })
@@ -54,6 +57,8 @@ test('QA generation UI exposes validation-driven Thinking and compact composer c
   assert.match(ask, /Thinking · \{elapsedSeconds\}s/)
   assert.match(ask, /引用与完整性校验/)
   assert.match(ask, /ref=\{composerRef\}/)
+  assert.match(ask, /codexModel: settings\.codexModel/)
+  assert.match(ask, /codexReasoningEffort: settings\.codexReasoningEffort/)
   for (const contract of ['.qa-chat-heading{grid-row:1}', '.qa-error{grid-row:2}', '.qa-messages{grid-row:3}', '.qa-composer{grid-row:4}', 'max-height:148px']) {
     assert.ok(css.includes(contract), contract)
   }
