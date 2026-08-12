@@ -742,3 +742,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 23: 文献库内容分类与客户端 0.12.2
+
+**Date**: 2026-08-12
+**Task**: 文献库内容分类与客户端 0.12.2
+**Branch**: `master`
+
+### Summary
+
+文献库新增按 Wiki 页面类型的中文分类；map 统一显示为知识地图；方法库隔离 method；完成 P5/GUI、Rust/Python、构建、安装和版本验证。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `66a9bb3` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
