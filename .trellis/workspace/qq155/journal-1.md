@@ -943,3 +943,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 29: 修复结构化回答章节契约并完成发行编译
+
+**Date**: 2026-08-13
+**Task**: 修复结构化回答章节契约并完成发行编译
+**Branch**: `master`
+
+### Summary
+
+使用稳定章节 ID 和后端标题修复文献问答章节歧义，兼容旧版拆分输出，区分结构校验与引用校验错误，并成功生成 0.12.4 MSI/NSIS 安装包。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `09905a4` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
