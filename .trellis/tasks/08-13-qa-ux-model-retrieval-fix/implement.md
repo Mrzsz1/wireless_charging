@@ -140,4 +140,4 @@ git status --short
 - [x] Thinking 阶段事件、实时计时、显式 validation 阶段与紧凑 composer 完成。
 - [x] Trellis backend/frontend 稳定契约已同步。
 - [x] 前端 build、QA Settings 5/5、P1 17/17、Rust 96/96、fmt、Clippy、P3/P5、GUI 探针、Wiki lint 和准确率审计测试通过。
-- [ ] Git 提交、0.12.4 release 构建和启动验证待最后执行。
+- [x] Git 工作提交 `fdef9b7`；0.12.4 MSI/NSIS 构建完成，Release EXE ProductVersion、窗口句柄与响应状态验证通过。

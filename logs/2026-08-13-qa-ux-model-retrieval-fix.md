@@ -27,3 +27,10 @@
 - 未修改 Raw、Wiki、正式词表、Graphify 派生正文或 B 类页面。
 - 未读取、返回或持久化 Codex token/cookie/API Key。
 - 用户未跟踪的智能问答交接文档未纳入提交。
+
+## 0.12.4 构建产物
+
+- Release EXE：`apps/desktop/src-tauri/target/release/app.exe`，26,875,904 bytes，SHA-256 `069DC929F0A54A71F788C0325430A95A4A571D50B1769F242AFEC78802391AF2`。
+- MSI：`apps/desktop/src-tauri/target/release/bundle/msi/Wireless Charging Research Workbench_0.12.4_x64_en-US.msi`，15,384,576 bytes，SHA-256 `C977DC577C94D7A4D4FF54EC549BAA38028508B637F0687D1ADD34C21154143A`。
+- NSIS：`apps/desktop/src-tauri/target/release/bundle/nsis/Wireless Charging Research Workbench_0.12.4_x64-setup.exe`，11,285,990 bytes，SHA-256 `ACF30EFFB5BDDAB8EF9C758E5C78EB09D73FAF84757C7C9F0E234A31CA4C3BF7`。
+- `app.exe` 与 NSIS ProductVersion 均为 0.12.4；Release EXE 启动后窗口句柄非零且进程响应正常。
