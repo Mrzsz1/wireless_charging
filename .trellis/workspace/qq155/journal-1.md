@@ -875,3 +875,38 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 27: 智能问答第二轮可靠性修复与 0.12.3 发布
+
+**Date**: 2026-08-12
+**Task**: 智能问答第二轮可靠性修复与 0.12.3 发布
+**Branch**: `master`
+
+### Summary
+
+完成多轮 RetrievalQuery、零证据 unverified、即时取消与 blocking retrieval、失败交换精确重试、Graphify 关系召回；通过全量门禁，构建并安装验证桌面客户端 0.12.3。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `6592a21` | (see git log) |
+| `69e73f1` | (see git log) |
+| `d43a029` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

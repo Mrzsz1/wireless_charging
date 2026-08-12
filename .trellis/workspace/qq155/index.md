@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 26
+- **Total Sessions**: 27
 - **Last Active**: 2026-08-12
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~877 | Active |
+| `journal-1.md` | ~912 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 27 | 2026-08-12 | 智能问答第二轮可靠性修复与 0.12.3 发布 | `6592a21`, `69e73f1`, `d43a029` | `master` |
 | 26 | 2026-08-12 | 生成并安装智能问答 P0-P1 客户端 | `0ef2382` | `master` |
 | 25 | 2026-08-12 | 完成智能问答 P0-P1 | `dcb0cb4` | `master` |
 | 24 | 2026-08-12 | 智能问答审查与私有 GitHub 发布 | `d46f4b1`, `8e863b9` | `master` |
