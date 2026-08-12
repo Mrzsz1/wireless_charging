@@ -25,8 +25,15 @@ export default function MarkdownMessage({ content, evidence, onCitation }: Markd
         if (href?.startsWith('evidence:')) {
           const id = href.slice('evidence:'.length)
           const item = byId.get(id)
+          const color = Number.parseInt(id.slice(1), 10) % 8
           return item
-            ? <button type="button" className="qa-inline-citation" onClick={() => onCitation(item)}>[{id}]</button>
+            ? <a
+                href={`#evidence-${id}`}
+                className={`qa-inline-citation citation-color-${color}`}
+                aria-label={`打开证据 ${id}`}
+                title={`打开证据 ${id}`}
+                onClick={(event) => { event.preventDefault(); onCitation(item) }}
+              >[{id}]</a>
             : <span className="qa-invalid-citation" title="回答引用了未登记的证据">[{id}]</span>
         }
         return href ? <a href={href} target="_blank" rel="noreferrer noopener">{children}</a> : <span>{children}</span>

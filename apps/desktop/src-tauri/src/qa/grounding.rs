@@ -320,31 +320,98 @@ pub(super) fn claim_segments(answer: &str) -> Vec<String> {
     let projected = claim_text_projection(answer);
     let mut segments = Vec::new();
     let mut current = String::new();
-    let characters = projected.chars().collect::<Vec<_>>();
-    for (index, character) in characters.iter().copied().enumerate() {
+    let characters = projected.char_indices().collect::<Vec<_>>();
+    let mut index = 0;
+    while index < characters.len() {
+        let (byte_index, character) = characters[index];
         current.push(character);
         let period_boundary = character == '.'
             && characters
                 .get(index + 1)
-                .map_or(true, |next| next.is_whitespace());
-        if period_boundary
-            || matches!(
-                character,
-                '\n' | '。' | '！' | '？' | '!' | '?' | ';' | '；'
-            )
-        {
+                .map_or(true, |(_, next)| next.is_whitespace());
+        let line_boundary = character == '\n';
+        let sentence_boundary =
+            period_boundary || matches!(character, '。' | '！' | '？' | '!' | '?' | ';' | '；');
+        if sentence_boundary {
+            let boundary_end = byte_index + character.len_utf8();
+            if let Some(suffix_end) = adjacent_citation_suffix_end(&projected, boundary_end) {
+                current.push_str(&projected[boundary_end..suffix_end]);
+                while index + 1 < characters.len() && characters[index + 1].0 < suffix_end {
+                    index += 1;
+                }
+            }
+        }
+        if line_boundary || sentence_boundary {
             let segment = current.trim();
             if !segment.is_empty() {
                 segments.push(segment.to_string());
             }
             current.clear();
         }
+        index += 1;
     }
     let remainder = current.trim();
     if !remainder.is_empty() {
         segments.push(remainder.to_string());
     }
     segments
+}
+
+/// Returns the end of citation tokens immediately following sentence
+/// punctuation on the same line. This keeps the common academic spelling
+/// `claim. [E1] [E2]` in one structural claim without allowing a citation in a
+/// later paragraph to support earlier prose.
+fn adjacent_citation_suffix_end(value: &str, start: usize) -> Option<usize> {
+    fn skip_horizontal_space(value: &str, cursor: &mut usize) {
+        while let Some(character) = value[*cursor..].chars().next() {
+            if matches!(character, ' ' | '\t' | '\r') {
+                *cursor += character.len_utf8();
+            } else {
+                break;
+            }
+        }
+    }
+
+    let mut cursor = start;
+    skip_horizontal_space(value, &mut cursor);
+    let wrapper = value[cursor..].chars().next().and_then(|character| {
+        let closing = match character {
+            '(' => ')',
+            '（' => '）',
+            _ => return None,
+        };
+        cursor += character.len_utf8();
+        Some(closing)
+    });
+    skip_horizontal_space(value, &mut cursor);
+
+    let mut citation_count = 0;
+    loop {
+        let bytes = value.as_bytes();
+        if bytes.get(cursor) != Some(&b'[') || bytes.get(cursor + 1) != Some(&b'E') {
+            break;
+        }
+        let mut end = cursor + 2;
+        while bytes.get(end).is_some_and(u8::is_ascii_digit) {
+            end += 1;
+        }
+        if end == cursor + 2 || bytes.get(end) != Some(&b']') {
+            break;
+        }
+        citation_count += 1;
+        cursor = end + 1;
+        skip_horizontal_space(value, &mut cursor);
+    }
+    if citation_count == 0 {
+        return None;
+    }
+    if let Some(closing) = wrapper {
+        if value[cursor..].chars().next() != Some(closing) {
+            return None;
+        }
+        cursor += closing.len_utf8();
+    }
+    Some(cursor)
 }
 
 fn is_factual_claim(segment: &str) -> bool {
@@ -899,5 +966,30 @@ mod tests {
             validate_citations(&cited_supplement, &[evidence("E1")]).grounding_status,
             "invalid"
         );
+    }
+
+    #[test]
+    fn citations_immediately_after_sentence_punctuation_support_the_previous_claim() {
+        for answer in [
+            "论文直接研究波干扰。[E1]",
+            "论文直接研究波干扰。 [E1] [E2]",
+            "论文直接研究波干扰。（[E1]）",
+            "论文直接研究波干扰。([E1])",
+        ] {
+            let validation = validate_citations(answer, &[evidence("E1"), evidence("E2")]);
+            assert!(validation.supported, "{answer}: {validation:?}");
+            assert_eq!(validation.claim_count, 1);
+            assert_eq!(validation.cited_claim_count, 1);
+        }
+    }
+
+    #[test]
+    fn citation_in_a_later_paragraph_does_not_support_the_previous_claim() {
+        let validation =
+            validate_citations("论文直接研究波干扰。\n\n参考来源：[E1]", &[evidence("E1")]);
+
+        assert!(!validation.supported);
+        assert_eq!(validation.cited_claim_count, 0);
+        assert!(!validation.unsupported_claims.is_empty());
     }
 }

@@ -1,0 +1,28 @@
+{
+  "id": "qa-citation-parser-links",
+  "name": "qa-citation-parser-links",
+  "title": "修复句末引用解析与紧凑超链接展示",
+  "description": "",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "qq155",
+  "assignee": "qq155",
+  "createdAt": "2026-08-13",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "08-13-qa-structured-answer-rendering"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

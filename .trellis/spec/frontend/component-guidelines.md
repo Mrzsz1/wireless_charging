@@ -116,6 +116,9 @@ For Codex subscription mode, the per-turn model and reasoning-effort controls li
 
 `mixed` QA messages remain fully visible but use the amber citation-summary treatment to distinguish the explicitly labelled model-supplement section. The summary must continue to say that semantic entailment is not automatically checked.
 
+Inline QA evidence tokens render as compact, keyboard-focusable links labelled only `[E#]`; activating one opens its registered source through the existing repository navigation callback. Evidence detail views use a short “打开论文原文/书籍来源/知识库来源” link and must not expose long local `sourcePath` or `markdownPath` strings in the visible page. Full paths remain available in the audit bundle.
+While a structured answer streams, do not render its incomplete JSON as Markdown. Keep the operational Thinking projection visible until the backend validates and renders the complete answer. Map each evidence ID deterministically into the shared eight-color citation palette; color is supplementary to the visible ID, focus state, and accessible label.
+
 ### Contextual help convention
 
 Use `components/DelayedHelp.tsx` for optional page- or section-level explanatory copy that would otherwise create persistent visual noise. Do not hide field values, validation errors, security state, or action consequences in a tooltip.

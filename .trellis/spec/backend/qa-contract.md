@@ -78,6 +78,7 @@ Before validation, one backend-owned parse pipeline protects Markdown literal/li
 - Old messages hydrate with `runManifest=None`. The manifest excludes endpoint, API key, token, cookie, question/answer text, raw provider payload, and chain-of-thought.
 
 Claim splitting treats a period followed by whitespace/end as a sentence boundary even when the preceding character is a digit (`There are 2. Next ...`). Decimal and URL dots are naturally retained because they are followed by a digit/domain character. For GFM tables, the header and separator are structural; each data row is an independent factual claim and requires its own current non-Graphify citation.
+Citation tokens immediately following sentence punctuation on the same line remain attached to that claim (`事实。 [E1] [E2]` and `事实。（[E1]）`). Attachment never crosses a newline, so a later reference paragraph cannot retroactively support earlier prose.
 
 ## 6. Zero-Evidence Contract
 
@@ -107,6 +108,9 @@ Claim splitting treats a period followed by whitespace/end as a sentence boundar
 
 ## 9. Answer Rendering Contract
 
+- Evidence-backed Codex/API generations use `qa-structured-answer-v1` JSON rather than model-authored Markdown. Each claim carries explicit `evidenceIds`; backend validation checks existence and at least one non-Graphify source directly from this array, then deterministically renders Markdown. Punctuation, prose line breaks, headings, labels, and source locations are therefore never rediscovered as claim boundaries.
+- The structured contract contains ordered sections, optional short group labels, claims, and a separate supplement array. The supplement cannot carry evidence tokens or repository locations and the rendered mixed-answer projection retains the existing trusted-context isolation boundary.
+- The backend appends one generated `参考证据` section. It renders only `[E#]`, source kind, and compact location; full title/path metadata remains in the evidence payload and audit bundle rather than visible answer prose.
 - Persisted content remains Markdown source text. The desktop renders Markdown, GFM tables, fenced code, and KaTeX through a lazy-loaded renderer.
 - Raw HTML is not enabled. Remote images are replaced by text placeholders rather than fetched. Only `http(s)` links are emitted as external anchors.
 - Before rendering, current `[E#]` tokens are projected to internal `evidence:` links. Known IDs open the evidence detail; unknown IDs remain visibly invalid.

@@ -3,6 +3,7 @@ mod graph;
 mod grounding;
 mod metrics;
 mod session;
+mod structured_answer;
 
 pub use context::{
     CitationRepair, ContextBudget, ContextPlan, ProviderRunMetadata, QaRunManifest,
@@ -2823,8 +2824,27 @@ pub fn audit_generated_answer(
     answer: &str,
     metadata: &ProviderRunMetadata,
 ) -> AnswerAudit {
-    let (answer, citation_repair) = repair_unknown_citations(answer, &context.evidence);
-    let citation_validation = validate_citations(&answer, &context.evidence);
+    let structured = metadata.enforce_answer_schema
+        && !context.evidence.is_empty()
+        && metadata.provider != PROVIDER_OFFLINE;
+    let (answer, citation_repair, citation_validation) = if structured {
+        match structured_answer::parse_validate_render(answer, &context.intent, &context.evidence) {
+            Ok(result) => (
+                result.markdown,
+                CitationRepair::default(),
+                result.validation,
+            ),
+            Err(error) => (
+                answer.to_string(),
+                CitationRepair::default(),
+                structured_answer::invalid_validation(error),
+            ),
+        }
+    } else {
+        let (answer, citation_repair) = repair_unknown_citations(answer, &context.evidence);
+        let citation_validation = validate_citations(&answer, &context.evidence);
+        (answer, citation_repair, citation_validation)
+    };
     let completeness = context::validate_answer_completeness(
         &context.intent,
         &answer,
