@@ -310,3 +310,13 @@
 - 分类测试 4/4、分页测试 4/4、Rust 56/56、Python 49/49、前端 build、P5 与真实 GUI E2E 通过。
 - 0.12.2 MSI/NSIS 已构建，NSIS 已静默安装并通过注册表、ProductVersion 和启动验证。
 - 详情：`logs/2026-08-12-library-content-categories.md`
+
+## [2026-08-12] desktop | 智能问答第二轮可靠性修复与客户端 0.12.3
+
+- 多轮指代先构造受限 `RetrievalQuery` 再检索；旧引用、failed/cancelled/unverified 历史不进入后续上下文。
+- 零证据回答改为明确无来源的 `unverified` 状态；Codex/API 可继续输出一般知识，离线模式返回确定性提示。
+- request ID 在前端生成并立即可取消；阻塞检索移入 worker，失败交换成对持久化并可精确重试。
+- Graphify 增加 relation-only、neighbor-only、community 与 source-location 召回，同时保持真实 Wiki 回链闸门。
+- Rust 67/67、前端 P1 13/13、Gold 10/10、两书 Recall@5 1.000 / 0.986667、P3/P5 与真实 release strict GUI 通过。
+- 0.12.3 MSI/NSIS 已构建，NSIS 已静默安装并通过注册表、ProductVersion、主窗口响应验证。
+- 详情：`logs/2026-08-12-qa-reliability-round-2.md`

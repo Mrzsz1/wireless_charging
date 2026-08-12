@@ -1053,3 +1053,13 @@ P2 将 P1 的五组深度样板扩展到全部论文与方法页，并把固定�
 5. 分类控件使用 `aria-pressed`、可见焦点态与稳定 `data-testid`；窄窗口允许分类栏横向滚动，不挤压内容卡片。
 6. 0.12.2 验收：分类测试 4/4、分页测试 4/4、Rust 56/56、Python 49/49、前端 build、P5 与真实 GUI E2E 均通过；未修改 Raw、Wiki 正文、B 类页面或正式词表。
 7. 发布产物：app 22,819,328 bytes，SHA-256 `56A202BD2E1C8F613CDD547F666AB80C6BE73F80000E85FB327191809C92F790`；MSI 11,767,808 bytes，SHA-256 `A947291367F501AC673ED527F41DE9784777DC6F64E8B3618EF04FCD0390EDA4`；NSIS 8,163,023 bytes，SHA-256 `3C19CA536CDF6DE331C49268B9199057AC7D35B1D1481F0E99260FB71B8F1E80`。NSIS 已静默安装，注册表、ProductVersion 与启动探针均确认 0.12.2。
+
+#### 13.23 智能问答第二轮可靠性修复与客户端 0.12.3（2026-08-12）
+
+1. 多轮问答在检索前读取 completed-only 历史并构造受限 `RetrievalQuery`；指代补全只加入确定性实体，不复用旧 `[E#]`，failed/cancelled/unverified 均不进入后续上下文。
+2. 零证据回答使用独立 `unverified` 状态。Codex/API 可生成模型一般知识，但服务器强制添加无来源声明并清理伪引用；离线模式只返回确定性无来源提示。
+3. 客户端提交前生成 request ID 并立即启用停止；后端先登记取消，SQLite/FTS 与 Graphify 进入 blocking worker，Codex ask-time 状态使用短 TTL 缓存。
+4. 首轮与既有会话失败均成对保存原始 user 问题和 failed assistant；前端刷新后仍可精确重试。取消与 repository switch 不落库。
+5. Graphify 初始召回覆盖节点描述、来源位置、community、关系和一跳邻居，支持 relation-only 与 neighbor-only 查询；最终候选仍须映射真实且已索引的 Wiki 页面。
+6. 0.12.3 验收：Rust 67/67、前端 P1 13/13、QA Settings 4/4、Gold 10/10、两书 Recall@5 1.000 / 0.986667，P3/P5 与真实 release strict GUI 通过。
+7. 发布产物：app 23,533,056 bytes，SHA-256 `FEB7DBAEC9DF7590E55B48CD4D4F39ED7C0A6A591AE92590315DF5CB98912FE5`；MSI 12,333,056 bytes，SHA-256 `494947E18C33ED222B99B365D86BC9B0216F9DCB1C0E50F575A38E684BB655DC`；NSIS 8,489,800 bytes，SHA-256 `B49C0B2286B7851FDCE30FFD2E0AEFBA506DDDFC7A05D893AC9D9ACE885E52FA`。NSIS 已静默安装，注册表、ProductVersion/FileVersion 与主窗口响应探针均确认 0.12.3。

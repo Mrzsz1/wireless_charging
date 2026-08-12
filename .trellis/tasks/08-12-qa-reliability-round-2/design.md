@@ -255,4 +255,3 @@ repositoryId + graph path + file length + modified timestamp
 - 论文证据保留 sourceLocation，书籍证据保留 physical pages。
 - provider 失败不转换为离线完成；API Key、Codex token/cookie 不进入 SQLite、日志或事件。
 - 不修改 Raw、Wiki、正式词表和 B 类页面。
-
