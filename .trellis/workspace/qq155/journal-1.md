@@ -910,3 +910,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 28: 智能问答准确率与上下文工程整改
+
+**Date**: 2026-08-12
+**Task**: 智能问答准确率与上下文工程整改
+**Branch**: `master`
+
+### Summary
+
+完成检索相关段落、token-aware 上下文、统一 Prompt Envelope、失败轮次审计 manifest、Markdown 感知引用门禁及 held-out 双盲评测；全量验证通过并生成桌面安装包。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `7b40ce0` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
