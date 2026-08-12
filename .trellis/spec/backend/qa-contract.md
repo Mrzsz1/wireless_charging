@@ -62,13 +62,13 @@ Completed, unverified, and failed exchanges save both the exact user question an
 
 Claim coverage is deterministic structural validation, not semantic entailment. Current completed answers report `entailmentChecked=false`; UI copy must say that citation coverage was checked but citation semantics were not automatically verified. Do not rename this state to factual correctness.
 
-Before validation, a restricted repair may delete an unknown `[E#]` token only when the same claim already contains a known non-Graphify citation. Backend extraction and repair use the same Markdown-aware boundary as frontend projection: fenced/inline code, math, escapes, and existing Markdown links cannot supply citations or authorize repair. Repair never adds a citation, rewrites a fact, repairs an uncited claim, or treats Graphify as factual support. The removed IDs are recorded in the run manifest.
+Before validation, one backend-owned parse pipeline protects Markdown literal/link regions, canonicalizes only provably equivalent current-evidence citation spellings, splits claims, validates completeness/grounding, and persists the normalized Markdown consumed by the frontend. `[E1；E5]`, `[E1, E5]`, and a single known ID with source-location prose may become independent `[E#]` tokens with location outside the brackets. Unknown IDs, ranges, ambiguous prose, code, math, escapes, and Markdown links are never canonicalized. A restricted repair may then delete an unknown `[E#]` token only when the same claim already contains a known non-Graphify citation. Repair never adds a citation, rewrites a fact, repairs an uncited claim, guesses evidence, or treats Graphify as factual support. Normalized group count and removed IDs are recorded in the run manifest.
 
 ## 5.1 Prompt and Run Manifest
 
 - Codex and compatible API share one provider-neutral `PromptEnvelope` with six ordered layers: `research_contract`, `session_memory`, `recent_exchanges`, `current_query`, `evidence_bundle`, and `answer_contract`.
 - History, current query, and evidence are JSON data. `<`, `>`, and `&` are escaped so embedded content cannot close an envelope layer. Provider-specific code may wrap the envelope but must not define a divergent factual contract.
-- Remote answers use six fixed Markdown headings: 结论、模型与适用前提、证据综合、方法或比较、边界/冲突/未覆盖项、库水位与复现信息. Solve, relationship, and novelty each have explicit required elements.
+- Solve, relationship, and novelty answers use six fixed Markdown headings: 结论、模型与适用前提、证据综合、方法或比较、边界/冲突/未覆盖项、库水位与复现信息. Literature lookup uses four headings: 结论、库内相关论文、主题/模型/方法、边界与复现信息, requires title/relevance/method/boundary/location, and keeps at least two factual claims. All multi-source citations are independent tokens such as `[E1] [E5]`; source locations stay outside citation brackets.
 - Every assistant message stores schema/prompt/retriever/context versions, provider, requested/resolved model, temperature where applicable, output/context limits, prompt SHA-256, index snapshot SHA-256, recent/compacted/coreference-resolved history IDs, evidence checksums, context budget, repair record, and completeness result in `run_manifest`.
 - Answers rejected by citation or completeness gates persist the rejected answer, evidence, validation result, and run manifest on the failed assistant message; pre-context retrieval failures retain an empty legacy manifest because no prompt/evidence snapshot exists.
 - QA column migrations are idempotent column-existence checks. This module must not overwrite SQLite's global `PRAGMA user_version`, because compile-center and other subsystems share the same repository database.
@@ -97,7 +97,7 @@ Claim splitting treats a period followed by whitespace/end as a sentence boundar
 
 ## 8. Provider and Credential Boundaries
 
-- Codex readiness is probed only for `codex-subscription`; ask-time results use a short 30-second cache.
+- Codex readiness is probed only for `codex-subscription`; ask-time results use a short 30-second cache. The secret-free status projection reads only top-level `model`/`model_reasoning_effort` and list-visible model metadata from Codex home. Empty QA overrides follow that projected selection; explicit model/reasoning values are passed to `codex exec` while `--ignore-user-config`, `--ignore-rules`, and read-only sandbox isolation remain enabled.
 - Settings-page status refresh bypasses the TTL and refreshes the cache.
 - Offline and compatible API requests never probe Codex.
 - Codex token/cookie and API key values are never returned, persisted, or added to ordinary logs/errors.

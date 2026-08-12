@@ -11,6 +11,7 @@ const booksSource = readFileSync(new URL('../src/features/books/CoreBooksView.ts
 const graphSource = readFileSync(new URL('../src/features/graph/GraphView.tsx', import.meta.url), 'utf8')
 const comparisonSource = readFileSync(new URL('../src/features/comparison/ComparisonView.tsx', import.meta.url), 'utf8')
 const qaViewSource = readFileSync(new URL('../src/features/qa/AskView.tsx', import.meta.url), 'utf8')
+const qaMarkdownSource = readFileSync(new URL('../src/features/qa/MarkdownMessage.tsx', import.meta.url), 'utf8')
 const researchTrailSource = readFileSync(new URL('../src/features/research-trail/ResearchTrailPanel.tsx', import.meta.url), 'utf8')
 const compileViewSource = readFileSync(new URL('../src/features/compile/CompileCenterView.tsx', import.meta.url), 'utf8')
 const ingestViewSource = readFileSync(new URL('../src/features/ingest/LiteratureIngestView.tsx', import.meta.url), 'utf8')
@@ -62,7 +63,7 @@ const checks = [
   ['p2 rust commands', ['list_core_books', 'get_book_chapter', 'graph_overview', 'graph_path', 'build_comparison'].every((name) => rustSource.includes(name))],
   ['p3 qa navigation', appSource.includes("label: '\u667a\u80fd\u95ee\u7b54'") && appSource.includes("view: 'qa'") && appSource.includes('<AskView')],
   ['p3 qa service', ['askLuna', 'cancelAnswer', 'listChatSessions', 'getLunaSettings'].every((name) => serviceSource.includes(name))],
-  ['p3 evidence interface', ['\u672c\u8f6e\u8bc1\u636e', '\u5e93\u6c34\u4f4d', 'qa-inline-citation', '\u79bb\u7ebf\u8bc1\u636e'].every((name) => qaViewSource.includes(name))],
+  ['p3 evidence interface', ['\u672c\u8f6e\u8bc1\u636e', '\u5e93\u6c34\u4f4d', '\u8bc1\u636e\u6d4f\u89c8'].every((name) => qaViewSource.includes(name)) && qaMarkdownSource.includes('qa-inline-citation')],
   ['p3 rust commands', ['prepare_question', 'ask_luna', 'cancel_answer', 'list_chat_sessions', 'save_luna_settings'].every((name) => rustSource.includes(name))],
   ['p3 chat schema', ['chat_sessions', 'chat_messages', 'chat_evidence', 'user_version'].every((name) => qaRustSource.includes(name))],
   ['p3 secret boundary', qaRustSource.includes('env::var(&settings.api_key_env)') && !qaRustSource.includes('luna.api_key"')],

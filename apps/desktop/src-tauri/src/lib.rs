@@ -2935,9 +2935,9 @@ async fn ask_luna(
         waterline: context.waterline.clone(),
     });
 
-    let codex_ready = if settings.answer_provider == qa::PROVIDER_CODEX {
+    let codex_status = if settings.answer_provider == qa::PROVIDER_CODEX {
         if cancel_flag.load(Ordering::SeqCst) {
-            false
+            None
         } else {
             let cached = state
                 .codex_status_cache
@@ -2947,22 +2947,38 @@ async fn ask_luna(
                 .filter(|(sampled, _)| sampled.elapsed() < Duration::from_secs(30))
                 .map(|(_, status)| status);
             if let Some(status) = cached {
-                status.ready
+                Some(status)
             } else {
                 match tauri::async_runtime::spawn_blocking(codex_subscription::get_status).await {
                     Ok(status) => {
                         if let Ok(mut cache) = state.codex_status_cache.lock() {
                             *cache = Some((Instant::now(), status.clone()));
                         }
-                        status.ready
+                        Some(status)
                     }
-                    Err(_) => false,
+                    Err(_) => None,
                 }
             }
         }
     } else {
-        false
+        None
     };
+    let codex_ready = codex_status.as_ref().is_some_and(|status| status.ready);
+    let (effective_codex_model, effective_codex_effort) = codex_status
+        .as_ref()
+        .map(|status| {
+            codex_subscription::resolve_model_selection(
+                &settings.codex_model,
+                &settings.codex_reasoning_effort,
+                status,
+            )
+        })
+        .unwrap_or_else(|| {
+            (
+                settings.codex_model.clone(),
+                settings.codex_reasoning_effort.clone(),
+            )
+        });
 
     if cancel_flag.load(Ordering::SeqCst) {
         let _ = on_event.send(qa::AnswerStreamEvent::Cancelled {
@@ -2984,7 +3000,8 @@ async fn ask_luna(
         match settings.answer_provider.as_str() {
             qa::PROVIDER_CODEX if codex_ready => {
                 let prompt = qa::build_codex_prompt(&context);
-                let model = settings.codex_model.clone();
+                let model = effective_codex_model.clone();
+                let reasoning_effort = effective_codex_effort.clone();
                 let timeout = Duration::from_secs(settings.timeout_seconds);
                 let stream_channel = on_event.clone();
                 let stream_request_id = request_id.clone();
@@ -2993,6 +3010,7 @@ async fn ask_luna(
                     codex_subscription::stream_answer(
                         &prompt,
                         &model,
+                        &reasoning_effort,
                         timeout,
                         &stream_cancel_flag,
                         |content| {
@@ -3069,7 +3087,7 @@ async fn ask_luna(
         Err(error) => {
             let (code, message) = answer_error_parts(&error);
             let model_requested = match settings.answer_provider.as_str() {
-                qa::PROVIDER_CODEX => settings.codex_model.clone(),
+                qa::PROVIDER_CODEX => effective_codex_model.clone(),
                 qa::PROVIDER_API => settings.model.clone(),
                 _ => "deterministic".to_string(),
             };
@@ -3131,6 +3149,10 @@ async fn ask_luna(
         }
     }
 
+    let _ = on_event.send(qa::AnswerStreamEvent::ValidationStarted {
+        request_id: request_id.clone(),
+    });
+
     let persisted = {
         let mut repository = state
             .repository
@@ -3159,7 +3181,7 @@ async fn ask_luna(
             .as_mut()
             .ok_or_else(|| "知识库在问答过程中已关闭".to_string())?;
         let model_requested = match provider.as_str() {
-            qa::PROVIDER_CODEX => settings.codex_model.clone(),
+            qa::PROVIDER_CODEX => effective_codex_model.clone(),
             qa::PROVIDER_API => settings.model.clone(),
             _ => "deterministic".to_string(),
         };
@@ -4273,6 +4295,27 @@ mod tests {
             .iter()
             .filter(|item| item.kind == "book")
             .all(|item| item.physical_page_start.is_some()));
+    }
+
+    #[test]
+    fn wave_interference_literature_lookup_returns_the_indexed_primary_paper() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../..")
+            .canonicalize()
+            .expect("repository root");
+        let mut connection = Connection::open_in_memory().expect("sqlite");
+        db_schema(&connection).expect("schema");
+        rebuild_connection(&mut connection, &root).expect("full index");
+        let context = qa::prepare_question(&connection, &root, "有没有关于波干扰的论文", 14)
+            .expect("question context");
+
+        assert_eq!(context.intent, "literature");
+        assert!(context.evidence.iter().any(|item| {
+            item.kind == "paper"
+                && item
+                    .title
+                    .contains("Concurrent Charging with Wave Interference")
+        }));
     }
 
     #[test]

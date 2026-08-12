@@ -177,6 +177,119 @@ fn citation_tokens(value: &str) -> Vec<CitationToken<'_>> {
     tokens
 }
 
+fn parse_evidence_id(value: &str) -> Option<(&str, &str)> {
+    let value = value.trim_start();
+    let bytes = value.as_bytes();
+    if bytes.first() != Some(&b'E') {
+        return None;
+    }
+    let mut end = 1;
+    while bytes.get(end).is_some_and(u8::is_ascii_digit) {
+        end += 1;
+    }
+    (end > 1).then(|| (&value[..end], &value[end..]))
+}
+
+fn split_id_list(value: &str) -> Option<Vec<&str>> {
+    let mut ids = Vec::new();
+    for part in value.split([',', '，', '、']) {
+        let (id, rest) = parse_evidence_id(part)?;
+        if !rest.trim().is_empty() {
+            return None;
+        }
+        ids.push(id);
+    }
+    (!ids.is_empty()).then_some(ids)
+}
+
+/// Converts only citation spellings that are provably equivalent to current
+/// evidence IDs. It never invents an ID or changes factual prose.
+fn normalize_citation_groups(answer: &str, evidence: &[EvidenceItem]) -> (String, usize) {
+    let known = evidence
+        .iter()
+        .map(|item| item.id.as_str())
+        .collect::<std::collections::HashSet<_>>();
+    let masks = markdown_masks(answer);
+    let bytes = answer.as_bytes();
+    let mut output = String::with_capacity(answer.len());
+    let mut copied_through = 0;
+    let mut index = 0;
+    let mut normalized = 0;
+
+    while index < bytes.len() {
+        if bytes[index] != b'[' || masks.citation_hidden[index] || is_escaped(bytes, index) {
+            index += 1;
+            continue;
+        }
+        let Some(closing) = find_closing_bracket(bytes, &masks.citation_hidden, index + 1) else {
+            break;
+        };
+        let inside = &answer[index + 1..closing];
+        if !inside.trim_start().starts_with('E') {
+            index = closing + 1;
+            continue;
+        }
+
+        let mut rendered_parts = Vec::new();
+        let mut valid = true;
+        for part in inside.split([';', '；']) {
+            let trimmed = part.trim();
+            if let Some(ids) = split_id_list(trimmed) {
+                if ids.iter().all(|id| known.contains(id)) {
+                    rendered_parts.push(
+                        ids.into_iter()
+                            .map(|id| format!("[{id}]"))
+                            .collect::<Vec<_>>()
+                            .join(" "),
+                    );
+                    continue;
+                }
+                valid = false;
+                break;
+            }
+            let Some((id, rest)) = parse_evidence_id(trimmed) else {
+                valid = false;
+                break;
+            };
+            if !known.contains(id) {
+                valid = false;
+                break;
+            }
+            let rest = rest.trim_start();
+            let location = rest
+                .strip_prefix(',')
+                .or_else(|| rest.strip_prefix('，'))
+                .or_else(|| rest.strip_prefix('、'))
+                .map(str::trim)
+                .filter(|value| !value.is_empty());
+            let Some(location) = location else {
+                valid = false;
+                break;
+            };
+            // A range-like tail is ambiguous and must remain invalid rather
+            // than being interpreted as source-location prose.
+            if location.starts_with('E') || location.contains("-E") {
+                valid = false;
+                break;
+            }
+            rendered_parts.push(format!("（{location}） [{id}]"));
+        }
+        if valid {
+            let replacement = rendered_parts.join(" ");
+            let original = &answer[index..=closing];
+            if replacement != original {
+                output.push_str(&answer[copied_through..index]);
+                output.push_str(&replacement);
+                copied_through = closing + 1;
+                normalized += 1;
+            }
+        }
+        index = closing + 1;
+    }
+    output.push_str(&answer[copied_through..]);
+    (output, normalized)
+}
+
 pub(super) fn extract_citation_ids(value: &str) -> Vec<String> {
     let mut cited = Vec::new();
     for token in citation_tokens(value) {
@@ -350,6 +463,9 @@ pub fn repair_unknown_citations(
     answer: &str,
     evidence: &[EvidenceItem],
 ) -> (String, CitationRepair) {
+    let (normalized_answer, normalized_citation_groups) =
+        normalize_citation_groups(answer, evidence);
+    let answer = normalized_answer.as_str();
     let known = evidence
         .iter()
         .map(|item| (item.id.as_str(), item.kind.as_str()))
@@ -381,8 +497,9 @@ pub fn repair_unknown_citations(
     }
     output.push_str(&answer[copied_through..]);
     let repair = CitationRepair {
-        applied: !removed.is_empty(),
+        applied: !removed.is_empty() || normalized_citation_groups > 0,
         removed_unknown_ids: removed,
+        normalized_citation_groups,
     };
     (output, repair)
 }
@@ -581,6 +698,43 @@ mod tests {
         assert!(validation.unknown_ids.is_empty());
         assert_eq!(validation.claim_count, 3);
         assert_eq!(validation.cited_claim_count, 3);
+    }
+
+    #[test]
+    fn grouped_citations_and_locations_are_canonicalized_before_claim_splitting() {
+        let answer = concat!(
+            "两篇论文共同研究波干扰下的并发充电[E1；E5]。\n",
+            "非线性叠加模型见结论部分[E5，7 CONCLUSION · 原文第 478–481 行]。",
+        );
+        let (normalized, repair) =
+            repair_unknown_citations(answer, &[evidence("E1"), evidence("E5")]);
+
+        assert_eq!(repair.normalized_citation_groups, 2);
+        assert!(repair.applied);
+        assert_eq!(
+            normalized,
+            concat!(
+                "两篇论文共同研究波干扰下的并发充电[E1] [E5]。\n",
+                "非线性叠加模型见结论部分（7 CONCLUSION · 原文第 478–481 行） [E5]。",
+            )
+        );
+        let validation = validate_citations(&normalized, &[evidence("E1"), evidence("E5")]);
+        assert!(validation.supported, "{validation:?}");
+        assert_eq!(validation.claim_count, 2);
+    }
+
+    #[test]
+    fn canonicalization_is_fail_closed_for_unknown_ranges_and_markdown_literals() {
+        let answer = concat!(
+            "Unknown [E1；E99]. Range [E1-E5]. ",
+            "`literal [E1；E5]` and [label [E1；E5]](https://example.test).",
+        );
+        let (normalized, repair) =
+            repair_unknown_citations(answer, &[evidence("E1"), evidence("E5")]);
+
+        assert_eq!(normalized, answer);
+        assert_eq!(repair.normalized_citation_groups, 0);
+        assert!(!repair.applied);
     }
 
     #[test]

@@ -13,6 +13,9 @@ test('all answer engine editing lives in SettingsView', () => {
   assert.match(settings, /证据浏览模式/)
   assert.match(settings, /上下文窗口 Token/)
   assert.match(settings, /getCodexSubscriptionStatus/)
+  assert.match(settings, /自动（\{codexStatus\.configuredModel/)
+  assert.match(settings, /supportedReasoningEfforts/)
+  assert.match(settings, /codexReasoningEffort/)
   assert.match(ask, /data-testid="qa-open-settings"/)
   assert.doesNotMatch(ask, /Luna 设置|qa-settings-dialog|saveLunaSettings|settingsDraft/)
 })
@@ -24,6 +27,8 @@ test('Codex status DTO and settings expose no authentication secret', () => {
   const status = types.slice(start, end)
   assert.match(status, /authenticated: boolean/)
   assert.match(status, /ready: boolean/)
+  assert.match(status, /availableModels: CodexModelOption\[\]/)
+  assert.match(status, /configuredReasoningEffort: string/)
   assert.doesNotMatch(status, /token|cookie|apiKey|credentialPath/)
 })
 
@@ -39,4 +44,17 @@ test('App routes the AskView settings action to the global settings section', ()
   const app = read('../src/App.tsx')
   assert.match(app, /onOpenSettings=\{\(\) => openSettings\('qa-engine-settings'\)\}/)
   assert.match(app, /focusSection=\{settingsFocusSection\}/)
+})
+
+test('QA generation UI exposes validation-driven Thinking and compact composer contracts', () => {
+  const ask = read('../src/features/qa/AskView.tsx')
+  const css = read('../src/features/qa/AskView.css')
+  const types = read('../src/types.ts')
+  assert.match(types, /type: 'validation_started'/)
+  assert.match(ask, /Thinking · \{elapsedSeconds\}s/)
+  assert.match(ask, /引用与完整性校验/)
+  assert.match(ask, /ref=\{composerRef\}/)
+  for (const contract of ['.qa-chat-heading{grid-row:1}', '.qa-error{grid-row:2}', '.qa-messages{grid-row:3}', '.qa-composer{grid-row:4}', 'max-height:148px']) {
+    assert.ok(css.includes(contract), contract)
+  }
 })

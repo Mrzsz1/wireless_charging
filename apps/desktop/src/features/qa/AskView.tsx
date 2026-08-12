@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
-import { BookOpen, Bot, Check, ChevronRight, CircleStop, Clipboard, FileText, GitBranch, LoaderCircle, MessageSquarePlus, MoreHorizontal, Plus, RefreshCw, Search, Send, Settings, ShieldCheck, Trash2, X } from 'lucide-react'
+import { BookOpen, Bot, Check, CheckCircle2, ChevronRight, CircleStop, Clipboard, FileText, GitBranch, LoaderCircle, MessageSquarePlus, MoreHorizontal, Plus, RefreshCw, Search, Send, Settings, ShieldCheck, Trash2, X } from 'lucide-react'
 import { askLuna, cancelAnswer, deleteChatSession, getChatSessionPage, getCodexSubscriptionStatus, getQaSettings, isDesktopRuntime, listChatSessionsPage, renameChatSession } from '../../services/desktop'
 import type { AnswerProvider, AnswerStreamEvent, AskResult, ChatMessage, ChatSessionSummary, CodexSubscriptionStatus, ContextBudget, EvidenceItem, QaRunManifest, QaSettings, RetrievalDiagnostics, WaterlineSnapshot } from '../../types'
 import { claimCompletion, createCompletionLedger, mergeCompletedMessages, mergeFailedMessages, repositoryIdentity, retryQuestionFor, rollbackOptimisticMessages } from './completionState'
@@ -22,6 +22,7 @@ type AskViewProps = {
 const emptySettings: QaSettings = {
   answerProvider: 'offline-evidence',
   codexModel: '',
+  codexReasoningEffort: '',
   endpoint: '',
   model: 'gpt-5.6-luna',
   apiKeyEnv: 'LUNA_API_KEY',
@@ -33,7 +34,7 @@ const emptySettings: QaSettings = {
   apiKeyConfigured: false,
 }
 
-const emptyCodexStatus: CodexSubscriptionStatus = { installed: false, version: '', authenticated: false, ready: false, statusLabel: '尚未检测', diagnostic: '' }
+const emptyCodexStatus: CodexSubscriptionStatus = { installed: false, version: '', authenticated: false, ready: false, statusLabel: '尚未检测', diagnostic: '', configuredModel: '', configuredReasoningEffort: '', availableModels: [], modelCatalogStatus: 'missing' }
 
 function providerLabel(provider: string) {
   if (provider === 'codex-subscription') return 'Codex 订阅'
@@ -45,6 +46,14 @@ function providerReady(provider: AnswerProvider, settings: QaSettings, codex: Co
   if (provider === 'codex-subscription') return codex.ready
   if (provider === 'compatible-api') return settings.apiKeyConfigured && Boolean(settings.endpoint)
   return true
+}
+
+function codexSelectionLabel(settings: QaSettings, codex: CodexSubscriptionStatus) {
+  const model = settings.codexModel || codex.configuredModel
+  const option = codex.availableModels.find((item) => item.id === model)
+  const effort = settings.codexReasoningEffort || codex.configuredReasoningEffort || option?.defaultReasoningEffort
+  const effortLabel: Record<string, string> = { low: '低', medium: '中', high: '高', xhigh: '极高', max: '最大', ultra: 'Ultra' }
+  return [option?.displayName || model, effort ? effortLabel[effort] || effort : ''].filter(Boolean).join(' · ')
 }
 
 const suggestions = [
@@ -88,7 +97,11 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
   const [activeSessionId, setActiveSessionId] = useState('')
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [question, setQuestion] = useState('')
-  const [phase, setPhase] = useState<'idle' | 'retrieving' | 'generating'>('idle')
+  const [phase, setPhase] = useState<'idle' | 'retrieving' | 'generating' | 'validating'>('idle')
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const [hasFirstToken, setHasFirstToken] = useState(false)
+  const generationStartedAt = useRef(0)
+  const composerRef = useRef<HTMLTextAreaElement>(null)
   const [streamingText, setStreamingText] = useState('')
   const [requestId, setRequestId] = useState('')
   const [evidence, setEvidence] = useState<EvidenceItem[]>([])
@@ -116,6 +129,29 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
   const mountedRepositoryPath = useRef<string | null | undefined>(null)
   const sessionListGeneration = useRef(0)
   const sessionOpenGeneration = useRef(0)
+
+  useEffect(() => {
+    if (phase === 'idle' || !generationStartedAt.current) return
+    const update = () => setElapsedSeconds(Math.max(0, Math.floor((performance.now() - generationStartedAt.current) / 1000)))
+    update()
+    const timer = window.setInterval(update, 1000)
+    return () => window.clearInterval(timer)
+  }, [phase])
+
+  useEffect(() => {
+    const textarea = composerRef.current
+    if (!textarea) return
+    textarea.style.height = 'auto'
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 148)}px`
+    textarea.style.overflowY = textarea.scrollHeight > 148 ? 'auto' : 'hidden'
+  }, [question])
+
+  const resetGenerationState = () => {
+    generationStartedAt.current = 0
+    setElapsedSeconds(0)
+    setHasFirstToken(false)
+    setPhase('idle')
+  }
 
   const replaceSessionPage = async (query = sessionQuery) => {
     if (!isDesktopRuntime() || !repositoryPath) return
@@ -154,6 +190,10 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     const staleRequest = activeRequestId.current
     activeRequestId.current = ''
     if (staleRequest && isDesktopRuntime()) void cancelAnswer(staleRequest).catch(() => undefined)
+    generationStartedAt.current = 0
+    setElapsedSeconds(0)
+    setHasFirstToken(false)
+    setPhase('idle')
     completionLedger.current = createCompletionLedger(repositoryPath ?? '')
     setActiveSessionId('')
     setMessages([])
@@ -270,7 +310,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     setStreamingText('')
     setRequestId('')
     activeRequestId.current = ''
-    setPhase('idle')
+    resetGenerationState()
     void refreshSessions()
   }
 
@@ -290,7 +330,10 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
       setWaterline(event.payload.waterline)
       setPhase('generating')
     } else if (event.type === 'token') {
+      setHasFirstToken(true)
       setStreamingText((current) => current + event.payload.content)
+    } else if (event.type === 'validation_started') {
+      setPhase('validating')
     } else if (event.type === 'completed') {
       applyCompleted(event.payload.result, generation)
     } else if (event.type === 'failed') {
@@ -304,7 +347,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
       }
       setContextBudget(null)
       setRunManifest(null)
-      setPhase('idle')
+      resetGenerationState()
       setStreamingText('')
       setRequestId('')
       activeRequestId.current = ''
@@ -314,7 +357,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
       setMessages((current) => rollbackOptimisticMessages(current, optimisticId))
       setContextBudget(null)
       setRunManifest(null)
-      setPhase('idle')
+      resetGenerationState()
       setStreamingText('')
       setRequestId('')
       activeRequestId.current = ''
@@ -335,6 +378,9 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     setContextBudget(null)
     setRunManifest(null)
     setSelectedEvidence(null)
+    generationStartedAt.current = performance.now()
+    setElapsedSeconds(0)
+    setHasFirstToken(false)
     setPhase('retrieving')
     const generation = repositoryGeneration.current
     const originalSessionId = activeSessionId
@@ -357,7 +403,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
       if (!terminalEventHandled && !String(cause).includes('已取消')) setError(`问答执行失败：${String(cause)}`)
       setMessages((current) => rollbackOptimisticMessages(current, optimistic.id))
       setStreamingText('')
-      setPhase('idle')
+      resetGenerationState()
       setRequestId('')
       activeRequestId.current = ''
       setActiveSessionId(originalSessionId)
@@ -394,6 +440,14 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
   }
 
   const emptyEvidence = evidenceEmptyState(phase, waterline, evidence.length)
+  const thinkingSteps = [
+    { label: '理解问题', state: 'done' },
+    { label: '检索本地知识库', state: phase === 'retrieving' ? 'active' : 'done' },
+    { label: '整理证据上下文', state: phase === 'retrieving' ? 'waiting' : 'done' },
+    { label: 'Thinking', state: phase === 'generating' && !hasFirstToken ? 'active' : phase === 'retrieving' ? 'waiting' : 'done' },
+    { label: '生成回答', state: phase === 'generating' && hasFirstToken ? 'active' : phase === 'validating' ? 'done' : 'waiting' },
+    { label: '引用与完整性校验', state: phase === 'validating' ? 'active' : 'waiting' },
+  ]
 
   return <section className="qa-view">
     <aside className="qa-sessions">
@@ -412,17 +466,17 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     </aside>
 
     <main className="qa-chat">
-      <div className="qa-chat-heading"><div><h1>智能问答</h1></div><div className="qa-model-state"><span className={providerReady(settings.answerProvider, settings, codexStatus) ? 'ready' : 'offline'}>{providerReady(settings.answerProvider, settings, codexStatus) ? <Check size={13} /> : <ShieldCheck size={13} />}{providerLabel(settings.answerProvider)}{settings.answerProvider === 'codex-subscription' && codexStatus.ready ? ' · 已登录' : ''}</span><button className="qa-icon-button" data-testid="qa-open-settings" onClick={onOpenSettings} title="前往设置"><Settings size={17} /></button></div></div>
+      <div className="qa-chat-heading"><div><h1>智能问答</h1></div><div className="qa-model-state"><span className={providerReady(settings.answerProvider, settings, codexStatus) ? 'ready' : 'offline'}>{providerReady(settings.answerProvider, settings, codexStatus) ? <Check size={13} /> : <ShieldCheck size={13} />}{providerLabel(settings.answerProvider)}{settings.answerProvider === 'codex-subscription' && codexStatus.ready ? ` · ${codexSelectionLabel(settings, codexStatus) || '已登录'}` : ''}</span><button className="qa-icon-button" data-testid="qa-open-settings" onClick={onOpenSettings} title="前往设置"><Settings size={17} /></button></div></div>
       {error && <div className="qa-error"><span>{error}</span><button onClick={() => setError('')}><X size={14} /></button></div>}
       <div className="qa-messages" ref={messagesRef}>
         {loadingHistory && <div className="qa-loading"><LoaderCircle size={18} className="spin" />加载会话历史…</div>}
         {messageHasMore && <button className="qa-load-older" onClick={() => void loadOlderMessages()} disabled={loadingOlderMessages}>{loadingOlderMessages ? '加载中…' : '加载更早消息'}</button>}
         {!messages.length && phase === 'idle' && <div className="qa-welcome"><div className="qa-orb"><Bot size={28} /></div><h2>先检索，再回答</h2><p>每次提问都会检索 Wiki、两本核心书籍和 Graphify，并把回答绑定到可定位证据。</p><div className="qa-suggestions">{suggestions.map((item) => <button key={item} onClick={() => void submitQuestion(item)}><Plus size={14} /><span>{item}</span><ChevronRight size={14} /></button>)}</div></div>}
           {messages.map((message, index) => { const retryQuestion = message.role === 'assistant' ? retryQuestionFor(messages, index) : ''; return <article data-testid={`qa-message-${message.id}`} className={`qa-message ${message.role} ${message.status}`} key={message.id}><div className="qa-avatar">{message.role === 'assistant' ? <Bot size={16} /> : '你'}</div><div className="qa-bubble"><div className="qa-message-meta"><strong>{message.role === 'assistant' ? providerLabel(message.provider) : '研究问题'}</strong><span>{message.status === 'failed' ? '失败' : message.status === 'unverified' ? '无参考来源 · 未验证' : formatTime(message.createdAt)}</span></div>{message.role === 'assistant' && message.status === 'failed' ? <div className="qa-message-content">{message.errorCode}：{message.errorMessage || '本轮回答生成失败'}</div> : message.role === 'assistant' ? <MessageContent content={message.content} evidence={message.evidence} onCitation={setSelectedEvidence} /> : <div className="qa-message-content">{message.content}</div>}{message.role === 'assistant' && message.status !== 'failed' && <CitationStatus message={message} />}{message.role === 'assistant' && <div className="qa-message-actions"><button onClick={() => void navigator.clipboard.writeText(message.content)}><Clipboard size={13} />复制回答</button><button onClick={() => void navigator.clipboard.writeText(buildAuditBundle(retryQuestion, message))}><Clipboard size={13} />复制审计包</button><button onClick={() => void submitQuestion(retryQuestion)} disabled={!retryQuestion || phase !== 'idle'}><RefreshCw size={13} />重试</button></div>}</div></article> })}
-        {phase !== 'idle' && <article className="qa-message assistant streaming"><div className="qa-avatar"><Bot size={16} /></div><div className="qa-bubble"><div className="qa-message-meta"><strong>{phase === 'retrieving' ? '正在检索证据' : '正在组织回答'}</strong><span><LoaderCircle size={13} className="spin" /></span></div>{streamingText ? <MessageContent content={streamingText} evidence={evidence} onCitation={setSelectedEvidence} /> : <div className="qa-retrieval-steps"><span className="active">Wiki FTS5</span><span className={phase === 'generating' ? 'active' : ''}>核心书籍</span><span className={phase === 'generating' ? 'active' : ''}>Graphify</span></div>}</div></article>}
+        {phase !== 'idle' && <article className="qa-message assistant streaming" aria-live="polite"><div className="qa-avatar"><Bot size={16} /></div><div className="qa-bubble"><div className="qa-message-meta"><strong>Thinking · {elapsedSeconds}s</strong><span><LoaderCircle size={13} className="spin" /></span></div><div className="qa-thinking-chain">{thinkingSteps.map((step) => <div className={step.state} key={step.label}>{step.state === 'done' ? <CheckCircle2 size={13} /> : step.state === 'active' ? <LoaderCircle size={13} className="spin" /> : <span className="qa-step-dot" />}<span>{step.label}</span></div>)}</div>{streamingText && <MessageContent content={streamingText} evidence={evidence} onCitation={setSelectedEvidence} />}</div></article>}
         <div ref={endRef} />
       </div>
-      <div className="qa-composer"><textarea data-testid="qa-input" value={question} onChange={(event) => setQuestion(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void submitQuestion() } }} placeholder="询问模型、约束、算法、解决办法或新颖性…" rows={3} disabled={phase !== 'idle'} /><div className="qa-composer-footer"><span>Enter 发送 · Shift+Enter 换行 · 默认不外搜</span>{phase === 'idle' ? <button className="qa-send" onClick={() => void submitQuestion()} disabled={!question.trim()}><Send size={15} />发送</button> : <button className="qa-stop" onClick={() => void stopAnswer()} disabled={!requestId}><CircleStop size={15} />停止</button>}</div></div>
+      <div className="qa-composer"><textarea ref={composerRef} data-testid="qa-input" value={question} onChange={(event) => setQuestion(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void submitQuestion() } }} placeholder="询问模型、约束、算法、解决办法或新颖性…" rows={3} disabled={phase !== 'idle'} /><div className="qa-composer-footer"><span>Enter 发送 · Shift+Enter 换行 · 默认不外搜</span>{phase === 'idle' ? <button className="qa-send" onClick={() => void submitQuestion()} disabled={!question.trim()}><Send size={15} />发送</button> : <button className="qa-stop" onClick={() => void stopAnswer()} disabled={!requestId}><CircleStop size={15} />停止</button>}</div></div>
     </main>
 
     <aside className="qa-evidence-panel">

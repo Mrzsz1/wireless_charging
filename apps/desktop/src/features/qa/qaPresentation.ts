@@ -1,6 +1,6 @@
 import type { ChatMessage, ChatSessionSummary, CitationValidation, EvidenceItem, WaterlineSnapshot } from '../../types'
 
-export type QaPhase = 'idle' | 'retrieving' | 'generating'
+export type QaPhase = 'idle' | 'retrieving' | 'generating' | 'validating'
 
 export type EvidenceEmptyState = {
   title: string

@@ -38,6 +38,7 @@ pub const PROVIDER_OFFLINE: &str = "offline-evidence";
 const INTENT_SOLVE: &str = "solve";
 const INTENT_NOVELTY: &str = "novelty";
 const INTENT_RELATIONSHIP: &str = "relationship";
+const INTENT_LITERATURE: &str = "literature";
 const QUERY_TERM_LIMIT: usize = 20;
 const RRF_K: f64 = 60.0;
 const REQUIRED_CHANNEL_MIN_SCORE: f64 = 0.18;
@@ -53,6 +54,8 @@ pub struct LunaSettings {
     pub answer_provider: String,
     #[serde(default)]
     pub codex_model: String,
+    #[serde(default)]
+    pub codex_reasoning_effort: String,
     pub endpoint: String,
     pub model: String,
     pub api_key_env: String,
@@ -71,6 +74,7 @@ impl Default for LunaSettings {
         Self {
             answer_provider: PROVIDER_OFFLINE.to_string(),
             codex_model: String::new(),
+            codex_reasoning_effort: String::new(),
             endpoint: String::new(),
             model: DEFAULT_MODEL.to_string(),
             api_key_env: DEFAULT_KEY_ENV.to_string(),
@@ -311,6 +315,9 @@ pub enum AnswerStreamEvent {
         request_id: String,
         content: String,
     },
+    ValidationStarted {
+        request_id: String,
+    },
     Completed {
         request_id: String,
         result: AskResult,
@@ -512,6 +519,9 @@ pub fn get_luna_settings(
         .map(|value| !value.trim().is_empty())
         .unwrap_or(false);
     settings.codex_model = scoped("qa.codex_model").cloned().unwrap_or_default();
+    settings.codex_reasoning_effort = scoped("qa.codex_reasoning_effort")
+        .cloned()
+        .unwrap_or_default();
     settings.answer_provider = scoped("qa.answer_provider")
         .cloned()
         .filter(|value| {
@@ -547,6 +557,15 @@ pub fn save_luna_settings(
     if settings.codex_model.len() > 120 || settings.codex_model.chars().any(char::is_control) {
         return Err("Codex 模型覆盖格式无效".to_string());
     }
+    settings.codex_reasoning_effort = settings.codex_reasoning_effort.trim().to_string();
+    if !settings.codex_reasoning_effort.is_empty()
+        && !matches!(
+            settings.codex_reasoning_effort.as_str(),
+            "low" | "medium" | "high" | "xhigh" | "max" | "ultra"
+        )
+    {
+        return Err("Codex 推理强度格式无效".to_string());
+    }
     settings.endpoint = settings.endpoint.trim().trim_end_matches('/').to_string();
     if !settings.endpoint.is_empty()
         && !settings.endpoint.starts_with("https://")
@@ -576,6 +595,10 @@ pub fn save_luna_settings(
     for (key, value) in [
         ("qa.answer_provider", settings.answer_provider.clone()),
         ("qa.codex_model", settings.codex_model.clone()),
+        (
+            "qa.codex_reasoning_effort",
+            settings.codex_reasoning_effort.clone(),
+        ),
         ("luna.endpoint", settings.endpoint.clone()),
         ("luna.model", settings.model.clone()),
         ("luna.api_key_env", settings.api_key_env.clone()),
@@ -954,6 +977,14 @@ pub(crate) fn query_terms(question: &str) -> Vec<String> {
             ][..],
         ),
         (
+            "波干扰",
+            &[
+                "wave interference",
+                "concurrent charging",
+                "dynamic power distribution",
+            ][..],
+        ),
+        (
             "城市路口",
             &[
                 "infinite drive",
@@ -1063,12 +1094,26 @@ fn intent(question: &str) -> String {
     .iter()
     .filter(|marker| lower.contains(*marker))
     .count();
+    let literature_score = [
+        "论文",
+        "文献",
+        "paper",
+        "papers",
+        "literature",
+        "有没有关于",
+        "有哪些关于",
+    ]
+    .iter()
+    .filter(|marker| lower.contains(*marker))
+    .count();
     if novelty_score > relationship_score && novelty_score > 0 {
         INTENT_NOVELTY.to_string()
     } else if relationship_score > 0 {
         INTENT_RELATIONSHIP.to_string()
     } else if novelty_score > 0 {
         INTENT_NOVELTY.to_string()
+    } else if literature_score > 0 {
+        INTENT_LITERATURE.to_string()
     } else {
         INTENT_SOLVE.to_string()
     }
@@ -3229,11 +3274,20 @@ mod tests {
         assert_eq!(intent("怎么解决调度问题"), INTENT_SOLVE);
         assert_eq!(intent("比较两种方法"), INTENT_RELATIONSHIP);
         assert_eq!(intent("这个方向有研究空白吗"), INTENT_NOVELTY);
+        assert_eq!(intent("有没有关于波干扰的论文"), INTENT_LITERATURE);
+        assert_eq!(intent("这种论文有研究空白吗"), INTENT_NOVELTY);
         assert!(
             intent_bonus(INTENT_RELATIONSHIP, &graph) > intent_bonus(INTENT_RELATIONSHIP, &method)
         );
         assert!(intent_bonus(INTENT_SOLVE, &method) > intent_bonus(INTENT_SOLVE, &graph));
         assert!(intent_bonus(INTENT_NOVELTY, &paper) > intent_bonus(INTENT_NOVELTY, &graph));
+    }
+
+    #[test]
+    fn wave_interference_aliases_prioritize_canonical_paper_terms() {
+        let terms = query_terms("有没有关于波干扰的论文");
+        assert_eq!(terms.first().map(String::as_str), Some("wave interference"));
+        assert!(terms.iter().any(|term| term == "concurrent charging"));
     }
 
     #[test]

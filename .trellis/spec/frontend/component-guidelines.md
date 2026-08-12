@@ -106,6 +106,12 @@ Strict GUI E2E must verify fixed positioning outside `.main-workspace`, hover pa
 
 ## Accessibility
 
+### QA conditional grid and processing status
+
+`AskView` owns four semantic grid rows: heading, optional error, scrollable messages, and composer. Assign each child an explicit `grid-row`; never depend on CSS auto-placement because removing the conditional error node would otherwise place the composer in the flexible messages row. The textarea starts at three rows, grows only to its documented cap, then scrolls internally.
+
+During an active QA request, render an event-driven processing chain and elapsed time. `retrieval_started`, `retrieval_completed`, first token, and `validation_started` are authoritative transitions for local retrieval, evidence organization, model Thinking/generation, and citation/completeness validation. This chain is an operational audit projection, not model chain-of-thought. Clear its monotonic timer and transient state on completion, failure, cancellation, and repository change; use `aria-live="polite"` and respect reduced motion.
+
 ### Contextual help convention
 
 Use `components/DelayedHelp.tsx` for optional page- or section-level explanatory copy that would otherwise create persistent visual noise. Do not hide field values, validation errors, security state, or action consequences in a tooltip.

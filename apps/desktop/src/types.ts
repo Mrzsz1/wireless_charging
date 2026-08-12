@@ -350,6 +350,7 @@ export type AnswerProvider = 'codex-subscription' | 'compatible-api' | 'offline-
 export type QaSettings = {
   answerProvider: AnswerProvider
   codexModel: string
+  codexReasoningEffort: string
   endpoint: string
   model: string
   apiKeyEnv: string
@@ -370,6 +371,17 @@ export type CodexSubscriptionStatus = {
   ready: boolean
   statusLabel: string
   diagnostic: string
+  configuredModel: string
+  configuredReasoningEffort: string
+  availableModels: CodexModelOption[]
+  modelCatalogStatus: 'detected' | 'missing' | 'invalid'
+}
+
+export type CodexModelOption = {
+  id: string
+  displayName: string
+  defaultReasoningEffort: string
+  supportedReasoningEfforts: string[]
 }
 
 export type WaterlineSnapshot = {
@@ -421,6 +433,7 @@ export type EvidenceChecksum = {
 export type CitationRepair = {
   applied: boolean
   removedUnknownIds: string[]
+  normalizedCitationGroups: number
 }
 
 export type AnswerCompletenessValidation = {
@@ -647,6 +660,7 @@ export type AnswerStreamEvent =
   | { type: 'retrieval_started'; payload: { requestId: string } }
   | { type: 'retrieval_completed'; payload: { requestId: string; evidence: EvidenceItem[]; retrievalDiagnostics: RetrievalDiagnostics; contextBudget: ContextBudget; waterline: WaterlineSnapshot } }
   | { type: 'token'; payload: { requestId: string; content: string } }
+  | { type: 'validation_started'; payload: { requestId: string } }
   | { type: 'completed'; payload: { requestId: string; result: AskResult } }
   | { type: 'failed'; payload: { requestId: string; code: string; message: string; retryable: boolean; exchange?: { sessionId: string; userMessage: ChatMessage; assistantMessage: ChatMessage } | null } }
   | { type: 'cancelled'; payload: { requestId: string } }

@@ -1,5 +1,5 @@
 use crate::process_support::{configure_background_command, terminate_process_tree};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashSet;
 use std::env;
@@ -19,6 +19,15 @@ const POLL_INTERVAL: Duration = Duration::from_millis(60);
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
+pub struct CodexModelOption {
+    pub id: String,
+    pub display_name: String,
+    pub default_reasoning_effort: String,
+    pub supported_reasoning_efforts: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CodexSubscriptionStatus {
     pub installed: bool,
     pub version: String,
@@ -26,6 +35,10 @@ pub struct CodexSubscriptionStatus {
     pub ready: bool,
     pub status_label: String,
     pub diagnostic: String,
+    pub configured_model: String,
+    pub configured_reasoning_effort: String,
+    pub available_models: Vec<CodexModelOption>,
+    pub model_catalog_status: String,
 }
 
 impl CodexSubscriptionStatus {
@@ -37,8 +50,254 @@ impl CodexSubscriptionStatus {
             ready: false,
             status_label: "Codex CLI 未安装".to_string(),
             diagnostic: diagnostic.to_string(),
+            configured_model: String::new(),
+            configured_reasoning_effort: String::new(),
+            available_models: Vec::new(),
+            model_catalog_status: "missing".to_string(),
         }
     }
+}
+
+#[derive(Debug, Default)]
+struct CodexConfigProjection {
+    model: String,
+    model_reasoning_effort: String,
+}
+
+fn parse_toml_string(value: &str) -> Option<String> {
+    let value = value.trim();
+    if value.starts_with('"') && value.ends_with('"') {
+        serde_json::from_str::<String>(value).ok()
+    } else if value.starts_with('\'') && value.ends_with('\'') && value.len() >= 2 {
+        Some(value[1..value.len() - 1].to_string())
+    } else {
+        None
+    }
+}
+
+fn parse_codex_config(content: &str) -> CodexConfigProjection {
+    let mut projection = CodexConfigProjection::default();
+    for line in content.lines() {
+        let line = line.trim();
+        if line.starts_with('[') {
+            break;
+        }
+        let Some((key, value)) = line.split_once('=') else {
+            continue;
+        };
+        let Some(value) = parse_toml_string(value) else {
+            continue;
+        };
+        match key.trim() {
+            "model" => projection.model = value,
+            "model_reasoning_effort" => projection.model_reasoning_effort = value,
+            _ => {}
+        }
+    }
+    projection
+}
+
+#[derive(Debug, Default, Deserialize)]
+struct ModelCache {
+    #[serde(default)]
+    models: Vec<CachedModel>,
+}
+
+#[derive(Debug, Default, Deserialize)]
+struct CachedModel {
+    #[serde(default)]
+    slug: String,
+    #[serde(default)]
+    display_name: String,
+    #[serde(default)]
+    default_reasoning_level: String,
+    #[serde(default)]
+    supported_reasoning_levels: Vec<CachedReasoningLevel>,
+    #[serde(default)]
+    visibility: String,
+}
+
+#[derive(Debug, Default, Deserialize)]
+struct CachedReasoningLevel {
+    #[serde(default)]
+    effort: String,
+}
+
+fn safe_identifier(value: &str) -> bool {
+    !value.is_empty()
+        && value.len() <= 120
+        && value.chars().all(|character| {
+            character.is_ascii_alphanumeric() || matches!(character, '-' | '_' | '.')
+        })
+}
+
+fn valid_reasoning_effort(value: &str) -> bool {
+    matches!(value, "low" | "medium" | "high" | "xhigh" | "max" | "ultra")
+}
+
+fn codex_home() -> Option<PathBuf> {
+    env::var_os("CODEX_HOME").map(PathBuf::from).or_else(|| {
+        env::var_os(if cfg!(windows) { "USERPROFILE" } else { "HOME" })
+            .map(PathBuf::from)
+            .map(|home| home.join(".codex"))
+    })
+}
+
+fn load_model_catalog(home: Option<&Path>) -> (String, String, Vec<CodexModelOption>, String) {
+    let Some(home) = home else {
+        return (
+            String::new(),
+            String::new(),
+            Vec::new(),
+            "missing".to_string(),
+        );
+    };
+    let config = fs::read_to_string(home.join("config.toml"))
+        .ok()
+        .map(|content| parse_codex_config(&content))
+        .unwrap_or_default();
+    let configured_model = config.model.trim().to_string();
+    let configured_model = if safe_identifier(&configured_model) {
+        configured_model
+    } else {
+        String::new()
+    };
+    let configured_reasoning_effort = config.model_reasoning_effort.trim().to_string();
+    let configured_reasoning_effort = if valid_reasoning_effort(&configured_reasoning_effort) {
+        configured_reasoning_effort
+    } else {
+        String::new()
+    };
+
+    let cache_path = home.join("models_cache.json");
+    let cache_content = match fs::read_to_string(&cache_path) {
+        Ok(content) => content,
+        Err(_) => {
+            let fallback = configured_model
+                .is_empty()
+                .then(Vec::new)
+                .unwrap_or_else(|| {
+                    vec![CodexModelOption {
+                        id: configured_model.clone(),
+                        display_name: configured_model.clone(),
+                        default_reasoning_effort: configured_reasoning_effort.clone(),
+                        supported_reasoning_efforts: Vec::new(),
+                    }]
+                });
+            return (
+                configured_model,
+                configured_reasoning_effort,
+                fallback,
+                "missing".to_string(),
+            );
+        }
+    };
+    let cache = match serde_json::from_str::<ModelCache>(&cache_content) {
+        Ok(cache) => cache,
+        Err(_) => {
+            let fallback = if configured_model.is_empty() {
+                Vec::new()
+            } else {
+                vec![CodexModelOption {
+                    id: configured_model.clone(),
+                    display_name: configured_model.clone(),
+                    default_reasoning_effort: configured_reasoning_effort.clone(),
+                    supported_reasoning_efforts: Vec::new(),
+                }]
+            };
+            return (
+                configured_model,
+                configured_reasoning_effort,
+                fallback,
+                "invalid".to_string(),
+            );
+        }
+    };
+    let mut seen = HashSet::new();
+    let available_models = cache
+        .models
+        .into_iter()
+        .filter(|model| model.visibility == "list" && safe_identifier(model.slug.trim()))
+        .filter_map(|model| {
+            let id = model.slug.trim().to_string();
+            if !seen.insert(id.clone()) {
+                return None;
+            }
+            let supported_reasoning_efforts = model
+                .supported_reasoning_levels
+                .into_iter()
+                .map(|level| level.effort.trim().to_string())
+                .filter(|effort| valid_reasoning_effort(effort))
+                .collect::<Vec<_>>();
+            let default_reasoning_effort = model.default_reasoning_level.trim().to_string();
+            Some(CodexModelOption {
+                display_name: if model.display_name.trim().is_empty() {
+                    id.clone()
+                } else {
+                    model.display_name.trim().to_string()
+                },
+                default_reasoning_effort: if valid_reasoning_effort(&default_reasoning_effort) {
+                    default_reasoning_effort
+                } else {
+                    String::new()
+                },
+                supported_reasoning_efforts,
+                id,
+            })
+        })
+        .collect();
+    (
+        configured_model,
+        configured_reasoning_effort,
+        available_models,
+        "detected".to_string(),
+    )
+}
+
+pub fn resolve_model_selection(
+    model_override: &str,
+    reasoning_override: &str,
+    status: &CodexSubscriptionStatus,
+) -> (String, String) {
+    let model = if safe_identifier(model_override.trim()) {
+        model_override.trim().to_string()
+    } else {
+        status.configured_model.clone()
+    };
+    let selected = status.available_models.iter().find(|item| item.id == model);
+    let requested_effort = if valid_reasoning_effort(reasoning_override.trim()) {
+        reasoning_override.trim()
+    } else if valid_reasoning_effort(&status.configured_reasoning_effort) {
+        status.configured_reasoning_effort.as_str()
+    } else {
+        selected
+            .map(|item| item.default_reasoning_effort.as_str())
+            .unwrap_or_default()
+    };
+    let effort = if let Some(selected) =
+        selected.filter(|item| !item.supported_reasoning_efforts.is_empty())
+    {
+        if selected
+            .supported_reasoning_efforts
+            .iter()
+            .any(|value| value == requested_effort)
+        {
+            requested_effort.to_string()
+        } else if selected
+            .supported_reasoning_efforts
+            .iter()
+            .any(|value| value == &selected.default_reasoning_effort)
+        {
+            selected.default_reasoning_effort.clone()
+        } else {
+            String::new()
+        }
+    } else if valid_reasoning_effort(requested_effort) {
+        requested_effort.to_string()
+    } else {
+        String::new()
+    };
+    (model, effort)
 }
 
 fn explicit_executable() -> Option<String> {
@@ -292,6 +551,8 @@ fn safe_version(output: &str) -> String {
 }
 
 fn get_status_with(executable: &str) -> CodexSubscriptionStatus {
+    let (configured_model, configured_reasoning_effort, available_models, model_catalog_status) =
+        load_model_catalog(codex_home().as_deref());
     let (version_ok, version_stdout, _) =
         match run_fixed_with(executable, &["--version"], STATUS_TIMEOUT) {
             Ok(result) => result,
@@ -321,6 +582,10 @@ fn get_status_with(executable: &str) -> CodexSubscriptionStatus {
                     ready: false,
                     status_label: "登录状态检测失败".to_string(),
                     diagnostic: "请点击“登录 ChatGPT”或稍后刷新状态。".to_string(),
+                    configured_model,
+                    configured_reasoning_effort,
+                    available_models,
+                    model_catalog_status,
                 }
             }
         };
@@ -342,6 +607,10 @@ fn get_status_with(executable: &str) -> CodexSubscriptionStatus {
         } else {
             "点击“登录 ChatGPT”完成官方浏览器登录。".to_string()
         },
+        configured_model,
+        configured_reasoning_effort,
+        available_models,
+        model_catalog_status,
     }
 }
 
@@ -460,7 +729,11 @@ fn apply_jsonl_line(line: &str, answer: &mut String) -> Option<String> {
     }
 }
 
-fn build_exec_args(workspace: &std::path::Path, model: &str) -> Vec<String> {
+fn build_exec_args(
+    workspace: &std::path::Path,
+    model: &str,
+    reasoning_effort: &str,
+) -> Vec<String> {
     let mut args = [
         "-a",
         "never",
@@ -481,6 +754,12 @@ fn build_exec_args(workspace: &std::path::Path, model: &str) -> Vec<String> {
     if !model.trim().is_empty() {
         args.extend(["--model".to_string(), model.trim().to_string()]);
     }
+    if valid_reasoning_effort(reasoning_effort.trim()) {
+        args.extend([
+            "-c".to_string(),
+            format!("model_reasoning_effort=\"{}\"", reasoning_effort.trim()),
+        ]);
+    }
     args.push("-".to_string());
     args
 }
@@ -489,6 +768,7 @@ fn stream_answer_with<F>(
     executable: &str,
     prompt: &str,
     model: &str,
+    reasoning_effort: &str,
     timeout: Duration,
     cancelled: &AtomicBool,
     mut on_token: F,
@@ -500,7 +780,7 @@ where
     let mut command = Command::new(executable);
     configure_background_command(&mut command);
     command
-        .args(build_exec_args(&workspace.0, model))
+        .args(build_exec_args(&workspace.0, model, reasoning_effort))
         .env("NO_COLOR", "1")
         .env("TERM", "dumb")
         .stdin(Stdio::piped())
@@ -636,6 +916,7 @@ where
 pub fn stream_answer<F>(
     prompt: &str,
     model: &str,
+    reasoning_effort: &str,
     timeout: Duration,
     cancelled: &AtomicBool,
     on_token: F,
@@ -643,7 +924,15 @@ pub fn stream_answer<F>(
 where
     F: FnMut(&str) -> Result<(), String>,
 {
-    stream_answer_with(&executable(), prompt, model, timeout, cancelled, on_token)
+    stream_answer_with(
+        &executable(),
+        prompt,
+        model,
+        reasoning_effort,
+        timeout,
+        cancelled,
+        on_token,
+    )
 }
 
 #[cfg(test)]
@@ -667,6 +956,10 @@ mod tests {
             ready: true,
             status_label: "已使用 ChatGPT 登录".into(),
             diagnostic: "无需 API Key".into(),
+            configured_model: "gpt-fixture".into(),
+            configured_reasoning_effort: "xhigh".into(),
+            available_models: Vec::new(),
+            model_catalog_status: "detected".into(),
         };
         let json = serde_json::to_string(&status).unwrap();
         for forbidden in ["token", "cookie", "credentialPath", "apiKey"] {
@@ -752,7 +1045,7 @@ mod tests {
     #[test]
     fn exec_arguments_isolate_the_workspace_and_keep_the_prompt_on_stdin() {
         let workspace = std::path::Path::new("C:/fixture/codex-workspace");
-        let args = build_exec_args(workspace, " gpt-fixture ");
+        let args = build_exec_args(workspace, " gpt-fixture ", "xhigh");
         assert_eq!(args.first().map(String::as_str), Some("-a"));
         assert_eq!(args.last().map(String::as_str), Some("-"));
         assert!(args
@@ -764,6 +1057,13 @@ mod tests {
         assert!(args
             .windows(2)
             .any(|pair| pair == ["--model", "gpt-fixture"]));
+        assert!(args
+            .windows(2)
+            .any(|pair| pair == ["-c", "model_reasoning_effort=\"xhigh\""]));
+
+        let isolated = args.iter().map(String::as_str).collect::<Vec<_>>();
+        assert!(isolated.contains(&"--ignore-user-config"));
+        assert!(isolated.contains(&"--ignore-rules"));
         assert!(!args.iter().any(|value| value.contains("question text")));
     }
 
@@ -805,6 +1105,7 @@ mod tests {
             &answer_fixture.to_string_lossy(),
             "question text",
             "",
+            "",
             Duration::from_secs(3),
             &AtomicBool::new(false),
             |token| {
@@ -825,6 +1126,7 @@ mod tests {
             &failure_fixture.to_string_lossy(),
             "question text",
             "",
+            "",
             Duration::from_secs(3),
             &AtomicBool::new(false),
             |_| Ok(()),
@@ -839,6 +1141,7 @@ mod tests {
             &hang_fixture.to_string_lossy(),
             "question text",
             "",
+            "",
             Duration::from_millis(120),
             &AtomicBool::new(false),
             |_| Ok(()),
@@ -850,11 +1153,54 @@ mod tests {
             &hang_fixture.to_string_lossy(),
             "question text",
             "",
+            "",
             Duration::from_secs(3),
             &AtomicBool::new(true),
             |_| Ok(()),
         )
         .unwrap_err();
         assert!(cancel_error.starts_with("CODEX_CANCELLED"));
+    }
+
+    #[test]
+    fn model_catalog_projects_only_visible_non_secret_metadata() {
+        let home = tempfile::tempdir().unwrap();
+        fs::write(
+            home.path().join("config.toml"),
+            "model = \"gpt-5.6-sol\"\nmodel_reasoning_effort = \"xhigh\"\napi_key = \"secret\"\n[profiles.private]\nmodel = \"hidden\"\n",
+        )
+        .unwrap();
+        fs::write(
+            home.path().join("models_cache.json"),
+            r#"{"models":[{"slug":"gpt-5.6-sol","display_name":"GPT-5.6-Sol","default_reasoning_level":"medium","supported_reasoning_levels":[{"effort":"low"},{"effort":"medium"},{"effort":"xhigh"}],"visibility":"list"},{"slug":"hidden","display_name":"Hidden","visibility":"hide"}]}"#,
+        )
+        .unwrap();
+
+        let (model, effort, available, status) = load_model_catalog(Some(home.path()));
+        assert_eq!(model, "gpt-5.6-sol");
+        assert_eq!(effort, "xhigh");
+        assert_eq!(status, "detected");
+        assert_eq!(available.len(), 1);
+        assert_eq!(available[0].id, "gpt-5.6-sol");
+        let serialized = serde_json::to_string(&available).unwrap();
+        assert!(!serialized.contains("secret"));
+        assert!(!serialized.contains("api_key"));
+
+        let selection_status = CodexSubscriptionStatus {
+            installed: true,
+            version: String::new(),
+            authenticated: true,
+            ready: true,
+            status_label: String::new(),
+            diagnostic: String::new(),
+            configured_model: model,
+            configured_reasoning_effort: effort,
+            available_models: available,
+            model_catalog_status: status,
+        };
+        assert_eq!(
+            resolve_model_selection("", "ultra", &selection_status),
+            ("gpt-5.6-sol".to_string(), "medium".to_string())
+        );
     }
 }
