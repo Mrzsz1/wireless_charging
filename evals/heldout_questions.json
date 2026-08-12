@@ -1,0 +1,30 @@
+{
+  "version": "2026-08-12-heldout-v1",
+  "dataset_role": "production_accuracy",
+  "split": "heldout",
+  "status": "awaiting_independent_curation",
+  "minimum_case_count": 30,
+  "selection_policy": "由未参与检索器、提示词或回归集开发的研究者独立抽样并冻结；冻结前不用于实现决策。",
+  "review_policy": "回答与证据包匿名化后逐 claim 双人复核；分歧由第三人裁决。语义蕴含自动判定不在本阶段范围内。",
+  "case_schema": {
+    "required": ["id", "type", "question"],
+    "allowed_types": ["solve", "novelty", "relationship"],
+    "optional": ["stratum", "difficulty", "notes_for_reviewers"]
+  },
+  "run_schema": {
+    "required": ["question", "answer", "answerClaims", "evidence", "runManifest"],
+    "answer_claim_required": ["claimId", "text", "citedEvidenceIds"],
+    "claim_count_contract": "runManifest.answerCompleteness.claimCount 必须等于 answerClaims 长度；每个 text 必须逐字存在于 answer。",
+    "evidence_integrity_contract": "每个完整 EvidenceItem 按 Rust EvidenceItem 字段序规范 JSON 序列化，重新计算 SHA-256，并与 runManifest.evidenceChecksums 的 evidenceId、stableSourceId、sha256 一一校验。"
+  },
+  "review_schema": {
+    "required": ["case_id", "primary_reviews"],
+    "primary_review_count": 2,
+    "primary_review_required": ["reviewer_id_hash", "blinded", "independent", "claims"],
+    "claim_required": ["claim_id", "claim", "verdict"],
+    "allowed_verdicts": ["supported", "contradicted", "not_verifiable"],
+    "coverage_contract": "两名不同 reviewer 必须分别且完整覆盖 answerClaims；claim 文本必须逐字一致。",
+    "adjudication_contract": "两名 primary reviewer 对任一 claim 分歧时，必须由第三个不同 reviewer 仅对全部分歧 claim 裁决。"
+  },
+  "cases": []
+}

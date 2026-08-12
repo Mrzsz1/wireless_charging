@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { claimCompletion, createCompletionLedger, mergeCompletedMessages, mergeFailedMessages, repositoryIdentity, retryQuestionFor, rollbackOptimisticMessages } from '../src/features/qa/completionState.ts'
 import { chapterLookupId, matchesBookTarget, shortChapterId } from '../src/features/books/bookTarget.ts'
 import { nextGraphRefreshVersion, reconcileGraphPath, reconcileGraphSelection } from '../src/features/graph/refreshState.ts'
+import { appendUniqueSessions, buildAuditBundle, citationSummary, evidenceEmptyState, linkEvidenceCitations, prependUniqueMessages } from '../src/features/qa/qaPresentation.ts'
 import { intersectionArea, parsePersistedWindowState, resolveWindowPlacement, type MonitorWorkArea } from '../src/lib/windowPlacement.ts'
 import type { AskResult, BookChapter, ChatMessage, GraphOverview } from '../src/types.ts'
 
@@ -28,9 +29,10 @@ const result: AskResult = {
   userMessage: message('user-1', 'user'),
   assistantMessage: message('assistant-1', 'assistant'),
   evidence: [],
+  retrievalDiagnostics: { totalMs: 12, channels: [], selectedCount: 0, cancelCheckCount: 6 },
   waterline: { sourceCount: 0, methodCount: 0, synthesisCount: 0, chapterCount: 0, yearMin: '', yearMax: '', lastIngestAt: '', repositoryPath: 'repo-a', capturedAt: '' },
   offline: true,
-  citationValidation: { citedIds: [], unknownIds: [], citationPrecision: 0, hasCitations: false, supported: true, groundingStatus: 'supported', zeroEvidence: false },
+  citationValidation: { citedIds: ['E1'], unknownIds: [], citationPrecision: 1, hasCitations: true, supported: true, groundingStatus: 'supported', zeroEvidence: false, claimCount: 1, citedClaimCount: 1, citationCoverage: 1, unsupportedClaims: [], graphOnlyClaims: [], syntaxValid: true, coverageValid: true, entailmentChecked: false },
 }
 
 test('completion claim is idempotent and resets when repository changes', () => {
@@ -81,6 +83,37 @@ test('completed messages replace local placeholders without duplicating history'
   const messages = [message('history', 'assistant'), message('local-user', 'user'), message('local-assistant', 'assistant'), result.userMessage, result.assistantMessage]
   const merged = mergeCompletedMessages(messages, result)
   assert.deepEqual(merged.map((item) => item.id), ['history', 'user-1', 'assistant-1'])
+})
+
+test('cursor pages merge without duplicate sessions or messages', () => {
+  const session = (id: string) => ({ id, title: id, createdAt: id, updatedAt: id, messageCount: 0, lastMessagePreview: '' })
+  assert.deepEqual(appendUniqueSessions([session('s1')], [session('s1'), session('s2')]).map((item) => item.id), ['s1', 's2'])
+  assert.deepEqual(prependUniqueMessages([message('m2', 'assistant')], [message('m1', 'user'), message('m2', 'assistant')]).map((item) => item.id), ['m1', 'm2'])
+})
+
+test('QA presentation distinguishes retrieval and completed zero-evidence states', () => {
+  assert.equal(evidenceEmptyState('retrieving', null, 0)?.title, '正在检索')
+  assert.equal(evidenceEmptyState('idle', result.waterline, 0)?.title, '本轮未检索到参考来源')
+  assert.equal(evidenceEmptyState('idle', result.waterline, 1), null)
+})
+
+test('QA citation summary exposes coverage and semantic verification boundary', () => {
+  const summary = citationSummary(result.citationValidation)
+  assert.equal(summary?.label, '引用覆盖 100%')
+  assert.match(summary?.detail ?? '', /语义未自动核验/)
+  assert.equal(linkEvidenceCitations('claim [E1]'), 'claim [E1](evidence:E1)')
+  assert.equal(linkEvidenceCitations('`[E1]` and $[E2]$ then [E3]'), '`[E1]` and $[E2]$ then [E3](evidence:E3)')
+  assert.equal(linkEvidenceCitations('[E1](https://example.test)'), '[E1](https://example.test)')
+})
+
+test('QA audit bundle keeps the question answer evidence and manifest boundary', () => {
+  const assistant = { ...message('assistant-audit', 'assistant'), content: 'Audited answer' }
+  const bundle = JSON.parse(buildAuditBundle('Audited question', assistant))
+  assert.equal(bundle.schemaVersion, 'qa-audit-bundle-v1')
+  assert.equal(bundle.question, 'Audited question')
+  assert.equal(bundle.answer, 'Audited answer')
+  assert.deepEqual(bundle.evidence, [])
+  assert.equal(bundle.runManifest, null)
 })
 
 const chapter = (id: string, bookId = 'algorithmic-game-theory'): BookChapter => ({

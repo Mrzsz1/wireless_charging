@@ -1,6 +1,9 @@
 {
   "version": "2026-08-12-v2",
+  "dataset_role": "development_regression",
+  "split": "development",
   "scope": "current_wiki_and_canonical_primary_sources",
+  "accuracy_claim": "retrieval_and_answer_contract_regression_only",
   "cases": [
     {
       "id": "solve-interference-switching",

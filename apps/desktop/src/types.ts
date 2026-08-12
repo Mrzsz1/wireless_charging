@@ -355,6 +355,8 @@ export type QaSettings = {
   apiKeyEnv: string
   timeoutSeconds: number
   maxOutputTokens: number
+  contextWindowTokens: number
+  recentExchangeLimit: number
   temperature: number
   apiKeyConfigured: boolean
 }
@@ -380,6 +382,80 @@ export type WaterlineSnapshot = {
   lastIngestAt: string
   repositoryPath: string
   capturedAt: string
+  indexSnapshotId: string
+}
+
+export type ContextBudget = {
+  contextWindowTokens: number
+  inputBudgetTokens: number
+  researchContractTokens: number
+  sessionMemoryTokens: number
+  recentHistoryTokens: number
+  currentQueryTokens: number
+  evidenceTokens: number
+  serializationOverheadTokens: number
+  outputReserveTokens: number
+  safetyMarginTokens: number
+  estimatedTotalTokens: number
+  freeTokens: number
+  recentExchangeCount: number
+  compactedMessageCount: number
+  truncated: boolean
+}
+
+export type ContextPlan = {
+  schemaVersion: string
+  sessionMemory: string
+  recentMessageIds: string[]
+  compactedMessageIds: string[]
+  fingerprint: string
+  budget: ContextBudget
+}
+
+export type EvidenceChecksum = {
+  evidenceId: string
+  stableSourceId: string
+  sha256: string
+}
+
+export type CitationRepair = {
+  applied: boolean
+  removedUnknownIds: string[]
+}
+
+export type AnswerCompletenessValidation = {
+  applicable: boolean
+  requiredSections: string[]
+  missingSections: string[]
+  requiredElements: string[]
+  missingElements: string[]
+  claimCount: number
+  minimumClaimCount: number
+  complete: boolean
+}
+
+export type QaRunManifest = {
+  schemaVersion: string
+  promptVersion: string
+  answerSchemaVersion: string
+  retrieverVersion: string
+  contextSchemaVersion: string
+  provider: string
+  modelRequested: string
+  modelResolved: string
+  temperature?: number | null
+  maxOutputTokens: number
+  contextWindowTokens: number
+  promptSha256: string
+  indexSnapshotId: string
+  recentHistoryMessageIds: string[]
+  compactedHistoryMessageIds: string[]
+  resolvedHistoryMessageIds: string[]
+  evidenceChecksums: EvidenceChecksum[]
+  contextBudget: ContextBudget
+  citationRepair: CitationRepair
+  answerCompleteness: AnswerCompletenessValidation
+  generatedAt: string
 }
 
 export type EvidenceItem = {
@@ -406,6 +482,19 @@ export type EvidenceItem = {
   retrievalReason: string
 }
 
+export type RetrievalChannelDiagnostic = {
+  name: string
+  durationMs: number
+  candidateCount: number
+}
+
+export type RetrievalDiagnostics = {
+  totalMs: number
+  channels: RetrievalChannelDiagnostic[]
+  selectedCount: number
+  cancelCheckCount: number
+}
+
 export type QuestionContext = {
   requestId: string
   question: string
@@ -413,6 +502,8 @@ export type QuestionContext = {
   retrievalQuery: { originalQuestion: string; resolvedQuestion: string; entities: string[]; intent: string; usedHistoryMessageIds: string[] }
   conversation: ConversationTurn[]
   evidence: EvidenceItem[]
+  retrievalDiagnostics: RetrievalDiagnostics
+  contextPlan: ContextPlan
   waterline: WaterlineSnapshot
   generatedAt: string
 }
@@ -427,6 +518,14 @@ export type CitationValidation = {
   supported: boolean
   groundingStatus: 'supported' | 'unverified' | 'invalid'
   zeroEvidence: boolean
+  claimCount: number
+  citedClaimCount: number
+  citationCoverage: number
+  unsupportedClaims: string[]
+  graphOnlyClaims: string[]
+  syntaxValid: boolean
+  coverageValid: boolean
+  entailmentChecked: boolean
 }
 
 export type ResearchContextAnchor = {
@@ -502,11 +601,23 @@ export type ChatMessage = {
   evidence: EvidenceItem[]
   waterline?: WaterlineSnapshot | null
   citationValidation?: CitationValidation | null
+  runManifest?: QaRunManifest | null
 }
 
 export type ChatSessionDetail = {
   session: ChatSessionSummary
   messages: ChatMessage[]
+}
+
+export type ChatSessionPage = {
+  items: ChatSessionSummary[]
+  nextCursor?: string | null
+}
+
+export type ChatMessagePage = {
+  session: ChatSessionSummary
+  messages: ChatMessage[]
+  nextCursor?: string | null
 }
 
 export type AskRequest = {
@@ -523,6 +634,9 @@ export type AskResult = {
   userMessage: ChatMessage
   assistantMessage: ChatMessage
   evidence: EvidenceItem[]
+  retrievalDiagnostics: RetrievalDiagnostics
+  contextBudget: ContextBudget
+  runManifest: QaRunManifest
   waterline: WaterlineSnapshot
   offline: boolean
   citationValidation: CitationValidation
@@ -531,7 +645,7 @@ export type AskResult = {
 export type AnswerStreamEvent =
   | { type: 'started'; payload: { requestId: string; sessionId: string } }
   | { type: 'retrieval_started'; payload: { requestId: string } }
-  | { type: 'retrieval_completed'; payload: { requestId: string; evidence: EvidenceItem[]; waterline: WaterlineSnapshot } }
+  | { type: 'retrieval_completed'; payload: { requestId: string; evidence: EvidenceItem[]; retrievalDiagnostics: RetrievalDiagnostics; contextBudget: ContextBudget; waterline: WaterlineSnapshot } }
   | { type: 'token'; payload: { requestId: string; content: string } }
   | { type: 'completed'; payload: { requestId: string; result: AskResult } }
   | { type: 'failed'; payload: { requestId: string; code: string; message: string; retryable: boolean; exchange?: { sessionId: string; userMessage: ChatMessage; assistantMessage: ChatMessage } | null } }

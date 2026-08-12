@@ -1,6 +1,6 @@
 # Wiki 问答回归集
 
-`gold_questions.json` 固定 10 个真实使用问题，用来防止 wiki 改动后 `/solve`、`/novelty` 和跨文献关系回答退化。
+`gold_questions.json` 固定 10 个真实使用问题，用来防止 wiki 改动后 `/solve`、`/novelty` 和跨文献关系回答退化。它明确属于 **development/regression** split：题目及期望结果对开发者可见，因此只证明回归契约，不代表生产端到端事实准确率。
 
 ## 用法
 
@@ -16,6 +16,96 @@ py -3 tools/wiki_eval.py
 py -3 tools/wiki_eval.py --answers-dir evals/answers
 ```
 
-脚本做确定性链接、水位和必提概念契约检查，不替代人工判断答案是否真正理解了方法边界。每次修改核心 synthesis、问答模板或导航结构后运行一次。
+脚本做确定性链接、水位和必提概念契约检查，不替代人工判断答案是否真正理解了方法边界，也不输出“准确率”结论。每次修改核心 synthesis、问答模板或导航结构后运行一次。
 
 当前答案基线与维护者初审见 `evals/answers/REVIEW.md`；切换问答模型（例如 Luna）后应保留旧基线并重新运行评测。
+
+## Production held-out 准确率
+
+`heldout_questions.json` 是独立冻结入口。当前状态为 `awaiting_independent_curation`，不预填模型自行构造的“真值”。冻结要求：
+
+1. 由未参与检索器、提示词和回归集开发的研究者独立抽样，至少 30 题；
+2. 冻结后才生成 `evals/heldout-runs/<case-id>.json` 审计包；
+3. 匿名双人逐 claim 复核，分歧交第三人裁决，保存到 `evals/heldout-reviews/<case-id>.json`；
+4. 运行 `py -3 tools/qa_accuracy_eval.py`，报告事实 precision、Wilson 95% 区间、引用 ID 精度和结构完整率；
+5. 自动语义蕴含保持未启用，结果中固定为 `semanticEntailmentChecked=false`。
+
+### Held-out run 的可核验 schema
+
+每个 `heldout-runs/<case-id>.json` 必须直接来自同一轮审计包，并包含：
+
+```json
+{
+  "question": "冻结题目原文",
+  "answer": "最终回答正文，含 [E1]",
+  "answerClaims": [
+    {"claimId": "C1", "text": "回答中逐字存在的 claim [E1]", "citedEvidenceIds": ["E1"]}
+  ],
+  "evidence": ["完整 EvidenceItem 对象"],
+  "runManifest": {
+    "evidenceChecksums": [
+      {"evidenceId": "E1", "stableSourceId": "...", "sha256": "64 位小写十六进制"}
+    ],
+    "answerCompleteness": {"claimCount": 1, "complete": true}
+  }
+}
+```
+
+`answerClaims` 是人工评审的冻结 claim 清单。其长度必须严格等于
+`runManifest.answerCompleteness.claimCount`，每个 `text` 必须逐字出现在
+`answer` 中，每个 `citedEvidenceIds` 也必须以 `[E#]` 出现在该 claim 文本中。这样评审不能用
+“manifest 声明 99 个 claim、实际只提交 1 个 verdict”的方式缩小分母。
+
+证据数组及 checksum 数组必须非空，并保留 Rust `EvidenceItem` 的全部字段。评测器按该结构体的固定字段顺序生成
+UTF-8 compact JSON（与 `serde_json::to_vec(EvidenceItem)` 一致），从当前 `evidence`
+内容重新计算 SHA-256，同时校验 `stableSourceId`。只对比 evidence ID、缺失 checksum、
+伪造 checksum 或 checksum 生成后篡改 snippet/路径/位置等任一证据字段都会 fail closed。
+
+### 独立双评审与分歧裁决 schema
+
+每个 `heldout-reviews/<case-id>.json` 使用以下结构：
+
+```json
+{
+  "case_id": "case-id",
+  "primary_reviews": [
+    {
+      "reviewer_id_hash": "64 位小写 SHA-256",
+      "blinded": true,
+      "independent": true,
+      "claims": [
+        {"claim_id": "C1", "claim": "与 answerClaims 完全一致 [E1]", "verdict": "supported"}
+      ]
+    },
+    {
+      "reviewer_id_hash": "另一个 64 位小写 SHA-256",
+      "blinded": true,
+      "independent": true,
+      "claims": [
+        {"claim_id": "C1", "claim": "与 answerClaims 完全一致 [E1]", "verdict": "contradicted"}
+      ]
+    }
+  ],
+  "adjudication": {
+    "reviewer_id_hash": "第三个 64 位小写 SHA-256",
+    "blinded": true,
+    "independent": true,
+    "claims": [
+      {"claim_id": "C1", "claim": "与 answerClaims 完全一致 [E1]", "verdict": "not_verifiable"}
+    ]
+  }
+}
+```
+
+两份 primary review 必须来自不同 reviewer，且各自恰好覆盖全部 `answerClaims` 一次。
+无分歧时省略 `adjudication`；存在分歧时必须由不同于两名 primary reviewer 的第三人
+裁决全部且仅裁决分歧 claim。聚合统计每个 claim 只计一次：一致 verdict 直接采用，
+分歧 verdict 采用第三人裁决。
+
+在独立题集冻结前可验证入口状态：
+
+```powershell
+py -3 tools/qa_accuracy_eval.py --allow-pending
+```
+
+智能问答中的“复制审计包”会导出问题、最终回答、本轮证据和 `QaRunManifest`；不包含凭据或 provider 原始 payload。

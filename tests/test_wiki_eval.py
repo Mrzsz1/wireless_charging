@@ -22,6 +22,8 @@ class WikiEvalTests(unittest.TestCase):
         payload = wiki_eval.load_gold(ROOT / "evals" / "gold_questions.json")
         self.assertEqual(wiki_eval.validate_contract(payload, ROOT / "wiki"), [])
         self.assertEqual(payload["version"], wiki_eval.GOLD_VERSION)
+        self.assertEqual(payload["dataset_role"], "development_regression")
+        self.assertEqual(payload["split"], "development")
         self.assertTrue(
             all(case["evidence_contract"]["paper_sources"] for case in payload["cases"])
         )

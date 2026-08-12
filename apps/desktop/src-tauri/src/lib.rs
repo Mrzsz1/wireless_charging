@@ -2459,6 +2459,34 @@ fn list_chat_sessions(
 }
 
 #[tauri::command]
+fn list_chat_sessions_page(
+    cursor: Option<String>,
+    query: Option<String>,
+    limit: Option<usize>,
+    state: State<'_, AppState>,
+) -> Result<qa::ChatSessionPage, String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "请先建立本地索引".to_string())?;
+    qa::list_sessions_page(
+        connection,
+        root,
+        cursor.as_deref(),
+        query.as_deref(),
+        limit.unwrap_or(40),
+    )
+}
+
+#[tauri::command]
 fn get_chat_session(
     session_id: String,
     state: State<'_, AppState>,
@@ -2476,6 +2504,34 @@ fn get_chat_session(
         .as_ref()
         .ok_or_else(|| "请先建立本地索引".to_string())?;
     qa::get_session(connection, root, &session_id)
+}
+
+#[tauri::command]
+fn get_chat_session_page(
+    session_id: String,
+    before: Option<String>,
+    limit: Option<usize>,
+    state: State<'_, AppState>,
+) -> Result<qa::ChatMessagePage, String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "请先建立本地索引".to_string())?;
+    qa::get_session_page(
+        connection,
+        root,
+        &session_id,
+        before.as_deref(),
+        limit.unwrap_or(60),
+    )
 }
 
 #[tauri::command]
@@ -2668,6 +2724,7 @@ fn persist_answer_failure(
     code: &str,
     message: &str,
     provider: &str,
+    audit: Option<&qa::AnswerAudit>,
 ) -> Option<qa::FailedExchange> {
     let mut repository = state.repository.lock().ok()?;
     if repository
@@ -2690,6 +2747,7 @@ fn persist_answer_failure(
         code,
         message,
         provider,
+        audit,
     )
     .ok()
 }
@@ -2799,7 +2857,7 @@ async fn ask_luna(
             return Err("QUESTION_CANCELLED: 用户停止了问答".to_string());
         }
         let settings = qa::get_luna_settings(&connection, &worker_root, false)?;
-        let context = qa::prepare_question_with_history(
+        let context = qa::prepare_question_with_history_and_budget(
             &connection,
             &worker_root,
             &worker_request.question,
@@ -2807,6 +2865,9 @@ async fn ask_luna(
             &worker_request_id,
             conversation,
             Some(&worker_cancel),
+            settings.context_window_tokens,
+            settings.max_output_tokens,
+            settings.recent_exchange_limit,
         )?;
         connection
             .execute_batch("COMMIT;")
@@ -2840,6 +2901,7 @@ async fn ask_luna(
                 &code,
                 &message,
                 "retrieval",
+                None,
             );
             let _ = on_event.send(qa::AnswerStreamEvent::Failed {
                 request_id: request_id.clone(),
@@ -2868,6 +2930,8 @@ async fn ask_luna(
     let _ = on_event.send(qa::AnswerStreamEvent::RetrievalCompleted {
         request_id: request_id.clone(),
         evidence: context.evidence.clone(),
+        retrieval_diagnostics: context.retrieval_diagnostics.clone(),
+        context_budget: context.context_plan.budget.clone(),
         waterline: context.waterline.clone(),
     });
 
@@ -2969,7 +3033,9 @@ async fn ask_luna(
                                 .map_err(|error| format!("LUNA_CHANNEL_ERROR: {error}"))
                         },
                     )
-                    .map(|answer| (answer, "luna".to_string(), remote_settings.model.clone()))
+                    .map(|(answer, resolved_model)| {
+                        (answer, qa::PROVIDER_API.to_string(), resolved_model)
+                    })
                 })
                 .await
                 .map_err(|error| format!("LUNA_TASK_ERROR: {error}"))?
@@ -3002,6 +3068,22 @@ async fn ask_luna(
         }
         Err(error) => {
             let (code, message) = answer_error_parts(&error);
+            let model_requested = match settings.answer_provider.as_str() {
+                qa::PROVIDER_CODEX => settings.codex_model.clone(),
+                qa::PROVIDER_API => settings.model.clone(),
+                _ => "deterministic".to_string(),
+            };
+            let failure_metadata = qa::ProviderRunMetadata {
+                provider: settings.answer_provider.clone(),
+                model_requested,
+                model_resolved: String::new(),
+                temperature: (settings.answer_provider == qa::PROVIDER_API)
+                    .then_some(settings.temperature),
+                max_output_tokens: settings.max_output_tokens,
+                context_window_tokens: settings.context_window_tokens,
+                enforce_answer_schema: settings.answer_provider != qa::PROVIDER_OFFLINE,
+            };
+            let audit = qa::audit_generated_answer(&context, "", &failure_metadata);
             let exchange = persist_answer_failure(
                 &state,
                 &root,
@@ -3013,6 +3095,7 @@ async fn ask_luna(
                 &code,
                 &message,
                 &settings.answer_provider,
+                Some(&audit),
             );
             let _ = on_event.send(qa::AnswerStreamEvent::Failed {
                 request_id: request_id.clone(),
@@ -3075,18 +3158,35 @@ async fn ask_luna(
             .db
             .as_mut()
             .ok_or_else(|| "知识库在问答过程中已关闭".to_string())?;
-        qa::persist_exchange(
+        let model_requested = match provider.as_str() {
+            qa::PROVIDER_CODEX => settings.codex_model.clone(),
+            qa::PROVIDER_API => settings.model.clone(),
+            _ => "deterministic".to_string(),
+        };
+        let temperature = (provider == qa::PROVIDER_API).then_some(settings.temperature);
+        let metadata = qa::ProviderRunMetadata {
+            provider: provider.clone(),
+            model_requested,
+            model_resolved: model.clone(),
+            temperature,
+            max_output_tokens: settings.max_output_tokens,
+            context_window_tokens: settings.context_window_tokens,
+            enforce_answer_schema: provider != qa::PROVIDER_OFFLINE,
+        };
+        let audit = qa::audit_generated_answer(&context, &answer, &metadata);
+        let persisted = qa::persist_exchange_with_metadata(
             connection,
             &root,
             Some(&session_id),
             &context,
             answer,
-            &provider,
-            &model,
-        )
+            metadata,
+        );
+        (persisted, audit)
     };
 
-    let result = match persisted {
+    let (persist_result, failed_audit) = persisted;
+    let result = match persist_result {
         Ok(result) => result,
         Err(error) => {
             let (code, message) = answer_error_parts(&error);
@@ -3101,6 +3201,7 @@ async fn ask_luna(
                 &code,
                 &message,
                 &provider,
+                Some(&failed_audit),
             );
             let _ = on_event.send(qa::AnswerStreamEvent::Failed {
                 request_id: request_id.clone(),
@@ -3707,7 +3808,9 @@ pub fn run() {
             get_codex_subscription_status,
             start_codex_login,
             list_chat_sessions,
+            list_chat_sessions_page,
             get_chat_session,
+            get_chat_session_page,
             create_chat_session,
             rename_chat_session,
             delete_chat_session,
@@ -4186,6 +4289,7 @@ mod tests {
                 .expect("gold questions");
         let cases = payload["cases"].as_array().expect("cases");
         let mut missed = Vec::new();
+        let mut ranking_observations = Vec::new();
         for case in cases {
             let question = case["question"].as_str().expect("question");
             let expected = case["expected_wikilinks"]
@@ -4206,6 +4310,57 @@ mod tests {
                 .collect::<Vec<_>>();
             let context = qa::prepare_question(&connection, &root, question, 20)
                 .unwrap_or_else(|error| panic!("question failed: {question}: {error}"));
+            let canonical_id = |value: &str| {
+                value
+                    .trim_end_matches(".md")
+                    .rsplit('/')
+                    .next()
+                    .unwrap_or(value)
+                    .to_string()
+            };
+            let mut relevant_ids = expected
+                .iter()
+                .chain(paper_sources.iter())
+                .map(|value| canonical_id(value))
+                .collect::<Vec<_>>();
+            relevant_ids.sort();
+            relevant_ids.dedup();
+            let mut ranked_ids = Vec::new();
+            for item in &context.evidence {
+                if item.kind == "paper" && item.relation == "wiki_source_to_primary_fallback" {
+                    continue;
+                }
+                let id = canonical_id(&item.page_id);
+                if !id.is_empty() && !ranked_ids.contains(&id) {
+                    ranked_ids.push(id);
+                }
+            }
+            let required_kinds = contract["required_kinds"]
+                .as_array()
+                .expect("required kinds")
+                .iter()
+                .filter_map(|value| value.as_str())
+                .collect::<Vec<_>>();
+            let required_kind_covered = required_kinds
+                .iter()
+                .all(|kind| context.evidence.iter().any(|item| item.kind == *kind));
+            let pair_covered = paper_sources.iter().all(|target| {
+                let target = canonical_id(target);
+                ["wiki", "paper"].iter().all(|kind| {
+                    context.evidence.iter().any(|item| {
+                        item.kind == *kind
+                            && canonical_id(&item.page_id) == target
+                            && !(*kind == "paper"
+                                && item.relation == "wiki_source_to_primary_fallback")
+                    })
+                })
+            });
+            ranking_observations.push(qa::RetrievalRankingObservation {
+                ranked_ids,
+                relevant_ids,
+                required_kind_covered,
+                pair_covered,
+            });
             let wiki_hit = context.evidence.iter().any(|item| {
                 item.kind == "wiki"
                     && expected
@@ -4220,6 +4375,7 @@ mod tests {
                     && !item.source_location.is_empty()
                     && item.source_location.contains("原文第")
                     && item.source_location.contains('行')
+                    && item.relation != "wiki_source_to_primary_fallback"
             });
             if !wiki_hit || !paper_hit {
                 missed.push(format!(
@@ -4229,8 +4385,8 @@ mod tests {
                         .evidence
                         .iter()
                         .map(|item| format!(
-                            "{}:{}:{}",
-                            item.kind, item.page_id, item.source_location
+                            "{}:{}:{}:{}",
+                            item.kind, item.page_id, item.relation, item.source_location
                         ))
                         .collect::<Vec<_>>()
                 ));
@@ -4239,6 +4395,42 @@ mod tests {
         assert!(
             missed.is_empty(),
             "每个固定问题必须同时召回预期 Wiki 与可定位的 primary paper 证据；missed={missed:?}"
+        );
+        let metrics = qa::evaluate_retrieval_quality(&ranking_observations);
+        eprintln!(
+            "gold retrieval metrics: recall@5={:.3}, recall@10={:.3}, recall@20={:.3}, MRR={:.3}, nDCG@10={:.3}, kind={:.3}, pair={:.3}",
+            metrics.recall_at_5,
+            metrics.recall_at_10,
+            metrics.recall_at_20,
+            metrics.mrr,
+            metrics.ndcg_at_10,
+            metrics.required_kind_coverage,
+            metrics.pair_coverage,
+        );
+        // Pin the measured v2 gold baseline rather than claiming perfect
+        // recall. Raising it requires a deliberate ranking change and gold
+        // review; falling below it is a regression.
+        assert!(
+            metrics.recall_at_5 >= 0.35,
+            "Recall@5 低于 0.35：{metrics:?}"
+        );
+        assert!(
+            metrics.recall_at_10 >= 0.54,
+            "Recall@10 低于 0.54：{metrics:?}"
+        );
+        assert!(
+            metrics.recall_at_20 >= 0.54,
+            "Recall@20 低于 0.54：{metrics:?}"
+        );
+        assert!(metrics.mrr >= 0.68, "MRR 低于 0.68：{metrics:?}");
+        assert!(metrics.ndcg_at_10 >= 0.48, "nDCG@10 低于 0.48：{metrics:?}");
+        assert_eq!(
+            metrics.required_kind_coverage, 1.0,
+            "必需证据通道覆盖下降：{metrics:?}"
+        );
+        assert!(
+            metrics.pair_coverage >= 0.80,
+            "Wiki-primary 配对覆盖低于 0.80：{metrics:?}"
         );
     }
 

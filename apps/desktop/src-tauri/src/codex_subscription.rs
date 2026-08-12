@@ -409,6 +409,22 @@ fn event_delta(value: &Value) -> Option<&str> {
         .and_then(Value::as_str)
 }
 
+fn event_model(line: &str) -> Option<String> {
+    let value = serde_json::from_str::<Value>(line).ok()?;
+    [
+        "/model",
+        "/model_slug",
+        "/turn/model",
+        "/thread/model",
+        "/response/model",
+    ]
+    .iter()
+    .find_map(|pointer| value.pointer(pointer).and_then(Value::as_str))
+    .map(str::trim)
+    .filter(|model| !model.is_empty() && model.len() <= 120 && !model.chars().any(char::is_control))
+    .map(str::to_string)
+}
+
 fn apply_jsonl_line(line: &str, answer: &mut String) -> Option<String> {
     let value = serde_json::from_str::<Value>(line).ok()?;
     let kind = value
@@ -548,6 +564,7 @@ where
 
     let started = Instant::now();
     let mut answer = String::new();
+    let mut resolved_model = model.trim().to_string();
     let status = loop {
         if cancelled.load(Ordering::SeqCst) {
             terminate_process_tree(&mut child);
@@ -561,6 +578,9 @@ where
         }
         match receiver.recv_timeout(POLL_INTERVAL) {
             Ok(OutputLine::Line(line)) => {
+                if let Some(observed) = event_model(&line) {
+                    resolved_model = observed;
+                }
                 if let Some(delta) = apply_jsonl_line(&line, &mut answer) {
                     if let Err(error) = on_token(&delta) {
                         terminate_process_tree(&mut child);
@@ -578,6 +598,9 @@ where
         {
             for output in receiver.try_iter() {
                 if let OutputLine::Line(line) = output {
+                    if let Some(observed) = event_model(&line) {
+                        resolved_model = observed;
+                    }
                     if let Some(delta) = apply_jsonl_line(&line, &mut answer) {
                         if let Err(error) = on_token(&delta) {
                             let _ = stderr_reader.join();
@@ -602,10 +625,10 @@ where
     }
     Ok((
         answer,
-        if model.trim().is_empty() {
-            "codex-default".to_string()
+        if resolved_model.is_empty() {
+            "provider-default-unreported".to_string()
         } else {
-            model.trim().to_string()
+            resolved_model
         },
     ))
 }
@@ -680,6 +703,16 @@ mod tests {
             None
         );
         assert_eq!(answer, "");
+    }
+
+    #[test]
+    fn jsonl_model_observation_is_explicit_and_secret_free() {
+        assert_eq!(
+            event_model(r#"{"type":"turn.started","turn":{"model":"gpt-fixture"}}"#),
+            Some("gpt-fixture".to_string())
+        );
+        assert_eq!(event_model(r#"{"type":"turn.started"}"#), None);
+        assert_eq!(event_model("not-json"), None);
     }
 
     #[test]
@@ -781,6 +814,7 @@ mod tests {
         )
         .unwrap();
         assert_eq!(result.0, "fixture [E1]");
+        assert_eq!(result.1, "provider-default-unreported");
         assert_eq!(streamed, "fixture [E1]");
 
         let (_failure_workspace, failure_fixture) = write_windows_fixture(

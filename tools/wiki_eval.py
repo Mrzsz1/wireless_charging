@@ -70,6 +70,12 @@ def validate_contract(payload: dict[str, Any], wiki_root: Path) -> list[str]:
     errors: list[str] = []
     if payload.get("version") != GOLD_VERSION:
         errors.append(f"题集版本应为 {GOLD_VERSION}，实际 {payload.get('version')!r}")
+    if payload.get("dataset_role") != "development_regression":
+        errors.append("gold_questions.json 必须标记为 development_regression")
+    if payload.get("split") != "development":
+        errors.append("gold_questions.json split 必须为 development")
+    if payload.get("accuracy_claim") != "retrieval_and_answer_contract_regression_only":
+        errors.append("gold_questions.json 不得声明端到端事实准确率")
     cases = payload["cases"]
     if len(cases) != 10:
         errors.append(f"应有 10 个用例，实际 {len(cases)}")
@@ -202,7 +208,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         for error in errors:
             print(f"- {error}")
         return 1
-    print(f"PASS: {len(payload['cases'])} cases; type counts {EXPECTED_COUNTS}")
+    print(
+        f"CONTRACT PASS: {len(payload['cases'])} development/regression cases; "
+        f"type counts {EXPECTED_COUNTS}; no held-out factual-accuracy claim"
+    )
     return 0
 
 

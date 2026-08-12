@@ -1,5 +1,5 @@
 import { Channel, invoke } from '@tauri-apps/api/core'
-import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatSessionDetail, ChatSessionSummary, CodexSubscriptionStatus, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LiteratureCandidate, LiteratureCapability, LiteratureIngestSettings, LunaSettings, ManualImportSession, PageDetail, PageFilters, PageSummary, QaSettings, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchProviderStatus, SearchResult, StartCompileRequest, StartLiteratureRunRequest, StartupPromptState } from '../types'
+import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatMessagePage, ChatSessionDetail, ChatSessionPage, ChatSessionSummary, CodexSubscriptionStatus, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LiteratureCandidate, LiteratureCapability, LiteratureIngestSettings, LunaSettings, ManualImportSession, PageDetail, PageFilters, PageSummary, QaSettings, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchProviderStatus, SearchResult, StartCompileRequest, StartLiteratureRunRequest, StartupPromptState } from '../types'
 
 type TauriWindow = Window & { __TAURI_INTERNALS__?: unknown }
 
@@ -105,8 +105,16 @@ export async function listChatSessions(limit = 100): Promise<ChatSessionSummary[
   return invoke<ChatSessionSummary[]>('list_chat_sessions', { limit })
 }
 
+export async function listChatSessionsPage(cursor?: string, query?: string, limit = 40): Promise<ChatSessionPage> {
+  return invoke<ChatSessionPage>('list_chat_sessions_page', { cursor, query, limit })
+}
+
 export async function getChatSession(sessionId: string): Promise<ChatSessionDetail> {
   return invoke<ChatSessionDetail>('get_chat_session', { sessionId })
+}
+
+export async function getChatSessionPage(sessionId: string, before?: string, limit = 60): Promise<ChatMessagePage> {
+  return invoke<ChatMessagePage>('get_chat_session_page', { sessionId, before, limit })
 }
 
 export async function createChatSession(title?: string): Promise<ChatSessionSummary> {

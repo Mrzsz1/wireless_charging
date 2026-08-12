@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/backend/qa-contract.md", "reason": "核对业务逻辑与现状判断是否符合契约"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "核对交互层缺陷和验证证据"}

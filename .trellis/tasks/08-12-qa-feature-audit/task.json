@@ -1,0 +1,29 @@
+{
+  "id": "qa-feature-audit",
+  "name": "qa-feature-audit",
+  "title": "智能问答功能业务逻辑与优化审查",
+  "description": "",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "qq155",
+  "assignee": "qq155",
+  "createdAt": "2026-08-12",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "08-12-qa-p1-p2-remediation",
+    "08-12-qa-p3-engineering"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}
