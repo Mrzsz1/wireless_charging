@@ -18,6 +18,8 @@ struct StructuredAnswer {
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct StructuredSection {
+    #[serde(default)]
+    id: String,
     title: String,
     groups: Vec<StructuredGroup>,
 }
@@ -39,9 +41,87 @@ struct StructuredClaim {
     evidence_ids: Vec<String>,
 }
 
+#[derive(Debug)]
 pub struct StructuredRenderResult {
     pub markdown: String,
     pub validation: CitationValidation,
+}
+
+fn normalized_title(value: &str) -> String {
+    value.trim().trim_start_matches('#').trim().to_string()
+}
+
+fn normalize_sections(
+    intent: &str,
+    sections: Vec<StructuredSection>,
+) -> Result<Vec<(super::context::AnswerSectionContract, StructuredSection)>, String> {
+    let expected = super::context::required_answer_section_contract(intent);
+    let has_ids = sections.iter().any(|section| !section.id.trim().is_empty());
+    if has_ids && sections.iter().any(|section| section.id.trim().is_empty()) {
+        return Err("结构化回答 sections 不得混用有 id 和无 id 的章节".to_string());
+    }
+
+    if has_ids {
+        let actual_ids = sections
+            .iter()
+            .map(|section| section.id.trim().to_string())
+            .collect::<Vec<_>>();
+        let expected_ids = expected
+            .iter()
+            .map(|section| section.id.to_string())
+            .collect::<Vec<_>>();
+        if actual_ids != expected_ids {
+            return Err(format!(
+                "结构化回答章节 id 应为 {}，实际为 {}",
+                serde_json::to_string(&expected_ids).unwrap_or_else(|_| "[]".to_string()),
+                serde_json::to_string(&actual_ids).unwrap_or_else(|_| "[]".to_string())
+            ));
+        }
+        for (contract, section) in expected.iter().zip(&sections) {
+            let title = normalized_title(&section.title);
+            if !title.is_empty() && title != contract.title {
+                return Err(format!(
+                    "结构化回答章节 {} 的 title 应为 {:?}，实际为 {:?}",
+                    contract.id, contract.title, title
+                ));
+            }
+        }
+        return Ok(expected.into_iter().zip(sections).collect());
+    }
+
+    let mut compatible = Vec::with_capacity(sections.len());
+    let mut sections = sections.into_iter().peekable();
+    while let Some(mut section) = sections.next() {
+        let title = normalized_title(&section.title);
+        if intent == "literature" && title == "主题" {
+            if sections
+                .peek()
+                .is_some_and(|next| normalized_title(&next.title) == "模型与方法")
+            {
+                let next = sections.next().expect("peeked section must exist");
+                section.groups.extend(next.groups);
+                section.title = "主题、模型与方法".to_string();
+            }
+        }
+        compatible.push(section);
+    }
+
+    let actual_titles = compatible
+        .iter()
+        .map(|section| normalized_title(&section.title))
+        .collect::<Vec<_>>();
+    let expected_titles = expected
+        .iter()
+        .map(|section| section.title.to_string())
+        .collect::<Vec<_>>();
+    if actual_titles != expected_titles {
+        return Err(format!(
+            "结构化回答章节 title 应为 {}，实际为 {}",
+            serde_json::to_string(&expected_titles).unwrap_or_else(|_| "[]".to_string()),
+            serde_json::to_string(&actual_titles).unwrap_or_else(|_| "[]".to_string())
+        ));
+    }
+    Ok(expected.into_iter().zip(compatible).collect())
 }
 
 fn json_payload(value: &str) -> &str {
@@ -94,29 +174,7 @@ pub fn parse_validate_render(
     if answer.sections.is_empty() {
         return Err("结构化回答没有 sections".to_string());
     }
-    let expected_titles = super::context::required_answer_sections(intent)
-        .into_iter()
-        .map(|title| title.trim_start_matches("## ").to_string())
-        .collect::<Vec<_>>();
-    let actual_titles = answer
-        .sections
-        .iter()
-        .map(|section| {
-            section
-                .title
-                .trim()
-                .trim_start_matches('#')
-                .trim()
-                .to_string()
-        })
-        .collect::<Vec<_>>();
-    if actual_titles != expected_titles {
-        return Err(format!(
-            "结构化回答章节应为 [{}]，实际为 [{}]",
-            expected_titles.join("、"),
-            actual_titles.join("、")
-        ));
-    }
+    let sections = normalize_sections(intent, answer.sections)?;
 
     let known = evidence
         .iter()
@@ -130,9 +188,9 @@ pub fn parse_validate_render(
     let mut cited_claim_count = 0;
     let mut markdown = String::new();
 
-    for section in &answer.sections {
-        let title = section.title.trim().trim_start_matches('#').trim();
-        if title.is_empty() || section.groups.is_empty() {
+    for (contract, section) in &sections {
+        let title = contract.title;
+        if section.groups.is_empty() {
             return Err("section title/groups 为空".to_string());
         }
         markdown.push_str("## ");
@@ -276,12 +334,112 @@ pub fn parse_validate_render(
     })
 }
 
-pub fn invalid_validation(error: String) -> CitationValidation {
+pub fn invalid_validation(error: &str) -> CitationValidation {
     CitationValidation {
         grounding_status: "invalid".to_string(),
-        claim_count: 1,
-        unsupported_claims: vec![compact(&error, 180)],
+        claim_count: 0,
+        unsupported_claims: vec![compact(error, 180)],
         syntax_valid: false,
         ..CitationValidation::default()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    fn evidence(id: &str) -> EvidenceItem {
+        EvidenceItem {
+            id: id.to_string(),
+            kind: "wiki".to_string(),
+            tier: "direct".to_string(),
+            title: "Fixture".to_string(),
+            snippet: "Supported fixture claim".to_string(),
+            score: 1.0,
+            rank: 1,
+            page_id: "fixture".to_string(),
+            page_type: "source".to_string(),
+            source_path: "wiki/sources/fixture.md".to_string(),
+            wikilink: "[[fixture]]".to_string(),
+            book_id: String::new(),
+            chapter_id: String::new(),
+            physical_page_start: None,
+            physical_page_end: None,
+            markdown_path: String::new(),
+            pdf_path: String::new(),
+            node_id: String::new(),
+            source_location: "原文第1–2行".to_string(),
+            relation: String::new(),
+            retrieval_reason: String::new(),
+        }
+    }
+
+    fn group(text: &str) -> serde_json::Value {
+        json!({
+            "label": "fixture",
+            "claims": [{"label": "claim", "text": text, "evidenceIds": ["E1"]}]
+        })
+    }
+
+    #[test]
+    fn canonical_section_ids_render_backend_titles() {
+        let sections = super::super::context::required_answer_section_contract("literature")
+            .into_iter()
+            .map(|section| {
+                json!({
+                    "id": section.id,
+                    "title": section.title,
+                    "groups": [group(section.title)]
+                })
+            })
+            .collect::<Vec<_>>();
+        let raw = json!({
+            "schemaVersion": SCHEMA_VERSION,
+            "sections": sections,
+            "supplement": []
+        })
+        .to_string();
+
+        let result = parse_validate_render(&raw, "literature", &[evidence("E1")]).unwrap();
+        assert!(result.validation.supported);
+        assert!(result.markdown.contains("## 主题、模型与方法"));
+    }
+
+    #[test]
+    fn legacy_literature_topic_and_methods_sections_are_merged() {
+        let raw = json!({
+            "schemaVersion": SCHEMA_VERSION,
+            "sections": [
+                {"title": "结论", "groups": [group("结论")]},
+                {"title": "库内相关论文", "groups": [group("论文")]},
+                {"title": "主题", "groups": [group("主题")]},
+                {"title": "模型与方法", "groups": [group("模型")]},
+                {"title": "边界与复现信息", "groups": [group("边界")]}
+            ],
+            "supplement": []
+        })
+        .to_string();
+
+        let result = parse_validate_render(&raw, "literature", &[evidence("E1")]).unwrap();
+        assert!(result.validation.supported);
+        assert_eq!(result.validation.claim_count, 5);
+        assert_eq!(result.markdown.matches("## 主题、模型与方法").count(), 1);
+        assert!(!result.markdown.contains("## 主题\n"));
+        assert!(!result.markdown.contains("## 模型与方法\n"));
+    }
+
+    #[test]
+    fn invalid_section_ids_report_explicit_contract_arrays() {
+        let raw = json!({
+            "schemaVersion": SCHEMA_VERSION,
+            "sections": [{"id": "wrong", "title": "结论", "groups": [group("结论")]}],
+            "supplement": []
+        })
+        .to_string();
+        let error = parse_validate_render(&raw, "literature", &[evidence("E1")]).unwrap_err();
+        assert!(error.contains("章节 id 应为"));
+        assert!(error.contains("topic_methods"));
+        assert!(error.contains("wrong"));
     }
 }

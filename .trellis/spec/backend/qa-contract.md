@@ -109,6 +109,7 @@ Citation tokens immediately following sentence punctuation on the same line rema
 ## 9. Answer Rendering Contract
 
 - Evidence-backed Codex/API generations use `qa-structured-answer-v1` JSON rather than model-authored Markdown. Each claim carries explicit `evidenceIds`; backend validation checks existence and at least one non-Graphify source directly from this array, then deterministically renders Markdown. Punctuation, prose line breaks, headings, labels, and source locations are therefore never rediscovered as claim boundaries.
+- Every structured section carries a stable machine ID plus its canonical display title. The backend owns the ordered `id/title` contract and emits it to the model as a JSON array; never serialize required headings by joining them with a natural-language delimiter because a title may contain that delimiter. New output must include IDs. Title-only v1 output remains readable when it maps exactly, and the legacy adjacent literature sections `主题` + `模型与方法` are merged without changing claims or `evidenceIds`.
 - The structured contract contains ordered sections, optional short group labels, claims, and a separate supplement array. The supplement cannot carry evidence tokens or repository locations and the rendered mixed-answer projection retains the existing trusted-context isolation boundary.
 - The backend appends one generated `参考证据` section. It renders only `[E#]`, source kind, and compact location; full title/path metadata remains in the evidence payload and audit bundle rather than visible answer prose.
 - Persisted content remains Markdown source text. The desktop renders Markdown, GFM tables, fenced code, and KaTeX through a lazy-loaded renderer.
@@ -118,6 +119,7 @@ Citation tokens immediately following sentence punctuation on the same line rema
 - Supported messages show deterministic claim coverage and the text `语义未自动核验`. Zero-evidence completed views show `本轮未检索到参考来源`; only an active retrieval may show `正在检索`.
 - The evidence sidebar shows the context token breakdown, compacted count, snapshot ID, prompt/answer schema versions, and completeness state. Assistant actions can copy an audit bundle containing question, answer, evidence, and manifest.
 - `offline-evidence` is presented as “证据浏览模式”; it is evidence navigation, not a generated research answer.
+- Structured parsing/contract failures return `STRUCTURED_ANSWER_VALIDATION_FAILED` with the actual reason and a zero-claim invalid audit projection. Unknown IDs, missing evidence, and Graphify-only support remain `CITATION_VALIDATION_FAILED`; structural errors must never be converted into a synthetic `1 / 1` missing-citation result.
 
 ## 10. Tests Required
 
@@ -140,6 +142,7 @@ Citation tokens immediately following sentence punctuation on the same line rema
 - Gold retrieval reports and thresholds Recall@5/10/20, MRR, binary nDCG@10, required-kind coverage, and Wiki-primary pair coverage. Generic paper fallback is excluded from ranked paper hits and pair coverage. Thresholds pin the reviewed current baseline; changes must not silently lower them.
 - `gold_questions.json` is explicitly development/regression and cannot support a production accuracy claim. `heldout_questions.json` is the independently curated/frozen production entry; `tools/qa_accuracy_eval.py` reports claim precision and Wilson intervals only after exact claim coverage, canonical evidence checksum verification, two independent blinded reviews, and third-reviewer adjudication of every disagreement.
 - Production fixture tests build the shared prompt, enforce the answer schema, persist the answer, and reload an identical manifest through both full and paginated history paths.
+- Structured-answer regressions cover canonical section IDs, title-only v1 compatibility, the legacy literature split merge, explicit expected/actual contract arrays, dedicated structural error propagation, and preservation of genuine citation failures.
 - Diagnostics tests serialize the DTO and assert that only aggregate timing/count metadata crosses the Rust/TypeScript boundary.
 
 ## 11. Wrong vs Correct Edge Cases
@@ -150,6 +153,7 @@ Citation tokens immediately following sentence punctuation on the same line rema
 - Return `Complete` before consuming content from a terminal `finish_reason=stop` frame.
 - Repair source diversity with `selected.pop()`; later repairs can silently evict an earlier required channel or the only method.
 - Apply a global citation regex to Markdown source; this mutates code/math and creates nested links.
+- Join canonical section titles with `、` inside a prompt; `主题、模型与方法` becomes indistinguishable from two separate sections.
 
 ### Correct
 
@@ -157,3 +161,4 @@ Citation tokens immediately following sentence punctuation on the same line rema
 - Consume a terminal frame's content before marking the SSE state complete.
 - Remove only the lowest-scored unprotected candidate and skip a repair when the evidence budget has no safe slot.
 - Project citation links with a Markdown-aware scanner that preserves literal regions.
+- Serialize the ordered section contract as JSON objects such as `{"id":"topic_methods","title":"主题、模型与方法"}` and validate IDs before rendering backend-owned titles.

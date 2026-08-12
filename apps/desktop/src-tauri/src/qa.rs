@@ -300,6 +300,7 @@ pub struct AnswerAudit {
     pub waterline: WaterlineSnapshot,
     pub citation_validation: CitationValidation,
     pub run_manifest: QaRunManifest,
+    pub structured_answer_error: Option<String>,
 }
 
 #[allow(clippy::large_enum_variant)]
@@ -2658,8 +2659,12 @@ pub fn persist_exchange_with_metadata(
         answer,
         citation_validation,
         run_manifest,
+        structured_answer_error,
         ..
     } = audit;
+    if let Some(reason) = structured_answer_error {
+        return Err(format!("STRUCTURED_ANSWER_VALIDATION_FAILED: {reason}"));
+    }
     if !citation_validation.supported && citation_validation.grounding_status != "unverified" {
         let reason = if !citation_validation.unknown_ids.is_empty() {
             format!(
@@ -2827,23 +2832,28 @@ pub fn audit_generated_answer(
     let structured = metadata.enforce_answer_schema
         && !context.evidence.is_empty()
         && metadata.provider != PROVIDER_OFFLINE;
-    let (answer, citation_repair, citation_validation) = if structured {
+    let (answer, citation_repair, citation_validation, structured_answer_error) = if structured {
         match structured_answer::parse_validate_render(answer, &context.intent, &context.evidence) {
             Ok(result) => (
                 result.markdown,
                 CitationRepair::default(),
                 result.validation,
+                None,
             ),
-            Err(error) => (
-                answer.to_string(),
-                CitationRepair::default(),
-                structured_answer::invalid_validation(error),
-            ),
+            Err(error) => {
+                let validation = structured_answer::invalid_validation(&error);
+                (
+                    answer.to_string(),
+                    CitationRepair::default(),
+                    validation,
+                    Some(error),
+                )
+            }
         }
     } else {
         let (answer, citation_repair) = repair_unknown_citations(answer, &context.evidence);
         let citation_validation = validate_citations(&answer, &context.evidence);
-        (answer, citation_repair, citation_validation)
+        (answer, citation_repair, citation_validation, None)
     };
     let completeness = context::validate_answer_completeness(
         &context.intent,
@@ -2868,6 +2878,7 @@ pub fn audit_generated_answer(
         waterline: context.waterline.clone(),
         citation_validation,
         run_manifest,
+        structured_answer_error,
     }
 }
 
@@ -3045,6 +3056,38 @@ mod tests {
             relation: String::new(),
             retrieval_reason: String::new(),
         }
+    }
+
+    fn structured_fixture_answer(intent: &str, evidence_id: &str, complete: bool) -> String {
+        let sections = context::required_answer_section_contract(intent)
+            .into_iter()
+            .enumerate()
+            .map(|(index, section)| {
+                let text = if complete && index == 0 {
+                    "研究对象、变量、目标函数、约束、求解步骤、可证明保证和失效边界均由 fixture 证据覆盖"
+                } else {
+                    "Fixture claim is supported"
+                };
+                json!({
+                    "id": section.id,
+                    "title": section.title,
+                    "groups": [{
+                        "label": "fixture",
+                        "claims": [{
+                            "label": format!("claim-{index}"),
+                            "text": text,
+                            "evidenceIds": [evidence_id]
+                        }]
+                    }]
+                })
+            })
+            .collect::<Vec<_>>();
+        json!({
+            "schemaVersion": context::ANSWER_SCHEMA_VERSION,
+            "sections": sections,
+            "supplement": []
+        })
+        .to_string()
     }
 
     fn graph_evidence(id: &str) -> EvidenceItem {
@@ -3917,19 +3960,13 @@ mod tests {
             root.path(),
             Some("fixture-incomplete"),
             &context,
-            "Supported statement [E1].".to_string(),
+            structured_fixture_answer(INTENT_SOLVE, "E1", false),
             metadata.clone(),
         )
         .unwrap_err();
         assert!(incomplete.starts_with("ANSWER_COMPLETENESS_FAILED"));
 
-        let answer = context::required_answer_sections(INTENT_SOLVE)
-            .into_iter()
-            .enumerate()
-            .map(|(index, heading)| format!("{heading}\nFixture claim {index} is supported [E1]."))
-            .collect::<Vec<_>>()
-            .join("\n")
-            + "\n研究对象、变量、目标函数、约束、求解步骤、可证明保证和失效边界均由 fixture 证据覆盖 [E1].";
+        let answer = structured_fixture_answer(INTENT_SOLVE, "E1", true);
         let result = persist_exchange_with_metadata(
             &mut connection,
             root.path(),
@@ -3972,6 +4009,67 @@ mod tests {
     }
 
     #[test]
+    fn structured_contract_failures_are_not_reported_as_citation_failures() {
+        let (root, mut connection) = test_db();
+        let mut context =
+            prepare_question(&connection, root.path(), "fixture scheduling", 4).unwrap();
+        context.evidence = vec![evidence("E1")];
+        let metadata = ProviderRunMetadata {
+            provider: PROVIDER_API.to_string(),
+            model_requested: "fixture-requested".to_string(),
+            model_resolved: "fixture-resolved".to_string(),
+            temperature: Some(0.1),
+            max_output_tokens: 1_800,
+            context_window_tokens: 32_768,
+            enforce_answer_schema: true,
+        };
+
+        let error = persist_exchange_with_metadata(
+            &mut connection,
+            root.path(),
+            Some("fixture-invalid-structure"),
+            &context,
+            "not-json".to_string(),
+            metadata,
+        )
+        .unwrap_err();
+
+        assert!(error.starts_with("STRUCTURED_ANSWER_VALIDATION_FAILED:"));
+        assert!(error.contains("不是有效 JSON"));
+        assert!(!error.contains("缺少同句有效引用"));
+    }
+
+    #[test]
+    fn structured_unknown_evidence_remains_a_citation_failure() {
+        let (root, mut connection) = test_db();
+        let mut context =
+            prepare_question(&connection, root.path(), "fixture scheduling", 4).unwrap();
+        context.evidence = vec![evidence("E1")];
+        let metadata = ProviderRunMetadata {
+            provider: PROVIDER_API.to_string(),
+            model_requested: "fixture-requested".to_string(),
+            model_resolved: "fixture-resolved".to_string(),
+            temperature: Some(0.1),
+            max_output_tokens: 1_800,
+            context_window_tokens: 32_768,
+            enforce_answer_schema: true,
+        };
+
+        let error = persist_exchange_with_metadata(
+            &mut connection,
+            root.path(),
+            Some("fixture-invalid-citation"),
+            &context,
+            structured_fixture_answer(INTENT_SOLVE, "E99", true),
+            metadata,
+        )
+        .unwrap_err();
+
+        assert!(error.starts_with("CITATION_VALIDATION_FAILED:"));
+        assert!(error.contains("E99"));
+    }
+
+    #[test]
     fn rejected_answer_audit_round_trips_with_failed_exchange() {
         let (root, mut connection) = test_db();
         let mut context =
@@ -3986,9 +4084,10 @@ mod tests {
             context_window_tokens: 32_768,
             enforce_answer_schema: true,
         };
-        let audit = audit_generated_answer(&context, "Unsupported claim [E99].", &metadata);
+        let rejected = structured_fixture_answer(INTENT_SOLVE, "E99", true);
+        let audit = audit_generated_answer(&context, &rejected, &metadata);
         assert!(!audit.citation_validation.supported);
-        assert!(!audit.run_manifest.answer_completeness.complete);
+        assert!(audit.run_manifest.answer_completeness.complete);
 
         persist_failure_exchange(
             &mut connection,
@@ -4007,7 +4106,7 @@ mod tests {
         let detail = get_session(&connection, root.path(), "failed-audit-session").unwrap();
         let failed = &detail.messages[1];
         assert_eq!(failed.status, "failed");
-        assert_eq!(failed.content, "Unsupported claim [E99].");
+        assert_eq!(failed.content, audit.answer);
         assert_eq!(failed.evidence.len(), 1);
         assert_eq!(failed.model, "fixture-resolved");
         assert_eq!(
@@ -4019,7 +4118,7 @@ mod tests {
             audit.run_manifest.prompt_sha256
         );
         assert!(
-            !failed
+            failed
                 .run_manifest
                 .as_ref()
                 .unwrap()

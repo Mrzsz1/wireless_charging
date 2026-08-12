@@ -6,7 +6,7 @@ use sha2::{Digest, Sha256};
 use std::path::Path;
 use std::time::UNIX_EPOCH;
 
-pub const PROMPT_VERSION: &str = "qa-prompt-v5";
+pub const PROMPT_VERSION: &str = "qa-prompt-v6";
 pub const ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-rrf-v3";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v2";
@@ -406,24 +406,68 @@ fn research_contract(has_evidence: bool) -> &'static str {
 }
 
 pub fn required_answer_sections(intent: &str) -> Vec<String> {
-    let values: &[&str] = if intent == "literature" {
+    required_answer_section_contract(intent)
+        .into_iter()
+        .map(|section| format!("## {}", section.title))
+        .collect()
+}
+
+#[derive(Debug, Serialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct AnswerSectionContract {
+    pub id: &'static str,
+    pub title: &'static str,
+}
+
+pub fn required_answer_section_contract(intent: &str) -> Vec<AnswerSectionContract> {
+    let values: &[AnswerSectionContract] = if intent == "literature" {
         &[
-            "## 结论",
-            "## 库内相关论文",
-            "## 主题、模型与方法",
-            "## 边界与复现信息",
+            AnswerSectionContract {
+                id: "conclusion",
+                title: "结论",
+            },
+            AnswerSectionContract {
+                id: "related_papers",
+                title: "库内相关论文",
+            },
+            AnswerSectionContract {
+                id: "topic_methods",
+                title: "主题、模型与方法",
+            },
+            AnswerSectionContract {
+                id: "boundary_reproduction",
+                title: "边界与复现信息",
+            },
         ]
     } else {
         &[
-            "## 结论",
-            "## 模型与适用前提",
-            "## 证据综合",
-            "## 方法或比较",
-            "## 边界、冲突与未覆盖项",
-            "## 库水位与复现信息",
+            AnswerSectionContract {
+                id: "conclusion",
+                title: "结论",
+            },
+            AnswerSectionContract {
+                id: "model_assumptions",
+                title: "模型与适用前提",
+            },
+            AnswerSectionContract {
+                id: "evidence_synthesis",
+                title: "证据综合",
+            },
+            AnswerSectionContract {
+                id: "methods_comparison",
+                title: "方法或比较",
+            },
+            AnswerSectionContract {
+                id: "boundaries_gaps",
+                title: "边界、冲突与未覆盖项",
+            },
+            AnswerSectionContract {
+                id: "waterline_reproduction",
+                title: "库水位与复现信息",
+            },
         ]
     };
-    values.iter().map(|value| (*value).to_string()).collect()
+    values.to_vec()
 }
 
 pub fn required_answer_elements(intent: &str) -> Vec<String> {
@@ -461,13 +505,11 @@ pub fn required_answer_elements(intent: &str) -> Vec<String> {
 
 fn answer_contract(intent: &str, has_evidence: bool) -> String {
     if has_evidence {
-        let section_titles = required_answer_sections(intent)
-            .into_iter()
-            .map(|value| value.trim_start_matches("## ").to_string())
-            .collect::<Vec<_>>();
+        let section_contract = required_answer_section_contract(intent);
+        let section_contract_json = prompt_json(&section_contract, "[]");
         return format!(
-            "只输出一个 JSON object，结构严格为：{{\"schemaVersion\":\"qa-structured-answer-v1\",\"sections\":[{{\"title\":string,\"groups\":[{{\"label\":string,\"claims\":[{{\"label\":string,\"text\":string,\"evidenceIds\":[\"E1\"]}}]}}]}}],\"supplement\":[]}}。sections 按顺序且完整使用这些标题：{}。每一条事实、边界判断、复现建议都必须是独立 claim；结构标题和论文分组名放 label，不要伪装成 claim。每条 claim 的 text 不写 [E#]，只在 evidenceIds 中列本轮编号；不得为空，不得使用未知编号，且至少一个证据必须不是 graph。论文分组 label 使用短称或论文序号，不复制冗长路径。需要覆盖的内容标签：{}。完整参考证据由程序生成，不要自行添加。",
-            section_titles.join("、"),
+            "只输出一个 JSON object，结构严格为：{{\"schemaVersion\":\"qa-structured-answer-v1\",\"sections\":[{{\"id\":string,\"title\":string,\"groups\":[{{\"label\":string,\"claims\":[{{\"label\":string,\"text\":string,\"evidenceIds\":[\"E1\"]}}]}}]}}],\"supplement\":[]}}。sections 必须逐项复制以下 JSON 数组中的 id、title 和顺序，不得拆分、合并或改写标题：{}。每一条事实、边界判断、复现建议都必须是独立 claim；结构标题和论文分组名放 label，不要伪装成 claim。每条 claim 的 text 不写 [E#]，只在 evidenceIds 中列本轮编号；不得为空，不得使用未知编号，且至少一个证据必须不是 graph。论文分组 label 使用短称或论文序号，不复制冗长路径。需要覆盖的内容标签：{}。完整参考证据由程序生成，不要自行添加。",
+            section_contract_json,
             required_answer_elements(intent).join("、")
         );
     }
@@ -820,6 +862,14 @@ mod tests {
         let validation = validate_answer_completeness("literature", &answer, 2, true);
         assert!(validation.complete, "{validation:?}");
         assert_eq!(validation.minimum_claim_count, 2);
+    }
+
+    #[test]
+    fn structured_answer_contract_uses_unambiguous_section_ids() {
+        let contract = answer_contract("literature", true);
+        assert!(contract.contains("\"id\":\"topic_methods\""));
+        assert!(contract.contains("\"title\":\"主题、模型与方法\""));
+        assert!(!contract.contains("sections 按顺序且完整使用这些标题"));
     }
 
     #[test]
