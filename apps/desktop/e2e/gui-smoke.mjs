@@ -306,6 +306,17 @@ try {
   await (await requireElement('button[aria-label="下一页"]')).click()
   if (!(await pageStatus.getText()).includes('第 2 /')) throw new Error(`Pagination did not advance: ${await pageStatus.getText()}`)
   console.log('PASS library pagination')
+  const mapCategory = await requireElement('[data-testid="library-category-map"]')
+  await mapCategory.click()
+  if ((await mapCategory.getAttribute('aria-pressed')) !== 'true') throw new Error('Knowledge-map category did not become active')
+  await browser.waitUntil(async () => (await pageStatus.getText()).includes('共 8 条'), { timeout: 5000, timeoutMsg: 'Knowledge-map category did not isolate 8 map pages' })
+  const mapResults = await browser.$$('[data-page-type="map"]')
+  if (mapResults.length !== 8) throw new Error(`Expected 8 knowledge-map cards, got ${mapResults.length}`)
+  for (const result of mapResults) {
+    const resultType = await result.$('.result-type')
+    if (!(await resultType.getText()).includes('知识地图')) throw new Error('Map card still exposes an internal type label')
+  }
+  console.log('PASS library content categories and knowledge-map label')
   await (await requireElement('[data-testid="nav-ingest"]')).click()
   await requireElement('[data-testid="literature-ingest"]')
   await requireElement('[data-testid="ingest-tab-manual"]')

@@ -127,6 +127,18 @@ Interaction contract:
 
 Use direct text instead when the information is required to understand the current state or safely complete an action.
 
+### Faceted library categories
+
+The general library is a heterogeneous Wiki browser, so expose governed page types as one compact category strip instead of mixing internal type IDs into an undifferentiated list.
+
+- Keep the type-to-label mapping and filter/count logic in a pure module shared by the view and tests.
+- Use Chinese product labels. In particular, render `map` as “知识地图”; never expose the internal identifier `map` as the user-facing type.
+- Apply category filtering after query/year/status/sort processing and before pagination. Reset to page 1 whenever the category changes.
+- The dedicated methods route is not another facet: force `method` and hide the general category strip.
+- Preserve unknown page types in “全部” and label them “其他页面” so schema drift is visible rather than silently discarded.
+- Category buttons use `aria-pressed`, a visible keyboard focus state, stable test IDs, and horizontal overflow on narrow windows.
+- GUI E2E must select “知识地图”, verify the current repository count, and assert every visible result carries `data-page-type="map"`.
+
 ---
 
 ## Common Mistakes

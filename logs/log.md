@@ -302,3 +302,11 @@
 - Graphify 更新为 3263 nodes / 5464 edges / 199 communities；Wiki 0 errors，Gold 10/10，两书 Recall@5 均超过 95%，Python 49/49、Rust 56/56。
 - 客户端同步发布并安装 0.12.1；MSI/NSIS、GUI E2E、注册表版本、ProductVersion 与启动探针通过。
 - 未修改 raw 正文、B 类页面或 `schema/vocab.yaml`；详情见 [[2026-08-12-llmwiki-p2-full-depth-eval]]。
+
+## [2026-08-12] desktop | 文献库内容分类与客户端 0.12.2
+
+- 文献库新增 10 个中文分类入口，计数与搜索、年份、状态、排序、分页联动。
+- `map` 统一显示为“知识地图”；方法库固定只展示 method 页面，未知类型保留为“其他页面”。
+- 分类测试 4/4、分页测试 4/4、Rust 56/56、Python 49/49、前端 build、P5 与真实 GUI E2E 通过。
+- 0.12.2 MSI/NSIS 已构建，NSIS 已静默安装并通过注册表、ProductVersion 和启动验证。
+- 详情：`logs/2026-08-12-library-content-categories.md`
