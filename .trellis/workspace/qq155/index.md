@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 23
+- **Total Sessions**: 24
 - **Last Active**: 2026-08-12
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~777 | Active |
+| `journal-1.md` | ~811 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 24 | 2026-08-12 | 智能问答审查与私有 GitHub 发布 | `d46f4b1`, `8e863b9` | `master` |
 | 23 | 2026-08-12 | 文献库内容分类与客户端 0.12.2 | `66a9bb3` | `master` |
 | 22 | 2026-08-12 | 完成 LLM Wiki P2 全量研究档案与证据评测 | `054e02d` | `master` |
 | 21 | 2026-08-11 | Windows 客户端 0.12.0 发布安装 | `2b213db` | `master` |

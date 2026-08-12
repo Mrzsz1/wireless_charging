@@ -775,3 +775,37 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 24: 智能问答审查与私有 GitHub 发布
+
+**Date**: 2026-08-12
+**Task**: 智能问答审查与私有 GitHub 发布
+**Branch**: `master`
+
+### Summary
+
+记录智能问答 P0/P1/P2 审查结论；完成秘密扫描、忽略规则、Git 提交身份隐私化，并发布到 GitHub 私有仓库 Mrzsz1/wireless_charging。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `d46f4b1` | (see git log) |
+| `8e863b9` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
