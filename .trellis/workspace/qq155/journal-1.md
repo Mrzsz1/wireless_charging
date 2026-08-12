@@ -709,3 +709,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 22: 完成 LLM Wiki P2 全量研究档案与证据评测
+
+**Date**: 2026-08-12
+**Task**: 完成 LLM Wiki P2 全量研究档案与证据评测
+**Branch**: `master`
+
+### Summary
+
+深化 21 篇论文 source 与 20 个 method，升级 Gold Contract v2 和客户端 Wiki-primary paper 配对召回，更新 Graphify，并构建安装 Windows 客户端 0.12.1。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `054e02d` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
