@@ -2,18 +2,26 @@
 
 ## Goal
 
-TBD.
+为智能问答加入真正的本地语义向量检索通道，使陌生中文表述、跨语言术语和非字面匹配问题仍能召回库内 Wiki、论文原文与核心书籍证据，并与现有 FTS5、Graphify 通道融合。
 
 ## Requirements
 
-- TBD
+- 使用本地多语言嵌入模型，问题和库内文档不得上传第三方嵌入服务。
+- Wiki、论文分节、书籍章节共享一个语义召回协议，并保持原有证据定位字段。
+- 向量结果作为独立通道进入现有归一化与 RRF 融合，不替代关键词和图谱检索。
+- 索引缓存必须按仓库和知识库快照隔离；快照变化后自动重建，避免陈旧向量。
+- 首次模型下载或本地推理不可用时应降级为现有检索，不阻断回答。
+- 对嵌入文本和语义候选数量设置边界，避免无界内存、输入与等待时间。
 
 ## Acceptance Criteria
 
-- [ ] TBD
+- [ ] 中文语义改写在没有相同字面词的情况下可召回相关条目。
+- [ ] 语义通道结果保留 wiki/paper/book 的证据身份、路径和定位。
+- [ ] 多通道融合后可追踪 `semantic` 通道的分数与召回原因。
+- [ ] 同一仓库快照复用向量缓存，知识库变更后缓存失效。
+- [ ] 模型不可用时返回 FTS/图谱结果而非请求失败。
+- [ ] Rust 单元测试和桌面前端构建通过。
 
 ## Notes
 
-- Keep `prd.md` focused on requirements, constraints, and acceptance criteria.
-- Lightweight tasks can remain PRD-only.
-- For complex tasks, add `design.md` for technical design and `implement.md` for execution planning before `task.py start`.
+- 本子任务只负责检索通道；开放式 Query Plan、Facet 覆盖和按需 LLM 扩词由后续子任务实现。
