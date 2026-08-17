@@ -1,0 +1,32 @@
+{
+  "id": "qa-semantic-rag-context",
+  "name": "qa-semantic-rag-context",
+  "title": "智能问答语义 RAG 与自适应上下文重构",
+  "description": "",
+  "status": "planning",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "qq155",
+  "assignee": "qq155",
+  "createdAt": "2026-08-17",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "08-17-qa-evidence-panel-state",
+    "08-17-qa-adaptive-history-context",
+    "08-17-qa-hybrid-vector-retrieval",
+    "08-17-qa-query-planner-facets",
+    "08-17-qa-semantic-rag-evals"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}
