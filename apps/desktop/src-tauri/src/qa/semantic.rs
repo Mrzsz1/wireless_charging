@@ -2,7 +2,7 @@
 
 use super::{check_cancelled, compact, Candidate};
 use fastembed::{EmbeddingModel, InitOptions, TextEmbedding};
-use rusqlite::{params, Connection};
+use rusqlite::Connection;
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::env;
@@ -146,9 +146,8 @@ impl SemanticState {
                 });
                 return Ok(Vec::new());
             }
-            ensure_embedding_table(connection).map_err(|_| SemanticFailure::Unavailable)?;
-            let persisted = load_persisted_embeddings(connection, &repository_key, &snapshot_id)
-                .map_err(|_| SemanticFailure::Unavailable)?;
+            let persisted =
+                load_persisted_embeddings(&repository_key, &snapshot_id).unwrap_or_default();
             let mut embeddings = vec![Vec::new(); documents.len()];
             let missing = documents
                 .iter()
@@ -181,15 +180,8 @@ impl SemanticState {
                         embeddings[*index] = vector;
                     }
                 }
-                persist_embeddings(
-                    connection,
-                    &repository_key,
-                    &snapshot_id,
-                    &documents,
-                    &embeddings,
-                    &missing,
-                )
-                .map_err(|_| SemanticFailure::Unavailable)?;
+                persist_embeddings(&repository_key, &snapshot_id, &documents, &embeddings)
+                    .map_err(|_| SemanticFailure::Unavailable)?;
             }
             if embeddings.iter().any(Vec::is_empty) {
                 return Err(SemanticFailure::Unavailable);
@@ -472,77 +464,106 @@ fn load_documents(connection: &Connection) -> rusqlite::Result<Vec<SemanticDocum
     Ok(documents)
 }
 
-fn ensure_embedding_table(connection: &Connection) -> rusqlite::Result<()> {
-    connection.execute_batch(
-        "CREATE TABLE IF NOT EXISTS qa_semantic_embeddings (
-           repository_key TEXT NOT NULL,
-           snapshot_id TEXT NOT NULL,
-           model TEXT NOT NULL,
-           document_key TEXT NOT NULL,
-           embedding BLOB NOT NULL,
-           PRIMARY KEY(repository_key,snapshot_id,model,document_key)
-         );
-         CREATE INDEX IF NOT EXISTS idx_qa_semantic_embeddings_snapshot
-           ON qa_semantic_embeddings(repository_key,snapshot_id,model);",
-    )
-}
-
 fn load_persisted_embeddings(
-    connection: &Connection,
     repository_key: &str,
     snapshot_id: &str,
-) -> rusqlite::Result<HashMap<String, Vec<f32>>> {
-    let mut statement = connection.prepare(
-        "SELECT document_key,embedding FROM qa_semantic_embeddings
-         WHERE repository_key=?1 AND snapshot_id=?2 AND model=?3",
-    )?;
-    let rows = statement.query_map(params![repository_key, snapshot_id, MODEL_NAME], |row| {
-        let key: String = row.get(0)?;
-        let bytes: Vec<u8> = row.get(1)?;
-        Ok((key, decode_embedding(&bytes)))
-    })?;
+) -> std::io::Result<HashMap<String, Vec<f32>>> {
+    let bytes = std::fs::read(vector_cache_path(repository_key, snapshot_id))?;
+    let mut cursor = Cursor::new(bytes);
+    let mut magic = [0_u8; 8];
+    cursor.read_exact(&mut magic)?;
+    if &magic != b"LUNAVEC1" {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "invalid semantic vector cache",
+        ));
+    }
+    let count = read_u32(&mut cursor)? as usize;
+    if count > MAX_DOCUMENTS {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            "semantic vector cache count exceeds limit",
+        ));
+    }
     let mut embeddings = HashMap::new();
-    for row in rows {
-        let (key, vector) = row?;
-        if !vector.is_empty() {
-            embeddings.insert(key, vector);
+    for _ in 0..count {
+        let key_length = read_u32(&mut cursor)? as usize;
+        let dimensions = read_u32(&mut cursor)? as usize;
+        if key_length == 0 || key_length > 1_024 || dimensions == 0 || dimensions > 2_048 {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "semantic vector cache record exceeds limit",
+            ));
         }
+        let mut key = vec![0_u8; key_length];
+        cursor.read_exact(&mut key)?;
+        let key = String::from_utf8(key).map_err(|_| {
+            std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "semantic vector cache key is not UTF-8",
+            )
+        })?;
+        let mut vector_bytes = vec![0_u8; dimensions * 4];
+        cursor.read_exact(&mut vector_bytes)?;
+        embeddings.insert(key, decode_embedding(&vector_bytes));
     }
     Ok(embeddings)
 }
 
 fn persist_embeddings(
-    connection: &Connection,
     repository_key: &str,
     snapshot_id: &str,
     documents: &[SemanticDocument],
     embeddings: &[Vec<f32>],
-    indices: &[usize],
-) -> rusqlite::Result<()> {
-    connection.execute("BEGIN IMMEDIATE", [])?;
-    let result = (|| {
-        let mut statement = connection.prepare(
-            "INSERT OR REPLACE INTO qa_semantic_embeddings
-             (repository_key,snapshot_id,model,document_key,embedding)
-             VALUES(?1,?2,?3,?4,?5)",
-        )?;
-        for index in indices {
-            statement.execute(params![
-                repository_key,
-                snapshot_id,
-                MODEL_NAME,
-                documents[*index].key,
-                encode_embedding(&embeddings[*index]),
-            ])?;
-        }
-        Ok(())
-    })();
-    if result.is_ok() {
-        connection.execute("COMMIT", [])?;
-    } else {
-        let _ = connection.execute("ROLLBACK", []);
+) -> std::io::Result<()> {
+    if documents.len() != embeddings.len() || documents.len() > MAX_DOCUMENTS {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "semantic vector cache shape mismatch",
+        ));
     }
-    result
+    let path = vector_cache_path(repository_key, snapshot_id);
+    let parent = path.parent().ok_or_else(|| {
+        std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "invalid vector cache path",
+        )
+    })?;
+    std::fs::create_dir_all(parent)?;
+    let temporary = path.with_extension("bin.tmp");
+    let mut output = std::fs::File::create(&temporary)?;
+    output.write_all(b"LUNAVEC1")?;
+    output.write_all(&(documents.len() as u32).to_le_bytes())?;
+    for (document, embedding) in documents.iter().zip(embeddings) {
+        let key = document.key.as_bytes();
+        if key.is_empty() || key.len() > 1_024 || embedding.is_empty() || embedding.len() > 2_048 {
+            let _ = std::fs::remove_file(&temporary);
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "semantic vector cache record exceeds limit",
+            ));
+        }
+        output.write_all(&(key.len() as u32).to_le_bytes())?;
+        output.write_all(&(embedding.len() as u32).to_le_bytes())?;
+        output.write_all(key)?;
+        output.write_all(&encode_embedding(embedding))?;
+    }
+    output.flush()?;
+    std::fs::rename(temporary, path)
+}
+
+fn vector_cache_path(repository_key: &str, snapshot_id: &str) -> PathBuf {
+    let snapshot_key = snapshot_id.trim_start_matches("sha256:");
+    model_cache_dir()
+        .join("vectors")
+        .join(repository_key)
+        .join(format!("{snapshot_key}-multilingual-e5-small.bin"))
+}
+
+fn read_u32(reader: &mut impl Read) -> std::io::Result<u32> {
+    let mut bytes = [0_u8; 4];
+    reader.read_exact(&mut bytes)?;
+    Ok(u32::from_le_bytes(bytes))
 }
 
 fn encode_embedding(vector: &[f32]) -> Vec<u8> {
