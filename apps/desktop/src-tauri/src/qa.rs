@@ -2,6 +2,7 @@ mod context;
 mod graph;
 mod grounding;
 mod metrics;
+mod query_plan;
 mod semantic;
 mod session;
 mod structured_answer;
@@ -18,6 +19,10 @@ pub use metrics::RetrievalDiagnostics;
 use metrics::RetrievalDiagnosticsBuilder;
 #[cfg(test)]
 pub use metrics::{evaluate_retrieval_quality, RetrievalRankingObservation};
+pub use query_plan::{
+    parse_query_plan, query_plan_prompt, query_plan_schema, QueryFacet, QueryPlan,
+    QueryPlanningInput,
+};
 pub use session::{create_session, delete_session, get_session, list_sessions, rename_session};
 
 use reqwest::blocking::Client;
@@ -42,7 +47,6 @@ pub const PROVIDER_OFFLINE: &str = "offline-evidence";
 const INTENT_SOLVE: &str = "solve";
 const INTENT_NOVELTY: &str = "novelty";
 const INTENT_RELATIONSHIP: &str = "relationship";
-const INTENT_LITERATURE: &str = "literature";
 const QUERY_TERM_LIMIT: usize = 20;
 const RRF_K: f64 = 60.0;
 const REQUIRED_CHANNEL_MIN_SCORE: f64 = 0.18;
@@ -166,6 +170,14 @@ pub struct RetrievalQuery {
     pub entities: Vec<String>,
     pub intent: String,
     pub used_history_message_ids: Vec<String>,
+    #[serde(default)]
+    pub query_plan_version: String,
+    #[serde(default)]
+    pub facet_ids: Vec<String>,
+    #[serde(default)]
+    pub covered_facet_ids: Vec<String>,
+    #[serde(default)]
+    pub planner_used: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
@@ -880,7 +892,10 @@ pub fn build_retrieval_query(
     history: &[ConversationTurn],
 ) -> RetrievalQuery {
     let original_question = question.trim().to_string();
-    let question_intent = intent(&original_question);
+    // The Provider-native QueryPlan selects the answer profile after baseline
+    // retrieval. This value is only the fail-soft profile when no planner is
+    // available; no question phrase is routed here.
+    let question_intent = INTENT_SOLVE.to_string();
     let explicit_entities = extract_question_entities(connection, &original_question);
     let entities = if contains_reference(&original_question) && explicit_entities.len() < 2 {
         extract_history_entities(connection, history)
@@ -912,6 +927,10 @@ pub fn build_retrieval_query(
         entities: entity_values,
         intent: question_intent,
         used_history_message_ids,
+        query_plan_version: String::new(),
+        facet_ids: Vec::new(),
+        covered_facet_ids: Vec::new(),
+        planner_used: false,
     }
 }
 
@@ -951,177 +970,16 @@ fn chinese_query_fragments(question: &str) -> Vec<String> {
 }
 
 pub(crate) fn query_terms(question: &str) -> Vec<String> {
-    let raw_terms = question
+    let mut terms = question
         .split(|value: char| !value.is_alphanumeric() && value != '-' && value != '_')
         .map(str::trim)
         .filter(|value| value.chars().count() >= 2)
         .map(|value| value.to_lowercase())
         .collect::<Vec<_>>();
-    // Compose bilingual domain concepts instead of maintaining question-level
-    // aliases. Index-derived terms are added by the bounded retrieval loop.
-    let mut terms = Vec::new();
-    // Compose domain ontology concepts from independent signals. These rules
-    // are reusable across wording variants: no complete question and no paper
-    // identifier is matched here.
-    let has_any = |markers: &[&str]| markers.iter().any(|marker| question.contains(marker));
-    if has_any(&["开关", "switch"]) && has_any(&["组合", "组合合", "combination", "configuration"])
-    {
-        terms.extend(["ccsp", "charger set", "charging cycle"].map(str::to_string));
-    }
-    if has_any(&["轨迹", "trajectory"]) && has_any(&["已知", "known", "沿"]) {
-        terms.extend(
-            ["charging on the move", "known trajectory", "tunable power"].map(str::to_string),
-        );
-    }
-    if has_any(&["请求", "request"])
-        && has_any(&["定向", "朝向", "旋转", "directional", "orientation"])
-    {
-        terms.extend(
-            [
-                "dynamic power distribution",
-                "online charging request",
-                "neighbor set",
-            ]
-            .map(str::to_string),
-        );
-    }
-    if has_any(&["收费", "付费", "充电费", "pricing", "payment"])
-        && has_any(&["移动", "mobile", "mobility"])
-    {
-        terms.extend(
-            [
-                "cooperative charging",
-                "charging as service",
-                "cost sharing",
-                "shapley",
-            ]
-            .map(str::to_string),
-        );
-    }
-    if has_any(&["部分", "partial"]) && has_any(&["充电", "charging"]) {
-        terms.extend(["partial charging", "on-demand charging"].map(str::to_string));
-    }
-    if has_any(&["干扰", "干涉", "interference"]) {
-        terms.extend(
-            [
-                "wave interference",
-                "concurrent charging",
-                "dynamic power distribution",
-            ]
-            .map(str::to_string),
-        );
-    }
-    if has_any(&["城市", "路口", "intersection"]) && has_any(&["道路", "dwpt", "无线充电"])
-    {
-        terms.extend(
-            [
-                "infinite drive",
-                "signalized intersections",
-                "dynamic wireless charging",
-            ]
-            .map(str::to_string),
-        );
-    }
-    if has_any(&["实时", "real-time"]) && has_any(&["调度", "scheduling"]) {
-        terms.extend(["real-time scheduling", "charging scheduling"].map(str::to_string));
-    }
-    for (needle, additions) in [
-        ("无线充电", &["wireless charging", "wpt"][..]),
-        ("调度", &["scheduling", "schedule"][..]),
-        ("开关", &["switching", "charger set"][..]),
-        ("组合", &["combination", "configuration"][..]),
-        ("同频", &["co-channel", "same frequency"][..]),
-        ("静态", &["static", "stationary"][..]),
-        ("解决办法", &["solution", "algorithm", "method"][..]),
-        ("算法", &["algorithm"][..]),
-        ("近似", &["approximation", "approximate"][..]),
-        ("博弈", &["game", "equilibrium"][..]),
-        ("机制", &["mechanism", "mechanism design"][..]),
-        ("在线", &["online"][..]),
-        ("移动", &["mobile", "mobility"][..]),
-        ("已知", &["known"][..]),
-        ("未知", &["unknown"][..]),
-        ("部分", &["partial"][..]),
-        ("轨迹", &["trajectory"][..]),
-        ("功率", &["power"][..]),
-        ("请求", &["request", "service request", "on-demand"][..]),
-        ("服务", &["service"][..]),
-        ("传感器", &["sensor", "sensor node"][..]),
-        ("充电器", &["charger"][..]),
-        ("定向", &["directional", "orientation"][..]),
-        ("旋转", &["orientation", "rotatable"][..]),
-        ("朝向", &["orientation", "directional"][..]),
-        ("峰值", &["peak", "aoi"][..]),
-        ("传输", &["transmission", "data transmission"][..]),
-        ("收费", &["pricing", "payment", "fee"][..]),
-        ("付费", &["pricing", "payment", "paid service"][..]),
-        ("充电费", &["charging cost", "pricing", "cost sharing"][..]),
-        ("费用", &["cost", "fee"][..]),
-        ("成本", &["cost", "cost sharing"][..]),
-        ("合作", &["cooperative", "nash", "shapley"][..]),
-        ("放置", &["placement"][..]),
-        ("部署", &["deployment", "placement"][..]),
-        ("干扰", &["interference"][..]),
-        ("干涉", &["interference"][..]),
-        ("并发", &["concurrent"][..]),
-        ("安全", &["safety"][..]),
-        ("公平", &["fairness", "utility"][..]),
-        ("截止", &["deadline"][..]),
-        ("道路", &["road", "dwpt"][..]),
-        ("城市", &["urban", "city"][..]),
-        ("路口", &["intersection", "signalized intersection"][..]),
-        ("车辆", &["vehicle", "ev"][..]),
-        ("覆盖", &["coverage"][..]),
-    ] {
-        if question.contains(needle) {
-            terms.extend(additions.iter().map(|value| value.to_string()));
-        }
-    }
-    // Compose adjacent detected concepts into bounded phrases. This is generic
-    // query rewriting (e.g. "directional" + "charger"), not a mapping from a
-    // whole user question to one known paper.
-    let atomic = terms.clone();
-    let phrase_atoms = atomic
-        .iter()
-        .filter(|term| !term.contains(' ') && term.is_ascii())
-        .take(8)
-        .cloned()
-        .collect::<Vec<_>>();
-    for distance in 1..phrase_atoms.len() {
-        for left in 0..phrase_atoms.len().saturating_sub(distance) {
-            let right = left + distance;
-            terms.push(format!("{} {}", phrase_atoms[left], phrase_atoms[right]));
-        }
-    }
-    // Character n-grams are a generic fallback for unseen wording. When a
-    // compositional concept mapping already produced useful terms, injecting
-    // every n-gram dilutes the bounded FTS query and harms the direct ranking.
-    if terms.is_empty() {
-        terms.extend(chinese_query_fragments(question));
-    }
-    terms.extend(raw_terms);
+    terms.extend(chinese_query_fragments(question));
     let mut seen = HashSet::new();
     terms.retain(|value| seen.insert(value.clone()));
-    if terms.len() > QUERY_TERM_LIMIT {
-        let mut selected = Vec::new();
-        for term in terms.iter().filter(|term| term.contains(' ')) {
-            if !selected.contains(term) {
-                selected.push(term.clone());
-            }
-            if selected.len() >= QUERY_TERM_LIMIT / 2 {
-                break;
-            }
-        }
-        for term in terms {
-            if !selected.contains(&term) {
-                selected.push(term);
-            }
-            if selected.len() >= QUERY_TERM_LIMIT {
-                break;
-            }
-        }
-        terms = selected;
-    }
+    terms.truncate(QUERY_TERM_LIMIT);
     terms
 }
 
@@ -1134,65 +992,6 @@ pub(crate) fn fts_query(terms: &[String]) -> String {
         })
         .collect::<Vec<_>>()
         .join(" OR ")
-}
-
-fn intent(question: &str) -> String {
-    let lower = question.to_lowercase();
-    let novelty_score = [
-        "新颖",
-        "创新",
-        "研究空白",
-        "尚未覆盖",
-        "有没有人做",
-        "是否有人做",
-        "做过",
-        "novel",
-        "research gap",
-        "prior work",
-    ]
-    .iter()
-    .filter(|marker| lower.contains(*marker))
-    .count();
-    let relationship_score = [
-        "关系",
-        "区别",
-        "比较",
-        "对比",
-        "差异",
-        "联系",
-        "相同",
-        "不同",
-        " versus ",
-        " vs ",
-        "compare",
-        "relationship",
-    ]
-    .iter()
-    .filter(|marker| lower.contains(*marker))
-    .count();
-    let literature_score = [
-        "论文",
-        "文献",
-        "paper",
-        "papers",
-        "literature",
-        "有没有关于",
-        "有哪些关于",
-    ]
-    .iter()
-    .filter(|marker| lower.contains(*marker))
-    .count();
-    if novelty_score > relationship_score && novelty_score > 0 {
-        INTENT_NOVELTY.to_string()
-    } else if relationship_score > 0 {
-        INTENT_RELATIONSHIP.to_string()
-    } else if novelty_score > 0 {
-        INTENT_NOVELTY.to_string()
-    } else if literature_score > 0 {
-        INTENT_LITERATURE.to_string()
-    } else {
-        INTENT_SOLVE.to_string()
-    }
 }
 
 fn intent_bonus(intent: &str, candidate: &Candidate) -> f64 {
@@ -1269,22 +1068,105 @@ fn index_expansion_terms(candidates: &[Candidate], known_terms: &HashSet<String>
     terms
 }
 
-fn evidence_sufficient(intent: &str, candidates: &[Candidate]) -> bool {
+fn planning_input(resolved_question: &str, candidates: &[Candidate]) -> QueryPlanningInput {
+    QueryPlanningInput {
+        resolved_question: compact(resolved_question, 500),
+        baseline_candidates: candidates
+            .iter()
+            .filter(|candidate| candidate.kind != "graph")
+            .take(16)
+            .map(|candidate| query_plan::QueryPlanningCandidate {
+                kind: candidate.kind.clone(),
+                page_type: candidate.page_type.clone(),
+                title: compact(&candidate.title, 160),
+                excerpt: compact(&candidate.snippet, 240),
+            })
+            .collect(),
+    }
+}
+
+fn candidate_matches_facet(candidate: &Candidate, facet: &QueryFacet) -> bool {
+    if candidate.kind == "graph" || candidate.relation == "wiki_source_to_primary_fallback" {
+        return false;
+    }
+    if !facet.preferred_kinds.is_empty()
+        && !facet
+            .preferred_kinds
+            .contains(&candidate.kind.to_lowercase())
+    {
+        return false;
+    }
+    if facet.search_queries.is_empty() {
+        return true;
+    }
+    let haystack = format!("{} {}", candidate.title, candidate.snippet).to_lowercase();
+    facet.search_queries.iter().any(|query| {
+        const GENERIC: &[&str] = &[
+            "source",
+            "sources",
+            "src",
+            "method",
+            "methods",
+            "wiki",
+            "paper",
+            "synthesis",
+            "syntheses",
+        ];
+        let terms = query_terms(query)
+            .into_iter()
+            .filter(|term| term.chars().count() >= 3 && !GENERIC.contains(&term.as_str()))
+            .collect::<HashSet<_>>();
+        let required_hits = terms.len().min(2);
+        required_hits > 0
+            && terms
+                .iter()
+                .filter(|term| haystack.contains(term.as_str()))
+                .take(required_hits)
+                .count()
+                >= required_hits
+    })
+}
+
+fn initial_facet_coverage(plan: &QueryPlan, candidates: &[Candidate]) -> HashSet<String> {
+    plan.facets
+        .iter()
+        .filter(|facet| {
+            if facet.preferred_kinds.is_empty() {
+                candidates
+                    .iter()
+                    .any(|candidate| candidate_matches_facet(candidate, facet))
+            } else {
+                facet.preferred_kinds.iter().all(|kind| {
+                    candidates.iter().any(|candidate| {
+                        candidate.kind == *kind && candidate_matches_facet(candidate, facet)
+                    })
+                })
+            }
+        })
+        .map(|facet| facet.id.clone())
+        .collect()
+}
+
+fn evidence_sufficient(
+    plan: &QueryPlan,
+    candidates: &[Candidate],
+    covered_facets: &HashSet<String>,
+) -> bool {
     let primary = candidates
         .iter()
         .filter(|candidate| candidate.kind != "graph")
         .count();
-    let has_wiki = candidates.iter().any(|candidate| candidate.kind == "wiki");
-    let has_paper = candidates.iter().any(|candidate| candidate.kind == "paper");
-    let has_method = candidates
+    let required_kinds_present = plan.required_kinds.iter().all(|required| {
+        candidates
+            .iter()
+            .any(|candidate| candidate.kind != "graph" && candidate.kind == *required)
+    });
+    let required_facets_covered = plan
+        .facets
         .iter()
-        .any(|candidate| candidate.page_type == "method");
-    match intent {
-        INTENT_LITERATURE => primary >= 4 && has_paper,
-        INTENT_RELATIONSHIP => primary >= 5 && has_wiki,
-        INTENT_SOLVE | INTENT_NOVELTY => primary >= 6 && (has_method || has_paper),
-        _ => primary >= 6,
-    }
+        .filter(|facet| facet.required)
+        .all(|facet| covered_facets.contains(&facet.id));
+    primary >= plan.minimum_evidence && required_kinds_present && required_facets_covered
 }
 
 fn retrieve_pass(
@@ -1321,11 +1203,7 @@ fn retrieve_pass(
     check_cancelled(cancelled)?;
     let channel_started = Instant::now();
     #[cfg(not(test))]
-    let semantic = if pass == 1 {
-        semantic::semantic_candidates(connection, root, semantic_query, cancelled)?
-    } else {
-        Vec::new()
-    };
+    let semantic = semantic::semantic_candidates(connection, root, semantic_query, cancelled)?;
     // Unit tests validate the semantic ranker and persistence helpers directly;
     // ordinary QA fixtures must never download the runtime or model.
     #[cfg(test)]
@@ -1357,7 +1235,10 @@ fn retrieve_pass(
     // Expansion passes improve recall but must not displace stronger direct-query
     // hits merely because each pass receives a fresh reciprocal-rank score.
     if pass > 1 {
-        let expansion_penalty = 1.0 * (pass.saturating_sub(1) as f64);
+        // Planner facet queries are intentional semantic refinements, not weak
+        // speculative fallbacks. Penalize only the third speculative pass so a
+        // second-pass facet result can still enter top-k.
+        let expansion_penalty = 0.18 * (pass.saturating_sub(2) as f64);
         for candidate in &mut candidates {
             candidate.score -= expansion_penalty;
         }
@@ -2014,6 +1895,33 @@ pub fn prepare_question_with_history_and_budget(
     context_window_tokens: u32,
     max_output_tokens: u32,
 ) -> Result<QuestionContext, String> {
+    prepare_question_with_history_budget_and_planner(
+        connection,
+        root,
+        question,
+        limit,
+        request_id,
+        conversation,
+        cancelled,
+        context_window_tokens,
+        max_output_tokens,
+        None,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn prepare_question_with_history_budget_and_planner(
+    connection: &Connection,
+    root: &Path,
+    question: &str,
+    limit: usize,
+    request_id: &str,
+    conversation: Vec<ConversationTurn>,
+    cancelled: Option<&AtomicBool>,
+    context_window_tokens: u32,
+    max_output_tokens: u32,
+    mut planner: Option<&mut dyn FnMut(&QueryPlanningInput) -> Result<QueryPlan, String>>,
+) -> Result<QuestionContext, String> {
     let question = question.trim();
     if question.chars().count() < 2 {
         return Err("问题至少需要两个字符".to_string());
@@ -2032,56 +1940,139 @@ pub fn prepare_question_with_history_and_budget(
     }
     check_cancelled(cancelled)?;
     let mut diagnostics = RetrievalDiagnosticsBuilder::new();
-    let retrieval_query = build_retrieval_query(connection, question, &conversation);
-    let question_intent = retrieval_query.intent.clone();
+    let mut retrieval_query = build_retrieval_query(connection, question, &conversation);
     let initial_terms = query_terms(&retrieval_query.resolved_question);
     let mut known_terms = initial_terms.iter().cloned().collect::<HashSet<_>>();
-    let mut candidates = Vec::new();
-    let mut pass_terms = initial_terms;
-    for pass in 1..=3 {
-        let before = candidates.iter().map(candidate_key).collect::<HashSet<_>>();
-        let pass_candidates = retrieve_pass(
-            connection,
-            root,
+    let mut candidates = retrieve_pass(
+        connection,
+        root,
+        &retrieval_query.resolved_question,
+        &initial_terms,
+        &mut diagnostics,
+        1,
+        cancelled,
+    )?;
+    diagnostics.record_pass(
+        candidates
+            .iter()
+            .map(candidate_key)
+            .collect::<HashSet<_>>()
+            .len(),
+    );
+
+    let mut plan = QueryPlan::fallback(&retrieval_query.resolved_question);
+    let mut planner_used = false;
+    if let Some(planner) = planner.as_mut() {
+        check_cancelled(cancelled)?;
+        if let Ok(planned) = planner(&planning_input(
             &retrieval_query.resolved_question,
-            &pass_terms,
-            &mut diagnostics,
-            pass,
-            cancelled,
-        )?;
-        candidates.extend(pass_candidates);
-        let after = candidates.iter().map(candidate_key).collect::<HashSet<_>>();
-        let gain = after.len().saturating_sub(before.len());
-        diagnostics.record_pass(gain);
-        if evidence_sufficient(&question_intent, &candidates) {
-            diagnostics.stop("sufficient");
-            break;
+            &candidates,
+        )) {
+            plan = planned;
+            planner_used = true;
         }
-        if pass == 3 {
-            diagnostics.stop("max_passes");
-            break;
-        }
-        if pass > 1 && gain < 2 {
-            diagnostics.stop("low_gain");
-            break;
-        }
-        let mut next = index_expansion_terms(&candidates, &known_terms);
-        if next.is_empty() {
-            next = chinese_query_fragments(&retrieval_query.resolved_question)
-                .into_iter()
-                .filter(|term| known_terms.insert(term.clone()))
-                .collect();
+    }
+    let question_intent = plan.answer_profile.clone();
+    retrieval_query.intent = question_intent.clone();
+    retrieval_query.query_plan_version = query_plan::QUERY_PLAN_VERSION.to_string();
+    retrieval_query.facet_ids = plan.facets.iter().map(|facet| facet.id.clone()).collect();
+    retrieval_query.planner_used = planner_used;
+
+    let mut covered_facets = initial_facet_coverage(&plan, &candidates);
+    if evidence_sufficient(&plan, &candidates, &covered_facets) {
+        diagnostics.stop(if planner_used {
+            "facet_sufficient"
         } else {
-            for term in &next {
-                known_terms.insert(term.clone());
+            "baseline_sufficient"
+        });
+    } else {
+        for pass in 2..=3 {
+            let before = candidates.iter().map(candidate_key).collect::<HashSet<_>>();
+            let uncovered = plan
+                .facets
+                .iter()
+                .filter(|facet| facet.required && !covered_facets.contains(&facet.id))
+                .filter(|facet| !facet.search_queries.is_empty())
+                .cloned()
+                .collect::<Vec<_>>();
+            let mut pass_candidates = Vec::new();
+            if pass == 2 && !uncovered.is_empty() {
+                for facet in uncovered {
+                    check_cancelled(cancelled)?;
+                    let facet_query = facet.search_queries.join(" ");
+                    let facet_terms = facet
+                        .search_queries
+                        .iter()
+                        .flat_map(|query| query_terms(query))
+                        .filter(|term| known_terms.insert(term.clone()))
+                        .take(QUERY_TERM_LIMIT)
+                        .collect::<Vec<_>>();
+                    if facet_terms.is_empty() {
+                        continue;
+                    }
+                    let recalled = retrieve_pass(
+                        connection,
+                        root,
+                        &facet_query,
+                        &facet_terms,
+                        &mut diagnostics,
+                        pass,
+                        cancelled,
+                    )?;
+                    let facet_recalled = if facet.preferred_kinds.is_empty() {
+                        recalled.iter().any(|candidate| candidate.kind != "graph")
+                    } else {
+                        facet
+                            .preferred_kinds
+                            .iter()
+                            .all(|kind| recalled.iter().any(|candidate| candidate.kind == *kind))
+                    };
+                    if facet_recalled {
+                        covered_facets.insert(facet.id.clone());
+                    }
+                    pass_candidates.extend(recalled);
+                }
+            } else {
+                let next = index_expansion_terms(&candidates, &known_terms)
+                    .into_iter()
+                    .filter(|term| known_terms.insert(term.clone()))
+                    .collect::<Vec<_>>();
+                if next.is_empty() {
+                    diagnostics.stop("no_novel_terms");
+                    break;
+                }
+                let semantic_query = next.join(" ");
+                pass_candidates = retrieve_pass(
+                    connection,
+                    root,
+                    &semantic_query,
+                    &next,
+                    &mut diagnostics,
+                    pass,
+                    cancelled,
+                )?;
+            }
+            candidates.extend(pass_candidates);
+            covered_facets.extend(initial_facet_coverage(&plan, &candidates));
+            let after = candidates.iter().map(candidate_key).collect::<HashSet<_>>();
+            let gain = after.len().saturating_sub(before.len());
+            diagnostics.record_pass(gain);
+            if evidence_sufficient(&plan, &candidates, &covered_facets) {
+                diagnostics.stop("facet_sufficient");
+                break;
+            }
+            if pass == 3 {
+                diagnostics.stop("max_passes");
+                break;
+            }
+            if gain < 2 {
+                diagnostics.stop("low_gain");
+                break;
             }
         }
-        if next.is_empty() {
-            diagnostics.stop("no_novel_terms");
-            break;
-        }
-        pass_terms = next;
     }
+    retrieval_query.covered_facet_ids = covered_facets.into_iter().collect();
+    retrieval_query.covered_facet_ids.sort();
     apply_intent(&question_intent, &mut candidates);
     candidates.sort_by(|left, right| right.score.total_cmp(&left.score));
     let mut seen = HashSet::new();
@@ -2091,10 +2082,12 @@ pub fn prepare_question_with_history_and_budget(
     // Preserve source diversity after global ranking: when a channel produced a
     // useful candidate, the final evidence package keeps at least one Wiki and
     // one core-book result instead of letting a single channel occupy all slots.
-    let required_kinds: &[&str] = match question_intent.as_str() {
-        INTENT_RELATIONSHIP => &["wiki", "graph"],
-        _ => &["wiki", "paper", "book"],
-    };
+    let required_kind_values = plan
+        .required_kinds
+        .iter()
+        .map(String::as_str)
+        .collect::<Vec<_>>();
+    let required_kinds = required_kind_values.as_slice();
     for required_kind in required_kinds {
         if selected
             .iter()
@@ -3647,15 +3640,10 @@ mod tests {
     }
 
     #[test]
-    fn intent_weights_change_candidate_priority() {
+    fn structured_answer_profile_weights_change_candidate_priority() {
         let graph = candidate("graph", "concept");
         let method = candidate("wiki", "method");
         let paper = candidate("paper", "source");
-        assert_eq!(intent("怎么解决调度问题"), INTENT_SOLVE);
-        assert_eq!(intent("比较两种方法"), INTENT_RELATIONSHIP);
-        assert_eq!(intent("这个方向有研究空白吗"), INTENT_NOVELTY);
-        assert_eq!(intent("有没有关于波干扰的论文"), INTENT_LITERATURE);
-        assert_eq!(intent("这种论文有研究空白吗"), INTENT_NOVELTY);
         assert!(
             intent_bonus(INTENT_RELATIONSHIP, &graph) > intent_bonus(INTENT_RELATIONSHIP, &method)
         );
@@ -3664,11 +3652,11 @@ mod tests {
     }
 
     #[test]
-    fn query_terms_compose_domain_concepts_without_question_aliases() {
+    fn baseline_query_terms_do_not_inject_domain_or_paper_aliases() {
         let terms = query_terms("有没有关于波干扰的论文");
-        assert!(terms.iter().any(|term| term == "interference"));
-        assert!(terms.iter().any(|term| term == "wave interference"));
-        assert!(terms.iter().any(|term| term == "concurrent charging"));
+        assert!(terms.iter().any(|term| term.contains("波干扰")));
+        assert!(!terms.iter().any(|term| term == "interference"));
+        assert!(!terms.iter().any(|term| term == "concurrent charging"));
     }
 
     #[test]
@@ -3701,6 +3689,65 @@ mod tests {
     }
 
     #[test]
+    fn query_planner_selects_profile_and_expands_only_after_baseline_recall() {
+        let (root, connection) = test_db();
+        for (id, title) in [
+            ("one.md", "Online Scheduling One"),
+            ("two.md", "Online Scheduling Two"),
+        ] {
+            connection.execute(
+                "INSERT INTO pages VALUES(?1,'method',?2,'2026','online scheduling evidence',?3,'1')",
+                params![id, title, format!("wiki/methods/{id}")],
+            ).unwrap();
+            connection.execute(
+                "INSERT INTO pages_fts VALUES(?1,?2,'online scheduling evidence','online scheduling')",
+                params![id, title],
+            ).unwrap();
+        }
+        let mut planner_calls = 0;
+        let mut planner = |input: &QueryPlanningInput| {
+            planner_calls += 1;
+            assert!(input.baseline_candidates.is_empty());
+            Ok(QueryPlan {
+                schema_version: query_plan::QUERY_PLAN_VERSION.to_string(),
+                answer_profile: "literature".to_string(),
+                restated_question: input.resolved_question.clone(),
+                facets: vec![QueryFacet {
+                    id: "scheduling".to_string(),
+                    label: "调度证据".to_string(),
+                    required: true,
+                    search_queries: vec!["online scheduling".to_string()],
+                    preferred_kinds: vec!["wiki".to_string()],
+                }],
+                required_kinds: vec!["wiki".to_string()],
+                minimum_evidence: 2,
+            })
+        };
+        let context = prepare_question_with_history_budget_and_planner(
+            &connection,
+            root.path(),
+            "完全陌生的用户表达",
+            10,
+            "planner-request",
+            Vec::new(),
+            None,
+            DEFAULT_CONTEXT_WINDOW_TOKENS,
+            LunaSettings::default().max_output_tokens,
+            Some(&mut planner),
+        )
+        .unwrap();
+        assert_eq!(planner_calls, 1);
+        assert_eq!(context.intent, "literature");
+        assert!(context.retrieval_query.planner_used);
+        assert_eq!(context.retrieval_query.facet_ids, vec!["scheduling"]);
+        assert_eq!(
+            context.retrieval_query.covered_facet_ids,
+            vec!["scheduling"]
+        );
+        assert!(context.evidence.len() >= 2);
+    }
+
+    #[test]
     fn bounded_retrieval_reports_passes_and_an_explicit_stop_reason() {
         let (root, connection) = test_db();
         connection.execute("INSERT INTO pages VALUES('mtd-demo.md','method','Novel Heterogeneous Scheduler','2024','novel heterogeneous scheduling method','wiki/methods/mtd-demo.md','1')", []).unwrap();
@@ -3720,7 +3767,11 @@ mod tests {
         );
         assert!(matches!(
             context.retrieval_diagnostics.stop_reason.as_str(),
-            "sufficient" | "low_gain" | "no_novel_terms" | "max_passes"
+            "baseline_sufficient"
+                | "facet_sufficient"
+                | "low_gain"
+                | "no_novel_terms"
+                | "max_passes"
         ));
     }
 

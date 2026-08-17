@@ -515,7 +515,17 @@ export type QuestionContext = {
   requestId: string
   question: string
   intent: 'solve' | 'novelty' | 'relationship' | 'literature'
-  retrievalQuery: { originalQuestion: string; resolvedQuestion: string; entities: string[]; intent: string; usedHistoryMessageIds: string[] }
+  retrievalQuery: {
+    originalQuestion: string
+    resolvedQuestion: string
+    entities: string[]
+    intent: string
+    usedHistoryMessageIds: string[]
+    queryPlanVersion?: string
+    facetIds?: string[]
+    coveredFacetIds?: string[]
+    plannerUsed?: boolean
+  }
   conversation: ConversationTurn[]
   evidence: EvidenceItem[]
   retrievalDiagnostics: RetrievalDiagnostics

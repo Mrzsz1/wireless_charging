@@ -6,9 +6,9 @@ use sha2::{Digest, Sha256};
 use std::path::Path;
 use std::time::UNIX_EPOCH;
 
-pub const PROMPT_VERSION: &str = "qa-prompt-v9";
+pub const PROMPT_VERSION: &str = "qa-prompt-v10";
 pub const ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
-pub const RETRIEVER_VERSION: &str = "hybrid-rrf-v3";
+pub const RETRIEVER_VERSION: &str = "semantic-facet-rrf-v4";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v3";
 pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v2";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
