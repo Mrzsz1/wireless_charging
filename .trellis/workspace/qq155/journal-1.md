@@ -1009,3 +1009,36 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 31: Codex 原生 JSON Schema 结构化回答
+
+**Date**: 2026-08-17
+**Task**: Codex 原生 JSON Schema 结构化回答
+**Branch**: `master`
+
+### Summary
+
+为证据型 Codex 智能问答生成意图与证据约束的 JSON Schema，通过 codex exec --output-schema 注入；提示词加入完整动态 JSON 示例；保留后端引用与完整性校验，并完成全量 Rust 测试、前端构建及 Tauri release 安装包编译。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `5ad13ad` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
