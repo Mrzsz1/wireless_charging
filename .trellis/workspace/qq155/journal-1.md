@@ -1081,3 +1081,37 @@ Preserved previous evidence with turn isolation, removed fixed history caps in f
 ### Next Steps
 
 - None - task complete
+
+
+## Session 33: 修复智能问答中文近义零召回
+
+**Date**: 2026-08-17
+**Task**: 修复智能问答中文近义零召回
+**Branch**: `master`
+
+### Summary
+
+定位本地语义模型下载未完成和进程级永久降级；切换量化多语言模型、加入有界重试、增加仅零候选触发的通用中文二字兜底，并把 Planner 状态写入运行清单。Rust 127/127、前端 56/56、前端生产构建及 Tauri release/MSI/NSIS 编译通过。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `304770c` | (see git log) |
+| `73f397d` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
