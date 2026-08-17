@@ -2,18 +2,23 @@
 
 ## Goal
 
-TBD.
+取消固定 1–8 轮和 40 消息/64K 字符历史上限，让可信会话历史按当前模型上下文窗口自动装载；完整问答无法继续装入时，将更老历史压缩为带来源消息 ID 的结构化记忆并重新计算 Prompt 预算。
 
 ## Requirements
 
-- TBD
+- 数据库继续保存全部历史；读取可信历史不按轮数、消息数或字符数截断。
+- 删除用户可配置的 `recentExchangeLimit`，旧设置键只作为无效遗留数据保留。
+- 先为研究合同、当前问题、输出、安全余量和证据预留预算，再用剩余 token 从新到旧装入完整问答。
+- 遇到第一轮无法装入的旧问答后停止原文装载，不能跳过它换入更老的短问答。
+- 所有剩余旧问答生成 `qa-session-memory-v1` JSON；每条记忆带 `sourceMessageIds`、用户问题和可信回答摘要。
+- 历史证据编号必须移除；failed/cancelled/unverified 仍不能进入上下文，mixed 只使用 trusted_context。
+- 最终 Prompt 序列化后重新计算；仍超限则 fail closed。
 
 ## Acceptance Criteria
 
-- [ ] TBD
-
-## Notes
-
-- Keep `prd.md` focused on requirements, constraints, and acceptance criteria.
-- Lightweight tasks can remain PRD-only.
-- For complex tasks, add `design.md` for technical design and `implement.md` for execution planning before `task.py start`.
+- [ ] 100 个短问答在大窗口中可以全部以原文进入上下文。
+- [ ] 超限后最新连续完整问答保留，旧问答进入结构化记忆。
+- [ ] 结构化记忆不包含历史 `[E#]` 且保留来源消息 ID。
+- [ ] 设置界面不再显示固定最近轮数。
+- [ ] 上下文预算准确报告原文轮数和压缩消息数。
+- [ ] Rust 全量测试和前端构建通过。
