@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 31
+- **Total Sessions**: 32
 - **Last Active**: 2026-08-17
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1044 | Active |
+| `journal-1.md` | ~1083 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 32 | 2026-08-17 | Semantic RAG and adaptive context refactor | `bd9dc7c`, `e195595`, `44c342c`, `793501a`, `a4cf583`, `78c683e`, `4af3931` | `master` |
 | 31 | 2026-08-17 | Codex 原生 JSON Schema 结构化回答 | `5ad13ad` | `master` |
 | 30 | 2026-08-13 | 迁移问答完整性到结构化 Role 契约 | `0ce7006` | `master` |
 | 29 | 2026-08-13 | 修复结构化回答章节契约并完成发行编译 | `09905a4` | `master` |

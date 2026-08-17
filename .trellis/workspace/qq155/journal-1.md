@@ -1042,3 +1042,42 @@ Delivered desktop 0.7.1 correctness closure: latest-search response guard, safe 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 32: Semantic RAG and adaptive context refactor
+
+**Date**: 2026-08-17
+**Task**: Semantic RAG and adaptive context refactor
+**Branch**: `master`
+
+### Summary
+
+Preserved previous evidence with turn isolation, removed fixed history caps in favor of token-budget compaction, added local multilingual E5/ONNX semantic retrieval with snapshot cache, replaced keyword intent routing with Codex JSON-Schema QueryPlan and open Facet coverage, added semantic regressions, and produced MSI/NSIS release bundles.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `bd9dc7c` | (see git log) |
+| `e195595` | (see git log) |
+| `44c342c` | (see git log) |
+| `793501a` | (see git log) |
+| `a4cf583` | (see git log) |
+| `78c683e` | (see git log) |
+| `4af3931` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
