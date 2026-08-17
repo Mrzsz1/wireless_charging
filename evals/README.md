@@ -20,6 +20,23 @@ py -3 tools/wiki_eval.py --answers-dir evals/answers
 
 当前答案基线与维护者初审见 `evals/answers/REVIEW.md`；切换问答模型（例如 Luna）后应保留旧基线并重新运行评测。
 
+## Semantic RAG / QueryPlan 回归
+
+`semantic_rag_questions.json` 保存陌生中文表述及其经 Provider JSON Schema 约束后的
+`qa-query-plan-v1` 夹具。它验证开放 Facet、双语扩展查询、必需证据类型、Wiki-primary
+配对和原文行号定位，不把问题映射写入生产检索代码。
+
+Rust 回归会建立真实仓库索引并走完整 QueryPlan 检索路径；测试时注入冻结计划，因此不登录
+Codex、不联网、也不下载本地 embedding 模型：
+
+```powershell
+cd apps/desktop/src-tauri
+cargo test semantic_query_plan_regressions_recall_auditable_primary_sources --lib
+```
+
+该文件同样属于 development regression，只能证明结构化计划与召回契约，不能作为端到端
+事实准确率声明。事实准确率仍以独立冻结 held-out、完整审计包和双盲人工 claim 评审为准。
+
 ## Production held-out 准确率
 
 `heldout_questions.json` 是独立冻结入口。当前状态为 `awaiting_independent_curation`，不预填模型自行构造的“真值”。冻结要求：

@@ -1,0 +1,124 @@
+{
+  "version": "2026-08-17-v1",
+  "datasetRole": "development_semantic_retrieval_regression",
+  "accuracyClaim": "query_plan_and_retrieval_contract_only",
+  "cases": [
+    {
+      "id": "paraphrase-multipath-safety",
+      "question": "多条传播路径的相位叠加会怎样改变无线供能区域的安全判定？库内哪项工作对此做了处理？",
+      "plan": {
+        "schemaVersion": "qa-query-plan-v1",
+        "answerProfile": "literature",
+        "restatedQuestion": "检索多径叠加与无线功率传输安全建模工作",
+        "facets": [
+          {
+            "id": "multipath_safety",
+            "label": "多径叠加安全模型",
+            "required": true,
+            "searchQueries": ["ROSE Robustly Safe Charging for Wireless Power Transfer multipath constructive destructive interference"],
+            "preferredKinds": ["wiki", "paper"]
+          }
+        ],
+        "requiredKinds": ["wiki", "paper"],
+        "minimumEvidence": 2
+      },
+      "expectedWiki": ["sources/src-dai2022-rose-robust-safe-charging", "methods/mtd-rose-robust-safe-power-scheduling"],
+      "expectedPaperSources": ["sources/src-dai2022-rose-robust-safe-charging"]
+    },
+    {
+      "id": "paraphrase-known-route-power",
+      "question": "终端沿预先给定路线经过固定供能点时，如何共同安排经过时机和发射强度？",
+      "plan": {
+        "schemaVersion": "qa-query-plan-v1",
+        "answerProfile": "solve",
+        "restatedQuestion": "检索已知移动轨迹与可调功率的充电调度方法",
+        "facets": [
+          {
+            "id": "known_route",
+            "label": "已知轨迹与功率控制",
+            "required": true,
+            "searchQueries": ["Charging on the Move Scheduling Static Chargers with Tunable Power for Mobile Devices known trajectory"],
+            "preferredKinds": ["wiki", "paper"]
+          }
+        ],
+        "requiredKinds": ["wiki", "paper"],
+        "minimumEvidence": 2
+      },
+      "expectedWiki": ["sources/src-wu-charging-on-the-move", "methods/mtd-tunable-power-mobile-traj"],
+      "expectedPaperSources": ["sources/src-wu-charging-on-the-move"]
+    },
+    {
+      "id": "paraphrase-online-beam-control",
+      "question": "节点临时发出补能需求后，可转向的供能设备应该怎样在线分配各方向能量？",
+      "plan": {
+        "schemaVersion": "qa-query-plan-v1",
+        "answerProfile": "solve",
+        "restatedQuestion": "检索在线请求下定向充电器动态功率分配",
+        "facets": [
+          {
+            "id": "online_directional_control",
+            "label": "在线定向功率控制",
+            "required": true,
+            "searchQueries": ["Dynamic Power Distribution Controlling for Directional Chargers online charging request TIDE"],
+            "preferredKinds": ["wiki", "paper"]
+          }
+        ],
+        "requiredKinds": ["wiki", "paper"],
+        "minimumEvidence": 2
+      },
+      "expectedWiki": ["sources/src-ma-tide-dynamic-power", "methods/mtd-tide-online-orientation"],
+      "expectedPaperSources": ["sources/src-ma-tide-dynamic-power"]
+    },
+    {
+      "id": "paraphrase-paid-service-cost",
+      "question": "若补能站按服务计价而用户还能换站，库内方法如何同时处理付款和换站路程？",
+      "plan": {
+        "schemaVersion": "qa-query-plan-v1",
+        "answerProfile": "solve",
+        "restatedQuestion": "检索移动设备付费协作充电服务的成本分配",
+        "facets": [
+          {
+            "id": "service_cost",
+            "label": "服务费与移动成本",
+            "required": true,
+            "searchQueries": ["cooperative charging as a service cost sharing Nash mobile devices CCS"],
+            "preferredKinds": ["wiki", "paper"]
+          }
+        ],
+        "requiredKinds": ["wiki", "paper"],
+        "minimumEvidence": 2
+      },
+      "expectedWiki": ["sources/src-xu-cooperative-ccs", "methods/mtd-ccs-cooperative-service"],
+      "expectedPaperSources": ["sources/src-xu-cooperative-ccs"]
+    },
+    {
+      "id": "paraphrase-design-vs-operation",
+      "question": "一种方案先决定设备落点，另一种方案收到需求后再调方向；它们在决策时序上如何衔接？",
+      "plan": {
+        "schemaVersion": "qa-query-plan-v1",
+        "answerProfile": "relationship",
+        "restatedQuestion": "比较 GAIN 部署决策与 TIDE 在线控制的阶段和变量",
+        "facets": [
+          {
+            "id": "deployment_stage",
+            "label": "部署阶段",
+            "required": true,
+            "searchQueries": ["Concurrent Charging with Wave Interference GAIN charger sensor deployment location"],
+            "preferredKinds": ["wiki", "paper"]
+          },
+          {
+            "id": "operation_stage",
+            "label": "在线运行阶段",
+            "required": true,
+            "searchQueries": ["Dynamic Power Distribution Controlling for Directional Chargers TIDE online request orientation"],
+            "preferredKinds": ["wiki", "paper"]
+          }
+        ],
+        "requiredKinds": ["wiki", "paper"],
+        "minimumEvidence": 4
+      },
+      "expectedWiki": ["sources/src-ma-concurrent-gain", "sources/src-ma-tide-dynamic-power"],
+      "expectedPaperSources": ["sources/src-ma-concurrent-gain", "sources/src-ma-tide-dynamic-power"]
+    }
+  ]
+}

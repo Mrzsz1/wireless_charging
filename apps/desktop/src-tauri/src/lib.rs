@@ -4412,6 +4412,109 @@ mod tests {
     }
 
     #[test]
+    fn semantic_query_plan_regressions_recall_auditable_primary_sources() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../..")
+            .canonicalize()
+            .expect("repository root");
+        let mut connection = Connection::open_in_memory().expect("sqlite");
+        db_schema(&connection).expect("schema");
+        rebuild_connection(&mut connection, &root).expect("full index");
+        let payload: serde_json::Value = serde_json::from_str(include_str!(
+            "../../../../evals/semantic_rag_questions.json"
+        ))
+        .expect("semantic RAG questions");
+        assert_eq!(
+            payload["datasetRole"],
+            "development_semantic_retrieval_regression"
+        );
+        assert_eq!(
+            payload["accuracyClaim"],
+            "query_plan_and_retrieval_contract_only"
+        );
+        let cases = payload["cases"].as_array().expect("semantic cases");
+        assert!(cases.len() >= 5);
+        for case in cases {
+            let question = case["question"].as_str().expect("question");
+            let plan = qa::parse_query_plan(&case["plan"].to_string(), question)
+                .unwrap_or_else(|error| panic!("invalid plan for {}: {error}", case["id"]));
+            let expected_profile = plan.answer_profile.clone();
+            let required_facets = plan
+                .facets
+                .iter()
+                .filter(|facet| facet.required)
+                .map(|facet| facet.id.clone())
+                .collect::<Vec<_>>();
+            let mut planner = |_input: &qa::QueryPlanningInput| Ok(plan.clone());
+            let context = qa::prepare_question_with_history_budget_and_planner(
+                &connection,
+                &root,
+                question,
+                20,
+                case["id"].as_str().unwrap_or("semantic-case"),
+                Vec::new(),
+                None,
+                qa::DEFAULT_CONTEXT_WINDOW_TOKENS,
+                qa::LunaSettings::default().max_output_tokens,
+                Some(&mut planner),
+            )
+            .unwrap_or_else(|error| panic!("semantic case {} failed: {error}", case["id"]));
+            assert_eq!(context.intent, expected_profile, "case={}", case["id"]);
+            assert!(context.retrieval_query.planner_used, "case={}", case["id"]);
+            assert!(
+                required_facets
+                    .iter()
+                    .all(|facet| context.retrieval_query.covered_facet_ids.contains(facet)),
+                "case={} covered={:?}",
+                case["id"],
+                context.retrieval_query.covered_facet_ids
+            );
+
+            let expected_wiki = case["expectedWiki"]
+                .as_array()
+                .expect("expected wiki")
+                .iter()
+                .filter_map(|value| value.as_str())
+                .collect::<Vec<_>>();
+            assert!(
+                context.evidence.iter().any(|item| {
+                    item.kind == "wiki"
+                        && expected_wiki.iter().any(|expected| {
+                            item.page_id.trim_end_matches(".md").ends_with(expected)
+                        })
+                }),
+                "case={} evidence={:?}",
+                case["id"],
+                context
+                    .evidence
+                    .iter()
+                    .map(|item| (&item.kind, &item.page_id))
+                    .collect::<Vec<_>>()
+            );
+
+            for expected in case["expectedPaperSources"]
+                .as_array()
+                .expect("expected papers")
+                .iter()
+                .filter_map(|value| value.as_str())
+            {
+                assert!(
+                    context.evidence.iter().any(|item| {
+                        item.kind == "paper"
+                            && item.page_id.trim_end_matches(".md").ends_with(expected)
+                            && item.relation != "wiki_source_to_primary_fallback"
+                            && item.source_location.contains("原文第")
+                            && item.source_location.contains('行')
+                    }),
+                    "case={} missing primary source {}",
+                    case["id"],
+                    expected
+                );
+            }
+        }
+    }
+
+    #[test]
     fn p3_gold_questions_recall_expected_wiki_evidence() {
         let root = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../..")
