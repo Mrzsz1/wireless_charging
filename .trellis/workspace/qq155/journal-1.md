@@ -1115,3 +1115,37 @@ Preserved previous evidence with turn isolation, removed fixed history caps in f
 ### Next Steps
 
 - None - task complete
+
+
+## Session 34: 语义模型自定义目录与部署检查
+
+**Date**: 2026-08-17
+**Task**: 语义模型自定义目录与部署检查
+**Branch**: `master`
+
+### Summary
+
+新增本机全局语义模型缓存目录、自定义目录选择、默认恢复、非破坏复制切换、显式重新部署、离线完整性检查与384维推理探针；普通问答不再隐式下载模型。设置页展示 runtime、模型、tokenizer、探针、占用与未完成文件状态。Rust 133/133、前端 57/57、Vite 与 Tauri release/MSI/NSIS 通过。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `3298420` | (see git log) |
+| `0107cfb` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
