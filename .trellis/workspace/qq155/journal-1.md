@@ -1149,3 +1149,37 @@ Preserved previous evidence with turn isolation, removed fixed history caps in f
 ### Next Steps
 
 - None - task complete
+
+
+## Session 35: 语义模型真实下载进度
+
+**Date**: 2026-08-17
+**Task**: 语义模型真实下载进度
+**Branch**: `master`
+
+### Summary
+
+为 ONNX Runtime、量化模型和 tokenizer/config 下载增加真实累计字节、总字节、百分比与速度事件；通过 Tauri Channel 流式投影到下载/修复按钮右侧，并展示验证、完成、跳过和失败状态。Rust 135/135、前端 57/57、Vite 与 Tauri release/MSI/NSIS 通过。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `0d2cc23` | (see git log) |
+| `4bf6497` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
