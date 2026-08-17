@@ -8,9 +8,9 @@ use std::time::UNIX_EPOCH;
 
 pub const PROMPT_VERSION: &str = "qa-prompt-v10";
 pub const ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
-pub const RETRIEVER_VERSION: &str = "semantic-facet-rrf-v4";
+pub const RETRIEVER_VERSION: &str = "semantic-facet-rrf-v5";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v3";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v2";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v3";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -105,6 +105,14 @@ pub struct QaRunManifest {
     pub context_budget: ContextBudget,
     pub citation_repair: CitationRepair,
     pub answer_completeness: AnswerCompletenessValidation,
+    #[serde(default)]
+    pub query_plan_version: String,
+    #[serde(default)]
+    pub planner_status: String,
+    #[serde(default)]
+    pub planned_facet_ids: Vec<String>,
+    #[serde(default)]
+    pub covered_facet_ids: Vec<String>,
     pub generated_at: String,
 }
 
@@ -845,6 +853,10 @@ pub fn build_run_manifest(
         context_budget: context.context_plan.budget.clone(),
         citation_repair,
         answer_completeness,
+        query_plan_version: context.retrieval_query.query_plan_version.clone(),
+        planner_status: context.retrieval_query.planner_status.clone(),
+        planned_facet_ids: context.retrieval_query.facet_ids.clone(),
+        covered_facet_ids: context.retrieval_query.covered_facet_ids.clone(),
         generated_at,
     }
 }

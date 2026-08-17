@@ -11,8 +11,10 @@ use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::AtomicBool;
 use std::sync::{Mutex, OnceLock};
+use std::time::{Duration, Instant};
 
-const MODEL_NAME: &str = "intfloat/multilingual-e5-small";
+const MODEL_NAME: &str = "Qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q";
+const MODEL_RETRY_DELAY: Duration = Duration::from_secs(30);
 const MAX_DOCUMENTS: usize = 8_000;
 const MAX_EMBED_CHARS: usize = 2_400;
 const EMBED_BATCH_SIZE: usize = 32;
@@ -52,7 +54,7 @@ struct SemanticDocument {
 
 impl SemanticDocument {
     fn passage(&self) -> String {
-        let text = format!("passage: {}\n{}", self.title, self.body);
+        let text = format!("{}\n{}", self.title, self.body);
         text.chars().take(MAX_EMBED_CHARS).collect()
     }
 
@@ -93,7 +95,7 @@ struct CachedCorpus {
 #[derive(Default)]
 struct SemanticState {
     model: Option<TextEmbedding>,
-    model_initialization_failed: bool,
+    model_retry_after: Option<Instant>,
     corpus: Option<CachedCorpus>,
 }
 
@@ -196,7 +198,7 @@ impl SemanticState {
 
         self.ensure_model()?;
         ensure_not_cancelled(cancelled)?;
-        let query = format!("query: {}", question.trim());
+        let query = question.trim().to_string();
         let query_embedding = self
             .model
             .as_mut()
@@ -219,32 +221,40 @@ impl SemanticState {
         if self.model.is_some() {
             return Ok(());
         }
-        if self.model_initialization_failed {
+        if self
+            .model_retry_after
+            .is_some_and(|retry_after| retry_after > Instant::now())
+        {
             return Err(SemanticFailure::Unavailable);
         }
         let cache_dir = model_cache_dir();
         if std::fs::create_dir_all(&cache_dir).is_err() {
-            self.model_initialization_failed = true;
+            self.defer_model_retry();
             return Err(SemanticFailure::Unavailable);
         }
         if prepare_onnx_runtime(&cache_dir).is_err() {
-            self.model_initialization_failed = true;
+            self.defer_model_retry();
             return Err(SemanticFailure::Unavailable);
         }
-        let options = InitOptions::new(EmbeddingModel::MultilingualE5Small)
+        let options = InitOptions::new(EmbeddingModel::ParaphraseMLMiniLML12V2Q)
             .with_cache_dir(cache_dir)
             .with_max_length(512)
             .with_show_download_progress(false);
         match catch_unwind(AssertUnwindSafe(|| TextEmbedding::try_new(options))) {
             Ok(Ok(model)) => {
                 self.model = Some(model);
+                self.model_retry_after = None;
                 Ok(())
             }
             Ok(Err(_)) | Err(_) => {
-                self.model_initialization_failed = true;
+                self.defer_model_retry();
                 Err(SemanticFailure::Unavailable)
             }
         }
+    }
+
+    fn defer_model_retry(&mut self) {
+        self.model_retry_after = Some(Instant::now() + MODEL_RETRY_DELAY);
     }
 }
 
@@ -557,7 +567,9 @@ fn vector_cache_path(repository_key: &str, snapshot_id: &str) -> PathBuf {
     model_cache_dir()
         .join("vectors")
         .join(repository_key)
-        .join(format!("{snapshot_key}-multilingual-e5-small.bin"))
+        .join(format!(
+            "{snapshot_key}-paraphrase-multilingual-minilm-q.bin"
+        ))
 }
 
 fn read_u32(reader: &mut impl Read) -> std::io::Result<u32> {
@@ -681,5 +693,18 @@ mod tests {
         let documents = load_documents(&connection).unwrap();
         assert_eq!(documents.len(), 1);
         assert_eq!(documents[0].key, "wiki:method.md");
+    }
+
+    #[test]
+    fn failed_model_initialization_uses_bounded_retry_instead_of_permanent_disable() {
+        let mut state = SemanticState::default();
+        state.defer_model_retry();
+        assert!(state
+            .model_retry_after
+            .is_some_and(|retry_after| retry_after > Instant::now()));
+        state.model_retry_after = Some(Instant::now() - Duration::from_secs(1));
+        assert!(!state
+            .model_retry_after
+            .is_some_and(|retry_after| retry_after > Instant::now()));
     }
 }

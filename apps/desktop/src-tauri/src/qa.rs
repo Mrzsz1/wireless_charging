@@ -178,6 +178,8 @@ pub struct RetrievalQuery {
     pub covered_facet_ids: Vec<String>,
     #[serde(default)]
     pub planner_used: bool,
+    #[serde(default)]
+    pub planner_status: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
@@ -931,6 +933,7 @@ pub fn build_retrieval_query(
         facet_ids: Vec::new(),
         covered_facet_ids: Vec::new(),
         planner_used: false,
+        planner_status: "not_requested".to_string(),
     }
 }
 
@@ -948,10 +951,54 @@ fn chinese_query_fragments(question: &str) -> Vec<String> {
             }
             for window in run.windows(width).take(6) {
                 let value = window.iter().collect::<String>();
-                if !["有没有", "什么样", "如何做", "之间的", "哪些方", "有什么"]
-                    .iter()
-                    .any(|stop| value.contains(stop))
+                if ![
+                    "有没有",
+                    "没有",
+                    "什么",
+                    "如何",
+                    "之间",
+                    "哪些",
+                    "有什么",
+                    "是否",
+                    "关于",
+                    "相关",
+                    "论文",
+                    "他们",
+                    "这个",
+                    "问题",
+                ]
+                .iter()
+                .any(|stop| value.contains(stop))
                 {
+                    fragments.push(value);
+                }
+            }
+        }
+        run.clear();
+    };
+    for character in question.chars() {
+        if ('\u{4e00}'..='\u{9fff}').contains(&character) {
+            run.push(character);
+        } else {
+            flush(&mut run, &mut fragments);
+        }
+    }
+    flush(&mut run, &mut fragments);
+    fragments
+}
+
+fn chinese_query_bigrams(question: &str) -> Vec<String> {
+    const STOP: &[&str] = &[
+        "有没", "没有", "什么", "如何", "之间", "哪些", "是否", "关于", "相关", "论文", "他们",
+        "这个", "问题",
+    ];
+    let mut fragments = Vec::new();
+    let mut run = Vec::new();
+    let flush = |run: &mut Vec<char>, fragments: &mut Vec<String>| {
+        if run.len() >= 2 {
+            for window in run.windows(2).take(12) {
+                let value = window.iter().collect::<String>();
+                if !STOP.contains(&value.as_str()) {
                     fragments.push(value);
                 }
             }
@@ -1952,6 +1999,24 @@ pub fn prepare_question_with_history_budget_and_planner(
         1,
         cancelled,
     )?;
+    if !candidates.iter().any(|candidate| candidate.kind != "graph") {
+        let fallback_terms = chinese_query_bigrams(&retrieval_query.resolved_question)
+            .into_iter()
+            .filter(|term| known_terms.insert(term.clone()))
+            .collect::<Vec<_>>();
+        if !fallback_terms.is_empty() {
+            let semantic_query = retrieval_query.resolved_question.clone();
+            candidates.extend(retrieve_pass(
+                connection,
+                root,
+                &semantic_query,
+                &fallback_terms,
+                &mut diagnostics,
+                1,
+                cancelled,
+            )?);
+        }
+    }
     diagnostics.record_pass(
         candidates
             .iter()
@@ -1964,12 +2029,18 @@ pub fn prepare_question_with_history_budget_and_planner(
     let mut planner_used = false;
     if let Some(planner) = planner.as_mut() {
         check_cancelled(cancelled)?;
-        if let Ok(planned) = planner(&planning_input(
+        match planner(&planning_input(
             &retrieval_query.resolved_question,
             &candidates,
         )) {
-            plan = planned;
-            planner_used = true;
+            Ok(planned) => {
+                plan = planned;
+                planner_used = true;
+                retrieval_query.planner_status = "succeeded".to_string();
+            }
+            Err(_) => {
+                retrieval_query.planner_status = "failed_fallback".to_string();
+            }
         }
     }
     let question_intent = plan.answer_profile.clone();
@@ -3655,6 +3726,9 @@ mod tests {
     fn baseline_query_terms_do_not_inject_domain_or_paper_aliases() {
         let terms = query_terms("有没有关于波干扰的论文");
         assert!(terms.iter().any(|term| term.contains("波干扰")));
+        assert!(chinese_query_bigrams("有没有关于波干扰的论文")
+            .iter()
+            .any(|term| term == "波干"));
         assert!(!terms.iter().any(|term| term == "interference"));
         assert!(!terms.iter().any(|term| term == "concurrent charging"));
     }
@@ -3745,6 +3819,27 @@ mod tests {
             vec!["scheduling"]
         );
         assert!(context.evidence.len() >= 2);
+    }
+
+    #[test]
+    fn query_planner_failure_is_auditable_and_falls_back() {
+        let (root, connection) = test_db();
+        let mut planner = |_input: &QueryPlanningInput| Err("fixture planner failure".to_string());
+        let context = prepare_question_with_history_budget_and_planner(
+            &connection,
+            root.path(),
+            "陌生问题表达",
+            10,
+            "planner-failure-request",
+            Vec::new(),
+            None,
+            DEFAULT_CONTEXT_WINDOW_TOKENS,
+            LunaSettings::default().max_output_tokens,
+            Some(&mut planner),
+        )
+        .unwrap();
+        assert!(!context.retrieval_query.planner_used);
+        assert_eq!(context.retrieval_query.planner_status, "failed_fallback");
     }
 
     #[test]
@@ -4052,6 +4147,8 @@ mod tests {
         )
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v3");
+        assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.model_requested, "fixture-requested");
         assert_eq!(result.run_manifest.model_resolved, "fixture-resolved");
         assert_eq!(

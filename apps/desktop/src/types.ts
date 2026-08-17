@@ -468,6 +468,10 @@ export type QaRunManifest = {
   contextBudget: ContextBudget
   citationRepair: CitationRepair
   answerCompleteness: AnswerCompletenessValidation
+  queryPlanVersion?: string
+  plannerStatus?: string
+  plannedFacetIds?: string[]
+  coveredFacetIds?: string[]
   generatedAt: string
 }
 
@@ -525,6 +529,7 @@ export type QuestionContext = {
     facetIds?: string[]
     coveredFacetIds?: string[]
     plannerUsed?: boolean
+    plannerStatus?: string
   }
   conversation: ConversationTurn[]
   evidence: EvidenceItem[]

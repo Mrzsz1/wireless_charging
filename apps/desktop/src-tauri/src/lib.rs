@@ -4412,6 +4412,33 @@ mod tests {
     }
 
     #[test]
+    fn wave_interference_near_synonym_never_returns_zero_evidence_without_a_model() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../..")
+            .canonicalize()
+            .expect("repository root");
+        let mut connection = Connection::open_in_memory().expect("sqlite");
+        db_schema(&connection).expect("schema");
+        rebuild_connection(&mut connection, &root).expect("full index");
+        let context = qa::prepare_question(&connection, &root, "有没有波干扰的论文", 14)
+            .expect("near-synonym context");
+        assert!(!context.evidence.is_empty());
+        assert!(
+            context.evidence.iter().any(|item| {
+                item.kind == "wiki"
+                    && (item.page_id.contains("interference")
+                        || item.title.to_lowercase().contains("interference"))
+            }),
+            "evidence={:?}",
+            context
+                .evidence
+                .iter()
+                .map(|item| (&item.kind, &item.page_id, &item.title))
+                .collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
     fn semantic_query_plan_regressions_recall_auditable_primary_sources() {
         let root = Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../..")
