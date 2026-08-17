@@ -363,6 +363,31 @@ export type QaSettings = {
 
 export type LunaSettings = QaSettings
 
+export type SemanticModelSettings = {
+  cacheDir: string
+  effectiveCacheDir: string
+  defaultCacheDir: string
+  usingDefault: boolean
+  modelName: string
+}
+
+export type SemanticDeploymentState = 'missing' | 'partial' | 'invalid' | 'ready' | 'error'
+
+export type SemanticDeploymentStatus = {
+  state: SemanticDeploymentState
+  modelName: string
+  cacheDir: string
+  defaultCacheDir: string
+  runtimeReady: boolean
+  modelFilesReady: boolean
+  tokenizerReady: boolean
+  partialDownloadCount: number
+  totalBytes: number
+  probeDimension: number
+  checkedAt: string
+  diagnostic: string
+}
+
 export type CodexSubscriptionStatus = {
   installed: boolean
   version: string

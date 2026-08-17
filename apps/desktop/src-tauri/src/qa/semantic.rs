@@ -3,18 +3,31 @@
 use super::{check_cancelled, compact, Candidate};
 use fastembed::{EmbeddingModel, InitOptions, TextEmbedding};
 use rusqlite::Connection;
+use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::env;
+use std::fs;
 use std::io::{Cursor, Read, Write};
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::AtomicBool;
 use std::sync::{Mutex, OnceLock};
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
+use uuid::Uuid;
+use walkdir::WalkDir;
 
-const MODEL_NAME: &str = "Qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q";
+pub(crate) const MODEL_NAME: &str = "Qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q";
 const MODEL_RETRY_DELAY: Duration = Duration::from_secs(30);
+const MODEL_CACHE_FOLDER: &str = "models--Qdrant--paraphrase-multilingual-MiniLM-L12-v2-onnx-Q";
+const MODEL_FILE: &str = "model_optimized.onnx";
+const TOKENIZER_FILES: &[&str] = &[
+    "tokenizer.json",
+    "config.json",
+    "special_tokens_map.json",
+    "tokenizer_config.json",
+];
+const PROBE_DIMENSION: usize = 384;
 const MAX_DOCUMENTS: usize = 8_000;
 const MAX_EMBED_CHARS: usize = 2_400;
 const EMBED_BATCH_SIZE: usize = 32;
@@ -30,6 +43,24 @@ const ORT_RUNTIME_SHA256: &str = "78d447051e48bd2e1e778bba378bec4ece11191c9e538c
 const ORT_ARCHIVE_LIMIT_BYTES: usize = 80 * 1024 * 1024;
 
 static SEMANTIC_STATE: OnceLock<Mutex<SemanticState>> = OnceLock::new();
+static CACHE_DIR_OVERRIDE: OnceLock<Mutex<Option<PathBuf>>> = OnceLock::new();
+
+#[derive(Debug, Serialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct SemanticDeploymentStatus {
+    pub state: String,
+    pub model_name: String,
+    pub cache_dir: String,
+    pub default_cache_dir: String,
+    pub runtime_ready: bool,
+    pub model_files_ready: bool,
+    pub tokenizer_ready: bool,
+    pub partial_download_count: usize,
+    pub total_bytes: u64,
+    pub probe_dimension: usize,
+    pub checked_at: String,
+    pub diagnostic: String,
+}
 
 #[derive(Clone)]
 struct SemanticDocument {
@@ -97,6 +128,419 @@ struct SemanticState {
     model: Option<TextEmbedding>,
     model_retry_after: Option<Instant>,
     corpus: Option<CachedCorpus>,
+}
+
+impl SemanticState {
+    fn reset_for_cache_switch(&mut self) {
+        self.model = None;
+        self.corpus = None;
+        self.model_retry_after = None;
+    }
+}
+
+pub(crate) fn default_cache_dir() -> PathBuf {
+    env::var_os("LOCALAPPDATA")
+        .map(PathBuf::from)
+        .unwrap_or_else(env::temp_dir)
+        .join("LunaWiki")
+        .join("fastembed")
+}
+
+pub(crate) fn validate_cache_dir(path: &Path) -> Result<PathBuf, String> {
+    if !path.is_absolute() {
+        return Err("语义模型缓存目录必须是绝对路径".to_string());
+    }
+    if path.exists() && !path.is_dir() {
+        return Err("语义模型缓存路径必须是目录".to_string());
+    }
+    fs::create_dir_all(path).map_err(|error| format!("创建语义模型缓存目录失败：{error}"))?;
+    let resolved = path
+        .canonicalize()
+        .map_err(|error| format!("解析语义模型缓存目录失败：{error}"))?;
+    let probe = resolved.join(format!(".lunawiki-write-probe-{}", Uuid::new_v4()));
+    fs::write(&probe, b"semantic-cache-write-probe")
+        .map_err(|error| format!("语义模型缓存目录不可写：{error}"))?;
+    fs::remove_file(&probe).map_err(|error| format!("清理目录写入探针失败：{error}"))?;
+    Ok(resolved)
+}
+
+pub(crate) fn configure_cache_dir(path: Option<PathBuf>) -> Result<PathBuf, String> {
+    let effective = match path {
+        Some(path) => validate_cache_dir(&path)?,
+        None => validate_cache_dir(&default_cache_dir())?,
+    };
+    let state = SEMANTIC_STATE.get_or_init(|| Mutex::new(SemanticState::default()));
+    let mut state = state
+        .lock()
+        .map_err(|_| "语义模型状态锁定失败".to_string())?;
+    let cache_override = CACHE_DIR_OVERRIDE.get_or_init(|| Mutex::new(None));
+    *cache_override
+        .lock()
+        .map_err(|_| "语义模型缓存目录状态锁定失败".to_string())? = Some(effective.clone());
+    state.reset_for_cache_switch();
+    env::set_var("HF_HOME", &effective);
+    Ok(effective)
+}
+
+pub(crate) fn effective_cache_dir() -> PathBuf {
+    model_cache_dir()
+}
+
+fn checked_at() -> String {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis()
+        .to_string()
+}
+
+fn runtime_path(cache_dir: &Path) -> PathBuf {
+    cache_dir.join("onnxruntime-1.20.1").join("onnxruntime.dll")
+}
+
+fn model_repo_path(cache_dir: &Path) -> PathBuf {
+    cache_dir.join(MODEL_CACHE_FOLDER)
+}
+
+fn snapshot_directories(cache_dir: &Path) -> Vec<PathBuf> {
+    let root = model_repo_path(cache_dir).join("snapshots");
+    let Ok(entries) = fs::read_dir(root) else {
+        return Vec::new();
+    };
+    entries
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .filter(|path| path.is_dir())
+        .collect()
+}
+
+fn complete_snapshot(cache_dir: &Path) -> Option<PathBuf> {
+    snapshot_directories(cache_dir)
+        .into_iter()
+        .find(|snapshot| {
+            snapshot.join(MODEL_FILE).is_file()
+                && TOKENIZER_FILES
+                    .iter()
+                    .all(|file| snapshot.join(file).is_file())
+        })
+}
+
+fn partial_download_count(cache_dir: &Path) -> usize {
+    let repo = model_repo_path(cache_dir);
+    if !repo.is_dir() {
+        return 0;
+    }
+    WalkDir::new(repo)
+        .follow_links(false)
+        .into_iter()
+        .filter_map(Result::ok)
+        .filter(|entry| {
+            entry.file_type().is_file()
+                && entry
+                    .path()
+                    .extension()
+                    .is_some_and(|value| value == "part")
+        })
+        .count()
+}
+
+fn tree_size(path: &Path) -> u64 {
+    if !path.exists() {
+        return 0;
+    }
+    WalkDir::new(path)
+        .follow_links(false)
+        .into_iter()
+        .filter_map(Result::ok)
+        .filter(|entry| entry.file_type().is_file())
+        .filter_map(|entry| entry.metadata().ok().map(|metadata| metadata.len()))
+        .sum()
+}
+
+fn directory_size(cache_dir: &Path) -> u64 {
+    [
+        cache_dir.join("onnxruntime-1.20.1"),
+        model_repo_path(cache_dir),
+        cache_dir.join("vectors"),
+    ]
+    .iter()
+    .map(|path| tree_size(path))
+    .sum()
+}
+
+#[derive(Default)]
+struct DeploymentComponents {
+    runtime_ready: bool,
+    model_files_ready: bool,
+    tokenizer_ready: bool,
+    partial_download_count: usize,
+    probe_dimension: usize,
+}
+
+fn deployment_status(
+    cache_dir: &Path,
+    state: &str,
+    components: DeploymentComponents,
+    diagnostic: impl Into<String>,
+) -> SemanticDeploymentStatus {
+    SemanticDeploymentStatus {
+        state: state.to_string(),
+        model_name: MODEL_NAME.to_string(),
+        cache_dir: cache_dir.to_string_lossy().to_string(),
+        default_cache_dir: default_cache_dir().to_string_lossy().to_string(),
+        runtime_ready: components.runtime_ready,
+        model_files_ready: components.model_files_ready,
+        tokenizer_ready: components.tokenizer_ready,
+        partial_download_count: components.partial_download_count,
+        total_bytes: directory_size(cache_dir),
+        probe_dimension: components.probe_dimension,
+        checked_at: checked_at(),
+        diagnostic: diagnostic.into(),
+    }
+}
+
+fn initialize_model(cache_dir: &Path, allow_download: bool) -> Result<TextEmbedding, String> {
+    if allow_download {
+        prepare_onnx_runtime(cache_dir).map_err(|_| "ONNX Runtime 下载或初始化失败".to_string())?;
+    } else {
+        let runtime = runtime_path(cache_dir);
+        if !runtime.is_file() {
+            return Err("缺少 ONNX Runtime".to_string());
+        }
+        env::set_var("ORT_DYLIB_PATH", runtime);
+    }
+    env::set_var("HF_HOME", cache_dir);
+    let options = InitOptions::new(EmbeddingModel::ParaphraseMLMiniLML12V2Q)
+        .with_cache_dir(cache_dir.to_path_buf())
+        .with_max_length(512)
+        .with_show_download_progress(false);
+    match catch_unwind(AssertUnwindSafe(|| TextEmbedding::try_new(options))) {
+        Ok(Ok(model)) => Ok(model),
+        Ok(Err(error)) => Err(format!("语义模型加载失败：{error}")),
+        Err(_) => Err("语义模型加载发生异常".to_string()),
+    }
+}
+
+pub(crate) fn check_deployment(cache_dir: &Path) -> SemanticDeploymentStatus {
+    if cache_dir.exists() && !cache_dir.is_dir() {
+        return deployment_status(
+            cache_dir,
+            "error",
+            DeploymentComponents::default(),
+            "配置的语义模型缓存路径不是目录",
+        );
+    }
+    if cache_dir.is_dir() && fs::read_dir(cache_dir).is_err() {
+        return deployment_status(
+            cache_dir,
+            "error",
+            DeploymentComponents::default(),
+            "语义模型缓存目录不可读",
+        );
+    }
+    let runtime_ready = runtime_path(cache_dir).is_file();
+    let snapshots = snapshot_directories(cache_dir);
+    let model_files_ready = snapshots
+        .iter()
+        .any(|snapshot| snapshot.join(MODEL_FILE).is_file());
+    let tokenizer_ready = snapshots.iter().any(|snapshot| {
+        TOKENIZER_FILES
+            .iter()
+            .all(|file| snapshot.join(file).is_file())
+    });
+    let partial_count = partial_download_count(cache_dir);
+    if !cache_dir.is_dir() {
+        return deployment_status(
+            cache_dir,
+            "missing",
+            DeploymentComponents {
+                partial_download_count: partial_count,
+                ..Default::default()
+            },
+            "缓存目录尚不存在",
+        );
+    }
+    if !runtime_ready || complete_snapshot(cache_dir).is_none() {
+        let state = if partial_count > 0 {
+            "partial"
+        } else {
+            "missing"
+        };
+        let diagnostic = if partial_count > 0 {
+            format!("检测到 {partial_count} 个未完成下载文件")
+        } else if !runtime_ready {
+            "缺少 ONNX Runtime".to_string()
+        } else {
+            "缺少完整的语义模型或 tokenizer 文件".to_string()
+        };
+        return deployment_status(
+            cache_dir,
+            state,
+            DeploymentComponents {
+                runtime_ready,
+                model_files_ready,
+                tokenizer_ready,
+                partial_download_count: partial_count,
+                ..Default::default()
+            },
+            diagnostic,
+        );
+    }
+
+    match initialize_model(cache_dir, false).and_then(|model| {
+        let vectors = model
+            .embed(
+                vec!["LunaWiki semantic deployment probe".to_string()],
+                Some(1),
+            )
+            .map_err(|error| format!("语义模型探针推理失败：{error}"))?;
+        let vector = vectors
+            .first()
+            .ok_or_else(|| "语义模型探针没有返回向量".to_string())?;
+        if vector.len() != PROBE_DIMENSION || vector.iter().any(|value| !value.is_finite()) {
+            return Err(format!(
+                "语义模型探针维度或数值无效：dimension={}",
+                vector.len()
+            ));
+        }
+        Ok(vector.len())
+    }) {
+        Ok(dimension) => deployment_status(
+            cache_dir,
+            "ready",
+            DeploymentComponents {
+                runtime_ready: true,
+                model_files_ready: true,
+                tokenizer_ready: true,
+                partial_download_count: partial_count,
+                probe_dimension: dimension,
+            },
+            if partial_count > 0 {
+                "模型探针通过；目录中另有未完成的非必需下载文件"
+            } else {
+                "模型文件、tokenizer、ONNX Runtime 与 384 维探针均通过"
+            },
+        ),
+        Err(error) => deployment_status(
+            cache_dir,
+            "invalid",
+            DeploymentComponents {
+                runtime_ready: true,
+                model_files_ready,
+                tokenizer_ready,
+                partial_download_count: partial_count,
+                ..Default::default()
+            },
+            error,
+        ),
+    }
+}
+
+fn quarantine_for_repair(path: &Path) -> Result<(), String> {
+    if !path.exists() {
+        return Ok(());
+    }
+    let file_name = path
+        .file_name()
+        .and_then(|value| value.to_str())
+        .ok_or_else(|| "语义模型缓存目录名称无效".to_string())?;
+    let backup = path.with_file_name(format!(
+        "{file_name}.invalid-{}-{}",
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs(),
+        Uuid::new_v4()
+    ));
+    fs::rename(path, backup).map_err(|error| format!("隔离损坏缓存失败：{error}"))
+}
+
+pub(crate) fn repair_deployment(cache_dir: &Path) -> Result<SemanticDeploymentStatus, String> {
+    let cache_dir = validate_cache_dir(cache_dir)?;
+    configure_cache_dir(Some(cache_dir.clone()))?;
+    let before = check_deployment(&cache_dir);
+    if before.state == "invalid" {
+        quarantine_for_repair(&model_repo_path(&cache_dir))?;
+        quarantine_for_repair(&cache_dir.join("onnxruntime-1.20.1"))?;
+        configure_cache_dir(Some(cache_dir.clone()))?;
+    }
+    let state = SEMANTIC_STATE.get_or_init(|| Mutex::new(SemanticState::default()));
+    let mut state = state
+        .lock()
+        .map_err(|_| "语义模型状态锁定失败".to_string())?;
+    let model = initialize_model(&cache_dir, true)
+        .map_err(|error| format!("语义模型下载或初始化失败：{error}"))?;
+    state.model = Some(model);
+    state.model_retry_after = None;
+    drop(state);
+    let status = check_deployment(&cache_dir);
+    if status.state != "ready" {
+        return Err(status.diagnostic);
+    }
+    Ok(status)
+}
+
+pub(crate) fn copy_cache(source: &Path, target: &Path) -> Result<PathBuf, String> {
+    if !source.is_dir() {
+        return Err("当前语义模型缓存目录不存在，无法复制".to_string());
+    }
+    let source = source
+        .canonicalize()
+        .map_err(|error| format!("解析当前缓存目录失败：{error}"))?;
+    let target = validate_cache_dir(target)?;
+    if source == target || source.starts_with(&target) || target.starts_with(&source) {
+        return Err("源缓存目录与目标目录不得相同或相互嵌套".to_string());
+    }
+    for component in ["onnxruntime-1.20.1", MODEL_CACHE_FOLDER, "vectors"] {
+        let component_source = source.join(component);
+        if !component_source.exists() {
+            continue;
+        }
+        for entry in WalkDir::new(&component_source).follow_links(false) {
+            let entry = entry.map_err(|error| format!("遍历缓存目录失败：{error}"))?;
+            let relative = entry
+                .path()
+                .strip_prefix(&source)
+                .map_err(|error| format!("计算缓存相对路径失败：{error}"))?;
+            if entry
+                .path()
+                .extension()
+                .is_some_and(|value| value == "lock")
+            {
+                continue;
+            }
+            let destination = target.join(relative);
+            if entry.file_type().is_dir() {
+                fs::create_dir_all(&destination)
+                    .map_err(|error| format!("创建目标缓存子目录失败：{error}"))?;
+                continue;
+            }
+            if !entry.path().is_file() {
+                continue;
+            }
+            if let Some(parent) = destination.parent() {
+                fs::create_dir_all(parent)
+                    .map_err(|error| format!("创建目标缓存目录失败：{error}"))?;
+            }
+            let temporary = destination.with_file_name(format!(
+                ".{}.copying-{}",
+                destination
+                    .file_name()
+                    .and_then(|value| value.to_str())
+                    .unwrap_or("cache-file"),
+                Uuid::new_v4()
+            ));
+            fs::copy(entry.path(), &temporary)
+                .map_err(|error| format!("复制语义模型缓存失败：{error}"))?;
+            if destination.exists() {
+                fs::remove_file(&destination)
+                    .map_err(|error| format!("替换目标缓存文件失败：{error}"))?;
+            }
+            fs::rename(&temporary, &destination)
+                .map_err(|error| format!("提交目标缓存文件失败：{error}"))?;
+        }
+    }
+    Ok(target)
 }
 
 pub(super) fn semantic_candidates(
@@ -228,25 +672,17 @@ impl SemanticState {
             return Err(SemanticFailure::Unavailable);
         }
         let cache_dir = model_cache_dir();
-        if std::fs::create_dir_all(&cache_dir).is_err() {
+        if !runtime_path(&cache_dir).is_file() || complete_snapshot(&cache_dir).is_none() {
             self.defer_model_retry();
             return Err(SemanticFailure::Unavailable);
         }
-        if prepare_onnx_runtime(&cache_dir).is_err() {
-            self.defer_model_retry();
-            return Err(SemanticFailure::Unavailable);
-        }
-        let options = InitOptions::new(EmbeddingModel::ParaphraseMLMiniLML12V2Q)
-            .with_cache_dir(cache_dir)
-            .with_max_length(512)
-            .with_show_download_progress(false);
-        match catch_unwind(AssertUnwindSafe(|| TextEmbedding::try_new(options))) {
-            Ok(Ok(model)) => {
+        match initialize_model(&cache_dir, false) {
+            Ok(model) => {
                 self.model = Some(model);
                 self.model_retry_after = None;
                 Ok(())
             }
-            Ok(Err(_)) | Err(_) => {
+            Err(_) => {
                 self.defer_model_retry();
                 Err(SemanticFailure::Unavailable)
             }
@@ -333,11 +769,12 @@ fn ensure_not_cancelled(cancelled: Option<&AtomicBool>) -> Result<(), SemanticFa
 }
 
 fn model_cache_dir() -> PathBuf {
-    env::var_os("LOCALAPPDATA")
-        .map(PathBuf::from)
-        .unwrap_or_else(env::temp_dir)
-        .join("LunaWiki")
-        .join("fastembed")
+    CACHE_DIR_OVERRIDE
+        .get_or_init(|| Mutex::new(None))
+        .lock()
+        .ok()
+        .and_then(|path| path.clone())
+        .unwrap_or_else(default_cache_dir)
 }
 
 fn repository_key(root: &Path) -> String {
@@ -706,5 +1143,73 @@ mod tests {
         assert!(!state
             .model_retry_after
             .is_some_and(|retry_after| retry_after > Instant::now()));
+    }
+
+    #[test]
+    fn deployment_check_distinguishes_missing_and_partial_without_loading_a_model() {
+        let cache = tempfile::tempdir().unwrap();
+        let missing = check_deployment(cache.path());
+        assert_eq!(missing.state, "missing");
+        let part = model_repo_path(cache.path())
+            .join("blobs")
+            .join("model.part");
+        fs::create_dir_all(part.parent().unwrap()).unwrap();
+        fs::write(part, b"partial").unwrap();
+        let partial = check_deployment(cache.path());
+        assert_eq!(partial.state, "partial");
+        assert_eq!(partial.partial_download_count, 1);
+        assert_eq!(partial.probe_dimension, 0);
+    }
+
+    #[test]
+    fn deployment_check_requires_runtime_model_and_tokenizer_from_one_snapshot() {
+        let cache = tempfile::tempdir().unwrap();
+        let snapshot = model_repo_path(cache.path())
+            .join("snapshots")
+            .join("fixture");
+        fs::create_dir_all(&snapshot).unwrap();
+        fs::write(snapshot.join(MODEL_FILE), b"fixture").unwrap();
+        for file in TOKENIZER_FILES {
+            fs::write(snapshot.join(file), b"{}").unwrap();
+        }
+        let status = check_deployment(cache.path());
+        assert_eq!(status.state, "missing");
+        assert!(status.model_files_ready);
+        assert!(status.tokenizer_ready);
+        assert!(!status.runtime_ready);
+    }
+
+    #[test]
+    fn cache_copy_is_non_destructive_and_skips_locks() {
+        let source = tempfile::tempdir().unwrap();
+        let target_root = tempfile::tempdir().unwrap();
+        let target = target_root.path().join("copied-cache");
+        let blobs = model_repo_path(source.path()).join("blobs");
+        fs::create_dir_all(&blobs).unwrap();
+        fs::write(blobs.join("model.bin"), b"model").unwrap();
+        fs::write(blobs.join("model.lock"), b"lock").unwrap();
+        let copied = copy_cache(source.path(), &target).unwrap();
+        let copied_blobs = model_repo_path(&copied).join("blobs");
+        assert_eq!(fs::read(copied_blobs.join("model.bin")).unwrap(), b"model");
+        assert!(!copied_blobs.join("model.lock").exists());
+        assert!(blobs.join("model.bin").is_file());
+    }
+
+    #[test]
+    fn semantic_state_reset_drops_retry_and_corpus_for_a_cache_switch() {
+        let mut state = SemanticState {
+            model: None,
+            model_retry_after: Some(Instant::now() + Duration::from_secs(30)),
+            corpus: Some(CachedCorpus {
+                repository_key: "repository".to_string(),
+                snapshot_id: "snapshot".to_string(),
+                documents: Vec::new(),
+                embeddings: Vec::new(),
+            }),
+        };
+        state.reset_for_cache_switch();
+        assert!(state.model.is_none());
+        assert!(state.model_retry_after.is_none());
+        assert!(state.corpus.is_none());
     }
 }

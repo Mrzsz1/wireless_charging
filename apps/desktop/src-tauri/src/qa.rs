@@ -23,6 +23,15 @@ pub use query_plan::{
     parse_query_plan, query_plan_prompt, query_plan_schema, QueryFacet, QueryPlan,
     QueryPlanningInput,
 };
+pub(crate) use semantic::{
+    check_deployment as check_semantic_deployment,
+    configure_cache_dir as configure_semantic_cache_dir, copy_cache as copy_semantic_cache,
+    default_cache_dir as default_semantic_cache_dir,
+    effective_cache_dir as effective_semantic_cache_dir,
+    repair_deployment as repair_semantic_deployment,
+    validate_cache_dir as validate_semantic_cache_dir, SemanticDeploymentStatus,
+    MODEL_NAME as SEMANTIC_MODEL_NAME,
+};
 pub use session::{create_session, delete_session, get_session, list_sessions, rename_session};
 
 use reqwest::blocking::Client;

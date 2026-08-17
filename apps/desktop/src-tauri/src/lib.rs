@@ -63,6 +63,34 @@ struct AppState {
     compile_cancellations: Mutex<HashMap<String, Arc<AtomicBool>>>,
 }
 
+const SEMANTIC_SETTINGS_SCHEMA: &str = "semantic-model-settings-v1";
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[serde(rename_all = "camelCase")]
+struct StoredSemanticModelSettings {
+    #[serde(default)]
+    schema_version: String,
+    #[serde(default)]
+    cache_dir: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+struct SemanticModelSettings {
+    cache_dir: String,
+    effective_cache_dir: String,
+    default_cache_dir: String,
+    using_default: bool,
+    model_name: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SemanticModelSettingsInput {
+    #[serde(default)]
+    cache_dir: String,
+}
+
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct RepositoryWatchStatus {
@@ -2356,6 +2384,195 @@ fn build_comparison(
     })
 }
 
+fn semantic_settings_path(app: &AppHandle) -> Result<PathBuf, String> {
+    app.path()
+        .app_local_data_dir()
+        .map(|path| path.join("semantic-model-settings.json"))
+        .map_err(|error| format!("解析语义模型设置目录失败：{error}"))
+}
+
+fn read_stored_semantic_settings(path: &Path) -> Result<StoredSemanticModelSettings, String> {
+    if !path.is_file() {
+        return Ok(StoredSemanticModelSettings {
+            schema_version: SEMANTIC_SETTINGS_SCHEMA.to_string(),
+            cache_dir: String::new(),
+        });
+    }
+    let content =
+        fs::read_to_string(path).map_err(|error| format!("读取语义模型设置失败：{error}"))?;
+    let settings: StoredSemanticModelSettings =
+        serde_json::from_str(&content).map_err(|error| format!("语义模型设置文件损坏：{error}"))?;
+    if !settings.schema_version.is_empty() && settings.schema_version != SEMANTIC_SETTINGS_SCHEMA {
+        return Err(format!(
+            "不支持的语义模型设置版本：{}",
+            settings.schema_version
+        ));
+    }
+    Ok(settings)
+}
+
+fn write_stored_semantic_settings(
+    path: &Path,
+    settings: &StoredSemanticModelSettings,
+) -> Result<(), String> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| "语义模型设置路径无效".to_string())?;
+    fs::create_dir_all(parent).map_err(|error| format!("创建设置目录失败：{error}"))?;
+    let temporary = path.with_extension(format!("json.tmp-{}", Uuid::new_v4()));
+    let backup = path.with_extension(format!("json.bak-{}", Uuid::new_v4()));
+    let content = serde_json::to_vec_pretty(settings)
+        .map_err(|error| format!("序列化语义模型设置失败：{error}"))?;
+    fs::write(&temporary, content).map_err(|error| format!("写入语义模型设置失败：{error}"))?;
+    let had_existing = path.is_file();
+    if had_existing {
+        fs::rename(path, &backup).map_err(|error| format!("备份旧设置失败：{error}"))?;
+    }
+    if let Err(error) = fs::rename(&temporary, path) {
+        let _ = fs::remove_file(&temporary);
+        if had_existing {
+            let _ = fs::rename(&backup, path);
+        }
+        return Err(format!("提交语义模型设置失败：{error}"));
+    }
+    if had_existing {
+        let _ = fs::remove_file(backup);
+    }
+    Ok(())
+}
+
+fn semantic_settings_view(settings: &StoredSemanticModelSettings) -> SemanticModelSettings {
+    let cache_dir = settings.cache_dir.trim().to_string();
+    let using_default = cache_dir.is_empty();
+    let effective = if using_default {
+        qa::default_semantic_cache_dir()
+    } else {
+        PathBuf::from(&cache_dir)
+    };
+    SemanticModelSettings {
+        cache_dir,
+        effective_cache_dir: effective.to_string_lossy().to_string(),
+        default_cache_dir: qa::default_semantic_cache_dir()
+            .to_string_lossy()
+            .to_string(),
+        using_default,
+        model_name: qa::SEMANTIC_MODEL_NAME.to_string(),
+    }
+}
+
+fn load_semantic_model_settings(app: &AppHandle) -> Result<SemanticModelSettings, String> {
+    let stored = read_stored_semantic_settings(&semantic_settings_path(app)?)?;
+    Ok(semantic_settings_view(&stored))
+}
+
+fn persist_semantic_model_settings(
+    app: &AppHandle,
+    cache_dir: String,
+) -> Result<SemanticModelSettings, String> {
+    let cache_dir = cache_dir.trim().to_string();
+    if cache_dir.chars().any(char::is_control) {
+        return Err("语义模型缓存目录包含无效控制字符".to_string());
+    }
+    let previous = read_stored_semantic_settings(&semantic_settings_path(app)?)?;
+    let next_path = if cache_dir.is_empty() {
+        None
+    } else {
+        Some(PathBuf::from(&cache_dir))
+    };
+    qa::configure_semantic_cache_dir(next_path)?;
+    let next = StoredSemanticModelSettings {
+        schema_version: SEMANTIC_SETTINGS_SCHEMA.to_string(),
+        cache_dir,
+    };
+    if let Err(error) = write_stored_semantic_settings(&semantic_settings_path(app)?, &next) {
+        let rollback = if previous.cache_dir.trim().is_empty() {
+            None
+        } else {
+            Some(PathBuf::from(previous.cache_dir.trim()))
+        };
+        let _ = qa::configure_semantic_cache_dir(rollback);
+        return Err(error);
+    }
+    Ok(semantic_settings_view(&next))
+}
+
+#[tauri::command]
+fn get_semantic_model_settings(app: AppHandle) -> Result<SemanticModelSettings, String> {
+    load_semantic_model_settings(&app)
+}
+
+#[tauri::command]
+fn choose_semantic_model_cache_directory() -> Result<String, String> {
+    FileDialog::new()
+        .set_title("选择本地语义模型缓存目录")
+        .pick_folder()
+        .map(|path| path.to_string_lossy().to_string())
+        .ok_or_else(|| "用户取消了目录选择".to_string())
+}
+
+#[tauri::command]
+fn save_semantic_model_settings(
+    settings: SemanticModelSettingsInput,
+    app: AppHandle,
+) -> Result<SemanticModelSettings, String> {
+    persist_semantic_model_settings(&app, settings.cache_dir)
+}
+
+#[tauri::command]
+async fn check_semantic_model_deployment(
+    app: AppHandle,
+) -> Result<qa::SemanticDeploymentStatus, String> {
+    let cache_dir = load_semantic_model_settings(&app)?.effective_cache_dir;
+    tauri::async_runtime::spawn_blocking(move || {
+        Ok::<_, String>(qa::check_semantic_deployment(Path::new(&cache_dir)))
+    })
+    .await
+    .map_err(|error| format!("语义模型检查线程失败：{error}"))?
+}
+
+#[tauri::command]
+async fn repair_semantic_model_deployment(
+    app: AppHandle,
+) -> Result<qa::SemanticDeploymentStatus, String> {
+    let cache_dir = load_semantic_model_settings(&app)?.effective_cache_dir;
+    tauri::async_runtime::spawn_blocking(move || {
+        qa::repair_semantic_deployment(Path::new(&cache_dir))
+    })
+    .await
+    .map_err(|error| format!("语义模型部署线程失败：{error}"))?
+}
+
+#[tauri::command]
+async fn copy_semantic_model_cache_and_switch(
+    target_dir: String,
+    app: AppHandle,
+) -> Result<SemanticModelSettings, String> {
+    let source = qa::effective_semantic_cache_dir();
+    let target = PathBuf::from(target_dir.trim());
+    let copied =
+        tauri::async_runtime::spawn_blocking(move || qa::copy_semantic_cache(&source, &target))
+            .await
+            .map_err(|error| format!("复制语义模型缓存线程失败：{error}"))??;
+    persist_semantic_model_settings(&app, copied.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+fn open_semantic_model_cache_directory(app: AppHandle) -> Result<(), String> {
+    let settings = load_semantic_model_settings(&app)?;
+    let path = qa::validate_semantic_cache_dir(Path::new(&settings.effective_cache_dir))?;
+    #[cfg(target_os = "windows")]
+    let mut command = Command::new("explorer.exe");
+    #[cfg(target_os = "macos")]
+    let mut command = Command::new("open");
+    #[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
+    let mut command = Command::new("xdg-open");
+    command
+        .arg(path)
+        .spawn()
+        .map(|_| ())
+        .map_err(|error| format!("打开语义模型缓存目录失败：{error}"))
+}
+
 #[tauri::command]
 fn get_luna_settings(state: State<'_, AppState>) -> Result<qa::LunaSettings, String> {
     let repository = state
@@ -3804,6 +4021,19 @@ pub fn run() {
         .plugin(tauri_plugin_process::init())
         .manage(AppState::default())
         .setup(|app| {
+            match load_semantic_model_settings(app.handle()) {
+                Ok(settings) => {
+                    let configured = if settings.using_default {
+                        None
+                    } else {
+                        Some(PathBuf::from(settings.cache_dir))
+                    };
+                    if let Err(error) = qa::configure_semantic_cache_dir(configured) {
+                        log::warn!("加载语义模型缓存目录失败：{error}");
+                    }
+                }
+                Err(error) => log::warn!("读取语义模型设置失败：{error}"),
+            }
             if let Ok(data_dir) = app.path().app_local_data_dir() {
                 let path_file = data_dir.join("repository.json");
                 if let Ok(content) = fs::read_to_string(path_file) {
@@ -3864,6 +4094,13 @@ pub fn run() {
             save_luna_settings,
             get_qa_settings,
             save_qa_settings,
+            get_semantic_model_settings,
+            choose_semantic_model_cache_directory,
+            save_semantic_model_settings,
+            check_semantic_model_deployment,
+            repair_semantic_model_deployment,
+            copy_semantic_model_cache_and_switch,
+            open_semantic_model_cache_directory,
             get_codex_subscription_status,
             start_codex_login,
             list_chat_sessions,
@@ -4735,5 +4972,42 @@ mod tests {
         assert_eq!(overview.node_count, 1);
         assert_eq!(overview.edge_count, 0);
         assert_eq!(overview.nodes[0].id, "a");
+    }
+
+    #[test]
+    fn semantic_model_settings_round_trip_without_repository_sqlite() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("semantic-model-settings.json");
+        let settings = StoredSemanticModelSettings {
+            schema_version: SEMANTIC_SETTINGS_SCHEMA.to_string(),
+            cache_dir: directory
+                .path()
+                .join("models")
+                .to_string_lossy()
+                .to_string(),
+        };
+        write_stored_semantic_settings(&path, &settings).unwrap();
+        assert_eq!(
+            read_stored_semantic_settings(&path).unwrap().cache_dir,
+            settings.cache_dir
+        );
+        let view = semantic_settings_view(&settings);
+        assert!(!view.using_default);
+        assert_eq!(view.cache_dir, settings.cache_dir);
+        assert_eq!(view.model_name, qa::SEMANTIC_MODEL_NAME);
+    }
+
+    #[test]
+    fn semantic_model_settings_reject_corrupt_or_unknown_schema() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("semantic-model-settings.json");
+        fs::write(&path, b"not-json").unwrap();
+        assert!(read_stored_semantic_settings(&path)
+            .unwrap_err()
+            .contains("设置文件损坏"));
+        fs::write(&path, br#"{"schemaVersion":"future-v9","cacheDir":""}"#).unwrap();
+        assert!(read_stored_semantic_settings(&path)
+            .unwrap_err()
+            .contains("不支持的语义模型设置版本"));
     }
 }

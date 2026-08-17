@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Bot, CheckCircle2, CloudDownload, Eye, EyeOff, FolderOpen, KeyRound, LoaderCircle, LogIn, RefreshCw, Save, Settings2, ShieldCheck, Trash2 } from 'lucide-react'
-import { deleteSearchProviderKey, getCodexSubscriptionStatus, getLiteratureSettings, getQaSettings, listSearchProviderStatuses, saveLiteratureSettings, saveQaSettings, saveSearchProviderKey, startCodexLogin, testSearchProvider } from '../../services/desktop'
-import type { CodexSubscriptionStatus, LiteratureIngestSettings, QaSettings, SearchProviderStatus } from '../../types'
+import { Bot, CheckCircle2, CloudDownload, Copy, Eye, EyeOff, FolderOpen, HardDrive, KeyRound, LoaderCircle, LogIn, RefreshCw, RotateCcw, Save, Settings2, ShieldCheck, Trash2 } from 'lucide-react'
+import { checkSemanticModelDeployment, chooseSemanticModelCacheDirectory, copySemanticModelCacheAndSwitch, deleteSearchProviderKey, getCodexSubscriptionStatus, getLiteratureSettings, getQaSettings, getSemanticModelSettings, listSearchProviderStatuses, openSemanticModelCacheDirectory, repairSemanticModelDeployment, saveLiteratureSettings, saveQaSettings, saveSearchProviderKey, saveSemanticModelSettings, startCodexLogin, testSearchProvider } from '../../services/desktop'
+import type { CodexSubscriptionStatus, LiteratureIngestSettings, QaSettings, SearchProviderStatus, SemanticDeploymentStatus, SemanticModelSettings } from '../../types'
 import { DelayedHelp } from '../../components/DelayedHelp'
+import { formatBytes } from '../ingest/ingestState'
 import './SettingsView.css'
 
 type Theme = 'light' | 'dark' | 'system'
@@ -48,6 +49,37 @@ const defaultQaSettings: QaSettings = {
   apiKeyConfigured: false,
 }
 
+const defaultSemanticSettings: SemanticModelSettings = {
+  cacheDir: '',
+  effectiveCacheDir: '',
+  defaultCacheDir: '',
+  usingDefault: true,
+  modelName: 'Qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q',
+}
+
+const defaultSemanticStatus: SemanticDeploymentStatus = {
+  state: 'missing',
+  modelName: defaultSemanticSettings.modelName,
+  cacheDir: '',
+  defaultCacheDir: '',
+  runtimeReady: false,
+  modelFilesReady: false,
+  tokenizerReady: false,
+  partialDownloadCount: 0,
+  totalBytes: 0,
+  probeDimension: 0,
+  checkedAt: '',
+  diagnostic: '尚未检查本地语义模型部署状态。',
+}
+
+const semanticStateLabel: Record<SemanticDeploymentStatus['state'], string> = {
+  ready: '已部署',
+  partial: '下载未完成',
+  invalid: '部署损坏',
+  missing: '尚未部署',
+  error: '检查失败',
+}
+
 const emptyCodexStatus: CodexSubscriptionStatus = {
   installed: false,
   version: '',
@@ -65,9 +97,17 @@ function replaceStatus(statuses: SearchProviderStatus[], next: SearchProviderSta
   return statuses.map((item) => item.id === next.id ? next : item)
 }
 
+function formatSemanticCheckedAt(value: string) {
+  const timestamp = Number(value)
+  return Number.isFinite(timestamp) && timestamp > 0 ? new Date(timestamp).toLocaleString() : '尚未检查'
+}
+
 export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, updateBusy, desktopRuntime, focusSection, onChooseRepository, onRebuild, onThemeChange, onFontSizeChange, onUpdate }: Props) {
   const [settings, setSettings] = useState(defaultSettings)
   const [qaSettings, setQaSettings] = useState(defaultQaSettings)
+  const [semanticSettings, setSemanticSettings] = useState(defaultSemanticSettings)
+  const [semanticStatus, setSemanticStatus] = useState(defaultSemanticStatus)
+  const [semanticCacheDraft, setSemanticCacheDraft] = useState('')
   const [codexStatus, setCodexStatus] = useState(emptyCodexStatus)
   const [providerStatuses, setProviderStatuses] = useState<SearchProviderStatus[]>([])
   const [keyDrafts, setKeyDrafts] = useState<Record<string, string>>({})
@@ -78,16 +118,21 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
   const load = useCallback(async () => {
     setBusyAction('load'); setError('')
     try {
-      const [statuses, literature, qa, codex] = await Promise.all([
+      const [statuses, literature, qa, codex, semantic, deployment] = await Promise.all([
         listSearchProviderStatuses(),
         repositoryPath ? getLiteratureSettings() : Promise.resolve(defaultSettings),
         repositoryPath ? getQaSettings() : Promise.resolve(defaultQaSettings),
         getCodexSubscriptionStatus(),
+        getSemanticModelSettings(),
+        checkSemanticModelDeployment(),
       ])
       setProviderStatuses(statuses)
       setSettings(literature)
       setQaSettings(qa)
       setCodexStatus(codex)
+      setSemanticSettings(semantic)
+      setSemanticCacheDraft(semantic.cacheDir)
+      setSemanticStatus(deployment)
     } catch (reason) { setError(`读取设置失败：${String(reason)}`) }
     finally { setBusyAction('') }
   }, [repositoryPath])
@@ -117,6 +162,66 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
       setMessage('AI 回答引擎设置已保存')
     } catch (reason) { setError(`保存回答引擎失败：${String(reason)}`) }
     finally { setBusyAction('') }
+  }
+
+  const chooseSemanticCache = async () => {
+    setError(''); setMessage('')
+    try { setSemanticCacheDraft(await chooseSemanticModelCacheDirectory()) }
+    catch (reason) {
+      if (!String(reason).includes('用户取消')) setError(`选择缓存目录失败：${String(reason)}`)
+    }
+  }
+
+  const refreshSemanticDeployment = async () => {
+    setBusyAction('semantic-check'); setError(''); setMessage('')
+    try {
+      const next = await checkSemanticModelDeployment()
+      setSemanticStatus(next)
+      setMessage(`语义模型检查完成：${semanticStateLabel[next.state]}`)
+    } catch (reason) { setError(`语义模型检查失败：${String(reason)}`) }
+    finally { setBusyAction('') }
+  }
+
+  const repairSemanticDeployment = async () => {
+    setBusyAction('semantic-repair'); setError(''); setMessage('')
+    try {
+      const next = await repairSemanticModelDeployment()
+      setSemanticStatus(next)
+      setMessage('语义模型下载、初始化与探针检查已完成')
+    } catch (reason) { setError(`语义模型部署失败：${String(reason)}`) }
+    finally { setBusyAction('') }
+  }
+
+  const switchAndRedeploySemantic = async () => {
+    setBusyAction('semantic-switch-repair'); setError(''); setMessage('')
+    try {
+      const saved = await saveSemanticModelSettings(semanticCacheDraft)
+      setSemanticSettings(saved)
+      setSemanticCacheDraft(saved.cacheDir)
+      const next = await repairSemanticModelDeployment()
+      setSemanticStatus(next)
+      setMessage('已切换缓存目录并完成语义模型部署')
+    } catch (reason) { setError(`切换并部署失败：${String(reason)}`) }
+    finally { setBusyAction('') }
+  }
+
+  const copyAndSwitchSemantic = async () => {
+    setBusyAction('semantic-copy'); setError(''); setMessage('')
+    try {
+      const saved = await copySemanticModelCacheAndSwitch(semanticCacheDraft)
+      setSemanticSettings(saved)
+      setSemanticCacheDraft(saved.cacheDir)
+      const next = await checkSemanticModelDeployment()
+      setSemanticStatus(next)
+      setMessage('已复制现有缓存并切换目录；旧目录仍保留')
+    } catch (reason) { setError(`复制缓存失败：${String(reason)}`) }
+    finally { setBusyAction('') }
+  }
+
+  const openSemanticCache = async () => {
+    setError(''); setMessage('')
+    try { await openSemanticModelCacheDirectory() }
+    catch (reason) { setError(`打开缓存目录失败：${String(reason)}`) }
   }
 
   const beginCodexLogin = async () => {
@@ -163,6 +268,9 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
     providers: enabled ? [...new Set([...current.providers, provider])] : current.providers.filter((item) => item !== provider),
   }))
 
+  const semanticPathChanged = semanticCacheDraft.trim() !== semanticSettings.cacheDir
+  const semanticBusy = busyAction.startsWith('semantic-')
+
   return <section className="settings-view" data-testid="settings-view">
     <header className="settings-heading"><div><div className="settings-title-row"><h1>设置</h1><DelayedHelp testId="settings-page-help" label="集中管理知识库、论文检索、自动入库和客户端偏好。" /></div></div><button className="refresh-button" disabled={busyAction === 'load'} onClick={() => void load()}><RefreshCw className={busyAction === 'load' ? 'spin' : ''} size={14} />刷新状态</button></header>
     {error && <div className="settings-alert error">{error}<button onClick={() => setError('')}>关闭</button></div>}
@@ -195,6 +303,26 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
           <div className="qa-api-state"><ShieldCheck size={15} /><span>{qaSettings.apiKeyConfigured ? `${qaSettings.apiKeyEnv} 已检测到` : `${qaSettings.apiKeyEnv} 尚未检测到；运行时将降级为离线证据`}</span></div>
         </div>}
         {qaSettings.answerProvider === 'offline-evidence' && <div className="qa-provider-pane offline" data-testid="qa-provider-offline"><FolderOpen size={22} /><div><strong>本地证据浏览模式</strong><p>检索 Wiki、论文原文、两本核心专著与 Graphify，并展示可审计证据包；不调用在线回答模型。</p></div></div>}
+      </section>
+      <section id="semantic-model-settings" className="settings-card semantic-model-settings" data-testid="semantic-model-settings">
+        <div className="settings-card-title"><HardDrive size={18} /><div className="settings-title-row"><h2>本地语义模型</h2><DelayedHelp testId="semantic-model-settings-help" label="为所有知识库共享的本机 embedding 模型。部署检查严格离线，只有下载/修复会访问网络。" /></div></div>
+        <div className={`semantic-deployment-status ${semanticStatus.state}`}>
+          <div className="semantic-status-main"><span className="semantic-status-icon">{semanticStatus.state === 'ready' ? <CheckCircle2 size={19} /> : semanticStatus.state === 'partial' ? <CloudDownload size={19} /> : <HardDrive size={19} />}</span><div><strong>{semanticStateLabel[semanticStatus.state]}</strong><small title={semanticStatus.modelName}>{semanticStatus.modelName}</small><p>{semanticStatus.diagnostic}</p></div></div>
+          <div className="semantic-component-grid"><span data-ready={semanticStatus.runtimeReady}>ONNX Runtime<strong>{semanticStatus.runtimeReady ? '就绪' : '缺失'}</strong></span><span data-ready={semanticStatus.modelFilesReady}>量化模型<strong>{semanticStatus.modelFilesReady ? '完整' : '缺失'}</strong></span><span data-ready={semanticStatus.tokenizerReady}>Tokenizer<strong>{semanticStatus.tokenizerReady ? '完整' : '缺失'}</strong></span><span data-ready={semanticStatus.probeDimension === 384}>推理探针<strong>{semanticStatus.probeDimension ? `${semanticStatus.probeDimension} 维` : '未通过'}</strong></span></div>
+          <div className="semantic-status-meta"><span>占用 {formatBytes(semanticStatus.totalBytes)}</span><span>未完成文件 {semanticStatus.partialDownloadCount}</span><span>{semanticSettings.usingDefault ? '默认目录' : '自定义目录'}</span><span>检查时间 {formatSemanticCheckedAt(semanticStatus.checkedAt)}</span></div>
+        </div>
+        <div className="semantic-path-editor">
+          <label><span>模型与向量缓存目录</span><input value={semanticCacheDraft} onChange={(event) => setSemanticCacheDraft(event.target.value)} placeholder={semanticSettings.defaultCacheDir || '使用默认目录'} disabled={semanticBusy} /></label>
+          <button disabled={semanticBusy} onClick={() => void chooseSemanticCache()}><FolderOpen size={14} />选择目录</button>
+          <button disabled={semanticBusy || !semanticCacheDraft} onClick={() => setSemanticCacheDraft('')}><RotateCcw size={14} />恢复默认</button>
+        </div>
+        <div className="semantic-current-path" title={semanticSettings.effectiveCacheDir}><HardDrive size={13} /><span>{semanticSettings.effectiveCacheDir || semanticStatus.cacheDir || '尚未解析缓存目录'}</span></div>
+        <div className="semantic-actions">
+          <button disabled={semanticBusy || busyAction === 'load'} onClick={() => void refreshSemanticDeployment()}>{busyAction === 'semantic-check' ? <LoaderCircle className="spin" size={14} /> : <ShieldCheck size={14} />}检查部署</button>
+          <button disabled={semanticBusy} onClick={() => void openSemanticCache()}><FolderOpen size={14} />打开目录</button>
+          {semanticPathChanged ? <><button disabled={semanticBusy || semanticStatus.totalBytes === 0 || !semanticCacheDraft.trim()} onClick={() => void copyAndSwitchSemantic()}>{busyAction === 'semantic-copy' ? <LoaderCircle className="spin" size={14} /> : <Copy size={14} />}复制现有缓存并切换</button><button className="primary" disabled={semanticBusy} onClick={() => void switchAndRedeploySemantic()}>{busyAction === 'semantic-switch-repair' ? <LoaderCircle className="spin" size={14} /> : <CloudDownload size={14} />}切换并重新部署</button></> : <button className="primary" disabled={semanticBusy} onClick={() => void repairSemanticDeployment()}>{busyAction === 'semantic-repair' ? <LoaderCircle className="spin" size={14} /> : <CloudDownload size={14} />}{semanticStatus.state === 'ready' ? '重新检查并修复' : '下载/修复'}</button>}
+        </div>
+        <p className="qa-provider-note">复制操作保留旧目录作为回滚副本；应用不会自动删除任何旧模型或未完成下载。</p>
       </section>
       <section className="settings-card compact" data-testid="updater-settings"><div className="settings-card-title"><CloudDownload size={18} /><div className="settings-title-row"><h2>客户端更新</h2><DelayedHelp testId="updater-settings-help" label={`当前版本 ${releaseInfo.version} · ${releaseInfo.channel} 通道。`} /></div><button className="refresh-button" disabled={!desktopRuntime || updateBusy} onClick={onUpdate}>{updateBusy ? <RefreshCw className="spin" size={14} /> : <CloudDownload size={14} />}{updateBusy ? '正在检查' : '检查更新'}</button></div></section>
     </div>

@@ -37,6 +37,22 @@ test('Codex status DTO and settings expose no authentication secret', () => {
   assert.doesNotMatch(status, /token|cookie|apiKey|credentialPath/)
 })
 
+test('semantic model deployment settings stay global and separate offline check from repair', () => {
+  const settings = read('../src/features/settings/SettingsView.tsx')
+  const services = read('../src/services/desktop.ts')
+  const types = read('../src/types.ts')
+  assert.match(settings, /data-testid="semantic-model-settings"/)
+  assert.match(settings, /本地语义模型/)
+  assert.match(settings, /复制现有缓存并切换/)
+  assert.match(settings, /切换并重新部署/)
+  assert.match(settings, /部署检查严格离线/)
+  assert.match(settings, /checkSemanticModelDeployment/)
+  assert.match(settings, /repairSemanticModelDeployment/)
+  assert.match(services, /invoke<SemanticDeploymentStatus>\('check_semantic_model_deployment'\)/)
+  assert.match(services, /invoke<SemanticDeploymentStatus>\('repair_semantic_model_deployment'\)/)
+  assert.match(types, /SemanticDeploymentState = 'missing' \| 'partial' \| 'invalid' \| 'ready' \| 'error'/)
+})
+
 test('Windows Codex discovery covers desktop binaries, persistent PATH and script shims', () => {
   const rust = readFileSync(new URL('../src-tauri/src/codex_subscription.rs', import.meta.url), 'utf8')
   for (const contract of ['CODEX_CLI_PATH', 'OpenAI', 'Codex', 'read_registry_path', 'codex.exe', 'codex.cmd', 'codex.bat']) {

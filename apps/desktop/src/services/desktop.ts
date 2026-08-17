@@ -1,5 +1,5 @@
 import { Channel, invoke } from '@tauri-apps/api/core'
-import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatMessagePage, ChatSessionDetail, ChatSessionPage, ChatSessionSummary, CodexSubscriptionStatus, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LiteratureCandidate, LiteratureCapability, LiteratureIngestSettings, LunaSettings, ManualImportSession, PageDetail, PageFilters, PageSummary, QaSettings, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchProviderStatus, SearchResult, StartCompileRequest, StartLiteratureRunRequest, StartupPromptState } from '../types'
+import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatMessagePage, ChatSessionDetail, ChatSessionPage, ChatSessionSummary, CodexSubscriptionStatus, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LiteratureCandidate, LiteratureCapability, LiteratureIngestSettings, LunaSettings, ManualImportSession, PageDetail, PageFilters, PageSummary, QaSettings, SemanticDeploymentStatus, SemanticModelSettings, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchProviderStatus, SearchResult, StartCompileRequest, StartLiteratureRunRequest, StartupPromptState } from '../types'
 
 type TauriWindow = Window & { __TAURI_INTERNALS__?: unknown }
 
@@ -91,6 +91,34 @@ export async function getQaSettings(): Promise<QaSettings> {
 
 export async function saveQaSettings(settings: QaSettings): Promise<QaSettings> {
   return invoke<QaSettings>('save_qa_settings', { settings })
+}
+
+export async function getSemanticModelSettings(): Promise<SemanticModelSettings> {
+  return invoke<SemanticModelSettings>('get_semantic_model_settings')
+}
+
+export async function chooseSemanticModelCacheDirectory(): Promise<string> {
+  return invoke<string>('choose_semantic_model_cache_directory')
+}
+
+export async function saveSemanticModelSettings(cacheDir: string): Promise<SemanticModelSettings> {
+  return invoke<SemanticModelSettings>('save_semantic_model_settings', { settings: { cacheDir } })
+}
+
+export async function checkSemanticModelDeployment(): Promise<SemanticDeploymentStatus> {
+  return invoke<SemanticDeploymentStatus>('check_semantic_model_deployment')
+}
+
+export async function repairSemanticModelDeployment(): Promise<SemanticDeploymentStatus> {
+  return invoke<SemanticDeploymentStatus>('repair_semantic_model_deployment')
+}
+
+export async function copySemanticModelCacheAndSwitch(targetDir: string): Promise<SemanticModelSettings> {
+  return invoke<SemanticModelSettings>('copy_semantic_model_cache_and_switch', { targetDir })
+}
+
+export async function openSemanticModelCacheDirectory(): Promise<void> {
+  return invoke<void>('open_semantic_model_cache_directory')
 }
 
 export async function getCodexSubscriptionStatus(): Promise<CodexSubscriptionStatus> {
