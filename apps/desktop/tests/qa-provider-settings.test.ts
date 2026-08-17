@@ -12,6 +12,8 @@ test('provider connection settings stay global while per-turn Codex controls liv
   assert.match(settings, /兼容 API/)
   assert.match(settings, /证据浏览模式/)
   assert.match(settings, /上下文窗口 Token/)
+  assert.match(settings, /历史轮数不设固定上限/)
+  assert.doesNotMatch(settings, /保留近期完整轮次|recentExchangeLimit/)
   assert.match(settings, /getCodexSubscriptionStatus/)
   assert.doesNotMatch(settings, /qa-codex-selection/)
   assert.match(settings, /每次对话的模型与推理强度在智能问答输入框中选择/)

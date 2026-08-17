@@ -1,15 +1,15 @@
 use super::{compact, ConversationTurn, EvidenceItem, QuestionContext};
 use rusqlite::{types::ValueRef, Connection};
 use serde::{Deserialize, Serialize};
-use serde_json::json;
+use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::path::Path;
 use std::time::UNIX_EPOCH;
 
-pub const PROMPT_VERSION: &str = "qa-prompt-v8";
+pub const PROMPT_VERSION: &str = "qa-prompt-v9";
 pub const ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-rrf-v3";
-pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v2";
+pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v3";
 pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v2";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
@@ -213,30 +213,49 @@ fn truncate_to_tokens(value: &str, maximum: u32) -> String {
 }
 
 fn build_memory(exchanges: &[[ConversationTurn; 2]], budget: u32) -> (String, Vec<String>, bool) {
-    let mut selected = Vec::new();
     let ids = exchanges
         .iter()
         .flat_map(|exchange| [exchange[0].id.clone(), exchange[1].id.clone()])
         .collect::<Vec<_>>();
-    let mut used = 0_u32;
-    let mut truncated = false;
+    let mut selected = Vec::new();
     for exchange in exchanges.iter().rev() {
         let question = strip_evidence_ids(&exchange[0].content);
-        if question.is_empty() {
+        let answer = strip_evidence_ids(&exchange[1].content);
+        if question.is_empty() && answer.is_empty() {
             continue;
         }
-        let line = format!("- 先前研究问题/约束：{}", compact(&question, 240));
-        let tokens = estimate_tokens(&line);
-        if used + tokens > budget {
-            truncated = true;
-            continue;
+        let entry = json!({
+            "sourceMessageIds": [exchange[0].id, exchange[1].id],
+            "userQuestion": compact(&question, 320),
+            "trustedAnswerSummary": compact(&answer, 480),
+        });
+        let mut candidate = selected.clone();
+        candidate.push(entry.clone());
+        candidate.reverse();
+        let payload = json!({
+            "schemaVersion": "qa-session-memory-v1",
+            "exchanges": candidate,
+            "truncated": selected.len() + 1 < exchanges.len(),
+        });
+        if estimate_tokens(&serde_json::to_string(&payload).unwrap_or_default()) > budget {
+            break;
         }
-        used += tokens;
-        selected.push(line);
+        selected.push(entry);
     }
     selected.reverse();
-    let lines = selected;
-    (lines.join("\n"), ids, truncated)
+    let truncated = selected.len() < exchanges.len();
+    let has_entries = !selected.is_empty();
+    let payload = json!({
+        "schemaVersion": "qa-session-memory-v1",
+        "exchanges": selected,
+        "truncated": truncated,
+    });
+    let serialized = if !has_entries {
+        "{}".to_string()
+    } else {
+        serde_json::to_string(&payload).unwrap_or_else(|_| "{}".to_string())
+    };
+    (serialized, ids, truncated)
 }
 
 pub fn build_context_plan(
@@ -245,7 +264,6 @@ pub fn build_context_plan(
     evidence: Vec<EvidenceItem>,
     context_window_tokens: u32,
     max_output_tokens: u32,
-    recent_exchange_limit: usize,
 ) -> (Vec<ConversationTurn>, Vec<EvidenceItem>, ContextPlan) {
     let context_window_tokens = context_window_tokens.clamp(8_192, 1_000_000);
     let output_reserve_tokens = max_output_tokens
@@ -260,18 +278,47 @@ pub fn build_context_plan(
     let dynamic_budget = input_budget_tokens
         .saturating_sub(research_contract_tokens)
         .saturating_sub(current_query_tokens);
-    let recent_budget = dynamic_budget * 24 / 100;
-    let planned_memory_budget = dynamic_budget * 10 / 100;
+
+    // Fit evidence first, but return every unused evidence token to history.
+    // This preserves exact recent exchanges up to the actual model window rather
+    // than stopping at a fixed turn count.
+    let evidence_budget = dynamic_budget * 55 / 100;
+    let mut fitted_evidence = evidence;
+    let mut evidence_truncated = false;
+    let base_tokens = |items: &[EvidenceItem]| {
+        let mut metadata_only = items.to_vec();
+        for item in &mut metadata_only {
+            item.snippet.clear();
+        }
+        estimate_tokens(&serde_json::to_string(&metadata_only).unwrap_or_default())
+    };
+    while fitted_evidence.len() > 1 && base_tokens(&fitted_evidence) > evidence_budget {
+        fitted_evidence.pop();
+        evidence_truncated = true;
+    }
+    let metadata_tokens = base_tokens(&fitted_evidence);
+    let snippet_budget = evidence_budget.saturating_sub(metadata_tokens);
+    let per_snippet = if fitted_evidence.is_empty() {
+        0
+    } else {
+        snippet_budget / fitted_evidence.len() as u32
+    };
+    for item in &mut fitted_evidence {
+        if estimate_tokens(&item.snippet) > per_snippet {
+            item.snippet = truncate_to_tokens(&item.snippet, per_snippet);
+            evidence_truncated = true;
+        }
+    }
+    let evidence_tokens =
+        estimate_tokens(&serde_json::to_string(&fitted_evidence).unwrap_or_default());
+    let history_budget = dynamic_budget.saturating_sub(evidence_tokens);
+    let recent_budget = history_budget * 85 / 100;
 
     let exchanges = complete_exchanges(history);
     let mut recent_exchanges = Vec::new();
     let mut recent_tokens = 0_u32;
     let mut recent_budget_overflow = false;
-    for exchange in exchanges
-        .iter()
-        .rev()
-        .take(recent_exchange_limit.clamp(1, 8))
-    {
+    for exchange in exchanges.iter().rev() {
         let tokens = exchange_tokens(exchange);
         if recent_tokens + tokens > recent_budget {
             recent_budget_overflow = true;
@@ -302,11 +349,7 @@ pub fn build_context_plan(
         })
         .cloned()
         .collect::<Vec<_>>();
-    let memory_budget = if recent_tokens > recent_budget {
-        0
-    } else {
-        planned_memory_budget
-    };
+    let memory_budget = history_budget.saturating_sub(recent_tokens);
     let (session_memory, compacted_message_ids, memory_truncated) =
         build_memory(&older, memory_budget);
 
@@ -320,37 +363,6 @@ pub fn build_context_plan(
         .iter()
         .map(|turn| estimate_tokens(&turn.content) + 8)
         .sum::<u32>();
-    let evidence_budget = dynamic_budget
-        .saturating_sub(memory_tokens)
-        .saturating_sub(recent_history_tokens);
-    let mut fitted_evidence = evidence;
-    let mut evidence_truncated = false;
-    let base_tokens = |items: &[EvidenceItem]| {
-        let mut metadata_only = items.to_vec();
-        for item in &mut metadata_only {
-            item.snippet.clear();
-        }
-        estimate_tokens(&serde_json::to_string(&metadata_only).unwrap_or_default())
-    };
-    while fitted_evidence.len() > 1 && base_tokens(&fitted_evidence) > evidence_budget {
-        fitted_evidence.pop();
-        evidence_truncated = true;
-    }
-    let metadata_tokens = base_tokens(&fitted_evidence);
-    let snippet_budget = evidence_budget.saturating_sub(metadata_tokens);
-    let per_snippet = if fitted_evidence.is_empty() {
-        0
-    } else {
-        snippet_budget / fitted_evidence.len() as u32
-    };
-    for item in &mut fitted_evidence {
-        if estimate_tokens(&item.snippet) > per_snippet {
-            item.snippet = truncate_to_tokens(&item.snippet, per_snippet);
-            evidence_truncated = true;
-        }
-    }
-    let evidence_tokens =
-        estimate_tokens(&serde_json::to_string(&fitted_evidence).unwrap_or_default());
     let estimated_total_tokens = research_contract_tokens
         + memory_tokens
         + recent_history_tokens
@@ -651,6 +663,12 @@ fn prompt_json_pretty<T: Serialize>(value: &T, fallback: &str) -> String {
         .replace('>', "\\u003e")
 }
 
+fn prompt_json_object_text(value: &str) -> String {
+    serde_json::from_str::<Value>(value)
+        .map(|parsed| prompt_json(&parsed, "{}"))
+        .unwrap_or_else(|_| "{}".to_string())
+}
+
 pub fn build_prompt_envelope(context: &QuestionContext) -> PromptEnvelope {
     let has_evidence = !context.evidence.is_empty();
     let contract = research_contract(has_evidence);
@@ -703,7 +721,7 @@ pub fn build_prompt_envelope(context: &QuestionContext) -> PromptEnvelope {
     let user_prompt = format!(
         "<research_contract>\n{}\n</research_contract>\n\n<session_memory_json>\n{}\n</session_memory_json>\n\n<recent_exchanges_json>\n{}\n</recent_exchanges_json>\n\n<current_query_json>\n{}\n</current_query_json>\n\n<evidence_bundle_json>\n{}\n</evidence_bundle_json>\n\n<answer_contract>\n{}\n</answer_contract>",
         contract,
-        prompt_json(&context.context_plan.session_memory, "\"\""),
+        prompt_json_object_text(&context.context_plan.session_memory),
         prompt_json(&recent, "[]"),
         prompt_json(&current_query, "{}"),
         prompt_json(&evidence, "[]"),
@@ -914,7 +932,7 @@ mod tests {
     }
 
     #[test]
-    fn context_plan_keeps_complete_recent_exchanges_and_strips_stale_citations() {
+    fn context_plan_keeps_all_complete_exchanges_when_the_model_window_fits() {
         let history = vec![
             turn("u1", "user", "比较 CCSP", "r1"),
             turn("a1", "assistant", "旧结论 [E9]", "r1"),
@@ -932,18 +950,16 @@ mod tests {
             Vec::new(),
             DEFAULT_CONTEXT_WINDOW_TOKENS,
             1_800,
-            3,
         );
-        assert_eq!(recent.len(), 6);
+        assert_eq!(recent.len(), 8);
         assert!(recent.iter().any(|item| item.content.contains("[E2]")));
         assert!(!recent.iter().any(|item| item.id == "orphan"));
         assert_eq!(
             plan.recent_message_ids,
-            vec!["u3", "a3", "u4", "a4", "u5", "a5"]
+            vec!["u1", "a1", "u3", "a3", "u4", "a4", "u5", "a5"]
         );
-        assert!(plan.session_memory.contains("比较 CCSP"));
-        assert!(!plan.session_memory.contains("[E9]"));
-        assert_eq!(plan.budget.recent_exchange_count, 3);
+        assert_eq!(plan.session_memory, "{}");
+        assert_eq!(plan.budget.recent_exchange_count, 4);
     }
 
     #[test]
@@ -1081,19 +1097,63 @@ mod tests {
             })
             .collect();
         let (recent, fitted, plan) =
-            build_context_plan(&history, "比较约束", evidence, 8_192, 4_000, 3);
+            build_context_plan(&history, "比较约束", evidence, 8_192, 4_000);
         assert_eq!(
             recent
                 .iter()
                 .map(|turn| turn.id.as_str())
                 .collect::<Vec<_>>(),
-            vec!["u8", "a8", "u9", "a9"]
+            vec!["u7", "a7", "u8", "a8", "u9", "a9"]
         );
-        assert_eq!(plan.compacted_message_ids.len(), 16);
+        assert_eq!(plan.compacted_message_ids.len(), 14);
         assert!(!plan.session_memory.contains("[E9]"));
+        let memory: Value = serde_json::from_str(&plan.session_memory).unwrap();
+        assert_eq!(
+            memory.get("schemaVersion").and_then(Value::as_str),
+            Some("qa-session-memory-v1")
+        );
+        assert!(memory
+            .get("exchanges")
+            .and_then(Value::as_array)
+            .is_some_and(|entries| entries.iter().all(|entry| {
+                entry
+                    .get("sourceMessageIds")
+                    .and_then(Value::as_array)
+                    .is_some_and(|ids| ids.len() == 2)
+            })));
         assert!(plan.budget.truncated);
         assert!(fitted.len() < 20 || fitted.iter().all(|item| item.snippet.ends_with('…')));
         assert!(plan.budget.estimated_total_tokens <= plan.budget.input_budget_tokens);
+    }
+
+    #[test]
+    fn large_window_keeps_one_hundred_short_exchanges_without_a_turn_cap() {
+        let history = (0..100)
+            .flat_map(|index| {
+                [
+                    turn(
+                        &format!("u{index}"),
+                        "user",
+                        &format!("short research question {index}"),
+                        &format!("r{index}"),
+                    ),
+                    turn(
+                        &format!("a{index}"),
+                        "assistant",
+                        &format!("short trusted answer {index}"),
+                        &format!("r{index}"),
+                    ),
+                ]
+            })
+            .collect::<Vec<_>>();
+
+        let (recent, _, plan) =
+            build_context_plan(&history, "continue", Vec::new(), 262_144, 8_192);
+
+        assert_eq!(recent.len(), 200);
+        assert_eq!(plan.budget.recent_exchange_count, 100);
+        assert_eq!(plan.session_memory, "{}");
+        assert!(!plan.budget.truncated);
     }
 
     #[test]
@@ -1115,8 +1175,7 @@ mod tests {
             ),
         ];
 
-        let (recent, _, plan) =
-            build_context_plan(&history, "continue", Vec::new(), 8_192, 4_000, 3);
+        let (recent, _, plan) = build_context_plan(&history, "continue", Vec::new(), 8_192, 4_000);
 
         assert_eq!(
             recent
@@ -1127,7 +1186,7 @@ mod tests {
         );
         assert_eq!(recent[0].content, history[2].content);
         assert_eq!(recent[1].content, history[3].content);
-        assert!(plan.session_memory.is_empty());
+        assert_eq!(plan.session_memory, "{}");
         assert!(plan.budget.truncated);
         assert!(plan.budget.estimated_total_tokens > plan.budget.input_budget_tokens);
     }

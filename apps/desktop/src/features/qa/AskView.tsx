@@ -29,7 +29,6 @@ const emptySettings: QaSettings = {
   timeoutSeconds: 180,
   maxOutputTokens: 1800,
   contextWindowTokens: 32768,
-  recentExchangeLimit: 3,
   temperature: 0.1,
   apiKeyConfigured: false,
 }

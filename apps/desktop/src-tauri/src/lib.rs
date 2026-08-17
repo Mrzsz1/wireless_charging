@@ -2867,7 +2867,6 @@ async fn ask_luna(
             Some(&worker_cancel),
             settings.context_window_tokens,
             settings.max_output_tokens,
-            settings.recent_exchange_limit,
         )?;
         connection
             .execute_batch("COMMIT;")

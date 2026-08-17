@@ -357,7 +357,6 @@ export type QaSettings = {
   timeoutSeconds: number
   maxOutputTokens: number
   contextWindowTokens: number
-  recentExchangeLimit: number
   temperature: number
   apiKeyConfigured: boolean
 }

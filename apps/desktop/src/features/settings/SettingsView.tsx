@@ -44,7 +44,6 @@ const defaultQaSettings: QaSettings = {
   timeoutSeconds: 180,
   maxOutputTokens: 1800,
   contextWindowTokens: 32768,
-  recentExchangeLimit: 3,
   temperature: 0.1,
   apiKeyConfigured: false,
 }
@@ -184,7 +183,7 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
           <button disabled={busyAction === 'load'} data-testid="qa-provider-tab-offline" role="radio" aria-checked={qaSettings.answerProvider === 'offline-evidence'} className={qaSettings.answerProvider === 'offline-evidence' ? 'active' : ''} onClick={() => setQaSettings((current) => ({ ...current, answerProvider: 'offline-evidence' }))}><FolderOpen size={15} /><span><strong>证据浏览模式</strong><small>确定性证据包</small></span></button>
         </div>
         {!repositoryPath && <div className="settings-disabled">选择知识库后才能保存回答引擎；本机 Codex 登录状态仍可查看。</div>}
-        <div className="settings-number-grid"><label><span>上下文窗口 Token</span><input type="number" min="8192" max="1000000" step="1024" disabled={!repositoryPath} value={qaSettings.contextWindowTokens} onChange={(event) => setQaSettings((current) => ({ ...current, contextWindowTokens: Number(event.target.value) }))} /></label><label><span>保留近期完整轮次</span><input type="number" min="1" max="8" step="1" disabled={!repositoryPath} value={qaSettings.recentExchangeLimit} onChange={(event) => setQaSettings((current) => ({ ...current, recentExchangeLimit: Number(event.target.value) }))} /></label></div><p className="qa-provider-note">研究契约、会话记忆、近期完整轮次、本轮问题和证据包采用显式预算，同时预留最大输出 Token 与安全余量。</p>
+        <div className="settings-number-grid"><label><span>上下文窗口 Token</span><input type="number" min="8192" max="1000000" step="1024" disabled={!repositoryPath} value={qaSettings.contextWindowTokens} onChange={(event) => setQaSettings((current) => ({ ...current, contextWindowTokens: Number(event.target.value) }))} /></label></div><p className="qa-provider-note">历史轮数不设固定上限。系统按模型窗口尽可能保留完整问答，达到 Token 上限后压缩较老历史并重新计算上下文。</p>
         {qaSettings.answerProvider === 'codex-subscription' && <div className="qa-provider-pane" data-testid="qa-provider-codex">
           <div className={`codex-status-card ${codexStatus.ready ? 'ready' : 'missing'}`}><div className="codex-status-icon">{codexStatus.ready ? <CheckCircle2 size={20} /> : <ShieldCheck size={20} />}</div><div><strong>{codexStatus.statusLabel}</strong><span>{codexStatus.version || '未检测到版本'}</span><p>{codexStatus.diagnostic}</p></div><div className="codex-status-actions"><button disabled={busyAction === 'load'} onClick={() => void load()}><RefreshCw className={busyAction === 'load' ? 'spin' : ''} size={14} />刷新状态</button>{!codexStatus.authenticated && <button className="primary" disabled={!codexStatus.installed || !!busyAction} onClick={() => void beginCodexLogin()}>{busyAction === 'codex-login' ? <LoaderCircle className="spin" size={14} /> : <LogIn size={14} />}登录 ChatGPT</button>}</div></div>
           <small className="qa-provider-note">已从本机 Codex 识别 {codexStatus.availableModels.length} 个可选模型。每次对话的模型与推理强度在智能问答输入框中选择；客户端只读取模型元数据，不读取或复制 token、cookie、API Key。</small>

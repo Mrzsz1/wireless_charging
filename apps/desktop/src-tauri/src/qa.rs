@@ -45,8 +45,6 @@ const INTENT_LITERATURE: &str = "literature";
 const QUERY_TERM_LIMIT: usize = 20;
 const RRF_K: f64 = 60.0;
 const REQUIRED_CHANNEL_MIN_SCORE: f64 = 0.18;
-const HISTORY_MESSAGE_LIMIT: usize = 40;
-const HISTORY_CHARACTER_BUDGET: usize = 64_000;
 pub const NO_EVIDENCE_NOTICE: &str =
     "当前知识库没有检索到参考来源。以下内容来自模型的一般知识，未经本库证据核验。";
 pub const MODEL_SUPPLEMENT_HEADING: &str = "## 模型补充（可能不准确）";
@@ -68,8 +66,6 @@ pub struct LunaSettings {
     pub timeout_seconds: u64,
     pub max_output_tokens: u32,
     pub context_window_tokens: u32,
-    #[serde(default = "default_recent_exchange_limit")]
-    pub recent_exchange_limit: usize,
     pub temperature: f64,
     #[serde(default)]
     pub api_key_configured: bool,
@@ -87,7 +83,6 @@ impl Default for LunaSettings {
             timeout_seconds: 180,
             max_output_tokens: 1800,
             context_window_tokens: DEFAULT_CONTEXT_WINDOW_TOKENS,
-            recent_exchange_limit: 3,
             temperature: 0.1,
             api_key_configured: false,
         }
@@ -208,10 +203,6 @@ pub struct CitationValidation {
 
 fn default_grounding_status() -> String {
     "supported".to_string()
-}
-
-fn default_recent_exchange_limit() -> usize {
-    3
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -535,10 +526,6 @@ pub fn get_luna_settings(
         .and_then(|value| value.parse().ok())
         .unwrap_or(DEFAULT_CONTEXT_WINDOW_TOKENS)
         .clamp(8_192, 1_000_000);
-    settings.recent_exchange_limit = scoped("qa.recent_exchange_limit")
-        .and_then(|value| value.parse().ok())
-        .unwrap_or_else(default_recent_exchange_limit)
-        .clamp(1, 8);
     settings.temperature = scoped("luna.temperature")
         .and_then(|value| value.parse().ok())
         .unwrap_or(0.1);
@@ -617,7 +604,6 @@ pub fn save_luna_settings(
     settings.timeout_seconds = settings.timeout_seconds.clamp(10, 300);
     settings.max_output_tokens = settings.max_output_tokens.clamp(256, 8000);
     settings.context_window_tokens = settings.context_window_tokens.clamp(8_192, 1_000_000);
-    settings.recent_exchange_limit = settings.recent_exchange_limit.clamp(1, 8);
     settings.temperature = settings.temperature.clamp(0.0, 1.0);
     for (key, value) in [
         ("qa.answer_provider", settings.answer_provider.clone()),
@@ -637,10 +623,6 @@ pub fn save_luna_settings(
         (
             "qa.context_window_tokens",
             settings.context_window_tokens.to_string(),
-        ),
-        (
-            "qa.recent_exchange_limit",
-            settings.recent_exchange_limit.to_string(),
         ),
         ("luna.temperature", settings.temperature.to_string()),
     ] {
@@ -702,11 +684,11 @@ pub fn conversation_history(
                    )
                  )
                )
-             ORDER BY created_at DESC,rowid DESC LIMIT ?2",
+             ORDER BY created_at ASC,rowid ASC",
         )
         .map_err(|error| format!("准备多轮历史失败：{error}"))?;
     let rows = statement
-        .query_map(params![session_id, HISTORY_MESSAGE_LIMIT as i64], |row| {
+        .query_map([session_id], |row| {
             Ok(ConversationTurn {
                 id: row.get(0)?,
                 role: row.get(1)?,
@@ -715,25 +697,8 @@ pub fn conversation_history(
             })
         })
         .map_err(|error| format!("读取多轮历史失败：{error}"))?;
-    let mut newest = rows
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(|error| format!("解析多轮历史失败：{error}"))?;
-    newest.reverse();
-    let mut remaining = HISTORY_CHARACTER_BUDGET;
-    let mut selected = Vec::new();
-    for mut turn in newest.into_iter().rev() {
-        if remaining == 0 {
-            break;
-        }
-        let count = turn.content.chars().count();
-        if count > remaining {
-            turn.content = turn.content.chars().take(remaining).collect();
-        }
-        remaining = remaining.saturating_sub(turn.content.chars().count());
-        selected.push(turn);
-    }
-    selected.reverse();
-    Ok(selected)
+    rows.collect::<Result<Vec<_>, _>>()
+        .map_err(|error| format!("解析多轮历史失败：{error}"))
 }
 
 fn contains_reference(question: &str) -> bool {
@@ -1796,7 +1761,6 @@ pub fn prepare_question(
         None,
         DEFAULT_CONTEXT_WINDOW_TOKENS,
         LunaSettings::default().max_output_tokens,
-        LunaSettings::default().recent_exchange_limit,
     )
 }
 
@@ -2012,7 +1976,6 @@ pub fn prepare_question_with_history(
         cancelled,
         DEFAULT_CONTEXT_WINDOW_TOKENS,
         LunaSettings::default().max_output_tokens,
-        LunaSettings::default().recent_exchange_limit,
     )
 }
 
@@ -2027,7 +1990,6 @@ pub fn prepare_question_with_history_and_budget(
     cancelled: Option<&AtomicBool>,
     context_window_tokens: u32,
     max_output_tokens: u32,
-    recent_exchange_limit: usize,
 ) -> Result<QuestionContext, String> {
     let question = question.trim();
     if question.chars().count() < 2 {
@@ -2272,7 +2234,6 @@ pub fn prepare_question_with_history_and_budget(
         evidence,
         context_window_tokens,
         max_output_tokens,
-        recent_exchange_limit,
     );
     let retrieval_diagnostics = diagnostics.finish(evidence.len());
     let mut context = QuestionContext {
@@ -3308,7 +3269,7 @@ mod tests {
     }
 
     #[test]
-    fn conversation_history_is_repository_scoped_bounded_and_completed_only() {
+    fn conversation_history_is_repository_scoped_unbounded_and_completed_only() {
         let (root, connection) = test_db();
         let session = create_session(&connection, root.path(), "history").unwrap();
         for index in 0..50 {
@@ -3334,8 +3295,8 @@ mod tests {
             )
             .unwrap();
         let history = conversation_history(&connection, root.path(), Some(&session.id)).unwrap();
-        assert_eq!(history.len(), HISTORY_MESSAGE_LIMIT);
-        assert_eq!(history.first().unwrap().content, "turn-10");
+        assert_eq!(history.len(), 50);
+        assert_eq!(history.first().unwrap().content, "turn-0");
         assert_eq!(history.last().unwrap().content, "turn-49");
         assert!(history.iter().all(|turn| turn.content != "must-not-appear"));
 
@@ -3974,7 +3935,7 @@ mod tests {
         let mut source = evidence("E1");
         source.snippet = "Fixture scheduling has a bounded objective and constraints.".to_string();
         let (conversation, evidence, context_plan) =
-            context::build_context_plan(&[], &context.question, vec![source], 32_768, 1_800, 3);
+            context::build_context_plan(&[], &context.question, vec![source], 32_768, 1_800);
         context.conversation = conversation;
         context.evidence = evidence;
         context.context_plan = context_plan;
@@ -4240,7 +4201,6 @@ mod tests {
                 answer_provider: PROVIDER_CODEX.to_string(),
                 codex_model: "subscription-model".to_string(),
                 context_window_tokens: 65_536,
-                recent_exchange_limit: 5,
                 ..LunaSettings::default()
             },
         )
@@ -4250,10 +4210,8 @@ mod tests {
         assert_eq!(first.answer_provider, PROVIDER_CODEX);
         assert_eq!(first.codex_model, "subscription-model");
         assert_eq!(first.context_window_tokens, 65_536);
-        assert_eq!(first.recent_exchange_limit, 5);
         assert_eq!(second.answer_provider, PROVIDER_OFFLINE);
         assert_eq!(second.context_window_tokens, DEFAULT_CONTEXT_WINDOW_TOKENS);
-        assert_eq!(second.recent_exchange_limit, 3);
         assert!(second.codex_model.is_empty());
     }
 
@@ -4265,12 +4223,10 @@ mod tests {
             root.path(),
             LunaSettings {
                 context_window_tokens: 1,
-                recent_exchange_limit: 999,
                 ..LunaSettings::default()
             },
         )
         .unwrap();
         assert_eq!(saved.context_window_tokens, 8_192);
-        assert_eq!(saved.recent_exchange_limit, 8);
     }
 }
