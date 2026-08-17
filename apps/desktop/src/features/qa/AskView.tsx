@@ -3,7 +3,7 @@ import { BookOpen, Bot, Check, CheckCircle2, ChevronRight, CircleStop, Clipboard
 import { askLuna, cancelAnswer, deleteChatSession, getChatSessionPage, getCodexSubscriptionStatus, getQaSettings, isDesktopRuntime, listChatSessionsPage, renameChatSession, saveQaSettings } from '../../services/desktop'
 import type { AnswerProvider, AnswerStreamEvent, AskResult, ChatMessage, ChatSessionSummary, CodexSubscriptionStatus, ContextBudget, EvidenceItem, QaRunManifest, QaSettings, RetrievalDiagnostics, WaterlineSnapshot } from '../../types'
 import { claimCompletion, createCompletionLedger, mergeCompletedMessages, mergeFailedMessages, repositoryIdentity, retryQuestionFor, rollbackOptimisticMessages } from './completionState'
-import { appendUniqueSessions, buildAuditBundle, citationSummary, evidenceEmptyState, prependUniqueMessages } from './qaPresentation'
+import { appendUniqueSessions, buildAuditBundle, citationSummary, evidenceEmptyState, evidencePanelOwnership, prependUniqueMessages } from './qaPresentation'
 import './AskView.css'
 
 const MarkdownMessage = lazy(() => import('./MarkdownMessage'))
@@ -99,6 +99,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
   const [streamingText, setStreamingText] = useState('')
   const [requestId, setRequestId] = useState('')
   const [evidence, setEvidence] = useState<EvidenceItem[]>([])
+  const [evidenceRequestId, setEvidenceRequestId] = useState('')
   const [selectedEvidence, setSelectedEvidence] = useState<EvidenceItem | null>(null)
   const [waterline, setWaterline] = useState<WaterlineSnapshot | null>(null)
   const [retrievalDiagnostics, setRetrievalDiagnostics] = useState<RetrievalDiagnostics | null>(null)
@@ -192,6 +193,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     setActiveSessionId('')
     setMessages([])
     setEvidence([])
+    setEvidenceRequestId('')
     setRetrievalDiagnostics(null)
     setWaterline(null)
     setSessionCursor('')
@@ -261,6 +263,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
       const latestQuestion = [...detail.messages].reverse().find((message) => message.role === 'user')?.content ?? null
       onResearchContextChange(latestQuestion)
       setEvidence(latestAssistant?.evidence ?? [])
+      setEvidenceRequestId(latestAssistant?.requestId ?? '')
       setRetrievalDiagnostics(null)
       setContextBudget(latestAssistant?.runManifest?.contextBudget ?? null)
       setRunManifest(latestAssistant?.runManifest ?? null)
@@ -294,6 +297,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     setActiveSessionId('')
     setMessages([])
     setEvidence([])
+    setEvidenceRequestId('')
     setRetrievalDiagnostics(null)
     setContextBudget(null)
     setRunManifest(null)
@@ -311,6 +315,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     setActiveSessionId(result.sessionId)
     setMessages((current) => mergeCompletedMessages(current, result))
     setEvidence(result.evidence)
+    setEvidenceRequestId(result.requestId)
     setRetrievalDiagnostics(result.retrievalDiagnostics)
     setContextBudget(result.contextBudget)
     setRunManifest(result.runManifest)
@@ -333,6 +338,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
       setPhase('retrieving')
     } else if (event.type === 'retrieval_completed') {
       setEvidence(event.payload.evidence)
+      setEvidenceRequestId(event.payload.requestId)
       setRetrievalDiagnostics(event.payload.retrievalDiagnostics)
       setContextBudget(event.payload.contextBudget)
       setSelectedEvidence(event.payload.evidence[0] ?? null)
@@ -382,11 +388,6 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     setQuestion('')
     setError('')
     setStreamingText('')
-    setEvidence([])
-    setRetrievalDiagnostics(null)
-    setContextBudget(null)
-    setRunManifest(null)
-    setSelectedEvidence(null)
     generationStartedAt.current = performance.now()
     setElapsedSeconds(0)
     setHasFirstToken(false)
@@ -449,6 +450,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
   }
 
   const emptyEvidence = evidenceEmptyState(phase, waterline, evidence.length)
+  const evidenceOwnership = evidencePanelOwnership(phase, evidenceRequestId, requestId, evidence.length)
   const thinkingSteps = [
     { label: '理解问题', state: 'done' },
     { label: '检索本地知识库', state: phase === 'retrieving' ? 'active' : 'done' },
@@ -490,7 +492,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     </main>
 
     <aside className="qa-evidence-panel">
-      <div className="qa-evidence-heading"><div><strong>本轮证据</strong></div><span>{evidence.length}</span></div>
+      <div className="qa-evidence-heading"><div><strong>{evidenceOwnership === 'previous-during-retrieval' ? '上一轮证据' : '本轮证据'}</strong>{evidenceOwnership === 'previous-during-retrieval' && <small>仅供查看 · 不参与本轮回答</small>}</div><span>{evidence.length}</span></div>
       {waterline && <div className="qa-waterline"><strong>库水位</strong><div><span>{waterline.sourceCount}<small>source</small></span><span>{waterline.methodCount}<small>method</small></span><span>{waterline.synthesisCount}<small>synthesis</small></span><span>{waterline.chapterCount}<small>chapters</small></span></div><p>{waterline.yearMin || '未知'}–{waterline.yearMax || '未知'} · 当前仓库</p></div>}
       {retrievalDiagnostics && <div className="qa-retrieval-diagnostics"><div><strong>检索诊断</strong><span>{retrievalDiagnostics.totalMs} ms · {retrievalDiagnostics.passCount || 1} 轮 · 选中 {retrievalDiagnostics.selectedCount}</span></div><p>{retrievalDiagnostics.channels.map((channel) => `${channel.name} ${channel.candidateCount}/${channel.durationMs}ms`).join(' · ')}</p><small>停止：{retrievalDiagnostics.stopReason || '单轮完成'} · 增益 {(retrievalDiagnostics.candidateGains ?? []).join('/')} · 取消检查点 {retrievalDiagnostics.cancelCheckCount}</small></div>}
       {contextBudget && <div className="qa-context-budget"><div><strong>上下文预算</strong><span>{contextBudget.estimatedTotalTokens}/{contextBudget.inputBudgetTokens}</span></div><p>契约 {contextBudget.researchContractTokens} · 记忆 {contextBudget.sessionMemoryTokens} · 近期 {contextBudget.recentHistoryTokens} · 问题 {contextBudget.currentQueryTokens} · 证据 {contextBudget.evidenceTokens} · 序列化 {contextBudget.serializationOverheadTokens}</p><small>输出预留 {contextBudget.outputReserveTokens} · 空余 {contextBudget.freeTokens} · 最近 {contextBudget.recentExchangeCount} 轮 · 压缩 {contextBudget.compactedMessageCount} 条{contextBudget.truncated ? ' · 已裁剪' : ''}</small>{runManifest && <small>快照 {runManifest.indexSnapshotId.slice(0, 19)}… · {runManifest.promptVersion}/{runManifest.answerSchemaVersion} · 结构{runManifest.answerCompleteness.complete ? '通过' : '未通过'}</small>}</div>}

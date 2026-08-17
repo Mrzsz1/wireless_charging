@@ -8,6 +8,22 @@ export type EvidenceEmptyState = {
   kind: 'waiting' | 'none' | 'initial'
 }
 
+export type EvidencePanelOwnership = 'current' | 'previous-during-retrieval'
+
+export function evidencePanelOwnership(
+  phase: QaPhase,
+  displayedRequestId: string,
+  activeRequestId: string,
+  evidenceCount: number,
+): EvidencePanelOwnership {
+  return evidenceCount > 0
+    && phase === 'retrieving'
+    && Boolean(activeRequestId)
+    && displayedRequestId !== activeRequestId
+    ? 'previous-during-retrieval'
+    : 'current'
+}
+
 export function evidenceEmptyState(phase: QaPhase, waterline: WaterlineSnapshot | null, evidenceCount: number): EvidenceEmptyState | null {
   if (evidenceCount > 0) return null
   if (phase === 'retrieving') return { title: '正在检索', detail: '正在查询 Wiki、论文原文、核心书籍和 Graphify。', kind: 'waiting' }
