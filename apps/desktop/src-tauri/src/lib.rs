@@ -2532,11 +2532,14 @@ async fn check_semantic_model_deployment(
 
 #[tauri::command]
 async fn repair_semantic_model_deployment(
+    on_event: Channel<qa::SemanticDownloadProgress>,
     app: AppHandle,
 ) -> Result<qa::SemanticDeploymentStatus, String> {
     let cache_dir = load_semantic_model_settings(&app)?.effective_cache_dir;
     tauri::async_runtime::spawn_blocking(move || {
-        qa::repair_semantic_deployment(Path::new(&cache_dir))
+        qa::repair_semantic_deployment_with_progress(Path::new(&cache_dir), |progress| {
+            let _ = on_event.send(progress);
+        })
     })
     .await
     .map_err(|error| format!("语义模型部署线程失败：{error}"))?

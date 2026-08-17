@@ -388,6 +388,17 @@ export type SemanticDeploymentStatus = {
   diagnostic: string
 }
 
+export type SemanticDownloadProgress = {
+  status: 'starting' | 'downloading' | 'verifying' | 'complete' | 'skipped' | 'failed'
+  phase: 'runtime' | 'model' | 'tokenizer' | 'inference'
+  fileName: string
+  downloadedBytes: number
+  totalBytes: number
+  percent: number
+  bytesPerSecond: number
+  message: string
+}
+
 export type CodexSubscriptionStatus = {
   installed: boolean
   version: string

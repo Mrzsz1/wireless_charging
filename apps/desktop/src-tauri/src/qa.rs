@@ -28,9 +28,9 @@ pub(crate) use semantic::{
     configure_cache_dir as configure_semantic_cache_dir, copy_cache as copy_semantic_cache,
     default_cache_dir as default_semantic_cache_dir,
     effective_cache_dir as effective_semantic_cache_dir,
-    repair_deployment as repair_semantic_deployment,
+    repair_deployment_with_progress as repair_semantic_deployment_with_progress,
     validate_cache_dir as validate_semantic_cache_dir, SemanticDeploymentStatus,
-    MODEL_NAME as SEMANTIC_MODEL_NAME,
+    SemanticDownloadProgress, MODEL_NAME as SEMANTIC_MODEL_NAME,
 };
 pub use session::{create_session, delete_session, get_session, list_sessions, rename_session};
 

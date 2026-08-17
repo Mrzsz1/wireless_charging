@@ -2,6 +2,7 @@
 
 use super::{check_cancelled, compact, Candidate};
 use fastembed::{EmbeddingModel, InitOptions, TextEmbedding};
+use hf_hub::api::{sync::ApiBuilder, Progress};
 use rusqlite::Connection;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
@@ -60,6 +61,107 @@ pub(crate) struct SemanticDeploymentStatus {
     pub probe_dimension: usize,
     pub checked_at: String,
     pub diagnostic: String,
+}
+
+#[derive(Debug, Serialize, Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct SemanticDownloadProgress {
+    pub status: String,
+    pub phase: String,
+    pub file_name: String,
+    pub downloaded_bytes: u64,
+    pub total_bytes: u64,
+    pub percent: f64,
+    pub bytes_per_second: u64,
+    pub message: String,
+}
+
+fn progress_event(
+    status: &str,
+    phase: &str,
+    file_name: impl Into<String>,
+    downloaded_bytes: u64,
+    total_bytes: u64,
+    started_at: Instant,
+    message: impl Into<String>,
+) -> SemanticDownloadProgress {
+    let elapsed = started_at.elapsed().as_secs_f64();
+    SemanticDownloadProgress {
+        status: status.to_string(),
+        phase: phase.to_string(),
+        file_name: file_name.into(),
+        downloaded_bytes,
+        total_bytes,
+        percent: if total_bytes > 0 {
+            (downloaded_bytes.min(total_bytes) as f64 / total_bytes as f64) * 100.0
+        } else {
+            0.0
+        },
+        bytes_per_second: if elapsed > 0.0 {
+            (downloaded_bytes as f64 / elapsed) as u64
+        } else {
+            0
+        },
+        message: message.into(),
+    }
+}
+
+struct HubProgress<'a, F>
+where
+    F: FnMut(SemanticDownloadProgress),
+{
+    on_progress: &'a mut F,
+    phase: &'static str,
+    file_name: String,
+    downloaded_bytes: u64,
+    total_bytes: u64,
+    started_at: Instant,
+}
+
+impl<F> Progress for HubProgress<'_, F>
+where
+    F: FnMut(SemanticDownloadProgress),
+{
+    fn init(&mut self, size: usize, _filename: &str) {
+        self.downloaded_bytes = 0;
+        self.total_bytes = size as u64;
+        self.started_at = Instant::now();
+        (self.on_progress)(progress_event(
+            "downloading",
+            self.phase,
+            self.file_name.clone(),
+            0,
+            self.total_bytes,
+            self.started_at,
+            "开始下载",
+        ));
+    }
+
+    fn update(&mut self, size: usize) {
+        self.downloaded_bytes = self.downloaded_bytes.saturating_add(size as u64);
+        (self.on_progress)(progress_event(
+            "downloading",
+            self.phase,
+            self.file_name.clone(),
+            self.downloaded_bytes,
+            self.total_bytes,
+            self.started_at,
+            "正在下载",
+        ));
+    }
+
+    fn finish(&mut self) {
+        self.downloaded_bytes = self.total_bytes.max(self.downloaded_bytes);
+        (self.on_progress)(progress_event(
+            "complete",
+            self.phase,
+            self.file_name.clone(),
+            self.downloaded_bytes,
+            self.total_bytes,
+            self.started_at,
+            "下载完成",
+        ));
+    }
 }
 
 #[derive(Clone)]
@@ -299,16 +401,12 @@ fn deployment_status(
     }
 }
 
-fn initialize_model(cache_dir: &Path, allow_download: bool) -> Result<TextEmbedding, String> {
-    if allow_download {
-        prepare_onnx_runtime(cache_dir).map_err(|_| "ONNX Runtime 下载或初始化失败".to_string())?;
-    } else {
-        let runtime = runtime_path(cache_dir);
-        if !runtime.is_file() {
-            return Err("缺少 ONNX Runtime".to_string());
-        }
-        env::set_var("ORT_DYLIB_PATH", runtime);
+fn initialize_model(cache_dir: &Path) -> Result<TextEmbedding, String> {
+    let runtime = runtime_path(cache_dir);
+    if !runtime.is_file() {
+        return Err("缺少 ONNX Runtime".to_string());
     }
+    env::set_var("ORT_DYLIB_PATH", runtime);
     env::set_var("HF_HOME", cache_dir);
     let options = InitOptions::new(EmbeddingModel::ParaphraseMLMiniLML12V2Q)
         .with_cache_dir(cache_dir.to_path_buf())
@@ -387,7 +485,7 @@ pub(crate) fn check_deployment(cache_dir: &Path) -> SemanticDeploymentStatus {
         );
     }
 
-    match initialize_model(cache_dir, false).and_then(|model| {
+    match initialize_model(cache_dir).and_then(|model| {
         let vectors = model
             .embed(
                 vec!["LunaWiki semantic deployment probe".to_string()],
@@ -455,29 +553,157 @@ fn quarantine_for_repair(path: &Path) -> Result<(), String> {
     fs::rename(path, backup).map_err(|error| format!("隔离损坏缓存失败：{error}"))
 }
 
-pub(crate) fn repair_deployment(cache_dir: &Path) -> Result<SemanticDeploymentStatus, String> {
-    let cache_dir = validate_cache_dir(cache_dir)?;
-    configure_cache_dir(Some(cache_dir.clone()))?;
-    let before = check_deployment(&cache_dir);
-    if before.state == "invalid" {
-        quarantine_for_repair(&model_repo_path(&cache_dir))?;
-        quarantine_for_repair(&cache_dir.join("onnxruntime-1.20.1"))?;
+fn cached_snapshot_file(cache_dir: &Path, file_name: &str) -> Option<PathBuf> {
+    snapshot_directories(cache_dir)
+        .into_iter()
+        .map(|snapshot| snapshot.join(file_name))
+        .find(|path| path.is_file())
+}
+
+fn download_model_files_with_progress<F>(
+    cache_dir: &Path,
+    on_progress: &mut F,
+) -> Result<(), String>
+where
+    F: FnMut(SemanticDownloadProgress),
+{
+    env::set_var("HF_HOME", cache_dir);
+    let mut builder = ApiBuilder::new()
+        .with_cache_dir(cache_dir.to_path_buf())
+        .with_progress(false);
+    if let Ok(endpoint) = env::var("HF_ENDPOINT") {
+        builder = builder.with_endpoint(endpoint);
+    }
+    let repository = builder
+        .build()
+        .map_err(|error| format!("初始化模型下载客户端失败：{error}"))?
+        .model(MODEL_NAME.to_string());
+    for file_name in std::iter::once(MODEL_FILE).chain(TOKENIZER_FILES.iter().copied()) {
+        let phase = if file_name == MODEL_FILE {
+            "model"
+        } else {
+            "tokenizer"
+        };
+        if let Some(path) = cached_snapshot_file(cache_dir, file_name) {
+            let size = path.metadata().map(|metadata| metadata.len()).unwrap_or(0);
+            let started = Instant::now();
+            on_progress(progress_event(
+                "skipped",
+                phase,
+                file_name,
+                size,
+                size,
+                started,
+                "已缓存，无需下载",
+            ));
+            continue;
+        }
+        repository
+            .download_with_progress(
+                file_name,
+                HubProgress {
+                    on_progress,
+                    phase,
+                    file_name: file_name.to_string(),
+                    downloaded_bytes: 0,
+                    total_bytes: 0,
+                    started_at: Instant::now(),
+                },
+            )
+            .map_err(|error| format!("下载 {file_name} 失败：{error}"))?;
+    }
+    Ok(())
+}
+
+pub(crate) fn repair_deployment_with_progress<F>(
+    cache_dir: &Path,
+    mut on_progress: F,
+) -> Result<SemanticDeploymentStatus, String>
+where
+    F: FnMut(SemanticDownloadProgress),
+{
+    let mut last_progress = None;
+    let mut emit = |progress: SemanticDownloadProgress| {
+        last_progress = Some(progress.clone());
+        on_progress(progress);
+    };
+    let result = (|| {
+        let cache_dir = validate_cache_dir(cache_dir)?;
         configure_cache_dir(Some(cache_dir.clone()))?;
+        let before = check_deployment(&cache_dir);
+        if before.state == "invalid" {
+            quarantine_for_repair(&model_repo_path(&cache_dir))?;
+            quarantine_for_repair(&cache_dir.join("onnxruntime-1.20.1"))?;
+            configure_cache_dir(Some(cache_dir.clone()))?;
+        }
+        prepare_onnx_runtime_with_progress(&cache_dir, &mut emit)
+            .map_err(|error| format!("ONNX Runtime 下载或初始化失败：{error}"))?;
+        download_model_files_with_progress(&cache_dir, &mut emit)?;
+        emit(progress_event(
+            "verifying",
+            "inference",
+            "model initialization",
+            0,
+            0,
+            Instant::now(),
+            "正在加载模型",
+        ));
+        let state = SEMANTIC_STATE.get_or_init(|| Mutex::new(SemanticState::default()));
+        let mut state = state
+            .lock()
+            .map_err(|_| "语义模型状态锁定失败".to_string())?;
+        let model = initialize_model(&cache_dir)
+            .map_err(|error| format!("语义模型下载或初始化失败：{error}"))?;
+        state.model = Some(model);
+        state.model_retry_after = None;
+        drop(state);
+        emit(progress_event(
+            "verifying",
+            "inference",
+            "384-dimensional probe",
+            0,
+            0,
+            Instant::now(),
+            "正在执行推理探针",
+        ));
+        let status = check_deployment(&cache_dir);
+        if status.state != "ready" {
+            return Err(status.diagnostic);
+        }
+        emit(progress_event(
+            "complete",
+            "inference",
+            "deployment",
+            1,
+            1,
+            Instant::now(),
+            "语义模型部署完成",
+        ));
+        Ok(status)
+    })();
+    drop(emit);
+    if let Err(error) = &result {
+        let failed = last_progress
+            .clone()
+            .map(|progress| SemanticDownloadProgress {
+                status: "failed".to_string(),
+                message: error.clone(),
+                ..progress
+            })
+            .unwrap_or_else(|| {
+                progress_event(
+                    "failed",
+                    "inference",
+                    "deployment",
+                    0,
+                    0,
+                    Instant::now(),
+                    error,
+                )
+            });
+        on_progress(failed);
     }
-    let state = SEMANTIC_STATE.get_or_init(|| Mutex::new(SemanticState::default()));
-    let mut state = state
-        .lock()
-        .map_err(|_| "语义模型状态锁定失败".to_string())?;
-    let model = initialize_model(&cache_dir, true)
-        .map_err(|error| format!("语义模型下载或初始化失败：{error}"))?;
-    state.model = Some(model);
-    state.model_retry_after = None;
-    drop(state);
-    let status = check_deployment(&cache_dir);
-    if status.state != "ready" {
-        return Err(status.diagnostic);
-    }
-    Ok(status)
+    result
 }
 
 pub(crate) fn copy_cache(source: &Path, target: &Path) -> Result<PathBuf, String> {
@@ -676,7 +902,7 @@ impl SemanticState {
             self.defer_model_retry();
             return Err(SemanticFailure::Unavailable);
         }
-        match initialize_model(&cache_dir, false) {
+        match initialize_model(&cache_dir) {
             Ok(model) => {
                 self.model = Some(model);
                 self.model_retry_after = None;
@@ -695,31 +921,94 @@ impl SemanticState {
 }
 
 #[cfg(target_os = "windows")]
-fn prepare_onnx_runtime(cache_dir: &Path) -> Result<(), ()> {
+fn prepare_onnx_runtime_with_progress<F>(
+    cache_dir: &Path,
+    on_progress: &mut F,
+) -> Result<(), String>
+where
+    F: FnMut(SemanticDownloadProgress),
+{
     let runtime_path = cache_dir.join("onnxruntime-1.20.1").join("onnxruntime.dll");
-    if !runtime_path.is_file() {
-        let response = reqwest::blocking::Client::builder()
+    if runtime_path.is_file() {
+        let size = runtime_path
+            .metadata()
+            .map(|metadata| metadata.len())
+            .unwrap_or(0);
+        on_progress(progress_event(
+            "skipped",
+            "runtime",
+            "onnxruntime.dll",
+            size,
+            size,
+            Instant::now(),
+            "已缓存，无需下载",
+        ));
+    } else {
+        let mut response = reqwest::blocking::Client::builder()
             .connect_timeout(std::time::Duration::from_secs(15))
             .timeout(std::time::Duration::from_secs(180))
             .build()
-            .map_err(|_| ())?
+            .map_err(|error| format!("创建下载客户端失败：{error}"))?
             .get(ORT_RUNTIME_URL)
             .send()
             .and_then(reqwest::blocking::Response::error_for_status)
-            .map_err(|_| ())?;
+            .map_err(|error| format!("请求 ONNX Runtime 失败：{error}"))?;
         if response
             .content_length()
             .is_some_and(|length| length as usize > ORT_ARCHIVE_LIMIT_BYTES)
         {
-            return Err(());
+            return Err("ONNX Runtime 下载包超过安全上限".to_string());
         }
-        let archive_bytes = response.bytes().map_err(|_| ())?.to_vec();
+        let total_bytes = response.content_length().unwrap_or(0);
+        let started_at = Instant::now();
+        let mut archive_bytes = Vec::with_capacity(total_bytes as usize);
+        let mut buffer = [0_u8; 64 * 1024];
+        on_progress(progress_event(
+            "downloading",
+            "runtime",
+            "onnxruntime-1.20.1.zip",
+            0,
+            total_bytes,
+            started_at,
+            "正在下载 ONNX Runtime",
+        ));
+        loop {
+            let count = response
+                .read(&mut buffer)
+                .map_err(|error| format!("读取 ONNX Runtime 下载流失败：{error}"))?;
+            if count == 0 {
+                break;
+            }
+            archive_bytes.extend_from_slice(&buffer[..count]);
+            if archive_bytes.len() > ORT_ARCHIVE_LIMIT_BYTES {
+                return Err("ONNX Runtime 下载包超过安全上限".to_string());
+            }
+            on_progress(progress_event(
+                "downloading",
+                "runtime",
+                "onnxruntime-1.20.1.zip",
+                archive_bytes.len() as u64,
+                total_bytes,
+                started_at,
+                "正在下载 ONNX Runtime",
+            ));
+        }
+        on_progress(progress_event(
+            "complete",
+            "runtime",
+            "onnxruntime-1.20.1.zip",
+            archive_bytes.len() as u64,
+            total_bytes.max(archive_bytes.len() as u64),
+            started_at,
+            "ONNX Runtime 下载完成",
+        ));
         if archive_bytes.len() > ORT_ARCHIVE_LIMIT_BYTES
             || format!("{:x}", Sha256::digest(&archive_bytes)) != ORT_RUNTIME_SHA256
         {
-            return Err(());
+            return Err("ONNX Runtime 下载包校验失败".to_string());
         }
-        let mut archive = zip::ZipArchive::new(Cursor::new(archive_bytes)).map_err(|_| ())?;
+        let mut archive = zip::ZipArchive::new(Cursor::new(archive_bytes))
+            .map_err(|error| format!("解析 ONNX Runtime 压缩包失败：{error}"))?;
         let entry_index = (0..archive.len())
             .find(|index| {
                 archive
@@ -727,40 +1016,68 @@ fn prepare_onnx_runtime(cache_dir: &Path) -> Result<(), ()> {
                     .map(|entry| entry.name().ends_with("/lib/onnxruntime.dll"))
                     .unwrap_or(false)
             })
-            .ok_or(())?;
-        let mut entry = archive.by_index(entry_index).map_err(|_| ())?;
+            .ok_or_else(|| "ONNX Runtime 压缩包缺少 DLL".to_string())?;
+        let mut entry = archive
+            .by_index(entry_index)
+            .map_err(|error| format!("读取 ONNX Runtime DLL 失败：{error}"))?;
         if entry.size() > 32 * 1024 * 1024 {
-            return Err(());
+            return Err("ONNX Runtime DLL 超过安全上限".to_string());
         }
-        let parent = runtime_path.parent().ok_or(())?;
-        std::fs::create_dir_all(parent).map_err(|_| ())?;
+        let parent = runtime_path
+            .parent()
+            .ok_or_else(|| "ONNX Runtime 目标目录无效".to_string())?;
+        std::fs::create_dir_all(parent)
+            .map_err(|error| format!("创建 ONNX Runtime 目录失败：{error}"))?;
         let temporary = runtime_path.with_extension("dll.tmp");
-        let mut output = std::fs::File::create(&temporary).map_err(|_| ())?;
+        let mut output = std::fs::File::create(&temporary)
+            .map_err(|error| format!("创建 ONNX Runtime 临时文件失败：{error}"))?;
         let mut copied = 0_u64;
         let mut buffer = [0_u8; 64 * 1024];
         loop {
-            let count = entry.read(&mut buffer).map_err(|_| ())?;
+            let count = entry
+                .read(&mut buffer)
+                .map_err(|error| format!("解压 ONNX Runtime 失败：{error}"))?;
             if count == 0 {
                 break;
             }
             copied += count as u64;
             if copied > 32 * 1024 * 1024 {
                 let _ = std::fs::remove_file(&temporary);
-                return Err(());
+                return Err("ONNX Runtime DLL 超过安全上限".to_string());
             }
-            output.write_all(&buffer[..count]).map_err(|_| ())?;
+            output
+                .write_all(&buffer[..count])
+                .map_err(|error| format!("写入 ONNX Runtime 失败：{error}"))?;
         }
-        output.flush().map_err(|_| ())?;
-        std::fs::rename(&temporary, &runtime_path).map_err(|_| ())?;
+        output
+            .flush()
+            .map_err(|error| format!("刷新 ONNX Runtime 文件失败：{error}"))?;
+        std::fs::rename(&temporary, &runtime_path)
+            .map_err(|error| format!("提交 ONNX Runtime 文件失败：{error}"))?;
     }
     env::set_var("ORT_DYLIB_PATH", &runtime_path);
     Ok(())
 }
 
 #[cfg(not(target_os = "windows"))]
-fn prepare_onnx_runtime(_cache_dir: &Path) -> Result<(), ()> {
+fn prepare_onnx_runtime_with_progress<F>(
+    _cache_dir: &Path,
+    on_progress: &mut F,
+) -> Result<(), String>
+where
+    F: FnMut(SemanticDownloadProgress),
+{
     // Linux/macOS packages may provide the ONNX Runtime dynamic library. The
     // semantic channel remains fail-soft when it is absent.
+    on_progress(progress_event(
+        "skipped",
+        "runtime",
+        "system ONNX Runtime",
+        0,
+        0,
+        Instant::now(),
+        "使用系统 ONNX Runtime",
+    ));
     Ok(())
 }
 
@@ -1211,5 +1528,40 @@ mod tests {
         assert!(state.model.is_none());
         assert!(state.model_retry_after.is_none());
         assert!(state.corpus.is_none());
+    }
+
+    #[test]
+    fn hub_progress_reports_real_byte_percentages_and_completion() {
+        let mut events = Vec::new();
+        {
+            let mut callback = |event| events.push(event);
+            let mut progress = HubProgress {
+                on_progress: &mut callback,
+                phase: "model",
+                file_name: MODEL_FILE.to_string(),
+                downloaded_bytes: 0,
+                total_bytes: 0,
+                started_at: Instant::now(),
+            };
+            progress.init(100, MODEL_FILE);
+            progress.update(25);
+            progress.update(25);
+            progress.finish();
+        }
+        assert_eq!(events[1].downloaded_bytes, 25);
+        assert_eq!(events[1].percent, 25.0);
+        assert_eq!(events[2].downloaded_bytes, 50);
+        assert_eq!(events.last().unwrap().status, "complete");
+        assert_eq!(events.last().unwrap().percent, 100.0);
+    }
+
+    #[test]
+    fn cached_snapshot_detection_never_needs_a_network_probe() {
+        let cache = tempfile::tempdir().unwrap();
+        let snapshot = model_repo_path(cache.path()).join("snapshots/fixture");
+        fs::create_dir_all(&snapshot).unwrap();
+        fs::write(snapshot.join(MODEL_FILE), b"fixture-model").unwrap();
+        assert!(cached_snapshot_file(cache.path(), MODEL_FILE).is_some());
+        assert!(cached_snapshot_file(cache.path(), "tokenizer.json").is_none());
     }
 }

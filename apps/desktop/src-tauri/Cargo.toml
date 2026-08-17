@@ -34,6 +34,7 @@ tauri-plugin-process = "2"
 sha2 = "0.10"
 keyring = { version = "3.6.3", default-features = false, features = ["windows-native"] }
 fastembed = { version = "4.9.1", default-features = false, features = ["hf-hub-rustls-tls", "ort-load-dynamic"] }
+hf-hub = { version = "0.4.3", default-features = false, features = ["ureq", "rustls-tls"] }
 zip = { version = "4.6.1", default-features = false, features = ["deflate"] }
 
 [dev-dependencies]

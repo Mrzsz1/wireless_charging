@@ -48,9 +48,13 @@ test('semantic model deployment settings stay global and separate offline check 
   assert.match(settings, /部署检查严格离线/)
   assert.match(settings, /checkSemanticModelDeployment/)
   assert.match(settings, /repairSemanticModelDeployment/)
+  assert.match(settings, /data-testid="semantic-download-progress"/)
+  assert.match(settings, /semanticProgress\.bytesPerSecond/)
   assert.match(services, /invoke<SemanticDeploymentStatus>\('check_semantic_model_deployment'\)/)
-  assert.match(services, /invoke<SemanticDeploymentStatus>\('repair_semantic_model_deployment'\)/)
+  assert.match(services, /invoke<SemanticDeploymentStatus>\('repair_semantic_model_deployment', \{ onEvent \}\)/)
+  assert.match(services, /new Channel<SemanticDownloadProgress>/)
   assert.match(types, /SemanticDeploymentState = 'missing' \| 'partial' \| 'invalid' \| 'ready' \| 'error'/)
+  assert.match(types, /bytesPerSecond: number/)
 })
 
 test('Windows Codex discovery covers desktop binaries, persistent PATH and script shims', () => {

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Bot, CheckCircle2, CloudDownload, Copy, Eye, EyeOff, FolderOpen, HardDrive, KeyRound, LoaderCircle, LogIn, RefreshCw, RotateCcw, Save, Settings2, ShieldCheck, Trash2 } from 'lucide-react'
 import { checkSemanticModelDeployment, chooseSemanticModelCacheDirectory, copySemanticModelCacheAndSwitch, deleteSearchProviderKey, getCodexSubscriptionStatus, getLiteratureSettings, getQaSettings, getSemanticModelSettings, listSearchProviderStatuses, openSemanticModelCacheDirectory, repairSemanticModelDeployment, saveLiteratureSettings, saveQaSettings, saveSearchProviderKey, saveSemanticModelSettings, startCodexLogin, testSearchProvider } from '../../services/desktop'
-import type { CodexSubscriptionStatus, LiteratureIngestSettings, QaSettings, SearchProviderStatus, SemanticDeploymentStatus, SemanticModelSettings } from '../../types'
+import type { CodexSubscriptionStatus, LiteratureIngestSettings, QaSettings, SearchProviderStatus, SemanticDeploymentStatus, SemanticDownloadProgress, SemanticModelSettings } from '../../types'
 import { DelayedHelp } from '../../components/DelayedHelp'
 import { formatBytes } from '../ingest/ingestState'
 import './SettingsView.css'
@@ -80,6 +80,13 @@ const semanticStateLabel: Record<SemanticDeploymentStatus['state'], string> = {
   error: '检查失败',
 }
 
+const semanticPhaseLabel: Record<SemanticDownloadProgress['phase'], string> = {
+  runtime: 'ONNX Runtime',
+  model: '量化模型',
+  tokenizer: 'Tokenizer',
+  inference: '推理验证',
+}
+
 const emptyCodexStatus: CodexSubscriptionStatus = {
   installed: false,
   version: '',
@@ -107,6 +114,7 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
   const [qaSettings, setQaSettings] = useState(defaultQaSettings)
   const [semanticSettings, setSemanticSettings] = useState(defaultSemanticSettings)
   const [semanticStatus, setSemanticStatus] = useState(defaultSemanticStatus)
+  const [semanticProgress, setSemanticProgress] = useState<SemanticDownloadProgress | null>(null)
   const [semanticCacheDraft, setSemanticCacheDraft] = useState('')
   const [codexStatus, setCodexStatus] = useState(emptyCodexStatus)
   const [providerStatuses, setProviderStatuses] = useState<SearchProviderStatus[]>([])
@@ -184,24 +192,32 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
 
   const repairSemanticDeployment = async () => {
     setBusyAction('semantic-repair'); setError(''); setMessage('')
+    setSemanticProgress(null)
     try {
-      const next = await repairSemanticModelDeployment()
+      const next = await repairSemanticModelDeployment(setSemanticProgress)
       setSemanticStatus(next)
       setMessage('语义模型下载、初始化与探针检查已完成')
-    } catch (reason) { setError(`语义模型部署失败：${String(reason)}`) }
+    } catch (reason) {
+      setSemanticProgress((current) => current ? { ...current, status: 'failed', message: String(reason) } : current)
+      setError(`语义模型部署失败：${String(reason)}`)
+    }
     finally { setBusyAction('') }
   }
 
   const switchAndRedeploySemantic = async () => {
     setBusyAction('semantic-switch-repair'); setError(''); setMessage('')
+    setSemanticProgress(null)
     try {
       const saved = await saveSemanticModelSettings(semanticCacheDraft)
       setSemanticSettings(saved)
       setSemanticCacheDraft(saved.cacheDir)
-      const next = await repairSemanticModelDeployment()
+      const next = await repairSemanticModelDeployment(setSemanticProgress)
       setSemanticStatus(next)
       setMessage('已切换缓存目录并完成语义模型部署')
-    } catch (reason) { setError(`切换并部署失败：${String(reason)}`) }
+    } catch (reason) {
+      setSemanticProgress((current) => current ? { ...current, status: 'failed', message: String(reason) } : current)
+      setError(`切换并部署失败：${String(reason)}`)
+    }
     finally { setBusyAction('') }
   }
 
@@ -321,6 +337,7 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
           <button disabled={semanticBusy || busyAction === 'load'} onClick={() => void refreshSemanticDeployment()}>{busyAction === 'semantic-check' ? <LoaderCircle className="spin" size={14} /> : <ShieldCheck size={14} />}检查部署</button>
           <button disabled={semanticBusy} onClick={() => void openSemanticCache()}><FolderOpen size={14} />打开目录</button>
           {semanticPathChanged ? <><button disabled={semanticBusy || semanticStatus.totalBytes === 0 || !semanticCacheDraft.trim()} onClick={() => void copyAndSwitchSemantic()}>{busyAction === 'semantic-copy' ? <LoaderCircle className="spin" size={14} /> : <Copy size={14} />}复制现有缓存并切换</button><button className="primary" disabled={semanticBusy} onClick={() => void switchAndRedeploySemantic()}>{busyAction === 'semantic-switch-repair' ? <LoaderCircle className="spin" size={14} /> : <CloudDownload size={14} />}切换并重新部署</button></> : <button className="primary" disabled={semanticBusy} onClick={() => void repairSemanticDeployment()}>{busyAction === 'semantic-repair' ? <LoaderCircle className="spin" size={14} /> : <CloudDownload size={14} />}{semanticStatus.state === 'ready' ? '重新检查并修复' : '下载/修复'}</button>}
+          {semanticProgress && <div className={`semantic-download-progress ${semanticProgress.status}`} data-testid="semantic-download-progress" role="status" aria-live="polite"><div><strong>{semanticPhaseLabel[semanticProgress.phase]}</strong><span>{semanticProgress.totalBytes > 0 ? `${Math.round(semanticProgress.percent)}%` : semanticProgress.message}</span></div><small title={semanticProgress.fileName}>{semanticProgress.fileName}{semanticProgress.totalBytes > 0 ? ` · ${formatBytes(semanticProgress.downloadedBytes)} / ${formatBytes(semanticProgress.totalBytes)} · ${formatBytes(semanticProgress.bytesPerSecond)}/s` : ''}</small><div className={`semantic-progress-track ${semanticProgress.totalBytes > 0 ? '' : 'indeterminate'}`}><i style={semanticProgress.totalBytes > 0 ? { width: `${Math.min(100, semanticProgress.percent)}%` } : undefined} /></div></div>}
         </div>
         <p className="qa-provider-note">复制操作保留旧目录作为回滚副本；应用不会自动删除任何旧模型或未完成下载。</p>
       </section>

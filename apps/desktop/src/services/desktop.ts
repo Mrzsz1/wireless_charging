@@ -1,5 +1,5 @@
 import { Channel, invoke } from '@tauri-apps/api/core'
-import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatMessagePage, ChatSessionDetail, ChatSessionPage, ChatSessionSummary, CodexSubscriptionStatus, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LiteratureCandidate, LiteratureCapability, LiteratureIngestSettings, LunaSettings, ManualImportSession, PageDetail, PageFilters, PageSummary, QaSettings, SemanticDeploymentStatus, SemanticModelSettings, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchProviderStatus, SearchResult, StartCompileRequest, StartLiteratureRunRequest, StartupPromptState } from '../types'
+import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatMessagePage, ChatSessionDetail, ChatSessionPage, ChatSessionSummary, CodexSubscriptionStatus, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LiteratureCandidate, LiteratureCapability, LiteratureIngestSettings, LunaSettings, ManualImportSession, PageDetail, PageFilters, PageSummary, QaSettings, SemanticDeploymentStatus, SemanticDownloadProgress, SemanticModelSettings, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchProviderStatus, SearchResult, StartCompileRequest, StartLiteratureRunRequest, StartupPromptState } from '../types'
 
 type TauriWindow = Window & { __TAURI_INTERNALS__?: unknown }
 
@@ -109,8 +109,10 @@ export async function checkSemanticModelDeployment(): Promise<SemanticDeployment
   return invoke<SemanticDeploymentStatus>('check_semantic_model_deployment')
 }
 
-export async function repairSemanticModelDeployment(): Promise<SemanticDeploymentStatus> {
-  return invoke<SemanticDeploymentStatus>('repair_semantic_model_deployment')
+export async function repairSemanticModelDeployment(onProgress?: (progress: SemanticDownloadProgress) => void): Promise<SemanticDeploymentStatus> {
+  const onEvent = new Channel<SemanticDownloadProgress>()
+  onEvent.onmessage = (progress) => onProgress?.(progress)
+  return invoke<SemanticDeploymentStatus>('repair_semantic_model_deployment', { onEvent })
 }
 
 export async function copySemanticModelCacheAndSwitch(targetDir: string): Promise<SemanticModelSettings> {
