@@ -2,6 +2,7 @@ mod context;
 mod graph;
 mod grounding;
 mod metrics;
+mod semantic;
 mod session;
 mod structured_answer;
 
@@ -1289,6 +1290,7 @@ fn evidence_sufficient(intent: &str, candidates: &[Candidate]) -> bool {
 fn retrieve_pass(
     connection: &Connection,
     root: &Path,
+    semantic_query: &str,
     terms: &[String],
     diagnostics: &mut RetrievalDiagnosticsBuilder,
     pass: usize,
@@ -1318,6 +1320,26 @@ fn retrieve_pass(
     diagnostics.record(&format!("book{suffix}"), channel_started, books.len());
     check_cancelled(cancelled)?;
     let channel_started = Instant::now();
+    #[cfg(not(test))]
+    let semantic = if pass == 1 {
+        semantic::semantic_candidates(connection, root, semantic_query, cancelled)?
+    } else {
+        Vec::new()
+    };
+    // Unit tests validate the semantic ranker and persistence helpers directly;
+    // ordinary QA fixtures must never download the runtime or model.
+    #[cfg(test)]
+    let semantic: Vec<Candidate> = {
+        let _ = (connection, root, semantic_query, cancelled, pass);
+        Vec::new()
+    };
+    diagnostics.record(
+        &format!("semantic{suffix}"),
+        channel_started,
+        semantic.len(),
+    );
+    check_cancelled(cancelled)?;
+    let channel_started = Instant::now();
     let graph_result = graph::graph_candidates(connection, root, terms, cancelled)?;
     diagnostics.record(
         &format!("graph{suffix}"),
@@ -1330,6 +1352,7 @@ fn retrieve_pass(
     extend_fused_channel(&mut candidates, "paper", papers);
     extend_fused_channel(&mut candidates, "linked-paper", linked_papers);
     extend_fused_channel(&mut candidates, "book", books);
+    extend_fused_channel(&mut candidates, "semantic", semantic);
     extend_fused_channel(&mut candidates, "graph", graph_result.candidates);
     // Expansion passes improve recall but must not displace stronger direct-query
     // hits merely because each pass receives a fresh reciprocal-rank score.
@@ -2020,6 +2043,7 @@ pub fn prepare_question_with_history_and_budget(
         let pass_candidates = retrieve_pass(
             connection,
             root,
+            &retrieval_query.resolved_question,
             &pass_terms,
             &mut diagnostics,
             pass,
