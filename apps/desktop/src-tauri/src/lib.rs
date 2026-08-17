@@ -3004,6 +3004,7 @@ async fn ask_luna(
         match settings.answer_provider.as_str() {
             qa::PROVIDER_CODEX if codex_ready => {
                 let prompt = qa::build_codex_prompt(&context);
+                let output_schema = qa::codex_output_schema(&context);
                 let model = effective_codex_model.clone();
                 let reasoning_effort = effective_codex_effort.clone();
                 let timeout = Duration::from_secs(settings.timeout_seconds.max(180));
@@ -3013,6 +3014,7 @@ async fn ask_luna(
                 tauri::async_runtime::spawn_blocking(move || {
                     codex_subscription::stream_answer(
                         &prompt,
+                        output_schema.as_ref(),
                         &model,
                         &reasoning_effort,
                         timeout,

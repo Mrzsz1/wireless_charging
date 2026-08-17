@@ -6,11 +6,11 @@ use sha2::{Digest, Sha256};
 use std::path::Path;
 use std::time::UNIX_EPOCH;
 
-pub const PROMPT_VERSION: &str = "qa-prompt-v7";
+pub const PROMPT_VERSION: &str = "qa-prompt-v8";
 pub const ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-rrf-v3";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v2";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v1";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v2";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -88,6 +88,8 @@ pub struct QaRunManifest {
     pub retriever_version: String,
     pub context_schema_version: String,
     pub provider: String,
+    #[serde(default)]
+    pub structured_output_mode: String,
     pub model_requested: String,
     pub model_resolved: String,
     pub temperature: Option<f64>,
@@ -600,10 +602,13 @@ fn answer_contract(intent: &str, has_evidence: bool) -> String {
         let section_contract_json = prompt_json(&section_contract, "[]");
         let role_contract = required_answer_role_contract(intent);
         let role_contract_json = prompt_json(&role_contract, "[]");
+        let complete_example = super::structured_answer::complete_example(intent);
+        let complete_example_json = prompt_json_pretty(&complete_example, "{}");
         return format!(
-            "只输出一个 JSON object，结构严格为：{{\"schemaVersion\":\"qa-structured-answer-v1\",\"sections\":[{{\"id\":string,\"title\":string,\"groups\":[{{\"label\":string,\"claims\":[{{\"role\":string,\"label\":string,\"text\":string,\"evidenceIds\":[\"E1\"]}}]}}]}}],\"supplement\":[]}}。sections 必须逐项复制以下 JSON 数组中的 id、title 和顺序，不得拆分、合并或改写标题：{}。每条 claim 的 role 必须取自以下 JSON 数组的 id，并且全部必需 role 至少出现一次；title 仅解释业务含义，不要求作为 label 原样输出：{}。每一条事实、边界判断、复现建议都必须是独立 claim；结构标题和论文分组名放 label，不要伪装成 claim。每条 claim 的 text 不写 [E#]，只在 evidenceIds 中列本轮编号；不得为空，不得使用未知编号，且至少一个证据必须不是 graph。论文分组 label 使用短称或论文序号，不复制冗长路径。完整参考证据由程序生成，不要自行添加。",
+            "只输出一个 JSON object，不要输出 Markdown 代码围栏或 JSON 前后的解释文字。sections 必须逐项复制以下 JSON 数组中的 id、title 和顺序，不得拆分、合并、重复、嵌套或改写标题：{}。groups 的每个元素只能是包含 label、claims 的分组，严禁把包含 id、title、groups 的 section 放入 groups。每条 claim 的 role 必须取自以下 JSON 数组的 id，并且全部必需 role 至少出现一次；title 仅解释业务含义，不要求作为 label 原样输出：{}。下面是覆盖完整层级与必需 role 的合法 JSON 示例；它只演示结构，所有“示例”label、text 和 evidenceIds 都必须依据当前问题与本轮 evidence_bundle 重写，严禁照抄示例事实或默认沿用 E1：\n{}\n每一条事实、边界判断、复现建议都必须是独立 claim；结构标题和论文分组名放 label，不要伪装成 claim。每条 claim 的 text 不写 [E#]，只在 evidenceIds 中列本轮编号；不得为空，不得使用未知编号，且至少一个证据必须不是 graph。论文分组 label 使用短称或论文序号，不复制冗长路径。完整参考证据由程序生成，不要自行添加。",
             section_contract_json,
-            role_contract_json
+            role_contract_json,
+            complete_example_json
         );
     }
     let intent_requirements = if intent == "literature" {
@@ -632,6 +637,14 @@ fn answer_contract(intent: &str, has_evidence: bool) -> String {
 
 fn prompt_json<T: Serialize>(value: &T, fallback: &str) -> String {
     serde_json::to_string(value)
+        .unwrap_or_else(|_| fallback.to_string())
+        .replace('&', "\\u0026")
+        .replace('<', "\\u003c")
+        .replace('>', "\\u003e")
+}
+
+fn prompt_json_pretty<T: Serialize>(value: &T, fallback: &str) -> String {
+    serde_json::to_string_pretty(value)
         .unwrap_or_else(|_| fallback.to_string())
         .replace('&', "\\u0026")
         .replace('<', "\\u003c")
@@ -781,6 +794,17 @@ pub fn build_run_manifest(
         retriever_version: RETRIEVER_VERSION.to_string(),
         context_schema_version: CONTEXT_SCHEMA_VERSION.to_string(),
         provider: metadata.provider.clone(),
+        structured_output_mode: if metadata.provider == super::PROVIDER_CODEX
+            && metadata.enforce_answer_schema
+            && !context.evidence.is_empty()
+        {
+            "codex-output-schema"
+        } else if metadata.provider == super::PROVIDER_OFFLINE {
+            "offline-deterministic"
+        } else {
+            "prompt-contract"
+        }
+        .to_string(),
         model_requested: metadata.model_requested.clone(),
         model_resolved: metadata.model_resolved.clone(),
         temperature: metadata.temperature,
@@ -977,6 +1001,10 @@ mod tests {
         assert!(contract.contains("\"title\":\"主题、模型与方法\""));
         assert!(contract.contains("\"id\":\"model_or_method\""));
         assert!(contract.contains("\"id\":\"evidence_boundary\""));
+        assert!(contract.contains("完整层级与必需 role 的合法 JSON 示例"));
+        assert!(contract.contains("\"schemaVersion\": \"qa-structured-answer-v1\""));
+        assert!(contract.contains("\"supplement\": []"));
+        assert!(contract.contains("严禁把包含 id、title、groups 的 section 放入 groups"));
         assert!(!contract.contains("sections 按顺序且完整使用这些标题"));
     }
 

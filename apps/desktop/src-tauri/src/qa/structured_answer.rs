@@ -2,9 +2,10 @@ use super::{
     compact, CitationValidation, EvidenceItem, MODEL_SUPPLEMENT_HEADING, MODEL_SUPPLEMENT_NOTICE,
 };
 use serde::Deserialize;
+use serde_json::{json, Value};
 use std::collections::{HashMap, HashSet};
 
-const SCHEMA_VERSION: &str = "qa-structured-answer-v1";
+const SCHEMA_VERSION: &str = super::context::ANSWER_SCHEMA_VERSION;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -48,6 +49,142 @@ pub struct StructuredRenderResult {
     pub markdown: String,
     pub validation: CitationValidation,
     pub roles: Vec<String>,
+}
+
+pub fn complete_example(intent: &str) -> Value {
+    let sections = super::context::required_answer_section_contract(intent);
+    let roles = super::context::required_answer_role_contract(intent);
+    let section_count = sections.len().max(1);
+    let fallback_role = roles.first().copied();
+    let rendered_sections = sections
+        .iter()
+        .enumerate()
+        .map(|(section_index, section)| {
+            let mut assigned_roles = roles
+                .iter()
+                .enumerate()
+                .filter(|(role_index, _)| role_index % section_count == section_index)
+                .map(|(_, role)| *role)
+                .collect::<Vec<_>>();
+            if assigned_roles.is_empty() {
+                if let Some(role) = fallback_role {
+                    assigned_roles.push(role);
+                }
+            }
+            let claims = assigned_roles
+                .into_iter()
+                .map(|role| {
+                    json!({
+                        "role": role.id,
+                        "label": format!("示例：{}", role.title),
+                        "text": format!("示例占位：这里填写由当前证据支持的“{}”完整陈述。", role.title),
+                        "evidenceIds": ["E1"]
+                    })
+                })
+                .collect::<Vec<_>>();
+            json!({
+                "id": section.id,
+                "title": section.title,
+                "groups": [{
+                    "label": format!("示例分组 {}", section_index + 1),
+                    "claims": claims
+                }]
+            })
+        })
+        .collect::<Vec<_>>();
+    json!({
+        "schemaVersion": SCHEMA_VERSION,
+        "sections": rendered_sections,
+        "supplement": []
+    })
+}
+
+pub fn provider_output_schema(intent: &str, evidence: &[EvidenceItem]) -> Value {
+    let section_contract = super::context::required_answer_section_contract(intent);
+    let section_ids = section_contract
+        .iter()
+        .map(|section| section.id)
+        .collect::<Vec<_>>();
+    let section_titles = section_contract
+        .iter()
+        .map(|section| section.title)
+        .collect::<Vec<_>>();
+    let roles = super::context::required_answer_role_contract(intent)
+        .into_iter()
+        .map(|role| role.id)
+        .collect::<Vec<_>>();
+    let evidence_ids = evidence
+        .iter()
+        .map(|item| item.id.as_str())
+        .collect::<Vec<_>>();
+
+    json!({
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["schemaVersion", "sections", "supplement"],
+        "properties": {
+            "schemaVersion": {
+                "type": "string",
+                "enum": [SCHEMA_VERSION]
+            },
+            "sections": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["id", "title", "groups"],
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "enum": section_ids
+                        },
+                        "title": {
+                            "type": "string",
+                            "enum": section_titles
+                        },
+                        "groups": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": ["label", "claims"],
+                                "properties": {
+                                    "label": {"type": "string"},
+                                    "claims": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "required": ["role", "label", "text", "evidenceIds"],
+                                            "properties": {
+                                                "role": {
+                                                    "type": "string",
+                                                    "enum": roles
+                                                },
+                                                "label": {"type": "string"},
+                                                "text": {"type": "string"},
+                                                "evidenceIds": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": evidence_ids
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "supplement": {
+                "type": "array",
+                "items": {"type": "string"}
+            }
+        }
+    })
 }
 
 fn legacy_role(intent: &str, label: &str) -> Option<&'static str> {
@@ -475,6 +612,52 @@ mod tests {
             "label": "fixture",
             "claims": [{"label": "claim", "text": text, "evidenceIds": ["E1"]}]
         })
+    }
+
+    #[test]
+    fn generated_examples_cover_every_intent_contract_and_parse() {
+        for intent in ["literature", "novelty", "relationship", "solve"] {
+            let raw = complete_example(intent).to_string();
+            let result = parse_validate_render(&raw, intent, &[evidence("E1")]).unwrap();
+            assert!(result.validation.supported, "intent={intent}");
+            let required_roles = super::super::context::required_answer_role_contract(intent);
+            for role in required_roles {
+                assert!(
+                    result.roles.iter().any(|observed| observed == role.id),
+                    "intent={intent}, missing role={}",
+                    role.id
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn provider_schema_closes_every_object_and_limits_dynamic_values() {
+        let schema = provider_output_schema("literature", &[evidence("E1"), evidence("E2")]);
+        assert_eq!(schema.get("additionalProperties"), Some(&json!(false)));
+        assert_eq!(
+            schema.pointer("/properties/sections/items/additionalProperties"),
+            Some(&json!(false))
+        );
+        assert_eq!(
+            schema
+                .pointer("/properties/sections/items/properties/groups/items/additionalProperties"),
+            Some(&json!(false))
+        );
+        assert_eq!(
+            schema.pointer("/properties/sections/items/properties/groups/items/properties/claims/items/additionalProperties"),
+            Some(&json!(false))
+        );
+        let roles = schema
+            .pointer("/properties/sections/items/properties/groups/items/properties/claims/items/properties/role/enum")
+            .and_then(Value::as_array)
+            .unwrap();
+        assert!(roles.contains(&json!("model_or_method")));
+        let evidence_ids = schema
+            .pointer("/properties/sections/items/properties/groups/items/properties/claims/items/properties/evidenceIds/items/enum")
+            .and_then(Value::as_array)
+            .unwrap();
+        assert_eq!(evidence_ids, &[json!("E1"), json!("E2")]);
     }
 
     #[test]

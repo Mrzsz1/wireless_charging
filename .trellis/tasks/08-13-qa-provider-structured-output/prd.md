@@ -50,13 +50,13 @@
 
 ## Acceptance Criteria
 
-- [ ] 提示词包含完整 JSON 示例，示例可以被 `serde_json` 与现有结构解析器接受。
-- [ ] 示例覆盖当前意图的全部 section 和必需 role，且 Group 中不允许出现 `id`、`title`、`groups` 等 Section 字段。
-- [ ] Codex 调用实际携带 `--output-schema`，临时 Schema 文件在运行结束后被清理。
-- [ ] 合法结构仍会执行引用、证据 ID、section、role 和完整性校验。
-- [ ] 对 Section 嵌套到 Group、重复/错误 Section ID、未知 role、未知 evidence ID、未闭合 JSON 均产生可定位错误。
-- [ ] 未新增 LangChain、LlamaIndex、Haystack、Semantic Kernel 或独立 Python/Node Provider 服务依赖。
-- [ ] 修改代码前创建 Git 检查点；任务完成后按项目规范编译桌面应用。
+- [x] 提示词包含完整 JSON 示例，示例可以被 `serde_json` 与现有结构解析器接受。
+- [x] 示例覆盖当前意图的全部 section 和必需 role，且 Group 中不允许出现 `id`、`title`、`groups` 等 Section 字段。
+- [x] Codex 调用实际携带 `--output-schema`，临时 Schema 文件在运行结束后被清理。
+- [x] 合法结构仍会执行引用、证据 ID、section、role 和完整性校验。
+- [x] 对 Section 嵌套到 Group、重复/错误 Section ID、未知 role、未知 evidence ID、未闭合 JSON 均产生可定位错误。
+- [x] 未新增 LangChain、LlamaIndex、Haystack、Semantic Kernel 或独立 Python/Node Provider 服务依赖。
+- [x] 修改代码前创建 Git 检查点；任务完成后按项目规范编译桌面应用。
 
 ## Out of Scope
 

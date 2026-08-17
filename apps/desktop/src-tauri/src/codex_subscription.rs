@@ -657,6 +657,14 @@ impl TempWorkspace {
         fs::create_dir(&path).map_err(|_| "CODEX_TEMP_CREATE_FAILED".to_string())?;
         Ok(Self(path))
     }
+
+    fn write_output_schema(&self, schema: &Value) -> Result<PathBuf, String> {
+        let path = self.0.join("answer-schema.json");
+        let bytes = serde_json::to_vec_pretty(schema)
+            .map_err(|_| "CODEX_OUTPUT_SCHEMA_SERIALIZE_FAILED".to_string())?;
+        fs::write(&path, bytes).map_err(|_| "CODEX_OUTPUT_SCHEMA_WRITE_FAILED".to_string())?;
+        Ok(path)
+    }
 }
 
 impl Drop for TempWorkspace {
@@ -734,6 +742,7 @@ fn apply_jsonl_line(line: &str, answer: &mut String) -> Option<String> {
 
 fn build_exec_args(
     workspace: &std::path::Path,
+    output_schema: Option<&std::path::Path>,
     model: &str,
     reasoning_effort: &str,
 ) -> Vec<String> {
@@ -763,6 +772,12 @@ fn build_exec_args(
             format!("model_reasoning_effort=\"{}\"", reasoning_effort.trim()),
         ]);
     }
+    if let Some(path) = output_schema {
+        args.extend([
+            "--output-schema".to_string(),
+            path.to_string_lossy().into_owned(),
+        ]);
+    }
     args.push("-".to_string());
     args
 }
@@ -770,6 +785,7 @@ fn build_exec_args(
 fn stream_answer_with<F>(
     executable: &str,
     prompt: &str,
+    output_schema: Option<&Value>,
     model: &str,
     reasoning_effort: &str,
     timeout: Duration,
@@ -780,10 +796,18 @@ where
     F: FnMut(&str) -> Result<(), String>,
 {
     let workspace = TempWorkspace::create()?;
+    let output_schema_path = output_schema
+        .map(|schema| workspace.write_output_schema(schema))
+        .transpose()?;
     let mut command = Command::new(executable);
     configure_background_command(&mut command);
     command
-        .args(build_exec_args(&workspace.0, model, reasoning_effort))
+        .args(build_exec_args(
+            &workspace.0,
+            output_schema_path.as_deref(),
+            model,
+            reasoning_effort,
+        ))
         .env("NO_COLOR", "1")
         .env("TERM", "dumb")
         .stdin(Stdio::piped())
@@ -909,9 +933,15 @@ where
             break status;
         }
     };
-    let _stderr = stderr_reader.join().unwrap_or_default();
+    let stderr_output = stderr_reader.join().unwrap_or_default();
     let answer = answer.trim().to_string();
     if !status.success() {
+        if output_schema.is_some() && stderr_output.to_ascii_lowercase().contains("schema") {
+            return Err(format!(
+                "CODEX_OUTPUT_SCHEMA_REJECTED: Codex CLI 未接受回答结构约束（退出码 {}）",
+                status.code().unwrap_or(-1)
+            ));
+        }
         return Err(format!(
             "CODEX_EXIT_ERROR: Codex CLI 退出码 {}",
             status.code().unwrap_or(-1)
@@ -932,6 +962,7 @@ where
 
 pub fn stream_answer<F>(
     prompt: &str,
+    output_schema: Option<&Value>,
     model: &str,
     reasoning_effort: &str,
     timeout: Duration,
@@ -944,6 +975,7 @@ where
     stream_answer_with(
         &executable(),
         prompt,
+        output_schema,
         model,
         reasoning_effort,
         timeout,
@@ -1062,7 +1094,8 @@ mod tests {
     #[test]
     fn exec_arguments_isolate_the_workspace_and_keep_the_prompt_on_stdin() {
         let workspace = std::path::Path::new("C:/fixture/codex-workspace");
-        let args = build_exec_args(workspace, " gpt-fixture ", "xhigh");
+        let schema = workspace.join("answer-schema.json");
+        let args = build_exec_args(workspace, Some(&schema), " gpt-fixture ", "xhigh");
         assert_eq!(args.first().map(String::as_str), Some("-a"));
         assert_eq!(args.last().map(String::as_str), Some("-"));
         assert!(args
@@ -1077,11 +1110,34 @@ mod tests {
         assert!(args
             .windows(2)
             .any(|pair| pair == ["-c", "model_reasoning_effort=\"xhigh\""]));
+        assert!(args.windows(2).any(|pair| {
+            pair[0] == "--output-schema" && pair[1] == schema.to_string_lossy().as_ref()
+        }));
 
         let isolated = args.iter().map(String::as_str).collect::<Vec<_>>();
         assert!(isolated.contains(&"--ignore-user-config"));
         assert!(isolated.contains(&"--ignore-rules"));
         assert!(!args.iter().any(|value| value.contains("question text")));
+    }
+
+    #[test]
+    fn output_schema_is_written_inside_and_removed_with_temp_workspace() {
+        let workspace = TempWorkspace::create().unwrap();
+        let root = workspace.0.clone();
+        let schema = serde_json::json!({
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["answer"],
+            "properties": {"answer": {"type": "string"}}
+        });
+        let path = workspace.write_output_schema(&schema).unwrap();
+        assert_eq!(path.parent(), Some(root.as_path()));
+        assert_eq!(
+            serde_json::from_slice::<Value>(&fs::read(&path).unwrap()).unwrap(),
+            schema
+        );
+        drop(workspace);
+        assert!(!root.exists());
     }
 
     #[cfg(windows)]
@@ -1121,6 +1177,7 @@ mod tests {
         let result = stream_answer_with(
             &answer_fixture.to_string_lossy(),
             "question text",
+            None,
             "",
             "",
             Duration::from_secs(3),
@@ -1147,6 +1204,7 @@ mod tests {
         let active = stream_answer_with(
             &active_fixture.to_string_lossy(),
             "question text",
+            None,
             "",
             "",
             Duration::from_millis(1_500),
@@ -1163,6 +1221,7 @@ mod tests {
         let error = stream_answer_with(
             &failure_fixture.to_string_lossy(),
             "question text",
+            None,
             "",
             "",
             Duration::from_secs(3),
@@ -1173,11 +1232,35 @@ mod tests {
         assert!(error.contains("CODEX_EXIT_ERROR"));
         assert!(!error.contains("fixture-secret"));
 
+        let schema = serde_json::json!({
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["answer"],
+            "properties": {"answer": {"type": "string"}}
+        });
+        let (_schema_failure_workspace, schema_failure_fixture) = write_windows_fixture(
+            "fake-codex-schema-failure",
+            "echo invalid output schema 1>&2\r\nexit /b 8",
+        );
+        let schema_error = stream_answer_with(
+            &schema_failure_fixture.to_string_lossy(),
+            "question text",
+            Some(&schema),
+            "",
+            "",
+            Duration::from_secs(3),
+            &AtomicBool::new(false),
+            |_| Ok(()),
+        )
+        .unwrap_err();
+        assert!(schema_error.starts_with("CODEX_OUTPUT_SCHEMA_REJECTED"));
+
         let (_hang_workspace, hang_fixture) =
             write_windows_fixture("fake-codex-hang", "ping 127.0.0.1 -n 30 >nul");
         let timeout_error = stream_answer_with(
             &hang_fixture.to_string_lossy(),
             "question text",
+            None,
             "",
             "",
             Duration::from_millis(120),
@@ -1190,6 +1273,7 @@ mod tests {
         let cancel_error = stream_answer_with(
             &hang_fixture.to_string_lossy(),
             "question text",
+            None,
             "",
             "",
             Duration::from_secs(3),

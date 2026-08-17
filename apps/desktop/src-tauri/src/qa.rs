@@ -2401,6 +2401,11 @@ pub fn build_codex_prompt(context: &QuestionContext) -> String {
     )
 }
 
+pub fn codex_output_schema(context: &QuestionContext) -> Option<Value> {
+    (!context.evidence.is_empty())
+        .then(|| structured_answer::provider_output_schema(&context.intent, &context.evidence))
+}
+
 #[derive(Default)]
 struct LunaStreamState {
     answer: String,
@@ -3973,6 +3978,13 @@ mod tests {
         context.conversation = conversation;
         context.evidence = evidence;
         context.context_plan = context_plan;
+        let schema = codex_output_schema(&context).expect("evidence-backed Codex schema");
+        assert_eq!(
+            schema
+                .pointer("/properties/sections/items/properties/groups/items/properties/claims/items/properties/evidenceIds/items/enum/0")
+                .and_then(Value::as_str),
+            Some("E1")
+        );
         let metadata = ProviderRunMetadata {
             provider: PROVIDER_API.to_string(),
             model_requested: "fixture-requested".to_string(),
@@ -4006,6 +4018,10 @@ mod tests {
         assert!(result.run_manifest.answer_completeness.complete);
         assert_eq!(result.run_manifest.model_requested, "fixture-requested");
         assert_eq!(result.run_manifest.model_resolved, "fixture-resolved");
+        assert_eq!(
+            result.run_manifest.structured_output_mode,
+            "prompt-contract"
+        );
         assert_eq!(result.run_manifest.prompt_sha256.len(), 64);
         assert_eq!(result.run_manifest.evidence_checksums.len(), 1);
         assert_eq!(
@@ -4032,6 +4048,24 @@ mod tests {
                 .unwrap()
                 .prompt_sha256,
             result.run_manifest.prompt_sha256
+        );
+
+        let codex_audit = audit_generated_answer(
+            &context,
+            &structured_fixture_answer(INTENT_SOLVE, "E1", true),
+            &ProviderRunMetadata {
+                provider: PROVIDER_CODEX.to_string(),
+                model_requested: "fixture-requested".to_string(),
+                model_resolved: "fixture-resolved".to_string(),
+                temperature: None,
+                max_output_tokens: 1_800,
+                context_window_tokens: 32_768,
+                enforce_answer_schema: true,
+            },
+        );
+        assert_eq!(
+            codex_audit.run_manifest.structured_output_mode,
+            "codex-output-schema"
         );
     }
 

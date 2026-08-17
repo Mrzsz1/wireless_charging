@@ -454,6 +454,7 @@ export type QaRunManifest = {
   retrieverVersion: string
   contextSchemaVersion: string
   provider: string
+  structuredOutputMode: string
   modelRequested: string
   modelResolved: string
   temperature?: number | null
