@@ -479,19 +479,26 @@ fn discovered_executables() -> Vec<PathBuf> {
     candidates
 }
 
-fn executable() -> String {
+fn executable_has_valid_version(executable: &str) -> bool {
+    matches!(
+        run_fixed_with(executable, &["--version"], STATUS_TIMEOUT),
+        Ok((true, stdout, _)) if safe_version(&stdout) != "Codex CLI"
+    )
+}
+
+pub fn available_executable() -> Option<String> {
     if let Some(explicit) = explicit_executable() {
-        return explicit;
+        return executable_has_valid_version(&explicit).then_some(explicit);
     }
-    discovered_executables()
-        .into_iter()
-        .find_map(|candidate| {
-            let executable = candidate.to_string_lossy().into_owned();
-            match run_fixed_with(&executable, &["--version"], STATUS_TIMEOUT) {
-                Ok((true, stdout, _)) if safe_version(&stdout) != "Codex CLI" => Some(executable),
-                _ => None,
-            }
-        })
+    discovered_executables().into_iter().find_map(|candidate| {
+        let executable = candidate.to_string_lossy().into_owned();
+        executable_has_valid_version(&executable).then_some(executable)
+    })
+}
+
+fn executable() -> String {
+    available_executable()
+        .or_else(explicit_executable)
         .unwrap_or_else(|| "codex".to_string())
 }
 

@@ -69,7 +69,7 @@ This contract applies whenever the Tauri backend detects, launches, or streams f
 - Automatic discovery prefers native Codex desktop binaries under `%LOCALAPPDATA%\OpenAI\Codex\bin\*\codex.exe`, then native PATH candidates, then script shims.
 - Automatic discovery reads both the current process PATH and persisted HKCU/HKLM PATH values so installing Codex does not require a Windows sign-out before the app can refresh.
 - Candidate paths are file-checked, case-insensitively deduplicated on Windows, and accepted only when `--version` returns an allowlisted `codex-cli ...` line.
-- Status, login, and answer streaming must use the same resolver. The public status DTO must never expose token, cookie, credential path, or API key fields.
+- Status, login, answer streaming, compile capability checks, and governed literature pipelines must use the same resolver. When a Python pipeline invokes Codex, inject the validated absolute path as `CODEX_CLI_PATH` and make the child prefer it over its inherited `PATH`. The public status DTO must never expose token, cookie, credential path, or API key fields.
 
 ### 4. Validation & Error Matrix
 

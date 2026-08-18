@@ -62,7 +62,7 @@ test('Windows Codex discovery covers desktop binaries, persistent PATH and scrip
   for (const contract of ['CODEX_CLI_PATH', 'OpenAI', 'Codex', 'read_registry_path', 'codex.exe', 'codex.cmd', 'codex.bat']) {
     assert.match(rust, new RegExp(contract.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
   }
-  assert.match(rust, /run_fixed_with\(&executable, &\["--version"\]/)
+  assert.match(rust, /executable_has_valid_version\(&executable\)/)
 })
 
 test('App routes the AskView settings action to the global settings section', () => {

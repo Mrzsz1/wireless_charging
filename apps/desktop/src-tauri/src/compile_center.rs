@@ -1,3 +1,4 @@
+use crate::codex_subscription;
 use crate::process_support::{configure_background_command, configure_python_command};
 use crate::search_credentials;
 use rusqlite::{params, Connection, OptionalExtension};
@@ -398,7 +399,7 @@ fn command_exists(program: &str) -> bool {
 pub fn capabilities(root: &Path) -> Vec<CompileCapability> {
     let python = command_exists("py");
     let graphify = command_exists("graphify");
-    let codex = command_exists("codex");
+    let codex = codex_subscription::available_executable().is_some();
     let tool = |name: &str| root.join("tools").join(name).is_file();
     let full_pipeline = python
         && graphify
@@ -662,7 +663,7 @@ fn build_task(
             if request.force { args.push("--force".into()); }
             Ok(TaskSpec { executable: "py".into(), args, label: "Parse PDF", stage: "parse", artifacts: vec![("canonical", "raw/canonical")], search_credentials: false })
         }
-        "compile_a" => Ok(TaskSpec { executable: "codex".into(), args: vec!["-a".into(), "never".into(), "-s".into(), "workspace-write".into(), "exec".into(), "-C".into(), root.to_string_lossy().into_owned(), "--skip-git-repo-check".into(), "--ephemeral".into(), "Read AGENTS.md and schema/agent-a-compile.md. Compile every pending_ingest through the Agent A protocol. Never write wiki/problems or wiki/ideas, never edit vocab.yaml, never delete files, and update index, library-status, logs and Graphify.".into()], label: "Compile A pages", stage: "compile_a", artifacts: vec![("wiki", "wiki")], search_credentials: false }),
+        "compile_a" => Ok(TaskSpec { executable: codex_subscription::available_executable().unwrap_or_else(|| "codex".into()), args: vec!["-a".into(), "never".into(), "-s".into(), "workspace-write".into(), "exec".into(), "-C".into(), root.to_string_lossy().into_owned(), "--skip-git-repo-check".into(), "--ephemeral".into(), "Read AGENTS.md and schema/agent-a-compile.md. Compile every pending_ingest through the Agent A protocol. Never write wiki/problems or wiki/ideas, never edit vocab.yaml, never delete files, and update index, library-status, logs and Graphify.".into()], label: "Compile A pages", stage: "compile_a", artifacts: vec![("wiki", "wiki")], search_credentials: false }),
         "full_pipeline" => {
             let mut args = vec!["-3".into(), "tools/full_pipeline.py".into()];
             if let Some(run_id) = run_id {
@@ -1214,6 +1215,9 @@ pub fn execute_run(
     }
     let mut command = Command::new(&spec.executable);
     configure_background_command(&mut command);
+    if let Some(codex) = codex_subscription::available_executable() {
+        command.env("CODEX_CLI_PATH", codex);
+    }
     if matches!(spec.executable.as_str(), "py" | "python" | "python3") {
         configure_python_command(&mut command);
     }

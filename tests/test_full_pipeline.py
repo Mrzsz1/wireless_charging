@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -57,6 +58,24 @@ class FullPipelineFixtureTests(unittest.TestCase):
             self.assertEqual(self.stages(fixture), ["discover", "compile_a", "lint"])
             self.assertIn("PIPELINE_STAGE_FAILED lint 23", result.stdout)
             self.assertFalse((fixture / "graphify_update.done").exists())
+
+    def test_compile_stage_prefers_resolved_codex_path_from_parent(self) -> None:
+        with tempfile.TemporaryDirectory(dir=ROOT) as directory:
+            fixture = Path(directory)
+            environment = os.environ.copy()
+            environment["CODEX_CLI_PATH"] = str(Path(directory) / "Codex Desktop" / "codex.exe")
+            result = subprocess.run(
+                [sys.executable, str(PIPELINE), "--fixture-dir", str(fixture)],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+                env=environment,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            commands = [json.loads(line) for line in (fixture / "stages.jsonl").read_text(encoding="utf-8").splitlines()]
+            compile_command = next(item["command"] for item in commands if item["stage"] == "compile_a")
+            self.assertEqual(compile_command[0], environment["CODEX_CLI_PATH"])
 
     def test_pause_file_blocks_the_next_stage_until_removed(self) -> None:
         with tempfile.TemporaryDirectory(dir=ROOT) as directory:

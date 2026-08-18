@@ -90,7 +90,7 @@ export type ManualImportSession = {
 }
 
 export type LiteratureCapability = {
-  id: 'discovery' | 'download' | 'parse' | 'compile' | 'graphify'
+  id: 'discovery' | 'download' | 'parse' | 'compile' | 'graph' | 'full_ingest'
   available: boolean
   reason: string
 }

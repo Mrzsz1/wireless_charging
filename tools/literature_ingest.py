@@ -33,6 +33,10 @@ class LiteratureIngestError(RuntimeError):
     pass
 
 
+def codex_executable() -> str:
+    return os.environ.get("CODEX_CLI_PATH") or shutil.which("codex") or "codex"
+
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
@@ -441,7 +445,7 @@ def parse_and_compile(root: Path, pdfs: Sequence[Path], acquisition: str, fixtur
                 scopes.append(status.parent)
     if not scopes:
         raise LiteratureIngestError("解析完成后没有找到本批 canonical Markdown")
-    codex = shutil.which("codex") or "codex"
+    codex = codex_executable()
     run_command(
         "compile_a",
         [codex, "-a", "never", "-s", "workspace-write", "exec", "-C", str(root), "--skip-git-repo-check", "--ephemeral", scoped_compile_prompt(scopes, root)],

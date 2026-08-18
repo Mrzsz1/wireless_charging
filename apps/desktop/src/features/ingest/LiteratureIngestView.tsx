@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, Check, CheckCircle2, ChevronRight, CircleX, CloudDownload, ExternalLink, FileCheck2, FilePlus2, FolderOpen, LoaderCircle, Play, Radar, RefreshCw, Search, Settings, ShieldCheck, Trash2, UploadCloud } from 'lucide-react'
 import { chooseManualPdfs, discardManualImportSession, getLiteratureCapabilities, getLiteratureSettings, listLiteratureCandidates, startLiteratureRun, updateCandidateTriage } from '../../services/desktop'
 import type { CompileStreamEvent, LiteratureCandidate, LiteratureCapability, LiteratureIngestMode, LiteratureIngestSettings, ManualImportSession } from '../../types'
-import { defaultSelectedManualFileIds, filterCandidates, formatBytes, formatEpoch, type CandidateFilter } from './ingestState'
+import { automationCapabilitiesReady, defaultSelectedManualFileIds, filterCandidates, formatBytes, formatEpoch, type CandidateFilter } from './ingestState'
 import './LiteratureIngestView.css'
 
 type Props = {
@@ -23,6 +23,9 @@ const defaultSettings: LiteratureIngestSettings = {
 }
 
 const filterLabels: Record<CandidateFilter, string> = { all: '全部', pending: '待确认', selected: '已选择', rejected: '已忽略', promoted: '已入库', eligible: '满足自动规则' }
+const capabilityLabels: Record<LiteratureCapability['id'], string> = {
+  discovery: '文献发现', download: '开放文献下载', parse: 'MinerU 解析', compile: 'Codex 编译', graph: 'Graphify 更新', full_ingest: '完整入库',
+}
 
 function eventMessage(event: CompileStreamEvent) {
   return `[${event.stage || event.type}] ${event.message}`
@@ -111,7 +114,7 @@ export function LiteratureIngestView({ repositoryPath, autoStartRequest, onChoos
         : right.score - left.score), [candidateFilter, candidateQuery, candidateSort, candidates, providerFilter])
   const selectedCandidate = candidates.find((item) => item.candidateId === selectedCandidateId) ?? null
   const eligibleCount = candidates.filter((item) => item.qualification.eligible && item.triageStatus !== 'promoted').length
-  const allCapabilitiesReady = capabilities.every((item) => item.available)
+  const currentPipelineReady = automationCapabilitiesReady(capabilities, settings.autoPromoteEnabled)
 
   const pickManual = async () => {
     setError('')
@@ -210,15 +213,15 @@ export function LiteratureIngestView({ repositoryPath, autoStartRequest, onChoos
     {tab === 'automatic' && <div className="automatic-layout">
       <section className="ingest-panel automatic-main">
         <div className="ingest-panel-heading"><div><h2>自动检索与添加</h2><p>启动时只询问一次。手动按钮随时可运行同一受控流程。</p></div><span className={`automation-mode ${settings.autoPromoteEnabled ? 'promote' : ''}`}>{settings.autoPromoteEnabled ? '自动完整入库' : '自动准备候选'}</span></div>
-        <div className="automation-summary"><div><Radar size={20} /><span><strong>{eligibleCount}</strong><small>当前满足规则</small></span></div><div><FileCheck2 size={20} /><span><strong>{candidates.filter((item) => item.triageStatus === 'pending').length}</strong><small>等待人工确认</small></span></div><div><ShieldCheck size={20} /><span><strong>{allCapabilitiesReady ? '正常' : '受限'}</strong><small>流水线能力</small></span></div></div>
-        <button className="ingest-button primary run-automation" disabled={busy || !capabilities.find((item) => item.id === 'discovery')?.available} onClick={() => void run(settings.autoPromoteEnabled ? 'automatic' : 'prepare')}>{busy ? <LoaderCircle className="spin" size={17} /> : <Play size={17} />}{settings.autoPromoteEnabled ? '立即检索并自动入库' : '立即检索最新文献'}</button>
+        <div className="automation-summary"><div><Radar size={20} /><span><strong>{eligibleCount}</strong><small>当前满足规则</small></span></div><div><FileCheck2 size={20} /><span><strong>{candidates.filter((item) => item.triageStatus === 'pending').length}</strong><small>等待人工确认</small></span></div><div><ShieldCheck size={20} /><span><strong>{currentPipelineReady ? '正常' : '受限'}</strong><small>{settings.autoPromoteEnabled ? '完整入库能力' : '检索与下载能力'}</small></span></div></div>
+        <button className="ingest-button primary run-automation" aria-busy={busy} disabled={busy || !currentPipelineReady} onClick={() => void run(settings.autoPromoteEnabled ? 'automatic' : 'prepare')}>{busy ? <span className="ingest-action-spinner" aria-hidden="true" /> : <Play size={17} />}{busy ? settings.autoPromoteEnabled ? '正在检索并入库…' : '正在检索最新文献…' : settings.autoPromoteEnabled ? '立即检索并自动入库' : '立即检索最新文献'}</button>
         <p className="automation-boundary">自动完整入库只处理同时满足：主题命中、分数阈值、标题关键词、DOI/arXiv、开放 PDF、无重复的候选，单次最多 {settings.maxAutoIngest} 篇。</p>
         <div className="automation-config-link" data-testid="automation-settings-link"><div><Settings size={16} /><span><strong>自动化参数已迁入设置</strong><small>{settings.providers.join('、')} · {settings.sinceYear ?? '不限年份'} 起 · 阈值 {settings.minScore}</small></span></div><button className="ingest-button secondary" onClick={onOpenSettings}>前往设置<ChevronRight size={14} /></button></div>
-        <h3>依赖检查</h3><div className="capability-grid">{capabilities.map((item) => <div key={item.id} className={item.available ? 'available' : 'unavailable'}>{item.available ? <CheckCircle2 size={15} /> : <AlertTriangle size={15} />}<span><strong>{item.id}</strong><small>{item.reason}</small></span></div>)}</div>
+        <h3>依赖检查</h3><div className="capability-grid">{capabilities.map((item) => <div key={item.id} className={item.available ? 'available' : 'unavailable'}>{item.available ? <CheckCircle2 size={15} /> : <AlertTriangle size={15} />}<span><strong>{capabilityLabels[item.id]}</strong><small>{item.reason}</small></span></div>)}</div>
         <div className="automation-history"><span>上次尝试：{formatEpoch(settings.lastAttemptAt)}</span><span>上次成功：{formatEpoch(settings.lastSuccessAt)}</span></div>
       </section>
     </div>}
 
-    {(busy || runLog.length > 0) && <section className="ingest-run-strip"><div><span>{busy ? <LoaderCircle className="spin" size={15} /> : <CheckCircle2 size={15} />}{busy ? '任务运行中' : '最近任务输出'}</span><button onClick={onOpenCompileCenter}>在编译中心查看 · {runId || '等待任务编号'} <ChevronRight size={14} /></button></div><pre>{runLog.slice(-8).join('\n') || '正在等待任务事件…'}</pre></section>}
+    {(busy || runLog.length > 0) && <section className="ingest-run-strip" role="status" aria-live="polite"><div><span>{busy ? <span className="ingest-action-spinner compact" aria-hidden="true" /> : <CheckCircle2 size={16} />}{busy ? '任务运行中' : '最近任务输出'}</span><button onClick={onOpenCompileCenter}>在编译中心查看 · {runId || '等待任务编号'} <ChevronRight size={15} /></button></div><pre>{runLog.slice(-8).join('\n') || '正在等待任务事件…'}</pre></section>}
   </section>
 }

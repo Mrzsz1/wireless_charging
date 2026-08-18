@@ -1,6 +1,11 @@
-import type { LiteratureCandidate, ManualImportSession } from '../../types'
+import type { LiteratureCandidate, LiteratureCapability, ManualImportSession } from '../../types'
 
 export type CandidateFilter = 'all' | 'pending' | 'selected' | 'rejected' | 'promoted' | 'eligible'
+
+export function automationCapabilitiesReady(capabilities: LiteratureCapability[], automatic: boolean): boolean {
+  const required: LiteratureCapability['id'][] = automatic ? ['full_ingest'] : ['discovery', 'download']
+  return required.every((id) => capabilities.some((capability) => capability.id === id && capability.available))
+}
 
 export function localDateKey(date = new Date()): string {
   const year = date.getFullYear()

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -15,6 +16,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def command(name: str) -> str:
+    if name == "codex" and os.environ.get("CODEX_CLI_PATH"):
+        return os.environ["CODEX_CLI_PATH"]
     return shutil.which(name) or name
 
 

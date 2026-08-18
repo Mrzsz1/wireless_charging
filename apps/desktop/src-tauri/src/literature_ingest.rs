@@ -1,3 +1,4 @@
+use crate::codex_subscription;
 use crate::process_support::{configure_background_command, configure_python_command};
 use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
@@ -595,37 +596,67 @@ fn command_available(command: &str) -> bool {
 }
 
 pub fn capabilities(root: &Path) -> Vec<LiteratureCapability> {
-    let python = command_available("py") && root.join("tools/literature_ingest.py").is_file();
-    let codex = command_available("codex");
+    let python = command_available("py");
+    let literature_tool = root.join("tools/literature_ingest.py").is_file();
+    let discovery_tool = root.join("tools/paper_search.py").is_file();
+    let codex = codex_subscription::available_executable().is_some();
     let graphify =
-        command_available("graphify") || root.join("tools/graphify_refresh.py").is_file();
+        python && command_available("graphify") && root.join("tools/graphify_refresh.py").is_file();
     let mineru = root.join("tools/mineru_to_md.py").is_file();
+    let discovery = python && literature_tool && discovery_tool;
+    let download = python && literature_tool;
+    let parse = python && literature_tool && mineru;
+    let full_ingest = discovery && download && parse && codex && graphify;
+    let missing = |requirements: &[(&str, bool)]| {
+        requirements
+            .iter()
+            .filter_map(|(label, ready)| (!ready).then_some(*label))
+            .collect::<Vec<_>>()
+            .join("、")
+    };
     vec![
         LiteratureCapability {
             id: "discovery".into(),
-            available: python,
-            reason: if python {
+            available: discovery,
+            reason: if discovery {
                 "可用".into()
             } else {
-                "缺少 Python 或文献发现工具".into()
+                format!(
+                    "缺少：{}",
+                    missing(&[
+                        ("Python", python),
+                        ("文献入库工具", literature_tool),
+                        ("文献发现工具", discovery_tool)
+                    ])
+                )
             },
         },
         LiteratureCapability {
             id: "download".into(),
-            available: python,
-            reason: if python {
+            available: download,
+            reason: if download {
                 "可用".into()
             } else {
-                "缺少 Python".into()
+                format!(
+                    "缺少：{}",
+                    missing(&[("Python", python), ("文献入库工具", literature_tool)])
+                )
             },
         },
         LiteratureCapability {
             id: "parse".into(),
-            available: python && mineru,
-            reason: if python && mineru {
+            available: parse,
+            reason: if parse {
                 "可用；运行时仍会检查 MinerU Key".into()
             } else {
-                "缺少 MinerU 工具".into()
+                format!(
+                    "缺少：{}",
+                    missing(&[
+                        ("Python", python),
+                        ("文献入库工具", literature_tool),
+                        ("MinerU 工具", mineru)
+                    ])
+                )
             },
         },
         LiteratureCapability {
@@ -648,11 +679,20 @@ pub fn capabilities(root: &Path) -> Vec<LiteratureCapability> {
         },
         LiteratureCapability {
             id: "full_ingest".into(),
-            available: python && mineru && codex && graphify,
-            reason: if python && mineru && codex && graphify {
+            available: full_ingest,
+            reason: if full_ingest {
                 "完整入库可用".into()
             } else {
-                "完整入库依赖不完整".into()
+                format!(
+                    "缺少：{}",
+                    missing(&[
+                        ("文献发现", discovery),
+                        ("下载", download),
+                        ("MinerU 解析", parse),
+                        ("Codex CLI", codex),
+                        ("Graphify", graphify)
+                    ])
+                )
             },
         },
     ]

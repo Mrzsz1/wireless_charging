@@ -8,6 +8,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -67,6 +68,11 @@ def candidate(**overrides):
 
 
 class LiteratureIngestTests(unittest.TestCase):
+    def test_codex_executable_prefers_resolved_parent_path(self) -> None:
+        resolved = r"C:\Program Files\OpenAI\Codex\codex.exe"
+        with patch.dict(os.environ, {"CODEX_CLI_PATH": resolved}):
+            self.assertEqual(literature_ingest.codex_executable(), resolved)
+
     def test_cli_forces_utf8_when_parent_console_uses_gbk(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import test from 'node:test'
-import { defaultSelectedManualFileIds, filterCandidates, formatBytes, localDateKey } from '../src/features/ingest/ingestState.ts'
-import type { LiteratureCandidate, ManualImportSession } from '../src/types.ts'
+import { automationCapabilitiesReady, defaultSelectedManualFileIds, filterCandidates, formatBytes, localDateKey } from '../src/features/ingest/ingestState.ts'
+import type { LiteratureCandidate, LiteratureCapability, ManualImportSession } from '../src/types.ts'
 
 const candidate = (overrides: Partial<LiteratureCandidate> = {}): LiteratureCandidate => ({
   candidateId: 'candidate-1', title: 'Wireless charging scheduling', authors: ['Alice'], year: 2026,
@@ -35,4 +36,27 @@ test('candidate filtering combines status, qualification and text', () => {
 
 test('formatBytes returns compact values', () => {
   assert.equal(formatBytes(2 * 1024 * 1024), '2.0 MB')
+})
+
+test('automation readiness checks only dependencies required by the selected mode', () => {
+  const capabilities: LiteratureCapability[] = [
+    { id: 'discovery', available: true, reason: '可用' },
+    { id: 'download', available: true, reason: '可用' },
+    { id: 'compile', available: false, reason: '缺少 Codex' },
+    { id: 'full_ingest', available: false, reason: '依赖不完整' },
+  ]
+  assert.equal(automationCapabilitiesReady(capabilities, false), true)
+  assert.equal(automationCapabilitiesReady(capabilities, true), false)
+  assert.equal(automationCapabilitiesReady([], false), false)
+})
+
+test('automatic literature UI owns a visible spinner and readable running strip', () => {
+  const view = readFileSync(new URL('../src/features/ingest/LiteratureIngestView.tsx', import.meta.url), 'utf8')
+  const css = readFileSync(new URL('../src/features/ingest/LiteratureIngestView.css', import.meta.url), 'utf8')
+  assert.match(view, /className="ingest-action-spinner" aria-hidden="true"/)
+  assert.match(view, /aria-busy=\{busy\}/)
+  assert.match(view, /role="status" aria-live="polite"/)
+  assert.match(css, /@keyframes ingest-action-spin/)
+  assert.match(css, /\.ingest-run-strip pre \{[^}]*font-size: 11px/)
+  assert.match(css, /prefers-reduced-motion: reduce/)
 })
