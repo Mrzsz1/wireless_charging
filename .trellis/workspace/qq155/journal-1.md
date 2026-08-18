@@ -1282,3 +1282,36 @@ Preserved previous evidence with turn isolation, removed fixed history caps in f
 ### Next Steps
 
 - None - task complete
+
+
+## Session 39: 跨页面持续运行问答与文献任务
+
+**Date**: 2026-08-18
+**Task**: 跨页面持续运行问答与文献任务
+**Branch**: `master`
+
+### Summary
+
+修复 reduced-motion 导致 QA 必要加载器静止的问题，改为低速持续旋转；将智能问答、文献入库与编译中心改为 App 常驻挂载、导航仅隐藏，保留 Channel、计时、请求 ID、日志和进度。前端 59 项测试、构建和 Tauri release 编译通过。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `68c3760` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
