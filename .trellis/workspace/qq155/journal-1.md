@@ -1249,3 +1249,36 @@ Preserved previous evidence with turn isolation, removed fixed history caps in f
 ### Next Steps
 
 - None - task complete
+
+
+## Session 38: 修复智能问答双旋转加载器
+
+**Date**: 2026-08-18
+**Task**: 修复智能问答双旋转加载器
+**Branch**: `master`
+
+### Summary
+
+将智能问答当前阶段主图标和唯一 active 步骤图标统一为 AskView 自有的圆形持续旋转加载器，补充装饰性无障碍标记与 reduced-motion 降级；前端测试和 Tauri release 编译通过。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `91f5ce4` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
