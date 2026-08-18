@@ -2,8 +2,8 @@
   "id": "embedding-pgvector-store",
   "name": "embedding-pgvector-store",
   "title": "多粒度 Embedding 与 pgvector 存储适配",
-  "description": "",
-  "status": "planning",
+  "description": "为 Markdown ContentBlock v2 构建多粒度本地向量、可选 pgvector 同步、增量复用、取消进度与远程失败降级。",
+  "status": "in_progress",
   "dev_type": null,
   "scope": "fullstack",
   "package": null,
@@ -20,7 +20,17 @@
   "subtasks": [],
   "children": [],
   "parent": "08-18-md-hybrid-agentic-rag",
-  "relatedFiles": [],
-  "notes": "",
+  "relatedFiles": [
+    "apps/desktop/src-tauri/src/qa/vector_store.rs",
+    "apps/desktop/src-tauri/src/qa/vector_sync.rs",
+    "apps/desktop/src-tauri/migrations/pgvector_rag.sql",
+    "apps/desktop/src-tauri/src/qa/semantic.rs",
+    "apps/desktop/src-tauri/src/lib.rs",
+    "apps/desktop/src/features/settings/SettingsView.tsx",
+    "apps/desktop/src/services/desktop.ts",
+    ".trellis/spec/backend/qa-contract.md",
+    "logs/2026-08-18-embedding-pgvector-store.md"
+  ],
+  "notes": "VectorStore v2 使用 384 维本地 MiniLM；远程适配面向 Supabase/PostgREST pgvector，Key 仅在系统凭据管理器。全量 Rust、前端契约/build、release build 与已部署模型跨语言 TSP 探针通过。",
   "meta": {}
 }

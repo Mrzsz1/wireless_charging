@@ -61,9 +61,11 @@ struct AppState {
     cancellations: Mutex<HashMap<String, AnswerCancellation>>,
     codex_status_cache: Mutex<Option<(Instant, codex_subscription::CodexSubscriptionStatus)>>,
     compile_cancellations: Mutex<HashMap<String, Arc<AtomicBool>>>,
+    semantic_vector_cancellation: Mutex<Option<Arc<AtomicBool>>>,
 }
 
-const SEMANTIC_SETTINGS_SCHEMA: &str = "semantic-model-settings-v1";
+const SEMANTIC_SETTINGS_SCHEMA: &str = "semantic-model-settings-v2";
+const LEGACY_SEMANTIC_SETTINGS_SCHEMA: &str = "semantic-model-settings-v1";
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(rename_all = "camelCase")]
@@ -72,6 +74,10 @@ struct StoredSemanticModelSettings {
     schema_version: String,
     #[serde(default)]
     cache_dir: String,
+    #[serde(default)]
+    remote_vector_enabled: bool,
+    #[serde(default)]
+    remote_vector_endpoint: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
@@ -82,6 +88,9 @@ struct SemanticModelSettings {
     default_cache_dir: String,
     using_default: bool,
     model_name: String,
+    remote_vector_enabled: bool,
+    remote_vector_endpoint: String,
+    remote_vector_key_configured: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -89,6 +98,16 @@ struct SemanticModelSettings {
 struct SemanticModelSettingsInput {
     #[serde(default)]
     cache_dir: String,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SemanticVectorSettingsInput {
+    enabled: bool,
+    #[serde(default)]
+    endpoint: String,
+    #[serde(default)]
+    api_key: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -442,6 +461,7 @@ fn db_schema(connection: &Connection) -> Result<(), String> {
         .map_err(|error| format!("创建方法族索引失败：{error}"))?;
     qa::db_schema(connection)?;
     qa::corpus::db_schema(connection)?;
+    qa::vector_store::db_schema(connection)?;
     compile_center::db_schema(connection)?;
     literature_ingest::db_schema(connection)?;
     Ok(())
@@ -2419,13 +2439,18 @@ fn read_stored_semantic_settings(path: &Path) -> Result<StoredSemanticModelSetti
         return Ok(StoredSemanticModelSettings {
             schema_version: SEMANTIC_SETTINGS_SCHEMA.to_string(),
             cache_dir: String::new(),
+            remote_vector_enabled: false,
+            remote_vector_endpoint: String::new(),
         });
     }
     let content =
         fs::read_to_string(path).map_err(|error| format!("读取语义模型设置失败：{error}"))?;
     let settings: StoredSemanticModelSettings =
         serde_json::from_str(&content).map_err(|error| format!("语义模型设置文件损坏：{error}"))?;
-    if !settings.schema_version.is_empty() && settings.schema_version != SEMANTIC_SETTINGS_SCHEMA {
+    if !settings.schema_version.is_empty()
+        && settings.schema_version != SEMANTIC_SETTINGS_SCHEMA
+        && settings.schema_version != LEGACY_SEMANTIC_SETTINGS_SCHEMA
+    {
         return Err(format!(
             "不支持的语义模型设置版本：{}",
             settings.schema_version
@@ -2480,11 +2505,18 @@ fn semantic_settings_view(settings: &StoredSemanticModelSettings) -> SemanticMod
             .to_string(),
         using_default,
         model_name: qa::SEMANTIC_MODEL_NAME.to_string(),
+        remote_vector_enabled: settings.remote_vector_enabled,
+        remote_vector_endpoint: settings.remote_vector_endpoint.clone(),
+        remote_vector_key_configured: qa::vector_store::remote_key_configured(),
     }
 }
 
 fn load_semantic_model_settings(app: &AppHandle) -> Result<SemanticModelSettings, String> {
     let stored = read_stored_semantic_settings(&semantic_settings_path(app)?)?;
+    qa::configure_remote_vector_settings(qa::RemoteVectorSettings {
+        enabled: stored.remote_vector_enabled,
+        endpoint: stored.remote_vector_endpoint.clone(),
+    });
     Ok(semantic_settings_view(&stored))
 }
 
@@ -2506,6 +2538,8 @@ fn persist_semantic_model_settings(
     let next = StoredSemanticModelSettings {
         schema_version: SEMANTIC_SETTINGS_SCHEMA.to_string(),
         cache_dir,
+        remote_vector_enabled: previous.remote_vector_enabled,
+        remote_vector_endpoint: previous.remote_vector_endpoint.clone(),
     };
     if let Err(error) = write_stored_semantic_settings(&semantic_settings_path(app)?, &next) {
         let rollback = if previous.cache_dir.trim().is_empty() {
@@ -2539,6 +2573,162 @@ fn save_semantic_model_settings(
     app: AppHandle,
 ) -> Result<SemanticModelSettings, String> {
     persist_semantic_model_settings(&app, settings.cache_dir)
+}
+
+fn validate_remote_vector_endpoint(endpoint: &str) -> Result<String, String> {
+    let endpoint = endpoint.trim().trim_end_matches('/').to_string();
+    if endpoint.is_empty() {
+        return Err("启用远程向量时必须填写服务地址".to_string());
+    }
+    let parsed = reqwest::Url::parse(&endpoint).map_err(|_| "远程向量服务地址无效".to_string())?;
+    let local_http = parsed.scheme() == "http"
+        && parsed
+            .host_str()
+            .is_some_and(|host| matches!(host, "localhost" | "127.0.0.1" | "::1"));
+    if parsed.scheme() != "https" && !local_http {
+        return Err("远程向量服务必须使用 HTTPS".to_string());
+    }
+    Ok(endpoint)
+}
+
+#[tauri::command]
+fn save_semantic_vector_settings(
+    settings: SemanticVectorSettingsInput,
+    app: AppHandle,
+) -> Result<SemanticModelSettings, String> {
+    let path = semantic_settings_path(&app)?;
+    let previous = read_stored_semantic_settings(&path)?;
+    let endpoint = if settings.enabled {
+        validate_remote_vector_endpoint(&settings.endpoint)?
+    } else {
+        settings.endpoint.trim().trim_end_matches('/').to_string()
+    };
+    let previous_key = qa::vector_store::load_remote_key()?;
+    let replace_key = !settings.api_key.trim().is_empty();
+    if replace_key {
+        qa::vector_store::save_remote_key(&settings.api_key)?;
+    }
+    let next = StoredSemanticModelSettings {
+        schema_version: SEMANTIC_SETTINGS_SCHEMA.to_string(),
+        cache_dir: previous.cache_dir.clone(),
+        remote_vector_enabled: settings.enabled,
+        remote_vector_endpoint: endpoint,
+    };
+    if let Err(error) = write_stored_semantic_settings(&path, &next) {
+        if replace_key {
+            if let Some(key) = previous_key {
+                let _ = qa::vector_store::save_remote_key(&key);
+            } else {
+                let _ = qa::vector_store::delete_remote_key();
+            }
+        }
+        return Err(error);
+    }
+    qa::configure_remote_vector_settings(qa::RemoteVectorSettings {
+        enabled: next.remote_vector_enabled,
+        endpoint: next.remote_vector_endpoint.clone(),
+    });
+    Ok(semantic_settings_view(&next))
+}
+
+#[tauri::command]
+fn delete_semantic_vector_key(app: AppHandle) -> Result<SemanticModelSettings, String> {
+    qa::vector_store::delete_remote_key()?;
+    let stored = read_stored_semantic_settings(&semantic_settings_path(&app)?)?;
+    Ok(semantic_settings_view(&stored))
+}
+
+fn remote_vector_settings(app: &AppHandle) -> Result<qa::RemoteVectorSettings, String> {
+    let stored = read_stored_semantic_settings(&semantic_settings_path(app)?)?;
+    Ok(qa::RemoteVectorSettings {
+        enabled: stored.remote_vector_enabled,
+        endpoint: stored.remote_vector_endpoint,
+    })
+}
+
+#[tauri::command]
+async fn get_semantic_vector_status(
+    app: AppHandle,
+    state: State<'_, AppState>,
+) -> Result<qa::SemanticVectorStatus, String> {
+    let root = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?
+        .root
+        .clone()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let db_path = repository_db_path(&app)?;
+    let remote = remote_vector_settings(&app)?;
+    tauri::async_runtime::spawn_blocking(move || {
+        let connection = Connection::open(db_path)
+            .map_err(|error| format!("打开向量索引数据库失败：{error}"))?;
+        db_schema(&connection)?;
+        qa::vector_sync::vector_status(&connection, &root, &remote)
+    })
+    .await
+    .map_err(|error| format!("向量状态检查线程失败：{error}"))?
+}
+
+#[tauri::command]
+async fn sync_semantic_vectors(
+    on_event: Channel<qa::VectorSyncProgress>,
+    app: AppHandle,
+    state: State<'_, AppState>,
+) -> Result<qa::SemanticVectorStatus, String> {
+    let root = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?
+        .root
+        .clone()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let db_path = repository_db_path(&app)?;
+    let remote = remote_vector_settings(&app)?;
+    let cancelled = Arc::new(AtomicBool::new(false));
+    {
+        let mut active = state
+            .semantic_vector_cancellation
+            .lock()
+            .map_err(|_| "向量同步状态锁定失败".to_string())?;
+        if active.is_some() {
+            return Err("VECTOR_SYNC_BUSY: 已有向量同步任务正在运行".to_string());
+        }
+        *active = Some(Arc::clone(&cancelled));
+    }
+    let worker_flag = Arc::clone(&cancelled);
+    let joined = tauri::async_runtime::spawn_blocking(move || {
+        let connection = Connection::open(db_path)
+            .map_err(|error| format!("打开向量索引数据库失败：{error}"))?;
+        db_schema(&connection)?;
+        qa::vector_sync::sync_embeddings(
+            &connection,
+            &root,
+            &remote,
+            Some(worker_flag.as_ref()),
+            |progress| {
+                let _ = on_event.send(progress);
+            },
+        )
+    })
+    .await;
+    if let Ok(mut active) = state.semantic_vector_cancellation.lock() {
+        *active = None;
+    }
+    joined.map_err(|error| format!("向量同步线程失败：{error}"))?
+}
+
+#[tauri::command]
+fn cancel_semantic_vector_sync(state: State<'_, AppState>) -> Result<(), String> {
+    if let Some(cancelled) = state
+        .semantic_vector_cancellation
+        .lock()
+        .map_err(|_| "向量同步状态锁定失败".to_string())?
+        .as_ref()
+    {
+        cancelled.store(true, Ordering::Relaxed);
+    }
+    Ok(())
 }
 
 #[tauri::command]
@@ -4124,6 +4314,11 @@ pub fn run() {
             get_semantic_model_settings,
             choose_semantic_model_cache_directory,
             save_semantic_model_settings,
+            save_semantic_vector_settings,
+            delete_semantic_vector_key,
+            get_semantic_vector_status,
+            sync_semantic_vectors,
+            cancel_semantic_vector_sync,
             check_semantic_model_deployment,
             repair_semantic_model_deployment,
             copy_semantic_model_cache_and_switch,
@@ -5073,6 +5268,8 @@ mod tests {
                 .join("models")
                 .to_string_lossy()
                 .to_string(),
+            remote_vector_enabled: false,
+            remote_vector_endpoint: String::new(),
         };
         write_stored_semantic_settings(&path, &settings).unwrap();
         assert_eq!(

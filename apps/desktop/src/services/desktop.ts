@@ -1,5 +1,5 @@
 import { Channel, invoke } from '@tauri-apps/api/core'
-import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatMessagePage, ChatSessionDetail, ChatSessionPage, ChatSessionSummary, CodexSubscriptionStatus, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LiteratureCandidate, LiteratureCapability, LiteratureIngestSettings, LunaSettings, ManualImportSession, PageDetail, PageFilters, PageSummary, QaSettings, ResolvedSourceLocation, SemanticDeploymentStatus, SemanticDownloadProgress, SemanticModelSettings, SourceLocator, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchProviderStatus, SearchResult, StartCompileRequest, StartLiteratureRunRequest, StartupPromptState } from '../types'
+import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatMessagePage, ChatSessionDetail, ChatSessionPage, ChatSessionSummary, CodexSubscriptionStatus, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LiteratureCandidate, LiteratureCapability, LiteratureIngestSettings, LunaSettings, ManualImportSession, PageDetail, PageFilters, PageSummary, QaSettings, ResolvedSourceLocation, SemanticDeploymentStatus, SemanticDownloadProgress, SemanticModelSettings, SemanticVectorStatus, SourceLocator, VectorSyncProgress, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchProviderStatus, SearchResult, StartCompileRequest, StartLiteratureRunRequest, StartupPromptState } from '../types'
 
 type TauriWindow = Window & { __TAURI_INTERNALS__?: unknown }
 
@@ -107,6 +107,28 @@ export async function chooseSemanticModelCacheDirectory(): Promise<string> {
 
 export async function saveSemanticModelSettings(cacheDir: string): Promise<SemanticModelSettings> {
   return invoke<SemanticModelSettings>('save_semantic_model_settings', { settings: { cacheDir } })
+}
+
+export async function saveSemanticVectorSettings(enabled: boolean, endpoint: string, apiKey = ''): Promise<SemanticModelSettings> {
+  return invoke<SemanticModelSettings>('save_semantic_vector_settings', { settings: { enabled, endpoint, apiKey } })
+}
+
+export async function deleteSemanticVectorKey(): Promise<SemanticModelSettings> {
+  return invoke<SemanticModelSettings>('delete_semantic_vector_key')
+}
+
+export async function getSemanticVectorStatus(): Promise<SemanticVectorStatus> {
+  return invoke<SemanticVectorStatus>('get_semantic_vector_status')
+}
+
+export async function syncSemanticVectors(onProgress?: (progress: VectorSyncProgress) => void): Promise<SemanticVectorStatus> {
+  const onEvent = new Channel<VectorSyncProgress>()
+  onEvent.onmessage = (progress) => onProgress?.(progress)
+  return invoke<SemanticVectorStatus>('sync_semantic_vectors', { onEvent })
+}
+
+export async function cancelSemanticVectorSync(): Promise<void> {
+  return invoke<void>('cancel_semantic_vector_sync')
 }
 
 export async function checkSemanticModelDeployment(): Promise<SemanticDeploymentStatus> {

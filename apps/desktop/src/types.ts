@@ -392,6 +392,46 @@ export type SemanticModelSettings = {
   defaultCacheDir: string
   usingDefault: boolean
   modelName: string
+  remoteVectorEnabled: boolean
+  remoteVectorEndpoint: string
+  remoteVectorKeyConfigured: boolean
+}
+
+export type VectorStoreStats = {
+  store: string
+  ready: boolean
+  vectorCount: number
+  documentCount: number
+  pendingSyncCount: number
+  modelId: string
+  dimension: number
+  lastError: string
+}
+
+export type SemanticVectorStatus = {
+  schemaVersion: string
+  modelName: string
+  dimension: number
+  activeSnapshot: string
+  local: VectorStoreStats
+  remote: VectorStoreStats
+  remoteEnabled: boolean
+  remoteKeyConfigured: boolean
+  countsByGranularity: Record<string, number>
+  lastSyncAt: string
+  lastError: string
+}
+
+export type VectorSyncProgress = {
+  phase: string
+  status: string
+  totalBlocks: number
+  completedBlocks: number
+  computedBlocks: number
+  reusedBlocks: number
+  remoteSyncedBlocks: number
+  percent: number
+  message: string
 }
 
 export type SemanticDeploymentState = 'missing' | 'partial' | 'invalid' | 'ready' | 'error'

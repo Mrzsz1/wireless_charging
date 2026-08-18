@@ -64,6 +64,72 @@ Use this contract when changing desktop QA request identity, retrieval, provider
 - Reindexing discovers the complete Markdown corpus before replacing changed documents. Unchanged `(documentId, contentHash)` records and blocks are reused; removed documents become inactive; a parse failure must leave the previous usable snapshot intact.
 - Book title aliases come from auditable metadata such as source frontmatter or Wiki link aliases. Query code must not add fixture- or title-specific translations.
 
+## 4.3 Multi-granularity Embeddings and VectorStore v2
+
+### 1. Scope / Trigger
+
+- Use this contract whenever ContentBlock embeddings, semantic-vector persistence, remote pgvector configuration, vector synchronization, or dense-retrieval fallback changes.
+- Corpus synchronization is an explicit background operation. Ordinary QA may embed only the current query; it must not download a model or rebuild the corpus.
+
+### 2. Signatures
+
+- Storage interface: `VectorStore::{health, stats, upsert_batch, query, delete_snapshot, close}`. Local SQLite and remote PostgreSQL + pgvector return the same `VectorHit { blockId, score, store, modelId }` projection.
+- Commands: `get_semantic_vector_status() -> SemanticVectorStatus`, `sync_semantic_vectors(onEvent: Channel<VectorSyncProgress>) -> SemanticVectorStatus`, `cancel_semantic_vector_sync()`, `save_semantic_vector_settings({ enabled, endpoint, apiKey })`, and `delete_semantic_vector_key()`.
+- Local table `embedding_records_v2` is keyed by `(repository_id, model_id, block_id)` and stores snapshot, document/kind/granularity/role, dimension, content hash, vector blob, active flag, and remote-sync status.
+- Remote migration `src-tauri/migrations/pgvector_rag.sql` owns `rag_embeddings`, `match_rag_embeddings`, and `rag_embedding_stats`; callers access it through the PostgREST/Supabase endpoint rather than embedding provider-specific SQL in retrieval code.
+
+### 3. Contracts
+
+- Each active `document | section | semantic` ContentBlock produces one `VectorRecord`. Its embedding input is the corpus-owned `embedding_text`, which includes canonical title, aliases, kind, heading path, role, and the granularity-appropriate body.
+- Reuse requires exact `(blockId, contentHash, modelId)` equality. A new corpus snapshot updates unchanged records to the active snapshot; changed blocks are recomputed; removed blocks become inactive.
+- Model ID is `Qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q` and vectors must contain exactly 384 finite `f32` values.
+- Remote endpoint metadata may be stored in the machine-global semantic settings file. The API key is stored only in the OS credential manager and is never returned by a command, written to SQLite, or included in diagnostics.
+- Dense query routing is `configured healthy remote -> local SQLite -> legacy LUNAVEC1 -> lexical-only`. Remote/status queries have a short bounded timeout; synchronization may use a longer bounded timeout. Every non-cancellation dense failure is fail-soft.
+- `VectorSyncProgress` reports phase, status, total/completed/computed/reused/remote-synced counts, percentage, and a safe message. Cancellation never writes the `semantic_vector_last_sync_at` completion marker.
+
+### 4. Validation & Error Matrix
+
+| Condition | Result |
+|---|---|
+| Vector dimension differs from 384, byte length is invalid, or a value is non-finite | `corrupt`; reject the record/query |
+| Remote endpoint is neither HTTPS nor localhost HTTP | `configuration`; settings are not enabled |
+| Remote key is absent/invalid | `authentication`; local vectors remain queryable |
+| Remote timeout, 429, sleeping free instance, or network outage | sanitized `timeout | rate_limit | unavailable`; query falls back locally and sync records degraded status |
+| Corpus snapshot is missing | vector sync reports `VECTOR_INDEX_MISSING`; lexical retrieval remains available |
+| User cancels synchronization | `VECTOR_SYNC_CANCELLED`; partial local rows may remain reusable but the snapshot is not marked complete |
+| Query embedding/model initialization fails | dense channel returns no candidates; the answer request continues through legacy semantic or lexical channels |
+
+### 5. Good / Base / Bad Cases
+
+- Good: a changed semantic block is embedded once, upserted locally, synchronized remotely, and recalled through filtered pgvector search with the same stable block ID used by `SourceLocator`.
+- Base: remote storage is disabled; all three granularities are stored and queried locally, with the legacy LUNAVEC1 corpus retained as a read-only fallback during rollout.
+- Bad: a remote request times out or the model directory is unavailable. The UI reports degraded vector status, while QA continues and never concludes “the knowledge base has no source” merely because the dense channel failed.
+
+### 6. Tests Required
+
+- Local round trip must assert cosine ordering, kind/granularity filters, snapshot deletion, and 384-dimension rejection.
+- Incremental planning must assert zero changed blocks for identical hashes and exactly the changed block for one hash mutation across document/section/semantic inputs.
+- Fake HTTP integration must assert health, stats, idempotent upsert, filter payloads, query decoding, snapshot cleanup, and authorization header handling without real credentials.
+- Cancellation must assert no completion metadata. Secret-redaction tests must assert rendered errors and returned DTOs contain no API key.
+- Cross-layer checks require Rust tests, `test:qa-settings`, TypeScript/Vite build, and release Cargo build.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```text
+QA request -> rebuild whole repository vector file -> remote failure -> fail answer
+```
+
+#### Correct
+
+```text
+explicit sync -> hash-level local upsert -> optional remote sync
+QA request -> embed query -> remote (bounded) -> local v2 -> legacy semantic -> lexical
+```
+
+The correct flow prevents per-conversation downloads, preserves offline research use, and keeps retrieval independent of the selected vector-store provider.
+
 ## 5. Grounding and Persistence Matrix
 
 | Condition | Result |

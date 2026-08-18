@@ -776,6 +776,11 @@ pub(super) fn semantic_candidates(
     cancelled: Option<&AtomicBool>,
 ) -> Result<Vec<Candidate>, String> {
     check_cancelled(cancelled)?;
+    match super::vector_sync::semantic_candidates_v2(connection, root, question, cancelled) {
+        Ok(v2) if !v2.is_empty() => return Ok(v2),
+        Err(error) if error.starts_with("QUESTION_CANCELLED") => return Err(error),
+        Ok(_) | Err(_) => {}
+    }
     let state = SEMANTIC_STATE.get_or_init(|| Mutex::new(SemanticState::default()));
     let Ok(mut state) = state.lock() else {
         return Ok(Vec::new());
@@ -785,6 +790,47 @@ pub(super) fn semantic_candidates(
         Err(SemanticFailure::Cancelled) => Err("QUESTION_CANCELLED: 用户停止了问答".to_string()),
         Err(SemanticFailure::Unavailable) => Ok(Vec::new()),
     }
+}
+
+pub(super) fn embed_texts(
+    texts: Vec<String>,
+    cancelled: Option<&AtomicBool>,
+) -> Result<Vec<Vec<f32>>, String> {
+    if texts.is_empty() {
+        return Ok(Vec::new());
+    }
+    check_cancelled(cancelled)?;
+    let state = SEMANTIC_STATE.get_or_init(|| Mutex::new(SemanticState::default()));
+    let mut state = state
+        .lock()
+        .map_err(|_| "SEMANTIC_UNAVAILABLE: 语义模型状态锁定失败".to_string())?;
+    state.ensure_model().map_err(|failure| match failure {
+        SemanticFailure::Cancelled => "QUESTION_CANCELLED: 用户停止了问答".to_string(),
+        SemanticFailure::Unavailable => {
+            "SEMANTIC_UNAVAILABLE: 本地语义模型尚未部署或初始化失败".to_string()
+        }
+    })?;
+    let model = state
+        .model
+        .as_mut()
+        .ok_or_else(|| "SEMANTIC_UNAVAILABLE: 本地语义模型不可用".to_string())?;
+    let mut embeddings = Vec::with_capacity(texts.len());
+    for batch in texts.chunks(EMBED_BATCH_SIZE) {
+        check_cancelled(cancelled)?;
+        let values = model
+            .embed(batch.to_vec(), Some(EMBED_BATCH_SIZE))
+            .map_err(|_| "SEMANTIC_UNAVAILABLE: 本地向量推理失败".to_string())?;
+        if values.len() != batch.len() {
+            return Err("SEMANTIC_UNAVAILABLE: 本地向量推理结果数量异常".to_string());
+        }
+        if values.iter().any(|vector| {
+            vector.len() != PROBE_DIMENSION || vector.iter().any(|value| !value.is_finite())
+        }) {
+            return Err("SEMANTIC_UNAVAILABLE: 本地向量推理结果无效".to_string());
+        }
+        embeddings.extend(values);
+    }
+    Ok(embeddings)
 }
 
 #[derive(Debug)]

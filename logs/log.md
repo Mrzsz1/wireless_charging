@@ -328,3 +328,11 @@
 - PDF/物理页不再是 v2 语料与 locator 的必填项；Raw 正文保持未修改。
 - Rust 141/141、前端 production build 与 Rust release build 通过。
 - 详情：`logs/2026-08-18-markdown-corpus-v2.md`
+
+## 2026-08-18 — 多粒度 Embedding 与 pgvector 存储适配
+
+- document、section、semantic ContentBlock 使用同一本地多语言 MiniLM 模型生成 384 维向量，并按内容哈希增量复用。
+- 新增本地 SQLite v2 VectorStore、可选 Supabase/PostgREST pgvector 适配、快照清理、取消与真实进度。
+- 远程密钥仅保存到系统凭据管理器；远程休眠、超时、限流或断网时自动回退本地/旧语义/词法通道。
+- Rust 147/147、前端设置契约 7/7、production build 与 Rust release build 通过。
+- 详情：`logs/2026-08-18-embedding-pgvector-store.md`

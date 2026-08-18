@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Bot, CheckCircle2, CloudDownload, Copy, Eye, EyeOff, FolderOpen, HardDrive, KeyRound, LoaderCircle, LogIn, RefreshCw, RotateCcw, Save, Settings2, ShieldCheck, Trash2 } from 'lucide-react'
-import { checkSemanticModelDeployment, chooseSemanticModelCacheDirectory, copySemanticModelCacheAndSwitch, deleteSearchProviderKey, getCodexSubscriptionStatus, getLiteratureSettings, getQaSettings, getSemanticModelSettings, listSearchProviderStatuses, openSemanticModelCacheDirectory, repairSemanticModelDeployment, saveLiteratureSettings, saveQaSettings, saveSearchProviderKey, saveSemanticModelSettings, startCodexLogin, testSearchProvider } from '../../services/desktop'
-import type { CodexSubscriptionStatus, LiteratureIngestSettings, QaSettings, SearchProviderStatus, SemanticDeploymentStatus, SemanticDownloadProgress, SemanticModelSettings } from '../../types'
+import { cancelSemanticVectorSync, checkSemanticModelDeployment, chooseSemanticModelCacheDirectory, copySemanticModelCacheAndSwitch, deleteSearchProviderKey, deleteSemanticVectorKey, getCodexSubscriptionStatus, getLiteratureSettings, getQaSettings, getSemanticModelSettings, getSemanticVectorStatus, listSearchProviderStatuses, openSemanticModelCacheDirectory, repairSemanticModelDeployment, saveLiteratureSettings, saveQaSettings, saveSearchProviderKey, saveSemanticModelSettings, saveSemanticVectorSettings, startCodexLogin, syncSemanticVectors, testSearchProvider } from '../../services/desktop'
+import type { CodexSubscriptionStatus, LiteratureIngestSettings, QaSettings, SearchProviderStatus, SemanticDeploymentStatus, SemanticDownloadProgress, SemanticModelSettings, SemanticVectorStatus, VectorSyncProgress } from '../../types'
 import { DelayedHelp } from '../../components/DelayedHelp'
 import { formatBytes } from '../ingest/ingestState'
 import './SettingsView.css'
@@ -55,6 +55,16 @@ const defaultSemanticSettings: SemanticModelSettings = {
   defaultCacheDir: '',
   usingDefault: true,
   modelName: 'Qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q',
+  remoteVectorEnabled: false,
+  remoteVectorEndpoint: '',
+  remoteVectorKeyConfigured: false,
+}
+
+const defaultVectorStatus: SemanticVectorStatus = {
+  schemaVersion: 'rag-vector-store-v2', modelName: defaultSemanticSettings.modelName, dimension: 384,
+  activeSnapshot: '', local: { store: 'local-sqlite', ready: false, vectorCount: 0, documentCount: 0, pendingSyncCount: 0, modelId: '', dimension: 384, lastError: '' },
+  remote: { store: 'pgvector', ready: false, vectorCount: 0, documentCount: 0, pendingSyncCount: 0, modelId: '', dimension: 384, lastError: '' },
+  remoteEnabled: false, remoteKeyConfigured: false, countsByGranularity: {}, lastSyncAt: '', lastError: '',
 }
 
 const defaultSemanticStatus: SemanticDeploymentStatus = {
@@ -115,6 +125,11 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
   const [semanticSettings, setSemanticSettings] = useState(defaultSemanticSettings)
   const [semanticStatus, setSemanticStatus] = useState(defaultSemanticStatus)
   const [semanticProgress, setSemanticProgress] = useState<SemanticDownloadProgress | null>(null)
+  const [vectorStatus, setVectorStatus] = useState(defaultVectorStatus)
+  const [vectorProgress, setVectorProgress] = useState<VectorSyncProgress | null>(null)
+  const [vectorEndpointDraft, setVectorEndpointDraft] = useState('')
+  const [vectorKeyDraft, setVectorKeyDraft] = useState('')
+  const [vectorEnabledDraft, setVectorEnabledDraft] = useState(false)
   const [semanticCacheDraft, setSemanticCacheDraft] = useState('')
   const [codexStatus, setCodexStatus] = useState(emptyCodexStatus)
   const [providerStatuses, setProviderStatuses] = useState<SearchProviderStatus[]>([])
@@ -126,13 +141,14 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
   const load = useCallback(async () => {
     setBusyAction('load'); setError('')
     try {
-      const [statuses, literature, qa, codex, semantic, deployment] = await Promise.all([
+      const [statuses, literature, qa, codex, semantic, deployment, vectors] = await Promise.all([
         listSearchProviderStatuses(),
         repositoryPath ? getLiteratureSettings() : Promise.resolve(defaultSettings),
         repositoryPath ? getQaSettings() : Promise.resolve(defaultQaSettings),
         getCodexSubscriptionStatus(),
         getSemanticModelSettings(),
         checkSemanticModelDeployment(),
+        repositoryPath ? getSemanticVectorStatus().catch(() => defaultVectorStatus) : Promise.resolve(defaultVectorStatus),
       ])
       setProviderStatuses(statuses)
       setSettings(literature)
@@ -141,6 +157,9 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
       setSemanticSettings(semantic)
       setSemanticCacheDraft(semantic.cacheDir)
       setSemanticStatus(deployment)
+      setVectorStatus(vectors)
+      setVectorEndpointDraft(semantic.remoteVectorEndpoint)
+      setVectorEnabledDraft(semantic.remoteVectorEnabled)
     } catch (reason) { setError(`读取设置失败：${String(reason)}`) }
     finally { setBusyAction('') }
   }, [repositoryPath])
@@ -238,6 +257,47 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
     setError(''); setMessage('')
     try { await openSemanticModelCacheDirectory() }
     catch (reason) { setError(`打开缓存目录失败：${String(reason)}`) }
+  }
+
+  const persistVectorSettings = async () => {
+    setBusyAction('semantic-vector-settings'); setError(''); setMessage('')
+    try {
+      const saved = await saveSemanticVectorSettings(vectorEnabledDraft, vectorEndpointDraft, vectorKeyDraft)
+      setSemanticSettings(saved)
+      setVectorEndpointDraft(saved.remoteVectorEndpoint)
+      setVectorEnabledDraft(saved.remoteVectorEnabled)
+      setVectorKeyDraft('')
+      if (repositoryPath) setVectorStatus(await getSemanticVectorStatus())
+      setMessage('向量存储设置已保存；凭据只保存在系统凭据管理器')
+    } catch (reason) { setError(`保存向量存储设置失败：${String(reason)}`) }
+    finally { setBusyAction('') }
+  }
+
+  const clearVectorKey = async () => {
+    setBusyAction('semantic-vector-key'); setError(''); setMessage('')
+    try {
+      const saved = await deleteSemanticVectorKey()
+      setSemanticSettings(saved)
+      setVectorKeyDraft('')
+      setMessage('远程向量凭据已清除')
+    } catch (reason) { setError(`清除远程向量凭据失败：${String(reason)}`) }
+    finally { setBusyAction('') }
+  }
+
+  const runVectorSync = async () => {
+    if (!repositoryPath) return
+    setBusyAction('semantic-vector-sync'); setError(''); setMessage(''); setVectorProgress(null)
+    try {
+      const status = await syncSemanticVectors(setVectorProgress)
+      setVectorStatus(status)
+      setMessage(status.lastError ? '本地向量完成，远程存储已降级' : '多粒度向量同步完成')
+    } catch (reason) { setError(`向量同步失败：${String(reason)}`) }
+    finally { setBusyAction('') }
+  }
+
+  const stopVectorSync = async () => {
+    try { await cancelSemanticVectorSync() }
+    catch (reason) { setError(`停止向量同步失败：${String(reason)}`) }
   }
 
   const beginCodexLogin = async () => {
@@ -340,6 +400,12 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
           {semanticProgress && <div className={`semantic-download-progress ${semanticProgress.status}`} data-testid="semantic-download-progress" role="status" aria-live="polite"><div><strong>{semanticPhaseLabel[semanticProgress.phase]}</strong><span>{semanticProgress.totalBytes > 0 ? `${Math.round(semanticProgress.percent)}%` : semanticProgress.message}</span></div><small title={semanticProgress.fileName}>{semanticProgress.fileName}{semanticProgress.totalBytes > 0 ? ` · ${formatBytes(semanticProgress.downloadedBytes)} / ${formatBytes(semanticProgress.totalBytes)} · ${formatBytes(semanticProgress.bytesPerSecond)}/s` : ''}</small><div className={`semantic-progress-track ${semanticProgress.totalBytes > 0 ? '' : 'indeterminate'}`}><i style={semanticProgress.totalBytes > 0 ? { width: `${Math.min(100, semanticProgress.percent)}%` } : undefined} /></div></div>}
         </div>
         <p className="qa-provider-note">复制操作保留旧目录作为回滚副本；应用不会自动删除任何旧模型或未完成下载。</p>
+        <div className="semantic-vector-panel" data-testid="semantic-vector-panel">
+          <div className="semantic-vector-heading"><div><strong>多粒度向量索引</strong><small>文档 {vectorStatus.countsByGranularity.document ?? 0} · 章节 {vectorStatus.countsByGranularity.section ?? 0} · 语义块 {vectorStatus.countsByGranularity.semantic ?? 0}</small></div><span data-ready={vectorStatus.local.ready && vectorStatus.local.vectorCount > 0}>{vectorStatus.local.vectorCount > 0 ? `${vectorStatus.local.vectorCount} 条本地向量` : '尚未构建'}</span></div>
+          <div className="semantic-vector-stats"><span>本地：{vectorStatus.local.ready ? '就绪' : '未就绪'}</span><span>远程：{vectorEnabledDraft ? vectorStatus.remote.ready ? '已连接' : vectorStatus.remote.lastError || '待连接' : '未启用'}</span><span>待同步：{vectorStatus.local.pendingSyncCount}</span><span>最近同步：{formatSemanticCheckedAt(vectorStatus.lastSyncAt)}</span></div>
+          <div className="semantic-vector-remote"><label className="semantic-vector-toggle"><input type="checkbox" checked={vectorEnabledDraft} onChange={(event) => setVectorEnabledDraft(event.target.checked)} disabled={semanticBusy} /><span>启用 PostgreSQL + pgvector</span></label><input aria-label="pgvector endpoint" value={vectorEndpointDraft} onChange={(event) => setVectorEndpointDraft(event.target.value)} placeholder="https://PROJECT.supabase.co" disabled={semanticBusy} /><input aria-label="pgvector API Key" type="password" autoComplete="off" value={vectorKeyDraft} onChange={(event) => setVectorKeyDraft(event.target.value)} placeholder={semanticSettings.remoteVectorKeyConfigured ? '已安全配置；留空保持不变' : '输入 API Key'} disabled={semanticBusy} /><button disabled={semanticBusy} onClick={() => void persistVectorSettings()}><Save size={14} />保存</button><button disabled={semanticBusy || !semanticSettings.remoteVectorKeyConfigured} onClick={() => void clearVectorKey()}><Trash2 size={14} />清除 Key</button></div>
+          <div className="semantic-vector-actions"><button className="primary" disabled={semanticBusy || !repositoryPath || semanticStatus.state !== 'ready'} onClick={() => void runVectorSync()}>{busyAction === 'semantic-vector-sync' ? <LoaderCircle className="spin" size={14} /> : <RefreshCw size={14} />}构建/同步向量</button>{busyAction === 'semantic-vector-sync' && <button onClick={() => void stopVectorSync()}>停止</button>}{vectorProgress && <div className="semantic-vector-progress" data-testid="semantic-vector-progress" role="status"><div><strong>{vectorProgress.message}</strong><span>{Math.round(vectorProgress.percent)}%</span></div><small>已完成 {vectorProgress.completedBlocks}/{vectorProgress.totalBlocks} · 新计算 {vectorProgress.computedBlocks} · 复用 {vectorProgress.reusedBlocks} · 远程 {vectorProgress.remoteSyncedBlocks}</small><div><i style={{ width: `${Math.min(100, vectorProgress.percent)}%` }} /></div></div>}</div>
+        </div>
       </section>
       <section className="settings-card compact" data-testid="updater-settings"><div className="settings-card-title"><CloudDownload size={18} /><div className="settings-title-row"><h2>客户端更新</h2><DelayedHelp testId="updater-settings-help" label={`当前版本 ${releaseInfo.version} · ${releaseInfo.channel} 通道。`} /></div><button className="refresh-button" disabled={!desktopRuntime || updateBusy} onClick={onUpdate}>{updateBusy ? <RefreshCw className="spin" size={14} /> : <CloudDownload size={14} />}{updateBusy ? '正在检查' : '检查更新'}</button></div></section>
     </div>

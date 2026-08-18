@@ -9,6 +9,8 @@ mod query_plan;
 mod semantic;
 mod session;
 mod structured_answer;
+pub(crate) mod vector_store;
+pub(crate) mod vector_sync;
 
 pub use context::{
     CitationRepair, ContextBudget, ContextPlan, ProviderRunMetadata, QaRunManifest,
@@ -36,6 +38,8 @@ pub(crate) use semantic::{
     SemanticDownloadProgress, MODEL_NAME as SEMANTIC_MODEL_NAME,
 };
 pub use session::{create_session, delete_session, get_session, list_sessions, rename_session};
+pub(crate) use vector_sync::configure_remote_vector_settings;
+pub(crate) use vector_sync::{RemoteVectorSettings, SemanticVectorStatus, VectorSyncProgress};
 
 use reqwest::blocking::Client;
 use rusqlite::{params, Connection, OptionalExtension};

@@ -57,6 +57,27 @@ test('semantic model deployment settings stay global and separate offline check 
   assert.match(types, /bytesPerSecond: number/)
 })
 
+test('multi-granularity vector settings expose local progress and optional pgvector without returning credentials', () => {
+  const settings = read('../src/features/settings/SettingsView.tsx')
+  const services = read('../src/services/desktop.ts')
+  const types = read('../src/types.ts')
+  assert.match(settings, /data-testid="semantic-vector-panel"/)
+  assert.match(settings, /文档 \{vectorStatus\.countsByGranularity\.document/)
+  assert.match(settings, /章节 \{vectorStatus\.countsByGranularity\.section/)
+  assert.match(settings, /语义块 \{vectorStatus\.countsByGranularity\.semantic/)
+  assert.match(settings, /启用 PostgreSQL \+ pgvector/)
+  assert.match(settings, /data-testid="semantic-vector-progress"/)
+  assert.match(settings, /cancelSemanticVectorSync/)
+  assert.match(services, /new Channel<VectorSyncProgress>/)
+  assert.match(services, /invoke<SemanticVectorStatus>\('sync_semantic_vectors', \{ onEvent \}\)/)
+  const modelSettingsStart = types.indexOf('export type SemanticModelSettings')
+  const modelSettingsEnd = types.indexOf('export type VectorStoreStats')
+  const modelSettings = types.slice(modelSettingsStart, modelSettingsEnd)
+  assert.match(modelSettings, /remoteVectorKeyConfigured: boolean/)
+  assert.doesNotMatch(modelSettings, /apiKey:|credential:|token:/)
+  assert.match(types, /export type VectorSyncProgress/)
+})
+
 test('Windows Codex discovery covers desktop binaries, persistent PATH and script shims', () => {
   const rust = readFileSync(new URL('../src-tauri/src/codex_subscription.rs', import.meta.url), 'utf8')
   for (const contract of ['CODEX_CLI_PATH', 'OpenAI', 'Codex', 'read_registry_path', 'codex.exe', 'codex.cmd', 'codex.bat']) {
