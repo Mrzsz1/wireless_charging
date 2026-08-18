@@ -1183,3 +1183,36 @@ Preserved previous evidence with turn isolation, removed fixed history caps in f
 ### Next Steps
 
 - None - task complete
+
+
+## Session 36: 智能问答动态思考加载
+
+**Date**: 2026-08-18
+**Task**: 智能问答动态思考加载
+**Branch**: `master`
+
+### Summary
+
+将智能问答处理中状态改为真实事件驱动的唯一活动步骤，并加入连续流动轨道、脉冲、动态省略号、首 token 光标、实时计时、窄屏布局和 reduced-motion 无障碍降级；前端 57 项与 Rust 135 项测试通过，Tauri release 安装包编译完成。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `f7e9f46` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

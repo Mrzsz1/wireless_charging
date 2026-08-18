@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 35
-- **Last Active**: 2026-08-17
+- **Total Sessions**: 36
+- **Last Active**: 2026-08-18
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1185 | Active |
+| `journal-1.md` | ~1218 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 36 | 2026-08-18 | 智能问答动态思考加载 | `f7e9f46` | `master` |
 | 35 | 2026-08-17 | 语义模型真实下载进度 | `0d2cc23`, `4bf6497` | `master` |
 | 34 | 2026-08-17 | 语义模型自定义目录与部署检查 | `3298420`, `0107cfb` | `master` |
 | 33 | 2026-08-17 | 修复智能问答中文近义零召回 | `304770c`, `73f397d` | `master` |
