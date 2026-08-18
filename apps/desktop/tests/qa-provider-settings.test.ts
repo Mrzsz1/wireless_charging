@@ -69,6 +69,12 @@ test('App routes the AskView settings action to the global settings section', ()
   const app = read('../src/App.tsx')
   assert.match(app, /onOpenSettings=\{\(\) => openSettings\('qa-engine-settings'\)\}/)
   assert.match(app, /focusSection=\{settingsFocusSection\}/)
+  assert.match(app, /data-testid="persistent-qa-workspace" hidden=\{view !== 'qa'\}/)
+  assert.match(app, /data-testid="persistent-ingest-workspace" hidden=\{view !== 'ingest'\}/)
+  assert.match(app, /data-testid="persistent-compile-workspace" hidden=\{view !== 'compile'\}/)
+  assert.doesNotMatch(app, /if \(view === 'qa'\) return <AskView/)
+  assert.doesNotMatch(app, /if \(view === 'ingest'\) return <LiteratureIngestView/)
+  assert.doesNotMatch(app, /if \(view === 'compile'\) return <CompileCenterView/)
 })
 
 test('QA generation UI exposes validation-driven Thinking and compact composer contracts', () => {
@@ -93,6 +99,7 @@ test('QA generation UI exposes validation-driven Thinking and compact composer c
   for (const contract of ['@keyframes qa-thinking-rotate', '@keyframes qa-thinking-flow', '@keyframes qa-thinking-dot', '@keyframes qa-stream-cursor', '@media(prefers-reduced-motion:reduce)', '.qa-thinking-chain>div.active']) {
     assert.ok(css.includes(contract), contract)
   }
+  assert.match(css, /prefers-reduced-motion:reduce[^}]*[\s\S]*?\.qa-thinking-spinner\{animation:qa-thinking-rotate 1\.8s linear infinite!important\}/)
   for (const contract of ['.qa-chat-heading{grid-row:1}', '.qa-error{grid-row:2}', '.qa-messages{grid-row:3}', '.qa-composer{grid-row:4}', 'max-height:148px']) {
     assert.ok(css.includes(contract), contract)
   }

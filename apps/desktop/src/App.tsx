@@ -575,9 +575,6 @@ export default function App() {
     if (view === 'books') return <CoreBooksView onOpenLink={(id) => void openPage(id)} target={bookTarget} />
     if (view === 'graph') return <GraphView onOpenPage={(id) => void openPage(id)} refreshVersion={graphRefreshVersion} targetNodeId={graphFocusNodeId} />
     if (view === 'comparison') return <ComparisonView candidates={catalog} onOpenPage={(id) => void openPage(id)} />
-    if (view === 'ingest') return <LiteratureIngestView repositoryPath={repository?.path ?? ''} autoStartRequest={autoStartRequest} onChooseRepository={() => void handleChooseRepository()} onCompleted={(message) => { setNotice(message); setRepositoryGeneration((value) => value + 1) }} onOpenCompileCenter={() => activateView('compile')} onOpenSettings={() => openSettings('literature-automation-settings')} onOpenPath={(path, reveal) => void openLocalPath(path, reveal)} />
-    if (view === 'qa') return <AskView repositoryPath={repository?.path ?? ''} onOpenSettings={() => openSettings('qa-engine-settings')} onResearchContextChange={(question) => setResearchRequest(question ? { kind: 'question', text: question, evidenceLimit: 5, methodLimit: 4 } : null)} onOpenPage={(id) => void openPage(id)} onOpenBook={(bookId, chapterId) => { setBookTarget({ bookId, chapterId }); activateView('books') }} onOpenPath={(path) => void openLocalPath(path)} />
-    if (view === 'compile') return <CompileCenterView repositoryPath={repository?.path ?? ''} onChooseRepository={() => void handleChooseRepository()} onOpenPath={(path) => void openLocalPath(path)} />
     if (view === 'settings') return renderSettings()
     if (view === 'help') return <div className="placeholder-view"><div className="placeholder-icon"><CircleHelp size={28} /></div><h1>帮助</h1><p>“文献入库”用于手动添加 PDF、确认自动发现候选，以及运行启动时询问的自动检索；确认添加会执行完整入库，仅下载不会成为正式证据。编译中心用于查看日志、失败原因、生成物和回滚记录。</p><button className="refresh-button" onClick={() => activateView('dashboard')}>返回工作台</button></div>
     return <div className="placeholder-view"><div className="placeholder-icon"><FileText size={28} /></div><h1>页面未加载</h1><p>请重新从文献库打开该页面。</p></div>
@@ -658,7 +655,16 @@ export default function App() {
         </aside>
 
         <main ref={workspaceRef} className={`main-workspace ${view === 'qa' ? 'qa-active' : ''} ${view === 'qa' && contextOpen ? 'context-visible' : ''} ${view === 'compile' ? 'compile-active' : ''}`}>
-          {renderContent()}
+          <div className="persistent-workspace ingest-workspace" data-testid="persistent-ingest-workspace" hidden={view !== 'ingest'}>
+            <LiteratureIngestView repositoryPath={repository?.path ?? ''} autoStartRequest={autoStartRequest} onChooseRepository={() => void handleChooseRepository()} onCompleted={(message) => { setNotice(message); setRepositoryGeneration((value) => value + 1) }} onOpenCompileCenter={() => activateView('compile')} onOpenSettings={() => openSettings('literature-automation-settings')} onOpenPath={(path, reveal) => void openLocalPath(path, reveal)} />
+          </div>
+          <div className="persistent-workspace qa-workspace" data-testid="persistent-qa-workspace" hidden={view !== 'qa'}>
+            <AskView repositoryPath={repository?.path ?? ''} onOpenSettings={() => openSettings('qa-engine-settings')} onResearchContextChange={(question) => setResearchRequest(question ? { kind: 'question', text: question, evidenceLimit: 5, methodLimit: 4 } : null)} onOpenPage={(id) => void openPage(id)} onOpenBook={(bookId, chapterId) => { setBookTarget({ bookId, chapterId }); activateView('books') }} onOpenPath={(path) => void openLocalPath(path)} />
+          </div>
+          <div className="persistent-workspace compile-workspace" data-testid="persistent-compile-workspace" hidden={view !== 'compile'}>
+            <CompileCenterView repositoryPath={repository?.path ?? ''} onChooseRepository={() => void handleChooseRepository()} onOpenPath={(path) => void openLocalPath(path)} />
+          </div>
+          {view !== 'ingest' && view !== 'qa' && view !== 'compile' && renderContent()}
         </main>
 
         <ResearchTrailPanel open={contextOpen} tab={contextTab} request={researchRequest} repositoryPath={repository?.path ?? ''} refreshVersion={repositoryGeneration + graphRefreshVersion} onTabChange={setContextTab} onOpenPage={(id) => void openPage(id)} onOpenBook={(bookId, chapterId) => { setBookTarget({ bookId, chapterId }); activateView('books') }} onOpenPath={(path) => void openLocalPath(path)} onOpenGraph={(nodeId) => { setGraphFocusNodeId(nodeId ?? ''); activateView('graph') }} onShowMethods={(value) => { activateView('methods'); if (value.trim()) handleLibrarySearch(value) }} />

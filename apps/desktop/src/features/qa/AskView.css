@@ -45,4 +45,4 @@
 
 @media(max-width:900px){.qa-thinking-chain{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:680px){.qa-thinking-loader{grid-template-columns:26px minmax(0,1fr) auto;gap:7px;padding-left:8px;padding-right:8px}.qa-thinking-chain{grid-template-columns:1fr}.qa-thinking-current small{font-size:8px}}
-@media(prefers-reduced-motion:reduce){.qa-thinking-spinner,.qa-thinking-dots i,.qa-thinking-flow i,.qa-thinking-chain>div.active,.qa-thinking-chain>div.active::after,.qa-stream-cursor,.qa-thinking-chain .spin{animation:none!important}.qa-thinking-flow i{transform:translateX(95%)}.qa-stream-cursor{opacity:1}}
+@media(prefers-reduced-motion:reduce){.qa-thinking-dots i,.qa-thinking-flow i,.qa-thinking-chain>div.active,.qa-thinking-chain>div.active::after,.qa-stream-cursor,.qa-thinking-chain .spin{animation:none!important}.qa-thinking-spinner{animation:qa-thinking-rotate 1.8s linear infinite!important}.qa-thinking-flow i{transform:translateX(95%)}.qa-stream-cursor{opacity:1}}
