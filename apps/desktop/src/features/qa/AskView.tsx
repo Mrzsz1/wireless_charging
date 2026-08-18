@@ -511,7 +511,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
                 <span><LoaderCircle size={13} className="spin" aria-hidden="true" /></span>
               </div>
               <div className="qa-thinking-loader">
-                <div className="qa-thinking-signal" aria-hidden="true"><i /><i /><i /><i /></div>
+                <div className="qa-thinking-signal" aria-hidden="true"><LoaderCircle size={24} className="qa-thinking-spinner" /></div>
                 <div className="qa-thinking-current" role="status" aria-live="polite" aria-atomic="true">
                   <strong>{thinkingStage.title}</strong>
                   <span className="qa-thinking-dots" aria-hidden="true"><i /><i /><i /></span>
@@ -526,7 +526,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
                     {step.state === 'done'
                       ? <CheckCircle2 size={13} />
                       : step.state === 'active'
-                        ? <LoaderCircle size={13} className="spin" aria-hidden="true" />
+                        ? <LoaderCircle size={14} className="qa-thinking-spinner compact" aria-hidden="true" />
                         : <span className="qa-step-dot" aria-hidden="true" />}
                     <span>{step.label}</span>
                   </div>

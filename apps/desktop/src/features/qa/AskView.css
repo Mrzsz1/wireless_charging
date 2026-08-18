@@ -17,9 +17,9 @@
 .qa-structured-progress{padding:10px 2px;color:#668091;font-size:10px;border-top:1px solid #edf2f5}
 
 .qa-thinking-loader{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:10px;margin:2px 0 10px;padding:10px 11px 13px;border:1px solid #d7e7ef;border-radius:6px;background:#f8fbfd;overflow:hidden}
-.qa-thinking-signal{height:25px;display:flex;align-items:center;justify-content:center;gap:3px;color:#1c88b7}
-.qa-thinking-signal i{display:block;width:3px;height:8px;border-radius:2px;background:currentColor;transform-origin:center;animation:qa-signal-wave 1s ease-in-out infinite}
-.qa-thinking-signal i:nth-child(2){height:15px;animation-delay:.12s}.qa-thinking-signal i:nth-child(3){height:20px;animation-delay:.24s}.qa-thinking-signal i:nth-child(4){height:12px;animation-delay:.36s}
+.qa-thinking-signal{height:25px;display:flex;align-items:center;justify-content:center;color:#1c88b7}
+.qa-thinking-spinner{display:block;flex:0 0 auto;color:currentColor;transform-origin:center;transform-box:fill-box;animation:qa-thinking-rotate .72s linear infinite;will-change:transform}
+.qa-thinking-spinner.compact{color:#167fae}
 .qa-thinking-current{min-width:0;display:flex;align-items:center;gap:3px;flex-wrap:wrap;color:#214f67}
 .qa-thinking-current strong{font-size:11px;font-weight:650}.qa-thinking-current small{flex-basis:100%;margin-top:2px;color:#78909e;font-size:9px;line-height:1.45}
 .qa-thinking-dots{display:inline-flex;align-items:flex-end;gap:2px;height:9px;margin-left:1px}
@@ -36,7 +36,7 @@
 .qa-structured-progress{display:flex;align-items:center;gap:5px}
 .qa-stream-cursor{display:inline-block;width:2px;height:11px;border-radius:1px;background:#248cb8;animation:qa-stream-cursor .85s steps(1,end) infinite}
 
-@keyframes qa-signal-wave{0%,100%{transform:scaleY(.55);opacity:.45}50%{transform:scaleY(1);opacity:1}}
+@keyframes qa-thinking-rotate{to{transform:rotate(360deg)}}
 @keyframes qa-thinking-dot{0%,60%,100%{transform:translateY(0);opacity:.35}30%{transform:translateY(-3px);opacity:1}}
 @keyframes qa-thinking-flow{from{transform:translateX(-110%)}to{transform:translateX(310%)}}
 @keyframes qa-active-step{0%,100%{box-shadow:0 0 0 0 rgba(45,150,191,0)}50%{box-shadow:0 0 0 2px rgba(45,150,191,.1)}}
@@ -45,4 +45,4 @@
 
 @media(max-width:900px){.qa-thinking-chain{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:680px){.qa-thinking-loader{grid-template-columns:26px minmax(0,1fr) auto;gap:7px;padding-left:8px;padding-right:8px}.qa-thinking-chain{grid-template-columns:1fr}.qa-thinking-current small{font-size:8px}}
-@media(prefers-reduced-motion:reduce){.qa-thinking-signal i,.qa-thinking-dots i,.qa-thinking-flow i,.qa-thinking-chain>div.active,.qa-thinking-chain>div.active::after,.qa-stream-cursor,.qa-thinking-chain .spin{animation:none!important}.qa-thinking-flow i{transform:translateX(95%)}.qa-stream-cursor{opacity:1}}
+@media(prefers-reduced-motion:reduce){.qa-thinking-spinner,.qa-thinking-dots i,.qa-thinking-flow i,.qa-thinking-chain>div.active,.qa-thinking-chain>div.active::after,.qa-stream-cursor,.qa-thinking-chain .spin{animation:none!important}.qa-thinking-flow i{transform:translateX(95%)}.qa-stream-cursor{opacity:1}}

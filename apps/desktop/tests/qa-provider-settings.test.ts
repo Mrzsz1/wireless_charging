@@ -82,13 +82,15 @@ test('QA generation UI exposes validation-driven Thinking and compact composer c
   assert.match(ask, /index === activeThinkingStep \? 'active' : 'waiting'/)
   assert.match(ask, /className="qa-thinking-loader"/)
   assert.match(ask, /className="qa-thinking-flow" aria-hidden="true"/)
+  assert.match(ask, /size=\{24\} className="qa-thinking-spinner"/)
+  assert.match(ask, /size=\{14\} className="qa-thinking-spinner compact"/)
   assert.match(ask, /className="qa-thinking-current" role="status" aria-live="polite" aria-atomic="true"/)
   assert.match(ask, /正在生成回答/)
   assert.match(ask, /className="qa-stream-cursor" aria-hidden="true"/)
   assert.match(ask, /ref=\{composerRef\}/)
   assert.match(ask, /codexModel: settings\.codexModel/)
   assert.match(ask, /codexReasoningEffort: settings\.codexReasoningEffort/)
-  for (const contract of ['@keyframes qa-thinking-flow', '@keyframes qa-thinking-dot', '@keyframes qa-stream-cursor', '@media(prefers-reduced-motion:reduce)', '.qa-thinking-chain>div.active']) {
+  for (const contract of ['@keyframes qa-thinking-rotate', '@keyframes qa-thinking-flow', '@keyframes qa-thinking-dot', '@keyframes qa-stream-cursor', '@media(prefers-reduced-motion:reduce)', '.qa-thinking-chain>div.active']) {
     assert.ok(css.includes(contract), contract)
   }
   for (const contract of ['.qa-chat-heading{grid-row:1}', '.qa-error{grid-row:2}', '.qa-messages{grid-row:3}', '.qa-composer{grid-row:4}', 'max-height:148px']) {

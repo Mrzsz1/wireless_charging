@@ -3,7 +3,7 @@
   "name": "qa-dual-rotating-loaders",
   "title": "修复智能问答双旋转加载器",
   "description": "将思考面板当前阶段图标和活动步骤图标统一为持续旋转加载器。",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": null,
   "scope": null,
   "package": null,
