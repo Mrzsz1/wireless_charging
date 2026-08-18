@@ -2,12 +2,12 @@
   "id": "markdown-corpus-index-v2",
   "name": "markdown-corpus-index-v2",
   "title": "Markdown 多粒度语料索引与稳定定位",
-  "description": "",
-  "status": "planning",
+  "description": "统一 Wiki、论文和专著 Markdown 的 document/section/semantic 索引、别名与稳定 SourceLocator。",
+  "status": "in_progress",
   "dev_type": null,
   "scope": "backend",
   "package": null,
-  "priority": "P2",
+  "priority": "P1",
   "creator": "qq155",
   "assignee": "qq155",
   "createdAt": "2026-08-18",
@@ -20,7 +20,14 @@
   "subtasks": [],
   "children": [],
   "parent": "08-18-md-hybrid-agentic-rag",
-  "relatedFiles": [],
-  "notes": "",
+  "relatedFiles": [
+    "apps/desktop/src-tauri/src/qa/corpus.rs",
+    "apps/desktop/src-tauri/src/qa/markdown_parser.rs",
+    "apps/desktop/src-tauri/src/qa/locator.rs",
+    "apps/desktop/src-tauri/src/lib.rs",
+    "apps/desktop/src/types.ts",
+    "apps/desktop/src/services/desktop.ts"
+  ],
+  "notes": "交付 markdown-corpus-v2；knowledge index schema=3。新增 v2 表并保留 legacy/chat 表；SourceLocator 按 block/heading/line/document 降级。验证 Rust 141/141、npm build、cargo release build。",
   "meta": {}
 }

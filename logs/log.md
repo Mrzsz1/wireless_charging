@@ -320,3 +320,11 @@
 - Rust 67/67、前端 P1 13/13、Gold 10/10、两书 Recall@5 1.000 / 0.986667、P3/P5 与真实 release strict GUI 通过。
 - 0.12.3 MSI/NSIS 已构建，NSIS 已静默安装并通过注册表、ProductVersion、主窗口响应验证。
 - 详情：`logs/2026-08-12-qa-reliability-round-2.md`
+
+## 2026-08-18 — Markdown 多粒度语料索引 v2
+
+- Wiki、canonical paper Markdown 与核心专著章节统一进入 document/section/semantic 派生索引。
+- 新增可审计别名、内容角色、embedding text、内容哈希和 block/heading/line/document 稳定定位。
+- PDF/物理页不再是 v2 语料与 locator 的必填项；Raw 正文保持未修改。
+- Rust 141/141、前端 production build 与 Rust release build 通过。
+- 详情：`logs/2026-08-18-markdown-corpus-v2.md`

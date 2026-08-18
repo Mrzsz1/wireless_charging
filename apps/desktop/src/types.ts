@@ -257,6 +257,29 @@ export type Backlink = {
   target: string
 }
 
+export type SourceLocator = {
+  documentId: string
+  blockId: string
+  headingPath: string[]
+  markdownPath: string
+  lineStart?: number | null
+  lineEnd?: number | null
+  contentHash: string
+  snapshotId: string
+}
+
+export type ResolvedSourceLocation = {
+  documentId: string
+  blockId: string
+  markdownPath: string
+  headingPath: string[]
+  lineStart?: number | null
+  lineEnd?: number | null
+  matchedBy: 'block' | 'heading' | 'line' | 'document'
+  contentHashMatches: boolean
+  degradedReason: string
+}
+
 export type BookSummary = {
   id: string
   title: string

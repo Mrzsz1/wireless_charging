@@ -1,6 +1,7 @@
 ---
 type: source
 title: "Algorithmic Game Theory"
+aliases: ["算法博弈论"]
 status: active
 epistemic: high
 year: 2007

@@ -53,6 +53,17 @@ Use this contract when changing desktop QA request identity, retrieval, provider
 - Evidence for a message page or legacy full detail is fetched in one parameterized `IN (...)` query and grouped by `message_id`; per-message evidence queries are prohibited.
 - Repository switches, a new session, and a newer open-session request invalidate stale pagination responses.
 
+## 4.2 Markdown Corpus v2
+
+- Markdown is the required queryable body for Wiki pages, canonical papers, and core books. PDF paths and physical/printed pages are legacy-compatible optional metadata; their absence must not block indexing, retrieval, or source navigation.
+- Knowledge index schema version `3` adds `documents_v2`, `document_aliases_v2`, `content_blocks_v2`, and `content_blocks_fts_v2` without removing legacy knowledge tables or chat/session tables.
+- A `DocumentRecord` uses repository-relative POSIX `markdownPath`, a canonical title, auditable aliases, authors/tags, provenance, content hash, snapshot, and `wiki | paper | book` kind. Raw/canonical bodies are read-only.
+- Content is indexed at `document | section | semantic` granularity. Blocks retain the full heading path, structural role, line range, content hash, embedding text, parent, and a serialized `SourceLocator`.
+- Stable source identity is `documentId + headingPath + blockId`; line ranges are a fallback, never the primary identity. `blockId` must not depend on absolute paths or line numbers.
+- Source resolution is fail-closed at the repository boundary and falls back in order: exact block, current heading path, saved line range, then document. A degraded match is reported explicitly and never silently opens another document.
+- Reindexing discovers the complete Markdown corpus before replacing changed documents. Unchanged `(documentId, contentHash)` records and blocks are reused; removed documents become inactive; a parse failure must leave the previous usable snapshot intact.
+- Book title aliases come from auditable metadata such as source frontmatter or Wiki link aliases. Query code must not add fixture- or title-specific translations.
+
 ## 5. Grounding and Persistence Matrix
 
 | Condition | Result |

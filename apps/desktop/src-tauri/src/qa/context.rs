@@ -913,6 +913,18 @@ pub fn index_snapshot_id(connection: &Connection, root: &Path) -> String {
         "book_chapters_fts",
         "SELECT chapter_id,title,length(body) FROM book_chapters_fts ORDER BY chapter_id",
     );
+    hash_query(
+        connection,
+        &mut digest,
+        "documents_v2",
+        "SELECT id,kind,canonical_title,markdown_path,content_hash,snapshot_id,active FROM documents_v2 ORDER BY id",
+    );
+    hash_query(
+        connection,
+        &mut digest,
+        "content_blocks_v2",
+        "SELECT id,document_id,granularity,role,markdown_path,line_start,line_end,content_hash,active FROM content_blocks_v2 ORDER BY id",
+    );
     let graph = root.join("graphify-out").join("graph.json");
     digest.update(b"graph.json");
     if let Ok(metadata) = graph.metadata() {

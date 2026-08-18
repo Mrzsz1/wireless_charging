@@ -1,6 +1,9 @@
 mod context;
+pub(crate) mod corpus;
 mod graph;
 mod grounding;
+pub(crate) mod locator;
+mod markdown_parser;
 mod metrics;
 mod query_plan;
 mod semantic;

@@ -441,6 +441,7 @@ fn db_schema(connection: &Connection) -> Result<(), String> {
         )
         .map_err(|error| format!("创建方法族索引失败：{error}"))?;
     qa::db_schema(connection)?;
+    qa::corpus::db_schema(connection)?;
     compile_center::db_schema(connection)?;
     literature_ingest::db_schema(connection)?;
     Ok(())
@@ -881,7 +882,7 @@ fn current_index_stats(connection: &Connection, root: &Path) -> Result<IndexStat
 
 const REPOSITORY_IDENTITY_KEY: &str = "knowledge_index_repository_id";
 const KNOWLEDGE_INDEX_SCHEMA_KEY: &str = "knowledge_index_schema_version";
-const KNOWLEDGE_INDEX_SCHEMA_VERSION: &str = "2";
+const KNOWLEDGE_INDEX_SCHEMA_VERSION: &str = "3";
 
 fn canonical_repository_root(root: &Path) -> Result<PathBuf, String> {
     root.canonicalize()
@@ -1029,6 +1030,7 @@ fn rebuild_connection(connection: &mut Connection, root: &Path) -> Result<IndexS
             stats.chapter_count += 1;
         }
     }
+    qa::corpus::sync_repository(&tx, root)?;
     tx.commit()
         .map_err(|error| format!("提交索引事务失败：{error}"))?;
     Ok(stats)
@@ -1204,6 +1206,7 @@ fn apply_repository_changes(
                 }
             }
         }
+        qa::corpus::sync_repository(&tx, &root)?;
         tx.commit()
             .map_err(|error| format!("提交增量索引事务失败：{error}"))?;
         current_index_stats(connection, &root)?
@@ -1656,6 +1659,26 @@ fn open_local_path(
             .map_err(|error| format!("启动系统文件查看器失败：{error}"))?;
     }
     Ok(canonical.to_string_lossy().to_string())
+}
+
+#[tauri::command]
+fn resolve_source_locator(
+    locator: qa::corpus::SourceLocator,
+    state: State<'_, AppState>,
+) -> Result<qa::locator::ResolvedSourceLocation, String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "SQLite连接尚未建立".to_string())?;
+    qa::locator::resolve(connection, root, &locator)
 }
 
 fn core_book_meta(book_id: &str) -> Option<(&'static str, &'static str, usize, &'static str)> {
@@ -4085,6 +4108,7 @@ pub fn run() {
             resolve_wikilink,
             get_backlinks,
             open_local_path,
+            resolve_source_locator,
             list_core_books,
             list_book_chapters,
             get_book_chapter,
@@ -4544,6 +4568,67 @@ mod tests {
                 .count(),
             61
         );
+    }
+
+    #[test]
+    fn markdown_corpus_v2_indexes_real_wiki_papers_books_aliases_and_locators() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../..")
+            .canonicalize()
+            .expect("repository root");
+        let mut connection = Connection::open_in_memory().expect("sqlite");
+        db_schema(&connection).expect("schema");
+        rebuild_connection(&mut connection, &root).expect("full index");
+        for kind in ["wiki", "paper", "book"] {
+            let count: i64 = connection
+                .query_row(
+                    "SELECT COUNT(*) FROM documents_v2 WHERE kind=?1 AND active=1",
+                    [kind],
+                    |row| row.get(0),
+                )
+                .expect("document kind count");
+            assert!(count > 0, "missing {kind} documents");
+        }
+        let approximation_alias: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM document_aliases_v2 WHERE document_id='book:approximation-algorithms' AND alias='近似算法'",
+                [],
+                |row| row.get(0),
+            )
+            .expect("book alias");
+        assert_eq!(approximation_alias, 1);
+        for heading in ["%Steiner Tree and TSP%", "%Euclidean TSP%"] {
+            let count: i64 = connection
+                .query_row(
+                    "SELECT COUNT(*) FROM content_blocks_v2 WHERE document_id='book:approximation-algorithms' AND heading LIKE ?1 AND active=1",
+                    [heading],
+                    |row| row.get(0),
+                )
+                .expect("book heading");
+            assert!(count > 0, "missing heading {heading}");
+        }
+        let semantic_count: i64 = connection
+            .query_row(
+                "SELECT COUNT(*) FROM content_blocks_v2 WHERE document_id='book:approximation-algorithms' AND granularity='semantic' AND active=1",
+                [],
+                |row| row.get(0),
+            )
+            .expect("semantic blocks");
+        assert!(semantic_count > 30);
+        let locator_json: String = connection
+            .query_row(
+                "SELECT locator_json FROM content_blocks_v2 WHERE document_id='book:approximation-algorithms' AND heading LIKE '%Euclidean TSP%' AND active=1 LIMIT 1",
+                [],
+                |row| row.get(0),
+            )
+            .expect("locator");
+        let locator: qa::corpus::SourceLocator =
+            serde_json::from_str(&locator_json).expect("locator payload");
+        let resolved =
+            qa::locator::resolve(&connection, &root, &locator).expect("resolved locator");
+        assert_eq!(resolved.matched_by, "block");
+        assert!(!Path::new(&resolved.markdown_path).is_absolute());
+        assert!(!resolved.markdown_path.contains(".."));
     }
 
     fn prepare_planned_question(

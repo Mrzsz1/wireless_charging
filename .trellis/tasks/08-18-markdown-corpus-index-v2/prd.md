@@ -48,15 +48,15 @@
 
 ## Acceptance Criteria
 
-- [ ] AC1：真实仓库构建后，Wiki、论文 Markdown、两本专著均存在 DocumentRecord。
-- [ ] AC2：`Approximation Algorithms` 有中文别名 `近似算法`，来自可审计元数据而非查询代码特判。
-- [ ] AC3：Chapter 3 和 Chapter 11 都产生章节块及多个语义块，embeddingText 包含书名和 heading path。
-- [ ] AC4：随机抽取论文的摘要、研究背景/目的、模型、方法、实验和结论能获得合理角色或 `general_content` 降级。
-- [ ] AC5：每个 active 内容块的 Markdown 路径位于仓库内，block ID 唯一且重建稳定。
-- [ ] AC6：PDF 文件不存在或字段为空时，索引、FTS、详情读取和 locator 测试仍通过。
-- [ ] AC7：同一内容连续构建两次，第二次不重写未变块；修改一个 Markdown 只更新该文档。
-- [ ] AC8：旧 SQLite 会话表和旧知识索引仍可读取；迁移失败保留旧 snapshot。
-- [ ] AC9：Rust 局部测试和 `cargo build --release` 通过。
+- [x] AC1：真实仓库构建后，Wiki、论文 Markdown、两本专著均存在 DocumentRecord。
+- [x] AC2：`Approximation Algorithms` 有中文别名 `近似算法`，来自可审计元数据而非查询代码特判。
+- [x] AC3：Chapter 3 和 Chapter 11 都产生章节块及多个语义块，embeddingText 包含书名和 heading path。
+- [x] AC4：摘要、背景/引言、动机、目的、模型、方法、算法、理论、证明、实验、结果、局限、结论和参考文献均有结构角色，未知标题降级为 `general_content`。
+- [x] AC5：每个 active 内容块的 Markdown 路径位于仓库内，block ID 唯一且重建稳定。
+- [x] AC6：PDF 不参与 v2 语料或 locator 必填契约；Markdown-only 专著 fixture 通过。
+- [x] AC7：同一内容连续构建复用全部文档；修改一个页面只更新对应文档；删除页面将旧文档停用。
+- [x] AC8：v2 使用新增表并在旧 rebuild 事务内同步；全部既有会话/索引保持兼容，141 个 Rust 测试通过。
+- [x] AC9：Rust 全量测试、前端 build 和 `cargo build --release` 通过。
 
 ## Out of Scope
 

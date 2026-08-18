@@ -1,6 +1,7 @@
 ---
 type: source
 title: "Approximation Algorithms"
+aliases: ["近似算法"]
 status: active
 epistemic: high
 year: 2001
