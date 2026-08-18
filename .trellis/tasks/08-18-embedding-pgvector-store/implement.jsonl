@@ -1,0 +1,5 @@
+{"file":".trellis/spec/backend/qa-contract.md","reason":"语义通道 fail-soft、设置隔离、错误脱敏和仓库隔离"}
+{"file":".trellis/spec/backend/database-guidelines.md","reason":"本地 schema、迁移和远程存储约束"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"模型部署、Rust store、Tauri command 与设置 UI 跨层"}
+{"file":"evals/semantic_rag_questions.json","reason":"多语言语义召回现有回归输入"}
+{"file":"design/p3-luna-qa-plan.md","reason":"当前离线优先和语义检索产品边界"}

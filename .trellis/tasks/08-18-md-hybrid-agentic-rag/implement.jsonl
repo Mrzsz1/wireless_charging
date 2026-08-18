@@ -1,0 +1,8 @@
+{"file":"prd.md","reason":"项目级产品边界、Markdown 主来源和问答权威决策"}
+{"file":".trellis/spec/backend/qa-contract.md","reason":"现有问答跨层、证据、历史和失败语义"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"索引、存储、检索、Provider、持久化和 UI 全链路"}
+{"file":"schema/frontmatter.md","reason":"Markdown 元数据权威规则"}
+{"file":"schema/page-types.md","reason":"知识角色和页面类型边界"}
+{"file":"schema/writing-rules.md","reason":"Raw/Wiki 正文真相与只读约束"}
+{"file":"design/p3-luna-qa-plan.md","reason":"当前智能问答架构和历史兼容基线"}
+{"file":"evals/semantic_rag_questions.json","reason":"当前语义召回回归基线"}

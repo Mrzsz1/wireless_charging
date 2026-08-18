@@ -1,0 +1,5 @@
+{"file":".trellis/spec/backend/qa-contract.md","reason":"检查所有硬不变量和 fail-soft 行为"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"检查构建、交互和错误恢复"}
+{"file":"schema/lint-checklist.md","reason":"检查知识库治理边界"}
+{"file":"evals/semantic_rag_questions.json","reason":"检查回归覆盖和指标输出"}
+{"file":"evals/heldout_questions.json","reason":"检查评测真实性和完整证据审计"}

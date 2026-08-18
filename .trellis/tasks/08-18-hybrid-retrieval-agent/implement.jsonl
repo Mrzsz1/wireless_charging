@@ -1,0 +1,5 @@
+{"file":".trellis/spec/backend/qa-contract.md","reason":"检索、证据、历史、取消和 fail-soft 权威契约"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Planner schema、Rust orchestration、流事件和前端诊断跨层"}
+{"file":"evals/semantic_rag_questions.json","reason":"现有语义检索回归问题"}
+{"file":"design/p3-luna-qa-plan.md","reason":"当前多路检索和 Graphify 边界基线"}
+{"file":"schema/claudian-solve.md","reason":"科研问题回答面与来源边界参考，不作为固定意图硬编码"}

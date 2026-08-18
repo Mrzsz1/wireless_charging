@@ -1,0 +1,32 @@
+{
+  "id": "md-hybrid-agentic-rag",
+  "name": "md-hybrid-agentic-rag",
+  "title": "Markdown 科研混合 Agentic RAG 重构",
+  "description": "",
+  "status": "planning",
+  "dev_type": null,
+  "scope": "fullstack",
+  "package": null,
+  "priority": "P2",
+  "creator": "qq155",
+  "assignee": "qq155",
+  "createdAt": "2026-08-18",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "08-18-markdown-corpus-index-v2",
+    "08-18-embedding-pgvector-store",
+    "08-18-hybrid-retrieval-agent",
+    "08-18-answer-evidence-links",
+    "08-18-rag-evaluation-rollout"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

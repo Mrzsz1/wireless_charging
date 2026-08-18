@@ -1,0 +1,6 @@
+{"file":".trellis/spec/backend/qa-contract.md","reason":"最终跨层质量、信任和降级门禁"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"前端构建、状态和 GUI 验收"}
+{"file":"schema/lint-checklist.md","reason":"确认未修改 Raw 正文和 Wiki 治理不回归"}
+{"file":"evals/semantic_rag_questions.json","reason":"现有语义检索回归基线"}
+{"file":"evals/heldout_questions.json","reason":"held-out 审计与防过拟合检查"}
+{"file":"design/p3-luna-qa-plan.md","reason":"原始 P3 质量门和离线优先基线"}

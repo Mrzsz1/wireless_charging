@@ -1,0 +1,5 @@
+{"file":".trellis/spec/backend/qa-contract.md","reason":"回答状态、trusted context、引用和错误语义"}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"EvidenceAppendix、MarkdownReader 和历史兼容组件规范"}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"SourceLocator/EvidenceLink 跨层类型"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"Provider、持久化、Tauri 和 UI 深链跨层"}
+{"file":"design/p3-luna-qa-plan.md","reason":"当前回答、证据面板和历史交互基线"}

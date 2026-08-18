@@ -1,0 +1,5 @@
+{"file":".trellis/spec/backend/qa-contract.md","reason":"父任务最终集成的可信、降级和兼容门禁"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"最终 UI、构建和错误恢复门禁"}
+{"file":"schema/lint-checklist.md","reason":"知识库治理和 Raw 只读检查"}
+{"file":"evals/semantic_rag_questions.json","reason":"召回回归"}
+{"file":"evals/heldout_questions.json","reason":"准确率审计和防过拟合"}

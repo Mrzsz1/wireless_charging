@@ -1,0 +1,4 @@
+{"file":".trellis/spec/backend/qa-contract.md","reason":"检查仓库隔离、路径边界和旧会话不丢失"}
+{"file":"schema/ingest-checklist.md","reason":"检查 Markdown 发现和 provenance 不破坏现有 ingest 规则"}
+{"file":"schema/lint-checklist.md","reason":"确认任务未修改 Raw 正文或引入非法 Wiki 结构"}
+{"file":"evals/semantic_rag_questions.json","reason":"检查新索引能支撑现有语义召回回归"}
