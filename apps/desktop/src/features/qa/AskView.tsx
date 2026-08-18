@@ -450,15 +450,33 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
 
   const emptyEvidence = evidenceEmptyState(phase, waterline, evidence.length)
   const evidenceOwnership = evidencePanelOwnership(phase, evidenceRequestId, requestId, evidence.length)
+  const activeThinkingStep = phase === 'retrieving'
+    ? 1
+    : phase === 'generating' && !hasFirstToken
+      ? 3
+      : phase === 'generating'
+        ? 4
+        : phase === 'validating'
+          ? 5
+          : -1
   const thinkingSteps = [
-    { label: '理解问题', state: 'done' },
-    { label: '检索本地知识库', state: phase === 'retrieving' ? 'active' : 'done' },
-    { label: '扩展查询与再次检索', state: phase === 'retrieving' ? 'active' : 'done' },
-    { label: '整理证据上下文', state: phase === 'retrieving' ? 'waiting' : 'done' },
-    { label: 'Thinking', state: phase === 'generating' && !hasFirstToken ? 'active' : phase === 'retrieving' ? 'waiting' : 'done' },
-    { label: '生成回答', state: phase === 'generating' && hasFirstToken ? 'active' : phase === 'validating' ? 'done' : 'waiting' },
-    { label: '引用与完整性校验', state: phase === 'validating' ? 'active' : 'waiting' },
-  ]
+    '理解问题',
+    '检索本地知识库',
+    '整理证据上下文',
+    'Thinking',
+    '生成回答',
+    '引用与完整性校验',
+  ].map((label, index) => ({
+    label,
+    state: index < activeThinkingStep ? 'done' : index === activeThinkingStep ? 'active' : 'waiting',
+  }))
+  const thinkingStage = phase === 'retrieving'
+    ? { title: '正在检索知识库', detail: '正在匹配 Wiki、论文原文、专著与知识图谱。' }
+    : phase === 'generating' && !hasFirstToken
+      ? { title: '模型正在组织回答', detail: '正在基于本轮证据构建结构化声明。' }
+      : phase === 'generating'
+        ? { title: '正在生成回答', detail: '正在接收并组织结构化回答。' }
+        : { title: '正在检查引用与完整性', detail: '正在核对证据引用、回答结构与边界说明。' }
 
   return <section className="qa-view">
     <aside className="qa-sessions">
@@ -484,7 +502,45 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
         {messageHasMore && <button className="qa-load-older" onClick={() => void loadOlderMessages()} disabled={loadingOlderMessages}>{loadingOlderMessages ? '加载中…' : '加载更早消息'}</button>}
         {!messages.length && phase === 'idle' && <div className="qa-welcome"><div className="qa-orb"><Bot size={28} /></div><h2>先检索，再回答</h2><p>每次提问都会检索 Wiki、两本核心书籍和 Graphify，并把回答绑定到可定位证据。</p><div className="qa-suggestions">{suggestions.map((item) => <button key={item} onClick={() => void submitQuestion(item)}><Plus size={14} /><span>{item}</span><ChevronRight size={14} /></button>)}</div></div>}
           {messages.map((message, index) => { const retryQuestion = message.role === 'assistant' ? retryQuestionFor(messages, index) : ''; return <article data-testid={`qa-message-${message.id}`} className={`qa-message ${message.role} ${message.status}`} key={message.id}><div className="qa-avatar">{message.role === 'assistant' ? <Bot size={16} /> : '你'}</div><div className="qa-bubble"><div className="qa-message-meta"><strong>{message.role === 'assistant' ? providerLabel(message.provider) : '研究问题'}</strong><span>{message.status === 'failed' ? '失败' : message.status === 'unverified' ? '无参考来源 · 未验证' : message.status === 'mixed' ? '含模型补充' : formatTime(message.createdAt)}</span></div>{message.role === 'assistant' && message.status === 'failed' ? <div className="qa-message-content">{message.errorCode}：{message.errorMessage || '本轮回答生成失败'}</div> : message.role === 'assistant' ? <MessageContent content={message.content} evidence={message.evidence} onCitation={openEvidence} /> : <div className="qa-message-content">{message.content}</div>}{message.role === 'assistant' && message.status !== 'failed' && <CitationStatus message={message} />}{message.role === 'assistant' && <div className="qa-message-actions"><button onClick={() => void navigator.clipboard.writeText(message.content)}><Clipboard size={13} />复制回答</button><button onClick={() => void navigator.clipboard.writeText(buildAuditBundle(retryQuestion, message))}><Clipboard size={13} />复制审计包</button><button onClick={() => void submitQuestion(retryQuestion)} disabled={!retryQuestion || phase !== 'idle'}><RefreshCw size={13} />重试</button></div>}</div></article> })}
-        {phase !== 'idle' && <article className="qa-message assistant streaming" aria-live="polite"><div className="qa-avatar"><Bot size={16} /></div><div className="qa-bubble"><div className="qa-message-meta"><strong>Thinking · {elapsedSeconds}s</strong><span><LoaderCircle size={13} className="spin" /></span></div><div className="qa-thinking-chain">{thinkingSteps.map((step) => <div className={step.state} key={step.label}>{step.state === 'done' ? <CheckCircle2 size={13} /> : step.state === 'active' ? <LoaderCircle size={13} className="spin" /> : <span className="qa-step-dot" />}<span>{step.label}</span></div>)}</div>{streamingText && <div className="qa-structured-progress">正在组织声明与证据关系…</div>}</div></article>}
+        {phase !== 'idle' && (
+          <article className="qa-message assistant streaming">
+            <div className="qa-avatar"><Bot size={16} /></div>
+            <div className="qa-bubble">
+              <div className="qa-message-meta">
+                <strong>Thinking · {elapsedSeconds}s</strong>
+                <span><LoaderCircle size={13} className="spin" aria-hidden="true" /></span>
+              </div>
+              <div className="qa-thinking-loader">
+                <div className="qa-thinking-signal" aria-hidden="true"><i /><i /><i /><i /></div>
+                <div className="qa-thinking-current" role="status" aria-live="polite" aria-atomic="true">
+                  <strong>{thinkingStage.title}</strong>
+                  <span className="qa-thinking-dots" aria-hidden="true"><i /><i /><i /></span>
+                  <small>{thinkingStage.detail}</small>
+                </div>
+                <time aria-hidden="true">{elapsedSeconds}s</time>
+                <div className="qa-thinking-flow" aria-hidden="true"><i /></div>
+              </div>
+              <div className="qa-thinking-chain" aria-label="回答处理进度">
+                {thinkingSteps.map((step) => (
+                  <div className={step.state} data-state={step.state} key={step.label}>
+                    {step.state === 'done'
+                      ? <CheckCircle2 size={13} />
+                      : step.state === 'active'
+                        ? <LoaderCircle size={13} className="spin" aria-hidden="true" />
+                        : <span className="qa-step-dot" aria-hidden="true" />}
+                    <span>{step.label}</span>
+                  </div>
+                ))}
+              </div>
+              {streamingText && (
+                <div className="qa-structured-progress">
+                  正在组织声明与证据关系
+                  <span className="qa-stream-cursor" aria-hidden="true" />
+                </div>
+              )}
+            </div>
+          </article>
+        )}
         <div ref={endRef} />
       </div>
       <div className="qa-composer"><textarea ref={composerRef} data-testid="qa-input" value={question} onChange={(event) => setQuestion(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void submitQuestion() } }} placeholder="询问模型、约束、算法、解决办法或新颖性…" rows={3} disabled={phase !== 'idle'} /><div className="qa-composer-footer"><div className="qa-composer-controls"><span className={providerReady(settings.answerProvider, settings, codexStatus) ? 'ready' : 'offline'}><ShieldCheck size={12} />{providerLabel(settings.answerProvider)}</span>{settings.answerProvider === 'codex-subscription' && <><label title="选择本轮 Codex 模型"><span className="sr-only">Codex 模型</span><select aria-label="Codex 模型" disabled={phase !== 'idle'} value={settings.codexModel} onChange={(event) => persistComposerSelection({ ...settings, codexModel: event.target.value, codexReasoningEffort: '' })}><option value="">自动 · {codexStatus.configuredModel || 'Codex 默认'}</option>{codexStatus.availableModels.map((model) => <option key={model.id} value={model.id}>{model.displayName}</option>)}</select></label><label title="选择本轮推理强度"><span className="sr-only">推理强度</span><select aria-label="推理强度" disabled={phase !== 'idle'} value={settings.codexReasoningEffort} onChange={(event) => persistComposerSelection({ ...settings, codexReasoningEffort: event.target.value })}><option value="">自动 · {effortLabels[automaticEffort] || automaticEffort || '模型默认'}</option>{supportedEfforts.map((effort) => <option key={effort} value={effort}>{effortLabels[effort] || effort}</option>)}</select></label></>}</div>{phase === 'idle' ? <button className="qa-send" onClick={() => void submitQuestion()} disabled={!question.trim()}><Send size={15} />发送</button> : <button className="qa-stop" onClick={() => void stopAnswer()} disabled={!requestId}><CircleStop size={15} />停止</button>}</div></div>
