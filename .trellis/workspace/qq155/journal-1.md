@@ -1216,3 +1216,36 @@ Preserved previous evidence with turn isolation, removed fixed history caps in f
 ### Next Steps
 
 - None - task complete
+
+
+## Session 37: 修复文献自动检索依赖检查与运行态 UI
+
+**Date**: 2026-08-18
+**Task**: 修复文献自动检索依赖检查与运行态 UI
+**Branch**: `master`
+
+### Summary
+
+按当前模式修正文献自动化依赖投影，复用 Codex Provider 的 Windows CLI 发现并向 Python 管道传递已验证路径；为立即检索增加独立动态旋转加载器，放大任务运行条与日志字体。前端 59 项、Python 62 项、Rust 135 项测试通过并完成 Tauri release 编译。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `1ce3a84` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
