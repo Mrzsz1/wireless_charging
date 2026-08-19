@@ -305,15 +305,15 @@ fn normalize_sections(
     let mut sections = sections.into_iter().peekable();
     while let Some(mut section) = sections.next() {
         let title = normalized_title(&section.title);
-        if intent == "literature" && title == "主题" {
-            if sections
+        if intent == "literature"
+            && title == "主题"
+            && sections
                 .peek()
                 .is_some_and(|next| normalized_title(&next.title) == "模型与方法")
-            {
-                let next = sections.next().expect("peeked section must exist");
-                section.groups.extend(next.groups);
-                section.title = "主题、模型与方法".to_string();
-            }
+        {
+            let next = sections.next().expect("peeked section must exist");
+            section.groups.extend(next.groups);
+            section.title = "主题、模型与方法".to_string();
         }
         compatible.push(section);
     }
@@ -509,7 +509,7 @@ pub fn parse_validate_render(
         return Err("模型补充包含证据编号或库内定位".to_string());
     }
     if !model_supplement_claims.is_empty() {
-        markdown.push_str("\n");
+        markdown.push('\n');
         markdown.push_str(MODEL_SUPPLEMENT_HEADING);
         markdown.push_str("\n\n");
         markdown.push_str(MODEL_SUPPLEMENT_NOTICE);

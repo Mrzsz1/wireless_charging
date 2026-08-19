@@ -155,29 +155,33 @@ fn check_cancelled(cancelled: Option<&AtomicBool>) -> Result<(), String> {
     }
 }
 
-fn emit_progress(
-    emit: &mut impl FnMut(VectorSyncProgress),
-    phase: &str,
-    status: &str,
+struct ProgressCounts {
     total: usize,
     completed: usize,
     computed: usize,
     reused: usize,
     remote_synced: usize,
+}
+
+fn emit_progress(
+    emit: &mut impl FnMut(VectorSyncProgress),
+    phase: &str,
+    status: &str,
+    counts: ProgressCounts,
     message: &str,
 ) {
     emit(VectorSyncProgress {
         phase: phase.to_string(),
         status: status.to_string(),
-        total_blocks: total,
-        completed_blocks: completed,
-        computed_blocks: computed,
-        reused_blocks: reused,
-        remote_synced_blocks: remote_synced,
-        percent: if total == 0 {
+        total_blocks: counts.total,
+        completed_blocks: counts.completed,
+        computed_blocks: counts.computed,
+        reused_blocks: counts.reused,
+        remote_synced_blocks: counts.remote_synced,
+        percent: if counts.total == 0 {
             100.0
         } else {
-            completed.min(total) as f64 * 100.0 / total as f64
+            counts.completed.min(counts.total) as f64 * 100.0 / counts.total as f64
         },
         message: message.to_string(),
     });
@@ -279,11 +283,13 @@ pub(crate) fn sync_embeddings(
         &mut emit,
         "planning",
         "running",
-        blocks.len(),
-        reused,
-        0,
-        reused,
-        0,
+        ProgressCounts {
+            total: blocks.len(),
+            completed: reused,
+            computed: 0,
+            reused,
+            remote_synced: 0,
+        },
         "已完成增量向量计划",
     );
 
@@ -323,11 +329,13 @@ pub(crate) fn sync_embeddings(
             &mut emit,
             "embedding",
             "running",
-            blocks.len(),
-            reused + computed,
-            computed,
-            reused,
-            0,
+            ProgressCounts {
+                total: blocks.len(),
+                completed: reused + computed,
+                computed,
+                reused,
+                remote_synced: 0,
+            },
             "正在生成并保存本地多粒度向量",
         );
     }
@@ -370,11 +378,13 @@ pub(crate) fn sync_embeddings(
                         &mut emit,
                         "remote",
                         "running",
-                        pending.len(),
-                        remote_synced,
-                        computed,
-                        reused,
-                        remote_synced,
+                        ProgressCounts {
+                            total: pending.len(),
+                            completed: remote_synced,
+                            computed,
+                            reused,
+                            remote_synced,
+                        },
                         "正在同步远程 pgvector",
                     );
                 }
@@ -408,11 +418,13 @@ pub(crate) fn sync_embeddings(
         &mut emit,
         "complete",
         "complete",
-        blocks.len(),
-        blocks.len(),
-        computed,
-        reused,
-        remote_synced,
+        ProgressCounts {
+            total: blocks.len(),
+            completed: blocks.len(),
+            computed,
+            reused,
+            remote_synced,
+        },
         if last_error.is_empty() {
             "多粒度向量同步完成"
         } else {
@@ -522,6 +534,17 @@ pub(super) fn semantic_candidates_v2(
     question: &str,
     cancelled: Option<&AtomicBool>,
 ) -> Result<Vec<Candidate>, String> {
+    semantic_candidates_v2_filtered(connection, root, question, &[], &[], cancelled)
+}
+
+pub(super) fn semantic_candidates_v2_filtered(
+    connection: &Connection,
+    root: &Path,
+    question: &str,
+    kinds: &[String],
+    document_ids: &[String],
+    cancelled: Option<&AtomicBool>,
+) -> Result<Vec<Candidate>, String> {
     let repository_id = repository_id(root);
     let snapshot_id = match active_snapshot(connection) {
         Ok(value) => value,
@@ -554,6 +577,8 @@ pub(super) fn semantic_candidates_v2(
         limit: 40,
         min_score: Some(0.42),
         filter: VectorFilter {
+            kinds: kinds.to_vec(),
+            document_ids: document_ids.to_vec(),
             granularities: vec!["section".to_string(), "semantic".to_string()],
             ..VectorFilter::default()
         },

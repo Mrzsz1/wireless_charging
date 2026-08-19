@@ -8,9 +8,9 @@ use std::time::UNIX_EPOCH;
 
 pub const PROMPT_VERSION: &str = "qa-prompt-v10";
 pub const ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
-pub const RETRIEVER_VERSION: &str = "semantic-facet-rrf-v5";
+pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v3";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v3";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v4";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -113,6 +113,22 @@ pub struct QaRunManifest {
     pub planned_facet_ids: Vec<String>,
     #[serde(default)]
     pub covered_facet_ids: Vec<String>,
+    #[serde(default)]
+    pub reranker_version: String,
+    #[serde(default)]
+    pub retrieval_stop_reason: String,
+    #[serde(default)]
+    pub retrieval_round_count: usize,
+    #[serde(default)]
+    pub requested_kinds: Vec<String>,
+    #[serde(default)]
+    pub attempted_kinds: Vec<String>,
+    #[serde(default)]
+    pub source_gap_count: usize,
+    #[serde(default)]
+    pub retrieval_channel_statuses: Vec<String>,
+    #[serde(default)]
+    pub retrieval_round_fingerprints: Vec<String>,
     pub generated_at: String,
 }
 
@@ -857,6 +873,30 @@ pub fn build_run_manifest(
         planner_status: context.retrieval_query.planner_status.clone(),
         planned_facet_ids: context.retrieval_query.facet_ids.clone(),
         covered_facet_ids: context.retrieval_query.covered_facet_ids.clone(),
+        reranker_version: "deterministic-research-v2".to_string(),
+        retrieval_stop_reason: context.retrieval_diagnostics.stop_reason.clone(),
+        retrieval_round_count: context.retrieval_diagnostics.pass_count,
+        requested_kinds: context.retrieval_query.requested_kinds.clone(),
+        attempted_kinds: context.retrieval_query.attempted_kinds.clone(),
+        source_gap_count: context.retrieval_query.source_gaps.len(),
+        retrieval_channel_statuses: context
+            .retrieval_diagnostics
+            .channels
+            .iter()
+            .map(|channel| format!("{}:{}", channel.name, channel.status))
+            .collect(),
+        retrieval_round_fingerprints: {
+            let mut values = context
+                .retrieval_diagnostics
+                .channels
+                .iter()
+                .filter(|channel| !channel.round_fingerprint.is_empty())
+                .map(|channel| channel.round_fingerprint.clone())
+                .collect::<Vec<_>>();
+            values.sort();
+            values.dedup();
+            values
+        },
         generated_at,
     }
 }

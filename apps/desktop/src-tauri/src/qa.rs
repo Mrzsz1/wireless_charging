@@ -1,13 +1,19 @@
 mod context;
 pub(crate) mod corpus;
+mod coverage;
+mod fusion;
 mod graph;
 mod grounding;
 pub(crate) mod locator;
 mod markdown_parser;
 mod metrics;
 mod query_plan;
+mod reranker;
+pub(crate) mod retrieval;
+mod retrieval_contract;
 mod semantic;
 mod session;
+mod source_resolver;
 mod structured_answer;
 pub(crate) mod vector_store;
 pub(crate) mod vector_sync;
@@ -28,6 +34,9 @@ pub use query_plan::{
     parse_query_plan, query_plan_prompt, query_plan_schema, QueryFacet, QueryPlan,
     QueryPlanningInput,
 };
+pub type QueryPlanner<'a> = dyn FnMut(&QueryPlanningInput) -> Result<QueryPlan, String> + 'a;
+#[cfg(test)]
+pub use query_plan::{QueryBudget, QueryScope};
 pub(crate) use semantic::{
     check_deployment as check_semantic_deployment,
     configure_cache_dir as configure_semantic_cache_dir, copy_cache as copy_semantic_cache,
@@ -196,6 +205,12 @@ pub struct RetrievalQuery {
     pub planner_used: bool,
     #[serde(default)]
     pub planner_status: String,
+    #[serde(default)]
+    pub requested_kinds: Vec<String>,
+    #[serde(default)]
+    pub attempted_kinds: Vec<String>,
+    #[serde(default)]
+    pub source_gaps: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
@@ -371,7 +386,7 @@ pub enum AnswerStreamEvent {
     },
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 struct Candidate {
     kind: String,
     tier: String,
@@ -950,7 +965,24 @@ pub fn build_retrieval_query(
         covered_facet_ids: Vec::new(),
         planner_used: false,
         planner_status: "not_requested".to_string(),
+        requested_kinds: Vec::new(),
+        attempted_kinds: Vec::new(),
+        source_gaps: Vec::new(),
     }
+}
+
+fn retriever_v2_enabled() -> bool {
+    if cfg!(test) {
+        return false;
+    }
+    !matches!(
+        env::var("LUNAWIKI_RAG_RETRIEVER_V2")
+            .unwrap_or_else(|_| "true".to_string())
+            .trim()
+            .to_ascii_lowercase()
+            .as_str(),
+        "0" | "false" | "off" | "no"
+    )
 }
 
 fn chinese_query_fragments(question: &str) -> Vec<String> {
@@ -1090,7 +1122,18 @@ fn apply_intent(intent: &str, candidates: &mut [Candidate]) {
 }
 
 fn candidate_key(candidate: &Candidate) -> String {
-    if candidate.kind == "paper" {
+    if !candidate.node_id.is_empty()
+        && matches!(
+            candidate.relation.as_str(),
+            "content_block_v2"
+                | "exact_source_title"
+                | "reference_only"
+                | "graph_mapped_content"
+                | "semantic_block_v2"
+        )
+    {
+        format!("block:{}", candidate.node_id)
+    } else if candidate.kind == "paper" {
         format!("paper:{}", candidate.node_id)
     } else if candidate.kind == "graph" {
         format!("graph:{}", candidate.node_id)
@@ -1133,7 +1176,7 @@ fn index_expansion_terms(candidates: &[Candidate], known_terms: &HashSet<String>
 
 fn planning_input(resolved_question: &str, candidates: &[Candidate]) -> QueryPlanningInput {
     QueryPlanningInput {
-        resolved_question: compact(resolved_question, 500),
+        resolved_question: resolved_question.to_string(),
         baseline_candidates: candidates
             .iter()
             .filter(|candidate| candidate.kind != "graph")
@@ -1210,16 +1253,12 @@ fn initial_facet_coverage(plan: &QueryPlan, candidates: &[Candidate]) -> HashSet
         .collect()
 }
 
-fn evidence_sufficient(
+fn legacy_surface_coverage_complete(
     plan: &QueryPlan,
     candidates: &[Candidate],
     covered_facets: &HashSet<String>,
 ) -> bool {
-    let primary = candidates
-        .iter()
-        .filter(|candidate| candidate.kind != "graph")
-        .count();
-    let required_kinds_present = plan.required_kinds.iter().all(|required| {
+    let required_kinds_present = plan.must_attempt_kinds.iter().all(|required| {
         candidates
             .iter()
             .any(|candidate| candidate.kind != "graph" && candidate.kind == *required)
@@ -1229,7 +1268,24 @@ fn evidence_sufficient(
         .iter()
         .filter(|facet| facet.required)
         .all(|facet| covered_facets.contains(&facet.id));
-    primary >= plan.minimum_evidence && required_kinds_present && required_facets_covered
+    required_kinds_present && required_facets_covered
+}
+
+fn answer_profile_for_contract(plan: &QueryPlan) -> String {
+    if matches!(
+        plan.legacy_ranking_profile.as_str(),
+        "solve" | "novelty" | "relationship" | "literature"
+    ) {
+        return plan.legacy_ranking_profile.clone();
+    }
+    if plan.scope.mode == "open"
+        && plan.must_attempt_kinds.iter().any(|kind| kind == "paper")
+        && plan.must_attempt_kinds.iter().any(|kind| kind == "book")
+    {
+        "literature".to_string()
+    } else {
+        INTENT_SOLVE.to_string()
+    }
 }
 
 fn retrieve_pass(
@@ -1983,7 +2039,7 @@ pub fn prepare_question_with_history_budget_and_planner(
     cancelled: Option<&AtomicBool>,
     context_window_tokens: u32,
     max_output_tokens: u32,
-    mut planner: Option<&mut dyn FnMut(&QueryPlanningInput) -> Result<QueryPlan, String>>,
+    mut planner: Option<&mut QueryPlanner<'_>>,
 ) -> Result<QuestionContext, String> {
     let question = question.trim();
     if question.chars().count() < 2 {
@@ -2059,14 +2115,18 @@ pub fn prepare_question_with_history_budget_and_planner(
             }
         }
     }
-    let question_intent = plan.answer_profile.clone();
+    let question_intent = if planner_used {
+        answer_profile_for_contract(&plan)
+    } else {
+        INTENT_SOLVE.to_string()
+    };
     retrieval_query.intent = question_intent.clone();
     retrieval_query.query_plan_version = query_plan::QUERY_PLAN_VERSION.to_string();
     retrieval_query.facet_ids = plan.facets.iter().map(|facet| facet.id.clone()).collect();
     retrieval_query.planner_used = planner_used;
 
     let mut covered_facets = initial_facet_coverage(&plan, &candidates);
-    if evidence_sufficient(&plan, &candidates, &covered_facets) {
+    if legacy_surface_coverage_complete(&plan, &candidates, &covered_facets) {
         diagnostics.stop(if planner_used {
             "facet_sufficient"
         } else {
@@ -2144,7 +2204,7 @@ pub fn prepare_question_with_history_budget_and_planner(
             let after = candidates.iter().map(candidate_key).collect::<HashSet<_>>();
             let gain = after.len().saturating_sub(before.len());
             diagnostics.record_pass(gain);
-            if evidence_sufficient(&plan, &candidates, &covered_facets) {
+            if legacy_surface_coverage_complete(&plan, &candidates, &covered_facets) {
                 diagnostics.stop("facet_sufficient");
                 break;
             }
@@ -2160,6 +2220,77 @@ pub fn prepare_question_with_history_budget_and_planner(
     }
     retrieval_query.covered_facet_ids = covered_facets.into_iter().collect();
     retrieval_query.covered_facet_ids.sort();
+    retrieval_query.requested_kinds = plan.requested_kinds.clone();
+    if retriever_v2_enabled() && retrieval::corpus_v2_available(connection) {
+        check_cancelled(cancelled)?;
+        let outcome = retrieval::run_retrieval(
+            connection,
+            root,
+            &retrieval_query.resolved_question,
+            &plan,
+            cancelled,
+        )?;
+        diagnostics = RetrievalDiagnosticsBuilder::new();
+        for attempt in &outcome.attempts {
+            diagnostics.record_attempt(metrics::RetrievalChannelDiagnostic {
+                name: format!("{}-{}", attempt.name, attempt.kind),
+                duration_ms: attempt.duration_ms,
+                candidate_count: attempt.candidate_count,
+                round: attempt.round,
+                status: attempt.status.clone(),
+                error_kind: attempt.error_kind.clone(),
+                round_fingerprint: attempt.round_fingerprint.clone(),
+            });
+        }
+        for gain in &outcome.candidate_gains {
+            diagnostics.record_pass(*gain);
+        }
+        diagnostics.stop(&outcome.stop_reason);
+        retrieval_query.covered_facet_ids = outcome.covered_facets.iter().cloned().collect();
+        retrieval_query.covered_facet_ids.sort();
+        retrieval_query.attempted_kinds = outcome
+            .attempts
+            .iter()
+            .filter(|attempt| {
+                attempt.status != "not_requested"
+                    && matches!(attempt.kind.as_str(), "wiki" | "paper" | "book")
+            })
+            .map(|attempt| attempt.kind.clone())
+            .collect::<HashSet<_>>()
+            .into_iter()
+            .collect();
+        retrieval_query.attempted_kinds.sort();
+        retrieval_query.source_gaps = outcome.sources.gaps.clone();
+        let legacy_candidates = std::mem::take(&mut candidates);
+        if outcome.sources.constrained {
+            candidates = outcome.candidates;
+        } else if outcome.candidates.is_empty() {
+            candidates = legacy_candidates;
+        } else if legacy_candidates.is_empty() {
+            candidates = outcome.candidates;
+        } else {
+            candidates = fusion::reciprocal_rank_fusion(
+                vec![
+                    fusion::RankedChannel {
+                        name: "legacy-dual-read".to_string(),
+                        round: 1,
+                        candidates: legacy_candidates,
+                    },
+                    fusion::RankedChannel {
+                        name: "v2-dual-read".to_string(),
+                        round: 1,
+                        candidates: outcome.candidates,
+                    },
+                ],
+                &HashSet::new(),
+            );
+            for candidate in &mut candidates {
+                candidate
+                    .retrieval_reason
+                    .push_str("；open-scope dual-read RRF rollout");
+            }
+        }
+    }
     apply_intent(&question_intent, &mut candidates);
     candidates.sort_by(|left, right| right.score.total_cmp(&left.score));
     let mut seen = HashSet::new();
@@ -2170,7 +2301,7 @@ pub fn prepare_question_with_history_budget_and_planner(
     // useful candidate, the final evidence package keeps at least one Wiki and
     // one core-book result instead of letting a single channel occupy all slots.
     let required_kind_values = plan
-        .required_kinds
+        .must_attempt_kinds
         .iter()
         .map(String::as_str)
         .collect::<Vec<_>>();
@@ -3800,8 +3931,13 @@ mod tests {
             assert!(input.baseline_candidates.is_empty());
             Ok(QueryPlan {
                 schema_version: query_plan::QUERY_PLAN_VERSION.to_string(),
-                answer_profile: "literature".to_string(),
-                restated_question: input.resolved_question.clone(),
+                scope: QueryScope {
+                    mode: "open".to_string(),
+                    explicit_sources: Vec::new(),
+                },
+                concepts: vec![input.resolved_question.clone()],
+                aliases: Vec::new(),
+                related_problems: Vec::new(),
                 facets: vec![QueryFacet {
                     id: "scheduling".to_string(),
                     label: "调度证据".to_string(),
@@ -3809,8 +3945,14 @@ mod tests {
                     search_queries: vec!["online scheduling".to_string()],
                     preferred_kinds: vec!["wiki".to_string()],
                 }],
-                required_kinds: vec!["wiki".to_string()],
-                minimum_evidence: 2,
+                requested_kinds: vec!["wiki".to_string(), "paper".to_string(), "book".to_string()],
+                must_attempt_kinds: vec!["paper".to_string(), "book".to_string()],
+                budget: QueryBudget {
+                    max_rounds: 3,
+                    max_queries: 8,
+                    max_candidates: 120,
+                },
+                legacy_ranking_profile: "literature".to_string(),
             })
         };
         let context = prepare_question_with_history_budget_and_planner(
@@ -4163,7 +4305,7 @@ mod tests {
         )
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v3");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v4");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.model_requested, "fixture-requested");
         assert_eq!(result.run_manifest.model_resolved, "fixture-resolved");

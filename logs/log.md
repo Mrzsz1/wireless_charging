@@ -336,3 +336,12 @@
 - 远程密钥仅保存到系统凭据管理器；远程休眠、超时、限流或断网时自动回退本地/旧语义/词法通道。
 - Rust 147/147、前端设置契约 7/7、production build 与 Rust release build 通过。
 - 详情：`logs/2026-08-18-embedding-pgvector-store.md`
+
+## 2026-08-18 — 混合检索、重排与有限 Agentic 补查
+
+- Codex planner 升级为开放 `qa-retrieval-contract-v2`，移除检索层固定 answer profile 与 minimum evidence 数量阈值。
+- 新增来源/别名解析、显式 document filter、独立 FTS/dense/graph 通道、stable-ID RRF、reranker 与软覆盖补查控制。
+- 开放 paper/book 查询分别记录 attempted/zero-hit/degraded；显式《近似算法》问题只在目标 Markdown 书籍内召回 TSP/Euclidean TSP。
+- 生产默认 v2，支持环境变量回滚并在最终评测前保留 open-scope dual-read。
+- Rust 160/160、前端 QA 契约 8/8、production build 与 Rust release build 通过。
+- 详情：`logs/2026-08-18-hybrid-retrieval-agent.md`

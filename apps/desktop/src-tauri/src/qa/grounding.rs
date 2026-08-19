@@ -406,7 +406,7 @@ fn adjacent_citation_suffix_end(value: &str, start: usize) -> Option<usize> {
         return None;
     }
     if let Some(closing) = wrapper {
-        if value[cursor..].chars().next() != Some(closing) {
+        if !value[cursor..].starts_with(closing) {
             return None;
         }
         cursor += closing.len_utf8();

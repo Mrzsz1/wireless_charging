@@ -574,7 +574,7 @@ impl VectorStore for PgVectorStore {
         repository_id: &str,
         model_id: &str,
     ) -> Result<VectorStoreStats, VectorStoreError> {
-        let path = format!("/rest/v1/rpc/rag_embedding_stats");
+        let path = "/rest/v1/rpc/rag_embedding_stats".to_string();
         let response = self
             .request(reqwest::Method::POST, &path)
             .json(&json!({"p_repository_id": repository_id, "p_model_id": model_id}))

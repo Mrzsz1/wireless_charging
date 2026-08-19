@@ -623,65 +623,66 @@ where
     F: FnMut(SemanticDownloadProgress),
 {
     let mut last_progress = None;
-    let mut emit = |progress: SemanticDownloadProgress| {
-        last_progress = Some(progress.clone());
-        on_progress(progress);
-    };
-    let result = (|| {
-        let cache_dir = validate_cache_dir(cache_dir)?;
-        configure_cache_dir(Some(cache_dir.clone()))?;
-        let before = check_deployment(&cache_dir);
-        if before.state == "invalid" {
-            quarantine_for_repair(&model_repo_path(&cache_dir))?;
-            quarantine_for_repair(&cache_dir.join("onnxruntime-1.20.1"))?;
+    let result = {
+        let mut emit = |progress: SemanticDownloadProgress| {
+            last_progress = Some(progress.clone());
+            on_progress(progress);
+        };
+        (|| {
+            let cache_dir = validate_cache_dir(cache_dir)?;
             configure_cache_dir(Some(cache_dir.clone()))?;
-        }
-        prepare_onnx_runtime_with_progress(&cache_dir, &mut emit)
-            .map_err(|error| format!("ONNX Runtime 下载或初始化失败：{error}"))?;
-        download_model_files_with_progress(&cache_dir, &mut emit)?;
-        emit(progress_event(
-            "verifying",
-            "inference",
-            "model initialization",
-            0,
-            0,
-            Instant::now(),
-            "正在加载模型",
-        ));
-        let state = SEMANTIC_STATE.get_or_init(|| Mutex::new(SemanticState::default()));
-        let mut state = state
-            .lock()
-            .map_err(|_| "语义模型状态锁定失败".to_string())?;
-        let model = initialize_model(&cache_dir)
-            .map_err(|error| format!("语义模型下载或初始化失败：{error}"))?;
-        state.model = Some(model);
-        state.model_retry_after = None;
-        drop(state);
-        emit(progress_event(
-            "verifying",
-            "inference",
-            "384-dimensional probe",
-            0,
-            0,
-            Instant::now(),
-            "正在执行推理探针",
-        ));
-        let status = check_deployment(&cache_dir);
-        if status.state != "ready" {
-            return Err(status.diagnostic);
-        }
-        emit(progress_event(
-            "complete",
-            "inference",
-            "deployment",
-            1,
-            1,
-            Instant::now(),
-            "语义模型部署完成",
-        ));
-        Ok(status)
-    })();
-    drop(emit);
+            let before = check_deployment(&cache_dir);
+            if before.state == "invalid" {
+                quarantine_for_repair(&model_repo_path(&cache_dir))?;
+                quarantine_for_repair(&cache_dir.join("onnxruntime-1.20.1"))?;
+                configure_cache_dir(Some(cache_dir.clone()))?;
+            }
+            prepare_onnx_runtime_with_progress(&cache_dir, &mut emit)
+                .map_err(|error| format!("ONNX Runtime 下载或初始化失败：{error}"))?;
+            download_model_files_with_progress(&cache_dir, &mut emit)?;
+            emit(progress_event(
+                "verifying",
+                "inference",
+                "model initialization",
+                0,
+                0,
+                Instant::now(),
+                "正在加载模型",
+            ));
+            let state = SEMANTIC_STATE.get_or_init(|| Mutex::new(SemanticState::default()));
+            let mut state = state
+                .lock()
+                .map_err(|_| "语义模型状态锁定失败".to_string())?;
+            let model = initialize_model(&cache_dir)
+                .map_err(|error| format!("语义模型下载或初始化失败：{error}"))?;
+            state.model = Some(model);
+            state.model_retry_after = None;
+            drop(state);
+            emit(progress_event(
+                "verifying",
+                "inference",
+                "384-dimensional probe",
+                0,
+                0,
+                Instant::now(),
+                "正在执行推理探针",
+            ));
+            let status = check_deployment(&cache_dir);
+            if status.state != "ready" {
+                return Err(status.diagnostic);
+            }
+            emit(progress_event(
+                "complete",
+                "inference",
+                "deployment",
+                1,
+                1,
+                Instant::now(),
+                "语义模型部署完成",
+            ));
+            Ok(status)
+        })()
+    };
     if let Err(error) = &result {
         let failed = last_progress
             .clone()
@@ -789,6 +790,29 @@ pub(super) fn semantic_candidates(
         Ok(candidates) => Ok(candidates),
         Err(SemanticFailure::Cancelled) => Err("QUESTION_CANCELLED: 用户停止了问答".to_string()),
         Err(SemanticFailure::Unavailable) => Ok(Vec::new()),
+    }
+}
+
+pub(super) fn semantic_candidates_filtered(
+    connection: &Connection,
+    root: &Path,
+    question: &str,
+    kinds: &[String],
+    document_ids: &[String],
+    cancelled: Option<&AtomicBool>,
+) -> Result<Vec<Candidate>, String> {
+    check_cancelled(cancelled)?;
+    match super::vector_sync::semantic_candidates_v2_filtered(
+        connection,
+        root,
+        question,
+        kinds,
+        document_ids,
+        cancelled,
+    ) {
+        Ok(candidates) => Ok(candidates),
+        Err(error) if error.starts_with("QUESTION_CANCELLED") => Err(error),
+        Err(_) => Ok(Vec::new()),
     }
 }
 

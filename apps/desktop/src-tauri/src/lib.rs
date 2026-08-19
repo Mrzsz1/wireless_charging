@@ -4836,10 +4836,23 @@ mod tests {
         required_kinds: Vec<String>,
     ) -> qa::QuestionContext {
         let mut planner = |_input: &qa::QueryPlanningInput| {
+            let mut must_attempt_kinds = required_kinds.clone();
+            if answer_profile == "literature" {
+                for kind in ["paper", "book"] {
+                    if !must_attempt_kinds.iter().any(|value| value == kind) {
+                        must_attempt_kinds.push(kind.to_string());
+                    }
+                }
+            }
             Ok(qa::QueryPlan {
-                schema_version: "qa-query-plan-v1".to_string(),
-                answer_profile: answer_profile.to_string(),
-                restated_question: question.to_string(),
+                schema_version: "qa-retrieval-contract-v2".to_string(),
+                scope: qa::QueryScope {
+                    mode: "open".to_string(),
+                    explicit_sources: Vec::new(),
+                },
+                concepts: vec![question.to_string()],
+                aliases: Vec::new(),
+                related_problems: Vec::new(),
                 facets: search_queries
                     .iter()
                     .enumerate()
@@ -4851,8 +4864,14 @@ mod tests {
                         preferred_kinds: required_kinds.clone(),
                     })
                     .collect(),
-                required_kinds: required_kinds.clone(),
-                minimum_evidence: 2,
+                requested_kinds: vec!["wiki".to_string(), "paper".to_string(), "book".to_string()],
+                must_attempt_kinds,
+                budget: qa::QueryBudget {
+                    max_rounds: 3,
+                    max_queries: 12,
+                    max_candidates: 160,
+                },
+                legacy_ranking_profile: answer_profile.to_string(),
             })
         };
         qa::prepare_question_with_history_budget_and_planner(
@@ -4868,6 +4887,71 @@ mod tests {
             Some(&mut planner),
         )
         .expect("planned question context")
+    }
+
+    #[test]
+    fn hybrid_retrieval_v2_recalls_tsp_and_audits_open_source_kinds() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../..")
+            .canonicalize()
+            .expect("repository root");
+        let mut connection = Connection::open_in_memory().expect("sqlite");
+        db_schema(&connection).expect("schema");
+        rebuild_connection(&mut connection, &root).expect("full index");
+
+        let question = "有没有文献或者哪本书里面涉及到移动路径规划的相关内容";
+        let mut open = qa::QueryPlan::fallback(question);
+        open.aliases = vec![
+            "TSP".to_string(),
+            "Euclidean TSP".to_string(),
+            "traveling salesman path planning".to_string(),
+        ];
+        open.requested_kinds = vec!["wiki".to_string(), "paper".to_string(), "book".to_string()];
+        open.must_attempt_kinds = vec!["paper".to_string(), "book".to_string()];
+        open.budget.max_rounds = 3;
+        let open_outcome = qa::retrieval::run_retrieval(&connection, &root, question, &open, None)
+            .expect("open hybrid retrieval");
+        assert!(open_outcome
+            .attempts
+            .iter()
+            .any(|attempt| attempt.kind == "paper"));
+        assert!(open_outcome
+            .attempts
+            .iter()
+            .any(|attempt| attempt.kind == "book"));
+        assert!(
+            open_outcome
+                .candidate_summaries()
+                .iter()
+                .any(|(kind, title, _, relation)| {
+                    kind == "book"
+                        && title.contains("Euclidean TSP")
+                        && !relation.contains("reference")
+                }),
+            "candidates={:?}",
+            open_outcome.candidate_summaries()
+        );
+
+        let constrained_question = "《近似算法》中有没有移动路径规划相关算法";
+        let mut constrained = qa::QueryPlan::fallback(constrained_question);
+        constrained.aliases = open.aliases.clone();
+        constrained.budget.max_rounds = 3;
+        let constrained_outcome = qa::retrieval::run_retrieval(
+            &connection,
+            &root,
+            constrained_question,
+            &constrained,
+            None,
+        )
+        .expect("source-constrained hybrid retrieval");
+        let summaries = constrained_outcome.candidate_summaries();
+        assert!(!summaries.is_empty());
+        assert!(
+            summaries.iter().all(|(kind, _, path, _)| {
+                kind == "book" && path.contains("approximation-algorithms")
+            }),
+            "candidates={summaries:?}"
+        );
     }
 
     #[test]
@@ -4985,7 +5069,6 @@ mod tests {
             let question = case["question"].as_str().expect("question");
             let plan = qa::parse_query_plan(&case["plan"].to_string(), question)
                 .unwrap_or_else(|error| panic!("invalid plan for {}: {error}", case["id"]));
-            let expected_profile = plan.answer_profile.clone();
             let required_facets = plan
                 .facets
                 .iter()
@@ -5006,7 +5089,6 @@ mod tests {
                 Some(&mut planner),
             )
             .unwrap_or_else(|error| panic!("semantic case {} failed: {error}", case["id"]));
-            assert_eq!(context.intent, expected_profile, "case={}", case["id"]);
             assert!(context.retrieval_query.planner_used, "case={}", case["id"]);
             assert!(
                 required_facets

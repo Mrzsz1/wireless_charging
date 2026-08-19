@@ -571,6 +571,14 @@ export type QaRunManifest = {
   plannerStatus?: string
   plannedFacetIds?: string[]
   coveredFacetIds?: string[]
+  rerankerVersion?: string
+  retrievalStopReason?: string
+  retrievalRoundCount?: number
+  requestedKinds?: string[]
+  attemptedKinds?: string[]
+  sourceGapCount?: number
+  retrievalChannelStatuses?: string[]
+  retrievalRoundFingerprints?: string[]
   generatedAt: string
 }
 
@@ -602,6 +610,10 @@ export type RetrievalChannelDiagnostic = {
   name: string
   durationMs: number
   candidateCount: number
+  round: number
+  status: 'not_requested' | 'attempted_zero_hit' | 'succeeded_with_hits' | 'degraded' | 'failed' | string
+  errorKind: string
+  roundFingerprint: string
 }
 
 export type RetrievalDiagnostics = {
@@ -629,6 +641,9 @@ export type QuestionContext = {
     coveredFacetIds?: string[]
     plannerUsed?: boolean
     plannerStatus?: string
+    requestedKinds?: string[]
+    attemptedKinds?: string[]
+    sourceGaps?: string[]
   }
   conversation: ConversationTurn[]
   evidence: EvidenceItem[]

@@ -789,19 +789,32 @@ fn build_exec_args(
     args
 }
 
-fn stream_answer_with<F>(
-    executable: &str,
-    prompt: &str,
-    output_schema: Option<&Value>,
-    model: &str,
-    reasoning_effort: &str,
+struct StreamAnswerRequest<'a> {
+    executable: &'a str,
+    prompt: &'a str,
+    output_schema: Option<&'a Value>,
+    model: &'a str,
+    reasoning_effort: &'a str,
     timeout: Duration,
-    cancelled: &AtomicBool,
+    cancelled: &'a AtomicBool,
+}
+
+fn stream_answer_with<F>(
+    request: StreamAnswerRequest<'_>,
     mut on_token: F,
 ) -> Result<(String, String), String>
 where
     F: FnMut(&str) -> Result<(), String>,
 {
+    let StreamAnswerRequest {
+        executable,
+        prompt,
+        output_schema,
+        model,
+        reasoning_effort,
+        timeout,
+        cancelled,
+    } = request;
     let workspace = TempWorkspace::create()?;
     let output_schema_path = output_schema
         .map(|schema| workspace.write_output_schema(schema))
@@ -979,14 +992,17 @@ pub fn stream_answer<F>(
 where
     F: FnMut(&str) -> Result<(), String>,
 {
+    let executable = executable();
     stream_answer_with(
-        &executable(),
-        prompt,
-        output_schema,
-        model,
-        reasoning_effort,
-        timeout,
-        cancelled,
+        StreamAnswerRequest {
+            executable: &executable,
+            prompt,
+            output_schema,
+            model,
+            reasoning_effort,
+            timeout,
+            cancelled,
+        },
         on_token,
     )
 }
@@ -1182,13 +1198,15 @@ mod tests {
         );
         let mut streamed = String::new();
         let result = stream_answer_with(
-            &answer_fixture.to_string_lossy(),
-            "question text",
-            None,
-            "",
-            "",
-            Duration::from_secs(3),
-            &AtomicBool::new(false),
+            StreamAnswerRequest {
+                executable: &answer_fixture.to_string_lossy(),
+                prompt: "question text",
+                output_schema: None,
+                model: "",
+                reasoning_effort: "",
+                timeout: Duration::from_secs(3),
+                cancelled: &AtomicBool::new(false),
+            },
             |token| {
                 streamed.push_str(token);
                 Ok(())
@@ -1209,13 +1227,15 @@ mod tests {
              exit /b 0",
         );
         let active = stream_answer_with(
-            &active_fixture.to_string_lossy(),
-            "question text",
-            None,
-            "",
-            "",
-            Duration::from_millis(1_500),
-            &AtomicBool::new(false),
+            StreamAnswerRequest {
+                executable: &active_fixture.to_string_lossy(),
+                prompt: "question text",
+                output_schema: None,
+                model: "",
+                reasoning_effort: "",
+                timeout: Duration::from_millis(1_500),
+                cancelled: &AtomicBool::new(false),
+            },
             |_| Ok(()),
         )
         .unwrap();
@@ -1226,13 +1246,15 @@ mod tests {
             "echo Authorization: fixture-secret 1>&2\r\nexit /b 7",
         );
         let error = stream_answer_with(
-            &failure_fixture.to_string_lossy(),
-            "question text",
-            None,
-            "",
-            "",
-            Duration::from_secs(3),
-            &AtomicBool::new(false),
+            StreamAnswerRequest {
+                executable: &failure_fixture.to_string_lossy(),
+                prompt: "question text",
+                output_schema: None,
+                model: "",
+                reasoning_effort: "",
+                timeout: Duration::from_secs(3),
+                cancelled: &AtomicBool::new(false),
+            },
             |_| Ok(()),
         )
         .unwrap_err();
@@ -1250,13 +1272,15 @@ mod tests {
             "echo invalid output schema 1>&2\r\nexit /b 8",
         );
         let schema_error = stream_answer_with(
-            &schema_failure_fixture.to_string_lossy(),
-            "question text",
-            Some(&schema),
-            "",
-            "",
-            Duration::from_secs(3),
-            &AtomicBool::new(false),
+            StreamAnswerRequest {
+                executable: &schema_failure_fixture.to_string_lossy(),
+                prompt: "question text",
+                output_schema: Some(&schema),
+                model: "",
+                reasoning_effort: "",
+                timeout: Duration::from_secs(3),
+                cancelled: &AtomicBool::new(false),
+            },
             |_| Ok(()),
         )
         .unwrap_err();
@@ -1265,26 +1289,30 @@ mod tests {
         let (_hang_workspace, hang_fixture) =
             write_windows_fixture("fake-codex-hang", "ping 127.0.0.1 -n 30 >nul");
         let timeout_error = stream_answer_with(
-            &hang_fixture.to_string_lossy(),
-            "question text",
-            None,
-            "",
-            "",
-            Duration::from_millis(120),
-            &AtomicBool::new(false),
+            StreamAnswerRequest {
+                executable: &hang_fixture.to_string_lossy(),
+                prompt: "question text",
+                output_schema: None,
+                model: "",
+                reasoning_effort: "",
+                timeout: Duration::from_millis(120),
+                cancelled: &AtomicBool::new(false),
+            },
             |_| Ok(()),
         )
         .unwrap_err();
         assert!(timeout_error.starts_with("CODEX_IDLE_TIMEOUT"));
 
         let cancel_error = stream_answer_with(
-            &hang_fixture.to_string_lossy(),
-            "question text",
-            None,
-            "",
-            "",
-            Duration::from_secs(3),
-            &AtomicBool::new(true),
+            StreamAnswerRequest {
+                executable: &hang_fixture.to_string_lossy(),
+                prompt: "question text",
+                output_schema: None,
+                model: "",
+                reasoning_effort: "",
+                timeout: Duration::from_secs(3),
+                cancelled: &AtomicBool::new(true),
+            },
             |_| Ok(()),
         )
         .unwrap_err();

@@ -48,16 +48,16 @@
 
 ## Acceptance Criteria
 
-- [ ] AC1：新 planner schema 不包含 answerProfile/minimumEvidence，且有完整 JSON 示例和 Provider 原生约束。
-- [ ] AC2：原问题的尾部核心概念不会因 n-gram `.take()` 或总 term truncate 静默消失。
-- [ ] AC3：指定《近似算法》的问题只在目标书范围检索正文，同时可以使用别名扩展 TSP/path planning。
-- [ ] AC4：开放“文献或者哪本书”问题分别记录 paper/book attempted 状态。
-- [ ] AC5：仅 Wiki 返回 4 条弱结果不会使未尝试 book/paper 的检索提前停止。
-- [ ] AC6：Graph-only、reference-only 和 query-unmatched fallback 不会成为高置信正文证据。
-- [ ] AC7：未见过的新术语通过 dense + LLM expansion 工作，不修改代码词表。
-- [ ] AC8：Planner、reranker、semantic 或 Graph 任一失败均有明确降级且不阻断其他通道。
-- [ ] AC9：最多首轮加两轮补查，取消/超时有效，审计 stopReason 正确。
-- [ ] AC10：Rust 检索回归和 release build 通过。
+- [x] AC1：新 planner schema 不包含 answerProfile/minimumEvidence，且有完整 JSON 示例和 Provider 原生约束。
+- [x] AC2：原问题的尾部核心概念不会因 n-gram `.take()` 或总 term truncate 静默消失。
+- [x] AC3：指定《近似算法》的问题只在目标书范围检索正文，同时可以使用别名扩展 TSP/path planning。
+- [x] AC4：开放“文献或者哪本书”问题分别记录 paper/book attempted 状态。
+- [x] AC5：仅 Wiki 返回 4 条弱结果不会使未尝试 book/paper 的检索提前停止。
+- [x] AC6：Graph-only、reference-only 和 query-unmatched fallback 不会成为高置信正文证据。
+- [x] AC7：未见过的新术语通过 dense + LLM expansion 工作，不修改代码词表。
+- [x] AC8：Planner、reranker、semantic 或 Graph 任一失败均有明确降级且不阻断其他通道。
+- [x] AC9：最多首轮加两轮补查，取消/超时有效，审计 stopReason 正确。
+- [x] AC10：Rust 检索回归和 release build 通过。
 
 ## Out of Scope
 

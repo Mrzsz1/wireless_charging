@@ -9,6 +9,14 @@ pub struct RetrievalChannelDiagnostic {
     pub name: String,
     pub duration_ms: u64,
     pub candidate_count: usize,
+    #[serde(default)]
+    pub round: usize,
+    #[serde(default)]
+    pub status: String,
+    #[serde(default)]
+    pub error_kind: String,
+    #[serde(default)]
+    pub round_fingerprint: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
@@ -50,7 +58,20 @@ impl RetrievalDiagnosticsBuilder {
             name: name.to_string(),
             duration_ms: elapsed_ms(started_at),
             candidate_count,
+            round: 1,
+            status: if candidate_count == 0 {
+                "attempted_zero_hit"
+            } else {
+                "succeeded_with_hits"
+            }
+            .to_string(),
+            error_kind: String::new(),
+            round_fingerprint: String::new(),
         });
+    }
+
+    pub(super) fn record_attempt(&mut self, diagnostic: RetrievalChannelDiagnostic) {
+        self.channels.push(diagnostic);
     }
 
     pub(super) fn add_cancel_checks(&mut self, count: usize) {

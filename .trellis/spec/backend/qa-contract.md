@@ -28,22 +28,22 @@ Use this contract when changing desktop QA request identity, retrieval, provider
 - `qa/context.rs` allocates the 8,192–1,000,000-token model window across research contract, current query, evidence, output reserve, safety margin, exact recent exchanges, deterministic structured session memory, and serialization overhead. The UI exposes no recent-turn limit.
 - Evidence is fitted first to a bounded share and unused capacity returns to history. Complete exchanges are selected contiguously newest-first until the token budget is reached; an oversized newest exchange is retained so the final total-input gate fails closed rather than silently substituting older short history. Remaining exchanges become `qa-session-memory-v1` JSON entries with source message IDs, stripped historical citations, compact user questions, and trusted answer summaries. The final serialized prompt is re-estimated before provider execution. `ContextPlan` records exact/compacted IDs, fingerprint, token breakdown, free tokens, and truncation state.
 - `failed`, `cancelled`, and `unverified` messages never enter conversation history, query rewriting, or the next prompt.
-- A `RetrievalQuery` owns `originalQuestion`, `resolvedQuestion`, `entities`, the QueryPlan-selected answer profile in `intent`, `usedHistoryMessageIds`, `queryPlanVersion`, planned/covered facet IDs, `plannerUsed`, and stable `plannerStatus` (`not_requested | succeeded | failed_fallback`). The run manifest persists only the plan version/status/facet IDs, not raw questions or planner payloads.
-- Answer profile literals remain exactly `solve | novelty | relationship | literature` because they select the structured answer contract, but question classification is not a fixed phrase/keyword router. Codex selects the profile through `qa-query-plan-v1`; downstream weighting and evidence retention consume that structured value. When no planner is available, the fail-soft profile is `solve` and is explicitly recorded as `plannerUsed=false` rather than guessed from question text.
+- A `RetrievalQuery` owns `originalQuestion`, `resolvedQuestion`, `entities`, `usedHistoryMessageIds`, the RetrievalContract version/status, planned/covered facet IDs, requested/attempted kinds, and unresolved source gaps. The run manifest persists only bounded IDs, kind/status values, and fingerprints; it never persists raw round queries or planner payloads.
+- Retrieval planning uses `qa-retrieval-contract-v2`, not a fixed answer-profile classifier. The contract expresses source scope, explicit sources, concepts, aliases, related problems, open facets, requested/must-attempt kinds, and bounded query/candidate/round budgets. `answerProfile` and `minimumEvidence` are forbidden Provider fields. Final answer formatting remains a separate compatibility concern until the natural-answer child task removes the legacy structured renderer.
 - Deterministic rewrite runs only for explicit references or continuations such as 它们/二者/上述/第二个/继续/they/both. Broad markers `其中` and `分别` do not trigger rewrite. A self-contained question naming at least two explicit model/page entities never imports history entities. Rewrite adds bounded recent entities only; it never appends full assistant history or old `[E#]` values to FTS. `usedHistoryMessageIds` contains only messages that actually contributed a resolved entity.
 - History resolves references only. Only the current evidence package can support current `[E#]` citations.
-- Retrieval is a bounded agent loop of at most three passes. Its first pass combines generic Unicode/Chinese-fragment terms, FTS5, Graphify, and a local multilingual semantic-vector channel. Codex then returns a strict Provider-native QueryPlan with an open set of facets, bounded bilingual search queries, required evidence kinds, and a minimum evidence count. LLM-generated queries run only for required facets not covered by the baseline; the third pass may expand from recalled index titles/identifiers. It stops on facet sufficiency, no novel terms, low unique-candidate gain, or the pass cap. Diagnostics expose only pass counts, aggregate channel timing/counts, candidate gains, and the stop enum; never expose the question, terms, snippets, paths, or secrets.
+- Retrieval is a bounded agent loop of at most three rounds. The Provider-native RetrievalContract supplies bounded bilingual facet queries before execution; the controller releases those queries only when the first-round coverage snapshot exposes a relevant gap. A final round may expand from recalled index titles/identifiers. It stops on all requested surfaces attempted, unresolved explicit source, no novel candidates, query budget exhaustion, cancellation, or the round cap. Diagnostics expose only round count, aggregate channel timing/counts/status, candidate gains, stop reason, and SHA-256 round fingerprints; never expose the question, terms, snippets, paths, or secrets.
 - The semantic channel embeds the resolved query plus bounded Wiki, primary-paper-section, and core-book text with the quantized multilingual Paraphrase MiniLM L12 v2 model under local ONNX Runtime. Documents and questions are not sent to an embedding API. Vectors are persisted by hashed repository identity, knowledge snapshot, model, and document identity; snapshot changes invalidate reuse. Model/runtime acquisition, initialization, or inference failure degrades to an empty semantic channel and must not fail the answer request. Initialization failure uses a bounded retry delay and never disables semantic retrieval for the remainder of the process.
 - Semantic model storage is a machine-global setting, independent from repository-scoped `LunaSettings`, and remains available before a repository is selected. The default is `%LOCALAPPDATA%/LunaWiki/fastembed`; a validated absolute writable custom directory may override it. Switching directories waits for the current semantic operation, then clears the in-memory model, corpus, and retry deadline before publishing the new path.
 - Deployment inspection is strictly offline. It reports `missing | partial | invalid | ready | error` only after checking the ONNX runtime, one complete current-model snapshot, all tokenizer files, current-model `.part` files, and—when static files are complete—a 384-dimensional finite-value probe. Ordinary QA retrieval never downloads a missing model. Only the explicit download/repair command may access the network; invalid resources are quarantined rather than deleted.
 - Explicit semantic download/repair emits `SemanticDownloadProgress` through a Tauri Channel. Runtime archive reads and Hugging Face model/tokenizer downloads report real accumulated bytes, remote total bytes when known, percentage, average bytes/second, phase, safe file label, and `downloading | verifying | complete | skipped | failed`; progress must never be synthesized by a timer. Cached files emit `skipped`, and inference initialization plus the 384-dimensional probe emit separate `verifying` events. Events never include URLs, absolute cache-file paths, credentials, or remote response bodies.
 - Cache copy is explicit, rejects equal or nested source/target directories, uses temporary destination files plus rename, skips lock files, and preserves the source directory as a rollback copy. No cache-switch, repair, or inspection path automatically deletes an old model directory.
-- QueryPlan has hard bounds: 1–6 unique open facet IDs, at most four queries per facet and sixteen total, only `wiki | paper | book` required/preferred kinds, and minimum evidence 2–12. The backend revalidates these bounds after Provider schema enforcement. Invalid, timed-out, unavailable, or rejected planner output degrades to the baseline plan; raw planner output and chain-of-thought are never persisted.
-- Baseline query extraction is domain-neutral: Unicode tokens, ASCII words, and bounded Chinese 3–4 character fragments with generic question-word filtering. Only when the first pass returns no non-Graph candidate may retrieval add bounded two-character fragments as a fail-soft bridge for one-character synonym/wording differences such as a shared prefix. This fallback must not run on an already successful baseline because broad bigrams can damage ranked precision. Production code must not map domain phrases, complete questions, or fixture-specific paper IDs to expansion terms. Cross-language/domain expansion belongs to the local semantic model and the schema-constrained QueryPlan.
-- Each retrieval channel, including semantic-vector recall, is normalized independently and receives a reciprocal-rank component before intent weighting. Final selection applies deterministic diversity penalties, caps paper/book/graph occupancy, keeps at most two paper sections per source, and applies channel minimum scores before type retention. A semantic cosine score is retrieval relevance, not factual confidence.
+- RetrievalContract has hard bounds: at most twelve concepts/aliases/related problems, at most eight unique facets, four queries per facet, twenty queries total, three rounds, and only `wiki | paper | book` requested/preferred kinds. The backend revalidates these bounds after Provider schema enforcement. Invalid, timed-out, unavailable, or rejected planner output degrades to an open one-round contract that retains the complete Unicode question and extracted explicit source names; raw planner output and chain-of-thought are never persisted.
+- The v2 query builder is domain-neutral. It combines the complete current question, Provider concepts/aliases/related problems, resolved source aliases, and bounded facet queries. When caps apply, it preserves both the beginning and the tail of the term stream so a late core concept cannot disappear through prefix-only `.take()` or truncation. Production code must not map domain phrases, complete questions, or fixture-specific source IDs to expansion terms.
+- Title/alias, ContentBlock FTS/BM25, metadata-filtered FTS, dense vectors, and graph-mapped ContentBlocks are independent channels. Channel-native scores are never added directly across scales: candidates fuse by stable block identity through reciprocal-rank fusion, then a reranker applies explicit-source protection and reference/graph/fallback penalties. Graph nodes must map back to an active ContentBlock before they can enter the evidence set. A semantic cosine or reranker score is retrieval relevance, not factual confidence.
 - Post-ranking retention is monotonic: adding a required channel, method, or Wiki/paper pair must not evict the last already-satisfied required channel or the last retained method. Pair repair protects both sides of earlier selected pairs and never inserts an orphan Wiki page after its paper was displaced.
 - Every selected primary-paper section is paired with its indexed Wiki source when the evidence budget permits, regardless of whether the section originated from direct paper FTS or Wiki down-drill. Wiki down-drill first executes the current query inside that source's paper sections; Abstract/Problem/Model/Introduction is an explicit `wiki_source_to_primary_fallback` navigation candidate and does not satisfy the query-matched primary-section contract.
-- Retrieval diagnostics contain only aggregate `totalMs`, per-channel `name/durationMs/candidateCount`, `selectedCount`, and `cancelCheckCount`. They must never contain the question, query terms, snippets, paths, credentials, tokens, or provider payloads.
+- Retrieval diagnostics contain only aggregate `totalMs`, per-channel `name/durationMs/candidateCount/round/status/errorKind/roundFingerprint`, `selectedCount`, `cancelCheckCount`, round gains, and stop reason. They must never contain the question, query terms, snippets, paths, credentials, tokens, or provider payloads.
 
 ## 4.1 Session History Pagination
 
@@ -129,6 +129,74 @@ QA request -> embed query -> remote (bounded) -> local v2 -> legacy semantic -> 
 ```
 
 The correct flow prevents per-conversation downloads, preserves offline research use, and keeps retrieval independent of the selected vector-store provider.
+
+## 4.4 Hybrid RetrievalContract v2 and Bounded Agentic Rounds
+
+### 1. Scope / Trigger
+
+- Use this contract whenever query planning, explicit-source resolution, Markdown ContentBlock retrieval, channel fusion, reranking, coverage control, or retrieval diagnostics change.
+- The contract governs evidence candidate discovery only. It does not prescribe final answer headings, claim counts, citation entailment, or a factual “sufficient/insufficient” verdict.
+
+### 2. Signatures
+
+- Planner contract: `RetrievalContract { scope, concepts, aliases, relatedProblems, facets, requestedKinds, mustAttemptKinds, budget }` with `schemaVersion = "qa-retrieval-contract-v2"`.
+- Source resolver: `resolve_sources(connection, question, contract) -> SourceResolution`.
+- Retrieval engine: `run_retrieval(connection, root, question, contract, cancelled) -> RetrievalOutcome`.
+- Channel status values are `not_requested | attempted_zero_hit | succeeded_with_hits | degraded | failed`; current fail-soft adapters use `degraded` for recoverable channel errors.
+- Stop reasons include `all_requested_surfaces_attempted`, `unresolved_explicit_source`, `no_novel_candidates`, `query_budget_exhausted`, `max_rounds`, and cancellation through the request lifecycle.
+
+### 3. Contracts
+
+- Codex planning uses Provider-native JSON Schema and a complete valid example. Unknown fields fail closed. `answerProfile` and `minimumEvidence` must not appear in the schema or accepted payload.
+- Source-constrained questions resolve titles and auditable aliases first, then push canonical document IDs into lexical and dense filters. An unresolved explicit source is a recorded gap; unrelated documents cannot satisfy it.
+- Open questions execute every requested kind independently. Zero hits are an attempted state, not proof that the source kind is absent from the repository.
+- Provider-generated facet queries are bounded and queued for a later round. The coverage controller decides whether to release them from observed gaps; it never decides whether the evidence is factually true or “enough”. The engine performs at most the initial round plus two follow-up rounds.
+- All blocking retrieval remains inside the existing QA worker and checks the shared cancellation flag between channels and rounds. Individual non-cancellation channel failures are fail-soft and do not erase successful channels.
+- Production defaults to v2. `LUNAWIKI_RAG_RETRIEVER_V2=false` (also `0`, `off`, or `no`) is the emergency rollback. During the evaluation rollout, open scope treats legacy and v2 as independent ranked lists and fuses them by stable-ID RRF; resolved source-constrained scope uses v2 exclusively.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+|---|---|
+| Planner returns unknown/unbounded fields or is unavailable | Use the deterministic open fallback with the complete current question; record `failed_fallback` |
+| Explicit title/alias resolves | Restrict FTS and dense retrieval to those document IDs; keep an exact-title candidate protected |
+| Explicit source does not resolve | Record the source gap and stop with `unresolved_explicit_source`; never substitute an unrelated source |
+| Requested paper/book channel returns no row | Record `attempted_zero_hit`; do not convert it to `not_requested` or “repository has none” |
+| Dense, Graph, or reranker implementation fails | Record a sanitized degraded channel/model state and continue with the remaining candidates |
+| Graph returns a relation without an active ContentBlock | Exclude it from factual evidence |
+| Query/round budget ends or cancellation is set | Stop at the boundary, preserve the reason, and never start an unbounded retry loop |
+
+### 5. Good / Base / Bad Cases
+
+- Good: `《近似算法》中有没有移动路径规划` resolves the book alias, searches only that Markdown document, and retrieves its TSP/Euclidean TSP block through lexical and/or dense matching.
+- Base: `有没有文献或者哪本书涉及移动路径规划` attempts paper and book independently; one may have zero hits while the other returns ranked ContentBlocks, and both states remain auditable.
+- Bad: four weak Wiki hits satisfy a numeric threshold before paper/book were attempted, or a high raw Graph score outranks an exact in-book body block.
+
+### 6. Tests Required
+
+- Schema tests reject `answerProfile`, `minimumEvidence`, unknown fields, invalid kinds, and budgets above three rounds or twenty queries.
+- Query-builder tests preserve a core concept at the tail of a long Unicode question.
+- Source tests cover alias resolution, unresolved gaps, document-ID filtering, and no cross-document leakage.
+- Retrieval tests cover open paper/book zero-hit attempts, required-facet second-round expansion, RRF, reference/graph penalties, channel degradation, cancellation, and the three-round cap.
+- A real-repository regression covers both the source-constrained Approximation Algorithms question and the open literature-or-book mobile-path-planning question.
+- Cross-layer checks require Rust fmt/check/tests, frontend contract tests and production build, plus the Rust release build.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```text
+question -> fixed intent/profile -> take first N terms -> add raw channel scores
+         -> stop when candidate_count >= minimumEvidence
+```
+
+#### Correct
+
+```text
+question -> RetrievalContract -> source resolution -> independent filtered channels
+         -> stable-ID RRF -> reranker/diversity -> soft coverage snapshot
+         -> bounded Provider expansion or index expansion -> stop with audit reason
+```
 
 ## 5. Grounding and Persistence Matrix
 

@@ -78,6 +78,27 @@ test('multi-granularity vector settings expose local progress and optional pgvec
   assert.match(types, /export type VectorSyncProgress/)
 })
 
+test('hybrid retrieval exposes bounded round and channel audit contracts without raw queries', () => {
+  const contract = readFileSync(new URL('../src-tauri/src/qa/retrieval_contract.rs', import.meta.url), 'utf8')
+  const retrieval = readFileSync(new URL('../src-tauri/src/qa/retrieval.rs', import.meta.url), 'utf8')
+  const types = read('../src/types.ts')
+  assert.match(contract, /qa-retrieval-contract-v2/)
+  assert.match(contract, /完整格式示例/)
+  assert.match(contract, /不要输出 answerProfile/)
+  assert.match(contract, /不要输出 minimumEvidence/)
+  const schemaStart = contract.indexOf('pub fn retrieval_contract_schema')
+  const schemaEnd = contract.indexOf('pub fn retrieval_contract_example')
+  const schema = contract.slice(schemaStart, schemaEnd)
+  assert.doesNotMatch(schema, /answerProfile|minimumEvidence/)
+  assert.match(retrieval, /"not_requested"/)
+  assert.match(retrieval, /"attempted_zero_hit"/)
+  assert.match(retrieval, /"succeeded_with_hits"/)
+  assert.match(retrieval, /"degraded"/)
+  assert.match(types, /roundFingerprint: string/)
+  assert.match(types, /retrievalRoundFingerprints\?: string\[\]/)
+  assert.doesNotMatch(types, /queryFingerprint/)
+})
+
 test('Windows Codex discovery covers desktop binaries, persistent PATH and script shims', () => {
   const rust = readFileSync(new URL('../src-tauri/src/codex_subscription.rs', import.meta.url), 'utf8')
   for (const contract of ['CODEX_CLI_PATH', 'OpenAI', 'Codex', 'read_registry_path', 'codex.exe', 'codex.cmd', 'codex.bat']) {
