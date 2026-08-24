@@ -1349,3 +1349,38 @@ Preserved previous evidence with turn isolation, removed fixed history caps in f
 ### Next Steps
 
 - None - task complete
+
+
+## Session 41: 完成 Markdown 科研混合 Agentic RAG
+
+**Date**: 2026-08-24
+**Task**: 完成 Markdown 科研混合 Agentic RAG
+**Branch**: `master`
+
+### Summary
+
+完成真实 Markdown RAG 评测器、通用检索修正、迁移与故障降级验证、全栈发布编译及 GUI/安装器严格冒烟；归档最终子任务与父任务。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `6fbe58f` | (see git log) |
+| `40b26a2` | (see git log) |
+| `7998aec` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

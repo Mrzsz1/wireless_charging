@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 40
+- **Total Sessions**: 41
 - **Last Active**: 2026-08-24
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1351 | Active |
+| `journal-1.md` | ~1386 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 41 | 2026-08-24 | 完成 Markdown 科研混合 Agentic RAG | `6fbe58f`, `40b26a2`, `7998aec` | `master` |
 | 40 | 2026-08-24 | 自然回答与证据深链 | `4b0cd4f`, `b4a5b0c` | `master` |
 | 39 | 2026-08-18 | 跨页面持续运行问答与文献任务 | `68c3760` | `master` |
 | 38 | 2026-08-18 | 修复智能问答双旋转加载器 | `91f5ce4` | `master` |
