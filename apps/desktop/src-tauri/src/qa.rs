@@ -7,6 +7,7 @@ mod grounding;
 pub(crate) mod locator;
 mod markdown_parser;
 mod metrics;
+mod natural_answer;
 mod query_plan;
 mod reranker;
 pub(crate) mod retrieval;
@@ -56,7 +57,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::{HashMap, HashSet};
 use std::env;
-#[cfg(test)]
 use std::fs;
 use std::io::{BufRead, BufReader};
 use std::path::Path;
@@ -159,6 +159,8 @@ pub struct EvidenceItem {
     pub source_location: String,
     pub relation: String,
     pub retrieval_reason: String,
+    #[serde(default)]
+    pub locator: Option<corpus::SourceLocator>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -245,6 +247,10 @@ pub struct CitationValidation {
     pub model_supplement_claim_count: usize,
     #[serde(default)]
     pub model_supplement_claims: Vec<String>,
+    #[serde(default)]
+    pub appendix_integrity: bool,
+    #[serde(default)]
+    pub appendix_evidence_ids: Vec<String>,
 }
 
 fn default_grounding_status() -> String {
@@ -1144,6 +1150,60 @@ fn candidate_key(candidate: &Candidate) -> String {
     } else {
         format!("{}:{}", candidate.kind, candidate.title)
     }
+}
+
+fn candidate_source_locator(
+    connection: &Connection,
+    root: &Path,
+    candidate: &Candidate,
+) -> Option<corpus::SourceLocator> {
+    let table_available = connection
+        .query_row(
+            "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE name='content_blocks_v2')",
+            [],
+            |row| row.get::<_, bool>(0),
+        )
+        .unwrap_or(false);
+    if !table_available {
+        return None;
+    }
+    let raw_markdown_path = if candidate.markdown_path.trim().is_empty() {
+        candidate.source_path.as_str()
+    } else {
+        candidate.markdown_path.as_str()
+    };
+    let markdown_path = {
+        let candidate_path = Path::new(raw_markdown_path);
+        if candidate_path.is_absolute() {
+            fs::canonicalize(candidate_path)
+                .ok()
+                .and_then(|path| {
+                    root.canonicalize()
+                        .ok()
+                        .and_then(|root| path.strip_prefix(root).ok().map(Path::to_path_buf))
+                })
+                .map(|path| path.to_string_lossy().replace('\\', "/"))
+                .unwrap_or_default()
+        } else {
+            raw_markdown_path.replace('\\', "/")
+        }
+    };
+    connection
+        .query_row(
+            "SELECT locator_json FROM content_blocks_v2
+             WHERE active=1 AND (
+               (?1<>'' AND id=?1) OR
+               (?2<>'' AND markdown_path=?2)
+             )
+             ORDER BY CASE WHEN id=?1 THEN 0 WHEN granularity='section' THEN 1 WHEN granularity='semantic' THEN 2 ELSE 3 END,ordinal
+             LIMIT 1",
+            params![candidate.node_id, markdown_path],
+            |row| row.get::<_, String>(0),
+        )
+        .optional()
+        .ok()
+        .flatten()
+        .and_then(|value| serde_json::from_str(&value).ok())
 }
 
 fn index_expansion_terms(candidates: &[Candidate], known_terms: &HashSet<String>) -> Vec<String> {
@@ -2439,28 +2499,32 @@ pub fn prepare_question_with_history_budget_and_planner(
     let evidence: Vec<EvidenceItem> = selected
         .into_iter()
         .enumerate()
-        .map(|(index, candidate)| EvidenceItem {
-            id: format!("E{}", index + 1),
-            kind: candidate.kind,
-            tier: candidate.tier,
-            title: candidate.title,
-            snippet: candidate.snippet,
-            score: candidate.score,
-            rank: index + 1,
-            page_id: candidate.page_id,
-            page_type: candidate.page_type,
-            source_path: candidate.source_path,
-            wikilink: candidate.wikilink,
-            book_id: candidate.book_id,
-            chapter_id: candidate.chapter_id,
-            physical_page_start: candidate.physical_page_start,
-            physical_page_end: candidate.physical_page_end,
-            markdown_path: candidate.markdown_path,
-            pdf_path: candidate.pdf_path,
-            node_id: candidate.node_id,
-            source_location: candidate.source_location,
-            relation: candidate.relation,
-            retrieval_reason: candidate.retrieval_reason,
+        .map(|(index, candidate)| {
+            let locator = candidate_source_locator(connection, root, &candidate);
+            EvidenceItem {
+                id: format!("E{}", index + 1),
+                kind: candidate.kind,
+                tier: candidate.tier,
+                title: candidate.title,
+                snippet: candidate.snippet,
+                score: candidate.score,
+                rank: index + 1,
+                page_id: candidate.page_id,
+                page_type: candidate.page_type,
+                source_path: candidate.source_path,
+                wikilink: candidate.wikilink,
+                book_id: candidate.book_id,
+                chapter_id: candidate.chapter_id,
+                physical_page_start: candidate.physical_page_start,
+                physical_page_end: candidate.physical_page_end,
+                markdown_path: candidate.markdown_path,
+                pdf_path: candidate.pdf_path,
+                node_id: candidate.node_id,
+                source_location: candidate.source_location,
+                relation: candidate.relation,
+                retrieval_reason: candidate.retrieval_reason,
+                locator,
+            }
         })
         .collect();
     let (conversation, evidence, context_plan) = context::build_context_plan(
@@ -2597,8 +2661,19 @@ pub fn build_codex_prompt(context: &QuestionContext) -> String {
     )
 }
 
+pub fn natural_answer_v2_enabled() -> bool {
+    let configured = env::var("LUNAWIKI_RAG_ANSWER_V2")
+        .or_else(|_| env::var("RAG_ANSWER_V2"))
+        .or_else(|_| env::var("rag_answer_v2"))
+        .unwrap_or_else(|_| "true".to_string());
+    !matches!(
+        configured.trim().to_ascii_lowercase().as_str(),
+        "0" | "false" | "off" | "no"
+    )
+}
+
 pub fn codex_output_schema(context: &QuestionContext) -> Option<Value> {
-    (!context.evidence.is_empty())
+    (!natural_answer_v2_enabled() && !context.evidence.is_empty())
         .then(|| structured_answer::provider_output_schema(&context.intent, &context.evidence))
 }
 
@@ -2864,7 +2939,12 @@ pub fn persist_exchange_with_metadata(
         ..
     } = audit;
     if let Some(reason) = structured_answer_error {
-        return Err(format!("STRUCTURED_ANSWER_VALIDATION_FAILED: {reason}"));
+        let code = if metadata.enforce_answer_schema {
+            "STRUCTURED_ANSWER_VALIDATION_FAILED"
+        } else {
+            "ANSWER_VALIDATION_FAILED"
+        };
+        return Err(format!("{code}: {reason}"));
     }
     if !citation_validation.supported && citation_validation.grounding_status != "unverified" {
         let reason = if !citation_validation.unknown_ids.is_empty() {
@@ -3034,7 +3114,27 @@ pub fn audit_generated_answer(
         && !context.evidence.is_empty()
         && metadata.provider != PROVIDER_OFFLINE;
     let (answer, citation_repair, citation_validation, structured_answer_error, structured_roles) =
-        if structured {
+        if natural_answer_v2_enabled() && !structured {
+            match natural_answer::render(answer, &context.evidence) {
+                Ok(result) => (
+                    result.markdown,
+                    result.repair,
+                    result.validation,
+                    None,
+                    None,
+                ),
+                Err(error) => (
+                    answer.to_string(),
+                    CitationRepair::default(),
+                    CitationValidation {
+                        grounding_status: "invalid".to_string(),
+                        ..CitationValidation::default()
+                    },
+                    Some(error),
+                    None,
+                ),
+            }
+        } else if structured {
             match structured_answer::parse_validate_render(
                 answer,
                 &context.intent,
@@ -3067,7 +3167,8 @@ pub fn audit_generated_answer(
         &context.intent,
         &answer,
         citation_validation.claim_count,
-        metadata.enforce_answer_schema
+        !natural_answer_v2_enabled()
+            && metadata.enforce_answer_schema
             && !context.evidence.is_empty()
             && metadata.provider != PROVIDER_OFFLINE,
         structured_roles.as_deref(),
@@ -3264,6 +3365,16 @@ mod tests {
             source_location: String::new(),
             relation: String::new(),
             retrieval_reason: String::new(),
+            locator: Some(corpus::SourceLocator {
+                document_id: "wiki:source".to_string(),
+                block_id: "block-source".to_string(),
+                heading_path: vec!["Source".to_string()],
+                markdown_path: "wiki/sources/source.md".to_string(),
+                line_start: Some(1),
+                line_end: Some(2),
+                content_hash: "fixture-hash".to_string(),
+                snapshot_id: "fixture-snapshot".to_string(),
+            }),
         }
     }
 
@@ -3311,7 +3422,7 @@ mod tests {
             })
             .collect::<Vec<_>>();
         json!({
-            "schemaVersion": context::ANSWER_SCHEMA_VERSION,
+            "schemaVersion": context::LEGACY_ANSWER_SCHEMA_VERSION,
             "sections": sections,
             "supplement": []
         })
@@ -4256,7 +4367,7 @@ mod tests {
     }
 
     #[test]
-    fn production_fixture_enforces_answer_schema_and_round_trips_manifest() {
+    fn production_fixture_accepts_natural_markdown_and_round_trips_appendix_manifest() {
         let (root, mut connection) = test_db();
         let mut context =
             prepare_question(&connection, root.path(), "fixture scheduling", 4).unwrap();
@@ -4267,13 +4378,7 @@ mod tests {
         context.conversation = conversation;
         context.evidence = evidence;
         context.context_plan = context_plan;
-        let schema = codex_output_schema(&context).expect("evidence-backed Codex schema");
-        assert_eq!(
-            schema
-                .pointer("/properties/sections/items/properties/groups/items/properties/claims/items/properties/evidenceIds/items/enum/0")
-                .and_then(Value::as_str),
-            Some("E1")
-        );
+        assert!(codex_output_schema(&context).is_none());
         let metadata = ProviderRunMetadata {
             provider: PROVIDER_API.to_string(),
             model_requested: "fixture-requested".to_string(),
@@ -4281,20 +4386,9 @@ mod tests {
             temperature: Some(0.1),
             max_output_tokens: 1_800,
             context_window_tokens: 32_768,
-            enforce_answer_schema: true,
+            enforce_answer_schema: false,
         };
-        let incomplete = persist_exchange_with_metadata(
-            &mut connection,
-            root.path(),
-            Some("fixture-incomplete"),
-            &context,
-            structured_fixture_answer(INTENT_SOLVE, "E1", false),
-            metadata.clone(),
-        )
-        .unwrap_err();
-        assert!(incomplete.starts_with("ANSWER_COMPLETENESS_FAILED"));
-
-        let answer = structured_fixture_answer(INTENT_SOLVE, "E1", true);
+        let answer = "直接回答即可，不需要固定结论或模型与方法章节。".to_string();
         let result = persist_exchange_with_metadata(
             &mut connection,
             root.path(),
@@ -4305,14 +4399,19 @@ mod tests {
         )
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v4");
+        assert!(!result.run_manifest.answer_completeness.applicable);
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v5");
+        assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.model_requested, "fixture-requested");
         assert_eq!(result.run_manifest.model_resolved, "fixture-resolved");
         assert_eq!(
             result.run_manifest.structured_output_mode,
-            "prompt-contract"
+            "natural-markdown"
         );
+        assert!(result.assistant_message.content.contains("## 参考证据"));
+        assert!(result.assistant_message.content.contains("(evidence:E1)"));
+        assert!(result.citation_validation.appendix_integrity);
         assert_eq!(result.run_manifest.prompt_sha256.len(), 64);
         assert_eq!(result.run_manifest.evidence_checksums.len(), 1);
         assert_eq!(
@@ -4343,7 +4442,7 @@ mod tests {
 
         let codex_audit = audit_generated_answer(
             &context,
-            &structured_fixture_answer(INTENT_SOLVE, "E1", true),
+            "Codex 返回的普通 Markdown。",
             &ProviderRunMetadata {
                 provider: PROVIDER_CODEX.to_string(),
                 model_requested: "fixture-requested".to_string(),
@@ -4351,12 +4450,16 @@ mod tests {
                 temperature: None,
                 max_output_tokens: 1_800,
                 context_window_tokens: 32_768,
-                enforce_answer_schema: true,
+                enforce_answer_schema: false,
             },
         );
         assert_eq!(
             codex_audit.run_manifest.structured_output_mode,
-            "codex-output-schema"
+            "natural-markdown"
+        );
+        assert_eq!(
+            codex_audit.run_manifest.answer_format,
+            "natural-markdown-v2"
         );
     }
 

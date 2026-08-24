@@ -37,10 +37,19 @@ export type CitationSummary = {
   detail: string
 }
 
-export function citationSummary(validation?: CitationValidation | null): CitationSummary | null {
+export function citationSummary(validation?: CitationValidation | null, answerFormat = ''): CitationSummary | null {
   if (!validation) return null
   if (validation.groundingStatus === 'unverified') {
     return { tone: 'unverified', label: '无参考来源 · 未验证', detail: '本轮内容不进入后续对话上下文。' }
+  }
+  if (answerFormat === 'natural-markdown-v2') {
+    if (!validation.appendixIntegrity) {
+      return { tone: 'invalid', label: '证据附录不可用', detail: '本轮没有可定位的 Markdown 证据链接。' }
+    }
+    const count = validation.appendixEvidenceIds?.length ?? 0
+    return validation.groundingStatus === 'mixed'
+      ? { tone: 'mixed', label: '证据回答 + 模型补充', detail: `后端已追加 ${count} 条可定位证据；模型补充可能不准确，且不进入后续可信上下文。未执行引用语义蕴含判断。` }
+      : { tone: 'supported', label: '参考证据已附加', detail: `后端已追加 ${count} 条本轮真实 Markdown 来源；未执行引用语义蕴含判断。` }
   }
   if (validation.groundingStatus === 'mixed') {
     return {

@@ -19,7 +19,7 @@ SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 # QaRunManifest hashes serde_json::to_vec(EvidenceItem), so the evaluator must
 # rebuild exactly that byte representation rather than hashing the arbitrary key
 # order found in a hand-edited JSON audit bundle.
-EVIDENCE_FIELDS = (
+EVIDENCE_FIELDS_V4 = (
     "id",
     "kind",
     "tier",
@@ -42,7 +42,18 @@ EVIDENCE_FIELDS = (
     "relation",
     "retrievalReason",
 )
-EVIDENCE_STRING_FIELDS = set(EVIDENCE_FIELDS) - {
+EVIDENCE_FIELDS = EVIDENCE_FIELDS_V4 + ("locator",)
+LOCATOR_FIELDS = (
+    "documentId",
+    "blockId",
+    "headingPath",
+    "markdownPath",
+    "lineStart",
+    "lineEnd",
+    "contentHash",
+    "snapshotId",
+)
+EVIDENCE_STRING_FIELDS = set(EVIDENCE_FIELDS_V4) - {
     "score",
     "rank",
     "physicalPageStart",
@@ -149,10 +160,11 @@ def _validate_evidence_item(item: Any, case_id: str) -> dict[str, Any]:
     if not isinstance(item, dict):
         raise AccuracyEvalError(f"{case_id}: evidence item 必须是对象")
     keys = set(item)
-    required = set(EVIDENCE_FIELDS)
-    if keys != required:
-        missing = sorted(required - keys)
-        extra = sorted(keys - required)
+    current = set(EVIDENCE_FIELDS)
+    legacy = set(EVIDENCE_FIELDS_V4)
+    if keys not in (current, legacy):
+        missing = sorted(current - keys)
+        extra = sorted(keys - current)
         raise AccuracyEvalError(
             f"{case_id}: evidence schema 不匹配; missing={missing}, extra={extra}"
         )
@@ -179,6 +191,25 @@ def _validate_evidence_item(item: Any, case_id: str) -> dict[str, Any]:
             raise AccuracyEvalError(
                 f"{case_id}: evidence.{field} 必须是非负整数或 null"
             )
+    if "locator" in item and item["locator"] is not None:
+        locator = item["locator"]
+        if not isinstance(locator, dict) or set(locator) != set(LOCATOR_FIELDS):
+            raise AccuracyEvalError(f"{case_id}: evidence.locator schema 不匹配")
+        for field in ("documentId", "blockId", "markdownPath", "contentHash", "snapshotId"):
+            if not isinstance(locator[field], str):
+                raise AccuracyEvalError(f"{case_id}: evidence.locator.{field} 必须是字符串")
+        if not isinstance(locator["headingPath"], list) or not all(
+            isinstance(value, str) for value in locator["headingPath"]
+        ):
+            raise AccuracyEvalError(f"{case_id}: evidence.locator.headingPath 必须是字符串数组")
+        for field in ("lineStart", "lineEnd"):
+            value = locator[field]
+            if value is not None and (
+                isinstance(value, bool) or not isinstance(value, int) or value < 0
+            ):
+                raise AccuracyEvalError(
+                    f"{case_id}: evidence.locator.{field} 必须是非负整数或 null"
+                )
     return item
 
 
@@ -186,7 +217,11 @@ def canonical_evidence_bytes(item: dict[str, Any], case_id: str = "evidence") ->
     """Reproduce serde_json::to_vec(EvidenceItem) with a fixed field order."""
 
     validated = _validate_evidence_item(item, case_id)
-    ordered = {field: validated[field] for field in EVIDENCE_FIELDS}
+    fields = EVIDENCE_FIELDS if "locator" in validated else EVIDENCE_FIELDS_V4
+    ordered = {field: validated[field] for field in fields}
+    if "locator" in ordered and ordered["locator"] is not None:
+        locator = ordered["locator"]
+        ordered["locator"] = {field: locator[field] for field in LOCATOR_FIELDS}
     try:
         return json.dumps(
             ordered,
@@ -203,6 +238,16 @@ def evidence_sha256(item: dict[str, Any], case_id: str = "evidence") -> str:
 
 
 def stable_source_id(item: dict[str, Any]) -> str:
+    locator = item.get("locator")
+    if isinstance(locator, dict):
+        return ":".join(
+            (
+                locator["documentId"],
+                " > ".join(locator["headingPath"]),
+                locator["blockId"],
+            )
+        )
+
     def rust_option(value: int | None) -> str:
         return "None" if value is None else f"Some({value})"
 

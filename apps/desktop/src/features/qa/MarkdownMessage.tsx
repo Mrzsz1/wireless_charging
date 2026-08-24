@@ -26,15 +26,17 @@ export default function MarkdownMessage({ content, evidence, onCitation }: Markd
           const id = href.slice('evidence:'.length)
           const item = byId.get(id)
           const color = Number.parseInt(id.slice(1), 10) % 8
+          const childText = Array.isArray(children) ? children.join('') : String(children ?? '')
+          const label = childText === id ? `[${id}]` : children
           return item
             ? <a
                 href={`#evidence-${id}`}
                 className={`qa-inline-citation citation-color-${color}`}
-                aria-label={`打开证据 ${id}`}
-                title={`打开证据 ${id}`}
+                aria-label={`打开证据 ${id}：${item.title}`}
+                title={`打开证据 ${id}：${item.title}`}
                 onClick={(event) => { event.preventDefault(); onCitation(item) }}
-              >[{id}]</a>
-            : <span className="qa-invalid-citation" title="回答引用了未登记的证据">[{id}]</span>
+              >{label}</a>
+            : <span className="qa-invalid-citation" title="回答引用了未登记的证据">{label}</span>
         }
         return href ? <a href={href} target="_blank" rel="noreferrer noopener">{children}</a> : <span>{children}</span>
       },

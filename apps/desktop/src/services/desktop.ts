@@ -1,5 +1,5 @@
 import { Channel, invoke } from '@tauri-apps/api/core'
-import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatMessagePage, ChatSessionDetail, ChatSessionPage, ChatSessionSummary, CodexSubscriptionStatus, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LiteratureCandidate, LiteratureCapability, LiteratureIngestSettings, LunaSettings, ManualImportSession, PageDetail, PageFilters, PageSummary, QaSettings, ResolvedSourceLocation, SemanticDeploymentStatus, SemanticDownloadProgress, SemanticModelSettings, SemanticVectorStatus, SourceLocator, VectorSyncProgress, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchProviderStatus, SearchResult, StartCompileRequest, StartLiteratureRunRequest, StartupPromptState } from '../types'
+import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatMessagePage, ChatSessionDetail, ChatSessionPage, ChatSessionSummary, CodexSubscriptionStatus, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LiteratureCandidate, LiteratureCapability, LiteratureIngestSettings, LunaSettings, ManualImportSession, PageDetail, PageFilters, PageSummary, QaSettings, ResolvedSourceDocument, ResolvedSourceLocation, SemanticDeploymentStatus, SemanticDownloadProgress, SemanticModelSettings, SemanticVectorStatus, SourceLocator, VectorSyncProgress, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchProviderStatus, SearchResult, StartCompileRequest, StartLiteratureRunRequest, StartupPromptState } from '../types'
 
 type TauriWindow = Window & { __TAURI_INTERNALS__?: unknown }
 
@@ -47,6 +47,10 @@ export async function openLocalPath(path: string, reveal = false): Promise<strin
 
 export async function resolveSourceLocator(locator: SourceLocator): Promise<ResolvedSourceLocation> {
   return invoke<ResolvedSourceLocation>('resolve_source_locator', { locator })
+}
+
+export async function readSourceLocator(locator: SourceLocator): Promise<ResolvedSourceDocument> {
+  return invoke<ResolvedSourceDocument>('read_source_locator', { locator })
 }
 
 export async function listCoreBooks(): Promise<BookSummary[]> {

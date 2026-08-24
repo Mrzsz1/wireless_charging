@@ -125,7 +125,7 @@ test('QA generation UI exposes validation-driven Thinking and compact composer c
   const types = read('../src/types.ts')
   assert.match(types, /type: 'validation_started'/)
   assert.match(ask, /Thinking · \{elapsedSeconds\}s/)
-  assert.match(ask, /引用与完整性校验/)
+  assert.match(ask, /回答与证据校验/)
   assert.match(ask, /const activeThinkingStep = phase === 'retrieving'/)
   assert.match(ask, /index === activeThinkingStep \? 'active' : 'waiting'/)
   assert.match(ask, /className="qa-thinking-loader"/)

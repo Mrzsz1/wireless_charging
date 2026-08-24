@@ -1701,6 +1701,37 @@ fn resolve_source_locator(
     qa::locator::resolve(connection, root, &locator)
 }
 
+#[tauri::command]
+async fn read_source_locator(
+    locator: qa::corpus::SourceLocator,
+    state: State<'_, AppState>,
+) -> Result<qa::locator::ResolvedSourceDocument, String> {
+    let (root, db_path) = {
+        let repository = state
+            .repository
+            .lock()
+            .map_err(|_| "知识库状态锁定失败".to_string())?;
+        let root = repository
+            .root
+            .clone()
+            .ok_or_else(|| "请先选择知识库目录".to_string())?;
+        let db_path = repository
+            .db
+            .as_ref()
+            .and_then(Connection::path)
+            .map(PathBuf::from)
+            .ok_or_else(|| "SQLite连接路径不可用".to_string())?;
+        (root, db_path)
+    };
+    tauri::async_runtime::spawn_blocking(move || {
+        let connection = Connection::open(db_path)
+            .map_err(|error| format!("打开 Markdown 来源只读连接失败：{error}"))?;
+        qa::locator::read(&connection, &root, &locator)
+    })
+    .await
+    .map_err(|error| format!("SOURCE_LOCATOR_TASK_ERROR: {error}"))?
+}
+
 fn core_book_meta(book_id: &str) -> Option<(&'static str, &'static str, usize, &'static str)> {
     match book_id {
         "algorithmic-game-theory" => Some((
@@ -3569,7 +3600,8 @@ async fn ask_luna(
                     .then_some(settings.temperature),
                 max_output_tokens: settings.max_output_tokens,
                 context_window_tokens: settings.context_window_tokens,
-                enforce_answer_schema: settings.answer_provider != qa::PROVIDER_OFFLINE,
+                enforce_answer_schema: !qa::natural_answer_v2_enabled()
+                    && settings.answer_provider != qa::PROVIDER_OFFLINE,
             };
             let audit = qa::audit_generated_answer(&context, "", &failure_metadata);
             let exchange = persist_answer_failure(
@@ -3663,7 +3695,8 @@ async fn ask_luna(
             temperature,
             max_output_tokens: settings.max_output_tokens,
             context_window_tokens: settings.context_window_tokens,
-            enforce_answer_schema: provider != qa::PROVIDER_OFFLINE,
+            enforce_answer_schema: !qa::natural_answer_v2_enabled()
+                && provider != qa::PROVIDER_OFFLINE,
         };
         let audit = qa::audit_generated_answer(&context, &answer, &metadata);
         let persisted = qa::persist_exchange_with_metadata(
@@ -4299,6 +4332,7 @@ pub fn run() {
             get_backlinks,
             open_local_path,
             resolve_source_locator,
+            read_source_locator,
             list_core_books,
             list_book_chapters,
             get_book_chapter,
@@ -4980,6 +5014,13 @@ mod tests {
         );
         assert!(context.evidence.iter().any(|item| item.kind == "wiki"));
         assert!(context.evidence.iter().any(|item| item.kind == "book"));
+        let missing_locators = context
+            .evidence
+            .iter()
+            .filter(|item| item.kind != "graph" && item.locator.is_none())
+            .map(|item| format!("{}:{}:{}", item.kind, item.node_id, item.markdown_path))
+            .collect::<Vec<_>>();
+        assert!(missing_locators.is_empty(), "{missing_locators:?}");
         assert!(context
             .evidence
             .iter()

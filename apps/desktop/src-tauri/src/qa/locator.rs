@@ -1,6 +1,7 @@
 use super::corpus::SourceLocator;
 use rusqlite::{Connection, OptionalExtension};
 use serde::Serialize;
+use std::fs;
 use std::path::{Path, PathBuf};
 
 #[derive(Debug, Serialize, Clone, PartialEq, Eq)]
@@ -15,6 +16,14 @@ pub struct ResolvedSourceLocation {
     pub matched_by: String,
     pub content_hash_matches: bool,
     pub degraded_reason: String,
+}
+
+#[derive(Debug, Serialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct ResolvedSourceDocument {
+    pub title: String,
+    pub body: String,
+    pub location: ResolvedSourceLocation,
 }
 
 fn safe_repository_file(root: &Path, relative: &str) -> Result<PathBuf, String> {
@@ -104,6 +113,36 @@ fn block_by_heading(
         .map_err(|error| format!("按标题读取 Markdown locator 失败：{error}"))
 }
 
+fn document_markdown_path(
+    connection: &Connection,
+    document_id: &str,
+) -> Result<Option<String>, String> {
+    connection
+        .query_row(
+            "SELECT markdown_path FROM documents_v2 WHERE id=?1 AND active=1",
+            [document_id],
+            |row| row.get::<_, String>(0),
+        )
+        .optional()
+        .map_err(|error| format!("读取 Markdown 文档 locator 失败：{error}"))
+}
+
+fn document_owns_markdown_path(
+    connection: &Connection,
+    document_id: &str,
+    markdown_path: &str,
+) -> Result<bool, String> {
+    connection
+        .query_row(
+            "SELECT
+               EXISTS(SELECT 1 FROM documents_v2 WHERE id=?1 AND markdown_path=?2 AND active=1)
+               OR EXISTS(SELECT 1 FROM content_blocks_v2 WHERE document_id=?1 AND markdown_path=?2 AND active=1)",
+            [document_id, markdown_path],
+            |row| row.get(0),
+        )
+        .map_err(|error| format!("验证 Markdown 文档归属失败：{error}"))
+}
+
 fn resolved_from_block(
     root: &Path,
     locator: &SourceLocator,
@@ -136,6 +175,8 @@ pub(crate) fn resolve(
     if locator.document_id.trim().is_empty() {
         return Err("SOURCE_LOCATOR_INVALID: documentId 不能为空".to_string());
     }
+    let document_path = document_markdown_path(connection, &locator.document_id)?
+        .ok_or_else(|| "SOURCE_LOCATOR_MISSING: 来源文档已不在当前索引".to_string())?;
     if let Some(row) = block_by_id(connection, locator)? {
         return resolved_from_block(root, locator, row, "block");
     }
@@ -144,30 +185,27 @@ pub(crate) fn resolve(
             return resolved_from_block(root, locator, row, "heading");
         }
     }
-    if let Ok(relative) = existing_relative(root, &locator.markdown_path) {
-        if locator.line_start.is_some() || locator.line_end.is_some() {
-            return Ok(ResolvedSourceLocation {
-                document_id: locator.document_id.clone(),
-                block_id: String::new(),
-                markdown_path: relative,
-                heading_path: locator.heading_path.clone(),
-                line_start: locator.line_start,
-                line_end: locator.line_end,
-                matched_by: "line".to_string(),
-                content_hash_matches: false,
-                degraded_reason: "稳定内容块已变化，已降级到原行号范围".to_string(),
-            });
+    if document_owns_markdown_path(
+        connection,
+        &locator.document_id,
+        &locator.markdown_path.replace('\\', "/"),
+    )? {
+        if let Ok(relative) = existing_relative(root, &locator.markdown_path) {
+            if locator.line_start.is_some() || locator.line_end.is_some() {
+                return Ok(ResolvedSourceLocation {
+                    document_id: locator.document_id.clone(),
+                    block_id: String::new(),
+                    markdown_path: relative,
+                    heading_path: locator.heading_path.clone(),
+                    line_start: locator.line_start,
+                    line_end: locator.line_end,
+                    matched_by: "line".to_string(),
+                    content_hash_matches: false,
+                    degraded_reason: "稳定内容块已变化，已降级到原行号范围".to_string(),
+                });
+            }
         }
     }
-    let document_path = connection
-        .query_row(
-            "SELECT markdown_path FROM documents_v2 WHERE id=?1 AND active=1",
-            [&locator.document_id],
-            |row| row.get::<_, String>(0),
-        )
-        .optional()
-        .map_err(|error| format!("读取 Markdown 文档 locator 失败：{error}"))?
-        .ok_or_else(|| "SOURCE_LOCATOR_MISSING: 来源文档已不在当前索引".to_string())?;
     Ok(ResolvedSourceLocation {
         document_id: locator.document_id.clone(),
         block_id: String::new(),
@@ -178,6 +216,37 @@ pub(crate) fn resolve(
         matched_by: "document".to_string(),
         content_hash_matches: false,
         degraded_reason: "原内容块和标题均已变化，已打开来源文档".to_string(),
+    })
+}
+
+pub(crate) fn read(
+    connection: &Connection,
+    root: &Path,
+    locator: &SourceLocator,
+) -> Result<ResolvedSourceDocument, String> {
+    let location = resolve(connection, root, locator)?;
+    let path = safe_repository_file(root, &location.markdown_path)?;
+    let body = fs::read_to_string(&path)
+        .map_err(|error| format!("SOURCE_LOCATOR_READ_FAILED: 读取 Markdown 来源失败：{error}"))?;
+    let title = connection
+        .query_row(
+            "SELECT canonical_title FROM documents_v2 WHERE id=?1 AND active=1",
+            [&location.document_id],
+            |row| row.get::<_, String>(0),
+        )
+        .optional()
+        .map_err(|error| format!("读取 Markdown 来源标题失败：{error}"))?
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or_else(|| {
+            path.file_stem()
+                .and_then(|value| value.to_str())
+                .unwrap_or("Markdown 来源")
+                .to_string()
+        });
+    Ok(ResolvedSourceDocument {
+        title,
+        body,
+        location,
     })
 }
 
@@ -195,12 +264,12 @@ mod tests {
         fs::write(root.join("wiki/demo.md"), "# Demo\n\n## Model\nBody").unwrap();
         let connection = Connection::open_in_memory().unwrap();
         connection.execute_batch(
-            "CREATE TABLE documents_v2(id TEXT PRIMARY KEY,markdown_path TEXT,active INTEGER);
+            "CREATE TABLE documents_v2(id TEXT PRIMARY KEY,canonical_title TEXT,markdown_path TEXT,active INTEGER);
              CREATE TABLE content_blocks_v2(id TEXT PRIMARY KEY,document_id TEXT,markdown_path TEXT,heading_path_json TEXT,line_start INTEGER,line_end INTEGER,content_hash TEXT,granularity TEXT,ordinal INTEGER,active INTEGER);",
         ).unwrap();
         connection
             .execute(
-                "INSERT INTO documents_v2 VALUES('wiki:demo','wiki/demo.md',1)",
+                "INSERT INTO documents_v2 VALUES('wiki:demo','Demo','wiki/demo.md',1)",
                 [],
             )
             .unwrap();
@@ -222,6 +291,9 @@ mod tests {
             resolve(&connection, root, &locator).unwrap().matched_by,
             "block"
         );
+        let document = read(&connection, root, &locator).unwrap();
+        assert_eq!(document.title, "Demo");
+        assert!(document.body.contains("## Model"));
         connection
             .execute("DELETE FROM content_blocks_v2 WHERE id='b1'", [])
             .unwrap();
@@ -232,6 +304,33 @@ mod tests {
         assert_eq!(
             resolve(&connection, root, &locator).unwrap().matched_by,
             "heading"
+        );
+        connection
+            .execute("DELETE FROM content_blocks_v2", [])
+            .unwrap();
+        assert_eq!(
+            resolve(&connection, root, &locator).unwrap().matched_by,
+            "line"
+        );
+        let mut document_locator = locator.clone();
+        document_locator.line_start = None;
+        document_locator.line_end = None;
+        assert_eq!(
+            resolve(&connection, root, &document_locator)
+                .unwrap()
+                .matched_by,
+            "document"
+        );
+        fs::write(root.join("wiki/other.md"), "# Other").unwrap();
+        let mut mismatched_locator = locator.clone();
+        mismatched_locator.block_id.clear();
+        mismatched_locator.heading_path.clear();
+        mismatched_locator.markdown_path = "wiki/other.md".to_string();
+        assert_eq!(
+            resolve(&connection, root, &mismatched_locator)
+                .unwrap()
+                .matched_by,
+            "document"
         );
         let mut unsafe_locator = locator;
         unsafe_locator.block_id.clear();

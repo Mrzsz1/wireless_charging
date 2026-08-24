@@ -42,6 +42,7 @@ import { StartupIngestPrompt } from './features/ingest/StartupIngestPrompt'
 import { localDateKey } from './features/ingest/ingestState'
 import { LibraryView } from './features/library/LibraryView'
 import { PageView } from './features/pages/PageView'
+import { SourceDocumentView } from './features/pages/SourceDocumentView'
 import { AskView } from './features/qa/AskView'
 import { ResearchTrailPanel } from './features/research-trail/ResearchTrailPanel'
 import { SettingsView } from './features/settings/SettingsView'
@@ -54,16 +55,17 @@ import {
   listPages,
   openLocalPath,
   processRepositoryChanges,
+  readSourceLocator,
   rebuildIndex,
   repositoryInfo,
   searchPages,
   suppressIngestPromptToday,
 } from './services/desktop'
 import { checkAndInstallUpdate, getAppReleaseInfo } from './services/updater'
-import type { Backlink, PageDetail, PageFilters, PageSummary, RepositoryInfo, ResearchTrailRequest, SearchResult, StartupPromptState } from './types'
+import type { Backlink, PageDetail, PageFilters, PageSummary, RepositoryInfo, ResearchTrailRequest, ResolvedSourceDocument, SearchResult, SourceLocator, StartupPromptState } from './types'
 
 type Icon = ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
-type MainView = 'dashboard' | 'qa' | 'library' | 'ingest' | 'methods' | 'books' | 'graph' | 'comparison' | 'compile' | 'settings' | 'help' | 'page'
+type MainView = 'dashboard' | 'qa' | 'library' | 'ingest' | 'methods' | 'books' | 'graph' | 'comparison' | 'compile' | 'settings' | 'help' | 'page' | 'source'
 type Theme = 'light' | 'dark' | 'system'
 
 type NavigationItem = { label: string; view: MainView; icon: Icon }
@@ -135,8 +137,10 @@ function readWorkspaceState(): PersistedWorkspaceState {
   const fallback: PersistedWorkspaceState = { version: WORKSPACE_STATE_VERSION, repositoryPath: '', tabs: [defaultTab], activeTab: defaultTab.id, view: 'dashboard' }
   const stored = readStored<PersistedWorkspaceState>('desktop.workspace-state.v2', fallback)
   if (stored.version !== WORKSPACE_STATE_VERSION || !Array.isArray(stored.tabs) || !stored.tabs.length || typeof stored.activeTab !== 'string') return fallback
-  const activeExists = stored.tabs.some((tab) => tab.id === stored.activeTab)
-  return { ...stored, activeTab: activeExists ? stored.activeTab : stored.tabs[0].id, view: activeExists ? stored.view : (stored.tabs[0].kind as MainView) }
+  const tabs = stored.tabs.filter((tab) => tab.kind !== 'source')
+  if (!tabs.length) return { ...fallback, repositoryPath: stored.repositoryPath }
+  const activeExists = tabs.some((tab) => tab.id === stored.activeTab)
+  return { ...stored, tabs, activeTab: activeExists ? stored.activeTab : tabs[0].id, view: activeExists && stored.view !== 'source' ? stored.view : (tabs[0].kind as MainView) }
 }
 
 function viewLabel(view: MainView) {
@@ -166,6 +170,7 @@ export default function App() {
   const [searchBusy, setSearchBusy] = useState(false)
   const [filters, setFilters] = useState<PageFilters>({ limit: 200, sort: 'modified' })
   const [page, setPage] = useState<PageDetail | null>(null)
+  const [sourceDocument, setSourceDocument] = useState<ResolvedSourceDocument | null>(null)
   const [backlinks, setBacklinks] = useState<Backlink[]>([])
   const [loading, setLoading] = useState(true)
   const [notice, setNoticeState] = useState({ id: 0, message: '' })
@@ -412,14 +417,33 @@ export default function App() {
     }
   }, [repository?.path])
 
+  const openSource = useCallback(async (locator: SourceLocator, label: string) => {
+    setLoading(true)
+    try {
+      const document = await readSourceLocator(locator)
+      setSourceDocument(document)
+      setResearchRequest(null)
+      setView('source')
+      const tabId = 'source-current'
+      setActiveTab(tabId)
+      setTabs((current) => current.some((tab) => tab.id === tabId)
+        ? current.map((tab) => tab.id === tabId ? { ...tab, label, resourceId: document.location.documentId, repositoryPath: repository?.path } : tab)
+        : [...current, { id: tabId, label, kind: 'source', resourceId: document.location.documentId, repositoryPath: repository?.path }])
+    } catch (error) {
+      setNotice(`证据来源打开失败：${String(error)}`)
+    } finally {
+      setLoading(false)
+    }
+  }, [repository?.path])
+
   useEffect(() => {
     const repositoryPath = repository?.path
     if (!repositoryPath || restoredRepository.current === repositoryPath) return
     restoredRepository.current = repositoryPath
     const repositoryChanged = Boolean(bootWorkspace.repositoryPath && bootWorkspace.repositoryPath !== repositoryPath)
     const validTabs = repositoryChanged
-      ? tabs.filter((tab) => tab.kind !== 'page' || tab.repositoryPath === repositoryPath)
-      : tabs.filter((tab) => tab.kind !== 'page' || !tab.repositoryPath || tab.repositoryPath === repositoryPath)
+      ? tabs.filter((tab) => tab.kind !== 'source' && (tab.kind !== 'page' || tab.repositoryPath === repositoryPath))
+      : tabs.filter((tab) => !['page', 'source'].includes(tab.kind) || !tab.repositoryPath || tab.repositoryPath === repositoryPath)
     const safeTabs = validTabs.length ? validTabs : [defaultTab]
     if (safeTabs.length !== tabs.length) setTabs(safeTabs)
     const target = safeTabs.find((tab) => tab.id === activeTab) ?? safeTabs[safeTabs.length - 1]
@@ -568,10 +592,11 @@ export default function App() {
   const renderSettings = () => <SettingsView repositoryPath={repository?.path ?? ''} theme={theme} fontSize={fontSize} releaseInfo={releaseInfo} updateBusy={updateBusy} desktopRuntime={isDesktopRuntime()} focusSection={settingsFocusSection} onChooseRepository={() => void handleChooseRepository()} onRebuild={() => void handleRebuild()} onThemeChange={setTheme} onFontSizeChange={setFontSize} onUpdate={() => void handleUpdate()} />
 
   const renderContent = () => {
-    if (loading && view === 'page') return <div className="page-loading"><RefreshCw className="spin" />正在加载页面…</div>
+    if (loading && (view === 'page' || view === 'source')) return <div className="page-loading"><RefreshCw className="spin" />正在加载 Markdown 来源…</div>
     if (view === 'dashboard') return renderDashboard()
     if (view === 'library' || view === 'methods') return <LibraryView query={query} results={results} catalog={catalog} pageType={view === 'methods' ? 'method' : 'source'} filters={filters} loading={loading} onQueryChange={handleLibrarySearch} onFiltersChange={setFilters} onOpenResult={(item) => void openPage(item.id)} />
     if (view === 'page' && page) return <PageView page={page} backlinks={backlinks} backlinksLoading={loading} onOpenLink={(id) => void openPage(id)} onOpenPath={(path, reveal) => void openLocalPath(path, reveal)} onReload={() => void openPage(page.id)} />
+    if (view === 'source' && sourceDocument) return <SourceDocumentView document={sourceDocument} onOpenLink={(id) => void openPage(id)} onOpenPath={(path, reveal) => void openLocalPath(path, reveal)} />
     if (view === 'books') return <CoreBooksView onOpenLink={(id) => void openPage(id)} target={bookTarget} />
     if (view === 'graph') return <GraphView onOpenPage={(id) => void openPage(id)} refreshVersion={graphRefreshVersion} targetNodeId={graphFocusNodeId} />
     if (view === 'comparison') return <ComparisonView candidates={catalog} onOpenPage={(id) => void openPage(id)} />
@@ -659,7 +684,7 @@ export default function App() {
             <LiteratureIngestView repositoryPath={repository?.path ?? ''} autoStartRequest={autoStartRequest} onChooseRepository={() => void handleChooseRepository()} onCompleted={(message) => { setNotice(message); setRepositoryGeneration((value) => value + 1) }} onOpenCompileCenter={() => activateView('compile')} onOpenSettings={() => openSettings('literature-automation-settings')} onOpenPath={(path, reveal) => void openLocalPath(path, reveal)} />
           </div>
           <div className="persistent-workspace qa-workspace" data-testid="persistent-qa-workspace" hidden={view !== 'qa'}>
-            <AskView repositoryPath={repository?.path ?? ''} onOpenSettings={() => openSettings('qa-engine-settings')} onResearchContextChange={(question) => setResearchRequest(question ? { kind: 'question', text: question, evidenceLimit: 5, methodLimit: 4 } : null)} onOpenPage={(id) => void openPage(id)} onOpenBook={(bookId, chapterId) => { setBookTarget({ bookId, chapterId }); activateView('books') }} onOpenPath={(path) => void openLocalPath(path)} />
+            <AskView repositoryPath={repository?.path ?? ''} onOpenSettings={() => openSettings('qa-engine-settings')} onResearchContextChange={(question) => setResearchRequest(question ? { kind: 'question', text: question, evidenceLimit: 5, methodLimit: 4 } : null)} onOpenPage={(id) => void openPage(id)} onOpenBook={(bookId, chapterId) => { setBookTarget({ bookId, chapterId }); activateView('books') }} onOpenPath={(path) => void openLocalPath(path)} onOpenSource={(locator, label) => void openSource(locator, label)} />
           </div>
           <div className="persistent-workspace compile-workspace" data-testid="persistent-compile-workspace" hidden={view !== 'compile'}>
             <CompileCenterView repositoryPath={repository?.path ?? ''} onChooseRepository={() => void handleChooseRepository()} onOpenPath={(path) => void openLocalPath(path)} />

@@ -1,4 +1,4 @@
-import { createElement, useMemo, type ReactNode } from 'react'
+import { createElement, useEffect, useMemo, useRef, type ReactNode } from 'react'
 import { convertFileSrc } from '@tauri-apps/api/core'
 import { ExternalLink, FileImage, Link2 } from 'lucide-react'
 import { isDesktopRuntime } from '../../services/desktop'
@@ -7,6 +7,11 @@ type MarkdownReaderProps = {
   body: string
   sourcePath: string
   onOpenLink: (target: string) => void
+  focus?: {
+    headingPath?: string[]
+    lineStart?: number | null
+    matchedBy?: string
+  } | null
 }
 
 function safeLocalImagePath(sourcePath: string, target: string) {
@@ -63,15 +68,18 @@ function tableCells(line: string) {
   return line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((cell) => cell.trim())
 }
 
-export function MarkdownReader({ body, sourcePath, onOpenLink }: MarkdownReaderProps) {
+export function MarkdownReader({ body, sourcePath, onOpenLink, focus }: MarkdownReaderProps) {
+  const rootRef = useRef<HTMLElement>(null)
   const blocks = useMemo(() => {
     const lines = body.replace(/\r\n/g, '\n').split('\n')
-    const result: React.ReactNode[] = []
+    const result: Array<{ key: string; node: React.ReactNode; line: number; headingPath: string[] }> = []
     let index = 0
     let blockKey = 0
+    const headings: string[] = []
     while (index < lines.length) {
       const line = lines[index]
       const key = `markdown-block-${blockKey++}`
+      const sourceLine = index + 1
       if (!line.trim()) { index += 1; continue }
       if (line.trim().startsWith('```')) {
         const language = line.trim().slice(3).trim()
@@ -79,7 +87,7 @@ export function MarkdownReader({ body, sourcePath, onOpenLink }: MarkdownReaderP
         index += 1
         while (index < lines.length && !lines[index].trim().startsWith('```')) { code.push(lines[index]); index += 1 }
         index += 1
-        result.push(<pre key={key} className="markdown-code"><code data-language={language || undefined}>{code.join('\n')}</code></pre>)
+        result.push({ key, line: sourceLine, headingPath: [...headings], node: <pre className="markdown-code"><code data-language={language || undefined}>{code.join('\n')}</code></pre> })
         continue
       }
       if (line.trim() === '$$') {
@@ -87,13 +95,15 @@ export function MarkdownReader({ body, sourcePath, onOpenLink }: MarkdownReaderP
         index += 1
         while (index < lines.length && lines[index].trim() !== '$$') { formula.push(lines[index]); index += 1 }
         index += 1
-        result.push(<div key={key} className="markdown-math" role="math">{formula.join('\n')}</div>)
+        result.push({ key, line: sourceLine, headingPath: [...headings], node: <div className="markdown-math" role="math">{formula.join('\n')}</div> })
         continue
       }
       const heading = line.match(/^(#{1,6})\s+(.+)$/)
       if (heading) {
         const level = heading[1].length
-        result.push(createElement(`h${level}`, { key, className: 'markdown-heading' }, inlineText(heading[2], onOpenLink, sourcePath)))
+        headings.length = level - 1
+        headings[level - 1] = heading[2].trim()
+        result.push({ key, line: sourceLine, headingPath: headings.filter(Boolean), node: createElement(`h${level}`, { className: 'markdown-heading' }, inlineText(heading[2], onOpenLink, sourcePath)) })
         index += 1
         continue
       }
@@ -102,34 +112,53 @@ export function MarkdownReader({ body, sourcePath, onOpenLink }: MarkdownReaderP
         const rows: string[][] = []
         index += 2
         while (index < lines.length && lines[index].includes('|') && lines[index].trim()) { rows.push(tableCells(lines[index])); index += 1 }
-        result.push(<div key={key} className="markdown-table-wrap"><table className="markdown-table"><thead><tr>{header.map((cell, cellIndex) => <th key={`${key}-h-${cellIndex}`}>{inlineText(cell, onOpenLink, sourcePath)}</th>)}</tr></thead><tbody>{rows.map((row, rowIndex) => <tr key={`${key}-r-${rowIndex}`}>{header.map((_, cellIndex) => <td key={`${key}-c-${cellIndex}`}>{inlineText(row[cellIndex] || '', onOpenLink, sourcePath)}</td>)}</tr>)}</tbody></table></div>)
+        result.push({ key, line: sourceLine, headingPath: [...headings], node: <div className="markdown-table-wrap"><table className="markdown-table"><thead><tr>{header.map((cell, cellIndex) => <th key={`${key}-h-${cellIndex}`}>{inlineText(cell, onOpenLink, sourcePath)}</th>)}</tr></thead><tbody>{rows.map((row, rowIndex) => <tr key={`${key}-r-${rowIndex}`}>{header.map((_, cellIndex) => <td key={`${key}-c-${cellIndex}`}>{inlineText(row[cellIndex] || '', onOpenLink, sourcePath)}</td>)}</tr>)}</tbody></table></div> })
         continue
       }
       if (/^\s*[-*+]\s+/.test(line)) {
         const items: string[] = []
         while (index < lines.length && /^\s*[-*+]\s+/.test(lines[index])) { items.push(lines[index].replace(/^\s*[-*+]\s+/, '')); index += 1 }
-        result.push(<ul key={key} className="markdown-list">{items.map((item, itemIndex) => <li key={`${key}-${itemIndex}`}>{inlineText(item, onOpenLink, sourcePath)}</li>)}</ul>)
+        result.push({ key, line: sourceLine, headingPath: [...headings], node: <ul className="markdown-list">{items.map((item, itemIndex) => <li key={`${key}-${itemIndex}`}>{inlineText(item, onOpenLink, sourcePath)}</li>)}</ul> })
         continue
       }
       if (/^\s*\d+[.)]\s+/.test(line)) {
         const items: string[] = []
         while (index < lines.length && /^\s*\d+[.)]\s+/.test(lines[index])) { items.push(lines[index].replace(/^\s*\d+[.)]\s+/, '')); index += 1 }
-        result.push(<ol key={key} className="markdown-list">{items.map((item, itemIndex) => <li key={`${key}-${itemIndex}`}>{inlineText(item, onOpenLink, sourcePath)}</li>)}</ol>)
+        result.push({ key, line: sourceLine, headingPath: [...headings], node: <ol className="markdown-list">{items.map((item, itemIndex) => <li key={`${key}-${itemIndex}`}>{inlineText(item, onOpenLink, sourcePath)}</li>)}</ol> })
         continue
       }
       if (/^\s*>/.test(line)) {
         const quote: string[] = []
         while (index < lines.length && /^\s*>/.test(lines[index])) { quote.push(lines[index].replace(/^\s*>\s?/, '')); index += 1 }
-        result.push(<blockquote key={key} className="markdown-quote">{quote.map((item, itemIndex) => <div key={`${key}-${itemIndex}`}>{inlineText(item, onOpenLink, sourcePath)}</div>)}</blockquote>)
+        result.push({ key, line: sourceLine, headingPath: [...headings], node: <blockquote className="markdown-quote">{quote.map((item, itemIndex) => <div key={`${key}-${itemIndex}`}>{inlineText(item, onOpenLink, sourcePath)}</div>)}</blockquote> })
         continue
       }
       const paragraph: string[] = [line]
       index += 1
       while (index < lines.length && lines[index].trim() && !/^(#{1,6})\s+/.test(lines[index]) && !lines[index].trim().startsWith('```') && !/^\s*[-*+]\s+/.test(lines[index]) && !/^\s*\d+[.)]\s+/.test(lines[index])) { paragraph.push(lines[index]); index += 1 }
-      result.push(<p key={key} className="markdown-paragraph">{paragraph.flatMap((item, itemIndex) => [itemIndex > 0 && <br key={`${key}-br-${itemIndex}`} />, inlineText(item, onOpenLink, sourcePath)])}</p>)
+      result.push({ key, line: sourceLine, headingPath: [...headings], node: <p className="markdown-paragraph">{paragraph.flatMap((item, itemIndex) => [itemIndex > 0 && <br key={`${key}-br-${itemIndex}`} />, inlineText(item, onOpenLink, sourcePath)])}</p> })
     }
-    return result
+    return result.map((entry) => <div key={entry.key} className="markdown-source-block" data-source-line={entry.line} data-heading-path={JSON.stringify(entry.headingPath)}>{entry.node}</div>)
   }, [body, onOpenLink, sourcePath])
 
-  return <article className="markdown-reader">{blocks.length ? blocks : <div className="markdown-empty">本页没有可展示的正文。</div>}</article>
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root || !focus) return
+    const entries = Array.from(root.querySelectorAll<HTMLElement>('.markdown-source-block'))
+    const targetHeading = JSON.stringify(focus.headingPath ?? [])
+    let target = (focus.headingPath?.length ?? 0) > 0
+      ? entries.find((entry) => entry.dataset.headingPath === targetHeading)
+      : undefined
+    if (!target && focus.lineStart) {
+      target = entries
+        .filter((entry) => Number(entry.dataset.sourceLine ?? 0) <= Number(focus.lineStart))
+        .at(-1)
+    }
+    if (!target) target = entries[0]
+    target?.classList.add('markdown-source-focus')
+    target?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    return () => target?.classList.remove('markdown-source-focus')
+  }, [blocks, focus])
+
+  return <article ref={rootRef} className="markdown-reader">{blocks.length ? blocks : <div className="markdown-empty">本页没有可展示的正文。</div>}</article>
 }

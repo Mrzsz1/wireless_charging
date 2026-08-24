@@ -5,7 +5,7 @@ use serde::Deserialize;
 use serde_json::{json, Value};
 use std::collections::{HashMap, HashSet};
 
-const SCHEMA_VERSION: &str = super::context::ANSWER_SCHEMA_VERSION;
+const SCHEMA_VERSION: &str = super::context::LEGACY_ANSWER_SCHEMA_VERSION;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -562,6 +562,8 @@ pub fn parse_validate_render(
             entailment_checked: false,
             model_supplement_claim_count: model_supplement_claims.len(),
             model_supplement_claims,
+            appendix_integrity: false,
+            appendix_evidence_ids: Vec::new(),
         },
     })
 }
@@ -604,6 +606,7 @@ mod tests {
             source_location: "原文第1–2行".to_string(),
             relation: String::new(),
             retrieval_reason: String::new(),
+            locator: None,
         }
     }
 

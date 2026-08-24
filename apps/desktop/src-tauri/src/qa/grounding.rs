@@ -708,6 +708,8 @@ pub fn validate_citations(answer: &str, evidence: &[EvidenceItem]) -> CitationVa
         entailment_checked: false,
         model_supplement_claim_count: model_supplement_claims.len(),
         model_supplement_claims,
+        appendix_integrity: false,
+        appendix_evidence_ids: Vec::new(),
     }
 }
 
@@ -715,10 +717,14 @@ pub fn trusted_context(answer: &str, grounding_status: &str) -> String {
     if !matches!(grounding_status, "supported" | "mixed") {
         return String::new();
     }
-    let verified = answer
-        .find(MODEL_SUPPLEMENT_HEADING)
-        .map(|start| &answer[..start])
-        .unwrap_or(answer);
+    let boundary = [
+        answer.find(MODEL_SUPPLEMENT_HEADING),
+        answer.find(super::natural_answer::APPENDIX_HEADING),
+    ]
+    .into_iter()
+    .flatten()
+    .min();
+    let verified = boundary.map(|start| &answer[..start]).unwrap_or(answer);
     remove_citation_tokens(verified).trim().to_string()
 }
 
@@ -792,6 +798,7 @@ mod tests {
             source_location: String::new(),
             relation: String::new(),
             retrieval_reason: String::new(),
+            locator: None,
         }
     }
 

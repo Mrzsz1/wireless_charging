@@ -34,6 +34,7 @@
 .qa-thinking-chain>div.active::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 15%,rgba(255,255,255,.72) 50%,transparent 85%);transform:translateX(-120%);animation:qa-step-sheen 1.8s ease-in-out infinite;pointer-events:none}
 .qa-thinking-chain>div.waiting{background:#fbfcfd;color:#91a0aa}
 .qa-structured-progress{display:flex;align-items:center;gap:5px}
+.qa-natural-stream{position:relative;margin-top:10px;padding:12px 14px;border:1px solid #dceaf1;border-radius:7px;background:#fff}.qa-natural-stream .qa-message-content{font-size:12px}.qa-natural-stream>.qa-stream-cursor{margin-left:3px;vertical-align:middle}
 .qa-stream-cursor{display:inline-block;width:2px;height:11px;border-radius:1px;background:#248cb8;animation:qa-stream-cursor .85s steps(1,end) infinite}
 
 @keyframes qa-thinking-rotate{to{transform:rotate(360deg)}}

@@ -116,6 +116,25 @@ class QaAccuracyEvalTests(unittest.TestCase):
             "5c828dded3b4340ec00cf5983677341704daa777de8bb245fb38b77b41297ae0",
         )
 
+    def test_locator_evidence_uses_v5_stable_block_identity(self) -> None:
+        item = evidence()
+        item["locator"] = {
+            "documentId": "paper:fixture",
+            "blockId": "block-1",
+            "headingPath": ["Model", "Objective"],
+            "markdownPath": "raw/canonical/fixture/full.md",
+            "lineStart": 10,
+            "lineEnd": 12,
+            "contentHash": "content-hash",
+            "snapshotId": "snapshot-1",
+        }
+        self.assertEqual(
+            qa_accuracy_eval.stable_source_id(item),
+            "paper:fixture:Model > Objective:block-1",
+        )
+        canonical = qa_accuracy_eval.canonical_evidence_bytes(item)
+        self.assertIn(b'"locator":{"documentId":"paper:fixture"', canonical)
+
     def test_two_agreeing_independent_reviews_count_each_claim_once(self) -> None:
         totals = qa_accuracy_eval.review_totals(
             run_fixture(), review_fixture(), "case-1"

@@ -280,6 +280,12 @@ export type ResolvedSourceLocation = {
   degradedReason: string
 }
 
+export type ResolvedSourceDocument = {
+  title: string
+  body: string
+  location: ResolvedSourceLocation
+}
+
 export type BookSummary = {
   id: string
   title: string
@@ -553,6 +559,7 @@ export type QaRunManifest = {
   contextSchemaVersion: string
   provider: string
   structuredOutputMode: string
+  answerFormat?: 'natural-markdown-v2' | 'structured-v1' | 'legacy-markdown' | string
   modelRequested: string
   modelResolved: string
   temperature?: number | null
@@ -604,6 +611,7 @@ export type EvidenceItem = {
   sourceLocation: string
   relation: string
   retrievalReason: string
+  locator?: SourceLocator | null
 }
 
 export type RetrievalChannelDiagnostic = {
@@ -673,6 +681,8 @@ export type CitationValidation = {
   entailmentChecked: boolean
   modelSupplementClaimCount: number
   modelSupplementClaims: string[]
+  appendixIntegrity?: boolean
+  appendixEvidenceIds?: string[]
 }
 
 export type ResearchContextAnchor = {

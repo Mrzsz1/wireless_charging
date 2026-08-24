@@ -300,6 +300,10 @@ h3 { font-size: 13px; font-weight: 700; }
 .page-info-list dd { margin: 0; overflow: hidden; color: var(--text-second); text-overflow: ellipsis; white-space: nowrap; }
 .page-readonly-note { display: flex; align-items: start; gap: 8px; color: var(--text-muted); background: var(--surface-soft); font-size: 10px; line-height: 1.5; }
 .markdown-reader { color: var(--text-primary); font-size: 12px; line-height: 1.7; }
+.markdown-source-block { border-left: 2px solid transparent; padding-left: 8px; transition: background-color .18s ease, border-color .18s ease; }
+.markdown-source-focus { border-left-color: #1685be; background: #eaf7fd; animation: markdown-source-highlight 2.4s ease-out; }
+@keyframes markdown-source-highlight { 0%,45% { background: #d4f0fb; } 100% { background: #eaf7fd; } }
+@media (prefers-reduced-motion: reduce) { .markdown-source-block { transition: none; }.markdown-source-focus { animation: none; } }
 .markdown-heading { margin: 22px 0 9px; color: var(--text-primary); font-size: 18px; line-height: 1.3; letter-spacing: -.015em; }
 .markdown-heading:first-child { margin-top: 0; }
 .markdown-reader h1.markdown-heading { font-size: 22px; }.markdown-reader h3.markdown-heading { font-size: 15px; }.markdown-reader h4.markdown-heading, .markdown-reader h5.markdown-heading, .markdown-reader h6.markdown-heading { font-size: 13px; }
