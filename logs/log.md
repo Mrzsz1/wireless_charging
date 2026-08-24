@@ -4,6 +4,12 @@
 > 格式：`## [YYYY-MM-DD] <kind> | <title>`  
 > kind：`scaffold` | `ingest` | `query` | `lint` | `graphify` | `schema` | `vocab` | `note`
 
+## [2026-08-24] schema | 科研 RAG 评测、迁移与发布验收
+
+- 新增真实 Markdown 上的 13 例严格评测器和 legacy/v2 双读报告；Recall@20、来源解析、通道尝试和 locator 均为 1.000，zero-evidence FN/FP 为 0/0。
+- 修正显式来源失败开放回退、来源标题淹没正文、section/semantic 重复和 reranker 失效不降级问题。
+- Rust/Python/前端/Tauri/GUI/安装器严格验证通过；完整指标、产物哈希和剩余风险见 `logs/2026-08-24-rag-evaluation-rollout.md`。
+
 ## [2026-07-10] scaffold | Vault 骨架落地
 
 - 建立 raw / wiki / schema / templates / logs

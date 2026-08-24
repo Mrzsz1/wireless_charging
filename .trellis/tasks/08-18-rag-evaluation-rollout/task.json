@@ -2,8 +2,8 @@
   "id": "rag-evaluation-rollout",
   "name": "rag-evaluation-rollout",
   "title": "科研 RAG 评测、迁移与灰度发布",
-  "description": "",
-  "status": "planning",
+  "description": "已建立真实 Markdown 科研 RAG 严格评测、legacy/v2 双读、迁移保真和完整发布验收链。",
+  "status": "in_progress",
   "dev_type": null,
   "scope": "fullstack",
   "package": null,
@@ -20,7 +20,17 @@
   "subtasks": [],
   "children": [],
   "parent": "08-18-md-hybrid-agentic-rag",
-  "relatedFiles": [],
-  "notes": "",
+  "relatedFiles": [
+    "apps/desktop/src-tauri/src/qa/evaluation.rs",
+    "apps/desktop/src-tauri/src/bin/rag-eval.rs",
+    "apps/desktop/src-tauri/src/qa/retrieval.rs",
+    "apps/desktop/src-tauri/src/qa/reranker.rs",
+    "apps/desktop/e2e/gui-smoke.mjs",
+    "evals/rag_retrieval_cases.json",
+    "evals/rag-evaluation-baseline.md",
+    ".trellis/spec/backend/qa-contract.md",
+    "logs/2026-08-24-rag-evaluation-rollout.md"
+  ],
+  "notes": "13/13 PASS；source/channel/Recall@20/heading/locator=1.000，zero FN/FP=0/0；Rust 167 PASS + deployed probe PASS；Python 63 PASS；frontend/P3/P5 strict/Tauri MSI+NSIS PASS。实现提交 6fbe58f，GUI 冷启动冒烟提交 40b26a2。实际库首次 v2 vector sync 仍需在应用中执行。",
   "meta": {}
 }

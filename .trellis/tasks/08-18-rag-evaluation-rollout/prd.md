@@ -42,16 +42,16 @@
 
 ## Acceptance Criteria
 
-- [ ] AC1：两个移动路径问题均命中真实《近似算法》Markdown 章节；开放问法同时尝试 book/paper。
-- [ ] AC2：至少包含一个从未写入检索代码的新概念回归，证明无专用特判。
-- [ ] AC3：所有 expected evidence 的 locator 可打开；PDF 缺失样例同样通过。
-- [ ] AC4：planner/reranker/semantic/remote DB/Graph 分别故障时降级路径通过。
-- [ ] AC5：长会话压缩后仍能解析指代且不带入 failed/unverified 回答。
-- [ ] AC6：legacy 会话数、消息数和证据数迁移前后相同；知识索引可独立重建。
-- [ ] AC7：双读报告说明 v2 改善、退化和剩余风险，不只给单一百分比。
-- [ ] AC8：无真实密钥进入 fixture、日志、SQLite 或审计导出。
-- [ ] AC9：父任务 AC1–AC13 有逐项验收证据。
-- [ ] AC10：最终 Rust、Python、前端、Tauri release 编译全部成功并记录退出码。
+- [x] AC1：两个移动路径问题均命中真实《近似算法》Markdown 章节；开放问法同时尝试 book/paper。
+- [x] AC2：至少包含一个从未写入检索代码的新概念回归，证明无专用特判。
+- [x] AC3：所有 expected evidence 的 locator 可打开；PDF 缺失样例同样通过。
+- [x] AC4：planner/reranker/semantic/remote DB/Graph 分别故障时降级路径通过。
+- [x] AC5：长会话压缩后仍能解析指代且不带入 failed/unverified 回答。
+- [x] AC6：legacy 会话数、消息数和证据数迁移前后相同；知识索引可独立重建。
+- [x] AC7：双读报告说明 v2 改善、退化和剩余风险，不只给单一百分比。
+- [x] AC8：无真实密钥进入 fixture、日志、SQLite 或审计导出。
+- [x] AC9：父任务 AC1–AC13 有逐项验收证据。
+- [x] AC10：最终 Rust、Python、前端、Tauri release 编译全部成功并记录退出码。
 
 ## Out of Scope
 

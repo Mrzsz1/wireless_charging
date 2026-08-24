@@ -2,7 +2,7 @@
   "id": "md-hybrid-agentic-rag",
   "name": "md-hybrid-agentic-rag",
   "title": "Markdown 科研混合 Agentic RAG 重构",
-  "description": "",
+  "description": "五个子任务已完成：Markdown 语料、多粒度向量、混合 Agentic 检索、自然回答/证据深链和科研评测发布闭环。",
   "status": "planning",
   "dev_type": null,
   "scope": "fullstack",
@@ -26,7 +26,15 @@
     "08-18-rag-evaluation-rollout"
   ],
   "parent": null,
-  "relatedFiles": [],
-  "notes": "",
+  "relatedFiles": [
+    ".trellis/tasks/08-18-markdown-corpus-index-v2",
+    ".trellis/tasks/08-18-embedding-pgvector-store",
+    ".trellis/tasks/08-18-hybrid-retrieval-agent",
+    ".trellis/tasks/08-18-answer-evidence-links",
+    ".trellis/tasks/08-18-rag-evaluation-rollout",
+    ".trellis/spec/backend/qa-contract.md",
+    "evals/rag_retrieval_cases.json"
+  ],
+  "notes": "AC1–AC13 均有子任务、回归用例和发布门证据；最终 13/13 RAG 用例、全栈测试、Tauri bundle、GUI 与安装器严格冒烟通过。本地实际库首次 v2 vector sync 为部署操作，不在 Git 中强制执行。",
   "meta": {}
 }

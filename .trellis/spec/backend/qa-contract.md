@@ -369,3 +369,33 @@ Claim splitting and same-claim citation attachment are legacy structured/groundi
 - Project citation links with a Markdown-aware scanner that preserves literal regions.
 - Serialize the ordered section contract as JSON objects such as `{"id":"topic_methods","title":"主题、模型与方法"}` and validate IDs before rendering backend-owned titles.
 - Validate explicit claim roles such as `model_or_method` and `evidence_boundary`; allow labels such as `求解方法` or `模型边界` without changing completeness semantics.
+
+## 12. Scientific RAG Evaluation and Rollout
+
+### 12.1 Executable contract
+
+- The repository-scoped entry point is `npm run eval:rag`; it runs the Rust `rag-eval` binary against `evals/rag_retrieval_cases.json` and writes ignored `evals/reports/rag-evaluation-latest.{json,md}` artifacts.
+- `qa-rag-evaluation-cases-v1` is a closed fixture schema. Unknown fields, duplicate case IDs, invalid kinds/scopes, malformed conversations, and contradictory zero-evidence expectations fail before retrieval.
+- Evaluation builds an isolated in-memory SQLite index from the real Markdown repository. It does not call an answer Provider, download a model, mutate the repository database, or require network access.
+- Each case may define explicit sources and trusted conversation turns. Explicit-source misses must stop as `unresolved_explicit_source`; they must never reopen scope and return an unrelated document.
+
+### 12.2 Metrics and release gates
+
+- Reports include source-resolution accuracy, requested-channel attempt rate, document Recall@5/10/20, heading Recall@20, MRR, unique-document binary nDCG@10, locator validity, zero-evidence false negatives/positives, latency, round count, per-case stop reason, and legacy/v2 improvements or regressions.
+- A passing report requires every case gate to pass, all expected documents to appear by Recall@20, all requested kinds to be attempted, all selected locators to resolve inside the repository, and zero false positive/negative zero-evidence decisions.
+- Reports and fixtures must contain no credentials, absolute repository paths, raw planner payloads, provider responses, or chain-of-thought. A small regression suite is a release gate, not a population-level factual-accuracy claim.
+- The reviewed baseline is tracked in `evals/rag-evaluation-baseline.md`. Thresholds may be tightened after review; they must not be silently lowered to make a regression pass.
+
+### 12.3 Retrieval invariants found by evaluation
+
+- Source-constrained content queries remove the already-resolved source title and history-only entity suffixes before section ranking; title tokens must not drown the requested body concept.
+- Section and semantic hits for the same document, heading, and source span share one stable identity and cannot consume multiple evidence slots.
+- Reranker failure is fail-soft: fused candidates remain usable and diagnostics record a degraded `reranker` attempt.
+- Reranking may use contract concepts, aliases, related problems, and facet queries for bilingual relevance. Production code must not contain fixture-question or domain-keyword patches.
+- Adding an extra Rust binary requires `default-run = "app"` so `cargo run`/Tauri packaging cannot accidentally select the evaluation CLI as the desktop executable.
+
+### 12.4 Required verification
+
+- Unit tests cover strict fixture parsing, unresolved-source fail-closed behavior, duplicate identity, reranker degradation, real-repository evaluation, migration preservation, and report redaction.
+- Release verification includes Rust formatting/tests/clippy, Python tests and Wiki evaluation, QA frontend tests, frontend production build, P3 verification, `npm run eval:rag`, `cargo build --release`, `npm run tauri build`, strict GUI smoke, and strict installer install/launch/uninstall smoke.
+- GUI research-trail smoke waits for both library FTS completion and the cold-start retrieval result/error. Its cold-start budget must cover first semantic initialization; an explicit backend error still fails immediately.
