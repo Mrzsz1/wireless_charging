@@ -1315,3 +1315,37 @@ Preserved previous evidence with turn isolation, removed fixed history caps in f
 ### Next Steps
 
 - None - task complete
+
+
+## Session 40: 自然回答与证据深链
+
+**Date**: 2026-08-24
+**Task**: 自然回答与证据深链
+**Branch**: `master`
+
+### Summary
+
+将智能问答切换为自然 Markdown，后端按选中 ContentBlock 追加短证据链接；新增 SourceLocator Markdown 精确定位、旧 structured 历史兼容、审计工具兼容与跨层规范。Rust 162/162、前端 13/13、Python 12/12、production/release build 通过。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `4b0cd4f` | (see git log) |
+| `b4a5b0c` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

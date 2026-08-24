@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 39
-- **Last Active**: 2026-08-18
+- **Total Sessions**: 40
+- **Last Active**: 2026-08-24
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1317 | Active |
+| `journal-1.md` | ~1351 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 40 | 2026-08-24 | 自然回答与证据深链 | `4b0cd4f`, `b4a5b0c` | `master` |
 | 39 | 2026-08-18 | 跨页面持续运行问答与文献任务 | `68c3760` | `master` |
 | 38 | 2026-08-18 | 修复智能问答双旋转加载器 | `91f5ce4` | `master` |
 | 37 | 2026-08-18 | 修复文献自动检索依赖检查与运行态 UI | `1ce3a84` | `master` |
