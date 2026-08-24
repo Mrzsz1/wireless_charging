@@ -28,6 +28,7 @@
     "test:settings-pagination": "node --experimental-strip-types --test tests/settings-pagination.test.ts",
     "test:qa-settings": "node --experimental-strip-types --test tests/qa-provider-settings.test.ts",
     "test:qa-evidence": "node --experimental-strip-types --test tests/qa-evidence-state.test.ts",
+    "eval:rag": "cargo run --manifest-path src-tauri/Cargo.toml --bin rag-eval -- ../..",
     "release:signed": "node scripts/build-signed-release.mjs",
     "fixture:updater": "node scripts/updater-fixture-server.mjs"
   },

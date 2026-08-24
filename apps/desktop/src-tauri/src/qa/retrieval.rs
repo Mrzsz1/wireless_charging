@@ -352,12 +352,59 @@ fn covered_facets(contract: &RetrievalContract, candidates: &[Candidate]) -> Has
         .collect()
 }
 
+fn section_identity(candidate: &Candidate) -> String {
+    format!(
+        "{}|{}|{}|{}",
+        candidate.kind,
+        candidate.markdown_path.replace('\\', "/").to_lowercase(),
+        candidate.title.trim().to_lowercase(),
+        candidate.relation
+    )
+}
+
+fn strip_resolved_source_names(value: &str, sources: &SourceResolution) -> String {
+    let mut result = value.to_string();
+    if let Some(index) = result.find("相关实体：") {
+        result.truncate(index);
+    }
+    for source in &sources.resolved {
+        for name in [&source.matched_alias, &source.canonical_title] {
+            if !name.trim().is_empty() {
+                result = result.replace(name, " ");
+            }
+        }
+    }
+    result
+        .replace(['《', '》'], " ")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
 pub fn run_retrieval(
     connection: &Connection,
     root: &Path,
     question: &str,
     contract: &RetrievalContract,
     cancelled: Option<&AtomicBool>,
+) -> Result<RetrievalOutcome, String> {
+    run_retrieval_with_reranker(
+        connection,
+        root,
+        question,
+        contract,
+        cancelled,
+        &DeterministicResearchReranker,
+    )
+}
+
+fn run_retrieval_with_reranker(
+    connection: &Connection,
+    root: &Path,
+    question: &str,
+    contract: &RetrievalContract,
+    cancelled: Option<&AtomicBool>,
+    reranker: &dyn Reranker,
 ) -> Result<RetrievalOutcome, String> {
     check_cancelled(cancelled)?;
     let sources = match resolve_sources(connection, question, contract) {
@@ -386,6 +433,25 @@ pub fn run_retrieval(
             });
         }
     };
+    if sources.constrained && sources.resolved.is_empty() && !sources.gaps.is_empty() {
+        return Ok(RetrievalOutcome {
+            candidates: Vec::new(),
+            sources,
+            attempts: vec![ChannelAttempt {
+                name: "source-resolver".to_string(),
+                kind: "source".to_string(),
+                round: 1,
+                status: "attempted_zero_hit".to_string(),
+                error_kind: String::new(),
+                round_fingerprint: round_fingerprint(&[question.to_string()]),
+                candidate_count: 0,
+                duration_ms: 0,
+            }],
+            covered_facets: HashSet::new(),
+            candidate_gains: vec![0],
+            stop_reason: "unresolved_explicit_source".to_string(),
+        });
+    }
     let document_ids = if sources.constrained {
         sources.document_ids()
     } else {
@@ -419,16 +485,44 @@ pub fn run_retrieval(
     let mut queries_used = 0usize;
     let mut stop_reason = String::new();
     let mut queue = VecDeque::new();
-    let mut base = vec![question.to_string()];
-    base.extend(contract.concepts.clone());
+    let content_question = strip_resolved_source_names(question, &sources);
+    let rerank_query = std::iter::once(content_question.clone())
+        .chain(
+            contract
+                .concepts
+                .iter()
+                .map(|value| strip_resolved_source_names(value, &sources)),
+        )
+        .chain(contract.aliases.iter().cloned())
+        .chain(contract.related_problems.iter().cloned())
+        .chain(
+            contract
+                .facets
+                .iter()
+                .flat_map(|facet| facet.search_queries.iter().cloned()),
+        )
+        .collect::<Vec<_>>()
+        .join(" ")
+        .chars()
+        .take(4_000)
+        .collect::<String>();
+    let mut base = vec![content_question];
+    base.extend(
+        contract
+            .concepts
+            .iter()
+            .map(|value| strip_resolved_source_names(value, &sources)),
+    );
     base.extend(contract.aliases.clone());
     base.extend(contract.related_problems.clone());
-    base.extend(
-        sources
-            .resolved
-            .iter()
-            .flat_map(|source| [source.canonical_title.clone(), source.matched_alias.clone()]),
-    );
+    if !sources.constrained {
+        base.extend(
+            sources
+                .resolved
+                .iter()
+                .flat_map(|source| [source.canonical_title.clone(), source.matched_alias.clone()]),
+        );
+    }
     queue.push_back(base);
     queue.push_back(
         contract
@@ -582,8 +676,30 @@ pub fn run_retrieval(
         }
 
         current_candidates = reciprocal_rank_fusion(all_channels.clone(), &explicit_paths);
+        let fallback_candidates = current_candidates.clone();
         current_candidates =
-            DeterministicResearchReranker.rerank(question, current_candidates, &explicit_paths);
+            match reranker.rerank(&rerank_query, current_candidates, &explicit_paths) {
+                Ok(ranked) => ranked,
+                Err(error) => {
+                    attempts.push(ChannelAttempt {
+                        name: "reranker".to_string(),
+                        kind: "mixed".to_string(),
+                        round,
+                        status: "degraded".to_string(),
+                        error_kind: error
+                            .split(':')
+                            .next()
+                            .unwrap_or("reranker_unavailable")
+                            .to_lowercase(),
+                        round_fingerprint: round_round_fingerprint.clone(),
+                        candidate_count: fallback_candidates.len(),
+                        duration_ms: 0,
+                    });
+                    fallback_candidates
+                }
+            };
+        let mut seen_sections = HashSet::new();
+        current_candidates.retain(|candidate| seen_sections.insert(section_identity(candidate)));
         current_candidates.truncate(contract.budget.max_candidates);
         let after = current_candidates
             .iter()
@@ -633,6 +749,23 @@ mod tests {
     use super::*;
     use crate::qa::corpus;
     use std::sync::atomic::AtomicBool;
+
+    struct FailingReranker;
+
+    impl Reranker for FailingReranker {
+        fn name(&self) -> &'static str {
+            "failing-fixture"
+        }
+
+        fn rerank(
+            &self,
+            _question: &str,
+            _candidates: Vec<Candidate>,
+            _explicit_paths: &HashSet<String>,
+        ) -> Result<Vec<Candidate>, String> {
+            Err("reranker_unavailable: fixture".to_string())
+        }
+    }
 
     #[test]
     fn source_constrained_fts_never_leaks_another_document() {
@@ -721,6 +854,25 @@ mod tests {
     }
 
     #[test]
+    fn unresolved_explicit_source_never_falls_back_to_unrelated_documents() {
+        let connection = Connection::open_in_memory().unwrap();
+        corpus::db_schema(&connection).unwrap();
+        connection.execute("INSERT INTO documents_v2(id,kind,canonical_title,markdown_path,content_hash,snapshot_id,active) VALUES('paper:other','paper','Other Paper','other.md','h','s',1)", []).unwrap();
+        let contract = RetrievalContract::fallback("《Missing Paper》如何建模");
+        let outcome = run_retrieval(
+            &connection,
+            Path::new("."),
+            "《Missing Paper》如何建模",
+            &contract,
+            None,
+        )
+        .unwrap();
+        assert!(outcome.candidates.is_empty());
+        assert_eq!(outcome.stop_reason, "unresolved_explicit_source");
+        assert!(!outcome.sources.gaps.is_empty());
+    }
+
+    #[test]
     fn required_facet_releases_provider_expansion_in_a_bounded_second_round() {
         let connection = Connection::open_in_memory().unwrap();
         corpus::db_schema(&connection).unwrap();
@@ -759,6 +911,30 @@ mod tests {
     }
 
     #[test]
+    fn reranker_failure_keeps_fused_candidates_and_records_degradation() {
+        let connection = Connection::open_in_memory().unwrap();
+        corpus::db_schema(&connection).unwrap();
+        connection.execute("INSERT INTO documents_v2(id,kind,canonical_title,markdown_path,content_hash,snapshot_id,active) VALUES('book:tsp','book','Approximation Algorithms','book.md','h','s',1)", []).unwrap();
+        connection.execute("INSERT INTO content_blocks_v2(id,document_id,granularity,heading,heading_path_json,role,ordinal,markdown_path,content,content_hash,embedding_text,locator_json,snapshot_id,active) VALUES('tsp','book:tsp','semantic','Euclidean TSP','[]','algorithm',1,'book.md','Euclidean TSP tour','h','Euclidean TSP tour','{}','s',1)", []).unwrap();
+        connection.execute("INSERT INTO content_blocks_fts_v2(block_id,document_id,canonical_title,aliases,heading_path,role,content) VALUES('tsp','book:tsp','Approximation Algorithms','','Euclidean TSP','algorithm','Euclidean TSP tour')", []).unwrap();
+        let outcome = run_retrieval_with_reranker(
+            &connection,
+            Path::new("."),
+            "Euclidean TSP",
+            &RetrievalContract::fallback("Euclidean TSP"),
+            None,
+            &FailingReranker,
+        )
+        .unwrap();
+        assert!(!outcome.candidates.is_empty());
+        assert!(outcome.attempts.iter().any(|attempt| {
+            attempt.name == "reranker"
+                && attempt.status == "degraded"
+                && attempt.error_kind == "reranker_unavailable"
+        }));
+    }
+
+    #[test]
     fn v2_retrieval_honors_cancellation_before_channels_run() {
         let connection = Connection::open_in_memory().unwrap();
         corpus::db_schema(&connection).unwrap();
@@ -784,5 +960,34 @@ mod tests {
         assert_eq!(attempt.error_kind, "semantic_unavailable");
         assert!(attempt.round_fingerprint.starts_with("sha256:"));
         assert!(!attempt.round_fingerprint.contains("sensitive"));
+    }
+
+    #[test]
+    fn section_identity_collapses_section_and_semantic_duplicates() {
+        let row = |id: &str| Candidate {
+            kind: "paper".into(),
+            tier: "primary_source".into(),
+            title: "Paper · Motivation".into(),
+            snippet: String::new(),
+            score: 1.0,
+            page_id: "sources/paper".into(),
+            page_type: "source".into(),
+            source_path: "raw/paper/full.md".into(),
+            wikilink: String::new(),
+            book_id: String::new(),
+            chapter_id: String::new(),
+            physical_page_start: None,
+            physical_page_end: None,
+            markdown_path: "raw/paper/full.md".into(),
+            pdf_path: String::new(),
+            node_id: id.into(),
+            source_location: String::new(),
+            relation: "content_block_v2".into(),
+            retrieval_reason: String::new(),
+        };
+        assert_eq!(
+            section_identity(&row("section")),
+            section_identity(&row("semantic"))
+        );
     }
 }

@@ -1,0 +1,190 @@
+{
+  "schemaVersion": "qa-rag-evaluation-cases-v1",
+  "name": "markdown-scientific-rag-v2",
+  "cases": [
+    {
+      "id": "book-mobile-path-source",
+      "question": "在《近似算法》这本书里面有没有关于移动路径规划的算法？",
+      "aliases": ["Euclidean TSP", "traveling salesman path planning"],
+      "scopeExpectation": "sources",
+      "mustAttemptKinds": ["book"],
+      "expectedDocuments": ["book:approximation-algorithms"],
+      "expectedHeadings": ["Euclidean TSP"],
+      "forbiddenEvidenceKinds": ["graph"],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "中文书名别名和隐式路径规划概念"
+    },
+    {
+      "id": "open-paper-book-mobile-path",
+      "question": "有没有文献或者哪本书里面涉及到移动路径规划的相关内容？",
+      "aliases": ["trajectory optimization", "Euclidean TSP"],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": ["paper", "book"],
+      "expectedDocuments": ["book:approximation-algorithms", "paper:sources/src-liu2021-joint-cuav-scheduling-trajectory"],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": ["graph"],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "开放问题必须独立尝试论文和书籍"
+    },
+    {
+      "id": "bilingual-uav-trajectory",
+      "question": "Which paper jointly optimizes charging scheduling and UAV trajectory with particle swarm optimization?",
+      "aliases": ["CSOP CTOP", "PSOFKP PSOD2P"],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": ["wiki", "paper"],
+      "expectedDocuments": ["paper:sources/src-liu2021-joint-cuav-scheduling-trajectory"],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": ["graph"],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "英文改写与算法缩写"
+    },
+    {
+      "id": "rose-source-multipath",
+      "question": "《ROSE: Robustly Safe Charging for Wireless Power Transfer》怎样建模多径叠加与建设性、破坏性干涉？",
+      "aliases": ["multipath attenuation delay phase", "constructive destructive interference"],
+      "scopeExpectation": "sources",
+      "mustAttemptKinds": ["paper"],
+      "expectedDocuments": ["paper:sources/src-dai2022-rose-robust-safe-charging"],
+      "expectedHeadings": ["Motivation"],
+      "forbiddenEvidenceKinds": ["graph"],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "指定论文与模型 facet"
+    },
+    {
+      "id": "wave-interference-literature",
+      "question": "哪些论文研究了波干扰下的并发充电或定向功率控制？",
+      "aliases": ["wave interference concurrent charging", "dynamic power distribution directional chargers"],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": ["paper"],
+      "expectedDocuments": ["paper:sources/src-ma-concurrent-gain", "paper:sources/src-ma-tide-dynamic-power"],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": ["graph"],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "跨论文主题检索"
+    },
+    {
+      "id": "obstacle-anchor-projection",
+      "question": "哪项研究使用时空事件偏好以及锚点或投影点，让多辆移动充电车绕开障碍？",
+      "aliases": ["spatio-temporal event preference", "anchor projection obstacle MCV"],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": ["wiki", "paper"],
+      "expectedDocuments": ["wiki:sources/src-rahaman2023-obstacle-mcv"],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": ["graph"],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "未写入检索代码的新概念"
+    },
+    {
+      "id": "heterogeneous-ihatrpo",
+      "question": "Which work applies IHATRPO to coordinate heterogeneous aerial and ground charging vehicles?",
+      "aliases": ["AAV ground service vehicle heterogeneous charging"],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": ["wiki", "paper"],
+      "expectedDocuments": ["paper:sources/src-yao2026-ihatrpo-heterogeneous-chargers"],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": ["graph"],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "新算法缩写和异构来源组合"
+    },
+    {
+      "id": "isac-partial-charging",
+      "question": "哪篇工作把 ISAC 状态估计、在线请求队列和部分充电放进同一个 UAV 调度闭环？",
+      "aliases": ["integrated sensing communication UAV on-demand partial charging"],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": ["wiki", "paper"],
+      "expectedDocuments": ["paper:sources/src-qaisar2026-isac-uav-charging"],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": ["graph"],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "新术语组合"
+    },
+    {
+      "id": "dwpt-beb-planning",
+      "question": "动态无线充电基础设施选址与电动公交电池容量联合规划有哪些研究？",
+      "aliases": ["DWPT infrastructure location", "battery electric bus battery sizing"],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": ["wiki", "paper"],
+      "expectedDocuments": ["wiki:sources/src-honma2026-infinite-drive-dwpt", "paper:sources/src-li2024-dwc-beb-integrated-planning"],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": ["graph"],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "跨文档比较"
+    },
+    {
+      "id": "peak-aoi-directional",
+      "question": "定向充电与数据传输联合优化时，哪篇论文最小化最大峰值信息年龄？",
+      "aliases": ["maximum peak age of information charging transmitting"],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": ["wiki", "paper"],
+      "expectedDocuments": ["paper:sources/src-chen-peak-aoi-wpt"],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": ["graph"],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "目标函数改写"
+    },
+    {
+      "id": "wanda-multiple-antennas",
+      "question": "哪项工作研究了带多天线的无线充电器放置，并区分相对朝向？",
+      "aliases": ["WANDA multiple antennas relative orientations"],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": ["wiki", "paper"],
+      "expectedDocuments": ["paper:sources/src-dai-wanda-multi-antenna"],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": ["graph"],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "模型特征改写"
+    },
+    {
+      "id": "followup-rose-reference",
+      "question": "它怎样处理多径传播造成的干涉？",
+      "conversation": [
+        {
+          "id": "history-user-rose",
+          "role": "user",
+          "content": "ROSE 这篇论文研究什么？",
+          "requestId": "history-rose"
+        },
+        {
+          "id": "history-assistant-rose",
+          "role": "assistant",
+          "content": "上一轮讨论的是 ROSE: Robustly Safe Charging for Wireless Power Transfer。",
+          "requestId": "history-rose"
+        }
+      ],
+      "aliases": ["multipath attenuation delay phase", "constructive destructive interference"],
+      "explicitSources": ["ROSE: Robustly Safe Charging for Wireless Power Transfer"],
+      "scopeExpectation": "sources",
+      "mustAttemptKinds": ["paper"],
+      "expectedDocuments": ["paper:sources/src-dai2022-rose-robust-safe-charging"],
+      "expectedHeadings": ["Motivation"],
+      "forbiddenEvidenceKinds": ["graph"],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "多轮指代只用于解析来源，不沿用旧引用"
+    },
+    {
+      "id": "true-zero-evidence",
+      "question": "当前库中是否存在《QTC-9 量子拓扑结晶协议》这篇潮汐引力无线充电调度论文？",
+      "aliases": ["QTC-9 quantum topology crystallization tidal gravity"],
+      "scopeExpectation": "sources",
+      "mustAttemptKinds": ["wiki", "paper", "book"],
+      "expectedDocuments": [],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": ["graph"],
+      "locatorRequired": false,
+      "zeroEvidenceExpected": true,
+      "notes": "真实零证据分类"
+    }
+  ]
+}

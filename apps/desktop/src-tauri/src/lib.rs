@@ -4263,6 +4263,25 @@ fn rollback_compile_run(run_id: String, state: State<'_, AppState>) -> Result<St
     compile_center::rollback_run(connection, &root, &run_id)
 }
 
+pub fn run_rag_evaluation_files(
+    repository_root: &Path,
+    cases_path: &Path,
+    json_output: &Path,
+    markdown_output: &Path,
+) -> Result<bool, String> {
+    let root = repository_root
+        .canonicalize()
+        .map_err(|error| format!("RAG_EVAL_REPOSITORY_INVALID: {error}"))?;
+    let mut connection = Connection::open_in_memory()
+        .map_err(|error| format!("RAG_EVAL_DATABASE_FAILED: {error}"))?;
+    db_schema(&connection)?;
+    rebuild_connection(&mut connection, &root)?;
+    let suite = qa::evaluation::load_suite(cases_path)?;
+    let report = qa::evaluation::evaluate(&connection, &root, &suite)?;
+    qa::evaluation::write_report(&report, json_output, markdown_output)?;
+    Ok(report.passed)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -4566,7 +4585,33 @@ mod tests {
         let mut connection = Connection::open_in_memory().expect("sqlite");
         db_schema(&connection).expect("schema");
         qa::create_session(&connection, temp.path(), "preserved").expect("session");
+        let session_id: String = connection
+            .query_row("SELECT id FROM chat_sessions LIMIT 1", [], |row| row.get(0))
+            .expect("session id");
+        connection.execute(
+            "INSERT INTO chat_messages(id,session_id,role,content,status,created_at,request_id) VALUES('legacy-user',?1,'user','legacy question','completed','1','legacy-request'),('legacy-assistant',?1,'assistant','legacy answer','completed','2','legacy-request')",
+            [&session_id],
+        ).expect("legacy messages");
+        connection.execute(
+            "INSERT INTO chat_evidence(message_id,evidence_id,rank,payload) VALUES('legacy-assistant','E1',1,'{\"id\":\"E1\",\"kind\":\"wiki\"}')",
+            [],
+        ).expect("legacy evidence");
+        let counts_before = ["chat_sessions", "chat_messages", "chat_evidence"].map(|table| {
+            connection
+                .query_row(&format!("SELECT COUNT(*) FROM {table}"), [], |row| {
+                    row.get::<_, i64>(0)
+                })
+                .unwrap()
+        });
         rebuild_connection(&mut connection, temp.path()).expect("index");
+        let counts_after = ["chat_sessions", "chat_messages", "chat_evidence"].map(|table| {
+            connection
+                .query_row(&format!("SELECT COUNT(*) FROM {table}"), [], |row| {
+                    row.get::<_, i64>(0)
+                })
+                .unwrap()
+        });
+        assert_eq!(counts_after, counts_before);
         let sessions = qa::list_sessions(&connection, temp.path(), 10).expect("history");
         assert_eq!(sessions.len(), 1);
         assert_eq!(sessions[0].title, "preserved");
@@ -4858,6 +4903,39 @@ mod tests {
         assert_eq!(resolved.matched_by, "block");
         assert!(!Path::new(&resolved.markdown_path).is_absolute());
         assert!(!resolved.markdown_path.contains(".."));
+    }
+
+    #[test]
+    fn scientific_rag_evaluation_suite_passes_real_markdown_repository() {
+        let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../..")
+            .canonicalize()
+            .expect("repository root");
+        let mut connection = Connection::open_in_memory().expect("sqlite");
+        db_schema(&connection).expect("schema");
+        rebuild_connection(&mut connection, &root).expect("full index");
+        let suite = qa::evaluation::load_suite(&root.join("evals/rag_retrieval_cases.json"))
+            .expect("evaluation cases");
+        let report = qa::evaluation::evaluate(&connection, &root, &suite).expect("evaluation");
+        assert!(report.passed, "{:#?}", report.remaining_risks);
+        assert_eq!(report.aggregate.source_resolution_accuracy, 1.0);
+        assert_eq!(report.aggregate.channel_attempt_rate, 1.0);
+        assert_eq!(report.aggregate.document_recall_at_20, 1.0);
+        assert_eq!(report.aggregate.locator_validity, 1.0);
+        assert_eq!(report.aggregate.zero_evidence_false_negative, 0);
+        assert_eq!(report.aggregate.zero_evidence_false_positive, 0);
+        let payload = serde_json::to_string(&report).expect("report JSON");
+        let root_string = root.to_string_lossy().to_string();
+        for prohibited in [
+            root_string.as_str(),
+            "apiKey",
+            "authorization",
+            "password",
+            "sourcePath",
+            "markdownPath",
+        ] {
+            assert!(!payload.contains(prohibited), "report leaked {prohibited}");
+        }
     }
 
     fn prepare_planned_question(

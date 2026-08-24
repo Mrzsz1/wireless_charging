@@ -8,7 +8,7 @@ pub trait Reranker {
         question: &str,
         candidates: Vec<Candidate>,
         explicit_paths: &HashSet<String>,
-    ) -> Vec<Candidate>;
+    ) -> Result<Vec<Candidate>, String>;
 }
 
 pub struct DeterministicResearchReranker;
@@ -23,7 +23,7 @@ impl Reranker for DeterministicResearchReranker {
         question: &str,
         mut candidates: Vec<Candidate>,
         explicit_paths: &HashSet<String>,
-    ) -> Vec<Candidate> {
+    ) -> Result<Vec<Candidate>, String> {
         let terms = query_terms(question);
         for candidate in &mut candidates {
             let haystack = format!(
@@ -37,7 +37,7 @@ impl Reranker for DeterministicResearchReranker {
                 .count();
             let explicit = explicit_paths.contains(&candidate.markdown_path)
                 || explicit_paths.contains(&candidate.source_path);
-            let mut adjustment = (overlap.min(6) as f64) * 0.012;
+            let mut adjustment = (overlap.min(6) as f64) * 0.06;
             if explicit {
                 adjustment += 0.08;
             }
@@ -59,7 +59,7 @@ impl Reranker for DeterministicResearchReranker {
             ));
         }
         candidates.sort_by(|left, right| right.score.total_cmp(&left.score));
-        candidates
+        Ok(candidates)
     }
 }
 
@@ -94,14 +94,16 @@ mod tests {
     #[test]
     fn explicit_relevant_body_stays_above_reference_only_candidate() {
         let explicit = HashSet::from(["tsp.md".to_string()]);
-        let ranked = DeterministicResearchReranker.rerank(
-            "移动路径规划 TSP",
-            vec![
-                candidate("References TSP", "reference_only", "refs.md"),
-                candidate("TSP path planning algorithm", "content_block_v2", "tsp.md"),
-            ],
-            &explicit,
-        );
+        let ranked = DeterministicResearchReranker
+            .rerank(
+                "移动路径规划 TSP",
+                vec![
+                    candidate("References TSP", "reference_only", "refs.md"),
+                    candidate("TSP path planning algorithm", "content_block_v2", "tsp.md"),
+                ],
+                &explicit,
+            )
+            .unwrap();
         assert_eq!(ranked[0].source_path, "tsp.md");
     }
 }

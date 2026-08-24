@@ -1,6 +1,7 @@
 mod context;
 pub(crate) mod corpus;
 mod coverage;
+pub(crate) mod evaluation;
 mod fusion;
 mod graph;
 mod grounding;

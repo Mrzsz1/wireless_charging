@@ -37,6 +37,25 @@ cargo test semantic_query_plan_regressions_recall_auditable_primary_sources --li
 该文件同样属于 development regression，只能证明结构化计划与召回契约，不能作为端到端
 事实准确率声明。事实准确率仍以独立冻结 held-out、完整审计包和双盲人工 claim 评审为准。
 
+## Markdown 科研 RAG v2 双读评测
+
+`rag_retrieval_cases.json` 覆盖指定书籍、开放论文+书籍、双语改写、新概念、跨文档比较、
+多轮指代和真实零证据。它只保存问题、冻结的 planner 语义扩展、预期文档/标题、通道和
+locator 边界，不要求最终回答出现固定中文短语。
+
+运行时会在内存 SQLite 中从当前 Markdown 重建索引，分别执行 legacy 单轮候选和 v2
+RetrievalContract，生成 JSON 与 Markdown 差异报告；不会调用 Answer Provider、外网或下载模型：
+
+```powershell
+cd apps/desktop
+npm run eval:rag
+```
+
+默认报告位于 `evals/reports/rag-evaluation-latest.{json,md}`，包含 source resolution、
+requested channel attempt、文档 Recall@5/10/20、heading Recall、MRR、nDCG@10、locator
+validity、零证据 FN/FP、轮数、耗时以及逐题 legacy/v2 改善和退化。关键用例与 Top20、
+locator、通道、来源解析属于硬门禁；平均排序指标用于诊断，不能单独掩盖关键来源失败。
+
 ## Production held-out 准确率
 
 `heldout_questions.json` 是独立冻结入口。当前状态为 `awaiting_independent_curation`，不预填模型自行构造的“真值”。冻结要求：
