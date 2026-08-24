@@ -46,15 +46,15 @@
 
 ## Acceptance Criteria
 
-- [ ] AC1：Provider 返回普通 Markdown 时完成状态成功，不再报 STRUCTURED_ANSWER_VALIDATION_FAILED。
-- [ ] AC2：没有固定“结论/模型与方法/证据边界”等标题仍可成功，只要内容非空且安全。
-- [ ] AC3：模型输出未知 `[E99]` 不会变成有效链接；后端附录只包含已选 locator。
-- [ ] AC4：用户只看到短链接标题，点击可打开对应 Markdown block。
-- [ ] AC5：PDF 字段为空时 book/paper Markdown 链接正常。
-- [ ] AC6：block 编辑漂移时按 heading/line fallback，并显示定位降级状态。
-- [ ] AC7：零证据回答带未核验标识、不带证据附录且不进入 trusted history。
-- [ ] AC8：旧 structured answer 会话和旧 `[E#]` 消息仍可打开。
-- [ ] AC9：前端证据测试、QA 设置测试、build 和 release cargo build 通过。
+- [x] AC1：Provider 返回普通 Markdown 时完成状态成功，不再报 STRUCTURED_ANSWER_VALIDATION_FAILED。
+- [x] AC2：没有固定“结论/模型与方法/证据边界”等标题仍可成功，只要内容非空且安全。
+- [x] AC3：模型输出未知 `[E99]` 不会变成有效链接；后端附录只包含已选 locator。
+- [x] AC4：用户只看到短链接标题，点击可打开对应 Markdown block。
+- [x] AC5：PDF 字段为空时 book/paper Markdown 链接正常。
+- [x] AC6：block 编辑漂移时按 heading/line fallback，并显示定位降级状态。
+- [x] AC7：零证据回答带未核验标识、不带证据附录且不进入 trusted history。
+- [x] AC8：旧 structured answer 会话和旧 `[E#]` 消息仍可打开。
+- [x] AC9：前端证据测试、QA 设置测试、build 和 release cargo build 通过。
 
 ## Out of Scope
 

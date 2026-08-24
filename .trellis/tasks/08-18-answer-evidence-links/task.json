@@ -2,8 +2,8 @@
   "id": "answer-evidence-links",
   "name": "answer-evidence-links",
   "title": "自然回答、末尾证据与 Markdown 深链",
-  "description": "",
-  "status": "planning",
+  "description": "将最终回答切换为自然 Markdown，由后端从选中 ContentBlock 生成短证据附录，并通过 SourceLocator 打开仓库内 Markdown 精确位置；保留 structured-v1 历史兼容和回滚开关。",
+  "status": "in_progress",
   "dev_type": null,
   "scope": "fullstack",
   "package": null,
@@ -20,7 +20,14 @@
   "subtasks": [],
   "children": [],
   "parent": "08-18-md-hybrid-agentic-rag",
-  "relatedFiles": [],
-  "notes": "",
+  "relatedFiles": [
+    "apps/desktop/src-tauri/src/qa/natural_answer.rs",
+    "apps/desktop/src-tauri/src/qa/context.rs",
+    "apps/desktop/src-tauri/src/qa/locator.rs",
+    "apps/desktop/src/features/qa/MarkdownMessage.tsx",
+    "apps/desktop/src/features/pages/SourceDocumentView.tsx",
+    "apps/desktop/src/features/pages/MarkdownReader.tsx"
+  ],
+  "notes": "Production default: qa-natural-markdown-v2. Legacy structured parser remains for old messages and LUNAWIKI_RAG_ANSWER_V2=false rollback. Remove it only after rollout telemetry and history migration no longer require structured-v1.",
   "meta": {}
 }

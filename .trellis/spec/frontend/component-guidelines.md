@@ -128,8 +128,9 @@ On the automatic literature page, readiness is scoped to the selected operation.
 
 `mixed` QA messages remain fully visible but use the amber citation-summary treatment to distinguish the explicitly labelled model-supplement section. The summary must continue to say that semantic entailment is not automatically checked.
 
-Inline QA evidence tokens render as compact, keyboard-focusable links labelled only `[E#]`; activating one opens its registered source through the existing repository navigation callback. Evidence detail views use a short “打开论文原文/书籍来源/知识库来源” link and must not expose long local `sourcePath` or `markdownPath` strings in the visible page. Full paths remain available in the audit bundle.
-While a structured answer streams, do not render its incomplete JSON as Markdown. Keep the operational Thinking projection visible until the backend validates and renders the complete answer. Map each evidence ID deterministically into the shared eight-color citation palette; color is supplementary to the visible ID, focus state, and accessible label.
+Natural v2 answers stream as Markdown. After backend validation, their final `参考证据` links display the backend-owned short label (`来源类型 · 标题 · 小节`) rather than a raw filename or absolute path. Legacy inline tokens remain compact `[E#]` links. Both forms are keyboard-focusable, map deterministically into the shared eight-color palette, and activate only the registered evidence object; color is supplementary to visible text, focus state, and the accessible label.
+
+When registered evidence has a `SourceLocator`, clicking it opens the internal, read-only `SourceDocumentView` instead of parsing a file path from rendered prose. The view uses `MarkdownReader.focus` to scroll/highlight the resolved heading or closest line and displays `matchedBy` plus any degradation reason. It may offer a deliberate “在文件夹中显示” action, but ordinary answer/evidence surfaces must not expose `sourcePath` or `markdownPath`. Full paths remain confined to backend payloads and copied audit data.
 
 ### Contextual help convention
 

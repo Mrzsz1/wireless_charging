@@ -10,7 +10,7 @@ Use this contract when changing desktop QA request identity, retrieval, provider
 - `AskRequest` requires client-generated UUID `requestId`, `question`, and normalized `repositoryId`; `sessionId` and `evidenceLimit` are optional.
 - `AskResult` returns persisted user/assistant messages, evidence, aggregate `RetrievalDiagnostics`, `ContextBudget`, `QaRunManifest`, waterline, offline state, and `CitationValidation`.
 - Paginated history commands are `list_chat_sessions_page(cursor, query, limit) -> ChatSessionPage` and `get_chat_session_page(sessionId, before, limit) -> ChatMessagePage`. Legacy full-list/detail commands remain compatibility entry points.
-- `CitationValidation` includes citation syntax fields plus `groundingStatus: supported | unverified | invalid`, `zeroEvidence`, `claimCount`, `citedClaimCount`, `citationCoverage`, `unsupportedClaims`, `graphOnlyClaims`, `syntaxValid`, `coverageValid`, and `entailmentChecked`.
+- `CitationValidation` keeps legacy claim/citation fields for history compatibility and adds `appendixIntegrity` plus `appendixEvidenceIds`. For `answerFormat=natural-markdown-v2`, the latter fields are authoritative; legacy claim coverage is not a success gate.
 - Failed events may include a persisted `{ sessionId, userMessage, assistantMessage }` exchange.
 
 ## 3. Request Lifecycle
@@ -29,7 +29,7 @@ Use this contract when changing desktop QA request identity, retrieval, provider
 - Evidence is fitted first to a bounded share and unused capacity returns to history. Complete exchanges are selected contiguously newest-first until the token budget is reached; an oversized newest exchange is retained so the final total-input gate fails closed rather than silently substituting older short history. Remaining exchanges become `qa-session-memory-v1` JSON entries with source message IDs, stripped historical citations, compact user questions, and trusted answer summaries. The final serialized prompt is re-estimated before provider execution. `ContextPlan` records exact/compacted IDs, fingerprint, token breakdown, free tokens, and truncation state.
 - `failed`, `cancelled`, and `unverified` messages never enter conversation history, query rewriting, or the next prompt.
 - A `RetrievalQuery` owns `originalQuestion`, `resolvedQuestion`, `entities`, `usedHistoryMessageIds`, the RetrievalContract version/status, planned/covered facet IDs, requested/attempted kinds, and unresolved source gaps. The run manifest persists only bounded IDs, kind/status values, and fingerprints; it never persists raw round queries or planner payloads.
-- Retrieval planning uses `qa-retrieval-contract-v2`, not a fixed answer-profile classifier. The contract expresses source scope, explicit sources, concepts, aliases, related problems, open facets, requested/must-attempt kinds, and bounded query/candidate/round budgets. `answerProfile` and `minimumEvidence` are forbidden Provider fields. Final answer formatting remains a separate compatibility concern until the natural-answer child task removes the legacy structured renderer.
+- Retrieval planning uses `qa-retrieval-contract-v2`, not a fixed answer-profile classifier. The contract expresses source scope, explicit sources, concepts, aliases, related problems, open facets, requested/must-attempt kinds, and bounded query/candidate/round budgets. `answerProfile` and `minimumEvidence` are forbidden Provider fields. Final answer formatting is independently selected by `answerFormat`; production uses natural Markdown while the legacy structured renderer remains read-compatible.
 - Deterministic rewrite runs only for explicit references or continuations such as 它们/二者/上述/第二个/继续/they/both. Broad markers `其中` and `分别` do not trigger rewrite. A self-contained question naming at least two explicit model/page entities never imports history entities. Rewrite adds bounded recent entities only; it never appends full assistant history or old `[E#]` values to FTS. `usedHistoryMessageIds` contains only messages that actually contributed a resolved entity.
 - History resolves references only. Only the current evidence package can support current `[E#]` citations.
 - Retrieval is a bounded agent loop of at most three rounds. The Provider-native RetrievalContract supplies bounded bilingual facet queries before execution; the controller releases those queries only when the first-round coverage snapshot exposes a relevant gap. A final round may expand from recalled index titles/identifiers. It stops on all requested surfaces attempted, unresolved explicit source, no novel candidates, query budget exhaustion, cancellation, or the round cap. Diagnostics expose only round count, aggregate channel timing/counts/status, candidate gains, stop reason, and SHA-256 round fingerprints; never expose the question, terms, snippets, paths, or secrets.
@@ -198,38 +198,88 @@ question -> RetrievalContract -> source resolution -> independent filtered chann
          -> bounded Provider expansion or index expansion -> stop with audit reason
 ```
 
-## 5. Grounding and Persistence Matrix
+## 5. Natural Markdown v2, Evidence Appendix, and Persistence
+
+### 1. Scope / Trigger
+
+- Use this contract whenever final-answer prompting, answer validation, evidence-link creation, source navigation, message persistence, or trusted-history projection changes.
+- Production format is `natural-markdown-v2`. `qa-structured-answer-v1` remains a rollback and old-history compatibility format, not the default generation target.
+
+### 2. Signatures
+
+- `natural_answer::render(answer, evidence) -> NaturalAnswerResult { markdown, validation, repair }`.
+- `EvidenceItem.locator: Option<SourceLocator>`; old rows may omit it and must still deserialize.
+- `read_source_locator(locator: SourceLocator) -> ResolvedSourceDocument { title, body, location }`.
+- `QaRunManifest.answerFormat` is `natural-markdown-v2 | structured-v1 | legacy-markdown`; old manifests hydrate an empty/default value.
+
+### 3. Contracts
+
+- The Provider returns ordinary Markdown. It does not emit evidence IDs, repository paths, a reference appendix, fixed headings, fixed claim counts, or structured-answer JSON.
+- The backend strips any Provider-authored `## 参考证据`, removes citation-like `[E#]` tokens, blocks unsafe Markdown targets, redacts visible absolute Windows/UNC paths, and enforces only non-empty/length/stream-completion safety.
+- The backend deterministically appends one `## 参考证据` section from selected, non-Graph evidence that owns a valid `SourceLocator`. Link labels are compact source kind + canonical title + useful heading. The link target is the opaque current `evidence:E#` identity; arbitrary Provider paths never become navigation targets.
+- `appendixIntegrity` is true only when the appendix is backed by persisted current evidence locators; `appendixEvidenceIds` must be the emitted ordered IDs. Semantic entailment is out of scope and remains `entailmentChecked=false`.
+- Locator resolution is repository-boundary checked and degrades in order: exact block, heading path, saved line range, document. Every fallback returns `matchedBy` and a user-visible `degradedReason`; it never guesses another document.
+- Zero evidence produces the backend-owned unverified notice, no appendix, and a paired `unverified` exchange. `unverified`, `failed`, and `cancelled` content never enters trusted history. Before trusted-history projection, both model-supplement and backend evidence-appendix regions are removed.
+- Production defaults to v2. `LUNAWIKI_RAG_ANSWER_V2=false` (also `RAG_ANSWER_V2`/`rag_answer_v2`, values `0|false|off|no`) restores legacy generation without deleting v2 messages or the structured parser.
+
+### 4. Validation & Error Matrix
 
 | Condition | Result |
 |---|---|
-| Evidence exists; every detected factual claim contains a current non-Graphify citation in the same claim | paired `completed` exchange; `groundingStatus=supported` |
-| Evidence exists; a factual claim is uncited, has an unknown ID, or is supported only by Graphify | paired `failed` exchange; `CITATION_VALIDATION_FAILED` |
-| Remote evidence answer omits a required heading, intent-specific element, or minimum information claims | paired `failed` exchange; `ANSWER_COMPLETENESS_FAILED` |
+| Evidence exists and at least one selected non-Graph item has a valid locator | backend appendix, paired `completed` exchange; `appendixIntegrity=true` |
+| Provider emits `[E99]`, its own appendix, `file:`/app-protocol target, or visible absolute path | sanitize/redact it; never register it as source navigation |
+| Evidence rows exist but none has a usable locator | no evidence appendix; `groundingStatus=unverified`; never invent a path |
+| Answer body is empty/oversized or Provider stream is incomplete | paired `failed` exchange; `ANSWER_VALIDATION_FAILED` or Provider terminal error |
 | No evidence; Codex/API selected | server-owned no-source notice + model general-knowledge answer; paired `unverified` exchange |
 | No evidence; offline selected | deterministic no-source notice; paired `unverified` exchange |
 | Remote provider fails | paired `failed` exchange; never converted to offline completed |
 | Cancelled or repository changed | no persistence |
+| Locator block/hash drifted but heading or line still resolves | open same Markdown with explicit degradation metadata |
+| Locator path escapes repository or document identity mismatches | fail closed; do not open a file |
 
 Completed, unverified, and failed exchanges save both the exact user question and assistant result/error with the same request ID. First-turn failures create a recoverable session inside the same transaction.
 
-Claim coverage is deterministic structural validation, not semantic entailment. Current completed answers report `entailmentChecked=false`; UI copy must say that citation coverage was checked but citation semantics were not automatically verified. Do not rename this state to factual correctness.
+### 5. Good / Base / Bad Cases
 
-Before validation, one backend-owned parse pipeline protects Markdown literal/link regions, canonicalizes only provably equivalent current-evidence citation spellings, splits claims, validates completeness/grounding, and persists the normalized Markdown consumed by the frontend. `[E1；E5]`, `[E1, E5]`, and a single known ID with source-location prose may become independent `[E#]` tokens with location outside the brackets. Unknown IDs, ranges, ambiguous prose, code, math, escapes, and Markdown links are never canonicalized. A restricted repair may then delete an unknown `[E#]` token only when the same claim already contains a known non-Graphify citation. Repair never adds a citation, rewrites a fact, repairs an uncited claim, guesses evidence, or treats Graphify as factual support. Normalized group count and removed IDs are recorded in the run manifest.
+- Good: natural prose with question-appropriate headings is persisted unchanged except for a backend-created short appendix; clicking a link opens the exact Markdown block.
+- Base: an old structured JSON/Markdown message reloads through the legacy renderer and its existing `[E#]` links still open.
+- Bad: require headings such as `结论`/`模型与方法`, count claims, trust Provider `evidenceIds`, or parse a local path from answer prose to open a file.
+
+### 6. Tests Required
+
+- Unit tests cover ordinary Markdown without fixed headings, empty/oversized output, Provider-authored appendix removal, unknown `[E99]`, unsafe links, absolute-path redaction, and zero evidence.
+- Locator tests cover exact block, heading fallback, line fallback, document fallback, Markdown-only book/paper rows with empty PDF fields, and traversal rejection.
+- Persistence tests assert `answerFormat`, evidence locator snapshots, appendix IDs, old structured history, and trusted-context appendix exclusion.
+- Cross-layer tests assert short appendix labels, locator service/command wiring, natural citation-summary wording, frontend production build, full Rust tests, and release build.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```text
+Provider JSON -> fixed section/role/claim validation -> model-owned E# -> parse path from prose
+```
+
+#### Correct
+
+```text
+Provider Markdown -> minimal safety normalization -> backend selected-evidence appendix
+                  -> persisted locator snapshot -> repository-bound resolver -> Markdown focus
+```
 
 ## 5.1 Prompt and Run Manifest
 
 - Codex and compatible API share one provider-neutral `PromptEnvelope` with six ordered layers: `research_contract`, `session_memory`, `recent_exchanges`, `current_query`, `evidence_bundle`, and `answer_contract`.
 - History, current query, and evidence are JSON data. `<`, `>`, and `&` are escaped so embedded content cannot close an envelope layer. Provider-specific code may wrap the envelope but must not define a divergent factual contract.
-- QueryPlan-selected solve, relationship, and novelty answers use six fixed Markdown headings: 结论、模型与适用前提、证据综合、方法或比较、边界/冲突/未覆盖项、库水位与复现信息. The literature profile uses four headings: 结论、库内相关论文、主题/模型/方法、边界与复现信息, requires title/relevance/method/boundary/location, and keeps at least two factual claims. All multi-source citations are independent tokens such as `[E1] [E5]`; source locations stay outside citation brackets.
+- Natural v2 answers use question-appropriate prose and headings chosen by the Provider. The answer contract asks for a direct answer, evidence-bounded model/method discussion, and explicit uncertainty where needed, but has no canonical section array or minimum claim count. The backend, not the Provider, adds source links.
 - Every assistant message stores schema/prompt/retriever/context versions, provider, requested/resolved model, temperature where applicable, output/context limits, prompt SHA-256, index snapshot SHA-256, recent/compacted/coreference-resolved history IDs, evidence checksums, context budget, repair record, and completeness result in `run_manifest`.
-- Evidence-backed Codex runs record `structuredOutputMode=codex-output-schema`; compatible API remains `prompt-contract` until its Provider-specific schema capability is designed separately. Old manifests hydrate the field with an empty default.
+- Evidence-backed natural runs record `structuredOutputMode=natural-markdown` and `answerFormat=natural-markdown-v2`. Planner calls may still use Provider-native JSON Schema because retrieval planning and final-answer rendering are independent contracts.
 - Answers rejected by citation or completeness gates persist the rejected answer, evidence, validation result, and run manifest on the failed assistant message; pre-context retrieval failures retain an empty legacy manifest because no prompt/evidence snapshot exists.
 - QA column migrations are idempotent column-existence checks. This module must not overwrite SQLite's global `PRAGMA user_version`, because compile-center and other subsystems share the same repository database.
 - Requested and resolved model are distinct. If Codex omits its actual default model, the resolved value is `provider-default-unreported`; it must not be invented.
 - Old messages hydrate with `runManifest=None`. The manifest excludes endpoint, API key, token, cookie, question/answer text, raw provider payload, and chain-of-thought.
 
-Claim splitting treats a period followed by whitespace/end as a sentence boundary even when the preceding character is a digit (`There are 2. Next ...`). Decimal and URL dots are naturally retained because they are followed by a digit/domain character. For GFM tables, the header and separator are structural; each data row is an independent factual claim and requires its own current non-Graphify citation.
-Citation tokens immediately following sentence punctuation on the same line remain attached to that claim (`事实。 [E1] [E2]` and `事实。（[E1]）`). Attachment never crosses a newline, so a later reference paragraph cannot retroactively support earlier prose.
+Claim splitting and same-claim citation attachment are legacy structured/grounding compatibility behavior only. They must not gate a `natural-markdown-v2` completion.
 
 ## 6. Zero-Evidence Contract
 
@@ -252,30 +302,24 @@ Citation tokens immediately following sentence punctuation on the same line rema
 ## 8. Provider and Credential Boundaries
 
 - Codex readiness is probed only for `codex-subscription`; ask-time results use a short 30-second cache. The secret-free status projection reads only top-level `model`/`model_reasoning_effort` and list-visible model metadata from Codex home. Empty QA overrides follow that projected selection; explicit model/reasoning values are passed to `codex exec` while `--ignore-user-config`, `--ignore-rules`, and read-only sandbox isolation remain enabled.
-- Codex questions use a separate short-lived `codex exec --output-schema` planning call after baseline retrieval. It receives only the resolved question and bounded candidate summaries, emits no UI answer tokens, uses the same requested model/effort snapshot, and fails soft. The final answering call remains separately isolated and validated.
-- Evidence-backed Codex runs generate the current intent/evidence JSON Schema inside the existing isolated temporary workspace and pass it through `codex exec --output-schema`. The schema file is removed with that workspace. Zero-evidence Codex runs keep the unverified prose contract and do not receive the structured schema. Compatible API request bodies are unchanged.
+- Codex questions may use a separate short-lived `codex exec --output-schema` planning call after baseline retrieval. It receives only the resolved question and bounded candidate summaries, emits no UI answer tokens, uses the same requested model/effort snapshot, and fails soft. The final natural-answer call is separately isolated and does not receive an answer JSON Schema.
+- When the answer-v2 rollback flag is disabled, legacy evidence-backed Codex runs may still generate the old intent/evidence schema inside the isolated temporary workspace. That file is removed with the workspace. Compatible API final answers use the same natural Markdown contract in v2.
 - Settings-page status refresh bypasses the TTL and refreshes the cache.
 - Offline and compatible API requests never probe Codex.
 - Codex token/cookie and API key values are never returned, persisted, or added to ordinary logs/errors.
 - Compatible API SSE accepts `[DONE]` or `finish_reason=stop` as a complete stream. If the terminal `stop` frame also contains a final content delta, that token is emitted and appended before termination. `length`, other non-empty finish reasons, malformed JSON, and EOF before a legal terminator are failed exchanges; partial text is never persisted as `completed`.
 
-## 9. Answer Rendering Contract
+## 9. Answer Rendering and Source Navigation Contract
 
-- Evidence-backed Codex/API generations use `qa-structured-answer-v1` JSON rather than model-authored Markdown. Each claim carries explicit `evidenceIds`; backend validation checks existence and at least one non-Graphify source directly from this array, then deterministically renders Markdown. Punctuation, prose line breaks, headings, labels, and source locations are therefore never rediscovered as claim boundaries.
-- The evidence-backed prompt includes one complete, valid, intent-specific JSON example generated from the same section/role contract as the Provider schema. It covers every required section and role, labels all content as example-only, and explicitly prohibits copying example facts or defaulting to `E1`.
-- The Codex Provider schema closes root, section, group, and claim objects with `additionalProperties=false`, requires every structural field, limits section IDs/titles and roles to the current intent, and limits evidence IDs to the current evidence bundle. Exact section order, role completeness, non-Graphify support, and all other business rules remain backend validation responsibilities.
-- Every structured section carries a stable machine ID plus its canonical display title. The backend owns the ordered `id/title` contract and emits it to the model as a JSON array; never serialize required headings by joining them with a natural-language delimiter because a title may contain that delimiter. New output must include IDs. Title-only v1 output remains readable when it maps exactly, and the legacy adjacent literature sections `主题` + `模型与方法` are merged without changing claims or `evidenceIds`.
-- The structured contract contains ordered sections, optional short group labels, claims, and a separate supplement array. The supplement cannot carry evidence tokens or repository locations and the rendered mixed-answer projection retains the existing trusted-context isolation boundary.
-- Each structured claim carries a stable intent-specific `role` independent from its display `label`. Completeness checks the observed role set before persistence and never searches rendered Markdown for exact Chinese phrases. `requiredElements` and `missingElements` remain human-readable projections of the role contract for UI/audit compatibility. Role-less v1 payloads may use only an explicit bounded label-alias map; arbitrary claim prose is never scanned to infer a role.
-- The backend appends one generated `参考证据` section. It renders only `[E#]`, source kind, and compact location; full title/path metadata remains in the evidence payload and audit bundle rather than visible answer prose.
-- Persisted content remains Markdown source text. The desktop renders Markdown, GFM tables, fenced code, and KaTeX through a lazy-loaded renderer.
-- Raw HTML is not enabled. Remote images are replaced by text placeholders rather than fetched. Only `http(s)` links are emitted as external anchors.
-- Before rendering, current `[E#]` tokens are projected to internal `evidence:` links. Known IDs open the evidence detail; unknown IDs remain visibly invalid.
-- Citation projection skips fenced/inline code, math spans/blocks, escaped tokens, and labels that already own a Markdown link; these regions must remain byte-for-byte display content rather than becoming nested evidence links.
-- Supported messages show deterministic claim coverage and the text `语义未自动核验`. Zero-evidence completed views show `本轮未检索到参考来源`; only an active retrieval may show `正在检索`.
-- The evidence sidebar shows the context token breakdown, compacted count, snapshot ID, prompt/answer schema versions, and completeness state. Assistant actions can copy an audit bundle containing question, answer, evidence, and manifest.
+- Persisted natural v2 content is Markdown source text plus the backend-owned appendix. The desktop renders Markdown, GFM tables, fenced code, and KaTeX through a lazy-loaded renderer.
+- Raw HTML is not enabled. Remote images are replaced by text placeholders. Only `http(s)` links become external anchors; `evidence:` links are resolved against the message's persisted evidence collection.
+- Appendix labels show short user-facing source descriptions rather than full filenames or absolute paths. Detailed snippets and retrieval reasons remain in the evidence panel and audit bundle.
+- Clicking a current evidence link passes its persisted `SourceLocator` to `read_source_locator`. The returned Markdown is shown in an internal read-only source view and focused using `headingPath`/`lineStart`; the UI shows fallback/degradation state rather than silently presenting a wrong location.
+- Legacy inline `[E#]` projection remains Markdown-aware: it skips fenced/inline code, math, escapes, and labels already inside links. Unknown IDs remain visibly invalid.
+- Natural supported messages summarize appendix integrity, not claim coverage. The UI must not describe retrieval relevance as factual correctness, and must continue to state that semantic entailment is not automatically checked.
+- The evidence sidebar shows context budget, snapshot, prompt/answer versions, retrieval rounds/stop reason, and current evidence. Assistant actions can copy an audit bundle containing question, answer, evidence, and manifest.
 - `offline-evidence` is presented as “证据浏览模式”; it is evidence navigation, not a generated research answer.
-- Structured parsing/contract failures return `STRUCTURED_ANSWER_VALIDATION_FAILED` with the actual reason and a zero-claim invalid audit projection. Unknown IDs, missing evidence, and Graphify-only support remain `CITATION_VALIDATION_FAILED`; structural errors must never be converted into a synthetic `1 / 1` missing-citation result.
+- Legacy structured parsing errors keep `STRUCTURED_ANSWER_VALIDATION_FAILED`. Natural body/appendix validation uses `ANSWER_VALIDATION_FAILED`; new natural runs must never fail because a canonical section title, role, or claim count is absent.
 
 ## 10. Tests Required
 
@@ -283,11 +327,10 @@ Citation tokens immediately following sentence punctuation on the same line rema
 - Follow-up retrieval covers CCSP/GAIN reference resolution and excludes old citations.
 - Intent regression covers all three canonical literals and asserts that `solve`/`novelty` evidence retains a recalled method candidate.
 - History is repository-scoped, completed-only, ordered, and bounded.
-- Grounding tests cover fully cited claims, partially uncited claims, unknown IDs, Graphify-only claims, offline graph omission, and zero-evidence unverified answers.
-- Grounding tests also cover numeric sentence endings and GFM table header/data-row behavior.
-- A partially grounded answer may use exactly one optional `## 模型补充（可能不准确）` section with the fixed notice. Claims before it retain the ordinary same-claim citation gate; claims inside it must have no evidence token or source-location marker. Such answers are `mixed`, keep the full content for display/audit, and persist a citation-free `trusted_context` projection containing only the verified prefix. `mixed` history reads that projection, so model supplementation never becomes a later retrieval entity or trusted prompt fact. Citation entailment remains outside this structural contract and `entailmentChecked` stays false.
+- Natural-answer tests cover ordinary Markdown, unknown Provider IDs, unsafe links/paths, appendix integrity, locator-less evidence, and zero-evidence unverified answers. Legacy grounding tests continue to cover claim splitting and structured history compatibility but do not define the v2 success gate.
+- A natural answer may use the exact optional `## 模型补充（可能不准确）` section with the fixed notice. Such answers are `mixed`, remain fully visible for display/audit, and persist trusted context with both that supplement and the backend appendix removed. Model supplementation and evidence-link prose therefore never become later retrieval entities or trusted prompt facts. Citation entailment remains outside the contract and `entailmentChecked` stays false.
 - Codex subscription execution treats the repository timeout as an idle deadline refreshed only by valid JSONL stdout events, plus a separate bounded hard deadline. It returns stable `CODEX_IDLE_TIMEOUT` and `CODEX_TOTAL_TIMEOUT` errors; cancellation still terminates the process tree and partial output is never persisted as completed. The compatible API keeps its HTTP timeout semantics.
-- Codex Provider tests assert `--output-schema` argument construction, schema placement/cleanup, closed nested objects, current evidence-ID enums, complete examples for every intent, and a distinct `CODEX_OUTPUT_SCHEMA_REJECTED` error when the CLI explicitly rejects the schema.
+- Codex Provider tests assert `--output-schema` only for planner/legacy calls, schema placement/cleanup, natural final-answer execution without a schema, and a distinct `CODEX_OUTPUT_SCHEMA_REJECTED` error when a schema-enabled call is explicitly rejected.
 - Codex model/effort metadata is projected from the local top-level config and list-visible model cache. The composer sends an explicit per-request snapshot; backend resolution validates the effort against that model's reported capabilities before invoking Codex. Metadata DTOs must never expose authentication material.
 - Compatible API parser tests cover token deltas, `[DONE]`, `stop`, `length`, abnormal finish reasons, malformed JSON, and EOF before termination without contacting a provider.
 - The `stop` regression must include a terminal frame that carries both content and `finish_reason=stop` and assert that the final token is not lost.
@@ -296,13 +339,13 @@ Citation tokens immediately following sentence punctuation on the same line rema
 - Semantic retrieval tests cover cosine ordering, similarity-floor filtering, exact vector serialization, and optional-table degradation without downloading a model during the ordinary unit-test suite.
 - Semantic deployment tests cover missing/partial classification without network access, complete snapshot component checks, cache-switch state reset, non-destructive cache copy, and global settings round-trip without repository SQLite.
 - Semantic download progress tests cover exact accumulated-byte percentages, completion, cached-file detection without network access, Channel wiring, and frontend rendering of file/bytes/percentage/speed beside the repair action.
-- QueryPlan tests cover closed Provider schema objects, open facet IDs, unknown-field rejection, value/array bounds, fail-soft planning, answer-profile selection, and facet-only expansion after a baseline miss.
+- RetrievalContract tests cover closed Provider schema objects, open facet IDs, unknown-field rejection, value/array bounds, fail-soft planning, source scope, and facet-only expansion after a baseline miss.
 - Frontend tests assert immediate client request identity, completion idempotency, failed/unverified retry, exchange merging, optimistic rollback, citation-boundary copy, and completed zero-evidence empty state.
 - Frontend citation tests assert that ordinary `[E#]` becomes an evidence link while code, math, escaped tokens, and existing Markdown links remain unchanged.
 - Session regressions cover cursor stability, backend title/message search, batched evidence hydration, duplicate-free page merge, stale request invalidation, and older-message scroll preservation.
 - Gold retrieval reports and thresholds Recall@5/10/20, MRR, binary nDCG@10, required-kind coverage, and Wiki-primary pair coverage. Generic paper fallback is excluded from ranked paper hits and pair coverage. Thresholds pin the reviewed current baseline; changes must not silently lower them.
 - `gold_questions.json` is explicitly development/regression and cannot support a production accuracy claim. `heldout_questions.json` is the independently curated/frozen production entry; `tools/qa_accuracy_eval.py` reports claim precision and Wilson intervals only after exact claim coverage, canonical evidence checksum verification, two independent blinded reviews, and third-reviewer adjudication of every disagreement.
-- Production fixture tests build the shared prompt, enforce the answer schema, persist the answer, and reload an identical manifest through both full and paginated history paths.
+- Production fixture tests build the shared natural prompt, accept ordinary Markdown without fixed headings, generate the backend appendix, persist the answer, and reload an identical manifest through both full and paginated history paths.
 - Structured-answer regressions cover canonical section IDs, title-only v1 compatibility, the legacy literature split merge, explicit expected/actual contract arrays, dedicated structural error propagation, and preservation of genuine citation failures.
 - Role regressions cover natural display labels with explicit roles, missing required roles, unknown roles, bounded legacy label aliases, and proof that required Chinese phrases need not occur in rendered Markdown.
 - Diagnostics tests serialize the DTO and assert that only aggregate timing/count metadata crosses the Rust/TypeScript boundary.

@@ -108,6 +108,60 @@ setMessages((current) => mergeCompletedMessages(current, result))
 
 (To be filled by the team)
 
+## Scenario: Transient Evidence Source Navigation
+
+### 1. Scope / Trigger
+
+This contract applies when a QA evidence locator opens repository Markdown in an internal read-only view.
+
+### 2. Signatures
+
+- `SourceLocator` is carried on the persisted `EvidenceItem`.
+- `readSourceLocator(locator): Promise<ResolvedSourceDocument>`.
+- `openSource(locator, label)` loads the document and activates the transient `source` view.
+
+### 3. Contracts
+
+- Navigation starts only from the registered evidence object; rendered text and `href` paths are never parsed into a filesystem target.
+- `App` owns the resolved document so `AskView` stays mounted and any active QA request continues in the background.
+- The `source` view is transient and must be removed from restored persisted tabs at startup; a locator is re-resolved when the user clicks evidence again.
+- Repository changes clear stale source documents. Loading failure reports a visible application notice without replacing QA state.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+|---|---|
+| Evidence has a valid locator | Resolve and open internal source view |
+| Legacy evidence has no locator | Use the existing page/book/path compatibility callback |
+| Resolver reports heading/line/document fallback | Render the document with visible degradation metadata |
+| Resolver rejects path/document | Keep the current workspace and show an error notice |
+| Persisted UI state contains a `source` tab | Drop it during restoration; never restore a blank transient view |
+
+### 5. Good / Base / Bad Cases
+
+- Good: clicking a backend appendix link opens the exact Markdown block while the QA workspace remains mounted.
+- Base: an old `[E#]` book message without a locator still opens through the legacy book callback.
+- Bad: persist only a `source` view identifier, reload the application, and show an empty source page with no resolved document.
+
+### 6. Tests Required
+
+- Structural tests assert Rust command, TypeScript service/type, `App.openSource`, `AskView.onOpenSource`, and locator-first evidence routing.
+- Frontend build must type-check `ResolvedSourceDocument` and the transient view union.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```tsx
+onClick={() => openLocalPath(parseHref(answerMarkdown))}
+```
+
+#### Correct
+
+```tsx
+onClick={() => item.locator ? onOpenSource(item.locator, item.title) : openLegacy(item)}
+```
+
 ---
 
 ## When to Use Global State

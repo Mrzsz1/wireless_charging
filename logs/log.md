@@ -345,3 +345,12 @@
 - 生产默认 v2，支持环境变量回滚并在最终评测前保留 open-scope dual-read。
 - Rust 160/160、前端 QA 契约 8/8、production build 与 Rust release build 通过。
 - 详情：`logs/2026-08-18-hybrid-retrieval-agent.md`
+
+## 2026-08-19 — 自然回答、后端证据附录与 Markdown 深链
+
+- 最终回答切换为 `qa-natural-markdown-v2`，不再用固定中文章节、claim 数量或 Provider 证据 ID 阻断自然回答。
+- 后端从选中 ContentBlock 生成短 `参考证据`，过滤伪 `[E#]`、不可信链接和可见绝对路径。
+- EvidenceItem 持久化 SourceLocator；点击证据在内部 Markdown 视图按 block/heading/line/document 定位并显示降级原因。
+- 保留旧 structured parser 与环境变量回滚；零证据、失败、取消轮次继续与 trusted history 隔离。
+- Rust 162/162、前端 evidence 5/5、settings 8/8、审计工具 12/12、production build 与 Rust release build 通过。
+- 详情：`logs/2026-08-19-answer-evidence-links.md`
