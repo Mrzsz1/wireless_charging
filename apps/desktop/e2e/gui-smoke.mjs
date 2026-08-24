@@ -292,8 +292,14 @@ try {
   if (before === after) throw new Error('Workspace tree did not toggle')
   const librarySearch = await requireElement('[data-testid="library-search"]')
   await librarySearch.setValue('无线充电调度')
+  await browser.waitUntil(async () => !(await searchStatus.getText()).includes('正在搜索'), { timeout: 15000, timeoutMsg: 'Library search did not complete before research trail retrieval' })
   const trailAnchor = await browser.$('.trail-anchor')
-  await trailAnchor.waitForExist({ timeout: 15000, timeoutMsg: 'Research trail did not follow the library search context' })
+  const trailError = await browser.$('.trail-error')
+  await browser.waitUntil(async () => (await trailAnchor.isExisting()) || (await trailError.isExisting()), {
+    timeout: 180000,
+    timeoutMsg: 'Research trail did not follow the library search context within the cold-start budget',
+  })
+  if (await trailError.isExisting()) throw new Error(`Research trail failed: ${await trailError.getText()}`)
   const trailCard = await browser.$('.trail-card-main')
   await trailCard.waitForExist({ timeout: 15000, timeoutMsg: 'Research trail search returned no auditable item' })
   console.log('PASS contextual research trail search')
