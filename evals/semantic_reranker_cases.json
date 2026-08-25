@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "qa-semantic-reranker-cases-v1",
+  "datasetRole": "model_independent_reranker_regression",
+  "caseCount": 10,
+  "cases": [
+    {"id": "mobile-path", "query": "移动路径规划", "targetTitle": "Euclidean TSP trajectory method"},
+    {"id": "multipath-safety", "query": "多径干涉安全功率调度", "targetTitle": "Robust multipath safety scheduling"},
+    {"id": "peak-aoi", "query": "峰值信息年龄联合充电传输", "targetTitle": "Peak AoI joint charging transmission"},
+    {"id": "heterogeneous-chargers", "query": "异构空地充电器协同", "targetTitle": "Heterogeneous aerial ground charger coordination"},
+    {"id": "dynamic-clustering", "query": "动态非均匀聚类充电", "targetTitle": "Dynamic non-uniform charging clustering"},
+    {"id": "directional-uav", "query": "三维定向 UAV 充电", "targetTitle": "Three-dimensional directional UAV charging"},
+    {"id": "obstacle-mcv", "query": "有障碍多移动充电车调度", "targetTitle": "Obstacle-aware multi-MCV scheduling"},
+    {"id": "dwpt-bus", "query": "公交动态无线充电设施规划", "targetTitle": "Dynamic wireless bus charging infrastructure"},
+    {"id": "concurrent-interference", "query": "并发充电干涉开关调度", "targetTitle": "Concurrent interference-aware switch scheduling"},
+    {"id": "partial-charging", "query": "在线请求队列部分充电", "targetTitle": "Online request queue partial charging"}
+  ]
+}

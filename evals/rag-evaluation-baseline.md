@@ -9,8 +9,11 @@
 - MRR / nDCG@10：0.811 / 0.798
 - Locator validity：1.000
 - Zero-evidence FN/FP：0 / 0
-- 平均检索耗时：59.9 ms
+- 平均检索耗时：57.8 ms
 - 平均轮数：1.00
+- Reranker：`hybrid-semantic-research-v1`
+- Reranker fallback：12 / 13（本机语义模型未部署）
+- 平均 reranker 耗时：7.5 ms
 
 ## 用例
 

@@ -245,6 +245,16 @@ pub struct RetrievalQuery {
     #[serde(default)]
     pub planner_fallback_reason: String,
     #[serde(default)]
+    pub reranker_version: String,
+    #[serde(default)]
+    pub reranker_status: String,
+    #[serde(default)]
+    pub reranker_latency_ms: u64,
+    #[serde(default)]
+    pub reranker_fallback: bool,
+    #[serde(default)]
+    pub reranker_fallback_reason: String,
+    #[serde(default)]
     pub requested_kinds: Vec<String>,
     #[serde(default)]
     pub attempted_kinds: Vec<String>,
@@ -992,6 +1002,11 @@ fn build_retrieval_query_with_understanding<'a>(
         planner_latency_ms: 0,
         planner_fallback: false,
         planner_fallback_reason: String::new(),
+        reranker_version: "legacy-ranking-v1".to_string(),
+        reranker_status: "not_run".to_string(),
+        reranker_latency_ms: 0,
+        reranker_fallback: false,
+        reranker_fallback_reason: String::new(),
         requested_kinds: Vec::new(),
         attempted_kinds: Vec::new(),
         source_gaps: Vec::new(),
@@ -2361,6 +2376,11 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
             diagnostics.record_pass(*gain);
         }
         diagnostics.stop(&outcome.stop_reason);
+        retrieval_query.reranker_version = outcome.reranker_version.clone();
+        retrieval_query.reranker_status = outcome.reranker_status.clone();
+        retrieval_query.reranker_latency_ms = outcome.reranker_latency_ms;
+        retrieval_query.reranker_fallback = outcome.reranker_fallback;
+        retrieval_query.reranker_fallback_reason = outcome.reranker_fallback_reason.clone();
         retrieval_query.covered_facet_ids = outcome.covered_facets.iter().cloned().collect();
         retrieval_query.covered_facet_ids.sort();
         retrieval_query.attempted_kinds = outcome
@@ -4460,7 +4480,7 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v6");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v7");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.resolver_status, "succeeded");

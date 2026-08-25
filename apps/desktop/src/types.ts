@@ -594,6 +594,10 @@ export type QaRunManifest = {
   plannedFacetIds?: string[]
   coveredFacetIds?: string[]
   rerankerVersion?: string
+  rerankerStatus?: string
+  rerankerLatencyMs?: number
+  rerankerFallback?: boolean
+  rerankerFallbackReason?: string
   retrievalStopReason?: string
   retrievalRoundCount?: number
   requestedKinds?: string[]
@@ -679,6 +683,11 @@ export type QuestionContext = {
     plannerLatencyMs?: number
     plannerFallback?: boolean
     plannerFallbackReason?: string
+    rerankerVersion?: string
+    rerankerStatus?: string
+    rerankerLatencyMs?: number
+    rerankerFallback?: boolean
+    rerankerFallbackReason?: string
     requestedKinds?: string[]
     attemptedKinds?: string[]
     sourceGaps?: string[]

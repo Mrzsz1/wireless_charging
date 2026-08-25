@@ -11,7 +11,7 @@ pub const ANSWER_SCHEMA_VERSION: &str = "qa-natural-markdown-v2";
 pub const LEGACY_ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v3";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v6";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v7";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -148,6 +148,14 @@ pub struct QaRunManifest {
     pub covered_facet_ids: Vec<String>,
     #[serde(default)]
     pub reranker_version: String,
+    #[serde(default)]
+    pub reranker_status: String,
+    #[serde(default)]
+    pub reranker_latency_ms: u64,
+    #[serde(default)]
+    pub reranker_fallback: bool,
+    #[serde(default)]
+    pub reranker_fallback_reason: String,
     #[serde(default)]
     pub retrieval_stop_reason: String,
     #[serde(default)]
@@ -948,7 +956,11 @@ pub fn build_run_manifest(
         router_fallback: context.retrieval_query.router_fallback,
         planned_facet_ids: context.retrieval_query.facet_ids.clone(),
         covered_facet_ids: context.retrieval_query.covered_facet_ids.clone(),
-        reranker_version: "deterministic-research-v2".to_string(),
+        reranker_version: context.retrieval_query.reranker_version.clone(),
+        reranker_status: context.retrieval_query.reranker_status.clone(),
+        reranker_latency_ms: context.retrieval_query.reranker_latency_ms,
+        reranker_fallback: context.retrieval_query.reranker_fallback,
+        reranker_fallback_reason: context.retrieval_query.reranker_fallback_reason.clone(),
         retrieval_stop_reason: context.retrieval_diagnostics.stop_reason.clone(),
         retrieval_round_count: context.retrieval_diagnostics.pass_count,
         requested_kinds: context.retrieval_query.requested_kinds.clone(),

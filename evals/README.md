@@ -73,6 +73,20 @@ cargo test frozen_follow_up_matrix_covers_fifty_resolution_and_routing_cases --l
 `ResearchIntent` 与 `ExecutionMode`。该题集属于 development/regression，不替代独立 held-out。
 当前冻结结果见 `conversation-understanding-baseline.md`。
 
+## Semantic Reranker 回归
+
+`semantic_reranker_cases.json` 提供 10 个模型无关的语义重排回归用例，用冻结向量验证
+`SemanticResearchReranker` 的排序数学、候选预算和指标门禁，不下载或模拟具体 embedding 模型质量：
+
+```powershell
+cd apps/desktop/src-tauri
+cargo test semantic_reranker_improves_recall_at_five_mrr_and_ndcg_without_losing_recall_at_twenty --lib
+```
+
+端到端 `npm run eval:rag` 另外记录 reranker 版本、状态、耗时与 fallback。模型未部署时必须
+回落到 `DeterministicResearchReranker` 并保持原 Recall@20 门禁。结果见
+`semantic-reranker-baseline.md`。
+
 ## Production held-out 准确率
 
 `heldout_questions.json` 是独立冻结入口。当前状态为 `awaiting_independent_curation`，不预填模型自行构造的“真值”。冻结要求：

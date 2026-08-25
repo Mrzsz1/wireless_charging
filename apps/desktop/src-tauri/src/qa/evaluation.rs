@@ -14,7 +14,7 @@ use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub const CASE_SCHEMA_VERSION: &str = "qa-rag-evaluation-cases-v1";
-pub const REPORT_SCHEMA_VERSION: &str = "qa-rag-evaluation-report-v1";
+pub const REPORT_SCHEMA_VERSION: &str = "qa-rag-evaluation-report-v2";
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -95,6 +95,11 @@ pub struct EvaluationCaseResult {
     pub latency_ms: u64,
     pub round_count: usize,
     pub stop_reason: String,
+    pub reranker_version: String,
+    pub reranker_status: String,
+    pub reranker_latency_ms: u64,
+    pub reranker_fallback: bool,
+    pub reranker_fallback_reason: String,
     pub attempted_kinds: Vec<String>,
     pub source_gaps: Vec<String>,
     pub v2_evidence: Vec<RankedEvidence>,
@@ -121,6 +126,9 @@ pub struct EvaluationAggregate {
     pub zero_evidence_false_positive: usize,
     pub average_latency_ms: f64,
     pub average_round_count: f64,
+    pub average_reranker_latency_ms: f64,
+    pub reranker_fallback_count: usize,
+    pub reranker_fallback_rate: f64,
     pub error_categories: HashMap<String, usize>,
 }
 
@@ -585,6 +593,11 @@ fn evaluate_case(
             .sum(),
         round_count,
         stop_reason: outcome.stop_reason,
+        reranker_version: outcome.reranker_version,
+        reranker_status: outcome.reranker_status,
+        reranker_latency_ms: outcome.reranker_latency_ms,
+        reranker_fallback: outcome.reranker_fallback,
+        reranker_fallback_reason: outcome.reranker_fallback_reason,
         attempted_kinds,
         source_gaps: outcome.sources.gaps,
         v2_evidence: v2,
@@ -634,6 +647,7 @@ pub fn evaluate(
             !expected.zero_evidence_expected && observed.zero_evidence_observed
         })
         .count();
+    let reranker_fallback_count = cases.iter().filter(|case| case.reranker_fallback).count();
     let aggregate = EvaluationAggregate {
         case_count: cases.len(),
         passed_count: cases.iter().filter(|case| case.passed).count(),
@@ -652,6 +666,13 @@ pub fn evaluate(
         zero_evidence_false_positive: false_positive,
         average_latency_ms: average(&cases, |case| case.latency_ms as f64),
         average_round_count: average(&cases, |case| case.round_count as f64),
+        average_reranker_latency_ms: average(&cases, |case| case.reranker_latency_ms as f64),
+        reranker_fallback_count,
+        reranker_fallback_rate: if cases.is_empty() {
+            0.0
+        } else {
+            reranker_fallback_count as f64 / cases.len() as f64
+        },
         error_categories: category_counts,
     };
     let remaining_risks = cases
@@ -693,7 +714,7 @@ pub fn write_report(
         .map_err(|error| format!("RAG_EVAL_WRITE_FAILED: {error}"))?;
     let aggregate = &report.aggregate;
     let mut markdown = format!(
-        "# 科研 RAG 检索评测\n\n- 状态：{}\n- 用例：{}/{}\n- Source resolution accuracy：{:.3}\n- Channel attempt rate：{:.3}\n- Document Recall@5/10/20：{:.3} / {:.3} / {:.3}\n- Heading Recall@20：{:.3}\n- MRR / nDCG@10：{:.3} / {:.3}\n- Locator validity：{:.3}\n- Zero-evidence FN/FP：{} / {}\n- 平均检索耗时：{:.1} ms\n- 平均轮数：{:.2}\n\n## 用例\n\n",
+        "# 科研 RAG 检索评测\n\n- 状态：{}\n- 用例：{}/{}\n- Source resolution accuracy：{:.3}\n- Channel attempt rate：{:.3}\n- Document Recall@5/10/20：{:.3} / {:.3} / {:.3}\n- Heading Recall@20：{:.3}\n- MRR / nDCG@10：{:.3} / {:.3}\n- Locator validity：{:.3}\n- Zero-evidence FN/FP：{} / {}\n- 平均检索耗时：{:.1} ms\n- 平均轮数：{:.2}\n- Reranker fallback：{} / {} ({:.3})\n- 平均 reranker 耗时：{:.1} ms\n\n## 用例\n\n",
         if report.passed { "PASS" } else { "REVIEW" },
         aggregate.passed_count,
         aggregate.case_count,
@@ -710,10 +731,14 @@ pub fn write_report(
         aggregate.zero_evidence_false_positive,
         aggregate.average_latency_ms,
         aggregate.average_round_count,
+        aggregate.reranker_fallback_count,
+        aggregate.case_count,
+        aggregate.reranker_fallback_rate,
+        aggregate.average_reranker_latency_ms,
     );
     for case in &report.cases {
         markdown.push_str(&format!(
-            "### {} · {}\n\n- 状态：{}\n- 通道：{}\n- Stop：{}\n- Recall@5/20：{:.3} / {:.3}\n- Locator：{:.3}\n",
+            "### {} · {}\n\n- 状态：{}\n- 通道：{}\n- Stop：{}\n- Recall@5/20：{:.3} / {:.3}\n- Locator：{:.3}\n- Reranker：{} / {} / {} ms{}\n",
             case.id,
             case.question,
             if case.passed { "PASS" } else { "REVIEW" },
@@ -722,6 +747,14 @@ pub fn write_report(
             case.document_recall_at_5,
             case.document_recall_at_20,
             case.locator_validity,
+            case.reranker_version,
+            case.reranker_status,
+            case.reranker_latency_ms,
+            if case.reranker_fallback_reason.is_empty() {
+                String::new()
+            } else {
+                format!(" / fallback={}", case.reranker_fallback_reason)
+            },
         ));
         if !case.improvements.is_empty() {
             markdown.push_str(&format!("- v2 改善：{}\n", case.improvements.join(", ")));

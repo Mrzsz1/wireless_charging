@@ -1,6 +1,8 @@
 use super::coverage::{evaluate_coverage, CoverageAction};
 use super::fusion::{reciprocal_rank_fusion, RankedChannel};
-use super::reranker::{DeterministicResearchReranker, Reranker};
+#[cfg(test)]
+use super::reranker::RerankOutcome;
+use super::reranker::{HybridResearchReranker, Reranker};
 use super::retrieval_contract::RetrievalContract;
 use super::source_resolver::{resolve_sources, SourceResolution};
 use super::{
@@ -34,6 +36,11 @@ pub struct RetrievalOutcome {
     pub covered_facets: HashSet<String>,
     pub candidate_gains: Vec<usize>,
     pub stop_reason: String,
+    pub reranker_version: String,
+    pub reranker_status: String,
+    pub reranker_latency_ms: u64,
+    pub reranker_fallback: bool,
+    pub reranker_fallback_reason: String,
 }
 
 impl RetrievalOutcome {
@@ -388,14 +395,9 @@ pub fn run_retrieval(
     contract: &RetrievalContract,
     cancelled: Option<&AtomicBool>,
 ) -> Result<RetrievalOutcome, String> {
-    run_retrieval_with_reranker(
-        connection,
-        root,
-        question,
-        contract,
-        cancelled,
-        &DeterministicResearchReranker,
-    )
+    let embedder = |texts: Vec<String>| super::semantic::embed_texts(texts, cancelled);
+    let reranker = HybridResearchReranker::new(&embedder);
+    run_retrieval_with_reranker(connection, root, question, contract, cancelled, &reranker)
 }
 
 fn run_retrieval_with_reranker(
@@ -430,6 +432,11 @@ fn run_retrieval_with_reranker(
                 covered_facets: HashSet::new(),
                 candidate_gains: vec![0],
                 stop_reason: "source_resolver_degraded".to_string(),
+                reranker_version: reranker.name().to_string(),
+                reranker_status: "not_run".to_string(),
+                reranker_latency_ms: 0,
+                reranker_fallback: false,
+                reranker_fallback_reason: String::new(),
             });
         }
     };
@@ -450,6 +457,11 @@ fn run_retrieval_with_reranker(
             covered_facets: HashSet::new(),
             candidate_gains: vec![0],
             stop_reason: "unresolved_explicit_source".to_string(),
+            reranker_version: reranker.name().to_string(),
+            reranker_status: "not_run".to_string(),
+            reranker_latency_ms: 0,
+            reranker_fallback: false,
+            reranker_fallback_reason: String::new(),
         });
     }
     let document_ids = if sources.constrained {
@@ -484,6 +496,11 @@ fn run_retrieval_with_reranker(
     let mut known_keys = HashSet::new();
     let mut queries_used = 0usize;
     let mut stop_reason = String::new();
+    let mut reranker_version = reranker.name().to_string();
+    let mut reranker_status = "not_run".to_string();
+    let mut reranker_latency_ms = 0_u64;
+    let mut reranker_fallback = false;
+    let mut reranker_fallback_reason = String::new();
     let mut queue = VecDeque::new();
     let content_question = strip_resolved_source_names(question, &sources);
     let rerank_query = std::iter::once(content_question.clone())
@@ -677,10 +694,50 @@ fn run_retrieval_with_reranker(
 
         current_candidates = reciprocal_rank_fusion(all_channels.clone(), &explicit_paths);
         let fallback_candidates = current_candidates.clone();
+        let reranker_started = Instant::now();
         current_candidates =
             match reranker.rerank(&rerank_query, current_candidates, &explicit_paths) {
-                Ok(ranked) => ranked,
+                Ok(outcome) => {
+                    let duration_ms = elapsed_ms(reranker_started);
+                    reranker_latency_ms = reranker_latency_ms.saturating_add(duration_ms);
+                    reranker_version = outcome.reranker_version;
+                    if outcome.fallback {
+                        reranker_status = "degraded".to_string();
+                        reranker_fallback = true;
+                        reranker_fallback_reason = outcome.fallback_reason.clone();
+                    } else if !reranker_fallback {
+                        reranker_status = "succeeded".to_string();
+                    }
+                    attempts.push(ChannelAttempt {
+                        name: "reranker".to_string(),
+                        kind: "mixed".to_string(),
+                        round,
+                        status: if outcome.fallback {
+                            "degraded"
+                        } else {
+                            "succeeded_with_hits"
+                        }
+                        .to_string(),
+                        error_kind: outcome.fallback_reason,
+                        round_fingerprint: round_round_fingerprint.clone(),
+                        candidate_count: outcome.candidates.len(),
+                        duration_ms,
+                    });
+                    outcome.candidates
+                }
                 Err(error) => {
+                    if error.starts_with("QUESTION_CANCELLED") {
+                        return Err(error);
+                    }
+                    let duration_ms = elapsed_ms(reranker_started);
+                    reranker_latency_ms = reranker_latency_ms.saturating_add(duration_ms);
+                    reranker_status = "degraded".to_string();
+                    reranker_fallback = true;
+                    reranker_fallback_reason = error
+                        .split(':')
+                        .next()
+                        .unwrap_or("reranker_unavailable")
+                        .to_lowercase();
                     attempts.push(ChannelAttempt {
                         name: "reranker".to_string(),
                         kind: "mixed".to_string(),
@@ -693,7 +750,7 @@ fn run_retrieval_with_reranker(
                             .to_lowercase(),
                         round_fingerprint: round_round_fingerprint.clone(),
                         candidate_count: fallback_candidates.len(),
-                        duration_ms: 0,
+                        duration_ms,
                     });
                     fallback_candidates
                 }
@@ -741,6 +798,11 @@ fn run_retrieval_with_reranker(
         covered_facets: facets,
         candidate_gains,
         stop_reason,
+        reranker_version,
+        reranker_status,
+        reranker_latency_ms,
+        reranker_fallback,
+        reranker_fallback_reason,
     })
 }
 
@@ -762,7 +824,7 @@ mod tests {
             _question: &str,
             _candidates: Vec<Candidate>,
             _explicit_paths: &HashSet<String>,
-        ) -> Result<Vec<Candidate>, String> {
+        ) -> Result<RerankOutcome, String> {
             Err("reranker_unavailable: fixture".to_string())
         }
     }
@@ -932,6 +994,10 @@ mod tests {
                 && attempt.status == "degraded"
                 && attempt.error_kind == "reranker_unavailable"
         }));
+        assert_eq!(outcome.reranker_version, "failing-fixture");
+        assert_eq!(outcome.reranker_status, "degraded");
+        assert!(outcome.reranker_fallback);
+        assert_eq!(outcome.reranker_fallback_reason, "reranker_unavailable");
     }
 
     #[test]
