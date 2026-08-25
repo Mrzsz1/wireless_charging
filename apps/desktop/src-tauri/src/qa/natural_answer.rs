@@ -1,6 +1,5 @@
 use super::{
     compact, normalize_unverified_answer, CitationRepair, CitationValidation, EvidenceItem,
-    MODEL_SUPPLEMENT_HEADING,
 };
 
 pub const ANSWER_FORMAT: &str = "natural-markdown-v2";
@@ -190,6 +189,14 @@ pub fn render(answer: &str, evidence: &[EvidenceItem]) -> Result<NaturalAnswerRe
         return Err("回答正文超过安全长度上限".to_string());
     }
     let (body, removed_ids) = strip_evidence_tokens(raw_body);
+    let known_ids = evidence
+        .iter()
+        .map(|item| item.id.as_str())
+        .collect::<std::collections::HashSet<_>>();
+    let removed_unknown_ids = removed_ids
+        .into_iter()
+        .filter(|id| !known_ids.contains(id.as_str()))
+        .collect::<Vec<_>>();
     let body = redact_windows_absolute_paths(&sanitize_markdown_link_targets(body.trim()))
         .trim()
         .to_string();
@@ -207,43 +214,31 @@ pub fn render(answer: &str, evidence: &[EvidenceItem]) -> Result<NaturalAnswerRe
                 ..CitationValidation::default()
             },
             repair: CitationRepair {
-                applied: !removed_ids.is_empty(),
-                removed_unknown_ids: removed_ids,
+                applied: !removed_unknown_ids.is_empty(),
+                removed_unknown_ids,
                 normalized_citation_groups: 0,
             },
         });
     }
     let (appendix, appendix_evidence_ids) = appendix(evidence);
     let appendix_integrity = !appendix_evidence_ids.is_empty();
-    let mixed = body.contains(MODEL_SUPPLEMENT_HEADING);
     Ok(NaturalAnswerResult {
         markdown: format!("{}{appendix}", body.trim()),
         validation: CitationValidation {
-            cited_ids: appendix_evidence_ids.clone(),
-            citation_precision: if appendix_integrity { 1.0 } else { 0.0 },
-            has_citations: appendix_integrity,
-            supported: appendix_integrity,
-            grounding_status: if appendix_integrity {
-                if mixed {
-                    "mixed"
-                } else {
-                    "supported"
-                }
-            } else {
-                "unverified"
-            }
-            .to_string(),
+            supported: false,
+            grounding_status: "unverified".to_string(),
             zero_evidence: !appendix_integrity,
             syntax_valid: true,
-            coverage_valid: appendix_integrity,
+            coverage_valid: false,
             entailment_checked: false,
+            heuristic_verification_checked: false,
             appendix_integrity,
             appendix_evidence_ids,
             ..CitationValidation::default()
         },
         repair: CitationRepair {
-            applied: !removed_ids.is_empty(),
-            removed_unknown_ids: removed_ids,
+            applied: !removed_unknown_ids.is_empty(),
+            removed_unknown_ids,
             normalized_citation_groups: 0,
         },
     })

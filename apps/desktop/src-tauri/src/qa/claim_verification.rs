@@ -5,18 +5,25 @@ use super::{
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
-pub const CLAIM_VERIFIER_VERSION: &str = "deterministic-claim-verifier-v1";
+pub const CLAIM_VERIFIER_VERSION: &str = "deterministic-claim-verifier-v2";
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
-pub enum ClaimStatus {
+pub enum ClaimType {
+    KnowledgeFact,
+    GeneralKnowledge,
+    ReasonedInference,
+    ResearchSuggestion,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum VerificationStatus {
     Supported,
     PartiallySupported,
     Contradicted,
     NotVerifiable,
-    GeneralKnowledge,
-    ReasonedInference,
-    ResearchSuggestion,
+    NotApplicable,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -25,7 +32,9 @@ pub struct VerifiedClaim {
     pub id: String,
     pub text: String,
     pub evidence_ids: Vec<String>,
-    pub status: ClaimStatus,
+    pub claim_type: ClaimType,
+    pub verification_status: VerificationStatus,
+    pub verification_method: String,
     pub alignment_score: f64,
     pub reason: String,
 }
@@ -41,6 +50,7 @@ pub struct ClaimVerificationReport {
     pub partially_supported_count: usize,
     pub contradicted_count: usize,
     pub not_verifiable_count: usize,
+    pub not_applicable_count: usize,
     pub general_knowledge_count: usize,
     pub reasoned_inference_count: usize,
     pub research_suggestion_count: usize,
@@ -54,7 +64,7 @@ pub trait VerificationProvider {
         &self,
         claim: &str,
         evidence: &[&EvidenceItem],
-    ) -> Result<(ClaimStatus, f64, String), String>;
+    ) -> Result<(VerificationStatus, f64, String), String>;
 }
 
 #[derive(Debug, Default)]
@@ -69,60 +79,10 @@ impl VerificationProvider for DeterministicClaimVerifier {
         &self,
         claim: &str,
         evidence: &[&EvidenceItem],
-    ) -> Result<(ClaimStatus, f64, String), String> {
-        if has_any(
-            claim,
-            &[
-                "建议",
-                "可以考虑",
-                "后续研究",
-                "值得探索",
-                "可尝试",
-                "research suggestion",
-            ],
-        ) {
-            return Ok((
-                ClaimStatus::ResearchSuggestion,
-                1.0,
-                "research_suggestion_cue".to_string(),
-            ));
-        }
-        if has_any(
-            claim,
-            &[
-                "知识库之外",
-                "通用知识",
-                "一般而言",
-                "通常来说",
-                "general knowledge",
-            ],
-        ) {
-            return Ok((
-                ClaimStatus::GeneralKnowledge,
-                1.0,
-                "general_knowledge_cue".to_string(),
-            ));
-        }
-        if has_any(
-            claim,
-            &[
-                "可以推断",
-                "可推知",
-                "这意味着",
-                "综合来看",
-                "由此推测",
-                "reasoned inference",
-            ],
-        ) {
-            return Ok((
-                ClaimStatus::ReasonedInference,
-                1.0,
-                "reasoned_inference_cue".to_string(),
-            ));
-        }
+    ) -> Result<(VerificationStatus, f64, String), String> {
         if evidence.is_empty() {
             return Ok((
-                ClaimStatus::NotVerifiable,
+                VerificationStatus::NotVerifiable,
                 0.0,
                 "no_aligned_evidence".to_string(),
             ));
@@ -145,33 +105,33 @@ impl VerificationProvider for DeterministicClaimVerifier {
         let evidence_numbers = number_tokens(&evidence_text);
         if !claim_numbers.is_subset(&evidence_numbers) {
             return Ok((
-                ClaimStatus::NotVerifiable,
+                VerificationStatus::NotVerifiable,
                 score,
                 "numeric_detail_missing_from_evidence".to_string(),
             ));
         }
         if score >= 0.30 && has_negation(claim) != has_negation(&evidence_text) {
             return Ok((
-                ClaimStatus::Contradicted,
+                VerificationStatus::Contradicted,
                 score,
                 "negation_conflicts_with_evidence".to_string(),
             ));
         }
         if score >= 0.80 {
             Ok((
-                ClaimStatus::Supported,
+                VerificationStatus::Supported,
                 score,
-                "lexical_entailment_threshold".to_string(),
+                "lexical_alignment_threshold".to_string(),
             ))
         } else if score >= 0.16 {
             Ok((
-                ClaimStatus::PartiallySupported,
+                VerificationStatus::PartiallySupported,
                 score,
                 "partial_lexical_alignment".to_string(),
             ))
         } else {
             Ok((
-                ClaimStatus::NotVerifiable,
+                VerificationStatus::NotVerifiable,
                 score,
                 "insufficient_claim_evidence_alignment".to_string(),
             ))
@@ -210,36 +170,74 @@ pub fn verify_and_repair_with(
         fallback: provider.version() == CLAIM_VERIFIER_VERSION,
         ..ClaimVerificationReport::default()
     };
+
     for segment in claim_segments(body) {
-        let mut ids = extract_citation_ids(&segment);
-        if !is_factual_claim(&segment) && !looks_classifiable(&segment) {
+        let claim_type = classify_claim(&segment);
+        if !is_factual_claim(&segment) && claim_type == ClaimType::KnowledgeFact {
             continue;
         }
-        let aligned = if ids.is_empty() {
-            ids = evidence.iter().map(|item| item.id.clone()).collect();
-            evidence.iter().collect::<Vec<_>>()
-        } else {
-            ids.iter()
-                .filter_map(|id| by_id.get(id.as_str()).copied())
-                .collect::<Vec<_>>()
-        };
-        let (status, score, reason) = match provider.verify(&segment, &aligned) {
-            Ok(result) => result,
-            Err(reason) => {
-                report.verification_status = "unavailable".to_string();
-                report.fallback = false;
-                report.claims.clear();
-                report.claim_count = 0;
-                return (answer.to_string(), report_with_reason(report, reason));
-            }
-        };
-        increment(&mut report, status);
-        let id = format!("C{}", report.claims.len() + 1);
+        increment_type(&mut report, claim_type);
+        let ids = extract_citation_ids(&segment);
+        let aligned = ids
+            .iter()
+            .filter_map(|id| by_id.get(id.as_str()).copied())
+            .collect::<Vec<_>>();
+
+        let (verification_status, score, reason, method) =
+            if claim_type == ClaimType::ResearchSuggestion {
+                (
+                    VerificationStatus::NotApplicable,
+                    0.0,
+                    "research_suggestion_not_evidence_claim".to_string(),
+                    "claim_type_rule".to_string(),
+                )
+            } else if ids.is_empty() {
+                (
+                    VerificationStatus::NotVerifiable,
+                    0.0,
+                    "missing_explicit_evidence_mapping".to_string(),
+                    "mapping_gate".to_string(),
+                )
+            } else if aligned.len() != ids.len() {
+                (
+                    VerificationStatus::NotVerifiable,
+                    0.0,
+                    "unknown_or_unavailable_evidence_id".to_string(),
+                    "mapping_gate".to_string(),
+                )
+            } else if aligned.iter().all(|item| item.kind == "graph") {
+                (
+                    VerificationStatus::NotVerifiable,
+                    0.0,
+                    "graph_only_evidence_is_not_claim_support".to_string(),
+                    "mapping_gate".to_string(),
+                )
+            } else {
+                match provider.verify(&segment, &aligned) {
+                    Ok((status, score, reason)) => (
+                        status,
+                        score,
+                        reason,
+                        "deterministic_lexical_heuristic".to_string(),
+                    ),
+                    Err(reason) => {
+                        report.verification_status = "unavailable".to_string();
+                        report.fallback = false;
+                        report.claims.clear();
+                        report.claim_count = 0;
+                        return (answer.to_string(), report_with_reason(report, reason));
+                    }
+                }
+            };
+
+        increment_status(&mut report, verification_status);
         report.claims.push(VerifiedClaim {
-            id,
-            text: compact(&segment, 240),
+            id: format!("C{}", report.claims.len() + 1),
+            text: segment,
             evidence_ids: ids,
-            status,
+            claim_type,
+            verification_status,
+            verification_method: method,
             alignment_score: score,
             reason,
         });
@@ -248,16 +246,18 @@ pub fn verify_and_repair_with(
 
     let mut repaired = answer.to_string();
     for claim in &report.claims {
-        let replacement = match claim.status {
-            ClaimStatus::Contradicted => Some("当前证据与该陈述存在冲突，本轮不采纳该结论。"),
-            ClaimStatus::NotVerifiable => Some("当前证据不足以核验该陈述。"),
-            ClaimStatus::PartiallySupported => Some("现有证据仅部分支持："),
-            _ => None,
+        let replacement = match claim.verification_status {
+            VerificationStatus::Contradicted => {
+                Some("当前证据与该陈述存在冲突，本轮不采纳该结论。")
+            }
+            VerificationStatus::NotVerifiable => Some("当前证据不足以核验该陈述。"),
+            VerificationStatus::PartiallySupported => Some("现有证据仅部分支持："),
+            VerificationStatus::Supported | VerificationStatus::NotApplicable => None,
         };
         let Some(replacement) = replacement else {
             continue;
         };
-        if claim.status == ClaimStatus::PartiallySupported {
+        if claim.verification_status == VerificationStatus::PartiallySupported {
             if let Some(index) = repaired.find(&claim.text) {
                 repaired.insert_str(index, replacement);
                 report.repaired_count += 1;
@@ -270,6 +270,47 @@ pub fn verify_and_repair_with(
     (repaired, report)
 }
 
+fn classify_claim(value: &str) -> ClaimType {
+    if has_any(
+        value,
+        &[
+            "建议",
+            "可以考虑",
+            "后续研究",
+            "值得探索",
+            "可尝试",
+            "research suggestion",
+        ],
+    ) {
+        ClaimType::ResearchSuggestion
+    } else if has_any(
+        value,
+        &[
+            "知识库之外",
+            "通用知识",
+            "一般而言",
+            "通常来说",
+            "general knowledge",
+        ],
+    ) {
+        ClaimType::GeneralKnowledge
+    } else if has_any(
+        value,
+        &[
+            "可以推断",
+            "可推知",
+            "这意味着",
+            "综合来看",
+            "由此推测",
+            "reasoned inference",
+        ],
+    ) {
+        ClaimType::ReasonedInference
+    } else {
+        ClaimType::KnowledgeFact
+    }
+}
+
 fn report_with_reason(
     mut report: ClaimVerificationReport,
     reason: String,
@@ -278,48 +319,32 @@ fn report_with_reason(
         id: "provider".to_string(),
         text: String::new(),
         evidence_ids: Vec::new(),
-        status: ClaimStatus::NotVerifiable,
+        claim_type: ClaimType::KnowledgeFact,
+        verification_status: VerificationStatus::NotVerifiable,
+        verification_method: "provider_error".to_string(),
         alignment_score: 0.0,
         reason: compact(&reason, 120),
     });
     report
 }
 
-fn increment(report: &mut ClaimVerificationReport, status: ClaimStatus) {
-    match status {
-        ClaimStatus::Supported => report.supported_count += 1,
-        ClaimStatus::PartiallySupported => report.partially_supported_count += 1,
-        ClaimStatus::Contradicted => report.contradicted_count += 1,
-        ClaimStatus::NotVerifiable => report.not_verifiable_count += 1,
-        ClaimStatus::GeneralKnowledge => report.general_knowledge_count += 1,
-        ClaimStatus::ReasonedInference => report.reasoned_inference_count += 1,
-        ClaimStatus::ResearchSuggestion => report.research_suggestion_count += 1,
+fn increment_type(report: &mut ClaimVerificationReport, claim_type: ClaimType) {
+    match claim_type {
+        ClaimType::KnowledgeFact => {}
+        ClaimType::GeneralKnowledge => report.general_knowledge_count += 1,
+        ClaimType::ReasonedInference => report.reasoned_inference_count += 1,
+        ClaimType::ResearchSuggestion => report.research_suggestion_count += 1,
     }
 }
 
-fn looks_classifiable(value: &str) -> bool {
-    has_any(
-        value,
-        &[
-            "建议",
-            "可以考虑",
-            "后续研究",
-            "值得探索",
-            "可尝试",
-            "知识库之外",
-            "通用知识",
-            "一般而言",
-            "通常来说",
-            "可以推断",
-            "可推知",
-            "这意味着",
-            "综合来看",
-            "由此推测",
-            "research suggestion",
-            "general knowledge",
-            "reasoned inference",
-        ],
-    )
+fn increment_status(report: &mut ClaimVerificationReport, status: VerificationStatus) {
+    match status {
+        VerificationStatus::Supported => report.supported_count += 1,
+        VerificationStatus::PartiallySupported => report.partially_supported_count += 1,
+        VerificationStatus::Contradicted => report.contradicted_count += 1,
+        VerificationStatus::NotVerifiable => report.not_verifiable_count += 1,
+        VerificationStatus::NotApplicable => report.not_applicable_count += 1,
+    }
 }
 
 fn has_any(value: &str, needles: &[&str]) -> bool {
@@ -425,7 +450,8 @@ mod tests {
         id: String,
         claim: String,
         evidence: String,
-        expected_status: ClaimStatus,
+        expected_claim_type: ClaimType,
+        expected_verification_status: VerificationStatus,
     }
 
     fn evidence(snippet: &str) -> EvidenceItem {
@@ -450,7 +476,7 @@ mod tests {
                 .verify("ROSE uses particle swarm optimization [E1].", &aligned)
                 .unwrap()
                 .0,
-            ClaimStatus::Supported
+            VerificationStatus::Supported
         );
         assert_eq!(
             verifier
@@ -460,7 +486,7 @@ mod tests {
                 )
                 .unwrap()
                 .0,
-            ClaimStatus::PartiallySupported
+            VerificationStatus::PartiallySupported
         );
         assert_eq!(
             verifier
@@ -470,41 +496,36 @@ mod tests {
                 )
                 .unwrap()
                 .0,
-            ClaimStatus::Contradicted
+            VerificationStatus::Contradicted
         );
         assert_eq!(
             verifier
                 .verify("The moon is made of cheese [E1].", &aligned)
                 .unwrap()
                 .0,
-            ClaimStatus::NotVerifiable
+            VerificationStatus::NotVerifiable
         );
     }
 
     #[test]
-    fn statuses_cover_general_knowledge_inference_and_suggestion() {
-        let verifier = DeterministicClaimVerifier;
+    fn claim_type_never_bypasses_evidence_mapping() {
+        let answer = "一般而言，PSO guarantees a global optimum.";
+        let (_, report) = verify_and_repair(answer, &[evidence("PSO is a heuristic method.")]);
+        assert_eq!(report.claims[0].claim_type, ClaimType::GeneralKnowledge);
         assert_eq!(
-            verifier
-                .verify("作为通用知识补充，启发式方法不保证最优。", &[])
-                .unwrap()
-                .0,
-            ClaimStatus::GeneralKnowledge
+            report.claims[0].verification_status,
+            VerificationStatus::NotVerifiable
         );
-        assert_eq!(
-            verifier
-                .verify("综合来看，可以推断能量约束是主要瓶颈。", &[])
-                .unwrap()
-                .0,
-            ClaimStatus::ReasonedInference
-        );
-        assert_eq!(
-            verifier
-                .verify("后续研究可以考虑多移动充电车。", &[])
-                .unwrap()
-                .0,
-            ClaimStatus::ResearchSuggestion
-        );
+        assert!(report.claims[0].evidence_ids.is_empty());
+    }
+
+    #[test]
+    fn no_id_claim_is_not_bound_to_every_evidence_item() {
+        let answer = "ROSE schedules a charger.";
+        let (_, report) = verify_and_repair(answer, &[evidence("ROSE schedules a charger.")]);
+        assert_eq!(report.not_verifiable_count, 1);
+        assert!(report.claims[0].evidence_ids.is_empty());
+        assert_eq!(report.claims[0].reason, "missing_explicit_evidence_mapping");
     }
 
     #[test]
@@ -513,7 +534,7 @@ mod tests {
             "../../../../../evals/claim-verification-cases.json"
         ))
         .expect("valid frozen claim verification cases");
-        assert_eq!(cases.schema_version, "claim-verification-cases-v1");
+        assert_eq!(cases.schema_version, "claim-verification-cases-v2");
         let verifier = DeterministicClaimVerifier;
         for case in cases.cases {
             let source = evidence(&case.evidence);
@@ -522,11 +543,17 @@ mod tests {
             } else {
                 vec![&source]
             };
-            let status = verifier
-                .verify(&case.claim, &aligned)
-                .unwrap_or_else(|error| panic!("{}: {error}", case.id))
-                .0;
-            assert_eq!(status, case.expected_status, "{}", case.id);
+            let claim_type = classify_claim(&case.claim);
+            let status = if claim_type == ClaimType::ResearchSuggestion {
+                VerificationStatus::NotApplicable
+            } else {
+                verifier
+                    .verify(&case.claim, &aligned)
+                    .unwrap_or_else(|error| panic!("{}: {error}", case.id))
+                    .0
+            };
+            assert_eq!(claim_type, case.expected_claim_type, "{}", case.id);
+            assert_eq!(status, case.expected_verification_status, "{}", case.id);
         }
     }
 
@@ -551,7 +578,7 @@ mod tests {
                 &self,
                 _: &str,
                 _: &[&EvidenceItem],
-            ) -> Result<(ClaimStatus, f64, String), String> {
+            ) -> Result<(VerificationStatus, f64, String), String> {
                 Err("provider timeout".to_string())
             }
         }

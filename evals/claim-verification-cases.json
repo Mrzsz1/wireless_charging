@@ -1,41 +1,47 @@
 {
-  "schemaVersion": "claim-verification-cases-v1",
+  "schemaVersion": "claim-verification-cases-v2",
   "cases": [
     {
       "id": "supported",
       "claim": "ROSE uses particle swarm optimization.",
       "evidence": "ROSE uses particle swarm optimization for mobile charger scheduling.",
-      "expectedStatus": "supported"
+      "expectedClaimType": "knowledge_fact",
+      "expectedVerificationStatus": "supported"
     },
     {
       "id": "partially-supported",
       "claim": "ROSE uses particle swarm optimization and proves optimality.",
       "evidence": "ROSE uses particle swarm optimization for mobile charger scheduling.",
-      "expectedStatus": "partially_supported"
+      "expectedClaimType": "knowledge_fact",
+      "expectedVerificationStatus": "partially_supported"
     },
     {
       "id": "contradicted",
       "claim": "ROSE does not use particle swarm optimization.",
       "evidence": "ROSE uses particle swarm optimization for mobile charger scheduling.",
-      "expectedStatus": "contradicted"
+      "expectedClaimType": "knowledge_fact",
+      "expectedVerificationStatus": "contradicted"
     },
     {
       "id": "unsupported",
       "claim": "The moon is made of cheese.",
       "evidence": "ROSE schedules a mobile charger.",
-      "expectedStatus": "not_verifiable"
+      "expectedClaimType": "knowledge_fact",
+      "expectedVerificationStatus": "not_verifiable"
     },
     {
       "id": "general-knowledge",
       "claim": "作为通用知识补充，启发式方法不保证最优。",
       "evidence": "",
-      "expectedStatus": "general_knowledge"
+      "expectedClaimType": "general_knowledge",
+      "expectedVerificationStatus": "not_verifiable"
     },
     {
       "id": "research-suggestion",
       "claim": "后续研究可以考虑多移动充电车。",
       "evidence": "",
-      "expectedStatus": "research_suggestion"
+      "expectedClaimType": "research_suggestion",
+      "expectedVerificationStatus": "not_applicable"
     }
   ]
 }

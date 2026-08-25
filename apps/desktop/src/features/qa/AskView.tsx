@@ -83,6 +83,14 @@ function evidenceLocationLabel(item: EvidenceItem) {
   return item.locator ? 'Markdown 来源' : '旧版来源记录'
 }
 
+function verificationStatusLabel(status: string) {
+  return status === 'supported' ? '支持'
+    : status === 'partially_supported' ? '部分支持'
+      : status === 'contradicted' ? '冲突'
+        : status === 'not_verifiable' ? '不可核验'
+          : '不适用'
+}
+
 function MessageContent({ content, evidence, onCitation }: { content: string; evidence: EvidenceItem[]; onCitation: (item: EvidenceItem) => void }) {
   return <div className="qa-message-content"><Suspense fallback={<span className="qa-markdown-loading">{content}</span>}><MarkdownMessage content={content} evidence={evidence} onCitation={onCitation} /></Suspense></div>
 }
@@ -558,6 +566,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
       {waterline && <div className="qa-waterline"><strong>库水位</strong><div><span>{waterline.sourceCount}<small>source</small></span><span>{waterline.methodCount}<small>method</small></span><span>{waterline.synthesisCount}<small>synthesis</small></span><span>{waterline.chapterCount}<small>chapters</small></span></div><p>{waterline.yearMin || '未知'}–{waterline.yearMax || '未知'} · 当前仓库</p></div>}
       {retrievalDiagnostics && <div className="qa-retrieval-diagnostics"><div><strong>检索诊断</strong><span>{retrievalDiagnostics.totalMs} ms · {retrievalDiagnostics.passCount || 1} 轮 · 选中 {retrievalDiagnostics.selectedCount}</span></div><p>{retrievalDiagnostics.channels.map((channel) => `${channel.name} ${channel.candidateCount}/${channel.durationMs}ms`).join(' · ')}</p><small>停止：{retrievalDiagnostics.stopReason || '单轮完成'} · 增益 {(retrievalDiagnostics.candidateGains ?? []).join('/')} · 取消检查点 {retrievalDiagnostics.cancelCheckCount}</small></div>}
       {contextBudget && <div className="qa-context-budget"><div><strong>上下文预算</strong><span>{contextBudget.estimatedTotalTokens}/{contextBudget.inputBudgetTokens}</span></div><p>契约 {contextBudget.researchContractTokens} · 记忆 {contextBudget.sessionMemoryTokens} · 近期 {contextBudget.recentHistoryTokens} · 问题 {contextBudget.currentQueryTokens} · 证据 {contextBudget.evidenceTokens} · 序列化 {contextBudget.serializationOverheadTokens}</p><small>输出预留 {contextBudget.outputReserveTokens} · 空余 {contextBudget.freeTokens} · 最近 {contextBudget.recentExchangeCount} 轮 · 压缩 {contextBudget.compactedMessageCount} 条{contextBudget.truncated ? ' · 已裁剪' : ''}</small>{runManifest && <small>快照 {runManifest.indexSnapshotId.slice(0, 19)}… · {runManifest.promptVersion}/{runManifest.answerSchemaVersion} · 回答{runManifest.answerCompleteness.complete ? '通过' : '未通过'}</small>}</div>}
+      {Boolean(runManifest?.claimVerifications?.length) && <details className="qa-claim-audit"><summary>逐条证据审计 <span>{runManifest?.claimVerifications?.length}</span></summary><div>{runManifest?.claimVerifications?.map((claim) => <article key={claim.id} className={claim.verificationStatus}><div><strong>{claim.id}</strong><span>{verificationStatusLabel(claim.verificationStatus)}</span></div><p>{claim.text}</p><small>{claim.claimType} · {claim.evidenceIds.length ? claim.evidenceIds.join(', ') : '无显式证据'} · {claim.verificationMethod}</small></article>)}</div><footer>启发式核验记录不等同于模型语义蕴含判断。</footer></details>}
       <div className="qa-evidence-list">{evidence.map((item) => <button className={`qa-evidence-card ${selectedEvidence?.id === item.id ? 'selected' : ''}`} key={item.id} onClick={() => setSelectedEvidence(item)}><span className="qa-evidence-id">{item.id}</span><div><div className="qa-evidence-type">{kindIcon(item.kind)}<span>{tierLabel(item.tier)}</span></div><strong>{item.title}</strong><p>{item.snippet}</p><small>{evidenceLocationLabel(item)}</small></div></button>)}</div>
       {emptyEvidence && <div className={`qa-empty-evidence ${emptyEvidence.kind}`}><FileText size={23} /><strong>{emptyEvidence.title}</strong><span>{emptyEvidence.detail}</span></div>}
       {selectedEvidence && <div className="qa-evidence-detail" id={`evidence-${selectedEvidence.id}`}><div><strong>{selectedEvidence.id} · 定位信息</strong><button onClick={() => setSelectedEvidence(null)}><X size={13} /></button></div><p>{selectedEvidence.retrievalReason}</p><a href={`#open-${selectedEvidence.id}`} className="qa-open-source" onClick={(event) => { event.preventDefault(); openEvidence(selectedEvidence) }}>{kindIcon(selectedEvidence.kind)}打开{selectedEvidence.kind === 'paper' ? '论文原文' : selectedEvidence.kind === 'book' ? '书籍来源' : '知识库来源'}</a></div>}

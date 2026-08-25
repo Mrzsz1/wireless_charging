@@ -708,6 +708,7 @@ pub fn validate_citations(answer: &str, evidence: &[EvidenceItem]) -> CitationVa
         syntax_valid,
         coverage_valid,
         entailment_checked: false,
+        heuristic_verification_checked: false,
         model_supplement_claim_count: model_supplement_claims.len(),
         model_supplement_claims,
         appendix_integrity: false,

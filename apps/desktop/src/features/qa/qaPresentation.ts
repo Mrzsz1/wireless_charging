@@ -39,17 +39,26 @@ export type CitationSummary = {
 
 export function citationSummary(validation?: CitationValidation | null, answerFormat = ''): CitationSummary | null {
   if (!validation) return null
-  if (validation.groundingStatus === 'unverified') {
-    return { tone: 'unverified', label: '无参考来源 · 未验证', detail: '本轮内容不进入后续对话上下文。' }
-  }
   if (answerFormat === 'natural-markdown-v2') {
     if (!validation.appendixIntegrity) {
       return { tone: 'invalid', label: '证据附录不可用', detail: '本轮没有可定位的 Markdown 证据链接。' }
     }
     const count = validation.appendixEvidenceIds?.length ?? 0
+    if (validation.groundingStatus === 'invalid') {
+      return { tone: 'invalid', label: '逐条证据核验未通过', detail: `${validation.unsupportedClaims.length} 条陈述缺少显式证据映射、与证据冲突或不可核验；证据附录本身不代表支持。` }
+    }
+    if (validation.groundingStatus === 'unverified') {
+      return { tone: 'unverified', label: '证据支持未建立', detail: `已追加 ${count} 条可定位来源，但尚未建立逐条陈述到证据的有效映射。` }
+    }
+    if (validation.groundingStatus === 'partially_supported') {
+      return { tone: 'mixed', label: '证据仅部分支持', detail: `已执行逐条启发式证据核验；${validation.citedClaimCount}/${validation.claimCount} 条陈述带显式映射。未执行模型语义蕴含判断。` }
+    }
     return validation.groundingStatus === 'mixed'
-      ? { tone: 'mixed', label: '证据回答 + 模型补充', detail: `后端已追加 ${count} 条可定位证据；模型补充可能不准确，且不进入后续可信上下文。未执行引用语义蕴含判断。` }
-      : { tone: 'supported', label: '参考证据已附加', detail: `后端已追加 ${count} 条本轮真实 Markdown 来源；未执行引用语义蕴含判断。` }
+      ? { tone: 'mixed', label: '证据回答 + 模型补充', detail: `后端已追加 ${count} 条可定位证据并完成逐条启发式核验；模型补充可能不准确，且不进入后续可信上下文。未执行模型语义蕴含判断。` }
+      : { tone: 'supported', label: '逐条证据核验通过', detail: `${validation.citedClaimCount}/${validation.claimCount} 条陈述已显式绑定本轮证据；附录含 ${count} 条可定位来源。未执行模型语义蕴含判断。` }
+  }
+  if (validation.groundingStatus === 'unverified') {
+    return { tone: 'unverified', label: '无参考来源 · 未验证', detail: '本轮内容不进入后续对话上下文。' }
   }
   if (validation.groundingStatus === 'mixed') {
     return {

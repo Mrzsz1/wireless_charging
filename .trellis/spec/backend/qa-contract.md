@@ -223,10 +223,12 @@ question -> RetrievalContract -> source resolution -> independent filtered chann
 
 ### 3. Contracts
 
-- The Provider returns ordinary Markdown. It does not emit evidence IDs, repository paths, a reference appendix, fixed headings, fixed claim counts, or structured-answer JSON.
-- The backend strips any Provider-authored `## 参考证据`, removes citation-like `[E#]` tokens, blocks unsafe Markdown targets, redacts visible absolute Windows/UNC paths, and enforces only non-empty/length/stream-completion safety.
+- The Provider returns ordinary Markdown with an internal audit marker on every evidence-backed factual sentence: explicit current-turn `[E#]` tokens identify the evidence selected for that sentence. It does not emit `evidenceIds` JSON, repository paths, a reference appendix, fixed headings, fixed claim counts, or structured-answer JSON.
+- Claim verification runs on the citation-preserving canonical answer before presentation rendering. Only after the per-claim audit and repair does the backend strip `[E#]` tokens for natural-answer display, remove any Provider-authored `## 参考证据`, block unsafe Markdown targets, and redact visible absolute Windows/UNC paths.
 - The backend deterministically appends one `## 参考证据` section from selected, non-Graph evidence that owns a valid `SourceLocator`. Link labels are compact source kind + canonical title + useful heading. The link target is the opaque current `evidence:E#` identity; arbitrary Provider paths never become navigation targets.
-- `appendixIntegrity` is true only when the appendix is backed by persisted current evidence locators; `appendixEvidenceIds` must be the emitted ordered IDs. Semantic entailment is out of scope and remains `entailmentChecked=false`.
+- `appendixIntegrity` is true only when the appendix is backed by persisted current evidence locators; `appendixEvidenceIds` must be the emitted ordered IDs. Appendix presence never marks a claim supported. Deterministic lexical checking sets `heuristicVerificationChecked=true` while semantic/model entailment remains `entailmentChecked=false`.
+- `ClaimType` (`knowledge_fact | general_knowledge | reasoned_inference | research_suggestion`) and `VerificationStatus` (`supported | partially_supported | contradicted | not_verifiable | not_applicable`) are independent fields. Cue words can classify a claim but can never create a supported verification status.
+- A factual, general-knowledge, or inferred claim without explicit current evidence IDs is `not_verifiable`; it is never implicitly bound to the whole evidence bundle. Unknown IDs and Graph-only mappings also fail closed. Research suggestions are `not_applicable`, not “supported”.
 - Locator resolution is repository-boundary checked and degrades in order: exact block, heading path, saved line range, document. Every fallback returns `matchedBy` and a user-visible `degradedReason`; it never guesses another document.
 - Zero evidence produces the backend-owned unverified notice, no appendix, and a paired `unverified` exchange. `unverified`, `failed`, and `cancelled` content never enters trusted history. Before trusted-history projection, both model-supplement and backend evidence-appendix regions are removed.
 - Production defaults to v2. `LUNAWIKI_RAG_ANSWER_V2=false` (also `RAG_ANSWER_V2`/`rag_answer_v2`, values `0|false|off|no`) restores legacy generation without deleting v2 messages or the structured parser.
@@ -235,7 +237,8 @@ question -> RetrievalContract -> source resolution -> independent filtered chann
 
 | Condition | Result |
 |---|---|
-| Evidence exists and at least one selected non-Graph item has a valid locator | backend appendix, paired `completed` exchange; `appendixIntegrity=true` |
+| Evidence exists, every factual claim has a valid explicit mapping and passes the heuristic gate, and at least one selected non-Graph item has a valid locator | backend appendix, paired `completed` exchange; `appendixIntegrity=true`; claim audit persisted |
+| Appendix exists but a factual claim has no explicit ID, an unknown ID, Graph-only support, contradiction, or insufficient alignment | fail closed with `groundingStatus=invalid`; appendix presence does not override the claim result |
 | Provider emits `[E99]`, its own appendix, `file:`/app-protocol target, or visible absolute path | sanitize/redact it; never register it as source navigation |
 | Evidence rows exist but none has a usable locator | no evidence appendix; `groundingStatus=unverified`; never invent a path |
 | Answer body is empty/oversized or Provider stream is incomplete | paired `failed` exchange; `ANSWER_VALIDATION_FAILED` or Provider terminal error |
@@ -272,23 +275,24 @@ Provider JSON -> fixed section/role/claim validation -> model-owned E# -> parse 
 #### Correct
 
 ```text
-Provider Markdown -> minimal safety normalization -> backend selected-evidence appendix
-                  -> persisted locator snapshot -> repository-bound resolver -> Markdown focus
+Provider Markdown + internal [E#] mappings -> per-claim heuristic audit/repair
+                  -> presentation sanitization -> backend selected-evidence appendix
+                  -> persisted locator + claim audit -> repository-bound resolver -> Markdown focus
 ```
 
 ## 5.1 Prompt and Run Manifest
 
 - Codex and compatible API share one provider-neutral `PromptEnvelope` with six ordered layers: `research_contract`, `session_memory`, `recent_exchanges`, `current_query`, `evidence_bundle`, and `answer_contract`.
 - History, current query, and evidence are JSON data. `<`, `>`, and `&` are escaped so embedded content cannot close an envelope layer. Provider-specific code may wrap the envelope but must not define a divergent factual contract.
-- Natural v2 answers use question-appropriate prose and headings chosen by the Provider. The answer contract asks for a direct answer, evidence-bounded model/method discussion, and explicit uncertainty where needed, but has no canonical section array or minimum claim count. The backend, not the Provider, adds source links.
-- Every assistant message stores schema/prompt/retriever/context versions, provider, requested/resolved model, temperature where applicable, output/context limits, prompt SHA-256, index snapshot SHA-256, recent/compacted/coreference-resolved history IDs, resolver/router/planner/reranker status and aggregate latency, structured research intent and execution mode, fallback reasons, evidence checksums, context budget, repair record, and completeness result in `run_manifest`.
+- Natural v2 answers use question-appropriate prose and headings chosen by the Provider. The answer contract asks for a direct answer, explicit current-turn `[E#]` mapping on each library-backed factual sentence, evidence-bounded model/method discussion, and explicit uncertainty where needed, but has no canonical section array or minimum claim count. The backend, not the Provider, adds user-facing source links.
+- Every assistant message stores schema/prompt/retriever/context versions, provider, requested/resolved model, temperature where applicable, output/context limits, prompt SHA-256, index snapshot SHA-256, recent/compacted/coreference-resolved history IDs, resolver/router/planner/reranker status and aggregate latency, structured research intent and execution mode, fallback reasons, evidence checksums, context budget, repair record, completeness result, aggregate verification counts, and serialized per-claim `claimVerifications` in `run_manifest`.
 - Evidence-backed natural runs record `structuredOutputMode=natural-markdown` and `answerFormat=natural-markdown-v2`. Planner calls may still use Provider-native JSON Schema because retrieval planning and final-answer rendering are independent contracts.
 - Answers rejected by citation or completeness gates persist the rejected answer, evidence, validation result, and run manifest on the failed assistant message; pre-context retrieval failures retain an empty legacy manifest because no prompt/evidence snapshot exists.
 - QA column migrations are idempotent column-existence checks. This module must not overwrite SQLite's global `PRAGMA user_version`, because compile-center and other subsystems share the same repository database.
 - Requested and resolved model are distinct. If Codex omits its actual default model, the resolved value is `provider-default-unreported`; it must not be invented.
 - Old messages hydrate with `runManifest=None`. The manifest excludes endpoint, API key, token, cookie, question/answer text, raw provider payload, and chain-of-thought.
 
-Claim splitting and same-claim citation attachment are legacy structured/grounding compatibility behavior only. They must not gate a `natural-markdown-v2` completion.
+Claim splitting and same-claim citation attachment are part of the `natural-markdown-v2` fail-closed audit path. They run before display tokens are removed; presentation rendering must never destroy the mapping before verification.
 
 ## 6. Zero-Evidence Contract
 
@@ -325,7 +329,7 @@ Claim splitting and same-claim citation attachment are legacy structured/groundi
 - Appendix labels show short user-facing source descriptions rather than full filenames or absolute paths. Detailed snippets and retrieval reasons remain in the evidence panel and audit bundle.
 - Clicking a current evidence link passes its persisted `SourceLocator` to `read_source_locator`. The returned Markdown is shown in an internal read-only source view and focused using `headingPath`/`lineStart`; the UI shows fallback/degradation state rather than silently presenting a wrong location.
 - Legacy inline `[E#]` projection remains Markdown-aware: it skips fenced/inline code, math, escapes, and labels already inside links. Unknown IDs remain visibly invalid.
-- Natural supported messages summarize appendix integrity, not claim coverage. The UI must not describe retrieval relevance as factual correctness, and must continue to state that semantic entailment is not automatically checked.
+- Natural supported messages summarize per-claim explicit mapping and heuristic verification separately from appendix integrity. The UI must not describe retrieval relevance or appendix presence as factual correctness, and must state that model/semantic entailment was not executed.
 - The evidence sidebar shows context budget, snapshot, prompt/answer versions, retrieval rounds/stop reason, and current evidence. Assistant actions can copy an audit bundle containing question, answer, evidence, and manifest.
 - `offline-evidence` is presented as “证据浏览模式”; it is evidence navigation, not a generated research answer.
 - Legacy structured parsing errors keep `STRUCTURED_ANSWER_VALIDATION_FAILED`. Natural body/appendix validation uses `ANSWER_VALIDATION_FAILED`; new natural runs must never fail because a canonical section title, role, or claim count is absent.
@@ -336,7 +340,7 @@ Claim splitting and same-claim citation attachment are legacy structured/groundi
 - Follow-up retrieval covers CCSP/GAIN reference resolution and excludes old citations.
 - Intent regression covers all three canonical literals and asserts that `solve`/`novelty` evidence retains a recalled method candidate.
 - History is repository-scoped, completed-only, ordered, and bounded.
-- Natural-answer tests cover ordinary Markdown, unknown Provider IDs, unsafe links/paths, appendix integrity, locator-less evidence, and zero-evidence unverified answers. Legacy grounding tests continue to cover claim splitting and structured history compatibility but do not define the v2 success gate.
+- Natural-answer tests cover explicit current-ID mapping, no-ID fail-closed behavior, unknown Provider IDs, Graph-only mappings, type/status separation, heuristic-versus-entailment telemetry, per-claim manifest round-trip, unsafe links/paths, appendix integrity, locator-less evidence, and zero-evidence unverified answers.
 - A natural answer may use the exact optional `## 模型补充（可能不准确）` section with the fixed notice. Such answers are `mixed`, remain fully visible for display/audit, and persist trusted context with both that supplement and the backend appendix removed. Model supplementation and evidence-link prose therefore never become later retrieval entities or trusted prompt facts. Citation entailment remains outside the contract and `entailmentChecked` stays false.
 - Codex subscription execution treats the repository timeout as an idle deadline refreshed only by valid JSONL stdout events, plus a separate bounded hard deadline. It returns stable `CODEX_IDLE_TIMEOUT` and `CODEX_TOTAL_TIMEOUT` errors; cancellation still terminates the process tree and partial output is never persisted as completed. The compatible API keeps its HTTP timeout semantics.
 - Codex Provider tests assert `--output-schema` only for planner/legacy calls, schema placement/cleanup, natural final-answer execution without a schema, and a distinct `CODEX_OUTPUT_SCHEMA_REJECTED` error when a schema-enabled call is explicitly rejected.

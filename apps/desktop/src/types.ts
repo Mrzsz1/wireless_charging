@@ -566,6 +566,21 @@ export type AnswerCompletenessValidation = {
   complete: boolean
 }
 
+export type ClaimType = 'knowledge_fact' | 'general_knowledge' | 'reasoned_inference' | 'research_suggestion'
+
+export type VerificationStatus = 'supported' | 'partially_supported' | 'contradicted' | 'not_verifiable' | 'not_applicable'
+
+export type VerifiedClaim = {
+  id: string
+  text: string
+  evidenceIds: string[]
+  claimType: ClaimType
+  verificationStatus: VerificationStatus
+  verificationMethod: string
+  alignmentScore: number
+  reason: string
+}
+
 export type QaRunManifest = {
   schemaVersion: string
   promptVersion: string
@@ -627,7 +642,9 @@ export type QaRunManifest = {
   partiallySupportedClaimCount?: number
   contradictedClaimCount?: number
   notVerifiableClaimCount?: number
+  notApplicableClaimCount?: number
   repairedClaimCount?: number
+  claimVerifications?: VerifiedClaim[]
   problemParserVersion?: string
   methodMatcherVersion?: string
   problemUnderstandingStatus?: string
@@ -788,6 +805,7 @@ export type CitationValidation = {
   syntaxValid: boolean
   coverageValid: boolean
   entailmentChecked: boolean
+  heuristicVerificationChecked?: boolean
   modelSupplementClaimCount: number
   modelSupplementClaims: string[]
   appendixIntegrity?: boolean

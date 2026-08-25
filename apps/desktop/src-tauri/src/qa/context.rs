@@ -1,6 +1,6 @@
 use super::{
     compact, research_memory, research_memory::ResearchSessionState, ConversationTurn,
-    EvidenceItem, QuestionContext,
+    EvidenceItem, QuestionContext, VerifiedClaim,
 };
 use rusqlite::{types::ValueRef, Connection};
 use serde::{Deserialize, Serialize};
@@ -9,12 +9,12 @@ use sha2::{Digest, Sha256};
 use std::path::Path;
 use std::time::UNIX_EPOCH;
 
-pub const PROMPT_VERSION: &str = "qa-prompt-v11";
+pub const PROMPT_VERSION: &str = "qa-prompt-v12";
 pub const ANSWER_SCHEMA_VERSION: &str = "qa-natural-markdown-v2";
 pub const LEGACY_ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v4";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v12";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v13";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -190,7 +190,11 @@ pub struct QaRunManifest {
     #[serde(default)]
     pub not_verifiable_claim_count: usize,
     #[serde(default)]
+    pub not_applicable_claim_count: usize,
+    #[serde(default)]
     pub repaired_claim_count: usize,
+    #[serde(default)]
+    pub claim_verifications: Vec<VerifiedClaim>,
     #[serde(default)]
     pub problem_parser_version: String,
     #[serde(default)]
@@ -753,7 +757,7 @@ pub fn required_answer_elements(intent: &str) -> Vec<String> {
 fn answer_contract(intent: &str, has_evidence: bool) -> String {
     if super::natural_answer_v2_enabled() {
         if has_evidence {
-            return "直接输出自然 Markdown 正文。优先给出问题的直接结论，再根据问题本身选择是否说明模型、方法、比较、适用前提、冲突和未覆盖项；不要求固定标题、固定段数或固定 claim 数。不要输出 JSON、evidenceIds、[E#]、本地路径、参考证据标题或自造链接。若补充 evidence_bundle 之外的一般知识，必须放在独立的“## 模型补充（可能不准确）”区域并明确其未由当前知识库核验。".to_string();
+            return "直接输出自然 Markdown 正文。优先给出问题的直接结论，再根据问题本身选择是否说明模型、方法、比较、适用前提、冲突和未覆盖项；不要求固定标题、固定段数或固定 claim 数。每条库内事实陈述必须在同一句末尾附上本轮 evidence_bundle 中的显式 [E#]，多个来源分别写为 [E1] [E5]；该标记仅供后端逐条核验，展示时会移除。不要输出 JSON、evidenceIds、本地路径、参考证据标题或自造链接，也不要使用未知编号。若补充 evidence_bundle 之外的一般知识，必须放在独立的“## 模型补充（可能不准确）”区域并明确其未由当前知识库核验，且不得附 [E#]。".to_string();
         }
         return "直接输出自然 Markdown。首句明确当前知识库没有参考来源且回答未经本库证据核验；不得输出 [E#]、wikilink、论文行号、书籍页码、本地路径或参考证据列表。".to_string();
     }
@@ -1053,7 +1057,9 @@ pub fn build_run_manifest(
         partially_supported_claim_count: 0,
         contradicted_claim_count: 0,
         not_verifiable_claim_count: 0,
+        not_applicable_claim_count: 0,
         repaired_claim_count: 0,
+        claim_verifications: Vec::new(),
         problem_parser_version: context.retrieval_query.problem_parser_version.clone(),
         method_matcher_version: context.retrieval_query.method_matcher_version.clone(),
         problem_understanding_status: context.retrieval_query.problem_understanding_status.clone(),
@@ -1273,7 +1279,7 @@ mod tests {
     }
 
     #[test]
-    fn natural_answer_contract_has_no_fixed_sections_or_provider_evidence_ids() {
+    fn natural_answer_contract_has_no_fixed_sections_and_requires_internal_evidence_ids() {
         let contract = answer_contract("literature", true);
         assert!(contract.contains("自然 Markdown"));
         assert!(contract.contains("不要求固定标题"));
@@ -1283,6 +1289,7 @@ mod tests {
         );
         assert!(!contract.contains("topic_methods"));
         assert!(contract.contains("不要输出 JSON、evidenceIds"));
+        assert!(contract.contains("显式 [E#]"));
         assert!(!contract.contains("qa-structured-answer-v1"));
     }
 
