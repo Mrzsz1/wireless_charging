@@ -616,6 +616,8 @@ export type QaRunManifest = {
   resolverLatencyMs?: number
   resolverFallback?: boolean
   resolverFallbackReason?: string
+  routingConfidence?: 'high' | 'medium' | 'low' | string
+  resolverEscalated?: boolean
   researchIntent?: string
   executionMode?: 'direct' | 'research' | 'exploratory' | string
   routingReason?: string
@@ -655,6 +657,10 @@ export type QaRunManifest = {
   problemConstraints?: string[]
   relatedProblemTypes?: string[]
   candidateMethods?: string[]
+  methodHypotheses?: string[]
+  discoveredMethods?: string[]
+  corroboratedMethodHypotheses?: string[]
+  methodEvidenceProvenance?: string[]
   researchStateVersion?: string
   researchStateRevision?: number
   researchStateObjectiveCount?: number
@@ -743,6 +749,8 @@ export type QuestionContext = {
     resolverLatencyMs?: number
     resolverFallback?: boolean
     resolverFallbackReason?: string
+    routingConfidence?: 'high' | 'medium' | 'low' | string
+    resolverEscalated?: boolean
     routerUsed?: string
     routerStatus?: string
     routerLatencyMs?: number
@@ -777,6 +785,10 @@ export type QuestionContext = {
     problemConstraints?: string[]
     relatedProblemTypes?: string[]
     candidateMethods?: string[]
+    methodHypotheses?: string[]
+    discoveredMethods?: string[]
+    corroboratedMethodHypotheses?: string[]
+    methodEvidenceProvenance?: string[]
     problemSearchTerms?: string[]
     routingPolicyVersion?: string
     routingMaxRounds?: number

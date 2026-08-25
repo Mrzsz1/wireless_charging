@@ -89,6 +89,10 @@ pub const PROVIDER_OFFLINE: &str = "offline-evidence";
 const INTENT_SOLVE: &str = "solve";
 const INTENT_NOVELTY: &str = "novelty";
 const INTENT_RELATIONSHIP: &str = "relationship";
+const INTENT_METHOD_IMPROVEMENT: &str = "method_improvement";
+const INTENT_SOLUTION_SEARCH: &str = "solution_search";
+const INTENT_PROBLEM_MODELING: &str = "problem_modeling";
+const INTENT_EXPLORATORY: &str = "exploratory";
 const QUERY_TERM_LIMIT: usize = 20;
 const RRF_K: f64 = 60.0;
 const REQUIRED_CHANNEL_MIN_SCORE: f64 = 0.18;
@@ -231,6 +235,10 @@ pub struct RetrievalQuery {
     #[serde(default)]
     pub resolver_fallback_reason: String,
     #[serde(default)]
+    pub routing_confidence: String,
+    #[serde(default)]
+    pub resolver_escalated: bool,
+    #[serde(default)]
     pub router_used: String,
     #[serde(default)]
     pub router_status: String,
@@ -298,6 +306,14 @@ pub struct RetrievalQuery {
     pub related_problem_types: Vec<String>,
     #[serde(default)]
     pub candidate_methods: Vec<String>,
+    #[serde(default)]
+    pub method_hypotheses: Vec<String>,
+    #[serde(default)]
+    pub discovered_methods: Vec<String>,
+    #[serde(default)]
+    pub corroborated_method_hypotheses: Vec<String>,
+    #[serde(default)]
+    pub method_evidence_provenance: Vec<String>,
     #[serde(default)]
     pub problem_search_terms: Vec<String>,
     #[serde(default)]
@@ -1062,6 +1078,8 @@ fn build_retrieval_query_with_understanding<'a>(
         resolver_latency_ms: diagnostics.resolver_latency_ms,
         resolver_fallback: diagnostics.resolver_fallback,
         resolver_fallback_reason: diagnostics.resolver_fallback_reason,
+        routing_confidence: diagnostics.routing_confidence,
+        resolver_escalated: diagnostics.resolver_escalated,
         router_used: diagnostics.router_used,
         router_status: diagnostics.router_status,
         router_latency_ms: diagnostics.router_latency_ms,
@@ -1095,11 +1113,15 @@ fn build_retrieval_query_with_understanding<'a>(
         problem_objectives: problem.representation.objectives,
         problem_constraints: problem.representation.constraints,
         related_problem_types: problem.representation.related_problem_types,
-        candidate_methods: problem
+        candidate_methods: Vec::new(),
+        method_hypotheses: problem
             .candidate_methods
-            .into_iter()
-            .map(|item| item.method)
+            .iter()
+            .map(|item| item.method.clone())
             .collect(),
+        discovered_methods: Vec::new(),
+        corroborated_method_hypotheses: Vec::new(),
+        method_evidence_provenance: Vec::new(),
         problem_search_terms: problem.search_terms,
         routing_policy_version: routing_policy.version,
         routing_max_rounds: routing_policy.max_retrieval_rounds,
@@ -1266,6 +1288,77 @@ fn apply_intent(intent: &str, candidates: &mut [Candidate]) {
                 .push_str(&format!("；{intent} 意图加权 +{bonus:.2}"));
         }
     }
+}
+
+#[derive(Debug, Default)]
+struct MethodDiscoveryAudit {
+    discovered: Vec<String>,
+    corroborated_hypotheses: Vec<String>,
+    provenance: Vec<String>,
+}
+
+fn method_tokens(value: &str) -> Vec<String> {
+    value
+        .to_lowercase()
+        .split(|character: char| !character.is_alphanumeric())
+        .filter(|token| token.chars().count() >= 3)
+        .map(str::to_string)
+        .collect()
+}
+
+fn discover_methods_from_evidence(
+    candidates: &[Candidate],
+    hypotheses: &[String],
+) -> MethodDiscoveryAudit {
+    let mut audit = MethodDiscoveryAudit::default();
+    for candidate in candidates
+        .iter()
+        .filter(|candidate| candidate.page_type == "method")
+    {
+        let method = candidate.title.trim().to_string();
+        if method.is_empty() || audit.discovered.contains(&method) {
+            continue;
+        }
+        audit.provenance.push(format!(
+            "{}|{}|{}",
+            method,
+            candidate.kind,
+            if candidate.page_id.is_empty() {
+                candidate.node_id.as_str()
+            } else {
+                candidate.page_id.as_str()
+            }
+        ));
+        audit.discovered.push(method);
+    }
+    let evidence_haystacks = candidates
+        .iter()
+        .filter(|candidate| candidate.page_type == "method")
+        .map(|candidate| {
+            format!(
+                "{} {} {} {}",
+                candidate.title, candidate.page_id, candidate.snippet, candidate.wikilink
+            )
+            .to_lowercase()
+        })
+        .collect::<Vec<_>>();
+    for hypothesis in hypotheses {
+        let tokens = method_tokens(hypothesis);
+        if tokens.is_empty() {
+            continue;
+        }
+        let corroborated = evidence_haystacks.iter().any(|haystack| {
+            let matches = tokens
+                .iter()
+                .filter(|token| haystack.contains(token.as_str()))
+                .count();
+            matches * 2 >= tokens.len().max(1)
+        });
+        if corroborated {
+            audit.corroborated_hypotheses.push(hypothesis.clone());
+        }
+    }
+    audit
 }
 
 fn candidate_key(candidate: &Candidate) -> String {
@@ -1473,6 +1566,15 @@ fn legacy_surface_coverage_complete(
 }
 
 fn answer_profile_for_contract(plan: &QueryPlan, routed_profile: &str) -> String {
+    if matches!(
+        routed_profile,
+        INTENT_METHOD_IMPROVEMENT
+            | INTENT_SOLUTION_SEARCH
+            | INTENT_PROBLEM_MODELING
+            | INTENT_EXPLORATORY
+    ) {
+        return routed_profile.to_string();
+    }
     if matches!(
         plan.legacy_ranking_profile.as_str(),
         "solve" | "novelty" | "relationship" | "literature"
@@ -2529,6 +2631,12 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
             }
         }
     }
+    let method_discovery =
+        discover_methods_from_evidence(&candidates, &retrieval_query.method_hypotheses);
+    retrieval_query.candidate_methods = method_discovery.discovered.clone();
+    retrieval_query.discovered_methods = method_discovery.discovered;
+    retrieval_query.corroborated_method_hypotheses = method_discovery.corroborated_hypotheses;
+    retrieval_query.method_evidence_provenance = method_discovery.provenance;
     apply_intent(&question_intent, &mut candidates);
     candidates.sort_by(|left, right| right.score.total_cmp(&left.score));
     let mut seen = HashSet::new();
@@ -2577,10 +2685,17 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
     }
     // Solution and novelty questions need a reusable method when one was
     // recalled; raw source evidence alone does not answer "how" questions.
-    if matches!(question_intent.as_str(), INTENT_SOLVE | INTENT_NOVELTY)
-        && !selected
-            .iter()
-            .any(|candidate| candidate.page_type == "method")
+    if matches!(
+        question_intent.as_str(),
+        INTENT_SOLVE
+            | INTENT_NOVELTY
+            | INTENT_METHOD_IMPROVEMENT
+            | INTENT_SOLUTION_SEARCH
+            | INTENT_PROBLEM_MODELING
+            | INTENT_EXPLORATORY
+    ) && !selected
+        .iter()
+        .any(|candidate| candidate.page_type == "method")
     {
         if let Some(method) = candidates
             .iter()
@@ -2624,7 +2739,15 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
             continue;
         };
         if selected.len() >= maximum {
-            let protect_method = matches!(question_intent.as_str(), INTENT_SOLVE | INTENT_NOVELTY);
+            let protect_method = matches!(
+                question_intent.as_str(),
+                INTENT_SOLVE
+                    | INTENT_NOVELTY
+                    | INTENT_METHOD_IMPROVEMENT
+                    | INTENT_SOLUTION_SEARCH
+                    | INTENT_PROBLEM_MODELING
+                    | INTENT_EXPLORATORY
+            );
             remove_lowest_unprotected(&mut selected, required_kinds, protect_method, |candidate| {
                 candidate.kind == "wiki" && candidate.page_id == page_id
             });
@@ -2672,7 +2795,15 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
             continue;
         };
         if selected.len() >= maximum {
-            let protect_method = matches!(question_intent.as_str(), INTENT_SOLVE | INTENT_NOVELTY);
+            let protect_method = matches!(
+                question_intent.as_str(),
+                INTENT_SOLVE
+                    | INTENT_NOVELTY
+                    | INTENT_METHOD_IMPROVEMENT
+                    | INTENT_SOLUTION_SEARCH
+                    | INTENT_PROBLEM_MODELING
+                    | INTENT_EXPLORATORY
+            );
             remove_lowest_unprotected(&mut selected, required_kinds, protect_method, |candidate| {
                 (candidate.kind == "paper" || candidate.kind == "wiki")
                     && paired_page_set.contains(&candidate.page_id)
@@ -3624,10 +3755,18 @@ pub fn audit_generated_answer(
         &context.intent,
         &answer,
         citation_validation.claim_count,
-        !natural_answer_v2_enabled()
-            && metadata.enforce_answer_schema
-            && !context.evidence.is_empty()
-            && metadata.provider != PROVIDER_OFFLINE,
+        (natural_answer_v2_enabled()
+            && matches!(
+                context.intent.as_str(),
+                INTENT_METHOD_IMPROVEMENT
+                    | INTENT_SOLUTION_SEARCH
+                    | INTENT_PROBLEM_MODELING
+                    | INTENT_EXPLORATORY
+            ))
+            || (!natural_answer_v2_enabled()
+                && metadata.enforce_answer_schema
+                && !context.evidence.is_empty()
+                && metadata.provider != PROVIDER_OFFLINE),
         structured_roles.as_deref(),
     );
     let envelope = context::build_prompt_envelope(context);
@@ -3815,6 +3954,28 @@ mod tests {
             relation: String::new(),
             retrieval_reason: String::new(),
         }
+    }
+
+    #[test]
+    fn evidence_discovery_is_separate_from_method_hypotheses() {
+        let mut method = candidate("wiki", "method");
+        method.title = "Adaptive Large Neighborhood Search".to_string();
+        method.page_id = "methods/mtd-alns".to_string();
+        method.snippet = "ALNS uses destroy and repair operators.".to_string();
+        let audit = discover_methods_from_evidence(
+            &[method],
+            &[
+                "adaptive_large_neighborhood_search".to_string(),
+                "particle_swarm_optimization".to_string(),
+            ],
+        );
+        assert_eq!(audit.discovered, vec!["Adaptive Large Neighborhood Search"]);
+        assert_eq!(
+            audit.corroborated_hypotheses,
+            vec!["adaptive_large_neighborhood_search"]
+        );
+        assert_eq!(audit.provenance.len(), 1);
+        assert!(!audit.provenance[0].contains("particle_swarm"));
     }
 
     fn evidence(id: &str) -> EvidenceItem {
@@ -4965,7 +5126,7 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v15");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v16");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.resolver_status, "succeeded");

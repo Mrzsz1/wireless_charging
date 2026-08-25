@@ -47,6 +47,10 @@ impl ResearchIntent {
             Self::LiteratureSearch | Self::OriginDerivation => "literature",
             Self::Comparison => "relationship",
             Self::Novelty => "novelty",
+            Self::MethodImprovement => "method_improvement",
+            Self::SolutionSearch => "solution_search",
+            Self::ProblemModeling => "problem_modeling",
+            Self::ExploratoryResearch => "exploratory",
             _ => "solve",
         }
     }
@@ -174,6 +178,8 @@ pub struct UnderstandingDiagnostics {
     pub router_status: String,
     pub router_latency_ms: u64,
     pub router_fallback: bool,
+    pub routing_confidence: String,
+    pub resolver_escalated: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -192,6 +198,8 @@ pub struct ResolverOutcome {
     pub resolver_latency_ms: u64,
     pub fallback: bool,
     pub fallback_reason: String,
+    pub routing_confidence: String,
+    pub escalated: bool,
 }
 
 pub trait ConversationResolver {
@@ -204,6 +212,7 @@ impl ConversationResolver for DeterministicConversationResolver {
     fn resolve(&mut self, input: &UnderstandingPlanningInput) -> ResolverOutcome {
         let started = Instant::now();
         let resolved = deterministic_resolution(input);
+        let (_, _, reason) = deterministic_route(&resolved);
         ResolverOutcome {
             resolved,
             intent_hint: None,
@@ -213,6 +222,9 @@ impl ConversationResolver for DeterministicConversationResolver {
             resolver_latency_ms: elapsed_ms(started),
             fallback: false,
             fallback_reason: String::new(),
+            routing_confidence: deterministic_routing_confidence(&input.original_question, reason)
+                .to_string(),
+            escalated: false,
         }
     }
 }
@@ -233,14 +245,17 @@ impl<'a> HybridConversationResolver<'a> {
 
 impl ConversationResolver for HybridConversationResolver<'_> {
     fn resolve(&mut self, input: &UnderstandingPlanningInput) -> ResolverOutcome {
-        // A self-contained turn already carries its subject. Avoid an extra
-        // Provider call unless trusted history is actually needed to resolve a
-        // contextual reference; deterministic routing still classifies intent.
-        if !contains_reference(&input.original_question) || input.recent_history.is_empty() {
-            return self.fallback.resolve(input);
+        let deterministic = self.fallback.resolve(input);
+        let (_, deterministic_mode, _) = deterministic_route(&deterministic.resolved);
+        let contextual =
+            contains_reference(&input.original_question) && !input.recent_history.is_empty();
+        let low_confidence = deterministic.routing_confidence == "low";
+        let open_problem = deterministic_mode == ExecutionMode::Exploratory;
+        if !contextual && !low_confidence && !open_problem {
+            return deterministic;
         }
         let Some(planner) = self.planner.as_mut() else {
-            return self.fallback.resolve(input);
+            return deterministic;
         };
         let started = Instant::now();
         match planner(input) {
@@ -258,14 +273,17 @@ impl ConversationResolver for HybridConversationResolver<'_> {
                 resolver_latency_ms: elapsed_ms(started),
                 fallback: false,
                 fallback_reason: String::new(),
+                routing_confidence: deterministic.routing_confidence,
+                escalated: true,
             },
             Err(_) => {
-                let mut outcome = self.fallback.resolve(input);
+                let mut outcome = deterministic;
                 outcome.resolver_used = "hybrid-conversation-v1".to_string();
                 outcome.resolver_status = "failed_fallback".to_string();
                 outcome.resolver_latency_ms = elapsed_ms(started);
                 outcome.fallback = true;
                 outcome.fallback_reason = "provider_error".to_string();
+                outcome.escalated = true;
                 outcome
             }
         }
@@ -349,6 +367,8 @@ pub fn resolve_and_route<'a>(
 ) -> UnderstandingResult {
     let mut resolver = HybridConversationResolver::new(planner);
     let resolved = resolver.resolve(input);
+    let routing_confidence = resolved.routing_confidence.clone();
+    let resolver_escalated = resolved.escalated;
     let router = HybridIntentRouter;
     let routed = router.route(
         resolved.resolved,
@@ -368,7 +388,37 @@ pub fn resolve_and_route<'a>(
             router_status: routed.router_status,
             router_latency_ms: routed.router_latency_ms,
             router_fallback: routed.fallback,
+            routing_confidence,
+            resolver_escalated,
         },
+    }
+}
+
+fn deterministic_routing_confidence(question: &str, reason: &str) -> &'static str {
+    if reason != "direct_factual_default" {
+        return "high";
+    }
+    let lower = question.to_lowercase();
+    if lower.chars().count() >= 28
+        || contains_any(
+            &lower,
+            &[
+                "如何",
+                "怎样",
+                "为什么",
+                "是否",
+                "能否",
+                "哪些",
+                "有什么",
+                "what other",
+                "how can",
+                "why",
+            ],
+        )
+    {
+        "low"
+    } else {
+        "medium"
     }
 }
 
@@ -881,6 +931,72 @@ mod tests {
             "executionMode": "research"
         });
         assert!(parse_understanding_plan(&raw.to_string(), &input).is_err());
+    }
+
+    #[test]
+    fn low_confidence_self_contained_question_escalates_to_provider() {
+        let input = UnderstandingPlanningInput::new(
+            "这个复杂方案在多个互相耦合的约束下性能边界是否足够稳健并且可以推广？",
+            &[],
+            Vec::new(),
+            Vec::new(),
+        );
+        let mut calls = 0;
+        let mut planner = |_input: &UnderstandingPlanningInput| {
+            calls += 1;
+            Ok(UnderstandingPlan {
+                schema_version: UNDERSTANDING_SCHEMA_VERSION.to_string(),
+                standalone_question: "复杂约束方案的后续研究方向".to_string(),
+                resolved_entities: Vec::new(),
+                used_history_message_ids: Vec::new(),
+                intent: ResearchIntent::ExploratoryResearch,
+                execution_mode: ExecutionMode::Exploratory,
+            })
+        };
+        let result = resolve_and_route(&input, Some(&mut planner));
+        assert_eq!(calls, 1);
+        assert!(result.diagnostics.resolver_escalated);
+        assert_eq!(result.diagnostics.routing_confidence, "low");
+        assert_eq!(
+            result.routed.query.intent,
+            ResearchIntent::ExploratoryResearch
+        );
+    }
+
+    #[test]
+    fn medium_confidence_direct_fact_skips_provider() {
+        let input =
+            UnderstandingPlanningInput::new("ROSE 的作者是谁？", &[], Vec::new(), Vec::new());
+        let mut calls = 0;
+        let mut planner = |_input: &UnderstandingPlanningInput| {
+            calls += 1;
+            Err("must not run".to_string())
+        };
+        let result = resolve_and_route(&input, Some(&mut planner));
+        assert_eq!(calls, 0);
+        assert!(!result.diagnostics.resolver_escalated);
+        assert_eq!(result.diagnostics.routing_confidence, "medium");
+        assert_eq!(result.routed.execution_mode, ExecutionMode::Direct);
+    }
+
+    #[test]
+    fn specialized_research_intents_keep_distinct_answer_profiles() {
+        assert_eq!(
+            ResearchIntent::MethodImprovement.answer_profile(),
+            "method_improvement"
+        );
+        assert_eq!(
+            ResearchIntent::SolutionSearch.answer_profile(),
+            "solution_search"
+        );
+        assert_eq!(
+            ResearchIntent::ProblemModeling.answer_profile(),
+            "problem_modeling"
+        );
+        assert_eq!(
+            ResearchIntent::ExploratoryResearch.answer_profile(),
+            "exploratory"
+        );
     }
 
     #[test]

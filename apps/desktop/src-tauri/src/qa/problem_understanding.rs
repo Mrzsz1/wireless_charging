@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
 pub const PROBLEM_UNDERSTANDING_VERSION: &str = "problem-understanding-v1";
-pub const METHOD_MATCHER_VERSION: &str = "method-matcher-v1";
+pub const METHOD_MATCHER_VERSION: &str = "method-matcher-v2";
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
@@ -21,6 +21,8 @@ pub struct MethodMatch {
     pub method: String,
     pub rationale: String,
     pub required_conditions: Vec<String>,
+    pub source: String,
+    pub corroborated: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
@@ -331,6 +333,8 @@ fn add_method(output: &mut Vec<MethodMatch>, method: &str, rationale: &str, cond
         method: method.to_string(),
         rationale: rationale.to_string(),
         required_conditions: conditions.iter().map(|value| value.to_string()).collect(),
+        source: "hypothesis".to_string(),
+        corroborated: false,
     });
 }
 
@@ -405,5 +409,23 @@ mod tests {
                 );
             }
         }
+    }
+
+    #[test]
+    fn method_rules_are_hypotheses_and_do_not_seed_neutral_search_terms() {
+        let result = understand("带时间窗的移动充电路径调度需要降低总路程");
+        assert!(result
+            .candidate_methods
+            .iter()
+            .any(|method| method.method == "adaptive_large_neighborhood_search"));
+        assert!(result
+            .candidate_methods
+            .iter()
+            .all(|method| method.source == "hypothesis" && !method.corroborated));
+        assert!(!result
+            .search_terms
+            .iter()
+            .any(|term| term.contains("adaptive_large_neighborhood_search")));
+        assert!(result.search_terms.iter().any(|term| term == "vrptw"));
     }
 }

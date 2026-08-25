@@ -39,12 +39,12 @@
 
 ## Phase E — P1 understanding, profiles and neutral method discovery
 
-- [ ] Add deterministic routing confidence and confidence-based escalation.
-- [ ] Add four intent-specific answer/completeness profiles and tests.
-- [ ] Remove candidate method names from neutral first-round search terms.
-- [ ] Mark matcher outputs as hypotheses; discover methods from evidence before applicability matching.
-- [ ] Add corroboration/provenance telemetry and regression cases.
-- [ ] Commit locally: `feat(qa): improve research intent and method discovery`.
+- [x] Add deterministic routing confidence and confidence-based escalation.
+- [x] Add four intent-specific answer/completeness profiles and tests.
+- [x] Remove candidate method names from neutral first-round search terms.
+- [x] Mark matcher outputs as hypotheses; discover methods from evidence before applicability matching.
+- [x] Add corroboration/provenance telemetry and regression cases.
+- [x] Commit locally: `feat(qa): improve research intent and method discovery`.
 
 ## Phase F — Exact parent context and final integration
 
