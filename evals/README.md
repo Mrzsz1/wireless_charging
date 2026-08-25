@@ -137,6 +137,19 @@ cargo test research_memory --lib
 
 结果见 `research-session-state-baseline.md`。
 
+## Adaptive Query Routing 回归
+
+DirectQA / ResearchQA / ExploratoryResearch 使用不同的检索、LLM call 与 token ceiling，
+并保留显式 legacy planner callback 兼容入口：
+
+```powershell
+cd apps/desktop/src-tauri
+cargo test adaptive_routing --lib
+```
+
+quality / latency budget / LLM calls / token cost 对比见
+`adaptive-routing-baseline.md`。
+
 ## Production held-out 准确率
 
 `heldout_questions.json` 是独立冻结入口。当前状态为 `awaiting_independent_curation`，不预填模型自行构造的“真值”。冻结要求：

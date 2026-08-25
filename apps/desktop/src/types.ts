@@ -640,6 +640,12 @@ export type QaRunManifest = {
   researchStateRevision?: number
   researchStateObjectiveCount?: number
   researchStateConstraintCount?: number
+  routingPolicyVersion?: string
+  routingMaxRounds?: number
+  routingMaxQueries?: number
+  routingMaxCandidates?: number
+  routingLlmCallBudget?: number
+  routingTokenCostCeiling?: number
   retrievalStopReason?: string
   retrievalRoundCount?: number
   requestedKinds?: string[]
@@ -746,6 +752,12 @@ export type QuestionContext = {
     relatedProblemTypes?: string[]
     candidateMethods?: string[]
     problemSearchTerms?: string[]
+    routingPolicyVersion?: string
+    routingMaxRounds?: number
+    routingMaxQueries?: number
+    routingMaxCandidates?: number
+    routingLlmCallBudget?: number
+    routingTokenCostCeiling?: number
     requestedKinds?: string[]
     attemptedKinds?: string[]
     sourceGaps?: string[]

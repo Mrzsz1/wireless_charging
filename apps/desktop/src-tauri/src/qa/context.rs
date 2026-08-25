@@ -14,7 +14,7 @@ pub const ANSWER_SCHEMA_VERSION: &str = "qa-natural-markdown-v2";
 pub const LEGACY_ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v4";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v11";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v12";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -215,6 +215,18 @@ pub struct QaRunManifest {
     pub research_state_objective_count: usize,
     #[serde(default)]
     pub research_state_constraint_count: usize,
+    #[serde(default)]
+    pub routing_policy_version: String,
+    #[serde(default)]
+    pub routing_max_rounds: usize,
+    #[serde(default)]
+    pub routing_max_queries: usize,
+    #[serde(default)]
+    pub routing_max_candidates: usize,
+    #[serde(default)]
+    pub routing_llm_call_budget: usize,
+    #[serde(default)]
+    pub routing_token_cost_ceiling: u32,
     #[serde(default)]
     pub retrieval_stop_reason: String,
     #[serde(default)]
@@ -1054,6 +1066,12 @@ pub fn build_run_manifest(
         research_state_revision: context.context_plan.research_state.revision,
         research_state_objective_count: context.context_plan.research_state.objectives.len(),
         research_state_constraint_count: context.context_plan.research_state.constraints.len(),
+        routing_policy_version: context.retrieval_query.routing_policy_version.clone(),
+        routing_max_rounds: context.retrieval_query.routing_max_rounds,
+        routing_max_queries: context.retrieval_query.routing_max_queries,
+        routing_max_candidates: context.retrieval_query.routing_max_candidates,
+        routing_llm_call_budget: context.retrieval_query.routing_llm_call_budget,
+        routing_token_cost_ceiling: context.retrieval_query.routing_token_cost_ceiling,
         retrieval_stop_reason: context.retrieval_diagnostics.stop_reason.clone(),
         retrieval_round_count: context.retrieval_diagnostics.pass_count,
         requested_kinds: context.retrieval_query.requested_kinds.clone(),

@@ -1,3 +1,4 @@
+mod adaptive_routing;
 mod claim_verification;
 mod context;
 pub(crate) mod corpus;
@@ -290,6 +291,18 @@ pub struct RetrievalQuery {
     pub candidate_methods: Vec<String>,
     #[serde(default)]
     pub problem_search_terms: Vec<String>,
+    #[serde(default)]
+    pub routing_policy_version: String,
+    #[serde(default)]
+    pub routing_max_rounds: usize,
+    #[serde(default)]
+    pub routing_max_queries: usize,
+    #[serde(default)]
+    pub routing_max_candidates: usize,
+    #[serde(default)]
+    pub routing_llm_call_budget: usize,
+    #[serde(default)]
+    pub routing_token_cost_ceiling: u32,
     #[serde(default)]
     pub requested_kinds: Vec<String>,
     #[serde(default)]
@@ -1013,6 +1026,7 @@ fn build_retrieval_query_with_understanding<'a>(
     let diagnostics = understood.diagnostics;
     let question_intent = routed.query.intent.answer_profile().to_string();
     let problem = problem_understanding::understand(&routed.query.standalone_question);
+    let routing_policy = adaptive_routing::policy(routed.execution_mode.as_str());
     RetrievalQuery {
         original_question: routed.query.original_question,
         resolved_question: routed.query.standalone_question,
@@ -1064,6 +1078,12 @@ fn build_retrieval_query_with_understanding<'a>(
             .map(|item| item.method)
             .collect(),
         problem_search_terms: problem.search_terms,
+        routing_policy_version: routing_policy.version,
+        routing_max_rounds: routing_policy.max_retrieval_rounds,
+        routing_max_queries: routing_policy.max_queries,
+        routing_max_candidates: routing_policy.max_candidates,
+        routing_llm_call_budget: routing_policy.llm_call_budget,
+        routing_token_cost_ceiling: routing_policy.token_cost_ceiling,
         requested_kinds: Vec::new(),
         attempted_kinds: Vec::new(),
         source_gaps: Vec::new(),
@@ -2200,6 +2220,7 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
         &conversation,
         understanding_planner,
     );
+    let routing_policy = adaptive_routing::policy(&retrieval_query.execution_mode);
     let mut initial_terms = query_terms(&retrieval_query.resolved_question);
     if matches!(
         retrieval_query.execution_mode.as_str(),
@@ -2278,6 +2299,21 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
     };
     retrieval_query.intent = question_intent.clone();
     retrieval_query.query_plan_version = query_plan::QUERY_PLAN_VERSION.to_string();
+    plan.budget.max_rounds = plan
+        .budget
+        .max_rounds
+        .min(routing_policy.max_retrieval_rounds)
+        .max(1);
+    plan.budget.max_queries = plan
+        .budget
+        .max_queries
+        .min(routing_policy.max_queries)
+        .max(1);
+    plan.budget.max_candidates = plan
+        .budget
+        .max_candidates
+        .min(routing_policy.max_candidates)
+        .max(4);
     retrieval_query.facet_ids = plan.facets.iter().map(|facet| facet.id.clone()).collect();
     retrieval_query.planner_used = planner_used;
 
@@ -2288,8 +2324,10 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
         } else {
             "baseline_sufficient"
         });
+    } else if routing_policy.max_retrieval_rounds == 1 {
+        diagnostics.stop("direct_path_budget");
     } else {
-        for pass in 2..=3 {
+        for pass in 2..=routing_policy.max_retrieval_rounds.min(3) {
             let before = candidates.iter().map(candidate_key).collect::<HashSet<_>>();
             let uncovered = plan
                 .facets
@@ -2364,7 +2402,7 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
                 diagnostics.stop("facet_sufficient");
                 break;
             }
-            if pass == 3 {
+            if pass == routing_policy.max_retrieval_rounds.min(3) {
                 diagnostics.stop("max_passes");
                 break;
             }
@@ -4564,7 +4602,7 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v11");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v12");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.resolver_status, "succeeded");
