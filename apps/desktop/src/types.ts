@@ -613,6 +613,14 @@ export type QaRunManifest = {
   contradictedClaimCount?: number
   notVerifiableClaimCount?: number
   repairedClaimCount?: number
+  problemParserVersion?: string
+  methodMatcherVersion?: string
+  problemUnderstandingStatus?: string
+  problemDomain?: string
+  problemObjectives?: string[]
+  problemConstraints?: string[]
+  relatedProblemTypes?: string[]
+  candidateMethods?: string[]
   retrievalStopReason?: string
   retrievalRoundCount?: number
   requestedKinds?: string[]
@@ -710,6 +718,15 @@ export type QuestionContext = {
     evidenceDocumentCount?: number
     evidenceParentExpansionCount?: number
     evidenceEstimatedTokens?: number
+    problemParserVersion?: string
+    methodMatcherVersion?: string
+    problemUnderstandingStatus?: string
+    problemDomain?: string
+    problemObjectives?: string[]
+    problemConstraints?: string[]
+    relatedProblemTypes?: string[]
+    candidateMethods?: string[]
+    problemSearchTerms?: string[]
     requestedKinds?: string[]
     attemptedKinds?: string[]
     sourceGaps?: string[]

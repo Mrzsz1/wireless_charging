@@ -1,0 +1,910 @@
+{
+  "schemaVersion": "problem-understanding-cases-v1",
+  "cases": [
+    {
+      "id": "wrsn-vrptw-1",
+      "question": "无线传感器网络移动充电调度，要求满足时间窗并最大化网络寿命，路径和充电时间如何优化？",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "maximize_network_lifetime"
+      ],
+      "constraints": [
+        "time_windows"
+      ],
+      "relatedProblemTypes": [
+        "vrptw",
+        "mobile_charger_routing"
+      ],
+      "candidateMethods": [
+        "adaptive_large_neighborhood_search",
+        "column_generation"
+      ]
+    },
+    {
+      "id": "wrsn-multi-1",
+      "question": "无线传感器网络使用多个充电车，目标是最小化死亡节点并协调车辆分配。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "minimize_dead_nodes"
+      ],
+      "constraints": [
+        "multi_vehicle_coordination"
+      ],
+      "relatedProblemTypes": [
+        "multi_depot_vrp",
+        "multiple_tsp"
+      ],
+      "candidateMethods": [
+        "decomposition_matheuristic",
+        "multi_agent_reinforcement_learning"
+      ]
+    },
+    {
+      "id": "ev-facility-1",
+      "question": "电动车充电站选址要最大化覆盖并满足充电容量，应该用什么算法？",
+      "domain": "electric_vehicle_charging",
+      "objectives": [
+        "maximize_coverage"
+      ],
+      "constraints": [
+        "charger_capacity"
+      ],
+      "relatedProblemTypes": [
+        "facility_location",
+        "set_cover"
+      ],
+      "candidateMethods": [
+        "mixed_integer_linear_programming",
+        "greedy_approximation"
+      ]
+    },
+    {
+      "id": "logistics-vrptw-1",
+      "question": "物流配送路径需要最小化总路程并满足时间窗，如何求解 VRPTW？",
+      "domain": "vehicle_routing",
+      "objectives": [
+        "minimize_travel_distance"
+      ],
+      "constraints": [
+        "time_windows"
+      ],
+      "relatedProblemTypes": [
+        "vrptw",
+        "vehicle_routing_problem"
+      ],
+      "candidateMethods": [
+        "adaptive_large_neighborhood_search",
+        "column_generation"
+      ]
+    },
+    {
+      "id": "uav-route-1",
+      "question": "无人机路径规划需要避开障碍并最小化能耗，轨迹怎么优化？",
+      "domain": "uav_routing",
+      "objectives": [
+        "minimize_energy_consumption"
+      ],
+      "constraints": [
+        "obstacle_avoidance"
+      ],
+      "relatedProblemTypes": [
+        "vehicle_routing_problem"
+      ],
+      "candidateMethods": [
+        "branch_and_cut",
+        "particle_swarm_optimization"
+      ]
+    },
+    {
+      "id": "edge-schedule-1",
+      "question": "边缘计算任务卸载调度要最小化延迟并满足截止时间，候选方法有哪些？",
+      "domain": "edge_computing",
+      "objectives": [
+        "minimize_latency"
+      ],
+      "constraints": [
+        "deadlines"
+      ],
+      "relatedProblemTypes": [
+        "resource_constrained_scheduling"
+      ],
+      "candidateMethods": [
+        "mixed_integer_linear_programming",
+        "genetic_algorithm"
+      ]
+    },
+    {
+      "id": "wrsn-capacity-1",
+      "question": "移动充电车路径受到电池容量限制，目标是最小化行驶距离，访问顺序如何决定？",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "minimize_travel_distance"
+      ],
+      "constraints": [
+        "battery_capacity"
+      ],
+      "relatedProblemTypes": [
+        "mobile_charger_routing"
+      ],
+      "candidateMethods": [
+        "branch_and_cut",
+        "particle_swarm_optimization"
+      ]
+    },
+    {
+      "id": "ev-cover-1",
+      "question": "电动车充电站部署要覆盖需求点并控制站点选择，适合哪些方法？",
+      "domain": "electric_vehicle_charging",
+      "objectives": [
+        "maximize_coverage"
+      ],
+      "constraints": [],
+      "relatedProblemTypes": [
+        "facility_location",
+        "set_cover"
+      ],
+      "candidateMethods": [
+        "mixed_integer_linear_programming",
+        "greedy_approximation"
+      ]
+    },
+    {
+      "id": "wrsn-online-1",
+      "question": "无线传感器网络移动充电需要根据已知能量状态在线最大化网络寿命。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "maximize_network_lifetime"
+      ],
+      "constraints": [],
+      "relatedProblemTypes": [
+        "mobile_charger_routing"
+      ],
+      "candidateMethods": [
+        "lyapunov_optimization"
+      ]
+    },
+    {
+      "id": "vrp-service-1",
+      "question": "物流车辆路径调度要求服务时间和优先级，并最小化总路程。",
+      "domain": "vehicle_routing",
+      "objectives": [
+        "minimize_travel_distance"
+      ],
+      "constraints": [
+        "service_duration",
+        "service_priority"
+      ],
+      "relatedProblemTypes": [
+        "vehicle_routing_problem"
+      ],
+      "candidateMethods": [
+        "branch_and_cut",
+        "particle_swarm_optimization"
+      ]
+    },
+    {
+      "id": "wrsn-vrptw-2",
+      "question": "无线传感器网络移动充电调度，要求满足时间窗并最大化网络寿命，路径和充电时间如何优化？ 请给出可复现方案。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "maximize_network_lifetime"
+      ],
+      "constraints": [
+        "time_windows"
+      ],
+      "relatedProblemTypes": [
+        "vrptw",
+        "mobile_charger_routing"
+      ],
+      "candidateMethods": [
+        "adaptive_large_neighborhood_search",
+        "column_generation"
+      ]
+    },
+    {
+      "id": "wrsn-multi-2",
+      "question": "无线传感器网络使用多个充电车，目标是最小化死亡节点并协调车辆分配。 请给出可复现方案。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "minimize_dead_nodes"
+      ],
+      "constraints": [
+        "multi_vehicle_coordination"
+      ],
+      "relatedProblemTypes": [
+        "multi_depot_vrp",
+        "multiple_tsp"
+      ],
+      "candidateMethods": [
+        "decomposition_matheuristic",
+        "multi_agent_reinforcement_learning"
+      ]
+    },
+    {
+      "id": "ev-facility-2",
+      "question": "电动车充电站选址要最大化覆盖并满足充电容量，应该用什么算法？ 请给出可复现方案。",
+      "domain": "electric_vehicle_charging",
+      "objectives": [
+        "maximize_coverage"
+      ],
+      "constraints": [
+        "charger_capacity"
+      ],
+      "relatedProblemTypes": [
+        "facility_location",
+        "set_cover"
+      ],
+      "candidateMethods": [
+        "mixed_integer_linear_programming",
+        "greedy_approximation"
+      ]
+    },
+    {
+      "id": "logistics-vrptw-2",
+      "question": "物流配送路径需要最小化总路程并满足时间窗，如何求解 VRPTW？ 请给出可复现方案。",
+      "domain": "vehicle_routing",
+      "objectives": [
+        "minimize_travel_distance"
+      ],
+      "constraints": [
+        "time_windows"
+      ],
+      "relatedProblemTypes": [
+        "vrptw",
+        "vehicle_routing_problem"
+      ],
+      "candidateMethods": [
+        "adaptive_large_neighborhood_search",
+        "column_generation"
+      ]
+    },
+    {
+      "id": "uav-route-2",
+      "question": "无人机路径规划需要避开障碍并最小化能耗，轨迹怎么优化？ 请给出可复现方案。",
+      "domain": "uav_routing",
+      "objectives": [
+        "minimize_energy_consumption"
+      ],
+      "constraints": [
+        "obstacle_avoidance"
+      ],
+      "relatedProblemTypes": [
+        "vehicle_routing_problem"
+      ],
+      "candidateMethods": [
+        "branch_and_cut",
+        "particle_swarm_optimization"
+      ]
+    },
+    {
+      "id": "edge-schedule-2",
+      "question": "边缘计算任务卸载调度要最小化延迟并满足截止时间，候选方法有哪些？ 请给出可复现方案。",
+      "domain": "edge_computing",
+      "objectives": [
+        "minimize_latency"
+      ],
+      "constraints": [
+        "deadlines"
+      ],
+      "relatedProblemTypes": [
+        "resource_constrained_scheduling"
+      ],
+      "candidateMethods": [
+        "mixed_integer_linear_programming",
+        "genetic_algorithm"
+      ]
+    },
+    {
+      "id": "wrsn-capacity-2",
+      "question": "移动充电车路径受到电池容量限制，目标是最小化行驶距离，访问顺序如何决定？ 请给出可复现方案。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "minimize_travel_distance"
+      ],
+      "constraints": [
+        "battery_capacity"
+      ],
+      "relatedProblemTypes": [
+        "mobile_charger_routing"
+      ],
+      "candidateMethods": [
+        "branch_and_cut",
+        "particle_swarm_optimization"
+      ]
+    },
+    {
+      "id": "ev-cover-2",
+      "question": "电动车充电站部署要覆盖需求点并控制站点选择，适合哪些方法？ 请给出可复现方案。",
+      "domain": "electric_vehicle_charging",
+      "objectives": [
+        "maximize_coverage"
+      ],
+      "constraints": [],
+      "relatedProblemTypes": [
+        "facility_location",
+        "set_cover"
+      ],
+      "candidateMethods": [
+        "mixed_integer_linear_programming",
+        "greedy_approximation"
+      ]
+    },
+    {
+      "id": "wrsn-online-2",
+      "question": "无线传感器网络移动充电需要根据已知能量状态在线最大化网络寿命。 请给出可复现方案。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "maximize_network_lifetime"
+      ],
+      "constraints": [],
+      "relatedProblemTypes": [
+        "mobile_charger_routing"
+      ],
+      "candidateMethods": [
+        "lyapunov_optimization"
+      ]
+    },
+    {
+      "id": "vrp-service-2",
+      "question": "物流车辆路径调度要求服务时间和优先级，并最小化总路程。 请给出可复现方案。",
+      "domain": "vehicle_routing",
+      "objectives": [
+        "minimize_travel_distance"
+      ],
+      "constraints": [
+        "service_duration",
+        "service_priority"
+      ],
+      "relatedProblemTypes": [
+        "vehicle_routing_problem"
+      ],
+      "candidateMethods": [
+        "branch_and_cut",
+        "particle_swarm_optimization"
+      ]
+    },
+    {
+      "id": "wrsn-vrptw-3",
+      "question": "无线传感器网络移动充电调度，要求满足时间窗并最大化网络寿命，路径和充电时间如何优化？ 请保留全部约束。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "maximize_network_lifetime"
+      ],
+      "constraints": [
+        "time_windows"
+      ],
+      "relatedProblemTypes": [
+        "vrptw",
+        "mobile_charger_routing"
+      ],
+      "candidateMethods": [
+        "adaptive_large_neighborhood_search",
+        "column_generation"
+      ]
+    },
+    {
+      "id": "wrsn-multi-3",
+      "question": "无线传感器网络使用多个充电车，目标是最小化死亡节点并协调车辆分配。 请保留全部约束。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "minimize_dead_nodes"
+      ],
+      "constraints": [
+        "multi_vehicle_coordination"
+      ],
+      "relatedProblemTypes": [
+        "multi_depot_vrp",
+        "multiple_tsp"
+      ],
+      "candidateMethods": [
+        "decomposition_matheuristic",
+        "multi_agent_reinforcement_learning"
+      ]
+    },
+    {
+      "id": "ev-facility-3",
+      "question": "电动车充电站选址要最大化覆盖并满足充电容量，应该用什么算法？ 请保留全部约束。",
+      "domain": "electric_vehicle_charging",
+      "objectives": [
+        "maximize_coverage"
+      ],
+      "constraints": [
+        "charger_capacity"
+      ],
+      "relatedProblemTypes": [
+        "facility_location",
+        "set_cover"
+      ],
+      "candidateMethods": [
+        "mixed_integer_linear_programming",
+        "greedy_approximation"
+      ]
+    },
+    {
+      "id": "logistics-vrptw-3",
+      "question": "物流配送路径需要最小化总路程并满足时间窗，如何求解 VRPTW？ 请保留全部约束。",
+      "domain": "vehicle_routing",
+      "objectives": [
+        "minimize_travel_distance"
+      ],
+      "constraints": [
+        "time_windows"
+      ],
+      "relatedProblemTypes": [
+        "vrptw",
+        "vehicle_routing_problem"
+      ],
+      "candidateMethods": [
+        "adaptive_large_neighborhood_search",
+        "column_generation"
+      ]
+    },
+    {
+      "id": "uav-route-3",
+      "question": "无人机路径规划需要避开障碍并最小化能耗，轨迹怎么优化？ 请保留全部约束。",
+      "domain": "uav_routing",
+      "objectives": [
+        "minimize_energy_consumption"
+      ],
+      "constraints": [
+        "obstacle_avoidance"
+      ],
+      "relatedProblemTypes": [
+        "vehicle_routing_problem"
+      ],
+      "candidateMethods": [
+        "branch_and_cut",
+        "particle_swarm_optimization"
+      ]
+    },
+    {
+      "id": "edge-schedule-3",
+      "question": "边缘计算任务卸载调度要最小化延迟并满足截止时间，候选方法有哪些？ 请保留全部约束。",
+      "domain": "edge_computing",
+      "objectives": [
+        "minimize_latency"
+      ],
+      "constraints": [
+        "deadlines"
+      ],
+      "relatedProblemTypes": [
+        "resource_constrained_scheduling"
+      ],
+      "candidateMethods": [
+        "mixed_integer_linear_programming",
+        "genetic_algorithm"
+      ]
+    },
+    {
+      "id": "wrsn-capacity-3",
+      "question": "移动充电车路径受到电池容量限制，目标是最小化行驶距离，访问顺序如何决定？ 请保留全部约束。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "minimize_travel_distance"
+      ],
+      "constraints": [
+        "battery_capacity"
+      ],
+      "relatedProblemTypes": [
+        "mobile_charger_routing"
+      ],
+      "candidateMethods": [
+        "branch_and_cut",
+        "particle_swarm_optimization"
+      ]
+    },
+    {
+      "id": "ev-cover-3",
+      "question": "电动车充电站部署要覆盖需求点并控制站点选择，适合哪些方法？ 请保留全部约束。",
+      "domain": "electric_vehicle_charging",
+      "objectives": [
+        "maximize_coverage"
+      ],
+      "constraints": [],
+      "relatedProblemTypes": [
+        "facility_location",
+        "set_cover"
+      ],
+      "candidateMethods": [
+        "mixed_integer_linear_programming",
+        "greedy_approximation"
+      ]
+    },
+    {
+      "id": "wrsn-online-3",
+      "question": "无线传感器网络移动充电需要根据已知能量状态在线最大化网络寿命。 请保留全部约束。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "maximize_network_lifetime"
+      ],
+      "constraints": [],
+      "relatedProblemTypes": [
+        "mobile_charger_routing"
+      ],
+      "candidateMethods": [
+        "lyapunov_optimization"
+      ]
+    },
+    {
+      "id": "vrp-service-3",
+      "question": "物流车辆路径调度要求服务时间和优先级，并最小化总路程。 请保留全部约束。",
+      "domain": "vehicle_routing",
+      "objectives": [
+        "minimize_travel_distance"
+      ],
+      "constraints": [
+        "service_duration",
+        "service_priority"
+      ],
+      "relatedProblemTypes": [
+        "vehicle_routing_problem"
+      ],
+      "candidateMethods": [
+        "branch_and_cut",
+        "particle_swarm_optimization"
+      ]
+    },
+    {
+      "id": "wrsn-vrptw-4",
+      "question": "无线传感器网络移动充电调度，要求满足时间窗并最大化网络寿命，路径和充电时间如何优化？ 面向大规模实例。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "maximize_network_lifetime"
+      ],
+      "constraints": [
+        "time_windows"
+      ],
+      "relatedProblemTypes": [
+        "vrptw",
+        "mobile_charger_routing"
+      ],
+      "candidateMethods": [
+        "adaptive_large_neighborhood_search",
+        "column_generation"
+      ]
+    },
+    {
+      "id": "wrsn-multi-4",
+      "question": "无线传感器网络使用多个充电车，目标是最小化死亡节点并协调车辆分配。 面向大规模实例。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "minimize_dead_nodes"
+      ],
+      "constraints": [
+        "multi_vehicle_coordination"
+      ],
+      "relatedProblemTypes": [
+        "multi_depot_vrp",
+        "multiple_tsp"
+      ],
+      "candidateMethods": [
+        "decomposition_matheuristic",
+        "multi_agent_reinforcement_learning"
+      ]
+    },
+    {
+      "id": "ev-facility-4",
+      "question": "电动车充电站选址要最大化覆盖并满足充电容量，应该用什么算法？ 面向大规模实例。",
+      "domain": "electric_vehicle_charging",
+      "objectives": [
+        "maximize_coverage"
+      ],
+      "constraints": [
+        "charger_capacity"
+      ],
+      "relatedProblemTypes": [
+        "facility_location",
+        "set_cover"
+      ],
+      "candidateMethods": [
+        "mixed_integer_linear_programming",
+        "greedy_approximation"
+      ]
+    },
+    {
+      "id": "logistics-vrptw-4",
+      "question": "物流配送路径需要最小化总路程并满足时间窗，如何求解 VRPTW？ 面向大规模实例。",
+      "domain": "vehicle_routing",
+      "objectives": [
+        "minimize_travel_distance"
+      ],
+      "constraints": [
+        "time_windows"
+      ],
+      "relatedProblemTypes": [
+        "vrptw",
+        "vehicle_routing_problem"
+      ],
+      "candidateMethods": [
+        "adaptive_large_neighborhood_search",
+        "column_generation"
+      ]
+    },
+    {
+      "id": "uav-route-4",
+      "question": "无人机路径规划需要避开障碍并最小化能耗，轨迹怎么优化？ 面向大规模实例。",
+      "domain": "uav_routing",
+      "objectives": [
+        "minimize_energy_consumption"
+      ],
+      "constraints": [
+        "obstacle_avoidance"
+      ],
+      "relatedProblemTypes": [
+        "vehicle_routing_problem"
+      ],
+      "candidateMethods": [
+        "branch_and_cut",
+        "particle_swarm_optimization"
+      ]
+    },
+    {
+      "id": "edge-schedule-4",
+      "question": "边缘计算任务卸载调度要最小化延迟并满足截止时间，候选方法有哪些？ 面向大规模实例。",
+      "domain": "edge_computing",
+      "objectives": [
+        "minimize_latency"
+      ],
+      "constraints": [
+        "deadlines"
+      ],
+      "relatedProblemTypes": [
+        "resource_constrained_scheduling"
+      ],
+      "candidateMethods": [
+        "mixed_integer_linear_programming",
+        "genetic_algorithm"
+      ]
+    },
+    {
+      "id": "wrsn-capacity-4",
+      "question": "移动充电车路径受到电池容量限制，目标是最小化行驶距离，访问顺序如何决定？ 面向大规模实例。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "minimize_travel_distance"
+      ],
+      "constraints": [
+        "battery_capacity"
+      ],
+      "relatedProblemTypes": [
+        "mobile_charger_routing"
+      ],
+      "candidateMethods": [
+        "branch_and_cut",
+        "particle_swarm_optimization"
+      ]
+    },
+    {
+      "id": "ev-cover-4",
+      "question": "电动车充电站部署要覆盖需求点并控制站点选择，适合哪些方法？ 面向大规模实例。",
+      "domain": "electric_vehicle_charging",
+      "objectives": [
+        "maximize_coverage"
+      ],
+      "constraints": [],
+      "relatedProblemTypes": [
+        "facility_location",
+        "set_cover"
+      ],
+      "candidateMethods": [
+        "mixed_integer_linear_programming",
+        "greedy_approximation"
+      ]
+    },
+    {
+      "id": "wrsn-online-4",
+      "question": "无线传感器网络移动充电需要根据已知能量状态在线最大化网络寿命。 面向大规模实例。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "maximize_network_lifetime"
+      ],
+      "constraints": [],
+      "relatedProblemTypes": [
+        "mobile_charger_routing"
+      ],
+      "candidateMethods": [
+        "lyapunov_optimization"
+      ]
+    },
+    {
+      "id": "vrp-service-4",
+      "question": "物流车辆路径调度要求服务时间和优先级，并最小化总路程。 面向大规模实例。",
+      "domain": "vehicle_routing",
+      "objectives": [
+        "minimize_travel_distance"
+      ],
+      "constraints": [
+        "service_duration",
+        "service_priority"
+      ],
+      "relatedProblemTypes": [
+        "vehicle_routing_problem"
+      ],
+      "candidateMethods": [
+        "branch_and_cut",
+        "particle_swarm_optimization"
+      ]
+    },
+    {
+      "id": "wrsn-vrptw-5",
+      "question": "无线传感器网络移动充电调度，要求满足时间窗并最大化网络寿命，路径和充电时间如何优化？ 同时说明适用条件。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "maximize_network_lifetime"
+      ],
+      "constraints": [
+        "time_windows"
+      ],
+      "relatedProblemTypes": [
+        "vrptw",
+        "mobile_charger_routing"
+      ],
+      "candidateMethods": [
+        "adaptive_large_neighborhood_search",
+        "column_generation"
+      ]
+    },
+    {
+      "id": "wrsn-multi-5",
+      "question": "无线传感器网络使用多个充电车，目标是最小化死亡节点并协调车辆分配。 同时说明适用条件。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "minimize_dead_nodes"
+      ],
+      "constraints": [
+        "multi_vehicle_coordination"
+      ],
+      "relatedProblemTypes": [
+        "multi_depot_vrp",
+        "multiple_tsp"
+      ],
+      "candidateMethods": [
+        "decomposition_matheuristic",
+        "multi_agent_reinforcement_learning"
+      ]
+    },
+    {
+      "id": "ev-facility-5",
+      "question": "电动车充电站选址要最大化覆盖并满足充电容量，应该用什么算法？ 同时说明适用条件。",
+      "domain": "electric_vehicle_charging",
+      "objectives": [
+        "maximize_coverage"
+      ],
+      "constraints": [
+        "charger_capacity"
+      ],
+      "relatedProblemTypes": [
+        "facility_location",
+        "set_cover"
+      ],
+      "candidateMethods": [
+        "mixed_integer_linear_programming",
+        "greedy_approximation"
+      ]
+    },
+    {
+      "id": "logistics-vrptw-5",
+      "question": "物流配送路径需要最小化总路程并满足时间窗，如何求解 VRPTW？ 同时说明适用条件。",
+      "domain": "vehicle_routing",
+      "objectives": [
+        "minimize_travel_distance"
+      ],
+      "constraints": [
+        "time_windows"
+      ],
+      "relatedProblemTypes": [
+        "vrptw",
+        "vehicle_routing_problem"
+      ],
+      "candidateMethods": [
+        "adaptive_large_neighborhood_search",
+        "column_generation"
+      ]
+    },
+    {
+      "id": "uav-route-5",
+      "question": "无人机路径规划需要避开障碍并最小化能耗，轨迹怎么优化？ 同时说明适用条件。",
+      "domain": "uav_routing",
+      "objectives": [
+        "minimize_energy_consumption"
+      ],
+      "constraints": [
+        "obstacle_avoidance"
+      ],
+      "relatedProblemTypes": [
+        "vehicle_routing_problem"
+      ],
+      "candidateMethods": [
+        "branch_and_cut",
+        "particle_swarm_optimization"
+      ]
+    },
+    {
+      "id": "edge-schedule-5",
+      "question": "边缘计算任务卸载调度要最小化延迟并满足截止时间，候选方法有哪些？ 同时说明适用条件。",
+      "domain": "edge_computing",
+      "objectives": [
+        "minimize_latency"
+      ],
+      "constraints": [
+        "deadlines"
+      ],
+      "relatedProblemTypes": [
+        "resource_constrained_scheduling"
+      ],
+      "candidateMethods": [
+        "mixed_integer_linear_programming",
+        "genetic_algorithm"
+      ]
+    },
+    {
+      "id": "wrsn-capacity-5",
+      "question": "移动充电车路径受到电池容量限制，目标是最小化行驶距离，访问顺序如何决定？ 同时说明适用条件。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "minimize_travel_distance"
+      ],
+      "constraints": [
+        "battery_capacity"
+      ],
+      "relatedProblemTypes": [
+        "mobile_charger_routing"
+      ],
+      "candidateMethods": [
+        "branch_and_cut",
+        "particle_swarm_optimization"
+      ]
+    },
+    {
+      "id": "ev-cover-5",
+      "question": "电动车充电站部署要覆盖需求点并控制站点选择，适合哪些方法？ 同时说明适用条件。",
+      "domain": "electric_vehicle_charging",
+      "objectives": [
+        "maximize_coverage"
+      ],
+      "constraints": [],
+      "relatedProblemTypes": [
+        "facility_location",
+        "set_cover"
+      ],
+      "candidateMethods": [
+        "mixed_integer_linear_programming",
+        "greedy_approximation"
+      ]
+    },
+    {
+      "id": "wrsn-online-5",
+      "question": "无线传感器网络移动充电需要根据已知能量状态在线最大化网络寿命。 同时说明适用条件。",
+      "domain": "wireless_sensor_network",
+      "objectives": [
+        "maximize_network_lifetime"
+      ],
+      "constraints": [],
+      "relatedProblemTypes": [
+        "mobile_charger_routing"
+      ],
+      "candidateMethods": [
+        "lyapunov_optimization"
+      ]
+    },
+    {
+      "id": "vrp-service-5",
+      "question": "物流车辆路径调度要求服务时间和优先级，并最小化总路程。 同时说明适用条件。",
+      "domain": "vehicle_routing",
+      "objectives": [
+        "minimize_travel_distance"
+      ],
+      "constraints": [
+        "service_duration",
+        "service_priority"
+      ],
+      "relatedProblemTypes": [
+        "vehicle_routing_problem"
+      ],
+      "candidateMethods": [
+        "branch_and_cut",
+        "particle_swarm_optimization"
+      ]
+    }
+  ]
+}

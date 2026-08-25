@@ -11,7 +11,7 @@ pub const ANSWER_SCHEMA_VERSION: &str = "qa-natural-markdown-v2";
 pub const LEGACY_ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v3";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v9";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v10";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -186,6 +186,22 @@ pub struct QaRunManifest {
     pub not_verifiable_claim_count: usize,
     #[serde(default)]
     pub repaired_claim_count: usize,
+    #[serde(default)]
+    pub problem_parser_version: String,
+    #[serde(default)]
+    pub method_matcher_version: String,
+    #[serde(default)]
+    pub problem_understanding_status: String,
+    #[serde(default)]
+    pub problem_domain: String,
+    #[serde(default)]
+    pub problem_objectives: Vec<String>,
+    #[serde(default)]
+    pub problem_constraints: Vec<String>,
+    #[serde(default)]
+    pub related_problem_types: Vec<String>,
+    #[serde(default)]
+    pub candidate_methods: Vec<String>,
     #[serde(default)]
     pub retrieval_stop_reason: String,
     #[serde(default)]
@@ -1006,6 +1022,14 @@ pub fn build_run_manifest(
         contradicted_claim_count: 0,
         not_verifiable_claim_count: 0,
         repaired_claim_count: 0,
+        problem_parser_version: context.retrieval_query.problem_parser_version.clone(),
+        method_matcher_version: context.retrieval_query.method_matcher_version.clone(),
+        problem_understanding_status: context.retrieval_query.problem_understanding_status.clone(),
+        problem_domain: context.retrieval_query.problem_domain.clone(),
+        problem_objectives: context.retrieval_query.problem_objectives.clone(),
+        problem_constraints: context.retrieval_query.problem_constraints.clone(),
+        related_problem_types: context.retrieval_query.related_problem_types.clone(),
+        candidate_methods: context.retrieval_query.candidate_methods.clone(),
         retrieval_stop_reason: context.retrieval_diagnostics.stop_reason.clone(),
         retrieval_round_count: context.retrieval_diagnostics.pass_count,
         requested_kinds: context.retrieval_query.requested_kinds.clone(),

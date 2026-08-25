@@ -113,6 +113,19 @@ cargo test obvious_unsupported_claim_is_repaired_and_never_reported_as_verified 
 冻结状态矩阵见 `claim-verification-cases.json`，门禁记录见
 `claim-verification-baseline.md`。
 
+## Problem Understanding / Method Matcher 回归
+
+冻结的 50 个真实问题描述覆盖 domain、objective、constraints、related problem type 与
+candidate methods。门禁同时检查约束不丢失、相关问题召回和方法召回：
+
+```powershell
+cd apps/desktop/src-tauri
+cargo test problem_understanding --lib
+```
+
+数据见 `problem-understanding-cases.json`，结果见
+`problem-understanding-baseline.md`。
+
 ## Production held-out 准确率
 
 `heldout_questions.json` 是独立冻结入口。当前状态为 `awaiting_independent_curation`，不预填模型自行构造的“真值”。冻结要求：

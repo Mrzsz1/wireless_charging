@@ -11,6 +11,7 @@ pub(crate) mod locator;
 mod markdown_parser;
 mod metrics;
 mod natural_answer;
+mod problem_understanding;
 mod query_plan;
 mod reranker;
 pub(crate) mod retrieval;
@@ -270,6 +271,24 @@ pub struct RetrievalQuery {
     pub evidence_parent_expansion_count: usize,
     #[serde(default)]
     pub evidence_estimated_tokens: u32,
+    #[serde(default)]
+    pub problem_parser_version: String,
+    #[serde(default)]
+    pub method_matcher_version: String,
+    #[serde(default)]
+    pub problem_understanding_status: String,
+    #[serde(default)]
+    pub problem_domain: String,
+    #[serde(default)]
+    pub problem_objectives: Vec<String>,
+    #[serde(default)]
+    pub problem_constraints: Vec<String>,
+    #[serde(default)]
+    pub related_problem_types: Vec<String>,
+    #[serde(default)]
+    pub candidate_methods: Vec<String>,
+    #[serde(default)]
+    pub problem_search_terms: Vec<String>,
     #[serde(default)]
     pub requested_kinds: Vec<String>,
     #[serde(default)]
@@ -992,6 +1011,7 @@ fn build_retrieval_query_with_understanding<'a>(
     let routed = understood.routed;
     let diagnostics = understood.diagnostics;
     let question_intent = routed.query.intent.answer_profile().to_string();
+    let problem = problem_understanding::understand(&routed.query.standalone_question);
     RetrievalQuery {
         original_question: routed.query.original_question,
         resolved_question: routed.query.standalone_question,
@@ -1030,6 +1050,19 @@ fn build_retrieval_query_with_understanding<'a>(
         evidence_document_count: 0,
         evidence_parent_expansion_count: 0,
         evidence_estimated_tokens: 0,
+        problem_parser_version: problem.parser_version,
+        method_matcher_version: problem.matcher_version,
+        problem_understanding_status: problem.status,
+        problem_domain: problem.representation.domain,
+        problem_objectives: problem.representation.objectives,
+        problem_constraints: problem.representation.constraints,
+        related_problem_types: problem.representation.related_problem_types,
+        candidate_methods: problem
+            .candidate_methods
+            .into_iter()
+            .map(|item| item.method)
+            .collect(),
+        problem_search_terms: problem.search_terms,
         requested_kinds: Vec::new(),
         attempted_kinds: Vec::new(),
         source_gaps: Vec::new(),
@@ -2166,7 +2199,16 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
         &conversation,
         understanding_planner,
     );
-    let initial_terms = query_terms(&retrieval_query.resolved_question);
+    let mut initial_terms = query_terms(&retrieval_query.resolved_question);
+    if matches!(
+        retrieval_query.execution_mode.as_str(),
+        "research" | "exploratory"
+    ) {
+        initial_terms.extend(retrieval_query.problem_search_terms.iter().cloned());
+        initial_terms.sort();
+        initial_terms.dedup();
+        initial_terms.truncate(48);
+    }
     let mut known_terms = initial_terms.iter().cloned().collect::<HashSet<_>>();
     let mut candidates = retrieve_pass(
         connection,
@@ -4521,7 +4563,7 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v9");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v10");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.resolver_status, "succeeded");
