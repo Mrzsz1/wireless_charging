@@ -198,6 +198,8 @@ fn candidate_from_block(
         markdown_path,
         pdf_path: String::new(),
         node_id: block_id,
+        parent_block_id: String::new(),
+        parent_context: String::new(),
         source_location: match (line_start, line_end) {
             (Some(start), Some(end)) if kind == "paper" => {
                 format!("{heading} · 原文第 {start}–{end} 行")
@@ -1050,6 +1052,8 @@ mod tests {
             markdown_path: "raw/paper/full.md".into(),
             pdf_path: String::new(),
             node_id: id.into(),
+            parent_block_id: String::new(),
+            parent_context: String::new(),
             source_location: String::new(),
             relation: "content_block_v2".into(),
             retrieval_reason: String::new(),

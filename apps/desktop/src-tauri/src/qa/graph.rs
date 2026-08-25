@@ -440,6 +440,8 @@ pub(super) fn graph_candidates(
             markdown_path: String::new(),
             pdf_path: String::new(),
             node_id,
+            parent_block_id: String::new(),
+            parent_context: String::new(),
             source_location: node.source_location.clone(),
             relation: if relation_hits > 0 {
                 "graph_relation".to_string()

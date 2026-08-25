@@ -1,7 +1,7 @@
 use super::{candidate_similarity, compact, context, Candidate};
 use std::collections::{HashMap, HashSet};
 
-pub const EVIDENCE_MANAGER_VERSION: &str = "evidence-manager-v1";
+pub const EVIDENCE_MANAGER_VERSION: &str = "evidence-manager-v2";
 
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct EvidenceManagementReport {
@@ -31,7 +31,6 @@ pub fn manage(candidates: &[Candidate], maximum: usize) -> ManagedEvidence {
             .push_str(&format!("；evidence_authority={authority:.3}"));
     }
     unique.sort_by(|left, right| right.score.total_cmp(&left.score));
-    let parent_candidates = unique.clone();
     let mut selected = Vec::<Candidate>::new();
     let mut remaining = unique;
     while selected.len() < maximum && !remaining.is_empty() {
@@ -68,26 +67,21 @@ pub fn manage(candidates: &[Candidate], maximum: usize) -> ManagedEvidence {
         if candidate.relation != "semantic_block_v2" {
             continue;
         }
-        let key = document_key(candidate);
-        let parent = parent_candidates
-            .iter()
-            .filter(|other| document_key(other) == key)
-            .filter(|other| other.node_id != candidate.node_id)
-            .filter(|other| other.relation == "content_block_v2")
-            .max_by_key(|other| other.snippet.chars().count());
-        let Some(parent) = parent else {
-            continue;
-        };
-        if parent.snippet.trim().is_empty() || candidate.snippet.contains(parent.snippet.trim()) {
+        let parent_context = candidate.parent_context.trim();
+        if candidate.parent_block_id.trim().is_empty()
+            || parent_context.is_empty()
+            || candidate.snippet.contains(parent_context)
+        {
             continue;
         }
         candidate.snippet = compact(
-            &format!("{} 上级上下文：{}", candidate.snippet, parent.snippet),
+            &format!("{} 上级上下文：{}", candidate.snippet, parent_context),
             1_600,
         );
-        candidate
-            .retrieval_reason
-            .push_str("；parent_context_expanded=true");
+        candidate.retrieval_reason.push_str(&format!(
+            "；parent_context_expanded=true；parent_block_id={}",
+            candidate.parent_block_id
+        ));
         parent_expansion_count += 1;
     }
     let estimated_tokens = selected
@@ -208,6 +202,8 @@ mod tests {
             markdown_path: format!("{document}.md"),
             pdf_path: String::new(),
             node_id: title.into(),
+            parent_block_id: String::new(),
+            parent_context: String::new(),
             source_location: String::new(),
             relation: "content_block_v2".into(),
             retrieval_reason: String::new(),
@@ -237,17 +233,42 @@ mod tests {
     }
 
     #[test]
-    fn semantic_block_receives_available_parent_context() {
+    fn semantic_block_uses_its_exact_indexed_parent_not_the_longest_sibling() {
         let mut child = candidate("paper", "primary_source", "a", "child", 0.5);
         child.relation = "semantic_block_v2".into();
         child.snippet = "child detail".into();
-        let mut parent = candidate("paper", "primary_source", "a", "parent", 0.4);
-        parent.snippet = "broader section context".into();
-        let managed = manage(&[child, parent], 2);
+        child.parent_block_id = "right-parent".into();
+        child.parent_context = "exact indexed parent context".into();
+        let mut wrong_sibling = candidate("paper", "primary_source", "a", "wrong", 0.4);
+        wrong_sibling.snippet = "wrong sibling context ".repeat(80);
+        let managed = manage(&[child, wrong_sibling], 2);
         assert_eq!(managed.report.parent_expansion_count, 1);
-        assert!(managed
+        let expanded = managed
             .candidates
             .iter()
-            .any(|candidate| candidate.snippet.contains("broader section context")));
+            .find(|candidate| candidate.node_id == "child")
+            .expect("semantic child");
+        assert!(expanded.snippet.contains("exact indexed parent context"));
+        assert!(!expanded.snippet.contains("wrong sibling context"));
+        assert!(expanded
+            .retrieval_reason
+            .contains("parent_block_id=right-parent"));
+    }
+
+    #[test]
+    fn semantic_block_without_indexed_parent_context_is_not_expanded() {
+        let mut child = candidate("paper", "primary_source", "a", "child", 0.5);
+        child.relation = "semantic_block_v2".into();
+        child.snippet = "child detail".into();
+        let mut unrelated = candidate("paper", "primary_source", "a", "unrelated", 0.4);
+        unrelated.snippet = "same-document but unrelated context".into();
+        let managed = manage(&[child, unrelated], 2);
+        assert_eq!(managed.report.parent_expansion_count, 0);
+        let selected_child = managed
+            .candidates
+            .iter()
+            .find(|candidate| candidate.node_id == "child")
+            .expect("semantic child");
+        assert_eq!(selected_child.snippet, "child detail");
     }
 }

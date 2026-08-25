@@ -219,6 +219,8 @@ impl SemanticDocument {
             markdown_path: self.markdown_path.clone(),
             pdf_path: self.pdf_path.clone(),
             node_id: self.node_id.clone(),
+            parent_block_id: String::new(),
+            parent_context: String::new(),
             source_location: self.source_location.clone(),
             relation: String::new(),
             retrieval_reason: format!(

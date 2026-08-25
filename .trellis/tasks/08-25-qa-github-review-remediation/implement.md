@@ -48,11 +48,11 @@
 
 ## Phase F — Exact parent context and final integration
 
-- [ ] Replace same-document longest-block expansion with exact active same-document `parent_block_id` lookup.
-- [ ] Add wrong-longest-sibling, missing-parent, cross-document and inactive-parent tests.
-- [ ] Run full gates: fmt, Rust tests/clippy, frontend tests/build, P3, RAG, question corpus, Wiki and release gates supported by the environment.
-- [ ] Update baselines without lowering thresholds.
-- [ ] Commit locally: `fix(qa): resolve exact evidence parent context`.
+- [x] Replace same-document longest-block expansion with exact active same-document `parent_block_id` lookup.
+- [x] Add wrong-longest-sibling, missing-parent, cross-document and inactive-parent tests.
+- [x] Run full gates: fmt, Rust tests/clippy, frontend tests/build, P3, RAG, question corpus, Wiki and release gates supported by the environment.
+- [x] Update baselines without lowering thresholds.
+- [x] Commit locally: `fix(qa): resolve exact evidence parent context`.
 
 ## Risky Files / Rollback Points
 

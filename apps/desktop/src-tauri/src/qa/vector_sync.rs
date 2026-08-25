@@ -16,6 +16,30 @@ const SYNC_BATCH_SIZE: usize = 32;
 const QUERY_REMOTE_TIMEOUT_SECONDS: u64 = 4;
 static REMOTE_VECTOR_SETTINGS: OnceLock<RwLock<RemoteVectorSettings>> = OnceLock::new();
 
+fn exact_parent_context(
+    connection: &Connection,
+    child_block_id: &str,
+    parent_block_id: &str,
+) -> Result<Option<String>, String> {
+    if parent_block_id.trim().is_empty() {
+        return Ok(None);
+    }
+    connection
+        .query_row(
+            "SELECT parent.content
+             FROM content_blocks_v2 child
+             JOIN content_blocks_v2 parent
+               ON parent.id=?2
+              AND parent.document_id=child.document_id
+              AND parent.active=1
+             WHERE child.id=?1 AND child.active=1",
+            params![child_block_id, parent_block_id],
+            |row| row.get::<_, String>(0),
+        )
+        .optional()
+        .map_err(|error| format!("读取语义块精确父级上下文失败：{error}"))
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct RemoteVectorSettings {
@@ -605,7 +629,7 @@ pub(super) fn semantic_candidates_v2_filtered(
         super::check_cancelled(cancelled)?;
         let row = connection
             .query_row(
-                "SELECT d.canonical_title,d.kind,b.heading,b.heading_path_json,b.role,b.content,b.markdown_path,b.line_start,b.line_end,b.document_id
+                "SELECT d.canonical_title,d.kind,b.heading,b.heading_path_json,b.role,b.content,b.markdown_path,b.line_start,b.line_end,b.document_id,COALESCE(b.parent_block_id,'')
                  FROM content_blocks_v2 b JOIN documents_v2 d ON d.id=b.document_id
                  WHERE b.id=?1 AND b.active=1 AND d.active=1",
                 [&hit.block_id],
@@ -614,7 +638,7 @@ pub(super) fn semantic_candidates_v2_filtered(
                         row.get::<_, String>(0)?, row.get::<_, String>(1)?, row.get::<_, String>(2)?,
                         row.get::<_, String>(3)?, row.get::<_, String>(4)?, row.get::<_, String>(5)?,
                         row.get::<_, String>(6)?, row.get::<_, i64>(7)?, row.get::<_, i64>(8)?,
-                        row.get::<_, String>(9)?,
+                        row.get::<_, String>(9)?, row.get::<_, String>(10)?,
                     ))
                 },
             )
@@ -631,6 +655,7 @@ pub(super) fn semantic_candidates_v2_filtered(
             line_start,
             line_end,
             document_id,
+            parent_block_id,
         )) = row
         else {
             continue;
@@ -648,6 +673,9 @@ pub(super) fn semantic_candidates_v2_filtered(
             (_, "method" | "algorithm") => "transferable_method",
             _ => "direct",
         };
+        let parent_context = exact_parent_context(connection, &hit.block_id, &parent_block_id)?
+            .map(|content| compact(&content, 1_200))
+            .unwrap_or_default();
         candidates.push(Candidate {
             kind: kind.clone(),
             tier: tier.to_string(),
@@ -681,6 +709,8 @@ pub(super) fn semantic_candidates_v2_filtered(
             markdown_path,
             pdf_path: String::new(),
             node_id: hit.block_id,
+            parent_block_id,
+            parent_context,
             source_location: format!(
                 "{} · Markdown 第 {line_start}–{line_end} 行",
                 heading_path.join(" / ")
@@ -734,6 +764,51 @@ mod tests {
         assert_eq!(missing.len(), 1);
         assert_eq!(missing[0].block_id, "section");
         assert_eq!(reused, 2);
+    }
+
+    #[test]
+    fn exact_parent_context_rejects_cross_document_inactive_and_missing_parents() {
+        let connection = Connection::open_in_memory().unwrap();
+        connection
+            .execute_batch(
+                "CREATE TABLE content_blocks_v2(
+                   id TEXT PRIMARY KEY,
+                   document_id TEXT NOT NULL,
+                   parent_block_id TEXT,
+                   content TEXT NOT NULL,
+                   active INTEGER NOT NULL
+                 );
+                 INSERT INTO content_blocks_v2 VALUES
+                   ('parent-exact','doc-a',NULL,'exact parent context',1),
+                   ('child-exact','doc-a','parent-exact','child',1),
+                   ('parent-cross','doc-b',NULL,'cross-document context',1),
+                   ('child-cross','doc-a','parent-cross','child',1),
+                   ('parent-inactive','doc-a',NULL,'inactive context',0),
+                   ('child-inactive','doc-a','parent-inactive','child',1),
+                   ('child-missing','doc-a','parent-missing','child',1);",
+            )
+            .unwrap();
+
+        assert_eq!(
+            exact_parent_context(&connection, "child-exact", "parent-exact").unwrap(),
+            Some("exact parent context".to_string())
+        );
+        assert_eq!(
+            exact_parent_context(&connection, "child-cross", "parent-cross").unwrap(),
+            None
+        );
+        assert_eq!(
+            exact_parent_context(&connection, "child-inactive", "parent-inactive").unwrap(),
+            None
+        );
+        assert_eq!(
+            exact_parent_context(&connection, "child-missing", "parent-missing").unwrap(),
+            None
+        );
+        assert_eq!(
+            exact_parent_context(&connection, "child-exact", "").unwrap(),
+            None
+        );
     }
 
     #[test]

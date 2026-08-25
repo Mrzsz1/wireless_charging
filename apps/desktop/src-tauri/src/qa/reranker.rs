@@ -430,6 +430,8 @@ mod tests {
             markdown_path: path.into(),
             pdf_path: String::new(),
             node_id: title.into(),
+            parent_block_id: String::new(),
+            parent_context: String::new(),
             source_location: String::new(),
             relation: relation.into(),
             retrieval_reason: String::new(),

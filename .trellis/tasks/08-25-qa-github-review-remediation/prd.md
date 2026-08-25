@@ -93,19 +93,19 @@
 
 ## Acceptance Criteria
 
-- [ ] AC1：自然回答验证前保留 claim Evidence IDs；无映射 factual claim 为 not_verifiable，且不自动绑定全包 Evidence。
-- [ ] AC2：ClaimType 与 VerificationStatus 分离，错误的“通用知识/建议/推断”事实不能绕过验证。
-- [ ] AC3：heuristic 检查后 `entailmentChecked=false`，并独立记录 heuristic verification。
-- [ ] AC4：缺失 grounding 状态反序列化为 unverified。
-- [ ] AC5：cross-encoder、EmbeddingRescorer fallback、deterministic fallback 三层状态可区分；排序不再 raw-score 相加。
-- [ ] AC6：DirectQA 默认不调用 planner、最大一轮 retrieval；budget guard 能阻止超额调用并记录实际消耗。
-- [ ] AC7：Compatible API 与 Codex 根据 capability 运行同一 Understanding/Planning contract。
-- [ ] AC8：低置信无显式指代的科研 follow-up 会升级，高置信自包含问题不升级。
-- [ ] AC9：四个新增 ResearchIntent profile 的 completeness contract 通过测试。
-- [ ] AC10：方法 hypothesis 不进入中性首轮检索，只有独立 corroborated expansion 才进入最终方法建议。
-- [ ] AC11：semantic block 只扩展 `parent_block_id` 指向的 active 同文档 parent。
-- [ ] AC12：全量 Rust tests/clippy、frontend tests/build、P3 verification、RAG eval、Wiki eval、core-book gate全部通过；冻结指标不下降。
-- [ ] AC13：每一实施阶段有独立本地 Git commit，用户未要求前不 push。
+- [x] AC1：自然回答验证前保留 claim Evidence IDs；无映射 factual claim 为 not_verifiable，且不自动绑定全包 Evidence。
+- [x] AC2：ClaimType 与 VerificationStatus 分离，错误的“通用知识/建议/推断”事实不能绕过验证。
+- [x] AC3：heuristic 检查后 `entailmentChecked=false`，并独立记录 heuristic verification。
+- [x] AC4：缺失 grounding 状态反序列化为 unverified。
+- [x] AC5：cross-encoder、EmbeddingRescorer fallback、deterministic fallback 三层状态可区分；排序不再 raw-score 相加。
+- [x] AC6：DirectQA 默认不调用 planner、最大一轮 retrieval；budget guard 能阻止超额调用并记录实际消耗。
+- [x] AC7：Compatible API 与 Codex 根据 capability 运行同一 Understanding/Planning contract。
+- [x] AC8：低置信无显式指代的科研 follow-up 会升级，高置信自包含问题不升级。
+- [x] AC9：四个新增 ResearchIntent profile 的 completeness contract 通过测试。
+- [x] AC10：方法 hypothesis 不进入中性首轮检索，只有独立 corroborated expansion 才进入最终方法建议。
+- [x] AC11：semantic block 只扩展 `parent_block_id` 指向的 active 同文档 parent。
+- [x] AC12：全量 Rust tests/clippy、frontend tests/build、P3 verification、RAG eval、Wiki eval、core-book gate全部通过；冻结指标不下降。
+- [x] AC13：每一实施阶段有独立本地 Git commit，用户未要求前不 push。
 
 ## Out of Scope
 

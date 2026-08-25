@@ -5,7 +5,7 @@
 - 单个 primary-paper 文档最多两个候选：PASS
 - primary source / theory / direct 权威平分加权：PASS
 - 类型与文档多样性：PASS
-- semantic block 父上下文扩展：PASS
+- semantic block 按 exact `parent_block_id` 扩展 active 同文档父级；错误兄弟块、缺失父级、跨文档父级和 inactive 父级均 fail closed：PASS
 - evidence token 估算与 ContextPlan 最终预算：PASS
 - 遥测：input / deduplicated / selected / document / parent expansion / estimated tokens
 

@@ -92,6 +92,8 @@ mod tests {
             markdown_path: format!("{id}.md"),
             pdf_path: String::new(),
             node_id: id.to_string(),
+            parent_block_id: String::new(),
+            parent_context: String::new(),
             source_location: String::new(),
             relation: "content_block_v2".to_string(),
             retrieval_reason: String::new(),

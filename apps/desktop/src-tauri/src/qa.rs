@@ -543,6 +543,8 @@ struct Candidate {
     markdown_path: String,
     pdf_path: String,
     node_id: String,
+    parent_block_id: String,
+    parent_context: String,
     source_location: String,
     relation: String,
     retrieval_reason: String,
@@ -1711,6 +1713,8 @@ fn wiki_candidates(connection: &Connection, terms: &[String]) -> Result<Vec<Cand
                 markdown_path: String::new(),
                 pdf_path: String::new(),
                 node_id: String::new(),
+                parent_block_id: String::new(),
+                parent_context: String::new(),
                 source_location: String::new(),
                 relation: String::new(),
                 retrieval_reason: format!("Wiki FTS5 命中；页面类型 {page_type}"),
@@ -1780,6 +1784,8 @@ fn paper_candidates(connection: &Connection, terms: &[String]) -> Result<Vec<Can
                 markdown_path: source_path,
                 pdf_path: row.get(5)?,
                 node_id: section_id,
+                parent_block_id: String::new(),
+                parent_context: String::new(),
                 source_location: format!("{section_title} · 原文第 {line_start}–{line_end} 行"),
                 relation: String::new(),
                 retrieval_reason:
@@ -1851,6 +1857,8 @@ fn linked_paper_candidates(
                             markdown_path: source_path,
                             pdf_path: row.get(5)?,
                             node_id: section_id,
+                            parent_block_id: String::new(),
+                            parent_context: String::new(),
                             source_location: format!(
                                 "{section_title} · 原文第 {line_start}–{line_end} 行"
                             ),
@@ -1908,6 +1916,8 @@ fn linked_paper_candidates(
                         markdown_path: source_path,
                         pdf_path: row.get(5)?,
                         node_id: section_id,
+                        parent_block_id: String::new(),
+                        parent_context: String::new(),
                         source_location: format!(
                             "{section_title} · 原文第 {line_start}–{line_end} 行"
                         ),
@@ -1967,6 +1977,8 @@ fn book_candidates(connection: &Connection, terms: &[String]) -> Result<Vec<Cand
                 markdown_path: row.get(3)?,
                 pdf_path: row.get(4)?,
                 node_id: String::new(),
+                parent_block_id: String::new(),
+                parent_context: String::new(),
                 source_location: String::new(),
                 relation: String::new(),
                 retrieval_reason: "核心书籍章节 FTS5 命中；提供 physical pages".to_string(),
@@ -3950,6 +3962,8 @@ mod tests {
             markdown_path: String::new(),
             pdf_path: String::new(),
             node_id: String::new(),
+            parent_block_id: String::new(),
+            parent_context: String::new(),
             source_location: String::new(),
             relation: String::new(),
             retrieval_reason: String::new(),
