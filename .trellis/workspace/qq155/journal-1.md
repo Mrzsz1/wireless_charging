@@ -1384,3 +1384,41 @@ Preserved previous evidence with turn isolation, removed fixed history caps in f
 ### Next Steps
 
 - None - task complete
+
+
+## Session 42: 完成 GitHub 智能问答审查修复
+
+**Date**: 2026-08-25
+**Task**: 完成 GitHub 智能问答审查修复
+**Branch**: `master`
+
+### Summary
+
+分六阶段完成 claim 证据约束、交叉编码器重排、自适应预算、统一规划能力、研究意图与方法发现、精确 parent_block_id 上下文解析；全量 Rust、Clippy、前端、P3、RAG、题集、Wiki 与构建门禁通过。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `1db83f7` | (see git log) |
+| `d56c5cf` | (see git log) |
+| `040c107` | (see git log) |
+| `d8dd1c9` | (see git log) |
+| `ecc271d` | (see git log) |
+| `7ddc72d` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
