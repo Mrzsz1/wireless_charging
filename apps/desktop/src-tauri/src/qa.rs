@@ -1,3 +1,4 @@
+mod claim_verification;
 mod context;
 pub(crate) mod corpus;
 mod coverage;
@@ -143,7 +144,7 @@ pub struct WaterlineSnapshot {
     pub index_snapshot_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct EvidenceItem {
     pub id: String,
@@ -3013,7 +3014,12 @@ pub fn persist_exchange_with_metadata(
         };
         return Err(format!("{code}: {reason}"));
     }
-    if !citation_validation.supported && citation_validation.grounding_status != "unverified" {
+    if !citation_validation.supported
+        && !matches!(
+            citation_validation.grounding_status.as_str(),
+            "unverified" | "partially_supported"
+        )
+    {
         let reason = if !citation_validation.unknown_ids.is_empty() {
             format!(
                 "回答包含未知证据编号：{}",
@@ -3066,7 +3072,7 @@ pub fn persist_exchange_with_metadata(
     });
     let message_status = match citation_validation.grounding_status.as_str() {
         "unverified" => "unverified",
-        "mixed" => "mixed",
+        "mixed" | "partially_supported" => "mixed",
         _ => "completed",
     };
     let assistant_trusted_context = trusted_context(&answer, &citation_validation.grounding_status);
@@ -3230,6 +3236,41 @@ pub fn audit_generated_answer(
             let citation_validation = validate_citations(&answer, &context.evidence);
             (answer, citation_repair, citation_validation, None, None)
         };
+    let (answer, citation_validation, verification_report) = if structured_answer_error.is_none()
+        && !context.evidence.is_empty()
+        && citation_validation.syntax_valid
+    {
+        let previous_appendix_integrity = citation_validation.appendix_integrity;
+        let previous_appendix_ids = citation_validation.appendix_evidence_ids.clone();
+        let (repaired_answer, report) =
+            claim_verification::verify_and_repair(&answer, &context.evidence);
+        if report.verification_status == "unavailable" {
+            (answer, citation_validation, report)
+        } else if repaired_answer == answer && report.partially_supported_count == 0 {
+            let mut validation = citation_validation;
+            validation.entailment_checked = report.claim_count > 0;
+            (answer, validation, report)
+        } else {
+            let mut validation = validate_citations(&repaired_answer, &context.evidence);
+            validation.entailment_checked = true;
+            validation.appendix_integrity = previous_appendix_integrity;
+            validation.appendix_evidence_ids = previous_appendix_ids;
+            if report.partially_supported_count > 0 && validation.supported {
+                validation.supported = false;
+                validation.grounding_status = "partially_supported".to_string();
+            }
+            (repaired_answer, validation, report)
+        }
+    } else {
+        (
+            answer,
+            citation_validation,
+            claim_verification::ClaimVerificationReport {
+                verification_status: "not_run".to_string(),
+                ..claim_verification::ClaimVerificationReport::default()
+            },
+        )
+    };
     let completeness = context::validate_answer_completeness(
         &context.intent,
         &answer,
@@ -3241,7 +3282,7 @@ pub fn audit_generated_answer(
         structured_roles.as_deref(),
     );
     let envelope = context::build_prompt_envelope(context);
-    let run_manifest = context::build_run_manifest(
+    let mut run_manifest = context::build_run_manifest(
         context,
         metadata,
         &envelope,
@@ -3249,6 +3290,14 @@ pub fn audit_generated_answer(
         completeness,
         now_string(),
     );
+    run_manifest.claim_verifier_version = verification_report.verifier_version;
+    run_manifest.verification_status = verification_report.verification_status;
+    run_manifest.verification_fallback = verification_report.fallback;
+    run_manifest.verified_claim_count = verification_report.supported_count;
+    run_manifest.partially_supported_claim_count = verification_report.partially_supported_count;
+    run_manifest.contradicted_claim_count = verification_report.contradicted_count;
+    run_manifest.not_verifiable_claim_count = verification_report.not_verifiable_count;
+    run_manifest.repaired_claim_count = verification_report.repaired_count;
     AnswerAudit {
         answer,
         evidence: context.evidence.clone(),
@@ -4460,7 +4509,7 @@ mod tests {
             context_window_tokens: 32_768,
             enforce_answer_schema: false,
         };
-        let answer = "直接回答即可，不需要固定结论或模型与方法章节。".to_string();
+        let answer = "Fixture scheduling has a bounded objective and constraints.".to_string();
         let result = persist_exchange_with_metadata(
             &mut connection,
             root.path(),
@@ -4472,7 +4521,7 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v8");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v9");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.resolver_status, "succeeded");
@@ -4540,6 +4589,33 @@ mod tests {
             codex_audit.run_manifest.answer_format,
             "natural-markdown-v2"
         );
+    }
+
+    #[test]
+    fn obvious_unsupported_claim_is_repaired_and_never_reported_as_verified() {
+        let (root, connection) = test_db();
+        let mut context =
+            prepare_question(&connection, root.path(), "fixture scheduling", 4).unwrap();
+        let mut source = evidence("E1");
+        source.snippet =
+            "ROSE schedules a mobile charger with particle swarm optimization.".to_string();
+        context.evidence = vec![source];
+        let metadata = ProviderRunMetadata {
+            provider: PROVIDER_API.to_string(),
+            model_requested: "fixture".to_string(),
+            model_resolved: "fixture".to_string(),
+            temperature: Some(0.1),
+            max_output_tokens: 1_800,
+            context_window_tokens: 32_768,
+            enforce_answer_schema: false,
+        };
+        let audit = audit_generated_answer(&context, "The moon is made of cheese [E1].", &metadata);
+
+        assert_eq!(audit.run_manifest.verification_status, "succeeded");
+        assert_eq!(audit.run_manifest.not_verifiable_claim_count, 1);
+        assert_eq!(audit.run_manifest.repaired_claim_count, 1);
+        assert!(!audit.citation_validation.supported);
+        assert!(!audit.answer.contains("made of cheese"));
     }
 
     #[test]

@@ -11,7 +11,7 @@ pub const ANSWER_SCHEMA_VERSION: &str = "qa-natural-markdown-v2";
 pub const LEGACY_ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v3";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v8";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v9";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -170,6 +170,22 @@ pub struct QaRunManifest {
     pub evidence_parent_expansion_count: usize,
     #[serde(default)]
     pub evidence_estimated_tokens: u32,
+    #[serde(default)]
+    pub claim_verifier_version: String,
+    #[serde(default)]
+    pub verification_status: String,
+    #[serde(default)]
+    pub verification_fallback: bool,
+    #[serde(default)]
+    pub verified_claim_count: usize,
+    #[serde(default)]
+    pub partially_supported_claim_count: usize,
+    #[serde(default)]
+    pub contradicted_claim_count: usize,
+    #[serde(default)]
+    pub not_verifiable_claim_count: usize,
+    #[serde(default)]
+    pub repaired_claim_count: usize,
     #[serde(default)]
     pub retrieval_stop_reason: String,
     #[serde(default)]
@@ -982,6 +998,14 @@ pub fn build_run_manifest(
         evidence_document_count: context.retrieval_query.evidence_document_count,
         evidence_parent_expansion_count: context.retrieval_query.evidence_parent_expansion_count,
         evidence_estimated_tokens: context.retrieval_query.evidence_estimated_tokens,
+        claim_verifier_version: String::new(),
+        verification_status: "not_run".to_string(),
+        verification_fallback: false,
+        verified_claim_count: 0,
+        partially_supported_claim_count: 0,
+        contradicted_claim_count: 0,
+        not_verifiable_claim_count: 0,
+        repaired_claim_count: 0,
         retrieval_stop_reason: context.retrieval_diagnostics.stop_reason.clone(),
         retrieval_round_count: context.retrieval_diagnostics.pass_count,
         requested_kinds: context.retrieval_query.requested_kinds.clone(),

@@ -414,7 +414,7 @@ fn adjacent_citation_suffix_end(value: &str, start: usize) -> Option<usize> {
     Some(cursor)
 }
 
-fn is_factual_claim(segment: &str) -> bool {
+pub(super) fn is_factual_claim(segment: &str) -> bool {
     let trimmed = segment
         .trim()
         .trim_start_matches(|character: char| {
@@ -435,6 +435,8 @@ fn is_factual_claim(segment: &str) -> bool {
             "已召回以下",
             "当前处于离线证据模式",
             "当前处于证据浏览模式",
+            "当前证据不足以核验该陈述",
+            "当前证据与该陈述存在冲突",
         ]
         .iter()
         .any(|prefix| trimmed.starts_with(prefix))
@@ -714,7 +716,10 @@ pub fn validate_citations(answer: &str, evidence: &[EvidenceItem]) -> CitationVa
 }
 
 pub fn trusted_context(answer: &str, grounding_status: &str) -> String {
-    if !matches!(grounding_status, "supported" | "mixed") {
+    if !matches!(
+        grounding_status,
+        "supported" | "mixed" | "partially_supported"
+    ) {
         return String::new();
     }
     let boundary = [

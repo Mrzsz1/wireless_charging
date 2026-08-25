@@ -99,6 +99,20 @@ cargo test evidence_manager --lib
 
 回归结果及当前 13 题端到端门禁见 `evidence-manager-baseline.md`。
 
+## Claim-level Verification 回归
+
+生成后的自然 Markdown 与结构化回答都会经过独立 claim extraction、evidence alignment、
+deterministic verifier fallback 和 answer repair。合法 Evidence ID 不再自动等于语义支持：
+
+```powershell
+cd apps/desktop/src-tauri
+cargo test claim_verification --lib
+cargo test obvious_unsupported_claim_is_repaired_and_never_reported_as_verified --lib
+```
+
+冻结状态矩阵见 `claim-verification-cases.json`，门禁记录见
+`claim-verification-baseline.md`。
+
 ## Production held-out 准确率
 
 `heldout_questions.json` 是独立冻结入口。当前状态为 `awaiting_independent_curation`，不预填模型自行构造的“真值”。冻结要求：

@@ -605,6 +605,14 @@ export type QaRunManifest = {
   evidenceDocumentCount?: number
   evidenceParentExpansionCount?: number
   evidenceEstimatedTokens?: number
+  claimVerifierVersion?: string
+  verificationStatus?: 'not_run' | 'succeeded' | 'unavailable' | string
+  verificationFallback?: boolean
+  verifiedClaimCount?: number
+  partiallySupportedClaimCount?: number
+  contradictedClaimCount?: number
+  notVerifiableClaimCount?: number
+  repairedClaimCount?: number
   retrievalStopReason?: string
   retrievalRoundCount?: number
   requestedKinds?: string[]
@@ -722,7 +730,7 @@ export type CitationValidation = {
   citationPrecision: number
   hasCitations: boolean
   supported: boolean
-  groundingStatus: 'supported' | 'mixed' | 'unverified' | 'invalid'
+  groundingStatus: 'supported' | 'partially_supported' | 'mixed' | 'unverified' | 'invalid'
   zeroEvidence: boolean
   claimCount: number
   citedClaimCount: number
