@@ -2,6 +2,7 @@ mod context;
 pub(crate) mod corpus;
 mod coverage;
 pub(crate) mod evaluation;
+mod evidence_manager;
 mod fusion;
 mod graph;
 mod grounding;
@@ -254,6 +255,20 @@ pub struct RetrievalQuery {
     pub reranker_fallback: bool,
     #[serde(default)]
     pub reranker_fallback_reason: String,
+    #[serde(default)]
+    pub evidence_manager_version: String,
+    #[serde(default)]
+    pub evidence_input_count: usize,
+    #[serde(default)]
+    pub evidence_deduplicated_count: usize,
+    #[serde(default)]
+    pub evidence_selected_count: usize,
+    #[serde(default)]
+    pub evidence_document_count: usize,
+    #[serde(default)]
+    pub evidence_parent_expansion_count: usize,
+    #[serde(default)]
+    pub evidence_estimated_tokens: u32,
     #[serde(default)]
     pub requested_kinds: Vec<String>,
     #[serde(default)]
@@ -1007,6 +1022,13 @@ fn build_retrieval_query_with_understanding<'a>(
         reranker_latency_ms: 0,
         reranker_fallback: false,
         reranker_fallback_reason: String::new(),
+        evidence_manager_version: String::new(),
+        evidence_input_count: 0,
+        evidence_deduplicated_count: 0,
+        evidence_selected_count: 0,
+        evidence_document_count: 0,
+        evidence_parent_expansion_count: 0,
+        evidence_estimated_tokens: 0,
         requested_kinds: Vec::new(),
         attempted_kinds: Vec::new(),
         source_gaps: Vec::new(),
@@ -1979,47 +2001,7 @@ fn candidate_similarity(left: &Candidate, right: &Candidate) -> f64 {
 }
 
 fn diverse_top_candidates(candidates: &[Candidate], maximum: usize) -> Vec<Candidate> {
-    let mut remaining = candidates.to_vec();
-    let mut selected = Vec::new();
-    while selected.len() < maximum && !remaining.is_empty() {
-        let best = remaining
-            .iter()
-            .enumerate()
-            .filter(|(_, candidate)| {
-                let kind_count = selected
-                    .iter()
-                    .filter(|chosen: &&Candidate| chosen.kind == candidate.kind)
-                    .count();
-                let kind_cap = match candidate.kind.as_str() {
-                    "paper" => (maximum / 2).max(1),
-                    "book" => (maximum / 4).max(1),
-                    "graph" => (maximum / 5).max(1),
-                    _ => maximum,
-                };
-                let source_count = selected
-                    .iter()
-                    .filter(|chosen: &&Candidate| {
-                        candidate.kind == "paper"
-                            && chosen.kind == "paper"
-                            && chosen.page_id == candidate.page_id
-                    })
-                    .count();
-                kind_count < kind_cap && source_count < 2
-            })
-            .map(|(index, candidate)| {
-                let redundancy = selected
-                    .iter()
-                    .map(|chosen| candidate_similarity(candidate, chosen))
-                    .fold(0.0, f64::max);
-                (index, candidate.score - redundancy * 0.22)
-            })
-            .max_by(|left, right| left.1.total_cmp(&right.1));
-        let Some((best_index, _)) = best else {
-            break;
-        };
-        selected.push(remaining.remove(best_index));
-    }
-    selected
+    evidence_manager::manage(candidates, maximum).candidates
 }
 
 fn candidate_is_protected(
@@ -2431,7 +2413,16 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
     let mut seen = HashSet::new();
     candidates.retain(|candidate| seen.insert(candidate_key(candidate)));
     let maximum = limit.clamp(4, 30);
-    let mut selected = diverse_top_candidates(&candidates, maximum);
+    let managed_evidence = evidence_manager::manage(&candidates, maximum);
+    retrieval_query.evidence_manager_version =
+        evidence_manager::EVIDENCE_MANAGER_VERSION.to_string();
+    retrieval_query.evidence_input_count = managed_evidence.report.input_count;
+    retrieval_query.evidence_deduplicated_count = managed_evidence.report.deduplicated_count;
+    retrieval_query.evidence_document_count = managed_evidence.report.document_count;
+    retrieval_query.evidence_parent_expansion_count =
+        managed_evidence.report.parent_expansion_count;
+    retrieval_query.evidence_estimated_tokens = managed_evidence.report.estimated_tokens;
+    let mut selected = managed_evidence.candidates;
     // Preserve source diversity after global ranking: when a channel produced a
     // useful candidate, the final evidence package keeps at least one Wiki and
     // one core-book result instead of letting a single channel occupy all slots.
@@ -2571,6 +2562,7 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
         }
     }
     selected.sort_by(|left, right| right.score.total_cmp(&left.score));
+    retrieval_query.evidence_selected_count = selected.len();
     let evidence: Vec<EvidenceItem> = selected
         .into_iter()
         .enumerate()
@@ -4480,7 +4472,7 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v7");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v8");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.resolver_status, "succeeded");

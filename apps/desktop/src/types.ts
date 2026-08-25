@@ -598,6 +598,13 @@ export type QaRunManifest = {
   rerankerLatencyMs?: number
   rerankerFallback?: boolean
   rerankerFallbackReason?: string
+  evidenceManagerVersion?: string
+  evidenceInputCount?: number
+  evidenceDeduplicatedCount?: number
+  evidenceSelectedCount?: number
+  evidenceDocumentCount?: number
+  evidenceParentExpansionCount?: number
+  evidenceEstimatedTokens?: number
   retrievalStopReason?: string
   retrievalRoundCount?: number
   requestedKinds?: string[]
@@ -688,6 +695,13 @@ export type QuestionContext = {
     rerankerLatencyMs?: number
     rerankerFallback?: boolean
     rerankerFallbackReason?: string
+    evidenceManagerVersion?: string
+    evidenceInputCount?: number
+    evidenceDeduplicatedCount?: number
+    evidenceSelectedCount?: number
+    evidenceDocumentCount?: number
+    evidenceParentExpansionCount?: number
+    evidenceEstimatedTokens?: number
     requestedKinds?: string[]
     attemptedKinds?: string[]
     sourceGaps?: string[]

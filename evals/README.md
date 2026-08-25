@@ -87,6 +87,18 @@ cargo test semantic_reranker_improves_recall_at_five_mrr_and_ndcg_without_losing
 回落到 `DeterministicResearchReranker` 并保持原 Recall@20 门禁。结果见
 `semantic-reranker-baseline.md`。
 
+## Evidence Manager 回归
+
+`EvidenceManager` 在最终 evidence 编号前执行稳定去重、来源权威轻量加权、文档/类型多样性、
+父上下文扩展与 token 预算估算（最终裁剪仍由 `ContextPlan` 负责）：
+
+```powershell
+cd apps/desktop/src-tauri
+cargo test evidence_manager --lib
+```
+
+回归结果及当前 13 题端到端门禁见 `evidence-manager-baseline.md`。
+
 ## Production held-out 准确率
 
 `heldout_questions.json` 是独立冻结入口。当前状态为 `awaiting_independent_curation`，不预填模型自行构造的“真值”。冻结要求：
