@@ -4,6 +4,8 @@
   "split": "heldout",
   "status": "awaiting_independent_curation",
   "minimum_case_count": 30,
+  "candidate_pool": "research_questions_v1.json#split=heldout",
+  "candidate_count": 80,
   "selection_policy": "由未参与检索器、提示词或回归集开发的研究者独立抽样并冻结；冻结前不用于实现决策。",
   "review_policy": "回答与证据包匿名化后逐 claim 双人复核；分歧由第三人裁决。语义蕴含自动判定不在本阶段范围内。",
   "case_schema": {

@@ -150,6 +150,21 @@ cargo test adaptive_routing --lib
 quality / latency budget / LLM calls / token cost 对比见
 `adaptive-routing-baseline.md`。
 
+## 360 题冻结科研问题集
+
+`research_questions_v1.json` 保存 360 个科研问题，覆盖 12 个无线充电相邻场景与 10 种
+ResearchIntent，并预先拆分为 development 160、regression 120、heldout 80。heldout 不含
+期望答案、期望文档或 must-mention，禁止据此逐题调规则。
+
+```powershell
+cd apps/desktop
+npm run eval:questions
+```
+
+验证器检查总量、唯一性、字段、split 配额、domain/intent 水位、heldout 泄漏和 canonical
+SHA-256 seal。结果见 `research-question-dataset-baseline.md`。生产事实准确率仍执行下方更严格的
+独立研究者冻结与双评审流程。
+
 ## Production held-out 准确率
 
 `heldout_questions.json` 是独立冻结入口。当前状态为 `awaiting_independent_curation`，不预填模型自行构造的“真值”。冻结要求：

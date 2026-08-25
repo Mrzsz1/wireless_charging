@@ -1,0 +1,2890 @@
+{
+  "schemaVersion": "research-question-dataset-v1",
+  "status": "sealed",
+  "totalCount": 360,
+  "splitPolicy": "按固定 4:3:2 槽位预分配 development/regression/heldout；heldout 不含期望答案且不得用于规则调参。",
+  "heldoutPolicy": "heldout 仅用于后续盲测；生产事实准确率仍须通过 heldout_questions.json 的独立研究者双评审流程。",
+  "casesSha256": "6e9b2279cca1ac18cdf029367e12b092bfd2174cbb06feb943eafb1a70af1e32",
+  "cases": [
+    {
+      "id": "rq-mobile-route-direct_factual-base",
+      "split": "development",
+      "intent": "direct_factual",
+      "domain": "mobile-route",
+      "difficulty": "medium",
+      "question": "无线传感器网络中的移动充电车路径与充电时长联合调度主要优化什么，核心节点能量与车辆路程如何进入模型？"
+    },
+    {
+      "id": "rq-mobile-route-direct_factual-large",
+      "split": "development",
+      "intent": "direct_factual",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "无线传感器网络中的移动充电车路径与充电时长联合调度主要优化什么，核心节点能量与车辆路程如何进入模型？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-mobile-route-direct_factual-dynamic",
+      "split": "development",
+      "intent": "direct_factual",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "无线传感器网络中的移动充电车路径与充电时长联合调度主要优化什么，核心节点能量与车辆路程如何进入模型？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-mobile-route-literature_search-base",
+      "split": "development",
+      "intent": "literature_search",
+      "domain": "mobile-route",
+      "difficulty": "medium",
+      "question": "哪些论文或核心书章节系统研究了无线传感器网络中的移动充电车路径与充电时长联合调度，其证据边界是什么？"
+    },
+    {
+      "id": "rq-mobile-route-literature_search-large",
+      "split": "regression",
+      "intent": "literature_search",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了无线传感器网络中的移动充电车路径与充电时长联合调度，其证据边界是什么？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-mobile-route-literature_search-dynamic",
+      "split": "regression",
+      "intent": "literature_search",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了无线传感器网络中的移动充电车路径与充电时长联合调度，其证据边界是什么？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-mobile-route-comparison-base",
+      "split": "regression",
+      "intent": "comparison",
+      "domain": "mobile-route",
+      "difficulty": "medium",
+      "question": "在无线传感器网络中的移动充电车路径与充电时长联合调度中，PSO、MILP 或路径分解与常用启发式相比各自适用什么规模和假设？"
+    },
+    {
+      "id": "rq-mobile-route-comparison-large",
+      "split": "heldout",
+      "intent": "comparison",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "在无线传感器网络中的移动充电车路径与充电时长联合调度中，PSO、MILP 或路径分解与常用启发式相比各自适用什么规模和假设？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-mobile-route-comparison-dynamic",
+      "split": "heldout",
+      "intent": "comparison",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "在无线传感器网络中的移动充电车路径与充电时长联合调度中，PSO、MILP 或路径分解与常用启发式相比各自适用什么规模和假设？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-mobile-route-origin_derivation-base",
+      "split": "development",
+      "intent": "origin_derivation",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "无线传感器网络中的移动充电车路径与充电时长联合调度的优化模型如何从节点能量与车辆路程逐步推导到以网络寿命为目标？"
+    },
+    {
+      "id": "rq-mobile-route-origin_derivation-large",
+      "split": "development",
+      "intent": "origin_derivation",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "无线传感器网络中的移动充电车路径与充电时长联合调度的优化模型如何从节点能量与车辆路程逐步推导到以网络寿命为目标？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-mobile-route-origin_derivation-dynamic",
+      "split": "development",
+      "intent": "origin_derivation",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "无线传感器网络中的移动充电车路径与充电时长联合调度的优化模型如何从节点能量与车辆路程逐步推导到以网络寿命为目标？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-mobile-route-method_improvement-base",
+      "split": "development",
+      "intent": "method_improvement",
+      "domain": "mobile-route",
+      "difficulty": "medium",
+      "question": "现有PSO、MILP 或路径分解怎样改进，才能在不丢失节点能量与车辆路程的情况下提升网络寿命？"
+    },
+    {
+      "id": "rq-mobile-route-method_improvement-large",
+      "split": "regression",
+      "intent": "method_improvement",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "现有PSO、MILP 或路径分解怎样改进，才能在不丢失节点能量与车辆路程的情况下提升网络寿命？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-mobile-route-method_improvement-dynamic",
+      "split": "regression",
+      "intent": "method_improvement",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "现有PSO、MILP 或路径分解怎样改进，才能在不丢失节点能量与车辆路程的情况下提升网络寿命？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-mobile-route-solution_search-base",
+      "split": "regression",
+      "intent": "solution_search",
+      "domain": "mobile-route",
+      "difficulty": "medium",
+      "question": "如果我要解决无线传感器网络中的移动充电车路径与充电时长联合调度，有哪些精确、近似和学习方法可选？"
+    },
+    {
+      "id": "rq-mobile-route-solution_search-large",
+      "split": "heldout",
+      "intent": "solution_search",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "如果我要解决无线传感器网络中的移动充电车路径与充电时长联合调度，有哪些精确、近似和学习方法可选？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-mobile-route-solution_search-dynamic",
+      "split": "heldout",
+      "intent": "solution_search",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "如果我要解决无线传感器网络中的移动充电车路径与充电时长联合调度，有哪些精确、近似和学习方法可选？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-mobile-route-problem_modeling-base",
+      "split": "development",
+      "intent": "problem_modeling",
+      "domain": "mobile-route",
+      "difficulty": "medium",
+      "question": "请把无线传感器网络中的移动充电车路径与充电时长联合调度表示为决策变量、目标函数、约束和可验证假设。"
+    },
+    {
+      "id": "rq-mobile-route-problem_modeling-large",
+      "split": "development",
+      "intent": "problem_modeling",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "请把无线传感器网络中的移动充电车路径与充电时长联合调度表示为决策变量、目标函数、约束和可验证假设。请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-mobile-route-problem_modeling-dynamic",
+      "split": "development",
+      "intent": "problem_modeling",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "请把无线传感器网络中的移动充电车路径与充电时长联合调度表示为决策变量、目标函数、约束和可验证假设。请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-mobile-route-related_problem-base",
+      "split": "development",
+      "intent": "related_problem",
+      "domain": "mobile-route",
+      "difficulty": "medium",
+      "question": "无线传感器网络中的移动充电车路径与充电时长联合调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？"
+    },
+    {
+      "id": "rq-mobile-route-related_problem-large",
+      "split": "regression",
+      "intent": "related_problem",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "无线传感器网络中的移动充电车路径与充电时长联合调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-mobile-route-related_problem-dynamic",
+      "split": "regression",
+      "intent": "related_problem",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "无线传感器网络中的移动充电车路径与充电时长联合调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-mobile-route-counterfactual-base",
+      "split": "regression",
+      "intent": "counterfactual",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "如果从无线传感器网络中的移动充电车路径与充电时长联合调度中去掉一项节点能量与车辆路程，可解性和方法选择会怎样变化？"
+    },
+    {
+      "id": "rq-mobile-route-counterfactual-large",
+      "split": "heldout",
+      "intent": "counterfactual",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "如果从无线传感器网络中的移动充电车路径与充电时长联合调度中去掉一项节点能量与车辆路程，可解性和方法选择会怎样变化？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-mobile-route-counterfactual-dynamic",
+      "split": "heldout",
+      "intent": "counterfactual",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "如果从无线传感器网络中的移动充电车路径与充电时长联合调度中去掉一项节点能量与车辆路程，可解性和方法选择会怎样变化？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-mobile-route-novelty-base",
+      "split": "development",
+      "intent": "novelty",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "围绕无线传感器网络中的移动充电车路径与充电时长联合调度还有哪些可证伪、可复现且不重复现有工作的研究问题？"
+    },
+    {
+      "id": "rq-mobile-route-novelty-large",
+      "split": "development",
+      "intent": "novelty",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "围绕无线传感器网络中的移动充电车路径与充电时长联合调度还有哪些可证伪、可复现且不重复现有工作的研究问题？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-mobile-route-novelty-dynamic",
+      "split": "development",
+      "intent": "novelty",
+      "domain": "mobile-route",
+      "difficulty": "hard",
+      "question": "围绕无线传感器网络中的移动充电车路径与充电时长联合调度还有哪些可证伪、可复现且不重复现有工作的研究问题？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-directional-interference-direct_factual-base",
+      "split": "development",
+      "intent": "direct_factual",
+      "domain": "directional-interference",
+      "difficulty": "medium",
+      "question": "定向无线充电中的波干扰与动态功率控制主要优化什么，核心相位、方向和功率上限如何进入模型？"
+    },
+    {
+      "id": "rq-directional-interference-direct_factual-large",
+      "split": "regression",
+      "intent": "direct_factual",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "定向无线充电中的波干扰与动态功率控制主要优化什么，核心相位、方向和功率上限如何进入模型？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-directional-interference-direct_factual-dynamic",
+      "split": "regression",
+      "intent": "direct_factual",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "定向无线充电中的波干扰与动态功率控制主要优化什么，核心相位、方向和功率上限如何进入模型？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-directional-interference-literature_search-base",
+      "split": "regression",
+      "intent": "literature_search",
+      "domain": "directional-interference",
+      "difficulty": "medium",
+      "question": "哪些论文或核心书章节系统研究了定向无线充电中的波干扰与动态功率控制，其证据边界是什么？"
+    },
+    {
+      "id": "rq-directional-interference-literature_search-large",
+      "split": "heldout",
+      "intent": "literature_search",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了定向无线充电中的波干扰与动态功率控制，其证据边界是什么？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-directional-interference-literature_search-dynamic",
+      "split": "heldout",
+      "intent": "literature_search",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了定向无线充电中的波干扰与动态功率控制，其证据边界是什么？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-directional-interference-comparison-base",
+      "split": "development",
+      "intent": "comparison",
+      "domain": "directional-interference",
+      "difficulty": "medium",
+      "question": "在定向无线充电中的波干扰与动态功率控制中，干扰感知调度与鲁棒优化与常用启发式相比各自适用什么规模和假设？"
+    },
+    {
+      "id": "rq-directional-interference-comparison-large",
+      "split": "development",
+      "intent": "comparison",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "在定向无线充电中的波干扰与动态功率控制中，干扰感知调度与鲁棒优化与常用启发式相比各自适用什么规模和假设？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-directional-interference-comparison-dynamic",
+      "split": "development",
+      "intent": "comparison",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "在定向无线充电中的波干扰与动态功率控制中，干扰感知调度与鲁棒优化与常用启发式相比各自适用什么规模和假设？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-directional-interference-origin_derivation-base",
+      "split": "development",
+      "intent": "origin_derivation",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "定向无线充电中的波干扰与动态功率控制的优化模型如何从相位、方向和功率上限逐步推导到以安全并发充电收益为目标？"
+    },
+    {
+      "id": "rq-directional-interference-origin_derivation-large",
+      "split": "regression",
+      "intent": "origin_derivation",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "定向无线充电中的波干扰与动态功率控制的优化模型如何从相位、方向和功率上限逐步推导到以安全并发充电收益为目标？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-directional-interference-origin_derivation-dynamic",
+      "split": "regression",
+      "intent": "origin_derivation",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "定向无线充电中的波干扰与动态功率控制的优化模型如何从相位、方向和功率上限逐步推导到以安全并发充电收益为目标？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-directional-interference-method_improvement-base",
+      "split": "regression",
+      "intent": "method_improvement",
+      "domain": "directional-interference",
+      "difficulty": "medium",
+      "question": "现有干扰感知调度与鲁棒优化怎样改进，才能在不丢失相位、方向和功率上限的情况下提升安全并发充电收益？"
+    },
+    {
+      "id": "rq-directional-interference-method_improvement-large",
+      "split": "heldout",
+      "intent": "method_improvement",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "现有干扰感知调度与鲁棒优化怎样改进，才能在不丢失相位、方向和功率上限的情况下提升安全并发充电收益？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-directional-interference-method_improvement-dynamic",
+      "split": "heldout",
+      "intent": "method_improvement",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "现有干扰感知调度与鲁棒优化怎样改进，才能在不丢失相位、方向和功率上限的情况下提升安全并发充电收益？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-directional-interference-solution_search-base",
+      "split": "development",
+      "intent": "solution_search",
+      "domain": "directional-interference",
+      "difficulty": "medium",
+      "question": "如果我要解决定向无线充电中的波干扰与动态功率控制，有哪些精确、近似和学习方法可选？"
+    },
+    {
+      "id": "rq-directional-interference-solution_search-large",
+      "split": "development",
+      "intent": "solution_search",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "如果我要解决定向无线充电中的波干扰与动态功率控制，有哪些精确、近似和学习方法可选？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-directional-interference-solution_search-dynamic",
+      "split": "development",
+      "intent": "solution_search",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "如果我要解决定向无线充电中的波干扰与动态功率控制，有哪些精确、近似和学习方法可选？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-directional-interference-problem_modeling-base",
+      "split": "development",
+      "intent": "problem_modeling",
+      "domain": "directional-interference",
+      "difficulty": "medium",
+      "question": "请把定向无线充电中的波干扰与动态功率控制表示为决策变量、目标函数、约束和可验证假设。"
+    },
+    {
+      "id": "rq-directional-interference-problem_modeling-large",
+      "split": "regression",
+      "intent": "problem_modeling",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "请把定向无线充电中的波干扰与动态功率控制表示为决策变量、目标函数、约束和可验证假设。请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-directional-interference-problem_modeling-dynamic",
+      "split": "regression",
+      "intent": "problem_modeling",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "请把定向无线充电中的波干扰与动态功率控制表示为决策变量、目标函数、约束和可验证假设。请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-directional-interference-related_problem-base",
+      "split": "regression",
+      "intent": "related_problem",
+      "domain": "directional-interference",
+      "difficulty": "medium",
+      "question": "定向无线充电中的波干扰与动态功率控制与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？"
+    },
+    {
+      "id": "rq-directional-interference-related_problem-large",
+      "split": "heldout",
+      "intent": "related_problem",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "定向无线充电中的波干扰与动态功率控制与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-directional-interference-related_problem-dynamic",
+      "split": "heldout",
+      "intent": "related_problem",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "定向无线充电中的波干扰与动态功率控制与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-directional-interference-counterfactual-base",
+      "split": "development",
+      "intent": "counterfactual",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "如果从定向无线充电中的波干扰与动态功率控制中去掉一项相位、方向和功率上限，可解性和方法选择会怎样变化？"
+    },
+    {
+      "id": "rq-directional-interference-counterfactual-large",
+      "split": "development",
+      "intent": "counterfactual",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "如果从定向无线充电中的波干扰与动态功率控制中去掉一项相位、方向和功率上限，可解性和方法选择会怎样变化？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-directional-interference-counterfactual-dynamic",
+      "split": "development",
+      "intent": "counterfactual",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "如果从定向无线充电中的波干扰与动态功率控制中去掉一项相位、方向和功率上限，可解性和方法选择会怎样变化？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-directional-interference-novelty-base",
+      "split": "development",
+      "intent": "novelty",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "围绕定向无线充电中的波干扰与动态功率控制还有哪些可证伪、可复现且不重复现有工作的研究问题？"
+    },
+    {
+      "id": "rq-directional-interference-novelty-large",
+      "split": "regression",
+      "intent": "novelty",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "围绕定向无线充电中的波干扰与动态功率控制还有哪些可证伪、可复现且不重复现有工作的研究问题？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-directional-interference-novelty-dynamic",
+      "split": "regression",
+      "intent": "novelty",
+      "domain": "directional-interference",
+      "difficulty": "hard",
+      "question": "围绕定向无线充电中的波干扰与动态功率控制还有哪些可证伪、可复现且不重复现有工作的研究问题？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-concurrent-charging-direct_factual-base",
+      "split": "regression",
+      "intent": "direct_factual",
+      "domain": "concurrent-charging",
+      "difficulty": "medium",
+      "question": "多节点并发无线充电调度主要优化什么，核心能量叠加和安全阈值如何进入模型？"
+    },
+    {
+      "id": "rq-concurrent-charging-direct_factual-large",
+      "split": "heldout",
+      "intent": "direct_factual",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "多节点并发无线充电调度主要优化什么，核心能量叠加和安全阈值如何进入模型？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-concurrent-charging-direct_factual-dynamic",
+      "split": "heldout",
+      "intent": "direct_factual",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "多节点并发无线充电调度主要优化什么，核心能量叠加和安全阈值如何进入模型？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-concurrent-charging-literature_search-base",
+      "split": "development",
+      "intent": "literature_search",
+      "domain": "concurrent-charging",
+      "difficulty": "medium",
+      "question": "哪些论文或核心书章节系统研究了多节点并发无线充电调度，其证据边界是什么？"
+    },
+    {
+      "id": "rq-concurrent-charging-literature_search-large",
+      "split": "development",
+      "intent": "literature_search",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了多节点并发无线充电调度，其证据边界是什么？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-concurrent-charging-literature_search-dynamic",
+      "split": "development",
+      "intent": "literature_search",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了多节点并发无线充电调度，其证据边界是什么？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-concurrent-charging-comparison-base",
+      "split": "development",
+      "intent": "comparison",
+      "domain": "concurrent-charging",
+      "difficulty": "medium",
+      "question": "在多节点并发无线充电调度中，组合调度与近似算法与常用启发式相比各自适用什么规模和假设？"
+    },
+    {
+      "id": "rq-concurrent-charging-comparison-large",
+      "split": "regression",
+      "intent": "comparison",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "在多节点并发无线充电调度中，组合调度与近似算法与常用启发式相比各自适用什么规模和假设？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-concurrent-charging-comparison-dynamic",
+      "split": "regression",
+      "intent": "comparison",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "在多节点并发无线充电调度中，组合调度与近似算法与常用启发式相比各自适用什么规模和假设？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-concurrent-charging-origin_derivation-base",
+      "split": "regression",
+      "intent": "origin_derivation",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "多节点并发无线充电调度的优化模型如何从能量叠加和安全阈值逐步推导到以吞吐与公平性为目标？"
+    },
+    {
+      "id": "rq-concurrent-charging-origin_derivation-large",
+      "split": "heldout",
+      "intent": "origin_derivation",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "多节点并发无线充电调度的优化模型如何从能量叠加和安全阈值逐步推导到以吞吐与公平性为目标？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-concurrent-charging-origin_derivation-dynamic",
+      "split": "heldout",
+      "intent": "origin_derivation",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "多节点并发无线充电调度的优化模型如何从能量叠加和安全阈值逐步推导到以吞吐与公平性为目标？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-concurrent-charging-method_improvement-base",
+      "split": "development",
+      "intent": "method_improvement",
+      "domain": "concurrent-charging",
+      "difficulty": "medium",
+      "question": "现有组合调度与近似算法怎样改进，才能在不丢失能量叠加和安全阈值的情况下提升吞吐与公平性？"
+    },
+    {
+      "id": "rq-concurrent-charging-method_improvement-large",
+      "split": "development",
+      "intent": "method_improvement",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "现有组合调度与近似算法怎样改进，才能在不丢失能量叠加和安全阈值的情况下提升吞吐与公平性？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-concurrent-charging-method_improvement-dynamic",
+      "split": "development",
+      "intent": "method_improvement",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "现有组合调度与近似算法怎样改进，才能在不丢失能量叠加和安全阈值的情况下提升吞吐与公平性？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-concurrent-charging-solution_search-base",
+      "split": "development",
+      "intent": "solution_search",
+      "domain": "concurrent-charging",
+      "difficulty": "medium",
+      "question": "如果我要解决多节点并发无线充电调度，有哪些精确、近似和学习方法可选？"
+    },
+    {
+      "id": "rq-concurrent-charging-solution_search-large",
+      "split": "regression",
+      "intent": "solution_search",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "如果我要解决多节点并发无线充电调度，有哪些精确、近似和学习方法可选？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-concurrent-charging-solution_search-dynamic",
+      "split": "regression",
+      "intent": "solution_search",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "如果我要解决多节点并发无线充电调度，有哪些精确、近似和学习方法可选？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-concurrent-charging-problem_modeling-base",
+      "split": "regression",
+      "intent": "problem_modeling",
+      "domain": "concurrent-charging",
+      "difficulty": "medium",
+      "question": "请把多节点并发无线充电调度表示为决策变量、目标函数、约束和可验证假设。"
+    },
+    {
+      "id": "rq-concurrent-charging-problem_modeling-large",
+      "split": "heldout",
+      "intent": "problem_modeling",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "请把多节点并发无线充电调度表示为决策变量、目标函数、约束和可验证假设。请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-concurrent-charging-problem_modeling-dynamic",
+      "split": "heldout",
+      "intent": "problem_modeling",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "请把多节点并发无线充电调度表示为决策变量、目标函数、约束和可验证假设。请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-concurrent-charging-related_problem-base",
+      "split": "development",
+      "intent": "related_problem",
+      "domain": "concurrent-charging",
+      "difficulty": "medium",
+      "question": "多节点并发无线充电调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？"
+    },
+    {
+      "id": "rq-concurrent-charging-related_problem-large",
+      "split": "development",
+      "intent": "related_problem",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "多节点并发无线充电调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-concurrent-charging-related_problem-dynamic",
+      "split": "development",
+      "intent": "related_problem",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "多节点并发无线充电调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-concurrent-charging-counterfactual-base",
+      "split": "development",
+      "intent": "counterfactual",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "如果从多节点并发无线充电调度中去掉一项能量叠加和安全阈值，可解性和方法选择会怎样变化？"
+    },
+    {
+      "id": "rq-concurrent-charging-counterfactual-large",
+      "split": "regression",
+      "intent": "counterfactual",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "如果从多节点并发无线充电调度中去掉一项能量叠加和安全阈值，可解性和方法选择会怎样变化？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-concurrent-charging-counterfactual-dynamic",
+      "split": "regression",
+      "intent": "counterfactual",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "如果从多节点并发无线充电调度中去掉一项能量叠加和安全阈值，可解性和方法选择会怎样变化？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-concurrent-charging-novelty-base",
+      "split": "regression",
+      "intent": "novelty",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "围绕多节点并发无线充电调度还有哪些可证伪、可复现且不重复现有工作的研究问题？"
+    },
+    {
+      "id": "rq-concurrent-charging-novelty-large",
+      "split": "heldout",
+      "intent": "novelty",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "围绕多节点并发无线充电调度还有哪些可证伪、可复现且不重复现有工作的研究问题？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-concurrent-charging-novelty-dynamic",
+      "split": "heldout",
+      "intent": "novelty",
+      "domain": "concurrent-charging",
+      "difficulty": "hard",
+      "question": "围绕多节点并发无线充电调度还有哪些可证伪、可复现且不重复现有工作的研究问题？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-uav-trajectory-direct_factual-base",
+      "split": "development",
+      "intent": "direct_factual",
+      "domain": "uav-trajectory",
+      "difficulty": "medium",
+      "question": "充电无人机轨迹和服务次序联合优化主要优化什么，核心航程、时间窗和三维运动如何进入模型？"
+    },
+    {
+      "id": "rq-uav-trajectory-direct_factual-large",
+      "split": "development",
+      "intent": "direct_factual",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "充电无人机轨迹和服务次序联合优化主要优化什么，核心航程、时间窗和三维运动如何进入模型？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-uav-trajectory-direct_factual-dynamic",
+      "split": "development",
+      "intent": "direct_factual",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "充电无人机轨迹和服务次序联合优化主要优化什么，核心航程、时间窗和三维运动如何进入模型？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-uav-trajectory-literature_search-base",
+      "split": "development",
+      "intent": "literature_search",
+      "domain": "uav-trajectory",
+      "difficulty": "medium",
+      "question": "哪些论文或核心书章节系统研究了充电无人机轨迹和服务次序联合优化，其证据边界是什么？"
+    },
+    {
+      "id": "rq-uav-trajectory-literature_search-large",
+      "split": "regression",
+      "intent": "literature_search",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了充电无人机轨迹和服务次序联合优化，其证据边界是什么？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-uav-trajectory-literature_search-dynamic",
+      "split": "regression",
+      "intent": "literature_search",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了充电无人机轨迹和服务次序联合优化，其证据边界是什么？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-uav-trajectory-comparison-base",
+      "split": "regression",
+      "intent": "comparison",
+      "domain": "uav-trajectory",
+      "difficulty": "medium",
+      "question": "在充电无人机轨迹和服务次序联合优化中，轨迹优化、PSO 与分解与常用启发式相比各自适用什么规模和假设？"
+    },
+    {
+      "id": "rq-uav-trajectory-comparison-large",
+      "split": "heldout",
+      "intent": "comparison",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "在充电无人机轨迹和服务次序联合优化中，轨迹优化、PSO 与分解与常用启发式相比各自适用什么规模和假设？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-uav-trajectory-comparison-dynamic",
+      "split": "heldout",
+      "intent": "comparison",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "在充电无人机轨迹和服务次序联合优化中，轨迹优化、PSO 与分解与常用启发式相比各自适用什么规模和假设？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-uav-trajectory-origin_derivation-base",
+      "split": "development",
+      "intent": "origin_derivation",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "充电无人机轨迹和服务次序联合优化的优化模型如何从航程、时间窗和三维运动逐步推导到以覆盖与飞行能耗为目标？"
+    },
+    {
+      "id": "rq-uav-trajectory-origin_derivation-large",
+      "split": "development",
+      "intent": "origin_derivation",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "充电无人机轨迹和服务次序联合优化的优化模型如何从航程、时间窗和三维运动逐步推导到以覆盖与飞行能耗为目标？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-uav-trajectory-origin_derivation-dynamic",
+      "split": "development",
+      "intent": "origin_derivation",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "充电无人机轨迹和服务次序联合优化的优化模型如何从航程、时间窗和三维运动逐步推导到以覆盖与飞行能耗为目标？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-uav-trajectory-method_improvement-base",
+      "split": "development",
+      "intent": "method_improvement",
+      "domain": "uav-trajectory",
+      "difficulty": "medium",
+      "question": "现有轨迹优化、PSO 与分解怎样改进，才能在不丢失航程、时间窗和三维运动的情况下提升覆盖与飞行能耗？"
+    },
+    {
+      "id": "rq-uav-trajectory-method_improvement-large",
+      "split": "regression",
+      "intent": "method_improvement",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "现有轨迹优化、PSO 与分解怎样改进，才能在不丢失航程、时间窗和三维运动的情况下提升覆盖与飞行能耗？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-uav-trajectory-method_improvement-dynamic",
+      "split": "regression",
+      "intent": "method_improvement",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "现有轨迹优化、PSO 与分解怎样改进，才能在不丢失航程、时间窗和三维运动的情况下提升覆盖与飞行能耗？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-uav-trajectory-solution_search-base",
+      "split": "regression",
+      "intent": "solution_search",
+      "domain": "uav-trajectory",
+      "difficulty": "medium",
+      "question": "如果我要解决充电无人机轨迹和服务次序联合优化，有哪些精确、近似和学习方法可选？"
+    },
+    {
+      "id": "rq-uav-trajectory-solution_search-large",
+      "split": "heldout",
+      "intent": "solution_search",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "如果我要解决充电无人机轨迹和服务次序联合优化，有哪些精确、近似和学习方法可选？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-uav-trajectory-solution_search-dynamic",
+      "split": "heldout",
+      "intent": "solution_search",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "如果我要解决充电无人机轨迹和服务次序联合优化，有哪些精确、近似和学习方法可选？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-uav-trajectory-problem_modeling-base",
+      "split": "development",
+      "intent": "problem_modeling",
+      "domain": "uav-trajectory",
+      "difficulty": "medium",
+      "question": "请把充电无人机轨迹和服务次序联合优化表示为决策变量、目标函数、约束和可验证假设。"
+    },
+    {
+      "id": "rq-uav-trajectory-problem_modeling-large",
+      "split": "development",
+      "intent": "problem_modeling",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "请把充电无人机轨迹和服务次序联合优化表示为决策变量、目标函数、约束和可验证假设。请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-uav-trajectory-problem_modeling-dynamic",
+      "split": "development",
+      "intent": "problem_modeling",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "请把充电无人机轨迹和服务次序联合优化表示为决策变量、目标函数、约束和可验证假设。请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-uav-trajectory-related_problem-base",
+      "split": "development",
+      "intent": "related_problem",
+      "domain": "uav-trajectory",
+      "difficulty": "medium",
+      "question": "充电无人机轨迹和服务次序联合优化与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？"
+    },
+    {
+      "id": "rq-uav-trajectory-related_problem-large",
+      "split": "regression",
+      "intent": "related_problem",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "充电无人机轨迹和服务次序联合优化与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-uav-trajectory-related_problem-dynamic",
+      "split": "regression",
+      "intent": "related_problem",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "充电无人机轨迹和服务次序联合优化与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-uav-trajectory-counterfactual-base",
+      "split": "regression",
+      "intent": "counterfactual",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "如果从充电无人机轨迹和服务次序联合优化中去掉一项航程、时间窗和三维运动，可解性和方法选择会怎样变化？"
+    },
+    {
+      "id": "rq-uav-trajectory-counterfactual-large",
+      "split": "heldout",
+      "intent": "counterfactual",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "如果从充电无人机轨迹和服务次序联合优化中去掉一项航程、时间窗和三维运动，可解性和方法选择会怎样变化？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-uav-trajectory-counterfactual-dynamic",
+      "split": "heldout",
+      "intent": "counterfactual",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "如果从充电无人机轨迹和服务次序联合优化中去掉一项航程、时间窗和三维运动，可解性和方法选择会怎样变化？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-uav-trajectory-novelty-base",
+      "split": "development",
+      "intent": "novelty",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "围绕充电无人机轨迹和服务次序联合优化还有哪些可证伪、可复现且不重复现有工作的研究问题？"
+    },
+    {
+      "id": "rq-uav-trajectory-novelty-large",
+      "split": "development",
+      "intent": "novelty",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "围绕充电无人机轨迹和服务次序联合优化还有哪些可证伪、可复现且不重复现有工作的研究问题？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-uav-trajectory-novelty-dynamic",
+      "split": "development",
+      "intent": "novelty",
+      "domain": "uav-trajectory",
+      "difficulty": "hard",
+      "question": "围绕充电无人机轨迹和服务次序联合优化还有哪些可证伪、可复现且不重复现有工作的研究问题？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-obstacle-mcv-direct_factual-base",
+      "split": "development",
+      "intent": "direct_factual",
+      "domain": "obstacle-mcv",
+      "difficulty": "medium",
+      "question": "有障碍环境中的多移动充电车协同主要优化什么，核心障碍、车辆容量和碰撞避免如何进入模型？"
+    },
+    {
+      "id": "rq-obstacle-mcv-direct_factual-large",
+      "split": "regression",
+      "intent": "direct_factual",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "有障碍环境中的多移动充电车协同主要优化什么，核心障碍、车辆容量和碰撞避免如何进入模型？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-obstacle-mcv-direct_factual-dynamic",
+      "split": "regression",
+      "intent": "direct_factual",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "有障碍环境中的多移动充电车协同主要优化什么，核心障碍、车辆容量和碰撞避免如何进入模型？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-obstacle-mcv-literature_search-base",
+      "split": "regression",
+      "intent": "literature_search",
+      "domain": "obstacle-mcv",
+      "difficulty": "medium",
+      "question": "哪些论文或核心书章节系统研究了有障碍环境中的多移动充电车协同，其证据边界是什么？"
+    },
+    {
+      "id": "rq-obstacle-mcv-literature_search-large",
+      "split": "heldout",
+      "intent": "literature_search",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了有障碍环境中的多移动充电车协同，其证据边界是什么？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-obstacle-mcv-literature_search-dynamic",
+      "split": "heldout",
+      "intent": "literature_search",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了有障碍环境中的多移动充电车协同，其证据边界是什么？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-obstacle-mcv-comparison-base",
+      "split": "development",
+      "intent": "comparison",
+      "domain": "obstacle-mcv",
+      "difficulty": "medium",
+      "question": "在有障碍环境中的多移动充电车协同中，多仓 VRP、ALNS 与多智能体方法与常用启发式相比各自适用什么规模和假设？"
+    },
+    {
+      "id": "rq-obstacle-mcv-comparison-large",
+      "split": "development",
+      "intent": "comparison",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "在有障碍环境中的多移动充电车协同中，多仓 VRP、ALNS 与多智能体方法与常用启发式相比各自适用什么规模和假设？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-obstacle-mcv-comparison-dynamic",
+      "split": "development",
+      "intent": "comparison",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "在有障碍环境中的多移动充电车协同中，多仓 VRP、ALNS 与多智能体方法与常用启发式相比各自适用什么规模和假设？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-obstacle-mcv-origin_derivation-base",
+      "split": "development",
+      "intent": "origin_derivation",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "有障碍环境中的多移动充电车协同的优化模型如何从障碍、车辆容量和碰撞避免逐步推导到以服务率与路径长度为目标？"
+    },
+    {
+      "id": "rq-obstacle-mcv-origin_derivation-large",
+      "split": "regression",
+      "intent": "origin_derivation",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "有障碍环境中的多移动充电车协同的优化模型如何从障碍、车辆容量和碰撞避免逐步推导到以服务率与路径长度为目标？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-obstacle-mcv-origin_derivation-dynamic",
+      "split": "regression",
+      "intent": "origin_derivation",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "有障碍环境中的多移动充电车协同的优化模型如何从障碍、车辆容量和碰撞避免逐步推导到以服务率与路径长度为目标？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-obstacle-mcv-method_improvement-base",
+      "split": "regression",
+      "intent": "method_improvement",
+      "domain": "obstacle-mcv",
+      "difficulty": "medium",
+      "question": "现有多仓 VRP、ALNS 与多智能体方法怎样改进，才能在不丢失障碍、车辆容量和碰撞避免的情况下提升服务率与路径长度？"
+    },
+    {
+      "id": "rq-obstacle-mcv-method_improvement-large",
+      "split": "heldout",
+      "intent": "method_improvement",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "现有多仓 VRP、ALNS 与多智能体方法怎样改进，才能在不丢失障碍、车辆容量和碰撞避免的情况下提升服务率与路径长度？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-obstacle-mcv-method_improvement-dynamic",
+      "split": "heldout",
+      "intent": "method_improvement",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "现有多仓 VRP、ALNS 与多智能体方法怎样改进，才能在不丢失障碍、车辆容量和碰撞避免的情况下提升服务率与路径长度？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-obstacle-mcv-solution_search-base",
+      "split": "development",
+      "intent": "solution_search",
+      "domain": "obstacle-mcv",
+      "difficulty": "medium",
+      "question": "如果我要解决有障碍环境中的多移动充电车协同，有哪些精确、近似和学习方法可选？"
+    },
+    {
+      "id": "rq-obstacle-mcv-solution_search-large",
+      "split": "development",
+      "intent": "solution_search",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "如果我要解决有障碍环境中的多移动充电车协同，有哪些精确、近似和学习方法可选？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-obstacle-mcv-solution_search-dynamic",
+      "split": "development",
+      "intent": "solution_search",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "如果我要解决有障碍环境中的多移动充电车协同，有哪些精确、近似和学习方法可选？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-obstacle-mcv-problem_modeling-base",
+      "split": "development",
+      "intent": "problem_modeling",
+      "domain": "obstacle-mcv",
+      "difficulty": "medium",
+      "question": "请把有障碍环境中的多移动充电车协同表示为决策变量、目标函数、约束和可验证假设。"
+    },
+    {
+      "id": "rq-obstacle-mcv-problem_modeling-large",
+      "split": "regression",
+      "intent": "problem_modeling",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "请把有障碍环境中的多移动充电车协同表示为决策变量、目标函数、约束和可验证假设。请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-obstacle-mcv-problem_modeling-dynamic",
+      "split": "regression",
+      "intent": "problem_modeling",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "请把有障碍环境中的多移动充电车协同表示为决策变量、目标函数、约束和可验证假设。请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-obstacle-mcv-related_problem-base",
+      "split": "regression",
+      "intent": "related_problem",
+      "domain": "obstacle-mcv",
+      "difficulty": "medium",
+      "question": "有障碍环境中的多移动充电车协同与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？"
+    },
+    {
+      "id": "rq-obstacle-mcv-related_problem-large",
+      "split": "heldout",
+      "intent": "related_problem",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "有障碍环境中的多移动充电车协同与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-obstacle-mcv-related_problem-dynamic",
+      "split": "heldout",
+      "intent": "related_problem",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "有障碍环境中的多移动充电车协同与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-obstacle-mcv-counterfactual-base",
+      "split": "development",
+      "intent": "counterfactual",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "如果从有障碍环境中的多移动充电车协同中去掉一项障碍、车辆容量和碰撞避免，可解性和方法选择会怎样变化？"
+    },
+    {
+      "id": "rq-obstacle-mcv-counterfactual-large",
+      "split": "development",
+      "intent": "counterfactual",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "如果从有障碍环境中的多移动充电车协同中去掉一项障碍、车辆容量和碰撞避免，可解性和方法选择会怎样变化？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-obstacle-mcv-counterfactual-dynamic",
+      "split": "development",
+      "intent": "counterfactual",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "如果从有障碍环境中的多移动充电车协同中去掉一项障碍、车辆容量和碰撞避免，可解性和方法选择会怎样变化？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-obstacle-mcv-novelty-base",
+      "split": "development",
+      "intent": "novelty",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "围绕有障碍环境中的多移动充电车协同还有哪些可证伪、可复现且不重复现有工作的研究问题？"
+    },
+    {
+      "id": "rq-obstacle-mcv-novelty-large",
+      "split": "regression",
+      "intent": "novelty",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "围绕有障碍环境中的多移动充电车协同还有哪些可证伪、可复现且不重复现有工作的研究问题？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-obstacle-mcv-novelty-dynamic",
+      "split": "regression",
+      "intent": "novelty",
+      "domain": "obstacle-mcv",
+      "difficulty": "hard",
+      "question": "围绕有障碍环境中的多移动充电车协同还有哪些可证伪、可复现且不重复现有工作的研究问题？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-cooperative-service-direct_factual-base",
+      "split": "regression",
+      "intent": "direct_factual",
+      "domain": "cooperative-service",
+      "difficulty": "medium",
+      "question": "有偿合作充电服务与节点选择主要优化什么，核心支付、预算和参与约束如何进入模型？"
+    },
+    {
+      "id": "rq-cooperative-service-direct_factual-large",
+      "split": "heldout",
+      "intent": "direct_factual",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "有偿合作充电服务与节点选择主要优化什么，核心支付、预算和参与约束如何进入模型？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-cooperative-service-direct_factual-dynamic",
+      "split": "heldout",
+      "intent": "direct_factual",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "有偿合作充电服务与节点选择主要优化什么，核心支付、预算和参与约束如何进入模型？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-cooperative-service-literature_search-base",
+      "split": "development",
+      "intent": "literature_search",
+      "domain": "cooperative-service",
+      "difficulty": "medium",
+      "question": "哪些论文或核心书章节系统研究了有偿合作充电服务与节点选择，其证据边界是什么？"
+    },
+    {
+      "id": "rq-cooperative-service-literature_search-large",
+      "split": "development",
+      "intent": "literature_search",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了有偿合作充电服务与节点选择，其证据边界是什么？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-cooperative-service-literature_search-dynamic",
+      "split": "development",
+      "intent": "literature_search",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了有偿合作充电服务与节点选择，其证据边界是什么？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-cooperative-service-comparison-base",
+      "split": "development",
+      "intent": "comparison",
+      "domain": "cooperative-service",
+      "difficulty": "medium",
+      "question": "在有偿合作充电服务与节点选择中，博弈、拍卖与组合优化与常用启发式相比各自适用什么规模和假设？"
+    },
+    {
+      "id": "rq-cooperative-service-comparison-large",
+      "split": "regression",
+      "intent": "comparison",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "在有偿合作充电服务与节点选择中，博弈、拍卖与组合优化与常用启发式相比各自适用什么规模和假设？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-cooperative-service-comparison-dynamic",
+      "split": "regression",
+      "intent": "comparison",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "在有偿合作充电服务与节点选择中，博弈、拍卖与组合优化与常用启发式相比各自适用什么规模和假设？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-cooperative-service-origin_derivation-base",
+      "split": "regression",
+      "intent": "origin_derivation",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "有偿合作充电服务与节点选择的优化模型如何从支付、预算和参与约束逐步推导到以社会福利与服务收益为目标？"
+    },
+    {
+      "id": "rq-cooperative-service-origin_derivation-large",
+      "split": "heldout",
+      "intent": "origin_derivation",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "有偿合作充电服务与节点选择的优化模型如何从支付、预算和参与约束逐步推导到以社会福利与服务收益为目标？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-cooperative-service-origin_derivation-dynamic",
+      "split": "heldout",
+      "intent": "origin_derivation",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "有偿合作充电服务与节点选择的优化模型如何从支付、预算和参与约束逐步推导到以社会福利与服务收益为目标？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-cooperative-service-method_improvement-base",
+      "split": "development",
+      "intent": "method_improvement",
+      "domain": "cooperative-service",
+      "difficulty": "medium",
+      "question": "现有博弈、拍卖与组合优化怎样改进，才能在不丢失支付、预算和参与约束的情况下提升社会福利与服务收益？"
+    },
+    {
+      "id": "rq-cooperative-service-method_improvement-large",
+      "split": "development",
+      "intent": "method_improvement",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "现有博弈、拍卖与组合优化怎样改进，才能在不丢失支付、预算和参与约束的情况下提升社会福利与服务收益？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-cooperative-service-method_improvement-dynamic",
+      "split": "development",
+      "intent": "method_improvement",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "现有博弈、拍卖与组合优化怎样改进，才能在不丢失支付、预算和参与约束的情况下提升社会福利与服务收益？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-cooperative-service-solution_search-base",
+      "split": "development",
+      "intent": "solution_search",
+      "domain": "cooperative-service",
+      "difficulty": "medium",
+      "question": "如果我要解决有偿合作充电服务与节点选择，有哪些精确、近似和学习方法可选？"
+    },
+    {
+      "id": "rq-cooperative-service-solution_search-large",
+      "split": "regression",
+      "intent": "solution_search",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "如果我要解决有偿合作充电服务与节点选择，有哪些精确、近似和学习方法可选？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-cooperative-service-solution_search-dynamic",
+      "split": "regression",
+      "intent": "solution_search",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "如果我要解决有偿合作充电服务与节点选择，有哪些精确、近似和学习方法可选？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-cooperative-service-problem_modeling-base",
+      "split": "regression",
+      "intent": "problem_modeling",
+      "domain": "cooperative-service",
+      "difficulty": "medium",
+      "question": "请把有偿合作充电服务与节点选择表示为决策变量、目标函数、约束和可验证假设。"
+    },
+    {
+      "id": "rq-cooperative-service-problem_modeling-large",
+      "split": "heldout",
+      "intent": "problem_modeling",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "请把有偿合作充电服务与节点选择表示为决策变量、目标函数、约束和可验证假设。请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-cooperative-service-problem_modeling-dynamic",
+      "split": "heldout",
+      "intent": "problem_modeling",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "请把有偿合作充电服务与节点选择表示为决策变量、目标函数、约束和可验证假设。请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-cooperative-service-related_problem-base",
+      "split": "development",
+      "intent": "related_problem",
+      "domain": "cooperative-service",
+      "difficulty": "medium",
+      "question": "有偿合作充电服务与节点选择与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？"
+    },
+    {
+      "id": "rq-cooperative-service-related_problem-large",
+      "split": "development",
+      "intent": "related_problem",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "有偿合作充电服务与节点选择与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-cooperative-service-related_problem-dynamic",
+      "split": "development",
+      "intent": "related_problem",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "有偿合作充电服务与节点选择与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-cooperative-service-counterfactual-base",
+      "split": "development",
+      "intent": "counterfactual",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "如果从有偿合作充电服务与节点选择中去掉一项支付、预算和参与约束，可解性和方法选择会怎样变化？"
+    },
+    {
+      "id": "rq-cooperative-service-counterfactual-large",
+      "split": "regression",
+      "intent": "counterfactual",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "如果从有偿合作充电服务与节点选择中去掉一项支付、预算和参与约束，可解性和方法选择会怎样变化？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-cooperative-service-counterfactual-dynamic",
+      "split": "regression",
+      "intent": "counterfactual",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "如果从有偿合作充电服务与节点选择中去掉一项支付、预算和参与约束，可解性和方法选择会怎样变化？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-cooperative-service-novelty-base",
+      "split": "regression",
+      "intent": "novelty",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "围绕有偿合作充电服务与节点选择还有哪些可证伪、可复现且不重复现有工作的研究问题？"
+    },
+    {
+      "id": "rq-cooperative-service-novelty-large",
+      "split": "heldout",
+      "intent": "novelty",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "围绕有偿合作充电服务与节点选择还有哪些可证伪、可复现且不重复现有工作的研究问题？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-cooperative-service-novelty-dynamic",
+      "split": "heldout",
+      "intent": "novelty",
+      "domain": "cooperative-service",
+      "difficulty": "hard",
+      "question": "围绕有偿合作充电服务与节点选择还有哪些可证伪、可复现且不重复现有工作的研究问题？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-peak-aoi-direct_factual-base",
+      "split": "development",
+      "intent": "direct_factual",
+      "domain": "peak-aoi",
+      "difficulty": "medium",
+      "question": "能量受限网络中的峰值信息年龄与充电传输联合调度主要优化什么，核心能量因果和传输时隙如何进入模型？"
+    },
+    {
+      "id": "rq-peak-aoi-direct_factual-large",
+      "split": "development",
+      "intent": "direct_factual",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "能量受限网络中的峰值信息年龄与充电传输联合调度主要优化什么，核心能量因果和传输时隙如何进入模型？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-peak-aoi-direct_factual-dynamic",
+      "split": "development",
+      "intent": "direct_factual",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "能量受限网络中的峰值信息年龄与充电传输联合调度主要优化什么，核心能量因果和传输时隙如何进入模型？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-peak-aoi-literature_search-base",
+      "split": "development",
+      "intent": "literature_search",
+      "domain": "peak-aoi",
+      "difficulty": "medium",
+      "question": "哪些论文或核心书章节系统研究了能量受限网络中的峰值信息年龄与充电传输联合调度，其证据边界是什么？"
+    },
+    {
+      "id": "rq-peak-aoi-literature_search-large",
+      "split": "regression",
+      "intent": "literature_search",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了能量受限网络中的峰值信息年龄与充电传输联合调度，其证据边界是什么？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-peak-aoi-literature_search-dynamic",
+      "split": "regression",
+      "intent": "literature_search",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了能量受限网络中的峰值信息年龄与充电传输联合调度，其证据边界是什么？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-peak-aoi-comparison-base",
+      "split": "regression",
+      "intent": "comparison",
+      "domain": "peak-aoi",
+      "difficulty": "medium",
+      "question": "在能量受限网络中的峰值信息年龄与充电传输联合调度中，Lyapunov 优化与在线策略与常用启发式相比各自适用什么规模和假设？"
+    },
+    {
+      "id": "rq-peak-aoi-comparison-large",
+      "split": "heldout",
+      "intent": "comparison",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "在能量受限网络中的峰值信息年龄与充电传输联合调度中，Lyapunov 优化与在线策略与常用启发式相比各自适用什么规模和假设？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-peak-aoi-comparison-dynamic",
+      "split": "heldout",
+      "intent": "comparison",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "在能量受限网络中的峰值信息年龄与充电传输联合调度中，Lyapunov 优化与在线策略与常用启发式相比各自适用什么规模和假设？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-peak-aoi-origin_derivation-base",
+      "split": "development",
+      "intent": "origin_derivation",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "能量受限网络中的峰值信息年龄与充电传输联合调度的优化模型如何从能量因果和传输时隙逐步推导到以峰值 AoI为目标？"
+    },
+    {
+      "id": "rq-peak-aoi-origin_derivation-large",
+      "split": "development",
+      "intent": "origin_derivation",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "能量受限网络中的峰值信息年龄与充电传输联合调度的优化模型如何从能量因果和传输时隙逐步推导到以峰值 AoI为目标？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-peak-aoi-origin_derivation-dynamic",
+      "split": "development",
+      "intent": "origin_derivation",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "能量受限网络中的峰值信息年龄与充电传输联合调度的优化模型如何从能量因果和传输时隙逐步推导到以峰值 AoI为目标？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-peak-aoi-method_improvement-base",
+      "split": "development",
+      "intent": "method_improvement",
+      "domain": "peak-aoi",
+      "difficulty": "medium",
+      "question": "现有Lyapunov 优化与在线策略怎样改进，才能在不丢失能量因果和传输时隙的情况下提升峰值 AoI？"
+    },
+    {
+      "id": "rq-peak-aoi-method_improvement-large",
+      "split": "regression",
+      "intent": "method_improvement",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "现有Lyapunov 优化与在线策略怎样改进，才能在不丢失能量因果和传输时隙的情况下提升峰值 AoI？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-peak-aoi-method_improvement-dynamic",
+      "split": "regression",
+      "intent": "method_improvement",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "现有Lyapunov 优化与在线策略怎样改进，才能在不丢失能量因果和传输时隙的情况下提升峰值 AoI？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-peak-aoi-solution_search-base",
+      "split": "regression",
+      "intent": "solution_search",
+      "domain": "peak-aoi",
+      "difficulty": "medium",
+      "question": "如果我要解决能量受限网络中的峰值信息年龄与充电传输联合调度，有哪些精确、近似和学习方法可选？"
+    },
+    {
+      "id": "rq-peak-aoi-solution_search-large",
+      "split": "heldout",
+      "intent": "solution_search",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "如果我要解决能量受限网络中的峰值信息年龄与充电传输联合调度，有哪些精确、近似和学习方法可选？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-peak-aoi-solution_search-dynamic",
+      "split": "heldout",
+      "intent": "solution_search",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "如果我要解决能量受限网络中的峰值信息年龄与充电传输联合调度，有哪些精确、近似和学习方法可选？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-peak-aoi-problem_modeling-base",
+      "split": "development",
+      "intent": "problem_modeling",
+      "domain": "peak-aoi",
+      "difficulty": "medium",
+      "question": "请把能量受限网络中的峰值信息年龄与充电传输联合调度表示为决策变量、目标函数、约束和可验证假设。"
+    },
+    {
+      "id": "rq-peak-aoi-problem_modeling-large",
+      "split": "development",
+      "intent": "problem_modeling",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "请把能量受限网络中的峰值信息年龄与充电传输联合调度表示为决策变量、目标函数、约束和可验证假设。请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-peak-aoi-problem_modeling-dynamic",
+      "split": "development",
+      "intent": "problem_modeling",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "请把能量受限网络中的峰值信息年龄与充电传输联合调度表示为决策变量、目标函数、约束和可验证假设。请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-peak-aoi-related_problem-base",
+      "split": "development",
+      "intent": "related_problem",
+      "domain": "peak-aoi",
+      "difficulty": "medium",
+      "question": "能量受限网络中的峰值信息年龄与充电传输联合调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？"
+    },
+    {
+      "id": "rq-peak-aoi-related_problem-large",
+      "split": "regression",
+      "intent": "related_problem",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "能量受限网络中的峰值信息年龄与充电传输联合调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-peak-aoi-related_problem-dynamic",
+      "split": "regression",
+      "intent": "related_problem",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "能量受限网络中的峰值信息年龄与充电传输联合调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-peak-aoi-counterfactual-base",
+      "split": "regression",
+      "intent": "counterfactual",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "如果从能量受限网络中的峰值信息年龄与充电传输联合调度中去掉一项能量因果和传输时隙，可解性和方法选择会怎样变化？"
+    },
+    {
+      "id": "rq-peak-aoi-counterfactual-large",
+      "split": "heldout",
+      "intent": "counterfactual",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "如果从能量受限网络中的峰值信息年龄与充电传输联合调度中去掉一项能量因果和传输时隙，可解性和方法选择会怎样变化？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-peak-aoi-counterfactual-dynamic",
+      "split": "heldout",
+      "intent": "counterfactual",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "如果从能量受限网络中的峰值信息年龄与充电传输联合调度中去掉一项能量因果和传输时隙，可解性和方法选择会怎样变化？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-peak-aoi-novelty-base",
+      "split": "development",
+      "intent": "novelty",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "围绕能量受限网络中的峰值信息年龄与充电传输联合调度还有哪些可证伪、可复现且不重复现有工作的研究问题？"
+    },
+    {
+      "id": "rq-peak-aoi-novelty-large",
+      "split": "development",
+      "intent": "novelty",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "围绕能量受限网络中的峰值信息年龄与充电传输联合调度还有哪些可证伪、可复现且不重复现有工作的研究问题？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-peak-aoi-novelty-dynamic",
+      "split": "development",
+      "intent": "novelty",
+      "domain": "peak-aoi",
+      "difficulty": "hard",
+      "question": "围绕能量受限网络中的峰值信息年龄与充电传输联合调度还有哪些可证伪、可复现且不重复现有工作的研究问题？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-dwpt-ev-direct_factual-base",
+      "split": "development",
+      "intent": "direct_factual",
+      "domain": "dwpt-ev",
+      "difficulty": "medium",
+      "question": "动态无线供电道路上的电动车充电调度主要优化什么，核心道路部署、车流和电池状态如何进入模型？"
+    },
+    {
+      "id": "rq-dwpt-ev-direct_factual-large",
+      "split": "regression",
+      "intent": "direct_factual",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "动态无线供电道路上的电动车充电调度主要优化什么，核心道路部署、车流和电池状态如何进入模型？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-dwpt-ev-direct_factual-dynamic",
+      "split": "regression",
+      "intent": "direct_factual",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "动态无线供电道路上的电动车充电调度主要优化什么，核心道路部署、车流和电池状态如何进入模型？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-dwpt-ev-literature_search-base",
+      "split": "regression",
+      "intent": "literature_search",
+      "domain": "dwpt-ev",
+      "difficulty": "medium",
+      "question": "哪些论文或核心书章节系统研究了动态无线供电道路上的电动车充电调度，其证据边界是什么？"
+    },
+    {
+      "id": "rq-dwpt-ev-literature_search-large",
+      "split": "heldout",
+      "intent": "literature_search",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了动态无线供电道路上的电动车充电调度，其证据边界是什么？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-dwpt-ev-literature_search-dynamic",
+      "split": "heldout",
+      "intent": "literature_search",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了动态无线供电道路上的电动车充电调度，其证据边界是什么？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-dwpt-ev-comparison-base",
+      "split": "development",
+      "intent": "comparison",
+      "domain": "dwpt-ev",
+      "difficulty": "medium",
+      "question": "在动态无线供电道路上的电动车充电调度中，设施选址、网络流与鲁棒规划与常用启发式相比各自适用什么规模和假设？"
+    },
+    {
+      "id": "rq-dwpt-ev-comparison-large",
+      "split": "development",
+      "intent": "comparison",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "在动态无线供电道路上的电动车充电调度中，设施选址、网络流与鲁棒规划与常用启发式相比各自适用什么规模和假设？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-dwpt-ev-comparison-dynamic",
+      "split": "development",
+      "intent": "comparison",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "在动态无线供电道路上的电动车充电调度中，设施选址、网络流与鲁棒规划与常用启发式相比各自适用什么规模和假设？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-dwpt-ev-origin_derivation-base",
+      "split": "development",
+      "intent": "origin_derivation",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "动态无线供电道路上的电动车充电调度的优化模型如何从道路部署、车流和电池状态逐步推导到以行程可达性与建设成本为目标？"
+    },
+    {
+      "id": "rq-dwpt-ev-origin_derivation-large",
+      "split": "regression",
+      "intent": "origin_derivation",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "动态无线供电道路上的电动车充电调度的优化模型如何从道路部署、车流和电池状态逐步推导到以行程可达性与建设成本为目标？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-dwpt-ev-origin_derivation-dynamic",
+      "split": "regression",
+      "intent": "origin_derivation",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "动态无线供电道路上的电动车充电调度的优化模型如何从道路部署、车流和电池状态逐步推导到以行程可达性与建设成本为目标？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-dwpt-ev-method_improvement-base",
+      "split": "regression",
+      "intent": "method_improvement",
+      "domain": "dwpt-ev",
+      "difficulty": "medium",
+      "question": "现有设施选址、网络流与鲁棒规划怎样改进，才能在不丢失道路部署、车流和电池状态的情况下提升行程可达性与建设成本？"
+    },
+    {
+      "id": "rq-dwpt-ev-method_improvement-large",
+      "split": "heldout",
+      "intent": "method_improvement",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "现有设施选址、网络流与鲁棒规划怎样改进，才能在不丢失道路部署、车流和电池状态的情况下提升行程可达性与建设成本？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-dwpt-ev-method_improvement-dynamic",
+      "split": "heldout",
+      "intent": "method_improvement",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "现有设施选址、网络流与鲁棒规划怎样改进，才能在不丢失道路部署、车流和电池状态的情况下提升行程可达性与建设成本？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-dwpt-ev-solution_search-base",
+      "split": "development",
+      "intent": "solution_search",
+      "domain": "dwpt-ev",
+      "difficulty": "medium",
+      "question": "如果我要解决动态无线供电道路上的电动车充电调度，有哪些精确、近似和学习方法可选？"
+    },
+    {
+      "id": "rq-dwpt-ev-solution_search-large",
+      "split": "development",
+      "intent": "solution_search",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "如果我要解决动态无线供电道路上的电动车充电调度，有哪些精确、近似和学习方法可选？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-dwpt-ev-solution_search-dynamic",
+      "split": "development",
+      "intent": "solution_search",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "如果我要解决动态无线供电道路上的电动车充电调度，有哪些精确、近似和学习方法可选？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-dwpt-ev-problem_modeling-base",
+      "split": "development",
+      "intent": "problem_modeling",
+      "domain": "dwpt-ev",
+      "difficulty": "medium",
+      "question": "请把动态无线供电道路上的电动车充电调度表示为决策变量、目标函数、约束和可验证假设。"
+    },
+    {
+      "id": "rq-dwpt-ev-problem_modeling-large",
+      "split": "regression",
+      "intent": "problem_modeling",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "请把动态无线供电道路上的电动车充电调度表示为决策变量、目标函数、约束和可验证假设。请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-dwpt-ev-problem_modeling-dynamic",
+      "split": "regression",
+      "intent": "problem_modeling",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "请把动态无线供电道路上的电动车充电调度表示为决策变量、目标函数、约束和可验证假设。请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-dwpt-ev-related_problem-base",
+      "split": "regression",
+      "intent": "related_problem",
+      "domain": "dwpt-ev",
+      "difficulty": "medium",
+      "question": "动态无线供电道路上的电动车充电调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？"
+    },
+    {
+      "id": "rq-dwpt-ev-related_problem-large",
+      "split": "heldout",
+      "intent": "related_problem",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "动态无线供电道路上的电动车充电调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-dwpt-ev-related_problem-dynamic",
+      "split": "heldout",
+      "intent": "related_problem",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "动态无线供电道路上的电动车充电调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-dwpt-ev-counterfactual-base",
+      "split": "development",
+      "intent": "counterfactual",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "如果从动态无线供电道路上的电动车充电调度中去掉一项道路部署、车流和电池状态，可解性和方法选择会怎样变化？"
+    },
+    {
+      "id": "rq-dwpt-ev-counterfactual-large",
+      "split": "development",
+      "intent": "counterfactual",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "如果从动态无线供电道路上的电动车充电调度中去掉一项道路部署、车流和电池状态，可解性和方法选择会怎样变化？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-dwpt-ev-counterfactual-dynamic",
+      "split": "development",
+      "intent": "counterfactual",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "如果从动态无线供电道路上的电动车充电调度中去掉一项道路部署、车流和电池状态，可解性和方法选择会怎样变化？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-dwpt-ev-novelty-base",
+      "split": "development",
+      "intent": "novelty",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "围绕动态无线供电道路上的电动车充电调度还有哪些可证伪、可复现且不重复现有工作的研究问题？"
+    },
+    {
+      "id": "rq-dwpt-ev-novelty-large",
+      "split": "regression",
+      "intent": "novelty",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "围绕动态无线供电道路上的电动车充电调度还有哪些可证伪、可复现且不重复现有工作的研究问题？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-dwpt-ev-novelty-dynamic",
+      "split": "regression",
+      "intent": "novelty",
+      "domain": "dwpt-ev",
+      "difficulty": "hard",
+      "question": "围绕动态无线供电道路上的电动车充电调度还有哪些可证伪、可复现且不重复现有工作的研究问题？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-station-placement-direct_factual-base",
+      "split": "regression",
+      "intent": "direct_factual",
+      "domain": "station-placement",
+      "difficulty": "medium",
+      "question": "无线充电站点部署与覆盖优化主要优化什么，核心容量、候选位置和服务半径如何进入模型？"
+    },
+    {
+      "id": "rq-station-placement-direct_factual-large",
+      "split": "heldout",
+      "intent": "direct_factual",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "无线充电站点部署与覆盖优化主要优化什么，核心容量、候选位置和服务半径如何进入模型？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-station-placement-direct_factual-dynamic",
+      "split": "heldout",
+      "intent": "direct_factual",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "无线充电站点部署与覆盖优化主要优化什么，核心容量、候选位置和服务半径如何进入模型？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-station-placement-literature_search-base",
+      "split": "development",
+      "intent": "literature_search",
+      "domain": "station-placement",
+      "difficulty": "medium",
+      "question": "哪些论文或核心书章节系统研究了无线充电站点部署与覆盖优化，其证据边界是什么？"
+    },
+    {
+      "id": "rq-station-placement-literature_search-large",
+      "split": "development",
+      "intent": "literature_search",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了无线充电站点部署与覆盖优化，其证据边界是什么？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-station-placement-literature_search-dynamic",
+      "split": "development",
+      "intent": "literature_search",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了无线充电站点部署与覆盖优化，其证据边界是什么？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-station-placement-comparison-base",
+      "split": "development",
+      "intent": "comparison",
+      "domain": "station-placement",
+      "difficulty": "medium",
+      "question": "在无线充电站点部署与覆盖优化中，设施选址、集合覆盖与 MILP与常用启发式相比各自适用什么规模和假设？"
+    },
+    {
+      "id": "rq-station-placement-comparison-large",
+      "split": "regression",
+      "intent": "comparison",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "在无线充电站点部署与覆盖优化中，设施选址、集合覆盖与 MILP与常用启发式相比各自适用什么规模和假设？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-station-placement-comparison-dynamic",
+      "split": "regression",
+      "intent": "comparison",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "在无线充电站点部署与覆盖优化中，设施选址、集合覆盖与 MILP与常用启发式相比各自适用什么规模和假设？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-station-placement-origin_derivation-base",
+      "split": "regression",
+      "intent": "origin_derivation",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "无线充电站点部署与覆盖优化的优化模型如何从容量、候选位置和服务半径逐步推导到以覆盖率和部署成本为目标？"
+    },
+    {
+      "id": "rq-station-placement-origin_derivation-large",
+      "split": "heldout",
+      "intent": "origin_derivation",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "无线充电站点部署与覆盖优化的优化模型如何从容量、候选位置和服务半径逐步推导到以覆盖率和部署成本为目标？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-station-placement-origin_derivation-dynamic",
+      "split": "heldout",
+      "intent": "origin_derivation",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "无线充电站点部署与覆盖优化的优化模型如何从容量、候选位置和服务半径逐步推导到以覆盖率和部署成本为目标？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-station-placement-method_improvement-base",
+      "split": "development",
+      "intent": "method_improvement",
+      "domain": "station-placement",
+      "difficulty": "medium",
+      "question": "现有设施选址、集合覆盖与 MILP怎样改进，才能在不丢失容量、候选位置和服务半径的情况下提升覆盖率和部署成本？"
+    },
+    {
+      "id": "rq-station-placement-method_improvement-large",
+      "split": "development",
+      "intent": "method_improvement",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "现有设施选址、集合覆盖与 MILP怎样改进，才能在不丢失容量、候选位置和服务半径的情况下提升覆盖率和部署成本？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-station-placement-method_improvement-dynamic",
+      "split": "development",
+      "intent": "method_improvement",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "现有设施选址、集合覆盖与 MILP怎样改进，才能在不丢失容量、候选位置和服务半径的情况下提升覆盖率和部署成本？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-station-placement-solution_search-base",
+      "split": "development",
+      "intent": "solution_search",
+      "domain": "station-placement",
+      "difficulty": "medium",
+      "question": "如果我要解决无线充电站点部署与覆盖优化，有哪些精确、近似和学习方法可选？"
+    },
+    {
+      "id": "rq-station-placement-solution_search-large",
+      "split": "regression",
+      "intent": "solution_search",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "如果我要解决无线充电站点部署与覆盖优化，有哪些精确、近似和学习方法可选？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-station-placement-solution_search-dynamic",
+      "split": "regression",
+      "intent": "solution_search",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "如果我要解决无线充电站点部署与覆盖优化，有哪些精确、近似和学习方法可选？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-station-placement-problem_modeling-base",
+      "split": "regression",
+      "intent": "problem_modeling",
+      "domain": "station-placement",
+      "difficulty": "medium",
+      "question": "请把无线充电站点部署与覆盖优化表示为决策变量、目标函数、约束和可验证假设。"
+    },
+    {
+      "id": "rq-station-placement-problem_modeling-large",
+      "split": "heldout",
+      "intent": "problem_modeling",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "请把无线充电站点部署与覆盖优化表示为决策变量、目标函数、约束和可验证假设。请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-station-placement-problem_modeling-dynamic",
+      "split": "heldout",
+      "intent": "problem_modeling",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "请把无线充电站点部署与覆盖优化表示为决策变量、目标函数、约束和可验证假设。请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-station-placement-related_problem-base",
+      "split": "development",
+      "intent": "related_problem",
+      "domain": "station-placement",
+      "difficulty": "medium",
+      "question": "无线充电站点部署与覆盖优化与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？"
+    },
+    {
+      "id": "rq-station-placement-related_problem-large",
+      "split": "development",
+      "intent": "related_problem",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "无线充电站点部署与覆盖优化与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-station-placement-related_problem-dynamic",
+      "split": "development",
+      "intent": "related_problem",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "无线充电站点部署与覆盖优化与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-station-placement-counterfactual-base",
+      "split": "development",
+      "intent": "counterfactual",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "如果从无线充电站点部署与覆盖优化中去掉一项容量、候选位置和服务半径，可解性和方法选择会怎样变化？"
+    },
+    {
+      "id": "rq-station-placement-counterfactual-large",
+      "split": "regression",
+      "intent": "counterfactual",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "如果从无线充电站点部署与覆盖优化中去掉一项容量、候选位置和服务半径，可解性和方法选择会怎样变化？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-station-placement-counterfactual-dynamic",
+      "split": "regression",
+      "intent": "counterfactual",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "如果从无线充电站点部署与覆盖优化中去掉一项容量、候选位置和服务半径，可解性和方法选择会怎样变化？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-station-placement-novelty-base",
+      "split": "regression",
+      "intent": "novelty",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "围绕无线充电站点部署与覆盖优化还有哪些可证伪、可复现且不重复现有工作的研究问题？"
+    },
+    {
+      "id": "rq-station-placement-novelty-large",
+      "split": "heldout",
+      "intent": "novelty",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "围绕无线充电站点部署与覆盖优化还有哪些可证伪、可复现且不重复现有工作的研究问题？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-station-placement-novelty-dynamic",
+      "split": "heldout",
+      "intent": "novelty",
+      "domain": "station-placement",
+      "difficulty": "hard",
+      "question": "围绕无线充电站点部署与覆盖优化还有哪些可证伪、可复现且不重复现有工作的研究问题？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-harvest-schedule-direct_factual-base",
+      "split": "development",
+      "intent": "direct_factual",
+      "domain": "harvest-schedule",
+      "difficulty": "medium",
+      "question": "能量采集传感网络的任务与充电调度主要优化什么，核心随机能量到达和截止期如何进入模型？"
+    },
+    {
+      "id": "rq-harvest-schedule-direct_factual-large",
+      "split": "development",
+      "intent": "direct_factual",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "能量采集传感网络的任务与充电调度主要优化什么，核心随机能量到达和截止期如何进入模型？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-harvest-schedule-direct_factual-dynamic",
+      "split": "development",
+      "intent": "direct_factual",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "能量采集传感网络的任务与充电调度主要优化什么，核心随机能量到达和截止期如何进入模型？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-harvest-schedule-literature_search-base",
+      "split": "development",
+      "intent": "literature_search",
+      "domain": "harvest-schedule",
+      "difficulty": "medium",
+      "question": "哪些论文或核心书章节系统研究了能量采集传感网络的任务与充电调度，其证据边界是什么？"
+    },
+    {
+      "id": "rq-harvest-schedule-literature_search-large",
+      "split": "regression",
+      "intent": "literature_search",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了能量采集传感网络的任务与充电调度，其证据边界是什么？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-harvest-schedule-literature_search-dynamic",
+      "split": "regression",
+      "intent": "literature_search",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了能量采集传感网络的任务与充电调度，其证据边界是什么？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-harvest-schedule-comparison-base",
+      "split": "regression",
+      "intent": "comparison",
+      "domain": "harvest-schedule",
+      "difficulty": "medium",
+      "question": "在能量采集传感网络的任务与充电调度中，Lyapunov、MDP 与在线学习与常用启发式相比各自适用什么规模和假设？"
+    },
+    {
+      "id": "rq-harvest-schedule-comparison-large",
+      "split": "heldout",
+      "intent": "comparison",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "在能量采集传感网络的任务与充电调度中，Lyapunov、MDP 与在线学习与常用启发式相比各自适用什么规模和假设？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-harvest-schedule-comparison-dynamic",
+      "split": "heldout",
+      "intent": "comparison",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "在能量采集传感网络的任务与充电调度中，Lyapunov、MDP 与在线学习与常用启发式相比各自适用什么规模和假设？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-harvest-schedule-origin_derivation-base",
+      "split": "development",
+      "intent": "origin_derivation",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "能量采集传感网络的任务与充电调度的优化模型如何从随机能量到达和截止期逐步推导到以长期吞吐和队列稳定为目标？"
+    },
+    {
+      "id": "rq-harvest-schedule-origin_derivation-large",
+      "split": "development",
+      "intent": "origin_derivation",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "能量采集传感网络的任务与充电调度的优化模型如何从随机能量到达和截止期逐步推导到以长期吞吐和队列稳定为目标？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-harvest-schedule-origin_derivation-dynamic",
+      "split": "development",
+      "intent": "origin_derivation",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "能量采集传感网络的任务与充电调度的优化模型如何从随机能量到达和截止期逐步推导到以长期吞吐和队列稳定为目标？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-harvest-schedule-method_improvement-base",
+      "split": "development",
+      "intent": "method_improvement",
+      "domain": "harvest-schedule",
+      "difficulty": "medium",
+      "question": "现有Lyapunov、MDP 与在线学习怎样改进，才能在不丢失随机能量到达和截止期的情况下提升长期吞吐和队列稳定？"
+    },
+    {
+      "id": "rq-harvest-schedule-method_improvement-large",
+      "split": "regression",
+      "intent": "method_improvement",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "现有Lyapunov、MDP 与在线学习怎样改进，才能在不丢失随机能量到达和截止期的情况下提升长期吞吐和队列稳定？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-harvest-schedule-method_improvement-dynamic",
+      "split": "regression",
+      "intent": "method_improvement",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "现有Lyapunov、MDP 与在线学习怎样改进，才能在不丢失随机能量到达和截止期的情况下提升长期吞吐和队列稳定？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-harvest-schedule-solution_search-base",
+      "split": "regression",
+      "intent": "solution_search",
+      "domain": "harvest-schedule",
+      "difficulty": "medium",
+      "question": "如果我要解决能量采集传感网络的任务与充电调度，有哪些精确、近似和学习方法可选？"
+    },
+    {
+      "id": "rq-harvest-schedule-solution_search-large",
+      "split": "heldout",
+      "intent": "solution_search",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "如果我要解决能量采集传感网络的任务与充电调度，有哪些精确、近似和学习方法可选？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-harvest-schedule-solution_search-dynamic",
+      "split": "heldout",
+      "intent": "solution_search",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "如果我要解决能量采集传感网络的任务与充电调度，有哪些精确、近似和学习方法可选？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-harvest-schedule-problem_modeling-base",
+      "split": "development",
+      "intent": "problem_modeling",
+      "domain": "harvest-schedule",
+      "difficulty": "medium",
+      "question": "请把能量采集传感网络的任务与充电调度表示为决策变量、目标函数、约束和可验证假设。"
+    },
+    {
+      "id": "rq-harvest-schedule-problem_modeling-large",
+      "split": "development",
+      "intent": "problem_modeling",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "请把能量采集传感网络的任务与充电调度表示为决策变量、目标函数、约束和可验证假设。请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-harvest-schedule-problem_modeling-dynamic",
+      "split": "development",
+      "intent": "problem_modeling",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "请把能量采集传感网络的任务与充电调度表示为决策变量、目标函数、约束和可验证假设。请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-harvest-schedule-related_problem-base",
+      "split": "development",
+      "intent": "related_problem",
+      "domain": "harvest-schedule",
+      "difficulty": "medium",
+      "question": "能量采集传感网络的任务与充电调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？"
+    },
+    {
+      "id": "rq-harvest-schedule-related_problem-large",
+      "split": "regression",
+      "intent": "related_problem",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "能量采集传感网络的任务与充电调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-harvest-schedule-related_problem-dynamic",
+      "split": "regression",
+      "intent": "related_problem",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "能量采集传感网络的任务与充电调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-harvest-schedule-counterfactual-base",
+      "split": "regression",
+      "intent": "counterfactual",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "如果从能量采集传感网络的任务与充电调度中去掉一项随机能量到达和截止期，可解性和方法选择会怎样变化？"
+    },
+    {
+      "id": "rq-harvest-schedule-counterfactual-large",
+      "split": "heldout",
+      "intent": "counterfactual",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "如果从能量采集传感网络的任务与充电调度中去掉一项随机能量到达和截止期，可解性和方法选择会怎样变化？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-harvest-schedule-counterfactual-dynamic",
+      "split": "heldout",
+      "intent": "counterfactual",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "如果从能量采集传感网络的任务与充电调度中去掉一项随机能量到达和截止期，可解性和方法选择会怎样变化？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-harvest-schedule-novelty-base",
+      "split": "development",
+      "intent": "novelty",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "围绕能量采集传感网络的任务与充电调度还有哪些可证伪、可复现且不重复现有工作的研究问题？"
+    },
+    {
+      "id": "rq-harvest-schedule-novelty-large",
+      "split": "development",
+      "intent": "novelty",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "围绕能量采集传感网络的任务与充电调度还有哪些可证伪、可复现且不重复现有工作的研究问题？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-harvest-schedule-novelty-dynamic",
+      "split": "development",
+      "intent": "novelty",
+      "domain": "harvest-schedule",
+      "difficulty": "hard",
+      "question": "围绕能量采集传感网络的任务与充电调度还有哪些可证伪、可复现且不重复现有工作的研究问题？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-robust-safety-direct_factual-base",
+      "split": "development",
+      "intent": "direct_factual",
+      "domain": "robust-safety",
+      "difficulty": "medium",
+      "question": "多径传播条件下的鲁棒安全无线充电主要优化什么，核心信道不确定性和暴露阈值如何进入模型？"
+    },
+    {
+      "id": "rq-robust-safety-direct_factual-large",
+      "split": "regression",
+      "intent": "direct_factual",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "多径传播条件下的鲁棒安全无线充电主要优化什么，核心信道不确定性和暴露阈值如何进入模型？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-robust-safety-direct_factual-dynamic",
+      "split": "regression",
+      "intent": "direct_factual",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "多径传播条件下的鲁棒安全无线充电主要优化什么，核心信道不确定性和暴露阈值如何进入模型？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-robust-safety-literature_search-base",
+      "split": "regression",
+      "intent": "literature_search",
+      "domain": "robust-safety",
+      "difficulty": "medium",
+      "question": "哪些论文或核心书章节系统研究了多径传播条件下的鲁棒安全无线充电，其证据边界是什么？"
+    },
+    {
+      "id": "rq-robust-safety-literature_search-large",
+      "split": "heldout",
+      "intent": "literature_search",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了多径传播条件下的鲁棒安全无线充电，其证据边界是什么？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-robust-safety-literature_search-dynamic",
+      "split": "heldout",
+      "intent": "literature_search",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了多径传播条件下的鲁棒安全无线充电，其证据边界是什么？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-robust-safety-comparison-base",
+      "split": "development",
+      "intent": "comparison",
+      "domain": "robust-safety",
+      "difficulty": "medium",
+      "question": "在多径传播条件下的鲁棒安全无线充电中，鲁棒优化、机会约束与安全验证与常用启发式相比各自适用什么规模和假设？"
+    },
+    {
+      "id": "rq-robust-safety-comparison-large",
+      "split": "development",
+      "intent": "comparison",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "在多径传播条件下的鲁棒安全无线充电中，鲁棒优化、机会约束与安全验证与常用启发式相比各自适用什么规模和假设？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-robust-safety-comparison-dynamic",
+      "split": "development",
+      "intent": "comparison",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "在多径传播条件下的鲁棒安全无线充电中，鲁棒优化、机会约束与安全验证与常用启发式相比各自适用什么规模和假设？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-robust-safety-origin_derivation-base",
+      "split": "development",
+      "intent": "origin_derivation",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "多径传播条件下的鲁棒安全无线充电的优化模型如何从信道不确定性和暴露阈值逐步推导到以最坏情形安全与充电效率为目标？"
+    },
+    {
+      "id": "rq-robust-safety-origin_derivation-large",
+      "split": "regression",
+      "intent": "origin_derivation",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "多径传播条件下的鲁棒安全无线充电的优化模型如何从信道不确定性和暴露阈值逐步推导到以最坏情形安全与充电效率为目标？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-robust-safety-origin_derivation-dynamic",
+      "split": "regression",
+      "intent": "origin_derivation",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "多径传播条件下的鲁棒安全无线充电的优化模型如何从信道不确定性和暴露阈值逐步推导到以最坏情形安全与充电效率为目标？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-robust-safety-method_improvement-base",
+      "split": "regression",
+      "intent": "method_improvement",
+      "domain": "robust-safety",
+      "difficulty": "medium",
+      "question": "现有鲁棒优化、机会约束与安全验证怎样改进，才能在不丢失信道不确定性和暴露阈值的情况下提升最坏情形安全与充电效率？"
+    },
+    {
+      "id": "rq-robust-safety-method_improvement-large",
+      "split": "heldout",
+      "intent": "method_improvement",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "现有鲁棒优化、机会约束与安全验证怎样改进，才能在不丢失信道不确定性和暴露阈值的情况下提升最坏情形安全与充电效率？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-robust-safety-method_improvement-dynamic",
+      "split": "heldout",
+      "intent": "method_improvement",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "现有鲁棒优化、机会约束与安全验证怎样改进，才能在不丢失信道不确定性和暴露阈值的情况下提升最坏情形安全与充电效率？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-robust-safety-solution_search-base",
+      "split": "development",
+      "intent": "solution_search",
+      "domain": "robust-safety",
+      "difficulty": "medium",
+      "question": "如果我要解决多径传播条件下的鲁棒安全无线充电，有哪些精确、近似和学习方法可选？"
+    },
+    {
+      "id": "rq-robust-safety-solution_search-large",
+      "split": "development",
+      "intent": "solution_search",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "如果我要解决多径传播条件下的鲁棒安全无线充电，有哪些精确、近似和学习方法可选？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-robust-safety-solution_search-dynamic",
+      "split": "development",
+      "intent": "solution_search",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "如果我要解决多径传播条件下的鲁棒安全无线充电，有哪些精确、近似和学习方法可选？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-robust-safety-problem_modeling-base",
+      "split": "development",
+      "intent": "problem_modeling",
+      "domain": "robust-safety",
+      "difficulty": "medium",
+      "question": "请把多径传播条件下的鲁棒安全无线充电表示为决策变量、目标函数、约束和可验证假设。"
+    },
+    {
+      "id": "rq-robust-safety-problem_modeling-large",
+      "split": "regression",
+      "intent": "problem_modeling",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "请把多径传播条件下的鲁棒安全无线充电表示为决策变量、目标函数、约束和可验证假设。请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-robust-safety-problem_modeling-dynamic",
+      "split": "regression",
+      "intent": "problem_modeling",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "请把多径传播条件下的鲁棒安全无线充电表示为决策变量、目标函数、约束和可验证假设。请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-robust-safety-related_problem-base",
+      "split": "regression",
+      "intent": "related_problem",
+      "domain": "robust-safety",
+      "difficulty": "medium",
+      "question": "多径传播条件下的鲁棒安全无线充电与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？"
+    },
+    {
+      "id": "rq-robust-safety-related_problem-large",
+      "split": "heldout",
+      "intent": "related_problem",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "多径传播条件下的鲁棒安全无线充电与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-robust-safety-related_problem-dynamic",
+      "split": "heldout",
+      "intent": "related_problem",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "多径传播条件下的鲁棒安全无线充电与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-robust-safety-counterfactual-base",
+      "split": "development",
+      "intent": "counterfactual",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "如果从多径传播条件下的鲁棒安全无线充电中去掉一项信道不确定性和暴露阈值，可解性和方法选择会怎样变化？"
+    },
+    {
+      "id": "rq-robust-safety-counterfactual-large",
+      "split": "development",
+      "intent": "counterfactual",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "如果从多径传播条件下的鲁棒安全无线充电中去掉一项信道不确定性和暴露阈值，可解性和方法选择会怎样变化？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-robust-safety-counterfactual-dynamic",
+      "split": "development",
+      "intent": "counterfactual",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "如果从多径传播条件下的鲁棒安全无线充电中去掉一项信道不确定性和暴露阈值，可解性和方法选择会怎样变化？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-robust-safety-novelty-base",
+      "split": "development",
+      "intent": "novelty",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "围绕多径传播条件下的鲁棒安全无线充电还有哪些可证伪、可复现且不重复现有工作的研究问题？"
+    },
+    {
+      "id": "rq-robust-safety-novelty-large",
+      "split": "regression",
+      "intent": "novelty",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "围绕多径传播条件下的鲁棒安全无线充电还有哪些可证伪、可复现且不重复现有工作的研究问题？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-robust-safety-novelty-dynamic",
+      "split": "regression",
+      "intent": "novelty",
+      "domain": "robust-safety",
+      "difficulty": "hard",
+      "question": "围绕多径传播条件下的鲁棒安全无线充电还有哪些可证伪、可复现且不重复现有工作的研究问题？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-online-fleet-direct_factual-base",
+      "split": "regression",
+      "intent": "direct_factual",
+      "domain": "online-fleet",
+      "difficulty": "medium",
+      "question": "动态请求下的多充电车在线调度主要优化什么，核心未知未来请求和车队协同如何进入模型？"
+    },
+    {
+      "id": "rq-online-fleet-direct_factual-large",
+      "split": "heldout",
+      "intent": "direct_factual",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "动态请求下的多充电车在线调度主要优化什么，核心未知未来请求和车队协同如何进入模型？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-online-fleet-direct_factual-dynamic",
+      "split": "heldout",
+      "intent": "direct_factual",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "动态请求下的多充电车在线调度主要优化什么，核心未知未来请求和车队协同如何进入模型？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-online-fleet-literature_search-base",
+      "split": "development",
+      "intent": "literature_search",
+      "domain": "online-fleet",
+      "difficulty": "medium",
+      "question": "哪些论文或核心书章节系统研究了动态请求下的多充电车在线调度，其证据边界是什么？"
+    },
+    {
+      "id": "rq-online-fleet-literature_search-large",
+      "split": "development",
+      "intent": "literature_search",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了动态请求下的多充电车在线调度，其证据边界是什么？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-online-fleet-literature_search-dynamic",
+      "split": "development",
+      "intent": "literature_search",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "哪些论文或核心书章节系统研究了动态请求下的多充电车在线调度，其证据边界是什么？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-online-fleet-comparison-base",
+      "split": "development",
+      "intent": "comparison",
+      "domain": "online-fleet",
+      "difficulty": "medium",
+      "question": "在动态请求下的多充电车在线调度中，在线算法、滚动时域与强化学习与常用启发式相比各自适用什么规模和假设？"
+    },
+    {
+      "id": "rq-online-fleet-comparison-large",
+      "split": "regression",
+      "intent": "comparison",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "在动态请求下的多充电车在线调度中，在线算法、滚动时域与强化学习与常用启发式相比各自适用什么规模和假设？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-online-fleet-comparison-dynamic",
+      "split": "regression",
+      "intent": "comparison",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "在动态请求下的多充电车在线调度中，在线算法、滚动时域与强化学习与常用启发式相比各自适用什么规模和假设？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-online-fleet-origin_derivation-base",
+      "split": "regression",
+      "intent": "origin_derivation",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "动态请求下的多充电车在线调度的优化模型如何从未知未来请求和车队协同逐步推导到以响应时间与死亡节点数为目标？"
+    },
+    {
+      "id": "rq-online-fleet-origin_derivation-large",
+      "split": "heldout",
+      "intent": "origin_derivation",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "动态请求下的多充电车在线调度的优化模型如何从未知未来请求和车队协同逐步推导到以响应时间与死亡节点数为目标？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-online-fleet-origin_derivation-dynamic",
+      "split": "heldout",
+      "intent": "origin_derivation",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "动态请求下的多充电车在线调度的优化模型如何从未知未来请求和车队协同逐步推导到以响应时间与死亡节点数为目标？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-online-fleet-method_improvement-base",
+      "split": "development",
+      "intent": "method_improvement",
+      "domain": "online-fleet",
+      "difficulty": "medium",
+      "question": "现有在线算法、滚动时域与强化学习怎样改进，才能在不丢失未知未来请求和车队协同的情况下提升响应时间与死亡节点数？"
+    },
+    {
+      "id": "rq-online-fleet-method_improvement-large",
+      "split": "development",
+      "intent": "method_improvement",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "现有在线算法、滚动时域与强化学习怎样改进，才能在不丢失未知未来请求和车队协同的情况下提升响应时间与死亡节点数？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-online-fleet-method_improvement-dynamic",
+      "split": "development",
+      "intent": "method_improvement",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "现有在线算法、滚动时域与强化学习怎样改进，才能在不丢失未知未来请求和车队协同的情况下提升响应时间与死亡节点数？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-online-fleet-solution_search-base",
+      "split": "development",
+      "intent": "solution_search",
+      "domain": "online-fleet",
+      "difficulty": "medium",
+      "question": "如果我要解决动态请求下的多充电车在线调度，有哪些精确、近似和学习方法可选？"
+    },
+    {
+      "id": "rq-online-fleet-solution_search-large",
+      "split": "regression",
+      "intent": "solution_search",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "如果我要解决动态请求下的多充电车在线调度，有哪些精确、近似和学习方法可选？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-online-fleet-solution_search-dynamic",
+      "split": "regression",
+      "intent": "solution_search",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "如果我要解决动态请求下的多充电车在线调度，有哪些精确、近似和学习方法可选？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-online-fleet-problem_modeling-base",
+      "split": "regression",
+      "intent": "problem_modeling",
+      "domain": "online-fleet",
+      "difficulty": "medium",
+      "question": "请把动态请求下的多充电车在线调度表示为决策变量、目标函数、约束和可验证假设。"
+    },
+    {
+      "id": "rq-online-fleet-problem_modeling-large",
+      "split": "heldout",
+      "intent": "problem_modeling",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "请把动态请求下的多充电车在线调度表示为决策变量、目标函数、约束和可验证假设。请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-online-fleet-problem_modeling-dynamic",
+      "split": "heldout",
+      "intent": "problem_modeling",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "请把动态请求下的多充电车在线调度表示为决策变量、目标函数、约束和可验证假设。请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-online-fleet-related_problem-base",
+      "split": "development",
+      "intent": "related_problem",
+      "domain": "online-fleet",
+      "difficulty": "medium",
+      "question": "动态请求下的多充电车在线调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？"
+    },
+    {
+      "id": "rq-online-fleet-related_problem-large",
+      "split": "development",
+      "intent": "related_problem",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "动态请求下的多充电车在线调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-online-fleet-related_problem-dynamic",
+      "split": "development",
+      "intent": "related_problem",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "动态请求下的多充电车在线调度与 VRP、TSP、设施选址、在线调度或博弈模型有什么可迁移关系？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-online-fleet-counterfactual-base",
+      "split": "development",
+      "intent": "counterfactual",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "如果从动态请求下的多充电车在线调度中去掉一项未知未来请求和车队协同，可解性和方法选择会怎样变化？"
+    },
+    {
+      "id": "rq-online-fleet-counterfactual-large",
+      "split": "regression",
+      "intent": "counterfactual",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "如果从动态请求下的多充电车在线调度中去掉一项未知未来请求和车队协同，可解性和方法选择会怎样变化？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-online-fleet-counterfactual-dynamic",
+      "split": "regression",
+      "intent": "counterfactual",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "如果从动态请求下的多充电车在线调度中去掉一项未知未来请求和车队协同，可解性和方法选择会怎样变化？请进一步考虑参数漂移、在线更新和不确定性。"
+    },
+    {
+      "id": "rq-online-fleet-novelty-base",
+      "split": "regression",
+      "intent": "novelty",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "围绕动态请求下的多充电车在线调度还有哪些可证伪、可复现且不重复现有工作的研究问题？"
+    },
+    {
+      "id": "rq-online-fleet-novelty-large",
+      "split": "heldout",
+      "intent": "novelty",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "围绕动态请求下的多充电车在线调度还有哪些可证伪、可复现且不重复现有工作的研究问题？请考虑大规模实例、计算预算和失败边界。"
+    },
+    {
+      "id": "rq-online-fleet-novelty-dynamic",
+      "split": "heldout",
+      "intent": "novelty",
+      "domain": "online-fleet",
+      "difficulty": "hard",
+      "question": "围绕动态请求下的多充电车在线调度还有哪些可证伪、可复现且不重复现有工作的研究问题？请进一步考虑参数漂移、在线更新和不确定性。"
+    }
+  ]
+}

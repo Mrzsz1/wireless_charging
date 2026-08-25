@@ -29,6 +29,7 @@
     "test:qa-settings": "node --experimental-strip-types --test tests/qa-provider-settings.test.ts",
     "test:qa-evidence": "node --experimental-strip-types --test tests/qa-evidence-state.test.ts",
     "eval:rag": "cargo run --manifest-path src-tauri/Cargo.toml --bin rag-eval -- ../..",
+    "eval:questions": "py -3 ../../tools/validate_research_question_dataset.py",
     "release:signed": "node scripts/build-signed-release.mjs",
     "fixture:updater": "node scripts/updater-fixture-server.mjs"
   },
