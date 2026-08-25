@@ -1,4 +1,7 @@
-use super::{compact, ConversationTurn, EvidenceItem, QuestionContext};
+use super::{
+    compact, research_memory, research_memory::ResearchSessionState, ConversationTurn,
+    EvidenceItem, QuestionContext,
+};
 use rusqlite::{types::ValueRef, Connection};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -10,8 +13,8 @@ pub const PROMPT_VERSION: &str = "qa-prompt-v11";
 pub const ANSWER_SCHEMA_VERSION: &str = "qa-natural-markdown-v2";
 pub const LEGACY_ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
-pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v3";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v10";
+pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v4";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v11";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -42,6 +45,8 @@ pub struct ContextBudget {
 pub struct ContextPlan {
     pub schema_version: String,
     pub session_memory: String,
+    #[serde(default)]
+    pub research_state: ResearchSessionState,
     pub recent_message_ids: Vec<String>,
     pub compacted_message_ids: Vec<String>,
     pub fingerprint: String,
@@ -202,6 +207,14 @@ pub struct QaRunManifest {
     pub related_problem_types: Vec<String>,
     #[serde(default)]
     pub candidate_methods: Vec<String>,
+    #[serde(default)]
+    pub research_state_version: String,
+    #[serde(default)]
+    pub research_state_revision: usize,
+    #[serde(default)]
+    pub research_state_objective_count: usize,
+    #[serde(default)]
+    pub research_state_constraint_count: usize,
     #[serde(default)]
     pub retrieval_stop_reason: String,
     #[serde(default)]
@@ -460,7 +473,12 @@ pub fn build_context_plan(
         })
         .cloned()
         .collect::<Vec<_>>();
-    let memory_budget = history_budget.saturating_sub(recent_tokens);
+    let research_state = research_memory::derive(history, question);
+    let research_state_tokens =
+        estimate_tokens(&serde_json::to_string(&research_state).unwrap_or_default());
+    let memory_budget = history_budget
+        .saturating_sub(recent_tokens)
+        .saturating_sub(research_state_tokens);
     let (session_memory, compacted_message_ids, memory_truncated) =
         build_memory(&older, memory_budget);
 
@@ -469,7 +487,7 @@ pub fn build_context_plan(
         .flat_map(|exchange| exchange.iter().cloned())
         .collect::<Vec<_>>();
 
-    let memory_tokens = estimate_tokens(&session_memory);
+    let memory_tokens = estimate_tokens(&session_memory).saturating_add(research_state_tokens);
     let recent_history_tokens = recent_history
         .iter()
         .map(|turn| estimate_tokens(&turn.content) + 8)
@@ -498,6 +516,7 @@ pub fn build_context_plan(
     let plan = ContextPlan {
         schema_version: CONTEXT_SCHEMA_VERSION.to_string(),
         session_memory,
+        research_state,
         recent_message_ids: recent_ids,
         compacted_message_ids,
         fingerprint,
@@ -834,6 +853,7 @@ pub fn build_prompt_envelope(context: &QuestionContext) -> PromptEnvelope {
         "executionMode": context.retrieval_query.execution_mode,
         "resolvedQuestion": context.retrieval_query.resolved_question,
         "resolvedEntities": context.retrieval_query.entities,
+        "researchState": context.context_plan.research_state,
         "waterline": context.waterline,
     });
     let user_prompt = format!(
@@ -1030,6 +1050,10 @@ pub fn build_run_manifest(
         problem_constraints: context.retrieval_query.problem_constraints.clone(),
         related_problem_types: context.retrieval_query.related_problem_types.clone(),
         candidate_methods: context.retrieval_query.candidate_methods.clone(),
+        research_state_version: context.context_plan.research_state.schema_version.clone(),
+        research_state_revision: context.context_plan.research_state.revision,
+        research_state_objective_count: context.context_plan.research_state.objectives.len(),
+        research_state_constraint_count: context.context_plan.research_state.constraints.len(),
         retrieval_stop_reason: context.retrieval_diagnostics.stop_reason.clone(),
         retrieval_round_count: context.retrieval_diagnostics.pass_count,
         requested_kinds: context.retrieval_query.requested_kinds.clone(),

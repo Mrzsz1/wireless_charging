@@ -14,6 +14,7 @@ mod natural_answer;
 mod problem_understanding;
 mod query_plan;
 mod reranker;
+mod research_memory;
 pub(crate) mod retrieval;
 mod retrieval_contract;
 mod semantic;
@@ -4563,7 +4564,7 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v10");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v11");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.resolver_status, "succeeded");

@@ -244,7 +244,10 @@ const CONSTRAINT_RULES: Rules = &[
 ];
 
 const ASSUMPTION_RULES: Rules = &[
-    (&["静态节点", "stationary node"], "stationary_sensor_nodes"),
+    (
+        &["静态节点", "节点静态", "stationary node"],
+        "stationary_sensor_nodes",
+    ),
     (&["能量已知", "known energy"], "observable_energy_state"),
     (&["确定性", "deterministic"], "deterministic_demand"),
     (&["周期性", "periodic"], "periodic_operation"),

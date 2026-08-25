@@ -126,6 +126,17 @@ cargo test problem_understanding --lib
 数据见 `problem-understanding-cases.json`，结果见
 `problem-understanding-baseline.md`。
 
+## Research Session State 回归
+
+20 轮科研聊天门禁覆盖目标、约束、方法、假设的新增、替换和删除，后续问题必须读取最新状态：
+
+```powershell
+cd apps/desktop/src-tauri
+cargo test research_memory --lib
+```
+
+结果见 `research-session-state-baseline.md`。
+
 ## Production held-out 准确率
 
 `heldout_questions.json` 是独立冻结入口。当前状态为 `awaiting_independent_curation`，不预填模型自行构造的“真值”。冻结要求：

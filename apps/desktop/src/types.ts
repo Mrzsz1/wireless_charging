@@ -522,10 +522,25 @@ export type ContextBudget = {
 export type ContextPlan = {
   schemaVersion: string
   sessionMemory: string
+  researchState?: ResearchSessionState
   recentMessageIds: string[]
   compactedMessageIds: string[]
   fingerprint: string
   budget: ContextBudget
+}
+
+export type ResearchSessionState = {
+  schemaVersion: string
+  revision: number
+  activeProblem: string
+  objectives: string[]
+  constraints: string[]
+  assumptions: string[]
+  methods: string[]
+  papers: string[]
+  hypotheses: string[]
+  openQuestions: string[]
+  sourceMessageIds: string[]
 }
 
 export type EvidenceChecksum = {
@@ -621,6 +636,10 @@ export type QaRunManifest = {
   problemConstraints?: string[]
   relatedProblemTypes?: string[]
   candidateMethods?: string[]
+  researchStateVersion?: string
+  researchStateRevision?: number
+  researchStateObjectiveCount?: number
+  researchStateConstraintCount?: number
   retrievalStopReason?: string
   retrievalRoundCount?: number
   requestedKinds?: string[]
