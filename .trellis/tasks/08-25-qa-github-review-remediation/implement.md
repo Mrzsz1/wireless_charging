@@ -11,13 +11,13 @@
 
 ## Phase B — Cross-encoder reranking and calibrated fallback
 
-- [ ] Rename `SemanticResearchReranker` to `EmbeddingRescorer`; rename telemetry and tests.
-- [ ] Add `RerankProvider` and explicit local FastEmbed `TextRerank` loading without automatic query-time download.
-- [ ] Replace raw-score addition with rank fusion and preserve source/graph/reference protections.
-- [ ] Add unavailable/corrupt/cancel tests and non-tautological fixtures.
-- [ ] Extend eval report to distinguish cross-encoder from embedding/deterministic fallback.
-- [ ] Run retrieval metrics and compare frozen baseline.
-- [ ] Commit locally: `feat(qa): add cross-encoder rerank provider`.
+- [x] Rename `SemanticResearchReranker` to `EmbeddingRescorer`; rename telemetry and tests.
+- [x] Add `RerankProvider` and explicit local FastEmbed `TextRerank` loading without automatic query-time download.
+- [x] Replace raw-score addition with rank fusion and preserve source/graph/reference protections.
+- [x] Add unavailable/corrupt/cancel tests and non-tautological fixtures.
+- [x] Extend eval report to distinguish cross-encoder from embedding/deterministic fallback.
+- [x] Run retrieval metrics and compare frozen baseline.
+- [x] Commit locally: `feat(qa): add cross-encoder rerank provider`.
 
 ## Phase C — Executable routing budgets
 

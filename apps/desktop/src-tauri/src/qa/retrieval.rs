@@ -396,7 +396,10 @@ pub fn run_retrieval(
     cancelled: Option<&AtomicBool>,
 ) -> Result<RetrievalOutcome, String> {
     let embedder = |texts: Vec<String>| super::semantic::embed_texts(texts, cancelled);
-    let reranker = HybridResearchReranker::new(&embedder);
+    let cross_encoder = |query: &str, documents: Vec<String>| {
+        super::semantic::rerank_texts(query, documents, cancelled)
+    };
+    let reranker = HybridResearchReranker::new(&embedder, &cross_encoder);
     run_retrieval_with_reranker(connection, root, question, contract, cancelled, &reranker)
 }
 

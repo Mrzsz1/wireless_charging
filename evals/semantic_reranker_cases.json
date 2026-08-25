@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "qa-semantic-reranker-cases-v1",
-  "datasetRole": "model_independent_reranker_regression",
+  "schemaVersion": "qa-cross-encoder-reranker-cases-v2",
+  "datasetRole": "model_independent_cross_encoder_regression",
   "caseCount": 10,
   "cases": [
     {"id": "mobile-path", "query": "移动路径规划", "targetTitle": "Euclidean TSP trajectory method"},

@@ -1,7 +1,10 @@
 #![cfg_attr(test, allow(dead_code))]
 
 use super::{check_cancelled, compact, Candidate};
-use fastembed::{EmbeddingModel, InitOptions, TextEmbedding};
+use fastembed::{
+    EmbeddingModel, InitOptions, RerankInitOptionsUserDefined, TextEmbedding, TextRerank,
+    TokenizerFiles, UserDefinedRerankingModel,
+};
 use hf_hub::api::{sync::ApiBuilder, Progress};
 use rusqlite::Connection;
 use serde::Serialize;
@@ -45,6 +48,13 @@ const ORT_ARCHIVE_LIMIT_BYTES: usize = 80 * 1024 * 1024;
 
 static SEMANTIC_STATE: OnceLock<Mutex<SemanticState>> = OnceLock::new();
 static CACHE_DIR_OVERRIDE: OnceLock<Mutex<Option<PathBuf>>> = OnceLock::new();
+static CROSS_ENCODER_STATE: OnceLock<Mutex<CrossEncoderState>> = OnceLock::new();
+
+#[derive(Default)]
+struct CrossEncoderState {
+    model_dir: Option<PathBuf>,
+    model: Option<TextRerank>,
+}
 
 #[derive(Debug, Serialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
@@ -280,6 +290,13 @@ pub(crate) fn configure_cache_dir(path: Option<PathBuf>) -> Result<PathBuf, Stri
         .lock()
         .map_err(|_| "语义模型缓存目录状态锁定失败".to_string())? = Some(effective.clone());
     state.reset_for_cache_switch();
+    if let Some(reranker) = CROSS_ENCODER_STATE.get() {
+        let mut reranker = reranker
+            .lock()
+            .map_err(|_| "交叉编码器状态锁定失败".to_string())?;
+        reranker.model = None;
+        reranker.model_dir = None;
+    }
     env::set_var("HF_HOME", &effective);
     Ok(effective)
 }
@@ -855,6 +872,118 @@ pub(super) fn embed_texts(
         embeddings.extend(values);
     }
     Ok(embeddings)
+}
+
+fn cross_encoder_model_dir() -> PathBuf {
+    env::var_os("QA_RERANKER_MODEL_DIR")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| model_cache_dir().join("reranker-bge-base"))
+}
+
+fn read_reranker_file(model_dir: &Path, name: &str) -> Result<Vec<u8>, String> {
+    fs::read(model_dir.join(name)).map_err(|_| format!("CROSS_ENCODER_UNAVAILABLE: missing_{name}"))
+}
+
+fn cross_encoder_artifacts(model_dir: &Path) -> Result<(PathBuf, TokenizerFiles), String> {
+    if !model_dir.is_absolute() || !model_dir.is_dir() {
+        return Err("CROSS_ENCODER_UNAVAILABLE: model_directory_missing".to_string());
+    }
+    let onnx = [
+        model_dir.join("model.onnx"),
+        model_dir.join("onnx/model.onnx"),
+    ]
+    .into_iter()
+    .find(|path| path.is_file())
+    .ok_or_else(|| "CROSS_ENCODER_UNAVAILABLE: model_file_missing".to_string())?;
+    if onnx.metadata().map(|metadata| metadata.len()).unwrap_or(0) < 16 {
+        return Err("CROSS_ENCODER_UNAVAILABLE: model_file_invalid".to_string());
+    }
+    let tokenizer_file = read_reranker_file(model_dir, "tokenizer.json")?;
+    let config_file = read_reranker_file(model_dir, "config.json")?;
+    let special_tokens_map_file = read_reranker_file(model_dir, "special_tokens_map.json")?;
+    let tokenizer_config_file = read_reranker_file(model_dir, "tokenizer_config.json")?;
+    for bytes in [
+        &tokenizer_file,
+        &config_file,
+        &special_tokens_map_file,
+        &tokenizer_config_file,
+    ] {
+        serde_json::from_slice::<serde_json::Value>(bytes)
+            .map_err(|_| "CROSS_ENCODER_UNAVAILABLE: tokenizer_file_invalid".to_string())?;
+    }
+    Ok((
+        onnx,
+        TokenizerFiles {
+            tokenizer_file,
+            config_file,
+            special_tokens_map_file,
+            tokenizer_config_file,
+        },
+    ))
+}
+
+fn initialize_cross_encoder(model_dir: &Path) -> Result<TextRerank, String> {
+    initialize_cross_encoder_with_runtime(model_dir, &runtime_path(&model_cache_dir()))
+}
+
+fn initialize_cross_encoder_with_runtime(
+    model_dir: &Path,
+    runtime: &Path,
+) -> Result<TextRerank, String> {
+    let (onnx, tokenizer_files) = cross_encoder_artifacts(model_dir)?;
+    if !runtime.is_file() {
+        return Err("CROSS_ENCODER_UNAVAILABLE: runtime_missing".to_string());
+    }
+    env::set_var("ORT_DYLIB_PATH", runtime);
+    let model = UserDefinedRerankingModel::new(onnx, tokenizer_files);
+    match catch_unwind(AssertUnwindSafe(|| {
+        TextRerank::try_new_from_user_defined(model, RerankInitOptionsUserDefined::default())
+    })) {
+        Ok(Ok(model)) => Ok(model),
+        Ok(Err(_)) => Err("CROSS_ENCODER_UNAVAILABLE: model_invalid".to_string()),
+        Err(_) => Err("CROSS_ENCODER_UNAVAILABLE: model_initialization_panic".to_string()),
+    }
+}
+
+pub(super) fn rerank_texts(
+    query: &str,
+    documents: Vec<String>,
+    cancelled: Option<&AtomicBool>,
+) -> Result<Vec<f32>, String> {
+    if documents.is_empty() {
+        return Ok(Vec::new());
+    }
+    check_cancelled(cancelled)?;
+    let model_dir = cross_encoder_model_dir();
+    let state = CROSS_ENCODER_STATE.get_or_init(|| Mutex::new(CrossEncoderState::default()));
+    let mut state = state
+        .lock()
+        .map_err(|_| "CROSS_ENCODER_UNAVAILABLE: state_lock".to_string())?;
+    if state.model_dir.as_ref() != Some(&model_dir) {
+        state.model = None;
+        state.model_dir = Some(model_dir.clone());
+    }
+    if state.model.is_none() {
+        state.model = Some(initialize_cross_encoder(&model_dir)?);
+    }
+    check_cancelled(cancelled)?;
+    let results = state
+        .model
+        .as_ref()
+        .ok_or_else(|| "CROSS_ENCODER_UNAVAILABLE: model_missing".to_string())?
+        .rerank(query.to_string(), documents.clone(), false, Some(16))
+        .map_err(|_| "CROSS_ENCODER_UNAVAILABLE: inference_failed".to_string())?;
+    let mut scores = vec![f32::NEG_INFINITY; documents.len()];
+    for result in results {
+        if result.index >= scores.len() || !result.score.is_finite() {
+            return Err("CROSS_ENCODER_UNAVAILABLE: invalid_result".to_string());
+        }
+        scores[result.index] = result.score;
+    }
+    if scores.iter().any(|score| !score.is_finite()) {
+        return Err("CROSS_ENCODER_UNAVAILABLE: incomplete_result".to_string());
+    }
+    Ok(scores)
 }
 
 #[derive(Debug)]
@@ -1633,5 +1762,37 @@ mod tests {
         fs::write(snapshot.join(MODEL_FILE), b"fixture-model").unwrap();
         assert!(cached_snapshot_file(cache.path(), MODEL_FILE).is_some());
         assert!(cached_snapshot_file(cache.path(), "tokenizer.json").is_none());
+    }
+
+    #[test]
+    fn cross_encoder_requires_predeployed_local_artifacts() {
+        let missing = tempfile::tempdir().unwrap().path().join("missing-reranker");
+        let error = cross_encoder_artifacts(&missing).unwrap_err();
+        assert_eq!(error, "CROSS_ENCODER_UNAVAILABLE: model_directory_missing");
+        assert!(!missing.exists());
+    }
+
+    #[test]
+    fn corrupt_cross_encoder_artifacts_fail_before_runtime_initialization() {
+        let model = tempfile::tempdir().unwrap();
+        fs::write(model.path().join("model.onnx"), b"corrupt").unwrap();
+        for file in [
+            "tokenizer.json",
+            "config.json",
+            "special_tokens_map.json",
+            "tokenizer_config.json",
+        ] {
+            fs::write(model.path().join(file), b"not-json").unwrap();
+        }
+        let error = cross_encoder_artifacts(model.path()).unwrap_err();
+        assert_eq!(error, "CROSS_ENCODER_UNAVAILABLE: model_file_invalid");
+    }
+
+    #[test]
+    fn cross_encoder_cancellation_precedes_model_loading() {
+        let cancelled = AtomicBool::new(true);
+        let error =
+            rerank_texts("query", vec!["document".to_string()], Some(&cancelled)).unwrap_err();
+        assert!(error.starts_with("QUESTION_CANCELLED"));
     }
 }

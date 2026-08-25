@@ -3,7 +3,7 @@ use std::collections::HashSet;
 
 const SEMANTIC_RERANK_LIMIT: usize = 80;
 const SEMANTIC_CANDIDATE_CHARS: usize = 1_200;
-const SEMANTIC_WEIGHT: f64 = 0.75;
+const RRF_K: f64 = 60.0;
 
 #[derive(Debug)]
 pub struct RerankOutcome {
@@ -82,19 +82,19 @@ impl Reranker for DeterministicResearchReranker {
 
 pub type SemanticEmbedder<'a> = dyn Fn(Vec<String>) -> Result<Vec<Vec<f32>>, String> + 'a;
 
-pub struct SemanticResearchReranker<'a> {
+pub struct EmbeddingRescorer<'a> {
     embedder: &'a SemanticEmbedder<'a>,
 }
 
-impl<'a> SemanticResearchReranker<'a> {
+impl<'a> EmbeddingRescorer<'a> {
     pub fn new(embedder: &'a SemanticEmbedder<'a>) -> Self {
         Self { embedder }
     }
 }
 
-impl Reranker for SemanticResearchReranker<'_> {
+impl Reranker for EmbeddingRescorer<'_> {
     fn name(&self) -> &'static str {
-        "semantic-research-v1"
+        "embedding-rescorer-v2"
     }
 
     fn rerank(
@@ -140,21 +140,97 @@ impl Reranker for SemanticResearchReranker<'_> {
         if query_embedding.is_empty() || query_embedding.iter().any(|value| !value.is_finite()) {
             return Err("reranker_unavailable: invalid_query_embedding".to_string());
         }
-        for (candidate, embedding) in deterministic
-            .iter_mut()
-            .take(semantic_count)
-            .zip(embeddings.iter().skip(1))
-        {
-            let similarity = cosine_similarity(query_embedding, embedding)
-                .ok_or_else(|| "reranker_unavailable: invalid_candidate_embedding".to_string())?;
-            let semantic_bonus = similarity.clamp(0.0, 1.0) * SEMANTIC_WEIGHT;
-            candidate.score += semantic_bonus;
-            candidate.retrieval_reason.push_str(&format!(
-                "；reranker={} cosine={similarity:.4} semantic_bonus={semantic_bonus:.4}",
-                self.name()
-            ));
+        let similarities = embeddings
+            .iter()
+            .skip(1)
+            .map(|embedding| {
+                cosine_similarity(query_embedding, embedding)
+                    .ok_or_else(|| "reranker_unavailable: invalid_candidate_embedding".to_string())
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        fuse_rankings(
+            &mut deterministic,
+            &similarities,
+            explicit_paths,
+            self.name(),
+            "cosine",
+        );
+        Ok(RerankOutcome {
+            candidates: deterministic,
+            reranker_version: self.name().to_string(),
+            fallback: false,
+            fallback_reason: String::new(),
+        })
+    }
+}
+
+pub type CrossEncoderScorer<'a> = dyn Fn(&str, Vec<String>) -> Result<Vec<f32>, String> + 'a;
+
+pub struct CrossEncoderResearchReranker<'a> {
+    scorer: &'a CrossEncoderScorer<'a>,
+}
+
+impl<'a> CrossEncoderResearchReranker<'a> {
+    pub fn new(scorer: &'a CrossEncoderScorer<'a>) -> Self {
+        Self { scorer }
+    }
+}
+
+impl Reranker for CrossEncoderResearchReranker<'_> {
+    fn name(&self) -> &'static str {
+        "cross-encoder-research-v1"
+    }
+
+    fn rerank(
+        &self,
+        question: &str,
+        candidates: Vec<Candidate>,
+        explicit_paths: &HashSet<String>,
+    ) -> Result<RerankOutcome, String> {
+        let mut deterministic = DeterministicResearchReranker
+            .rerank(question, candidates, explicit_paths)?
+            .candidates;
+        if deterministic.is_empty() {
+            return Ok(RerankOutcome {
+                candidates: deterministic,
+                reranker_version: self.name().to_string(),
+                fallback: false,
+                fallback_reason: String::new(),
+            });
         }
-        deterministic.sort_by(|left, right| right.score.total_cmp(&left.score));
+        let rerank_count = deterministic.len().min(SEMANTIC_RERANK_LIMIT);
+        let documents = deterministic
+            .iter()
+            .take(rerank_count)
+            .map(|candidate| {
+                compact(
+                    &format!(
+                        "{}\n{}\n{}",
+                        candidate.title, candidate.source_location, candidate.snippet
+                    ),
+                    SEMANTIC_CANDIDATE_CHARS,
+                )
+            })
+            .collect::<Vec<_>>();
+        let scores = (self.scorer)(&compact(question, SEMANTIC_CANDIDATE_CHARS), documents)
+            .map_err(|error| {
+                if error.starts_with("QUESTION_CANCELLED") {
+                    error
+                } else {
+                    stable_cross_encoder_error(&error)
+                }
+            })?;
+        if scores.len() != rerank_count || scores.iter().any(|score| !score.is_finite()) {
+            return Err("cross_encoder_unavailable: invalid_score_count".to_string());
+        }
+        let scores = scores.into_iter().map(f64::from).collect::<Vec<_>>();
+        fuse_rankings(
+            &mut deterministic,
+            &scores,
+            explicit_paths,
+            self.name(),
+            "cross_encoder",
+        );
         Ok(RerankOutcome {
             candidates: deterministic,
             reranker_version: self.name().to_string(),
@@ -165,14 +241,16 @@ impl Reranker for SemanticResearchReranker<'_> {
 }
 
 pub struct HybridResearchReranker<'a> {
-    semantic: SemanticResearchReranker<'a>,
+    cross_encoder: CrossEncoderResearchReranker<'a>,
+    embedding: EmbeddingRescorer<'a>,
     deterministic: DeterministicResearchReranker,
 }
 
 impl<'a> HybridResearchReranker<'a> {
-    pub fn new(embedder: &'a SemanticEmbedder<'a>) -> Self {
+    pub fn new(embedder: &'a SemanticEmbedder<'a>, scorer: &'a CrossEncoderScorer<'a>) -> Self {
         Self {
-            semantic: SemanticResearchReranker::new(embedder),
+            cross_encoder: CrossEncoderResearchReranker::new(scorer),
+            embedding: EmbeddingRescorer::new(embedder),
             deterministic: DeterministicResearchReranker,
         }
     }
@@ -180,7 +258,7 @@ impl<'a> HybridResearchReranker<'a> {
 
 impl Reranker for HybridResearchReranker<'_> {
     fn name(&self) -> &'static str {
-        "hybrid-semantic-research-v1"
+        "hybrid-cross-encoder-research-v2"
     }
 
     fn rerank(
@@ -189,33 +267,97 @@ impl Reranker for HybridResearchReranker<'_> {
         candidates: Vec<Candidate>,
         explicit_paths: &HashSet<String>,
     ) -> Result<RerankOutcome, String> {
-        let fallback_candidates = candidates.clone();
-        match self.semantic.rerank(question, candidates, explicit_paths) {
-            Ok(mut outcome) => {
-                outcome.reranker_version = self.name().to_string();
-                Ok(outcome)
-            }
+        let embedding_candidates = candidates.clone();
+        let deterministic_candidates = candidates.clone();
+        match self
+            .cross_encoder
+            .rerank(question, candidates, explicit_paths)
+        {
+            Ok(outcome) => Ok(outcome),
             Err(error) if error.starts_with("QUESTION_CANCELLED") => Err(error),
-            Err(error) => {
-                let mut outcome =
-                    self.deterministic
-                        .rerank(question, fallback_candidates, explicit_paths)?;
-                outcome.reranker_version = self.name().to_string();
-                outcome.fallback = true;
-                outcome.fallback_reason = error
-                    .split(':')
-                    .next()
-                    .unwrap_or("reranker_unavailable")
-                    .to_lowercase();
-                for candidate in &mut outcome.candidates {
-                    candidate
-                        .retrieval_reason
-                        .push_str("；semantic_reranker_fallback=deterministic");
+            Err(cross_error) => {
+                match self
+                    .embedding
+                    .rerank(question, embedding_candidates, explicit_paths)
+                {
+                    Ok(mut outcome) => {
+                        outcome.fallback = true;
+                        outcome.fallback_reason =
+                            stable_error_kind(&cross_error, "cross_encoder_unavailable");
+                        for candidate in &mut outcome.candidates {
+                            candidate
+                                .retrieval_reason
+                                .push_str("；cross_encoder_fallback=embedding_rescorer");
+                        }
+                        Ok(outcome)
+                    }
+                    Err(error) if error.starts_with("QUESTION_CANCELLED") => Err(error),
+                    Err(embedding_error) => {
+                        let mut outcome = self.deterministic.rerank(
+                            question,
+                            deterministic_candidates,
+                            explicit_paths,
+                        )?;
+                        outcome.fallback = true;
+                        outcome.fallback_reason = format!(
+                            "{}+{}",
+                            stable_error_kind(&cross_error, "cross_encoder_unavailable"),
+                            stable_error_kind(&embedding_error, "reranker_unavailable")
+                        );
+                        for candidate in &mut outcome.candidates {
+                            candidate.retrieval_reason.push_str(
+                            "；cross_encoder_fallback=deterministic；embedding_rescorer_fallback=deterministic",
+                        );
+                        }
+                        Ok(outcome)
+                    }
                 }
-                Ok(outcome)
             }
         }
     }
+}
+
+fn fuse_rankings(
+    candidates: &mut [Candidate],
+    secondary_scores: &[f64],
+    explicit_paths: &HashSet<String>,
+    provider_name: &str,
+    metric_label: &str,
+) {
+    let mut secondary_order = (0..secondary_scores.len()).collect::<Vec<_>>();
+    secondary_order
+        .sort_by(|left, right| secondary_scores[*right].total_cmp(&secondary_scores[*left]));
+    let mut secondary_rank = vec![secondary_scores.len(); candidates.len()];
+    for (rank, index) in secondary_order.into_iter().enumerate() {
+        secondary_rank[index] = rank;
+    }
+    for (base_rank, candidate) in candidates.iter_mut().enumerate() {
+        let second_rank = secondary_rank[base_rank];
+        let mut fused =
+            1.0 / (RRF_K + base_rank as f64 + 1.0) + 1.5 / (RRF_K + second_rank as f64 + 1.0);
+        let explicit = explicit_paths.contains(&candidate.markdown_path)
+            || explicit_paths.contains(&candidate.source_path);
+        if explicit {
+            fused += 0.020;
+        }
+        if candidate.relation.contains("reference") {
+            fused -= 0.015;
+        }
+        if candidate.kind == "graph" || candidate.relation.contains("graph_only") {
+            fused -= 0.030;
+        }
+        if candidate.relation.contains("primary_fallback") {
+            fused -= 0.012;
+        }
+        let score = secondary_scores.get(base_rank).copied().unwrap_or_default();
+        candidate.score = fused;
+        candidate.retrieval_reason.push_str(&format!(
+            "；reranker={provider_name} {metric_label}={score:.4} base_rank={} provider_rank={} fused_rrf={fused:.6}",
+            base_rank + 1,
+            second_rank + 1
+        ));
+    }
+    candidates.sort_by(|left, right| right.score.total_cmp(&left.score));
 }
 
 fn stable_reranker_error(error: &str) -> String {
@@ -226,6 +368,21 @@ fn stable_reranker_error(error: &str) -> String {
         .trim()
         .to_ascii_lowercase();
     format!("reranker_unavailable: {kind}")
+}
+
+fn stable_cross_encoder_error(error: &str) -> String {
+    let kind = stable_error_kind(error, "cross_encoder_unavailable");
+    format!("cross_encoder_unavailable: {kind}")
+}
+
+fn stable_error_kind(error: &str, fallback: &str) -> String {
+    error
+        .split(':')
+        .next()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .unwrap_or(fallback)
+        .to_ascii_lowercase()
 }
 
 fn cosine_similarity(left: &[f32], right: &[f32]) -> Option<f64> {
@@ -301,27 +458,31 @@ mod tests {
     }
 
     #[test]
-    fn semantic_reranker_improves_recall_at_five_mrr_and_ndcg_without_losing_recall_at_twenty() {
+    fn cross_encoder_reranker_improves_recall_at_five_mrr_and_ndcg_without_losing_recall_at_twenty()
+    {
         let fixture: serde_json::Value = serde_json::from_str(include_str!(
             "../../../../../evals/semantic_reranker_cases.json"
         ))
         .expect("semantic reranker fixture");
-        assert_eq!(fixture["schemaVersion"], "qa-semantic-reranker-cases-v1");
+        assert_eq!(
+            fixture["schemaVersion"],
+            "qa-cross-encoder-reranker-cases-v2"
+        );
         assert_eq!(
             fixture["datasetRole"],
-            "model_independent_reranker_regression"
+            "model_independent_cross_encoder_regression"
         );
         let cases = fixture["cases"].as_array().expect("cases");
         assert_eq!(cases.len(), fixture["caseCount"].as_u64().unwrap() as usize);
         assert!(cases.len() >= 10);
         let mut deterministic_recall5 = 0.0;
-        let mut semantic_recall5 = 0.0;
+        let mut cross_encoder_recall5 = 0.0;
         let mut deterministic_recall20 = 0.0;
-        let mut semantic_recall20 = 0.0;
+        let mut cross_encoder_recall20 = 0.0;
         let mut deterministic_mrr = 0.0;
-        let mut semantic_mrr = 0.0;
+        let mut cross_encoder_mrr = 0.0;
         let mut deterministic_ndcg = 0.0;
-        let mut semantic_ndcg = 0.0;
+        let mut cross_encoder_ndcg = 0.0;
 
         for case in cases {
             let query = case["query"].as_str().expect("query");
@@ -346,20 +507,16 @@ mod tests {
                 .rerank(query, candidates.clone(), &HashSet::new())
                 .unwrap()
                 .candidates;
-            let embedder = |texts: Vec<String>| {
-                Ok(texts
-                    .into_iter()
-                    .enumerate()
-                    .map(|(index, text)| {
-                        if index == 0 || text.contains(target_title) {
-                            vec![1.0, 0.0]
-                        } else {
-                            vec![0.0, 1.0]
-                        }
-                    })
-                    .collect())
+            let scorer = |_query: &str, documents: Vec<String>| {
+                let mut scores = (0..documents.len())
+                    .map(|index| 0.05 + index as f32 * 0.01)
+                    .collect::<Vec<_>>();
+                if let Some(last) = scores.last_mut() {
+                    *last = 0.95;
+                }
+                Ok(scores)
             };
-            let semantic = SemanticResearchReranker::new(&embedder)
+            let cross_encoder = CrossEncoderResearchReranker::new(&scorer)
                 .rerank(query, candidates, &HashSet::new())
                 .unwrap()
                 .candidates;
@@ -371,29 +528,35 @@ mod tests {
                     .unwrap_or(usize::MAX)
             };
             let deterministic_rank = rank(&deterministic);
-            let semantic_rank = rank(&semantic);
+            let cross_encoder_rank = rank(&cross_encoder);
             deterministic_recall5 += f64::from(deterministic_rank <= 5);
-            semantic_recall5 += f64::from(semantic_rank <= 5);
+            cross_encoder_recall5 += f64::from(cross_encoder_rank <= 5);
             deterministic_recall20 += f64::from(deterministic_rank <= 20);
-            semantic_recall20 += f64::from(semantic_rank <= 20);
+            cross_encoder_recall20 += f64::from(cross_encoder_rank <= 20);
             deterministic_mrr += 1.0 / deterministic_rank as f64;
-            semantic_mrr += 1.0 / semantic_rank as f64;
+            cross_encoder_mrr += 1.0 / cross_encoder_rank as f64;
             deterministic_ndcg += 1.0 / (deterministic_rank as f64 + 1.0).log2();
-            semantic_ndcg += 1.0 / (semantic_rank as f64 + 1.0).log2();
+            cross_encoder_ndcg += 1.0 / (cross_encoder_rank as f64 + 1.0).log2();
         }
         let count = cases.len() as f64;
-        assert!(semantic_recall5 / count > deterministic_recall5 / count);
-        assert!(semantic_mrr / count > deterministic_mrr / count);
-        assert!(semantic_ndcg / count > deterministic_ndcg / count);
-        assert_eq!(semantic_recall20 / count, deterministic_recall20 / count);
-        assert_eq!(semantic_recall20 / count, 1.0);
+        assert!(cross_encoder_recall5 / count > deterministic_recall5 / count);
+        assert!(cross_encoder_mrr / count > deterministic_mrr / count);
+        assert!(cross_encoder_ndcg / count > deterministic_ndcg / count);
+        assert_eq!(
+            cross_encoder_recall20 / count,
+            deterministic_recall20 / count
+        );
+        assert_eq!(cross_encoder_recall20 / count, 1.0);
     }
 
     #[test]
     fn hybrid_reranker_falls_back_to_deterministic_with_stable_reason() {
         let embedder =
             |_texts: Vec<String>| Err("SEMANTIC_UNAVAILABLE: fixture model missing".to_string());
-        let outcome = HybridResearchReranker::new(&embedder)
+        let scorer = |_query: &str, _documents: Vec<String>| {
+            Err("CROSS_ENCODER_UNAVAILABLE: fixture model missing".to_string())
+        };
+        let outcome = HybridResearchReranker::new(&embedder, &scorer)
             .rerank(
                 "TSP",
                 vec![candidate(
@@ -406,17 +569,23 @@ mod tests {
             )
             .unwrap();
         assert!(outcome.fallback);
-        assert_eq!(outcome.fallback_reason, "reranker_unavailable");
-        assert_eq!(outcome.reranker_version, "hybrid-semantic-research-v1");
+        assert_eq!(
+            outcome.fallback_reason,
+            "cross_encoder_unavailable+reranker_unavailable"
+        );
+        assert_eq!(outcome.reranker_version, "deterministic-research-v2");
         assert!(outcome.candidates[0]
             .retrieval_reason
-            .contains("semantic_reranker_fallback=deterministic"));
+            .contains("cross_encoder_fallback=deterministic"));
     }
 
     #[test]
     fn hybrid_reranker_never_converts_cancellation_into_fallback() {
-        let embedder = |_texts: Vec<String>| Err("QUESTION_CANCELLED: 用户停止了问答".to_string());
-        let error = HybridResearchReranker::new(&embedder)
+        let embedder = |_texts: Vec<String>| Ok(vec![vec![1.0, 0.0]]);
+        let scorer = |_query: &str, _documents: Vec<String>| {
+            Err("QUESTION_CANCELLED: 用户停止了问答".to_string())
+        };
+        let error = HybridResearchReranker::new(&embedder, &scorer)
             .rerank(
                 "TSP",
                 vec![candidate(
@@ -429,5 +598,65 @@ mod tests {
             )
             .unwrap_err();
         assert!(error.starts_with("QUESTION_CANCELLED"));
+    }
+
+    #[test]
+    fn cross_encoder_success_is_distinct_from_embedding_fallback() {
+        let embedder =
+            |_texts: Vec<String>| Err("SEMANTIC_UNAVAILABLE: should not be called".to_string());
+        let scorer = |_query: &str, documents: Vec<String>| {
+            Ok((0..documents.len()).map(|index| index as f32).collect())
+        };
+        let outcome = HybridResearchReranker::new(&embedder, &scorer)
+            .rerank(
+                "TSP",
+                vec![
+                    candidate("noise", "content_block_v2", "noise.md", 0.4),
+                    candidate("TSP", "content_block_v2", "tsp.md", 0.1),
+                ],
+                &HashSet::new(),
+            )
+            .unwrap();
+        assert!(!outcome.fallback);
+        assert_eq!(outcome.reranker_version, "cross-encoder-research-v1");
+        assert!(outcome.candidates[0]
+            .retrieval_reason
+            .contains("fused_rrf="));
+    }
+
+    #[test]
+    fn embedding_fallback_is_explicitly_named_and_audited() {
+        let embedder = |texts: Vec<String>| {
+            Ok(texts
+                .into_iter()
+                .enumerate()
+                .map(|(index, _)| {
+                    if index == 0 || index == 2 {
+                        vec![1.0, 0.0]
+                    } else {
+                        vec![0.0, 1.0]
+                    }
+                })
+                .collect())
+        };
+        let scorer = |_query: &str, _documents: Vec<String>| {
+            Err("CROSS_ENCODER_UNAVAILABLE: model missing".to_string())
+        };
+        let outcome = HybridResearchReranker::new(&embedder, &scorer)
+            .rerank(
+                "TSP",
+                vec![
+                    candidate("noise", "content_block_v2", "noise.md", 0.4),
+                    candidate("TSP", "content_block_v2", "tsp.md", 0.1),
+                ],
+                &HashSet::new(),
+            )
+            .unwrap();
+        assert!(outcome.fallback);
+        assert_eq!(outcome.reranker_version, "embedding-rescorer-v2");
+        assert_eq!(outcome.fallback_reason, "cross_encoder_unavailable");
+        assert!(outcome.candidates[0]
+            .retrieval_reason
+            .contains("cross_encoder_fallback=embedding_rescorer"));
     }
 }
