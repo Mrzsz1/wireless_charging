@@ -3334,6 +3334,23 @@ async fn ask_luna(
             .to_string();
         let planner_timeout = Duration::from_secs(settings.timeout_seconds.clamp(30, 60));
         let planner_cancel = worker_cancel.clone();
+        let understanding_cancel = worker_cancel.clone();
+        let understanding_model = planner_model.clone();
+        let understanding_effort = planner_effort.clone();
+        let mut understanding_planner = |input: &qa::UnderstandingPlanningInput| {
+            let prompt = qa::understanding_prompt(input);
+            let schema = qa::understanding_schema();
+            let (raw, _) = codex_subscription::stream_answer(
+                &prompt,
+                Some(&schema),
+                &understanding_model,
+                &understanding_effort,
+                planner_timeout,
+                &understanding_cancel,
+                |_| Ok(()),
+            )?;
+            qa::parse_understanding_plan(&raw, input)
+        };
         let mut query_planner = |input: &qa::QueryPlanningInput| {
             let prompt = qa::query_plan_prompt(input);
             let schema = qa::query_plan_schema();
@@ -3352,7 +3369,13 @@ async fn ask_luna(
             &mut query_planner
                 as &mut dyn FnMut(&qa::QueryPlanningInput) -> Result<qa::QueryPlan, String>,
         );
-        let context = qa::prepare_question_with_history_budget_and_planner(
+        let understanding = planner_enabled.then_some(
+            &mut understanding_planner
+                as &mut dyn FnMut(
+                    &qa::UnderstandingPlanningInput,
+                ) -> Result<qa::UnderstandingPlan, String>,
+        );
+        let context = qa::prepare_question_with_history_budget_and_planners(
             &connection,
             &worker_root,
             &worker_request.question,
@@ -3363,6 +3386,7 @@ async fn ask_luna(
             settings.context_window_tokens,
             settings.max_output_tokens,
             planner,
+            understanding,
         )?;
         connection
             .execute_batch("COMMIT;")

@@ -56,6 +56,23 @@ requested channel attempt、文档 Recall@5/10/20、heading Recall、MRR、nDCG@
 validity、零证据 FN/FP、轮数、耗时以及逐题 legacy/v2 改善和退化。关键用例与 Top20、
 locator、通道、来源解析属于硬门禁；平均排序指标用于诊断，不能单独掩盖关键来源失败。
 
+## Conversation Understanding 回归
+
+`conversation_understanding_cases.json` 冻结 10 个真实库内对象与 5 类 follow-up
+表达的笛卡尔积，共 50 个多轮问题，另含两个序数指代边界用例。它覆盖普通指代、方法改进、
+模型来源、方案比较、可迁移解法，以及“第二种/第三个方案”。
+
+运行：
+
+```powershell
+cd apps/desktop/src-tauri
+cargo test frozen_follow_up_matrix_covers_fifty_resolution_and_routing_cases --lib
+```
+
+测试要求 standalone question 带回正确实体、记录实际使用的历史消息 ID，并得到冻结的
+`ResearchIntent` 与 `ExecutionMode`。该题集属于 development/regression，不替代独立 held-out。
+当前冻结结果见 `conversation-understanding-baseline.md`。
+
 ## Production held-out 准确率
 
 `heldout_questions.json` 是独立冻结入口。当前状态为 `awaiting_independent_curation`，不预填模型自行构造的“真值”。冻结要求：

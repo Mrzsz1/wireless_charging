@@ -11,7 +11,7 @@ pub const ANSWER_SCHEMA_VERSION: &str = "qa-natural-markdown-v2";
 pub const LEGACY_ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v3";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v5";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v6";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -112,6 +112,36 @@ pub struct QaRunManifest {
     pub query_plan_version: String,
     #[serde(default)]
     pub planner_status: String,
+    #[serde(default)]
+    pub planner_latency_ms: u64,
+    #[serde(default)]
+    pub planner_fallback: bool,
+    #[serde(default)]
+    pub planner_fallback_reason: String,
+    #[serde(default)]
+    pub resolver_used: String,
+    #[serde(default)]
+    pub resolver_status: String,
+    #[serde(default)]
+    pub resolver_latency_ms: u64,
+    #[serde(default)]
+    pub resolver_fallback: bool,
+    #[serde(default)]
+    pub resolver_fallback_reason: String,
+    #[serde(default)]
+    pub research_intent: String,
+    #[serde(default)]
+    pub execution_mode: String,
+    #[serde(default)]
+    pub routing_reason: String,
+    #[serde(default)]
+    pub router_used: String,
+    #[serde(default)]
+    pub router_status: String,
+    #[serde(default)]
+    pub router_latency_ms: u64,
+    #[serde(default)]
+    pub router_fallback: bool,
     #[serde(default)]
     pub planned_facet_ids: Vec<String>,
     #[serde(default)]
@@ -746,6 +776,8 @@ pub fn build_prompt_envelope(context: &QuestionContext) -> PromptEnvelope {
     let current_query = json!({
         "question": context.question,
         "intent": context.intent,
+        "researchIntent": context.retrieval_query.research_intent,
+        "executionMode": context.retrieval_query.execution_mode,
         "resolvedQuestion": context.retrieval_query.resolved_question,
         "resolvedEntities": context.retrieval_query.entities,
         "waterline": context.waterline,
@@ -899,6 +931,21 @@ pub fn build_run_manifest(
         answer_completeness,
         query_plan_version: context.retrieval_query.query_plan_version.clone(),
         planner_status: context.retrieval_query.planner_status.clone(),
+        planner_latency_ms: context.retrieval_query.planner_latency_ms,
+        planner_fallback: context.retrieval_query.planner_fallback,
+        planner_fallback_reason: context.retrieval_query.planner_fallback_reason.clone(),
+        resolver_used: context.retrieval_query.resolver_used.clone(),
+        resolver_status: context.retrieval_query.resolver_status.clone(),
+        resolver_latency_ms: context.retrieval_query.resolver_latency_ms,
+        resolver_fallback: context.retrieval_query.resolver_fallback,
+        resolver_fallback_reason: context.retrieval_query.resolver_fallback_reason.clone(),
+        research_intent: context.retrieval_query.research_intent.clone(),
+        execution_mode: context.retrieval_query.execution_mode.clone(),
+        routing_reason: context.retrieval_query.routing_reason.clone(),
+        router_used: context.retrieval_query.router_used.clone(),
+        router_status: context.retrieval_query.router_status.clone(),
+        router_latency_ms: context.retrieval_query.router_latency_ms,
+        router_fallback: context.retrieval_query.router_fallback,
         planned_facet_ids: context.retrieval_query.facet_ids.clone(),
         covered_facet_ids: context.retrieval_query.covered_facet_ids.clone(),
         reranker_version: "deterministic-research-v2".to_string(),

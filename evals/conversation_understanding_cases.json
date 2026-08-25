@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "qa-conversation-understanding-cases-v1",
+  "datasetRole": "development_regression",
+  "caseCount": 50,
+  "subjects": [
+    {"id": "rose", "entity": "ROSE", "historyQuestion": "ROSE 这篇论文研究什么？", "historyAnswer": "ROSE 研究多径干涉下的鲁棒安全功率调度。"},
+    {"id": "ccsp", "entity": "CCSP", "historyQuestion": "CCSP 的调度对象是什么？", "historyAnswer": "CCSP 面向并发无线充电的开关调度。"},
+    {"id": "gain", "entity": "GAIN", "historyQuestion": "GAIN 方法解决什么问题？", "historyAnswer": "GAIN 利用干涉增强进行无线充电器放置。"},
+    {"id": "tide", "entity": "TIDE", "historyQuestion": "TIDE 的主要机制是什么？", "historyAnswer": "TIDE 根据在线请求调整定向充电器的功率与朝向。"},
+    {"id": "wanda", "entity": "WANDA", "historyQuestion": "WANDA 怎样使用多天线？", "historyAnswer": "WANDA 在放置时考虑多天线及相对朝向。"},
+    {"id": "hipo", "entity": "HIPO", "historyQuestion": "HIPO 处理什么场景？", "historyAnswer": "HIPO 处理存在障碍时的异构无线充电器放置。"},
+    {"id": "ra-dmcs", "entity": "RA-DMCS", "historyQuestion": "RA-DMCS 的核心任务是什么？", "historyAnswer": "RA-DMCS 处理路由非对称条件下的定向移动充电。"},
+    {"id": "felkh-3d", "entity": "FELKH-3D", "historyQuestion": "FELKH-3D 用于什么模型？", "historyAnswer": "FELKH-3D 用于三维定向 UAV 充电。"},
+    {"id": "ihatrpo", "entity": "IHATRPO", "historyQuestion": "IHATRPO 协调哪些设备？", "historyAnswer": "IHATRPO 协调异构空中与地面充电车辆。"},
+    {"id": "diccs", "entity": "DICCS", "historyQuestion": "DICCS 的基本思路是什么？", "historyAnswer": "DICCS 使用动态非均匀聚类和混合优先级。"}
+  ],
+  "patterns": [
+    {"id": "reference", "question": "它的核心目标是什么？", "expectedIntent": "follow_up", "expectedMode": "research"},
+    {"id": "improvement", "question": "这个方法还能改进吗？", "expectedIntent": "method_improvement", "expectedMode": "exploratory"},
+    {"id": "origin", "question": "这个模型怎么来的？", "expectedIntent": "origin_derivation", "expectedMode": "research"},
+    {"id": "comparison", "question": "它和另一种方案有什么区别？", "expectedIntent": "comparison", "expectedMode": "research"},
+    {"id": "solution", "question": "它有没有解法可以迁移？", "expectedIntent": "solution_search", "expectedMode": "exploratory"}
+  ],
+  "ordinalCases": [
+    {
+      "id": "second-method",
+      "question": "第二种方法呢？",
+      "historyAnswer": "1. 确定性贪心调度\n2. 语义重排方案\n3. 多轮补充检索",
+      "expectedEntity": "语义重排方案"
+    },
+    {
+      "id": "third-option",
+      "question": "第三个方案有什么限制？",
+      "historyAnswer": "1. 直接问答\n2. 研究问答\n3. 探索式研究",
+      "expectedEntity": "探索式研究"
+    }
+  ]
+}

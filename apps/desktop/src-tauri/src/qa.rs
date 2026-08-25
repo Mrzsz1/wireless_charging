@@ -17,6 +17,7 @@ mod semantic;
 mod session;
 mod source_resolver;
 mod structured_answer;
+mod understanding;
 pub(crate) mod vector_store;
 pub(crate) mod vector_sync;
 
@@ -37,6 +38,11 @@ pub use query_plan::{
     QueryPlanningInput,
 };
 pub type QueryPlanner<'a> = dyn FnMut(&QueryPlanningInput) -> Result<QueryPlan, String> + 'a;
+pub use understanding::{
+    parse_understanding_plan, understanding_prompt, understanding_schema, UnderstandingPlan,
+    UnderstandingPlanningInput,
+};
+pub type QuestionUnderstandingPlanner<'a> = understanding::UnderstandingPlanner<'a>;
 #[cfg(test)]
 pub use query_plan::{QueryBudget, QueryScope};
 pub(crate) use semantic::{
@@ -199,6 +205,30 @@ pub struct RetrievalQuery {
     pub intent: String,
     pub used_history_message_ids: Vec<String>,
     #[serde(default)]
+    pub research_intent: String,
+    #[serde(default)]
+    pub execution_mode: String,
+    #[serde(default)]
+    pub routing_reason: String,
+    #[serde(default)]
+    pub resolver_used: String,
+    #[serde(default)]
+    pub resolver_status: String,
+    #[serde(default)]
+    pub resolver_latency_ms: u64,
+    #[serde(default)]
+    pub resolver_fallback: bool,
+    #[serde(default)]
+    pub resolver_fallback_reason: String,
+    #[serde(default)]
+    pub router_used: String,
+    #[serde(default)]
+    pub router_status: String,
+    #[serde(default)]
+    pub router_latency_ms: u64,
+    #[serde(default)]
+    pub router_fallback: bool,
+    #[serde(default)]
     pub query_plan_version: String,
     #[serde(default)]
     pub facet_ids: Vec<String>,
@@ -208,6 +238,12 @@ pub struct RetrievalQuery {
     pub planner_used: bool,
     #[serde(default)]
     pub planner_status: String,
+    #[serde(default)]
+    pub planner_latency_ms: u64,
+    #[serde(default)]
+    pub planner_fallback: bool,
+    #[serde(default)]
+    pub planner_fallback_reason: String,
     #[serde(default)]
     pub requested_kinds: Vec<String>,
     #[serde(default)]
@@ -416,11 +452,7 @@ struct Candidate {
     retrieval_reason: String,
 }
 
-#[derive(Clone)]
-struct ResolvedEntity {
-    value: String,
-    source_message_id: String,
-}
+type ResolvedEntity = understanding::EntityCandidate;
 
 pub fn db_schema(connection: &Connection) -> Result<(), String> {
     connection
@@ -755,31 +787,7 @@ pub fn conversation_history(
 }
 
 fn contains_reference(question: &str) -> bool {
-    let lower = question.to_lowercase();
-    [
-        "它",
-        "它们",
-        "二者",
-        "两者",
-        "这些",
-        "上述",
-        "前者",
-        "后者",
-        "那个",
-        "那种",
-        "该方法",
-        "该模型",
-        "第二个",
-        "上一个",
-        "继续",
-        "they",
-        "them",
-        "these",
-        "those",
-        "both",
-    ]
-    .iter()
-    .any(|marker| lower.contains(marker))
+    understanding::contains_reference(question)
 }
 
 fn extract_question_entities(connection: &Connection, question: &str) -> Vec<String> {
@@ -931,47 +939,59 @@ pub fn build_retrieval_query(
     question: &str,
     history: &[ConversationTurn],
 ) -> RetrievalQuery {
+    build_retrieval_query_with_understanding(connection, question, history, None)
+}
+
+fn build_retrieval_query_with_understanding<'a>(
+    connection: &Connection,
+    question: &str,
+    history: &[ConversationTurn],
+    planner: Option<&'a mut QuestionUnderstandingPlanner<'a>>,
+) -> RetrievalQuery {
     let original_question = question.trim().to_string();
-    // The Provider-native QueryPlan selects the answer profile after baseline
-    // retrieval. This value is only the fail-soft profile when no planner is
-    // available; no question phrase is routed here.
-    let question_intent = INTENT_SOLVE.to_string();
     let explicit_entities = extract_question_entities(connection, &original_question);
-    let entities = if contains_reference(&original_question) && explicit_entities.len() < 2 {
+    let history_entities = if contains_reference(&original_question) && explicit_entities.len() < 2
+    {
         extract_history_entities(connection, history)
     } else {
         Vec::new()
     };
-    let entity_values = entities
-        .iter()
-        .map(|entity| entity.value.clone())
-        .collect::<Vec<_>>();
-    let resolved_question = if entity_values.is_empty() {
-        original_question.clone()
-    } else {
-        format!(
-            "{} 相关实体：{}",
-            original_question,
-            entity_values.join("；")
-        )
-    };
-    let mut seen_message_ids = HashSet::new();
-    let used_history_message_ids = entities
-        .iter()
-        .filter(|entity| seen_message_ids.insert(entity.source_message_id.clone()))
-        .map(|entity| entity.source_message_id.clone())
-        .collect();
+    let input = understanding::UnderstandingPlanningInput::new(
+        &original_question,
+        history,
+        explicit_entities,
+        history_entities,
+    );
+    let understood = understanding::resolve_and_route(&input, planner);
+    let routed = understood.routed;
+    let diagnostics = understood.diagnostics;
+    let question_intent = routed.query.intent.answer_profile().to_string();
     RetrievalQuery {
-        original_question,
-        resolved_question,
-        entities: entity_values,
+        original_question: routed.query.original_question,
+        resolved_question: routed.query.standalone_question,
+        entities: routed.query.entities,
         intent: question_intent,
-        used_history_message_ids,
+        used_history_message_ids: routed.query.used_history_message_ids,
+        research_intent: routed.query.intent.as_str().to_string(),
+        execution_mode: routed.execution_mode.as_str().to_string(),
+        routing_reason: routed.routing_reason,
+        resolver_used: diagnostics.resolver_used,
+        resolver_status: diagnostics.resolver_status,
+        resolver_latency_ms: diagnostics.resolver_latency_ms,
+        resolver_fallback: diagnostics.resolver_fallback,
+        resolver_fallback_reason: diagnostics.resolver_fallback_reason,
+        router_used: diagnostics.router_used,
+        router_status: diagnostics.router_status,
+        router_latency_ms: diagnostics.router_latency_ms,
+        router_fallback: diagnostics.router_fallback,
         query_plan_version: String::new(),
         facet_ids: Vec::new(),
         covered_facet_ids: Vec::new(),
         planner_used: false,
         planner_status: "not_requested".to_string(),
+        planner_latency_ms: 0,
+        planner_fallback: false,
+        planner_fallback_reason: String::new(),
         requested_kinds: Vec::new(),
         attempted_kinds: Vec::new(),
         source_gaps: Vec::new(),
@@ -1332,21 +1352,14 @@ fn legacy_surface_coverage_complete(
     required_kinds_present && required_facets_covered
 }
 
-fn answer_profile_for_contract(plan: &QueryPlan) -> String {
+fn answer_profile_for_contract(plan: &QueryPlan, routed_profile: &str) -> String {
     if matches!(
         plan.legacy_ranking_profile.as_str(),
         "solve" | "novelty" | "relationship" | "literature"
     ) {
         return plan.legacy_ranking_profile.clone();
     }
-    if plan.scope.mode == "open"
-        && plan.must_attempt_kinds.iter().any(|kind| kind == "paper")
-        && plan.must_attempt_kinds.iter().any(|kind| kind == "book")
-    {
-        "literature".to_string()
-    } else {
-        INTENT_SOLVE.to_string()
-    }
+    routed_profile.to_string()
 }
 
 fn retrieve_pass(
@@ -2100,7 +2113,36 @@ pub fn prepare_question_with_history_budget_and_planner(
     cancelled: Option<&AtomicBool>,
     context_window_tokens: u32,
     max_output_tokens: u32,
+    planner: Option<&mut QueryPlanner<'_>>,
+) -> Result<QuestionContext, String> {
+    prepare_question_with_history_budget_and_planners(
+        connection,
+        root,
+        question,
+        limit,
+        request_id,
+        conversation,
+        cancelled,
+        context_window_tokens,
+        max_output_tokens,
+        planner,
+        None,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn prepare_question_with_history_budget_and_planners<'a>(
+    connection: &Connection,
+    root: &Path,
+    question: &str,
+    limit: usize,
+    request_id: &str,
+    conversation: Vec<ConversationTurn>,
+    cancelled: Option<&AtomicBool>,
+    context_window_tokens: u32,
+    max_output_tokens: u32,
     mut planner: Option<&mut QueryPlanner<'_>>,
+    understanding_planner: Option<&'a mut QuestionUnderstandingPlanner<'a>>,
 ) -> Result<QuestionContext, String> {
     let question = question.trim();
     if question.chars().count() < 2 {
@@ -2120,7 +2162,12 @@ pub fn prepare_question_with_history_budget_and_planner(
     }
     check_cancelled(cancelled)?;
     let mut diagnostics = RetrievalDiagnosticsBuilder::new();
-    let mut retrieval_query = build_retrieval_query(connection, question, &conversation);
+    let mut retrieval_query = build_retrieval_query_with_understanding(
+        connection,
+        question,
+        &conversation,
+        understanding_planner,
+    );
     let initial_terms = query_terms(&retrieval_query.resolved_question);
     let mut known_terms = initial_terms.iter().cloned().collect::<HashSet<_>>();
     let mut candidates = retrieve_pass(
@@ -2162,6 +2209,7 @@ pub fn prepare_question_with_history_budget_and_planner(
     let mut planner_used = false;
     if let Some(planner) = planner.as_mut() {
         check_cancelled(cancelled)?;
+        let planner_started = Instant::now();
         match planner(&planning_input(
             &retrieval_query.resolved_question,
             &candidates,
@@ -2173,13 +2221,19 @@ pub fn prepare_question_with_history_budget_and_planner(
             }
             Err(_) => {
                 retrieval_query.planner_status = "failed_fallback".to_string();
+                retrieval_query.planner_fallback = true;
+                retrieval_query.planner_fallback_reason = "provider_error".to_string();
             }
         }
+        retrieval_query.planner_latency_ms = planner_started
+            .elapsed()
+            .as_millis()
+            .min(u128::from(u64::MAX)) as u64;
     }
     let question_intent = if planner_used {
-        answer_profile_for_contract(&plan)
+        answer_profile_for_contract(&plan, &retrieval_query.intent)
     } else {
-        INTENT_SOLVE.to_string()
+        retrieval_query.intent.clone()
     };
     retrieval_query.intent = question_intent.clone();
     retrieval_query.query_plan_version = query_plan::QUERY_PLAN_VERSION.to_string();
@@ -4110,6 +4164,11 @@ mod tests {
         .unwrap();
         assert!(!context.retrieval_query.planner_used);
         assert_eq!(context.retrieval_query.planner_status, "failed_fallback");
+        assert!(context.retrieval_query.planner_fallback);
+        assert_eq!(
+            context.retrieval_query.planner_fallback_reason,
+            "provider_error"
+        );
     }
 
     #[test]
@@ -4401,9 +4460,16 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v5");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v6");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
+        assert_eq!(result.run_manifest.resolver_status, "succeeded");
+        assert_eq!(
+            result.run_manifest.resolver_used,
+            "deterministic-conversation-v1"
+        );
+        assert_eq!(result.run_manifest.research_intent, "direct_factual");
+        assert_eq!(result.run_manifest.execution_mode, "direct");
         assert_eq!(result.run_manifest.model_requested, "fixture-requested");
         assert_eq!(result.run_manifest.model_resolved, "fixture-resolved");
         assert_eq!(

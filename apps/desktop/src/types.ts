@@ -576,6 +576,21 @@ export type QaRunManifest = {
   answerCompleteness: AnswerCompletenessValidation
   queryPlanVersion?: string
   plannerStatus?: string
+  plannerLatencyMs?: number
+  plannerFallback?: boolean
+  plannerFallbackReason?: string
+  resolverUsed?: string
+  resolverStatus?: string
+  resolverLatencyMs?: number
+  resolverFallback?: boolean
+  resolverFallbackReason?: string
+  researchIntent?: string
+  executionMode?: 'direct' | 'research' | 'exploratory' | string
+  routingReason?: string
+  routerUsed?: string
+  routerStatus?: string
+  routerLatencyMs?: number
+  routerFallback?: boolean
   plannedFacetIds?: string[]
   coveredFacetIds?: string[]
   rerankerVersion?: string
@@ -644,11 +659,26 @@ export type QuestionContext = {
     entities: string[]
     intent: string
     usedHistoryMessageIds: string[]
+    researchIntent?: string
+    executionMode?: 'direct' | 'research' | 'exploratory' | string
+    routingReason?: string
+    resolverUsed?: string
+    resolverStatus?: string
+    resolverLatencyMs?: number
+    resolverFallback?: boolean
+    resolverFallbackReason?: string
+    routerUsed?: string
+    routerStatus?: string
+    routerLatencyMs?: number
+    routerFallback?: boolean
     queryPlanVersion?: string
     facetIds?: string[]
     coveredFacetIds?: string[]
     plannerUsed?: boolean
     plannerStatus?: string
+    plannerLatencyMs?: number
+    plannerFallback?: boolean
+    plannerFallbackReason?: string
     requestedKinds?: string[]
     attemptedKinds?: string[]
     sourceGaps?: string[]
