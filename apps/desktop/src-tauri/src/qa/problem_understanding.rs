@@ -190,7 +190,6 @@ pub fn understand(question: &str) -> ProblemUnderstandingResult {
         Ok(representation) => {
             let candidate_methods = matcher.match_methods(&representation);
             let mut search_terms = representation.related_problem_types.clone();
-            search_terms.extend(candidate_methods.iter().map(|item| item.method.clone()));
             search_terms.extend(representation.objectives.iter().cloned());
             deduplicate(&mut search_terms);
             ProblemUnderstandingResult {

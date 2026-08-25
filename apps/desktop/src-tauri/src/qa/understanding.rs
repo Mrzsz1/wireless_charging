@@ -469,7 +469,18 @@ fn deterministic_route(
     resolved: &ResolvedQuestion,
 ) -> (ResearchIntent, ExecutionMode, &'static str) {
     let question = resolved.standalone_question.to_lowercase();
-    if contains_any(&question, &["新颖", "创新性", "novel", "是否有人做过"]) {
+    if contains_any(
+        &question,
+        &[
+            "新颖",
+            "创新性",
+            "novel",
+            "是否有人做过",
+            "idea",
+            "是否已经覆盖",
+            "是否已有完整解法",
+        ],
+    ) {
         return (
             ResearchIntent::Novelty,
             ExecutionMode::Research,
@@ -503,13 +514,33 @@ fn deterministic_route(
             "origin_markers",
         );
     }
-    if contains_any(
+    if !contains_any(
+        &question,
+        &[
+            "怎么建模",
+            "如何建模",
+            "目标函数",
+            "问题模型",
+            "约束条件",
+            "论文",
+            "文献",
+            "哪项工作",
+            "哪本书",
+        ],
+    ) && contains_any(
         &question,
         &[
             "有没有解法",
             "有什么算法可以解",
             "如何求解",
             "怎么求解",
+            "有哪些办法",
+            "有什么办法",
+            "有什么可直接使用的方法",
+            "怎样",
+            "如何",
+            "如何降低",
+            "应该参考",
             "solution",
         ],
     ) {
@@ -531,7 +562,16 @@ fn deterministic_route(
     }
     if contains_any(
         &question,
-        &["比较", "区别", "差异", "关系", "相比", "versus", " vs "],
+        &[
+            "比较",
+            "区别",
+            "差异",
+            "关系",
+            "相比",
+            "不能直接替代",
+            "versus",
+            " vs ",
+        ],
     ) {
         return (
             ResearchIntent::Comparison,
@@ -548,6 +588,8 @@ fn deterministic_route(
             "相关文献",
             "有没有文献",
             "哪本书",
+            "论文",
+            "哪项工作",
             "literature",
             "which paper",
         ],

@@ -21,12 +21,12 @@
 
 ## Phase C — Executable routing budgets
 
-- [ ] Add `LlmBudgetGuard` tests for reservation, usage, rejection and fallback.
-- [ ] Enforce `planner_enabled`; set DirectQA maximum retrieval rounds to one.
-- [ ] Route resolver/planner/generator/verifier calls through the request-scoped guard.
-- [ ] Persist actual calls/tokens and rejection diagnostics.
-- [ ] Run routing, latency and regression gates.
-- [ ] Commit locally: `fix(qa): enforce adaptive routing budgets`.
+- [x] Add `LlmBudgetGuard` tests for reservation, usage, rejection and fallback.
+- [x] Enforce `planner_enabled`; set DirectQA maximum retrieval rounds to one.
+- [x] Route resolver/planner/generator/verifier calls through the request-scoped guard.
+- [x] Persist actual calls/tokens and rejection diagnostics.
+- [x] Run routing, latency and regression gates.
+- [x] Commit locally: `fix(qa): enforce adaptive routing budgets`.
 
 ## Phase D — Provider capability symmetry
 

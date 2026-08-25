@@ -3322,6 +3322,10 @@ async fn ask_luna(
         }
         let settings = qa::get_luna_settings(&connection, &worker_root, false)?;
         let planner_enabled = settings.answer_provider == qa::PROVIDER_CODEX;
+        let initial_route =
+            qa::build_retrieval_query(&connection, &worker_request.question, &conversation);
+        let budget_guard =
+            qa::LlmBudgetGuard::new(qa::routing_policy(&initial_route.execution_mode));
         let planner_model = worker_request
             .codex_model
             .as_deref()
@@ -3337,10 +3341,13 @@ async fn ask_luna(
         let understanding_cancel = worker_cancel.clone();
         let understanding_model = planner_model.clone();
         let understanding_effort = planner_effort.clone();
+        let understanding_budget = budget_guard.clone();
         let mut understanding_planner = |input: &qa::UnderstandingPlanningInput| {
             let prompt = qa::understanding_prompt(input);
             let schema = qa::understanding_schema();
-            let (raw, _) = codex_subscription::stream_answer(
+            let reserved = qa::estimate_tokens(&prompt).saturating_add(1_024);
+            understanding_budget.reserve("understanding", reserved)?;
+            let result = codex_subscription::stream_answer(
                 &prompt,
                 Some(&schema),
                 &understanding_model,
@@ -3348,13 +3355,32 @@ async fn ask_luna(
                 planner_timeout,
                 &understanding_cancel,
                 |_| Ok(()),
-            )?;
+            );
+            let (raw, _) = match result {
+                Ok(value) => value,
+                Err(error) => {
+                    understanding_budget.settle(
+                        "understanding",
+                        qa::estimate_tokens(&prompt),
+                        reserved,
+                    );
+                    return Err(error);
+                }
+            };
+            understanding_budget.settle(
+                "understanding",
+                qa::estimate_tokens(&prompt).saturating_add(qa::estimate_tokens(&raw)),
+                reserved,
+            );
             qa::parse_understanding_plan(&raw, input)
         };
+        let planner_budget = budget_guard.clone();
         let mut query_planner = |input: &qa::QueryPlanningInput| {
             let prompt = qa::query_plan_prompt(input);
             let schema = qa::query_plan_schema();
-            let (raw, _) = codex_subscription::stream_answer(
+            let reserved = qa::estimate_tokens(&prompt).saturating_add(1_536);
+            planner_budget.reserve("planner", reserved)?;
+            let result = codex_subscription::stream_answer(
                 &prompt,
                 Some(&schema),
                 &planner_model,
@@ -3362,7 +3388,19 @@ async fn ask_luna(
                 planner_timeout,
                 &planner_cancel,
                 |_| Ok(()),
-            )?;
+            );
+            let (raw, _) = match result {
+                Ok(value) => value,
+                Err(error) => {
+                    planner_budget.settle("planner", qa::estimate_tokens(&prompt), reserved);
+                    return Err(error);
+                }
+            };
+            planner_budget.settle(
+                "planner",
+                qa::estimate_tokens(&prompt).saturating_add(qa::estimate_tokens(&raw)),
+                reserved,
+            );
             qa::parse_query_plan(&raw, &input.resolved_question)
         };
         let planner = planner_enabled.then_some(
@@ -3387,16 +3425,17 @@ async fn ask_luna(
             settings.max_output_tokens,
             planner,
             understanding,
+            Some(&budget_guard),
         )?;
         connection
             .execute_batch("COMMIT;")
             .map_err(|error| format!("提交问答只读快照失败：{error}"))?;
-        Ok::<_, String>((context, settings))
+        Ok::<_, String>((context, settings, budget_guard))
     })
     .await
     .unwrap_or_else(|error| Err(format!("QUESTION_TASK_ERROR: {error}")));
 
-    let (context, settings) = match prepared {
+    let (mut context, settings, budget_guard) = match prepared {
         Ok(value) => value,
         Err(error)
             if cancel_flag.load(Ordering::SeqCst) || error.starts_with("QUESTION_CANCELLED") =>
@@ -3519,19 +3558,27 @@ async fn ask_luna(
         });
     }
 
-    let generated: Result<(String, String, String), String> =
-        match settings.answer_provider.as_str() {
-            qa::PROVIDER_CODEX if codex_ready => {
-                let prompt = qa::build_codex_prompt(&context);
-                let output_schema = qa::codex_output_schema(&context);
+    let generated: Result<(String, String, String), String> = match settings
+        .answer_provider
+        .as_str()
+    {
+        qa::PROVIDER_CODEX if codex_ready => {
+            let prompt = qa::build_codex_prompt(&context);
+            let output_schema = qa::codex_output_schema(&context);
+            let reserved = qa::estimate_tokens(&prompt).saturating_add(settings.max_output_tokens);
+            if let Err(error) = budget_guard.reserve("generator", reserved) {
+                Err(error)
+            } else {
                 let model = effective_codex_model.clone();
                 let reasoning_effort = effective_codex_effort.clone();
                 let timeout = Duration::from_secs(settings.timeout_seconds.max(180));
                 let stream_channel = on_event.clone();
                 let stream_request_id = request_id.clone();
                 let stream_cancel_flag = cancel_flag.clone();
+                let generation_budget = budget_guard.clone();
+                let prompt_cost = qa::estimate_tokens(&prompt);
                 tauri::async_runtime::spawn_blocking(move || {
-                    codex_subscription::stream_answer(
+                    let result = codex_subscription::stream_answer(
                         &prompt,
                         output_schema.as_ref(),
                         &model,
@@ -3546,24 +3593,36 @@ async fn ask_luna(
                                 })
                                 .map_err(|error| format!("CODEX_CHANNEL_ERROR: {error}"))
                         },
-                    )
-                    .map(|(answer, model)| (answer, qa::PROVIDER_CODEX.to_string(), model))
+                    );
+                    let actual = result
+                        .as_ref()
+                        .map(|(answer, _)| prompt_cost.saturating_add(qa::estimate_tokens(answer)))
+                        .unwrap_or(prompt_cost);
+                    generation_budget.settle("generator", actual, reserved);
+                    result.map(|(answer, model)| (answer, qa::PROVIDER_CODEX.to_string(), model))
                 })
                 .await
                 .map_err(|error| format!("CODEX_TASK_ERROR: {error}"))?
             }
-            qa::PROVIDER_CODEX => Err("CODEX_NOT_READY: 请在设置中登录 ChatGPT".to_string()),
-            qa::PROVIDER_API if settings.endpoint.is_empty() || !settings.api_key_configured => {
-                Err("LUNA_NOT_CONFIGURED: endpoint 或 API Key 环境变量尚未配置".to_string())
-            }
-            qa::PROVIDER_API => {
+        }
+        qa::PROVIDER_CODEX => Err("CODEX_NOT_READY: 请在设置中登录 ChatGPT".to_string()),
+        qa::PROVIDER_API if settings.endpoint.is_empty() || !settings.api_key_configured => {
+            Err("LUNA_NOT_CONFIGURED: endpoint 或 API Key 环境变量尚未配置".to_string())
+        }
+        qa::PROVIDER_API => {
+            let prompt_cost = qa::estimate_tokens(&qa::build_codex_prompt(&context));
+            let reserved = prompt_cost.saturating_add(settings.max_output_tokens);
+            if let Err(error) = budget_guard.reserve("generator", reserved) {
+                Err(error)
+            } else {
                 let remote_settings = settings.clone();
                 let remote_context = context.clone();
                 let stream_channel = on_event.clone();
                 let stream_request_id = request_id.clone();
                 let stream_cancel_flag = cancel_flag.clone();
+                let generation_budget = budget_guard.clone();
                 tauri::async_runtime::spawn_blocking(move || {
-                    qa::stream_luna(
+                    let result = qa::stream_luna(
                         &remote_settings,
                         &remote_context,
                         &stream_cancel_flag,
@@ -3575,21 +3634,27 @@ async fn ask_luna(
                                 })
                                 .map_err(|error| format!("LUNA_CHANNEL_ERROR: {error}"))
                         },
-                    )
-                    .map(|(answer, resolved_model)| {
+                    );
+                    let actual = result
+                        .as_ref()
+                        .map(|(answer, _)| prompt_cost.saturating_add(qa::estimate_tokens(answer)))
+                        .unwrap_or(prompt_cost);
+                    generation_budget.settle("generator", actual, reserved);
+                    result.map(|(answer, resolved_model)| {
                         (answer, qa::PROVIDER_API.to_string(), resolved_model)
                     })
                 })
                 .await
                 .map_err(|error| format!("LUNA_TASK_ERROR: {error}"))?
             }
-            qa::PROVIDER_OFFLINE => Ok((
-                qa::offline_answer(&context),
-                qa::PROVIDER_OFFLINE.to_string(),
-                "deterministic".to_string(),
-            )),
-            _ => Err("PROVIDER_INVALID: 不支持的回答引擎".to_string()),
-        };
+        }
+        qa::PROVIDER_OFFLINE => Ok((
+            qa::offline_answer(&context),
+            qa::PROVIDER_OFFLINE.to_string(),
+            "deterministic".to_string(),
+        )),
+        _ => Err("PROVIDER_INVALID: 不支持的回答引擎".to_string()),
+    };
 
     if cancel_flag.load(Ordering::SeqCst) {
         let _ = on_event.send(qa::AnswerStreamEvent::Cancelled {
@@ -3598,6 +3663,8 @@ async fn ask_luna(
         finish_answer_request(&state, &request_id);
         return Err("问答已取消".to_string());
     }
+
+    qa::record_llm_budget_usage(&mut context, budget_guard.usage());
 
     let (answer, provider, model, offline) = match generated {
         Ok((answer, provider, model)) => {

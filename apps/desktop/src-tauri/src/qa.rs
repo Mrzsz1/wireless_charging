@@ -26,11 +26,12 @@ mod understanding;
 pub(crate) mod vector_store;
 pub(crate) mod vector_sync;
 
+pub use adaptive_routing::{policy as routing_policy, LlmBudgetGuard, LlmBudgetUsage};
 use claim_verification::VerificationStatus;
 pub use claim_verification::VerifiedClaim;
 pub use context::{
-    CitationRepair, ContextBudget, ContextPlan, ProviderRunMetadata, QaRunManifest,
-    DEFAULT_CONTEXT_WINDOW_TOKENS,
+    estimate_tokens, CitationRepair, ContextBudget, ContextPlan, ProviderRunMetadata,
+    QaRunManifest, DEFAULT_CONTEXT_WINDOW_TOKENS,
 };
 use grounding::{claim_segments, extract_citation_ids};
 pub use grounding::{
@@ -305,6 +306,16 @@ pub struct RetrievalQuery {
     pub routing_llm_call_budget: usize,
     #[serde(default)]
     pub routing_token_cost_ceiling: u32,
+    #[serde(default)]
+    pub routing_llm_calls_used: usize,
+    #[serde(default)]
+    pub routing_token_cost_used: u32,
+    #[serde(default)]
+    pub routing_token_cost_reserved: u32,
+    #[serde(default)]
+    pub routing_budget_rejections: Vec<String>,
+    #[serde(default)]
+    pub routing_llm_stages: Vec<String>,
     #[serde(default)]
     pub requested_kinds: Vec<String>,
     #[serde(default)]
@@ -1088,6 +1099,11 @@ fn build_retrieval_query_with_understanding<'a>(
         routing_max_candidates: routing_policy.max_candidates,
         routing_llm_call_budget: routing_policy.llm_call_budget,
         routing_token_cost_ceiling: routing_policy.token_cost_ceiling,
+        routing_llm_calls_used: 0,
+        routing_token_cost_used: 0,
+        routing_token_cost_reserved: 0,
+        routing_budget_rejections: Vec::new(),
+        routing_llm_stages: Vec::new(),
         requested_kinds: Vec::new(),
         attempted_kinds: Vec::new(),
         source_gaps: Vec::new(),
@@ -2183,6 +2199,7 @@ pub fn prepare_question_with_history_budget_and_planner(
         max_output_tokens,
         planner,
         None,
+        None,
     )
 }
 
@@ -2199,6 +2216,7 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
     max_output_tokens: u32,
     mut planner: Option<&mut QueryPlanner<'_>>,
     understanding_planner: Option<&'a mut QuestionUnderstandingPlanner<'a>>,
+    budget_guard: Option<&LlmBudgetGuard>,
 ) -> Result<QuestionContext, String> {
     let question = question.trim();
     if question.chars().count() < 2 {
@@ -2225,11 +2243,11 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
         understanding_planner,
     );
     let routing_policy = adaptive_routing::policy(&retrieval_query.execution_mode);
+    if let Some(guard) = budget_guard {
+        guard.reconfigure(routing_policy.clone());
+    }
     let mut initial_terms = query_terms(&retrieval_query.resolved_question);
-    if matches!(
-        retrieval_query.execution_mode.as_str(),
-        "research" | "exploratory"
-    ) {
+    if retrieval_query.execution_mode == "research" {
         initial_terms.extend(retrieval_query.problem_search_terms.iter().cloned());
         initial_terms.sort();
         initial_terms.dedup();
@@ -2273,28 +2291,32 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
 
     let mut plan = QueryPlan::fallback(&retrieval_query.resolved_question);
     let mut planner_used = false;
-    if let Some(planner) = planner.as_mut() {
-        check_cancelled(cancelled)?;
-        let planner_started = Instant::now();
-        match planner(&planning_input(
-            &retrieval_query.resolved_question,
-            &candidates,
-        )) {
-            Ok(planned) => {
-                plan = planned;
-                planner_used = true;
-                retrieval_query.planner_status = "succeeded".to_string();
+    if routing_policy.planner_enabled {
+        if let Some(planner) = planner.as_mut() {
+            check_cancelled(cancelled)?;
+            let planner_started = Instant::now();
+            match planner(&planning_input(
+                &retrieval_query.resolved_question,
+                &candidates,
+            )) {
+                Ok(planned) => {
+                    plan = planned;
+                    planner_used = true;
+                    retrieval_query.planner_status = "succeeded".to_string();
+                }
+                Err(_) => {
+                    retrieval_query.planner_status = "failed_fallback".to_string();
+                    retrieval_query.planner_fallback = true;
+                    retrieval_query.planner_fallback_reason = "provider_error".to_string();
+                }
             }
-            Err(_) => {
-                retrieval_query.planner_status = "failed_fallback".to_string();
-                retrieval_query.planner_fallback = true;
-                retrieval_query.planner_fallback_reason = "provider_error".to_string();
-            }
+            retrieval_query.planner_latency_ms = planner_started
+                .elapsed()
+                .as_millis()
+                .min(u128::from(u64::MAX)) as u64;
         }
-        retrieval_query.planner_latency_ms = planner_started
-            .elapsed()
-            .as_millis()
-            .min(u128::from(u64::MAX)) as u64;
+    } else if planner.is_some() {
+        retrieval_query.planner_status = "policy_disabled".to_string();
     }
     let question_intent = if planner_used {
         answer_profile_for_contract(&plan, &retrieval_query.intent)
@@ -2320,6 +2342,7 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
         .max(4);
     retrieval_query.facet_ids = plan.facets.iter().map(|facet| facet.id.clone()).collect();
     retrieval_query.planner_used = planner_used;
+    let effective_retrieval_rounds = plan.budget.max_rounds.min(3);
 
     let mut covered_facets = initial_facet_coverage(&plan, &candidates);
     if legacy_surface_coverage_complete(&plan, &candidates, &covered_facets) {
@@ -2328,10 +2351,14 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
         } else {
             "baseline_sufficient"
         });
-    } else if routing_policy.max_retrieval_rounds == 1 {
-        diagnostics.stop("direct_path_budget");
+    } else if effective_retrieval_rounds == 1 {
+        diagnostics.stop(if routing_policy.max_retrieval_rounds == 1 {
+            "direct_path_budget"
+        } else {
+            "retrieval_contract_budget"
+        });
     } else {
-        for pass in 2..=routing_policy.max_retrieval_rounds.min(3) {
+        for pass in 2..=effective_retrieval_rounds {
             let before = candidates.iter().map(candidate_key).collect::<HashSet<_>>();
             let uncovered = plan
                 .facets
@@ -2406,7 +2433,7 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
                 diagnostics.stop("facet_sufficient");
                 break;
             }
-            if pass == routing_policy.max_retrieval_rounds.min(3) {
+            if pass == effective_retrieval_rounds {
                 diagnostics.stop("max_passes");
                 break;
             }
@@ -3526,6 +3553,14 @@ pub fn audit_generated_answer(
     }
 }
 
+pub fn record_llm_budget_usage(context: &mut QuestionContext, usage: LlmBudgetUsage) {
+    context.retrieval_query.routing_llm_calls_used = usage.calls_used;
+    context.retrieval_query.routing_token_cost_used = usage.token_cost_used;
+    context.retrieval_query.routing_token_cost_reserved = usage.token_cost_reserved;
+    context.retrieval_query.routing_budget_rejections = usage.rejections;
+    context.retrieval_query.routing_llm_stages = usage.stages;
+}
+
 #[allow(clippy::too_many_arguments)]
 pub fn persist_failure_exchange(
     connection: &mut Connection,
@@ -4403,7 +4438,7 @@ mod tests {
         let context = prepare_question_with_history_budget_and_planner(
             &connection,
             root.path(),
-            "完全陌生的用户表达",
+            "有哪些相关论文研究完全陌生的用户表达",
             10,
             "planner-request",
             Vec::new(),
@@ -4431,7 +4466,7 @@ mod tests {
         let context = prepare_question_with_history_budget_and_planner(
             &connection,
             root.path(),
-            "陌生问题表达",
+            "有哪些相关论文研究陌生问题表达",
             10,
             "planner-failure-request",
             Vec::new(),
@@ -4448,6 +4483,33 @@ mod tests {
             context.retrieval_query.planner_fallback_reason,
             "provider_error"
         );
+    }
+
+    #[test]
+    fn direct_routing_policy_disables_query_planner_and_second_pass() {
+        let (root, connection) = test_db();
+        let mut planner_calls = 0;
+        let mut planner = |_input: &QueryPlanningInput| {
+            planner_calls += 1;
+            Ok(QueryPlan::fallback("direct fact"))
+        };
+        let context = prepare_question_with_history_budget_and_planner(
+            &connection,
+            root.path(),
+            "一个直接事实问题",
+            10,
+            "direct-policy-request",
+            Vec::new(),
+            None,
+            DEFAULT_CONTEXT_WINDOW_TOKENS,
+            LunaSettings::default().max_output_tokens,
+            Some(&mut planner),
+        )
+        .unwrap();
+        assert_eq!(planner_calls, 0);
+        assert_eq!(context.retrieval_query.planner_status, "policy_disabled");
+        assert_eq!(context.retrieval_query.routing_max_rounds, 1);
+        assert!(context.retrieval_diagnostics.pass_count <= 1);
     }
 
     #[test]
@@ -4470,11 +4532,12 @@ mod tests {
         );
         assert!(matches!(
             context.retrieval_diagnostics.stop_reason.as_str(),
-            "baseline_sufficient"
-                | "facet_sufficient"
-                | "low_gain"
-                | "no_novel_terms"
-                | "max_passes"
+                "baseline_sufficient"
+                    | "facet_sufficient"
+                    | "low_gain"
+                    | "no_novel_terms"
+                    | "retrieval_contract_budget"
+                    | "max_passes"
         ));
     }
 
@@ -4739,7 +4802,7 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v13");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v14");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.resolver_status, "succeeded");
