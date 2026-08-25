@@ -14,7 +14,7 @@ pub const ANSWER_SCHEMA_VERSION: &str = "qa-natural-markdown-v2";
 pub const LEGACY_ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v4";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v14";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v15";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -123,6 +123,10 @@ pub struct QaRunManifest {
     pub planner_fallback: bool,
     #[serde(default)]
     pub planner_fallback_reason: String,
+    #[serde(default)]
+    pub planning_provider: String,
+    #[serde(default)]
+    pub provider_capabilities: Vec<String>,
     #[serde(default)]
     pub resolver_used: String,
     #[serde(default)]
@@ -1034,6 +1038,8 @@ pub fn build_run_manifest(
         planner_latency_ms: context.retrieval_query.planner_latency_ms,
         planner_fallback: context.retrieval_query.planner_fallback,
         planner_fallback_reason: context.retrieval_query.planner_fallback_reason.clone(),
+        planning_provider: context.retrieval_query.planning_provider.clone(),
+        provider_capabilities: context.retrieval_query.provider_capabilities.clone(),
         resolver_used: context.retrieval_query.resolver_used.clone(),
         resolver_status: context.retrieval_query.resolver_status.clone(),
         resolver_latency_ms: context.retrieval_query.resolver_latency_ms,

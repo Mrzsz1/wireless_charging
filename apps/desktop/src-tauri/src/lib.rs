@@ -3321,7 +3321,6 @@ async fn ask_luna(
             return Err("QUESTION_CANCELLED: 用户停止了问答".to_string());
         }
         let settings = qa::get_luna_settings(&connection, &worker_root, false)?;
-        let planner_enabled = settings.answer_provider == qa::PROVIDER_CODEX;
         let initial_route =
             qa::build_retrieval_query(&connection, &worker_request.question, &conversation);
         let budget_guard =
@@ -3336,27 +3335,21 @@ async fn ask_luna(
             .as_deref()
             .unwrap_or(settings.codex_reasoning_effort.as_str())
             .to_string();
-        let planner_timeout = Duration::from_secs(settings.timeout_seconds.clamp(30, 60));
+        let planning_provider = qa::planning_provider(&settings, &planner_model, &planner_effort);
+        let planning_capabilities = qa::provider_descriptor(&settings.answer_provider).capabilities;
         let planner_cancel = worker_cancel.clone();
         let understanding_cancel = worker_cancel.clone();
-        let understanding_model = planner_model.clone();
-        let understanding_effort = planner_effort.clone();
         let understanding_budget = budget_guard.clone();
+        let understanding_provider = planning_provider.as_deref();
         let mut understanding_planner = |input: &qa::UnderstandingPlanningInput| {
             let prompt = qa::understanding_prompt(input);
             let schema = qa::understanding_schema();
             let reserved = qa::estimate_tokens(&prompt).saturating_add(1_024);
             understanding_budget.reserve("understanding", reserved)?;
-            let result = codex_subscription::stream_answer(
-                &prompt,
-                Some(&schema),
-                &understanding_model,
-                &understanding_effort,
-                planner_timeout,
-                &understanding_cancel,
-                |_| Ok(()),
-            );
-            let (raw, _) = match result {
+            let result = understanding_provider
+                .ok_or_else(|| "PLANNING_PROVIDER_UNAVAILABLE: understanding".to_string())?
+                .complete_structured(&prompt, &schema, &understanding_cancel);
+            let raw = match result {
                 Ok(value) => value,
                 Err(error) => {
                     understanding_budget.settle(
@@ -3375,21 +3368,16 @@ async fn ask_luna(
             qa::parse_understanding_plan(&raw, input)
         };
         let planner_budget = budget_guard.clone();
+        let query_planning_provider = planning_provider.as_deref();
         let mut query_planner = |input: &qa::QueryPlanningInput| {
             let prompt = qa::query_plan_prompt(input);
             let schema = qa::query_plan_schema();
             let reserved = qa::estimate_tokens(&prompt).saturating_add(1_536);
             planner_budget.reserve("planner", reserved)?;
-            let result = codex_subscription::stream_answer(
-                &prompt,
-                Some(&schema),
-                &planner_model,
-                &planner_effort,
-                planner_timeout,
-                &planner_cancel,
-                |_| Ok(()),
-            );
-            let (raw, _) = match result {
+            let result = query_planning_provider
+                .ok_or_else(|| "PLANNING_PROVIDER_UNAVAILABLE: query_plan".to_string())?
+                .complete_structured(&prompt, &schema, &planner_cancel);
+            let raw = match result {
                 Ok(value) => value,
                 Err(error) => {
                     planner_budget.settle("planner", qa::estimate_tokens(&prompt), reserved);
@@ -3403,17 +3391,19 @@ async fn ask_luna(
             );
             qa::parse_query_plan(&raw, &input.resolved_question)
         };
-        let planner = planner_enabled.then_some(
-            &mut query_planner
-                as &mut dyn FnMut(&qa::QueryPlanningInput) -> Result<qa::QueryPlan, String>,
-        );
-        let understanding = planner_enabled.then_some(
-            &mut understanding_planner
-                as &mut dyn FnMut(
-                    &qa::UnderstandingPlanningInput,
-                ) -> Result<qa::UnderstandingPlan, String>,
-        );
-        let context = qa::prepare_question_with_history_budget_and_planners(
+        let planner = (planning_provider.is_some() && planning_capabilities.query_planning)
+            .then_some(
+                &mut query_planner
+                    as &mut dyn FnMut(&qa::QueryPlanningInput) -> Result<qa::QueryPlan, String>,
+            );
+        let understanding = (planning_provider.is_some() && planning_capabilities.understanding)
+            .then_some(
+                &mut understanding_planner
+                    as &mut dyn FnMut(
+                        &qa::UnderstandingPlanningInput,
+                    ) -> Result<qa::UnderstandingPlan, String>,
+            );
+        let mut context = qa::prepare_question_with_history_budget_and_planners(
             &connection,
             &worker_root,
             &worker_request.question,
@@ -3427,6 +3417,23 @@ async fn ask_luna(
             understanding,
             Some(&budget_guard),
         )?;
+        context.retrieval_query.planning_provider = planning_provider
+            .as_ref()
+            .map(|provider| provider.descriptor().id)
+            .unwrap_or_else(|| qa::PROVIDER_OFFLINE.to_string());
+        context.retrieval_query.provider_capabilities = [
+            (planning_capabilities.understanding, "understanding"),
+            (planning_capabilities.query_planning, "query_planning"),
+            (planning_capabilities.structured_output, "structured_output"),
+            (
+                planning_capabilities.natural_generation,
+                "natural_generation",
+            ),
+        ]
+        .into_iter()
+        .filter(|(enabled, _)| *enabled)
+        .map(|(_, capability)| capability.to_string())
+        .collect();
         connection
             .execute_batch("COMMIT;")
             .map_err(|error| format!("提交问答只读快照失败：{error}"))?;

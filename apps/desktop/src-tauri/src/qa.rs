@@ -13,6 +13,7 @@ mod markdown_parser;
 mod metrics;
 mod natural_answer;
 mod problem_understanding;
+mod provider_capabilities;
 mod query_plan;
 mod reranker;
 mod research_memory;
@@ -41,6 +42,7 @@ pub use metrics::RetrievalDiagnostics;
 use metrics::RetrievalDiagnosticsBuilder;
 #[cfg(test)]
 pub use metrics::{evaluate_retrieval_quality, RetrievalRankingObservation};
+pub use provider_capabilities::{planning_provider, provider_descriptor};
 pub use query_plan::{
     parse_query_plan, query_plan_prompt, query_plan_schema, QueryFacet, QueryPlan,
     QueryPlanningInput,
@@ -252,6 +254,10 @@ pub struct RetrievalQuery {
     pub planner_fallback: bool,
     #[serde(default)]
     pub planner_fallback_reason: String,
+    #[serde(default)]
+    pub planning_provider: String,
+    #[serde(default)]
+    pub provider_capabilities: Vec<String>,
     #[serde(default)]
     pub reranker_version: String,
     #[serde(default)]
@@ -1068,6 +1074,8 @@ fn build_retrieval_query_with_understanding<'a>(
         planner_latency_ms: 0,
         planner_fallback: false,
         planner_fallback_reason: String::new(),
+        planning_provider: String::new(),
+        provider_capabilities: Vec::new(),
         reranker_version: "legacy-ranking-v1".to_string(),
         reranker_status: "not_run".to_string(),
         reranker_latency_ms: 0,
@@ -3041,6 +3049,104 @@ where
     finish_luna_stream(state).map(|answer| (answer, resolved_model))
 }
 
+fn luna_structured_payload(settings: &LunaSettings, prompt: &str, schema: &Value) -> Value {
+    json!({
+        "model": settings.model,
+        "messages": [
+            {"role": "system", "content": "Return only JSON that satisfies the supplied schema."},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.0,
+        "max_tokens": settings.max_output_tokens.min(2_048),
+        "stream": false,
+        "response_format": {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "qa_planning_result",
+                "strict": true,
+                "schema": schema
+            }
+        }
+    })
+}
+
+fn parse_luna_structured_response(payload: &Value) -> Result<(String, String), String> {
+    let content = payload
+        .pointer("/choices/0/message/content")
+        .and_then(Value::as_str)
+        .or_else(|| {
+            payload
+                .pointer("/choices/0/message/content")
+                .and_then(Value::as_array)
+                .and_then(|parts| {
+                    parts.iter().find_map(|part| {
+                        part.get("text")
+                            .and_then(Value::as_str)
+                            .or_else(|| part.get("content").and_then(Value::as_str))
+                    })
+                })
+        })
+        .map(str::trim)
+        .filter(|content| !content.is_empty())
+        .ok_or_else(|| "LUNA_STRUCTURED_RESPONSE_ERROR: 响应未包含结构化内容".to_string())?;
+    let resolved_model = payload
+        .get("model")
+        .and_then(Value::as_str)
+        .map(str::trim)
+        .filter(|model| !model.is_empty() && model.len() <= 120)
+        .unwrap_or("provider-default-unreported")
+        .to_string();
+    Ok((content.to_string(), resolved_model))
+}
+
+pub fn complete_luna_json(
+    settings: &LunaSettings,
+    prompt: &str,
+    schema: &Value,
+    cancelled: &AtomicBool,
+) -> Result<(String, String), String> {
+    if cancelled.load(Ordering::SeqCst) {
+        return Err("QUESTION_CANCELLED: 用户停止了问答".to_string());
+    }
+    if settings.endpoint.trim().is_empty() {
+        return Err("LUNA_NOT_CONFIGURED: 尚未配置 Luna endpoint".to_string());
+    }
+    let api_key = env::var(&settings.api_key_env)
+        .map_err(|_| "LUNA_KEY_MISSING: 兼容 API 凭据未设置".to_string())?;
+    if api_key.trim().is_empty() {
+        return Err("LUNA_KEY_MISSING: 兼容 API 凭据为空".to_string());
+    }
+    let client = Client::builder()
+        .timeout(Duration::from_secs(settings.timeout_seconds.clamp(10, 60)))
+        .build()
+        .map_err(|_| "LUNA_CLIENT_ERROR: 创建结构化规划客户端失败".to_string())?;
+    let response = client
+        .post(&settings.endpoint)
+        .bearer_auth(api_key)
+        .json(&luna_structured_payload(settings, prompt, schema))
+        .send()
+        .map_err(|error| {
+            if error.is_timeout() {
+                "LUNA_PLANNING_TIMEOUT: 兼容 API 规划调用超时".to_string()
+            } else {
+                "LUNA_NETWORK_ERROR: 兼容 API 规划调用失败".to_string()
+            }
+        })?;
+    if !response.status().is_success() {
+        return Err(format!(
+            "LUNA_HTTP_ERROR: HTTP {}",
+            response.status().as_u16()
+        ));
+    }
+    if cancelled.load(Ordering::SeqCst) {
+        return Err("QUESTION_CANCELLED: 用户停止了问答".to_string());
+    }
+    let payload = response
+        .json::<Value>()
+        .map_err(|_| "LUNA_STRUCTURED_RESPONSE_ERROR: 响应 JSON 无效".to_string())?;
+    parse_luna_structured_response(&payload)
+}
+
 #[allow(clippy::too_many_arguments)]
 fn make_message(
     session_id: &str,
@@ -4532,12 +4638,12 @@ mod tests {
         );
         assert!(matches!(
             context.retrieval_diagnostics.stop_reason.as_str(),
-                "baseline_sufficient"
-                    | "facet_sufficient"
-                    | "low_gain"
-                    | "no_novel_terms"
-                    | "retrieval_contract_budget"
-                    | "max_passes"
+            "baseline_sufficient"
+                | "facet_sufficient"
+                | "low_gain"
+                | "no_novel_terms"
+                | "retrieval_contract_budget"
+                | "max_passes"
         ));
     }
 
@@ -4599,6 +4705,63 @@ mod tests {
             parse_luna_stream_line(r#"data: {"choices":[{"finish_reason":"stop"}]}"#).unwrap(),
             LunaStreamItem::Complete
         ));
+    }
+
+    #[test]
+    fn compatible_api_structured_payload_uses_closed_schema_without_secrets() {
+        let settings = LunaSettings {
+            answer_provider: PROVIDER_API.to_string(),
+            endpoint: "https://example.invalid/v1/chat/completions".to_string(),
+            model: "fixture-model".to_string(),
+            api_key_env: "SECRET_ENV_NAME".to_string(),
+            ..LunaSettings::default()
+        };
+        let schema = json!({"type":"object","additionalProperties":false});
+        let payload = luna_structured_payload(&settings, "fixture prompt", &schema);
+        assert_eq!(
+            payload.pointer("/response_format/type"),
+            Some(&json!("json_schema"))
+        );
+        assert_eq!(
+            payload.pointer("/response_format/json_schema/schema"),
+            Some(&schema)
+        );
+        let serialized = payload.to_string();
+        assert!(!serialized.contains("SECRET_ENV_NAME"));
+        assert!(!serialized.to_lowercase().contains("api_key"));
+    }
+
+    #[test]
+    fn compatible_api_structured_parser_accepts_content_and_rejects_malformed_output() {
+        let (content, model) = parse_luna_structured_response(&json!({
+            "model": "resolved-model",
+            "choices": [{"message": {"content": "{\"ok\":true}"}}]
+        }))
+        .unwrap();
+        assert_eq!(content, "{\"ok\":true}");
+        assert_eq!(model, "resolved-model");
+        assert!(parse_luna_structured_response(&json!({"choices": []}))
+            .unwrap_err()
+            .starts_with("LUNA_STRUCTURED_RESPONSE_ERROR"));
+    }
+
+    #[test]
+    fn compatible_api_planning_missing_key_is_stable_and_secret_free() {
+        let settings = LunaSettings {
+            answer_provider: PROVIDER_API.to_string(),
+            endpoint: "https://example.invalid/v1/chat/completions".to_string(),
+            api_key_env: "LUNAWIKI_TEST_KEY_THAT_DOES_NOT_EXIST_9427".to_string(),
+            ..LunaSettings::default()
+        };
+        let error = complete_luna_json(
+            &settings,
+            "prompt",
+            &json!({"type":"object"}),
+            &AtomicBool::new(false),
+        )
+        .unwrap_err();
+        assert_eq!(error, "LUNA_KEY_MISSING: 兼容 API 凭据未设置");
+        assert!(!error.contains(&settings.api_key_env));
     }
 
     #[test]
@@ -4802,7 +4965,7 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v14");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v15");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.resolver_status, "succeeded");

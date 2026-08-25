@@ -30,12 +30,12 @@
 
 ## Phase D — Provider capability symmetry
 
-- [ ] Define provider descriptor/capability traits and common planning boundary.
-- [ ] Adapt Codex planning to the common interface.
-- [ ] Implement Compatible API structured Understanding/QueryPlan calls with the existing secret boundary and fail-soft parsing.
-- [ ] Replace provider-name checks with capability checks.
-- [ ] Add parity, malformed output, missing key and budget tests.
-- [ ] Commit locally: `refactor(qa): unify planning provider capabilities`.
+- [x] Define provider descriptor/capability traits and common planning boundary.
+- [x] Adapt Codex planning to the common interface.
+- [x] Implement Compatible API structured Understanding/QueryPlan calls with the existing secret boundary and fail-soft parsing.
+- [x] Replace provider-name checks with capability checks.
+- [x] Add parity, malformed output, missing key and budget tests.
+- [x] Commit locally: `refactor(qa): unify planning provider capabilities`.
 
 ## Phase E — P1 understanding, profiles and neutral method discovery
 

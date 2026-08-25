@@ -609,6 +609,8 @@ export type QaRunManifest = {
   plannerLatencyMs?: number
   plannerFallback?: boolean
   plannerFallbackReason?: string
+  planningProvider?: string
+  providerCapabilities?: string[]
   resolverUsed?: string
   resolverStatus?: string
   resolverLatencyMs?: number
@@ -753,6 +755,8 @@ export type QuestionContext = {
     plannerLatencyMs?: number
     plannerFallback?: boolean
     plannerFallbackReason?: string
+    planningProvider?: string
+    providerCapabilities?: string[]
     rerankerVersion?: string
     rerankerStatus?: string
     rerankerLatencyMs?: number
