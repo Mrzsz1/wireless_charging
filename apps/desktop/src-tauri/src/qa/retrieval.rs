@@ -39,6 +39,7 @@ pub struct RetrievalOutcome {
     pub reranker_version: String,
     pub reranker_status: String,
     pub reranker_latency_ms: u64,
+    pub reranker_candidate_count: usize,
     pub reranker_fallback: bool,
     pub reranker_fallback_reason: String,
 }
@@ -440,6 +441,7 @@ fn run_retrieval_with_reranker(
                 reranker_version: reranker.name().to_string(),
                 reranker_status: "not_run".to_string(),
                 reranker_latency_ms: 0,
+                reranker_candidate_count: 0,
                 reranker_fallback: false,
                 reranker_fallback_reason: String::new(),
             });
@@ -465,6 +467,7 @@ fn run_retrieval_with_reranker(
             reranker_version: reranker.name().to_string(),
             reranker_status: "not_run".to_string(),
             reranker_latency_ms: 0,
+            reranker_candidate_count: 0,
             reranker_fallback: false,
             reranker_fallback_reason: String::new(),
         });
@@ -504,6 +507,7 @@ fn run_retrieval_with_reranker(
     let mut reranker_version = reranker.name().to_string();
     let mut reranker_status = "not_run".to_string();
     let mut reranker_latency_ms = 0_u64;
+    let mut reranker_candidate_count = 0_usize;
     let mut reranker_fallback = false;
     let mut reranker_fallback_reason = String::new();
     let mut queue = VecDeque::new();
@@ -699,6 +703,7 @@ fn run_retrieval_with_reranker(
 
         current_candidates = reciprocal_rank_fusion(all_channels.clone(), &explicit_paths);
         let fallback_candidates = current_candidates.clone();
+        reranker_candidate_count = reranker_candidate_count.max(current_candidates.len());
         let reranker_started = Instant::now();
         current_candidates =
             match reranker.rerank(&rerank_query, current_candidates, &explicit_paths) {
@@ -806,6 +811,7 @@ fn run_retrieval_with_reranker(
         reranker_version,
         reranker_status,
         reranker_latency_ms,
+        reranker_candidate_count,
         reranker_fallback,
         reranker_fallback_reason,
     })

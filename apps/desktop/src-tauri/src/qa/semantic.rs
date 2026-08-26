@@ -2,8 +2,8 @@
 
 use super::{check_cancelled, compact, Candidate};
 use fastembed::{
-    EmbeddingModel, InitOptions, RerankInitOptionsUserDefined, TextEmbedding, TextRerank,
-    TokenizerFiles, UserDefinedRerankingModel,
+    EmbeddingModel, InitOptions, RerankInitOptions, RerankInitOptionsUserDefined, RerankerModel,
+    TextEmbedding, TextRerank, TokenizerFiles, UserDefinedRerankingModel,
 };
 use hf_hub::api::{sync::ApiBuilder, Progress};
 use rusqlite::Connection;
@@ -22,6 +22,8 @@ use uuid::Uuid;
 use walkdir::WalkDir;
 
 pub(crate) const MODEL_NAME: &str = "Qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q";
+pub(crate) const RERANKER_MODEL_NAME: &str = "BAAI/bge-reranker-base";
+pub(crate) const RERANKER_MODEL_VERSION: &str = "fastembed-4.9.1-bge-reranker-base";
 const MODEL_RETRY_DELAY: Duration = Duration::from_secs(30);
 const MODEL_CACHE_FOLDER: &str = "models--Qdrant--paraphrase-multilingual-MiniLM-L12-v2-onnx-Q";
 const MODEL_FILE: &str = "model_optimized.onnx";
@@ -84,6 +86,21 @@ pub(crate) struct SemanticDownloadProgress {
     pub percent: f64,
     pub bytes_per_second: u64,
     pub message: String,
+}
+
+#[derive(Debug, Serialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct RerankerDeploymentStatus {
+    pub state: String,
+    pub model_name: String,
+    pub model_version: String,
+    pub model_dir: String,
+    pub runtime_ready: bool,
+    pub model_files_ready: bool,
+    pub tokenizer_ready: bool,
+    pub health_checked: bool,
+    pub checked_at: String,
+    pub diagnostic: String,
 }
 
 fn progress_event(
@@ -882,6 +899,28 @@ fn cross_encoder_model_dir() -> PathBuf {
         .unwrap_or_else(|| model_cache_dir().join("reranker-bge-base"))
 }
 
+fn reranker_artifact_root(model_dir: &Path) -> Option<PathBuf> {
+    if model_dir.join("tokenizer.json").is_file()
+        && (model_dir.join("model.onnx").is_file() || model_dir.join("onnx/model.onnx").is_file())
+    {
+        return Some(model_dir.to_path_buf());
+    }
+    WalkDir::new(model_dir)
+        .max_depth(6)
+        .into_iter()
+        .filter_map(Result::ok)
+        .map(|entry| entry.into_path())
+        .find(|path| {
+            path.is_file()
+                && path.file_name().and_then(|name| name.to_str()) == Some("model.onnx")
+                && path
+                    .parent()
+                    .and_then(Path::parent)
+                    .is_some_and(|root| root.join("tokenizer.json").is_file())
+        })
+        .and_then(|model| model.parent().and_then(Path::parent).map(Path::to_path_buf))
+}
+
 fn read_reranker_file(model_dir: &Path, name: &str) -> Result<Vec<u8>, String> {
     fs::read(model_dir.join(name)).map_err(|_| format!("CROSS_ENCODER_UNAVAILABLE: missing_{name}"))
 }
@@ -890,9 +929,11 @@ fn cross_encoder_artifacts(model_dir: &Path) -> Result<(PathBuf, TokenizerFiles)
     if !model_dir.is_absolute() || !model_dir.is_dir() {
         return Err("CROSS_ENCODER_UNAVAILABLE: model_directory_missing".to_string());
     }
+    let artifact_root = reranker_artifact_root(model_dir)
+        .ok_or_else(|| "CROSS_ENCODER_UNAVAILABLE: model_file_missing".to_string())?;
     let onnx = [
-        model_dir.join("model.onnx"),
-        model_dir.join("onnx/model.onnx"),
+        artifact_root.join("model.onnx"),
+        artifact_root.join("onnx/model.onnx"),
     ]
     .into_iter()
     .find(|path| path.is_file())
@@ -900,10 +941,10 @@ fn cross_encoder_artifacts(model_dir: &Path) -> Result<(PathBuf, TokenizerFiles)
     if onnx.metadata().map(|metadata| metadata.len()).unwrap_or(0) < 16 {
         return Err("CROSS_ENCODER_UNAVAILABLE: model_file_invalid".to_string());
     }
-    let tokenizer_file = read_reranker_file(model_dir, "tokenizer.json")?;
-    let config_file = read_reranker_file(model_dir, "config.json")?;
-    let special_tokens_map_file = read_reranker_file(model_dir, "special_tokens_map.json")?;
-    let tokenizer_config_file = read_reranker_file(model_dir, "tokenizer_config.json")?;
+    let tokenizer_file = read_reranker_file(&artifact_root, "tokenizer.json")?;
+    let config_file = read_reranker_file(&artifact_root, "config.json")?;
+    let special_tokens_map_file = read_reranker_file(&artifact_root, "special_tokens_map.json")?;
+    let tokenizer_config_file = read_reranker_file(&artifact_root, "tokenizer_config.json")?;
     for bytes in [
         &tokenizer_file,
         &config_file,
@@ -922,6 +963,99 @@ fn cross_encoder_artifacts(model_dir: &Path) -> Result<(PathBuf, TokenizerFiles)
             tokenizer_config_file,
         },
     ))
+}
+
+pub(crate) fn check_reranker_deployment() -> RerankerDeploymentStatus {
+    let model_dir = cross_encoder_model_dir();
+    let runtime_ready = runtime_path(&model_cache_dir()).is_file();
+    let artifacts = cross_encoder_artifacts(&model_dir);
+    let tokenizer_ready = reranker_artifact_root(&model_dir)
+        .is_some_and(|root| TOKENIZER_FILES.iter().all(|file| root.join(file).is_file()));
+    let (state, model_files_ready, health_checked, diagnostic) = match artifacts {
+        Ok(_) if !runtime_ready => ("partial", true, false, "ONNX Runtime 尚未部署".to_string()),
+        Ok(_) => match initialize_cross_encoder(&model_dir).and_then(|model| {
+            model
+                .rerank(
+                    "wireless charging",
+                    vec!["mobile charger scheduling"],
+                    false,
+                    Some(1),
+                )
+                .map_err(|_| "CROSS_ENCODER_UNAVAILABLE: health_probe_failed".to_string())
+        }) {
+            Ok(results) if results.len() == 1 && results[0].score.is_finite() => {
+                ("ready", true, true, "交叉编码器健康检查通过".to_string())
+            }
+            Ok(_) => (
+                "invalid",
+                true,
+                true,
+                "交叉编码器健康探针结果无效".to_string(),
+            ),
+            Err(error) => ("invalid", true, true, error),
+        },
+        Err(error) if !model_dir.exists() => ("missing", false, false, error),
+        Err(error) => {
+            let partial = WalkDir::new(&model_dir)
+                .into_iter()
+                .filter_map(Result::ok)
+                .any(|entry| {
+                    entry.path().extension().and_then(|value| value.to_str()) == Some("part")
+                });
+            (
+                if partial { "partial" } else { "invalid" },
+                false,
+                false,
+                error,
+            )
+        }
+    };
+    RerankerDeploymentStatus {
+        state: state.to_string(),
+        model_name: RERANKER_MODEL_NAME.to_string(),
+        model_version: RERANKER_MODEL_VERSION.to_string(),
+        model_dir: model_dir.to_string_lossy().to_string(),
+        runtime_ready,
+        model_files_ready,
+        tokenizer_ready,
+        health_checked,
+        checked_at: checked_at(),
+        diagnostic: compact(&diagnostic, 240),
+    }
+}
+
+pub(crate) fn repair_reranker_deployment() -> Result<RerankerDeploymentStatus, String> {
+    let model_dir = cross_encoder_model_dir();
+    if !model_dir.is_absolute() {
+        return Err("RERANKER_DEPLOYMENT_INVALID: model_directory_not_absolute".to_string());
+    }
+    fs::create_dir_all(&model_dir)
+        .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: create_directory:{error}"))?;
+    let runtime = runtime_path(&model_cache_dir());
+    if !runtime.is_file() {
+        return Err("RERANKER_DEPLOYMENT_FAILED: runtime_missing".to_string());
+    }
+    env::set_var("ORT_DYLIB_PATH", runtime);
+    let options = RerankInitOptions::new(RerankerModel::BGERerankerBase)
+        .with_cache_dir(model_dir.clone())
+        .with_max_length(512)
+        .with_show_download_progress(false);
+    let model = catch_unwind(AssertUnwindSafe(|| TextRerank::try_new(options)))
+        .map_err(|_| "RERANKER_DEPLOYMENT_FAILED: initialization_panic".to_string())?
+        .map_err(|_| "RERANKER_DEPLOYMENT_FAILED: download_or_initialization".to_string())?;
+    let state = CROSS_ENCODER_STATE.get_or_init(|| Mutex::new(CrossEncoderState::default()));
+    let mut state = state
+        .lock()
+        .map_err(|_| "RERANKER_DEPLOYMENT_FAILED: state_lock".to_string())?;
+    state.model_dir = Some(model_dir);
+    state.model = Some(model);
+    drop(state);
+    let status = check_reranker_deployment();
+    if status.state == "ready" {
+        Ok(status)
+    } else {
+        Err(format!("RERANKER_DEPLOYMENT_FAILED: {}", status.state))
+    }
 }
 
 fn initialize_cross_encoder(model_dir: &Path) -> Result<TextRerank, String> {
@@ -1788,6 +1922,34 @@ mod tests {
         }
         let error = cross_encoder_artifacts(model.path()).unwrap_err();
         assert_eq!(error, "CROSS_ENCODER_UNAVAILABLE: model_file_invalid");
+    }
+
+    #[test]
+    fn reranker_hugging_face_snapshot_is_discovered_without_query_time_download() {
+        let cache = tempfile::tempdir().unwrap();
+        let snapshot = cache
+            .path()
+            .join("models--BAAI--bge-reranker-base")
+            .join("snapshots")
+            .join("fixture-revision");
+        fs::create_dir_all(snapshot.join("onnx")).unwrap();
+        fs::write(snapshot.join("onnx/model.onnx"), vec![1_u8; 32]).unwrap();
+        for file in TOKENIZER_FILES {
+            fs::write(snapshot.join(file), b"{}").unwrap();
+        }
+
+        assert_eq!(reranker_artifact_root(cache.path()), Some(snapshot.clone()));
+        let (model, _) = cross_encoder_artifacts(cache.path()).unwrap();
+        assert_eq!(model, snapshot.join("onnx/model.onnx"));
+    }
+
+    #[test]
+    #[ignore = "downloads and initializes the production BAAI/bge-reranker-base model"]
+    fn provisions_and_health_checks_the_real_production_reranker() {
+        let status = repair_reranker_deployment().expect("production reranker deployment");
+        assert_eq!(status.state, "ready");
+        assert_eq!(status.model_name, RERANKER_MODEL_NAME);
+        assert!(status.health_checked);
     }
 
     #[test]

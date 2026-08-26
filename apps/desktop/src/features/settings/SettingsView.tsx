@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Bot, CheckCircle2, CloudDownload, Copy, Eye, EyeOff, FolderOpen, HardDrive, KeyRound, LoaderCircle, LogIn, RefreshCw, RotateCcw, Save, Settings2, ShieldCheck, Trash2 } from 'lucide-react'
-import { cancelSemanticVectorSync, checkSemanticModelDeployment, chooseSemanticModelCacheDirectory, copySemanticModelCacheAndSwitch, deleteSearchProviderKey, deleteSemanticVectorKey, getCodexSubscriptionStatus, getLiteratureSettings, getQaSettings, getSemanticModelSettings, getSemanticVectorStatus, listSearchProviderStatuses, openSemanticModelCacheDirectory, repairSemanticModelDeployment, saveLiteratureSettings, saveQaSettings, saveSearchProviderKey, saveSemanticModelSettings, saveSemanticVectorSettings, startCodexLogin, syncSemanticVectors, testSearchProvider } from '../../services/desktop'
-import type { CodexSubscriptionStatus, LiteratureIngestSettings, QaSettings, SearchProviderStatus, SemanticDeploymentStatus, SemanticDownloadProgress, SemanticModelSettings, SemanticVectorStatus, VectorSyncProgress } from '../../types'
+import { cancelSemanticVectorSync, checkRerankerModelDeployment, checkSemanticModelDeployment, chooseSemanticModelCacheDirectory, copySemanticModelCacheAndSwitch, deleteSearchProviderKey, deleteSemanticVectorKey, getCodexSubscriptionStatus, getLiteratureSettings, getQaSettings, getSemanticModelSettings, getSemanticVectorStatus, listSearchProviderStatuses, openSemanticModelCacheDirectory, repairRerankerModelDeployment, repairSemanticModelDeployment, saveLiteratureSettings, saveQaSettings, saveSearchProviderKey, saveSemanticModelSettings, saveSemanticVectorSettings, startCodexLogin, syncSemanticVectors, testSearchProvider } from '../../services/desktop'
+import type { CodexSubscriptionStatus, LiteratureIngestSettings, QaSettings, RerankerDeploymentStatus, SearchProviderStatus, SemanticDeploymentStatus, SemanticDownloadProgress, SemanticModelSettings, SemanticVectorStatus, VectorSyncProgress } from '../../types'
 import { DelayedHelp } from '../../components/DelayedHelp'
 import { formatBytes } from '../ingest/ingestState'
 import './SettingsView.css'
@@ -82,6 +82,12 @@ const defaultSemanticStatus: SemanticDeploymentStatus = {
   diagnostic: '尚未检查本地语义模型部署状态。',
 }
 
+const defaultRerankerStatus: RerankerDeploymentStatus = {
+  state: 'missing', modelName: 'BAAI/bge-reranker-base', modelVersion: '', modelDir: '',
+  runtimeReady: false, modelFilesReady: false, tokenizerReady: false, healthChecked: false,
+  checkedAt: '', diagnostic: '尚未检查交叉编码器部署状态。',
+}
+
 const semanticStateLabel: Record<SemanticDeploymentStatus['state'], string> = {
   ready: '已部署',
   partial: '下载未完成',
@@ -124,6 +130,7 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
   const [qaSettings, setQaSettings] = useState(defaultQaSettings)
   const [semanticSettings, setSemanticSettings] = useState(defaultSemanticSettings)
   const [semanticStatus, setSemanticStatus] = useState(defaultSemanticStatus)
+  const [rerankerStatus, setRerankerStatus] = useState(defaultRerankerStatus)
   const [semanticProgress, setSemanticProgress] = useState<SemanticDownloadProgress | null>(null)
   const [vectorStatus, setVectorStatus] = useState(defaultVectorStatus)
   const [vectorProgress, setVectorProgress] = useState<VectorSyncProgress | null>(null)
@@ -141,13 +148,14 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
   const load = useCallback(async () => {
     setBusyAction('load'); setError('')
     try {
-      const [statuses, literature, qa, codex, semantic, deployment, vectors] = await Promise.all([
+      const [statuses, literature, qa, codex, semantic, deployment, reranker, vectors] = await Promise.all([
         listSearchProviderStatuses(),
         repositoryPath ? getLiteratureSettings() : Promise.resolve(defaultSettings),
         repositoryPath ? getQaSettings() : Promise.resolve(defaultQaSettings),
         getCodexSubscriptionStatus(),
         getSemanticModelSettings(),
         checkSemanticModelDeployment(),
+        checkRerankerModelDeployment(),
         repositoryPath ? getSemanticVectorStatus().catch(() => defaultVectorStatus) : Promise.resolve(defaultVectorStatus),
       ])
       setProviderStatuses(statuses)
@@ -157,6 +165,7 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
       setSemanticSettings(semantic)
       setSemanticCacheDraft(semantic.cacheDir)
       setSemanticStatus(deployment)
+      setRerankerStatus(reranker)
       setVectorStatus(vectors)
       setVectorEndpointDraft(semantic.remoteVectorEndpoint)
       setVectorEnabledDraft(semantic.remoteVectorEnabled)
@@ -220,6 +229,16 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
       setSemanticProgress((current) => current ? { ...current, status: 'failed', message: String(reason) } : current)
       setError(`语义模型部署失败：${String(reason)}`)
     }
+    finally { setBusyAction('') }
+  }
+
+  const repairRerankerDeployment = async () => {
+    setBusyAction('reranker-repair'); setError(''); setMessage('')
+    try {
+      const next = await repairRerankerModelDeployment()
+      setRerankerStatus(next)
+      setMessage('交叉编码器下载、初始化与健康检查已完成')
+    } catch (reason) { setError(`交叉编码器部署失败：${String(reason)}`) }
     finally { setBusyAction('') }
   }
 
@@ -399,7 +418,12 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
           {semanticPathChanged ? <><button disabled={semanticBusy || semanticStatus.totalBytes === 0 || !semanticCacheDraft.trim()} onClick={() => void copyAndSwitchSemantic()}>{busyAction === 'semantic-copy' ? <LoaderCircle className="spin" size={14} /> : <Copy size={14} />}复制现有缓存并切换</button><button className="primary" disabled={semanticBusy} onClick={() => void switchAndRedeploySemantic()}>{busyAction === 'semantic-switch-repair' ? <LoaderCircle className="spin" size={14} /> : <CloudDownload size={14} />}切换并重新部署</button></> : <button className="primary" disabled={semanticBusy} onClick={() => void repairSemanticDeployment()}>{busyAction === 'semantic-repair' ? <LoaderCircle className="spin" size={14} /> : <CloudDownload size={14} />}{semanticStatus.state === 'ready' ? '重新检查并修复' : '下载/修复'}</button>}
           {semanticProgress && <div className={`semantic-download-progress ${semanticProgress.status}`} data-testid="semantic-download-progress" role="status" aria-live="polite"><div><strong>{semanticPhaseLabel[semanticProgress.phase]}</strong><span>{semanticProgress.totalBytes > 0 ? `${Math.round(semanticProgress.percent)}%` : semanticProgress.message}</span></div><small title={semanticProgress.fileName}>{semanticProgress.fileName}{semanticProgress.totalBytes > 0 ? ` · ${formatBytes(semanticProgress.downloadedBytes)} / ${formatBytes(semanticProgress.totalBytes)} · ${formatBytes(semanticProgress.bytesPerSecond)}/s` : ''}</small><div className={`semantic-progress-track ${semanticProgress.totalBytes > 0 ? '' : 'indeterminate'}`}><i style={semanticProgress.totalBytes > 0 ? { width: `${Math.min(100, semanticProgress.percent)}%` } : undefined} /></div></div>}
         </div>
-        <p className="qa-provider-note">复制操作保留旧目录作为回滚副本；应用不会自动删除任何旧模型或未完成下载。</p>
+        <div className={`semantic-deployment-status ${rerankerStatus.state}`} data-testid="reranker-deployment-status">
+          <div className="semantic-status-main"><span className="semantic-status-icon">{rerankerStatus.state === 'ready' ? <CheckCircle2 size={19} /> : <CloudDownload size={19} />}</span><div><strong>Cross-Encoder · {semanticStateLabel[rerankerStatus.state]}</strong><small>{rerankerStatus.modelName} · {rerankerStatus.modelVersion || '版本待检查'}</small><p>{rerankerStatus.diagnostic}</p></div></div>
+          <div className="semantic-component-grid"><span data-ready={rerankerStatus.runtimeReady}>ONNX Runtime<strong>{rerankerStatus.runtimeReady ? '就绪' : '缺失'}</strong></span><span data-ready={rerankerStatus.modelFilesReady}>Reranker 模型<strong>{rerankerStatus.modelFilesReady ? '完整' : '缺失'}</strong></span><span data-ready={rerankerStatus.tokenizerReady}>Tokenizer<strong>{rerankerStatus.tokenizerReady ? '完整' : '缺失'}</strong></span><span data-ready={rerankerStatus.healthChecked}>健康探针<strong>{rerankerStatus.healthChecked ? '通过' : '未通过'}</strong></span></div>
+          <div className="semantic-actions"><button className="primary" disabled={semanticBusy} onClick={() => void repairRerankerDeployment()}>{busyAction === 'reranker-repair' ? <LoaderCircle className="spin" size={14} /> : <CloudDownload size={14} />}{rerankerStatus.state === 'ready' ? '重新检查并修复' : '下载/修复 Cross-Encoder'}</button></div>
+        </div>
+        <p className="qa-provider-note">查询过程不会下载模型；只有上述显式下载/修复操作允许联网。复制操作保留旧目录作为回滚副本。</p>
         <div className="semantic-vector-panel" data-testid="semantic-vector-panel">
           <div className="semantic-vector-heading"><div><strong>多粒度向量索引</strong><small>文档 {vectorStatus.countsByGranularity.document ?? 0} · 章节 {vectorStatus.countsByGranularity.section ?? 0} · 语义块 {vectorStatus.countsByGranularity.semantic ?? 0}</small></div><span data-ready={vectorStatus.local.ready && vectorStatus.local.vectorCount > 0}>{vectorStatus.local.vectorCount > 0 ? `${vectorStatus.local.vectorCount} 条本地向量` : '尚未构建'}</span></div>
           <div className="semantic-vector-stats"><span>本地：{vectorStatus.local.ready ? '就绪' : '未就绪'}</span><span>远程：{vectorEnabledDraft ? vectorStatus.remote.ready ? '已连接' : vectorStatus.remote.lastError || '待连接' : '未启用'}</span><span>待同步：{vectorStatus.local.pendingSyncCount}</span><span>最近同步：{formatSemanticCheckedAt(vectorStatus.lastSyncAt)}</span></div>

@@ -20,12 +20,13 @@
 
 ## Phase C — Cross-Encoder Production Lifecycle
 
-- [ ] 固定模型 manifest/version/file integrity，增加 offline status/health DTO。
-- [ ] 增加显式 provision/repair/cancel/progress 命令；query-time 保持 no-download。
-- [ ] 增加 missing/partial/corrupt/ready/repeated/offline/repair tests。
-- [ ] 扩展 reranker telemetry 与真实模型 benchmark/report schema。
-- [ ] 在当前主机尝试真实 provision + benchmark；无环境时保存明确未满足结果。
-- [ ] 本地提交：`feat(qa): provision production reranker model`。
+- [x] 固定模型 manifest/version/file integrity，增加 offline status/health DTO。
+- [x] 增加显式 provision/repair 命令与设置页入口；query-time 保持 no-download。
+- [ ] 为长时间 provision 增加 cancel/真实字节 progress，并完成磁盘不足/重复 repair failure injection。
+- [x] 增加 missing/corrupt/Hugging Face snapshot/offline/real health-check tests。
+- [x] 扩展 reranker requested/provider/model/available/candidate-count/latency/fallback telemetry 与 production baseline。
+- [x] 在当前主机尝试真实 provision + RAG benchmark；保存明确 FAIL（模型 missing，provision download_or_initialization，fallback 12/13）。
+- [x] 本地提交阶段检查点：`feat(qa): provision production reranker model`。
 
 ## Phase D — Adversarial, Failure, Stress and Metadata
 

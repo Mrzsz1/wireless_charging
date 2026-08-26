@@ -457,6 +457,19 @@ export type SemanticDeploymentStatus = {
   diagnostic: string
 }
 
+export type RerankerDeploymentStatus = {
+  state: SemanticDeploymentState
+  modelName: string
+  modelVersion: string
+  modelDir: string
+  runtimeReady: boolean
+  modelFilesReady: boolean
+  tokenizerReady: boolean
+  healthChecked: boolean
+  checkedAt: string
+  diagnostic: string
+}
+
 export type SemanticDownloadProgress = {
   status: 'starting' | 'downloading' | 'verifying' | 'complete' | 'skipped' | 'failed'
   phase: 'runtime' | 'model' | 'tokenizer' | 'inference'
@@ -638,8 +651,13 @@ export type QaRunManifest = {
   plannedFacetIds?: string[]
   coveredFacetIds?: string[]
   rerankerVersion?: string
+  rerankerRequested?: boolean
+  rerankerProvider?: string
+  rerankerModel?: string
+  rerankerAvailable?: boolean
   rerankerStatus?: string
   rerankerLatencyMs?: number
+  rerankerCandidateCount?: number
   rerankerFallback?: boolean
   rerankerFallbackReason?: string
   evidenceManagerVersion?: string
@@ -788,6 +806,7 @@ export type QuestionContext = {
     rerankerVersion?: string
     rerankerStatus?: string
     rerankerLatencyMs?: number
+    rerankerCandidateCount?: number
     rerankerFallback?: boolean
     rerankerFallbackReason?: string
     evidenceManagerVersion?: string

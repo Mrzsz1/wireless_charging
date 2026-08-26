@@ -2790,6 +2790,20 @@ async fn repair_semantic_model_deployment(
 }
 
 #[tauri::command]
+async fn check_reranker_model_deployment() -> Result<qa::RerankerDeploymentStatus, String> {
+    tauri::async_runtime::spawn_blocking(|| Ok::<_, String>(qa::check_reranker_deployment()))
+        .await
+        .map_err(|error| format!("交叉编码器检查线程失败：{error}"))?
+}
+
+#[tauri::command]
+async fn repair_reranker_model_deployment() -> Result<qa::RerankerDeploymentStatus, String> {
+    tauri::async_runtime::spawn_blocking(qa::repair_reranker_deployment)
+        .await
+        .map_err(|error| format!("交叉编码器部署线程失败：{error}"))?
+}
+
+#[tauri::command]
 async fn copy_semantic_model_cache_and_switch(
     target_dir: String,
     app: AppHandle,
@@ -4523,6 +4537,8 @@ pub fn run() {
             cancel_semantic_vector_sync,
             check_semantic_model_deployment,
             repair_semantic_model_deployment,
+            check_reranker_model_deployment,
+            repair_reranker_model_deployment,
             copy_semantic_model_cache_and_switch,
             open_semantic_model_cache_directory,
             get_codex_subscription_status,

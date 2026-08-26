@@ -162,9 +162,19 @@ pub struct QaRunManifest {
     #[serde(default)]
     pub reranker_version: String,
     #[serde(default)]
+    pub reranker_requested: bool,
+    #[serde(default)]
+    pub reranker_provider: String,
+    #[serde(default)]
+    pub reranker_model: String,
+    #[serde(default)]
+    pub reranker_available: bool,
+    #[serde(default)]
     pub reranker_status: String,
     #[serde(default)]
     pub reranker_latency_ms: u64,
+    #[serde(default)]
+    pub reranker_candidate_count: usize,
     #[serde(default)]
     pub reranker_fallback: bool,
     #[serde(default)]
@@ -1278,8 +1288,17 @@ pub fn build_run_manifest(
         planned_facet_ids: context.retrieval_query.facet_ids.clone(),
         covered_facet_ids: context.retrieval_query.covered_facet_ids.clone(),
         reranker_version: context.retrieval_query.reranker_version.clone(),
+        reranker_requested: context.retrieval_query.reranker_candidate_count > 0,
+        reranker_provider: context.retrieval_query.reranker_version.clone(),
+        reranker_model: super::semantic::RERANKER_MODEL_NAME.to_string(),
+        reranker_available: context.retrieval_query.reranker_status == "succeeded"
+            && context
+                .retrieval_query
+                .reranker_version
+                .starts_with("cross-encoder"),
         reranker_status: context.retrieval_query.reranker_status.clone(),
         reranker_latency_ms: context.retrieval_query.reranker_latency_ms,
+        reranker_candidate_count: context.retrieval_query.reranker_candidate_count,
         reranker_fallback: context.retrieval_query.reranker_fallback,
         reranker_fallback_reason: context.retrieval_query.reranker_fallback_reason.clone(),
         evidence_manager_version: context.retrieval_query.evidence_manager_version.clone(),

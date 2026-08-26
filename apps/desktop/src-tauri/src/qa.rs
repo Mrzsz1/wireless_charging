@@ -57,13 +57,14 @@ pub type QuestionUnderstandingPlanner<'a> = understanding::UnderstandingPlanner<
 #[cfg(test)]
 pub use query_plan::{QueryBudget, QueryScope};
 pub(crate) use semantic::{
-    check_deployment as check_semantic_deployment,
+    check_deployment as check_semantic_deployment, check_reranker_deployment,
     configure_cache_dir as configure_semantic_cache_dir, copy_cache as copy_semantic_cache,
     default_cache_dir as default_semantic_cache_dir,
     effective_cache_dir as effective_semantic_cache_dir,
     repair_deployment_with_progress as repair_semantic_deployment_with_progress,
-    validate_cache_dir as validate_semantic_cache_dir, SemanticDeploymentStatus,
-    SemanticDownloadProgress, MODEL_NAME as SEMANTIC_MODEL_NAME,
+    repair_reranker_deployment, validate_cache_dir as validate_semantic_cache_dir,
+    RerankerDeploymentStatus, SemanticDeploymentStatus, SemanticDownloadProgress,
+    MODEL_NAME as SEMANTIC_MODEL_NAME,
 };
 pub use session::{create_session, delete_session, get_session, list_sessions, rename_session};
 pub(crate) use vector_sync::configure_remote_vector_settings;
@@ -273,6 +274,8 @@ pub struct RetrievalQuery {
     pub reranker_status: String,
     #[serde(default)]
     pub reranker_latency_ms: u64,
+    #[serde(default)]
+    pub reranker_candidate_count: usize,
     #[serde(default)]
     pub reranker_fallback: bool,
     #[serde(default)]
@@ -1100,6 +1103,7 @@ fn build_retrieval_query_with_understanding<'a>(
         reranker_version: "legacy-ranking-v1".to_string(),
         reranker_status: "not_run".to_string(),
         reranker_latency_ms: 0,
+        reranker_candidate_count: 0,
         reranker_fallback: false,
         reranker_fallback_reason: String::new(),
         evidence_manager_version: String::new(),
@@ -2597,6 +2601,7 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
         retrieval_query.reranker_version = outcome.reranker_version.clone();
         retrieval_query.reranker_status = outcome.reranker_status.clone();
         retrieval_query.reranker_latency_ms = outcome.reranker_latency_ms;
+        retrieval_query.reranker_candidate_count = outcome.reranker_candidate_count;
         retrieval_query.reranker_fallback = outcome.reranker_fallback;
         retrieval_query.reranker_fallback_reason = outcome.reranker_fallback_reason.clone();
         retrieval_query.covered_facet_ids = outcome.covered_facets.iter().cloned().collect();
