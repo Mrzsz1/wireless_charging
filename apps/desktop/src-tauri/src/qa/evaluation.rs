@@ -14,7 +14,8 @@ use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub const CASE_SCHEMA_VERSION: &str = "qa-rag-evaluation-cases-v1";
-pub const REPORT_SCHEMA_VERSION: &str = "qa-rag-evaluation-report-v2";
+pub const REPORT_SCHEMA_VERSION: &str = "qa-rag-evaluation-report-v3";
+pub const MRR_DIAGNOSTIC_SCHEMA_VERSION: &str = "qa-mrr-diagnostics-v1";
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -63,13 +64,22 @@ pub struct EvaluationConversationTurn {
 pub struct RankedEvidence {
     pub rank: usize,
     pub score: f64,
+    pub stable_source_id: String,
     pub kind: String,
     pub document_id: String,
+    pub canonical_document_id: String,
     pub block_id: String,
     pub title: String,
     pub relation: String,
     pub locator_valid: bool,
     pub locator_matched_by: String,
+    pub retrieval_channels: Vec<String>,
+    pub rrf_score: Option<f64>,
+    pub base_rank: Option<usize>,
+    pub base_score: Option<f64>,
+    pub cross_encoder_score: Option<f64>,
+    pub document_repeat_count: Option<usize>,
+    pub document_repeat_penalty: Option<f64>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -88,6 +98,8 @@ pub struct EvaluationCaseResult {
     pub document_recall_at_10: f64,
     pub document_recall_at_20: f64,
     pub heading_recall_at_20: f64,
+    pub passage_mrr: f64,
+    pub document_mrr: f64,
     pub mrr: f64,
     pub ndcg_at_10: f64,
     pub locator_validity: f64,
@@ -103,6 +115,7 @@ pub struct EvaluationCaseResult {
     pub attempted_kinds: Vec<String>,
     pub source_gaps: Vec<String>,
     pub v2_evidence: Vec<RankedEvidence>,
+    pub v2_documents: Vec<RankedEvidence>,
     pub legacy_evidence: Vec<RankedEvidence>,
     pub improvements: Vec<String>,
     pub regressions: Vec<String>,
@@ -119,6 +132,8 @@ pub struct EvaluationAggregate {
     pub document_recall_at_10: f64,
     pub document_recall_at_20: f64,
     pub heading_recall_at_20: f64,
+    pub passage_mrr: f64,
+    pub document_mrr: f64,
     pub mrr: f64,
     pub ndcg_at_10: f64,
     pub locator_validity: f64,
@@ -145,6 +160,47 @@ pub struct EvaluationReport {
     pub aggregate: EvaluationAggregate,
     pub cases: Vec<EvaluationCaseResult>,
     pub remaining_risks: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MrrDiagnosticCandidate {
+    pub passage_rank: usize,
+    pub document_rank: usize,
+    pub stable_source_id: String,
+    pub document_id: String,
+    pub canonical_document_id: String,
+    pub heading: String,
+    pub is_relevant: bool,
+    pub retrieval_channels: Vec<String>,
+    pub rrf_score: Option<f64>,
+    pub base_rank: Option<usize>,
+    pub base_score: Option<f64>,
+    pub cross_encoder_score: Option<f64>,
+    pub final_score: f64,
+    pub document_repeat_count: Option<usize>,
+    pub document_repeat_penalty: Option<f64>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MrrDiagnosticCase {
+    pub query_id: String,
+    pub question: String,
+    pub first_relevant_passage_rank: Option<usize>,
+    pub first_relevant_document_rank: Option<usize>,
+    pub passage_mrr: f64,
+    pub document_mrr: f64,
+    pub top_10: Vec<MrrDiagnosticCandidate>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MrrDiagnosticReport {
+    pub schema_version: String,
+    pub metric_unit: String,
+    pub passage_metric_is_diagnostic_only: bool,
+    pub cases: Vec<MrrDiagnosticCase>,
 }
 
 fn known_kind(value: &str) -> bool {
@@ -316,6 +372,36 @@ fn candidate_document(connection: &Connection, candidate: &Candidate) -> Result<
     })
 }
 
+fn trace_field<'a>(trace: &'a str, name: &str) -> Option<&'a str> {
+    let prefix = format!("{name}=");
+    trace
+        .split('；')
+        .flat_map(|segment| segment.split_whitespace())
+        .find_map(|token| token.strip_prefix(&prefix))
+}
+
+fn trace_number(trace: &str, name: &str) -> Option<f64> {
+    trace_field(trace, name).and_then(|value| value.parse::<f64>().ok())
+}
+
+fn trace_integer(trace: &str, name: &str) -> Option<usize> {
+    trace_field(trace, name).and_then(|value| value.parse::<usize>().ok())
+}
+
+fn trace_channels(trace: &str) -> Vec<String> {
+    let mut channels = trace_field(trace, "channels")
+        .into_iter()
+        .flat_map(|value| value.split(','))
+        .filter_map(|origin| origin.split('@').next())
+        .map(str::trim)
+        .filter(|value| !value.is_empty() && value.len() <= 40)
+        .map(ToOwned::to_owned)
+        .collect::<Vec<_>>();
+    channels.sort();
+    channels.dedup();
+    channels
+}
+
 fn project_candidates(
     connection: &Connection,
     root: &Path,
@@ -328,11 +414,14 @@ fn project_candidates(
         .map(|(index, candidate)| {
             let resolved = candidate_source_locator(connection, root, candidate)
                 .and_then(|locator| super::locator::resolve(connection, root, &locator).ok());
+            let document_id = candidate_document(connection, candidate)?;
             Ok(RankedEvidence {
                 rank: index + 1,
                 score: candidate.score,
+                stable_source_id: candidate_key(candidate),
                 kind: candidate.kind.clone(),
-                document_id: candidate_document(connection, candidate)?,
+                canonical_document_id: canonical_document_id(&document_id),
+                document_id,
                 block_id: candidate.node_id.clone(),
                 title: candidate.title.clone(),
                 relation: candidate.relation.clone(),
@@ -340,9 +429,44 @@ fn project_candidates(
                 locator_matched_by: resolved
                     .map(|location| location.matched_by)
                     .unwrap_or_default(),
+                retrieval_channels: trace_channels(&candidate.retrieval_reason),
+                rrf_score: trace_number(&candidate.retrieval_reason, "RRF"),
+                base_rank: trace_integer(&candidate.retrieval_reason, "base_rank"),
+                base_score: trace_number(&candidate.retrieval_reason, "base_score"),
+                cross_encoder_score: trace_number(&candidate.retrieval_reason, "cross_encoder"),
+                document_repeat_count: trace_integer(
+                    &candidate.retrieval_reason,
+                    "document_repeat_count",
+                ),
+                document_repeat_penalty: trace_number(
+                    &candidate.retrieval_reason,
+                    "document_repeat_penalty",
+                ),
             })
         })
         .collect()
+}
+
+fn collapse_documents(ranked: &[RankedEvidence]) -> Vec<RankedEvidence> {
+    let mut seen = HashSet::new();
+    ranked
+        .iter()
+        .filter(|item| seen.insert(item.canonical_document_id.clone()))
+        .cloned()
+        .enumerate()
+        .map(|(index, mut item)| {
+            item.rank = index + 1;
+            item
+        })
+        .collect()
+}
+
+fn canonical_document_id(document_id: &str) -> String {
+    document_id
+        .strip_prefix("wiki:sources/")
+        .or_else(|| document_id.strip_prefix("paper:sources/"))
+        .map(|source| format!("source:{source}"))
+        .unwrap_or_else(|| document_id.to_string())
 }
 
 fn recall_at(ranked: &[RankedEvidence], expected: &[String], cutoff: usize) -> f64 {
@@ -378,10 +502,23 @@ fn heading_recall(ranked: &[RankedEvidence], expected: &[String], cutoff: usize)
         / expected.len() as f64
 }
 
+#[cfg(test)]
 fn reciprocal_rank(ranked: &[RankedEvidence], expected: &[String]) -> f64 {
     ranked
         .iter()
         .position(|item| expected.contains(&item.document_id))
+        .map(|index| 1.0 / (index + 1) as f64)
+        .unwrap_or_else(|| if expected.is_empty() { 1.0 } else { 0.0 })
+}
+
+fn reciprocal_rank_canonical(ranked: &[RankedEvidence], expected: &[String]) -> f64 {
+    let expected = expected
+        .iter()
+        .map(|document| canonical_document_id(document))
+        .collect::<HashSet<_>>();
+    ranked
+        .iter()
+        .position(|item| expected.contains(&item.canonical_document_id))
         .map(|index| 1.0 / (index + 1) as f64)
         .unwrap_or_else(|| if expected.is_empty() { 1.0 } else { 0.0 })
 }
@@ -435,6 +572,7 @@ fn evaluate_case(
         None,
     )?;
     let v2 = project_candidates(connection, root, &outcome.candidates)?;
+    let v2_documents = collapse_documents(&v2);
     let legacy = project_candidates(
         connection,
         root,
@@ -538,7 +676,7 @@ fn evaluate_case(
         "Top20 包含禁止的证据类型",
         "reranker",
     );
-    let v2_docs = v2
+    let v2_docs = v2_documents
         .iter()
         .take(10)
         .map(|item| &item.document_id)
@@ -582,7 +720,9 @@ fn evaluate_case(
         document_recall_at_10: recall10,
         document_recall_at_20: recall20,
         heading_recall_at_20: heading20,
-        mrr: reciprocal_rank(&v2, &case.expected_documents),
+        passage_mrr: reciprocal_rank_canonical(&v2, &case.expected_documents),
+        document_mrr: reciprocal_rank_canonical(&v2_documents, &case.expected_documents),
+        mrr: reciprocal_rank_canonical(&v2_documents, &case.expected_documents),
         ndcg_at_10: ndcg_at(&v2, &case.expected_documents, 10),
         locator_validity,
         zero_evidence_observed,
@@ -601,6 +741,7 @@ fn evaluate_case(
         attempted_kinds,
         source_gaps: outcome.sources.gaps,
         v2_evidence: v2,
+        v2_documents,
         legacy_evidence: legacy,
         improvements,
         regressions,
@@ -659,7 +800,9 @@ pub fn evaluate(
         document_recall_at_10: average(&cases, |case| case.document_recall_at_10),
         document_recall_at_20: average(&cases, |case| case.document_recall_at_20),
         heading_recall_at_20: average(&cases, |case| case.heading_recall_at_20),
-        mrr: average(&cases, |case| case.mrr),
+        passage_mrr: average(&cases, |case| case.passage_mrr),
+        document_mrr: average(&cases, |case| case.document_mrr),
+        mrr: average(&cases, |case| case.document_mrr),
         ndcg_at_10: average(&cases, |case| case.ndcg_at_10),
         locator_validity: average(&cases, |case| case.locator_validity),
         zero_evidence_false_negative: false_negative,
@@ -697,6 +840,106 @@ pub fn evaluate(
     })
 }
 
+fn first_relevant_rank(ranked: &[RankedEvidence], expected: &[String]) -> Option<usize> {
+    let expected = expected
+        .iter()
+        .map(|document| canonical_document_id(document))
+        .collect::<HashSet<_>>();
+    ranked
+        .iter()
+        .position(|item| expected.contains(&item.canonical_document_id))
+        .map(|index| index + 1)
+}
+
+pub fn mrr_diagnostics(report: &EvaluationReport, suite: &EvaluationSuite) -> MrrDiagnosticReport {
+    let expected_by_id = suite
+        .cases
+        .iter()
+        .map(|case| (case.id.as_str(), &case.expected_documents))
+        .collect::<HashMap<_, _>>();
+    let mut cases = report
+        .cases
+        .iter()
+        .map(|case| {
+            let expected = expected_by_id
+                .get(case.id.as_str())
+                .copied()
+                .cloned()
+                .unwrap_or_default();
+            let document_rank_by_id = case
+                .v2_documents
+                .iter()
+                .map(|item| (item.canonical_document_id.as_str(), item.rank))
+                .collect::<HashMap<_, _>>();
+            let expected_canonical = expected
+                .iter()
+                .map(|document| canonical_document_id(document))
+                .collect::<HashSet<_>>();
+            let top_10 = case
+                .v2_evidence
+                .iter()
+                .take(10)
+                .map(|item| MrrDiagnosticCandidate {
+                    passage_rank: item.rank,
+                    document_rank: document_rank_by_id
+                        .get(item.canonical_document_id.as_str())
+                        .copied()
+                        .unwrap_or(item.rank),
+                    stable_source_id: item.stable_source_id.clone(),
+                    document_id: item.document_id.clone(),
+                    canonical_document_id: item.canonical_document_id.clone(),
+                    heading: item.title.clone(),
+                    is_relevant: expected_canonical.contains(&item.canonical_document_id),
+                    retrieval_channels: item.retrieval_channels.clone(),
+                    rrf_score: item.rrf_score,
+                    base_rank: item.base_rank,
+                    base_score: item.base_score,
+                    cross_encoder_score: item.cross_encoder_score,
+                    final_score: item.score,
+                    document_repeat_count: item.document_repeat_count,
+                    document_repeat_penalty: item.document_repeat_penalty,
+                })
+                .collect();
+            MrrDiagnosticCase {
+                query_id: case.id.clone(),
+                question: case.question.clone(),
+                first_relevant_passage_rank: first_relevant_rank(&case.v2_evidence, &expected),
+                first_relevant_document_rank: first_relevant_rank(&case.v2_documents, &expected),
+                passage_mrr: case.passage_mrr,
+                document_mrr: case.document_mrr,
+                top_10,
+            }
+        })
+        .collect::<Vec<_>>();
+    cases.sort_by(|left, right| {
+        right
+            .first_relevant_document_rank
+            .unwrap_or(usize::MAX)
+            .cmp(&left.first_relevant_document_rank.unwrap_or(usize::MAX))
+            .then_with(|| left.query_id.cmp(&right.query_id))
+    });
+    MrrDiagnosticReport {
+        schema_version: MRR_DIAGNOSTIC_SCHEMA_VERSION.to_string(),
+        metric_unit: "document".to_string(),
+        passage_metric_is_diagnostic_only: true,
+        cases,
+    }
+}
+
+pub fn write_mrr_diagnostics(
+    report: &EvaluationReport,
+    suite: &EvaluationSuite,
+    path: &Path,
+) -> Result<(), String> {
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent).map_err(|error| format!("RAG_EVAL_WRITE_FAILED: {error}"))?;
+    }
+    let diagnostics = serde_json::to_string_pretty(&mrr_diagnostics(report, suite))
+        .map_err(|error| format!("RAG_EVAL_SERIALIZE_FAILED: {error}"))?;
+    fs::write(path, format!("{diagnostics}\n"))
+        .map_err(|error| format!("RAG_EVAL_WRITE_FAILED: {error}"))
+}
+
 pub fn write_report(
     report: &EvaluationReport,
     json_path: &Path,
@@ -714,7 +957,7 @@ pub fn write_report(
         .map_err(|error| format!("RAG_EVAL_WRITE_FAILED: {error}"))?;
     let aggregate = &report.aggregate;
     let mut markdown = format!(
-        "# 科研 RAG 检索评测\n\n- 状态：{}\n- 用例：{}/{}\n- Source resolution accuracy：{:.3}\n- Channel attempt rate：{:.3}\n- Document Recall@5/10/20：{:.3} / {:.3} / {:.3}\n- Heading Recall@20：{:.3}\n- MRR / nDCG@10：{:.3} / {:.3}\n- Locator validity：{:.3}\n- Zero-evidence FN/FP：{} / {}\n- 平均检索耗时：{:.1} ms\n- 平均轮数：{:.2}\n- Reranker fallback：{} / {} ({:.3})\n- 平均 reranker 耗时：{:.1} ms\n\n## 用例\n\n",
+        "# 科研 RAG 检索评测\n\n- 状态：{}\n- 用例：{}/{}\n- Source resolution accuracy：{:.3}\n- Channel attempt rate：{:.3}\n- Document Recall@5/10/20：{:.3} / {:.3} / {:.3}\n- Heading Recall@20：{:.3}\n- Document MRR / Passage MRR / nDCG@10：{:.3} / {:.3} / {:.3}\n- Locator validity：{:.3}\n- Zero-evidence FN/FP：{} / {}\n- 平均检索耗时：{:.1} ms\n- 平均轮数：{:.2}\n- Reranker fallback：{} / {} ({:.3})\n- 平均 reranker 耗时：{:.1} ms\n\n## 用例\n\n",
         if report.passed { "PASS" } else { "REVIEW" },
         aggregate.passed_count,
         aggregate.case_count,
@@ -724,7 +967,8 @@ pub fn write_report(
         aggregate.document_recall_at_10,
         aggregate.document_recall_at_20,
         aggregate.heading_recall_at_20,
-        aggregate.mrr,
+        aggregate.document_mrr,
+        aggregate.passage_mrr,
         aggregate.ndcg_at_10,
         aggregate.locator_validity,
         aggregate.zero_evidence_false_negative,
@@ -738,7 +982,7 @@ pub fn write_report(
     );
     for case in &report.cases {
         markdown.push_str(&format!(
-            "### {} · {}\n\n- 状态：{}\n- 通道：{}\n- Stop：{}\n- Recall@5/20：{:.3} / {:.3}\n- Locator：{:.3}\n- Reranker：{} / {} / {} ms{}\n",
+            "### {} · {}\n\n- 状态：{}\n- 通道：{}\n- Stop：{}\n- Recall@5/20：{:.3} / {:.3}\n- Document/Passage MRR：{:.3} / {:.3}\n- Locator：{:.3}\n- Reranker：{} / {} / {} ms{}\n",
             case.id,
             case.question,
             if case.passed { "PASS" } else { "REVIEW" },
@@ -746,6 +990,8 @@ pub fn write_report(
             case.stop_reason,
             case.document_recall_at_5,
             case.document_recall_at_20,
+            case.document_mrr,
+            case.passage_mrr,
             case.locator_validity,
             case.reranker_version,
             case.reranker_status,
@@ -779,6 +1025,29 @@ pub fn write_report(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn ranked(rank: usize, document_id: &str, block_id: &str) -> RankedEvidence {
+        RankedEvidence {
+            rank,
+            score: 1.0 / rank as f64,
+            stable_source_id: block_id.into(),
+            kind: "paper".into(),
+            document_id: document_id.into(),
+            canonical_document_id: canonical_document_id(document_id),
+            block_id: block_id.into(),
+            title: block_id.into(),
+            relation: "content_block_v2".into(),
+            locator_valid: true,
+            locator_matched_by: "block".into(),
+            retrieval_channels: vec!["fts".into()],
+            rrf_score: Some(0.01),
+            base_rank: Some(rank),
+            base_score: Some(0.01),
+            cross_encoder_score: Some(0.5),
+            document_repeat_count: Some(0),
+            document_repeat_penalty: Some(0.0),
+        }
+    }
 
     fn case(id: &str) -> EvaluationCase {
         EvaluationCase {
@@ -814,5 +1083,42 @@ mod tests {
             r#"{"schemaVersion":"qa-rag-evaluation-cases-v1","name":"x","cases":[],"unknown":true}"#,
         )
         .is_err());
+    }
+
+    #[test]
+    fn document_mrr_collapses_duplicate_passages_before_ranking() {
+        let passages = vec![
+            ranked(1, "paper:noise", "noise-1"),
+            ranked(2, "paper:noise", "noise-2"),
+            ranked(3, "paper:target", "target-1"),
+        ];
+        let documents = collapse_documents(&passages);
+        assert_eq!(
+            documents
+                .iter()
+                .map(|item| (item.rank, item.document_id.as_str()))
+                .collect::<Vec<_>>(),
+            vec![(1, "paper:noise"), (2, "paper:target")]
+        );
+        assert_eq!(
+            reciprocal_rank(&passages, &["paper:target".into()]),
+            1.0 / 3.0
+        );
+        assert_eq!(reciprocal_rank(&documents, &["paper:target".into()]), 0.5);
+    }
+
+    #[test]
+    fn canonical_document_mrr_treats_wiki_source_and_primary_paper_as_one_work() {
+        let ranked = vec![
+            ranked(1, "wiki:sources/src-target", "wiki-target"),
+            ranked(2, "paper:sources/src-target", "paper-target"),
+        ];
+        let documents = collapse_documents(&ranked);
+        assert_eq!(documents.len(), 1);
+        assert_eq!(documents[0].canonical_document_id, "source:src-target");
+        assert_eq!(
+            reciprocal_rank_canonical(&ranked, &["paper:sources/src-target".into()]),
+            1.0
+        );
     }
 }

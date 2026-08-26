@@ -4482,6 +4482,21 @@ pub fn run_rag_evaluation_files(
     let suite = qa::evaluation::load_suite(cases_path)?;
     let report = qa::evaluation::evaluate(&connection, &root, &suite)?;
     qa::evaluation::write_report(&report, json_output, markdown_output)?;
+    let original_name = json_output
+        .file_name()
+        .and_then(|name| name.to_str())
+        .unwrap_or("rag-evaluation-latest.json");
+    let replaced_name = original_name.replace("rag-evaluation", "mrr-diagnostics");
+    let diagnostic_name = if replaced_name == original_name {
+        "mrr-diagnostics-latest.json".to_string()
+    } else {
+        replaced_name
+    };
+    qa::evaluation::write_mrr_diagnostics(
+        &report,
+        &suite,
+        &json_output.with_file_name(diagnostic_name),
+    )?;
     Ok(report.passed)
 }
 

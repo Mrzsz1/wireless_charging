@@ -2,12 +2,12 @@
 
 ## Phase A — MRR Diagnostics and Ranking
 
-- [ ] 扩展 RAG evaluator，生成安全的 per-query `mrr_diagnostics.json`。
-- [ ] 明确 document/passage MRR，并分析当前最差排名原因。
-- [ ] 检查 clean reranker query、exact passage input、rerank 前去重和 parent expansion 顺序。
-- [ ] 仅做通用 score fusion/diversification 修复，不增加 Retriever/题目特判。
-- [ ] 运行真实 Cross-Encoder A/B，满足全部冻结 retrieval 阈值。
-- [ ] 本地提交：`fix(qa): improve document-level reranking`。
+- [x] 扩展 RAG evaluator，生成安全的 per-query `mrr_diagnostics.json`。
+- [x] 明确 document/passage MRR，并分析当前最差排名原因。
+- [x] 检查 clean reranker query、exact passage input、rerank 前去重和 parent expansion 顺序。
+- [x] 仅做通用 score fusion/diversification修复；诊断确认根因是 Wiki-primary pair 指标身份，未盲调 Retriever/权重或增加题目特判。
+- [x] 运行真实 Cross-Encoder A/B，满足全部冻结 retrieval 阈值。
+- [x] 本地提交：`fix(qa): improve document-level reranking`。
 
 ## Phase B — Real Semantic Verification
 

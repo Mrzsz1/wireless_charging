@@ -17,13 +17,13 @@
 
 - 用例：13/13 PASS
 - Document Recall@5/10/20：0.962 / 0.962 / 1.000
-- MRR / nDCG@10：0.821 / 0.851
+- Canonical Document MRR / Passage MRR / nDCG@10：0.962 / 0.962 / 0.851
 - Reranker fallback：0/13（0.000）
-- 平均 reranker latency：15738.0 ms（2026-08-26 Phase F 复测；低于 37105.6 ms 阶段基线）
+- 平均 reranker latency：13707.9 ms（2026-08-26 remediation 复测）
 - `dwpt-beb-planning`：通过统一 score fusion 与 document-repeat penalty 恢复 Top20 覆盖；没有新增专项用例或路径/标题特判。
 
 ## Production Gate 判定
 
-Cross-Encoder 部署、完整性、可靠性、检索质量与 fallback 子门禁为 `PASS`：真实模型成功加载，13/13 RAG 用例通过，fallback rate 0.000 低于冻结上限 0.05。
+Cross-Encoder 部署、完整性、可靠性、检索质量与 fallback 子门禁为 `PASS`：真实模型成功加载，13/13 RAG 用例通过，Canonical Document MRR 0.962 高于冻结下限 0.85，fallback rate 0.000 低于冻结上限 0.05。
 
-整体 Production Gate 仍不据此宣告 Production Ready：目标机器 performance 阈值尚未冻结，平均 CPU 重排耗时仍约 15.7 秒；独立 held-out 与真实 semantic verifier 证据仍缺失，统一 release gate 因此保持 FAIL。
+整体 Production Gate 仍不据此宣告 Production Ready：目标机器 performance 阈值尚未冻结，平均 CPU 重排耗时仍约 13.7 秒；独立 held-out 与真实 semantic verifier 证据仍缺失，统一 release gate 因此保持 FAIL。

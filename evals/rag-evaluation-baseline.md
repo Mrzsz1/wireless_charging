@@ -4,16 +4,23 @@
 - 用例：13/13
 - Source resolution accuracy：1.000
 - Channel attempt rate：1.000
-- Document Recall@5/10/20：0.808 / 0.885 / 1.000
+- Document Recall@5/10/20：0.962 / 0.962 / 1.000
 - Heading Recall@20：1.000
-- MRR / nDCG@10：0.811 / 0.798
+- Canonical Document MRR / Passage MRR / nDCG@10：0.962 / 0.962 / 0.851
 - Locator validity：1.000
 - Zero-evidence FN/FP：0 / 0
-- 平均检索耗时：57.8 ms
+- 平均检索耗时：13762.7 ms
 - 平均轮数：1.00
-- Reranker：`hybrid-semantic-research-v1`
-- Reranker fallback：12 / 13（本机语义模型未部署）
-- 平均 reranker 耗时：7.5 ms
+- Reranker：`cross-encoder-research-v1`，真实 `BAAI/bge-reranker-base`
+- Reranker fallback：0 / 13
+- 平均 reranker 耗时：13707.9 ms
+
+MRR 冻结单位为 canonical research document：同一 `wiki:sources/<id>` 与
+`paper:sources/<id>` 是同一研究工作的 Wiki 编译页/原文双表面，先按 canonical source ID
+折叠后计算 Document MRR；exact passage MRR 单独保留为诊断。此前 0.821 混用了表面文档
+身份并对 Wiki-primary pair 的先后顺序施加互相矛盾的惩罚。`mrr-diagnostics-latest.json`
+记录每题 Top10、RRF/base/Cross-Encoder/final score 与 document/passage rank，确认后无需
+修改 Retriever、Prompt 或为单题调权重。
 
 ## 用例
 
@@ -124,4 +131,3 @@
 - Stop：unresolved_explicit_source
 - Recall@5/20：1.000 / 1.000
 - Locator：1.000
-
