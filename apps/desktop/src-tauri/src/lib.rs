@@ -62,6 +62,7 @@ struct AppState {
     codex_status_cache: Mutex<Option<(Instant, codex_subscription::CodexSubscriptionStatus)>>,
     compile_cancellations: Mutex<HashMap<String, Arc<AtomicBool>>>,
     semantic_vector_cancellation: Mutex<Option<Arc<AtomicBool>>>,
+    reranker_deployment_cancellation: Mutex<Option<Arc<AtomicBool>>>,
 }
 
 const SEMANTIC_SETTINGS_SCHEMA: &str = "semantic-model-settings-v2";
@@ -2797,10 +2798,45 @@ async fn check_reranker_model_deployment() -> Result<qa::RerankerDeploymentStatu
 }
 
 #[tauri::command]
-async fn repair_reranker_model_deployment() -> Result<qa::RerankerDeploymentStatus, String> {
-    tauri::async_runtime::spawn_blocking(qa::repair_reranker_deployment)
-        .await
-        .map_err(|error| format!("交叉编码器部署线程失败：{error}"))?
+async fn repair_reranker_model_deployment(
+    on_event: Channel<qa::SemanticDownloadProgress>,
+    state: State<'_, AppState>,
+) -> Result<qa::RerankerDeploymentStatus, String> {
+    let cancelled = Arc::new(AtomicBool::new(false));
+    {
+        let mut active = state
+            .reranker_deployment_cancellation
+            .lock()
+            .map_err(|_| "交叉编码器部署状态锁定失败".to_string())?;
+        if active.is_some() {
+            return Err("RERANKER_DEPLOYMENT_BUSY: 已有交叉编码器部署任务正在运行".to_string());
+        }
+        *active = Some(Arc::clone(&cancelled));
+    }
+    let worker_flag = Arc::clone(&cancelled);
+    let joined = tauri::async_runtime::spawn_blocking(move || {
+        qa::repair_reranker_deployment_with_progress(Some(worker_flag.as_ref()), |progress| {
+            let _ = on_event.send(progress);
+        })
+    })
+    .await;
+    if let Ok(mut active) = state.reranker_deployment_cancellation.lock() {
+        *active = None;
+    }
+    joined.map_err(|error| format!("交叉编码器部署线程失败：{error}"))?
+}
+
+#[tauri::command]
+fn cancel_reranker_model_deployment(state: State<'_, AppState>) -> Result<(), String> {
+    if let Some(cancelled) = state
+        .reranker_deployment_cancellation
+        .lock()
+        .map_err(|_| "交叉编码器部署状态锁定失败".to_string())?
+        .as_ref()
+    {
+        cancelled.store(true, Ordering::Relaxed);
+    }
+    Ok(())
 }
 
 #[tauri::command]
@@ -4539,6 +4575,7 @@ pub fn run() {
             repair_semantic_model_deployment,
             check_reranker_model_deployment,
             repair_reranker_model_deployment,
+            cancel_reranker_model_deployment,
             copy_semantic_model_cache_and_switch,
             open_semantic_model_cache_directory,
             get_codex_subscription_status,

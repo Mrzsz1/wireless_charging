@@ -62,7 +62,7 @@ pub(crate) use semantic::{
     default_cache_dir as default_semantic_cache_dir,
     effective_cache_dir as effective_semantic_cache_dir,
     repair_deployment_with_progress as repair_semantic_deployment_with_progress,
-    repair_reranker_deployment, validate_cache_dir as validate_semantic_cache_dir,
+    repair_reranker_deployment_with_progress, validate_cache_dir as validate_semantic_cache_dir,
     RerankerDeploymentStatus, SemanticDeploymentStatus, SemanticDownloadProgress,
     MODEL_NAME as SEMANTIC_MODEL_NAME,
 };

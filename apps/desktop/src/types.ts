@@ -471,7 +471,7 @@ export type RerankerDeploymentStatus = {
 }
 
 export type SemanticDownloadProgress = {
-  status: 'starting' | 'downloading' | 'verifying' | 'complete' | 'skipped' | 'failed'
+  status: 'starting' | 'downloading' | 'verifying' | 'complete' | 'skipped' | 'failed' | 'cancelled'
   phase: 'runtime' | 'model' | 'tokenizer' | 'inference'
   fileName: string
   downloadedBytes: number

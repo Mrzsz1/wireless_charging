@@ -149,8 +149,14 @@ export async function checkRerankerModelDeployment(): Promise<RerankerDeployment
   return invoke<RerankerDeploymentStatus>('check_reranker_model_deployment')
 }
 
-export async function repairRerankerModelDeployment(): Promise<RerankerDeploymentStatus> {
-  return invoke<RerankerDeploymentStatus>('repair_reranker_model_deployment')
+export async function repairRerankerModelDeployment(onProgress?: (progress: SemanticDownloadProgress) => void): Promise<RerankerDeploymentStatus> {
+  const onEvent = new Channel<SemanticDownloadProgress>()
+  onEvent.onmessage = (progress) => onProgress?.(progress)
+  return invoke<RerankerDeploymentStatus>('repair_reranker_model_deployment', { onEvent })
+}
+
+export async function cancelRerankerModelDeployment(): Promise<void> {
+  return invoke<void>('cancel_reranker_model_deployment')
 }
 
 export async function copySemanticModelCacheAndSwitch(targetDir: string): Promise<SemanticModelSettings> {

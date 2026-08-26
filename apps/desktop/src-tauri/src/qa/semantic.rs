@@ -3,8 +3,8 @@
 use super::reranker::CrossEncoderScores;
 use super::{check_cancelled, compact, Candidate};
 use fastembed::{
-    EmbeddingModel, InitOptions, RerankInitOptions, RerankInitOptionsUserDefined, RerankerModel,
-    TextEmbedding, TextRerank, TokenizerFiles, UserDefinedRerankingModel,
+    EmbeddingModel, InitOptions, RerankInitOptionsUserDefined, TextEmbedding, TextRerank,
+    TokenizerFiles, UserDefinedRerankingModel,
 };
 use hf_hub::api::{sync::ApiBuilder, Progress};
 use rusqlite::Connection;
@@ -12,7 +12,7 @@ use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::env;
-use std::fs;
+use std::fs::{self, File, OpenOptions};
 use std::io::{Cursor, Read, Write};
 use std::panic::{catch_unwind, AssertUnwindSafe};
 use std::path::{Path, PathBuf};
@@ -27,6 +27,8 @@ pub(crate) const RERANKER_MODEL_NAME: &str = "BAAI/bge-reranker-base";
 pub(crate) const RERANKER_MODEL_VERSION: &str = "fastembed-4.9.1-bge-reranker-base";
 const RERANKER_DEFAULT_BATCH_SIZE: usize = 80;
 const RERANKER_MAX_LENGTH: usize = 512;
+const RERANKER_REVISION: &str = "2cfc18c9415c912f9d8155881c133215df768a70";
+const RERANKER_DOWNLOAD_CHUNK_BYTES: usize = 256 * 1024;
 const MODEL_RETRY_DELAY: Duration = Duration::from_secs(30);
 const MODEL_CACHE_FOLDER: &str = "models--Qdrant--paraphrase-multilingual-MiniLM-L12-v2-onnx-Q";
 const MODEL_FILE: &str = "model_optimized.onnx";
@@ -50,6 +52,41 @@ const ORT_RUNTIME_URL: &str =
 const ORT_RUNTIME_SHA256: &str = "78d447051e48bd2e1e778bba378bec4ece11191c9e538cf7b2c4a4565e8f5581";
 #[cfg(target_os = "windows")]
 const ORT_ARCHIVE_LIMIT_BYTES: usize = 80 * 1024 * 1024;
+
+#[derive(Clone, Copy)]
+struct RerankerArtifact {
+    relative_path: &'static str,
+    bytes: u64,
+    sha256: &'static str,
+}
+
+const RERANKER_ARTIFACTS: &[RerankerArtifact] = &[
+    RerankerArtifact {
+        relative_path: "onnx/model.onnx",
+        bytes: 1_112_459_588,
+        sha256: "15b9a8c3da82eddf263df571281166e00e9308fe19d077084b642ebfcaf06d2b",
+    },
+    RerankerArtifact {
+        relative_path: "tokenizer.json",
+        bytes: 17_098_107,
+        sha256: "9eb652ac4e40cc093272bbbe0f55d521cf67570060227109b5cdc20945a4489e",
+    },
+    RerankerArtifact {
+        relative_path: "config.json",
+        bytes: 799,
+        sha256: "289adf7ada1eb6b4afa7589a48a032d45a076cf2e46dcdb3b4cabc33be14f708",
+    },
+    RerankerArtifact {
+        relative_path: "special_tokens_map.json",
+        bytes: 279,
+        sha256: "d5469a60db23249c7f8945013d78df30b44b6bf686c6bb4740f4223f77b1b535",
+    },
+    RerankerArtifact {
+        relative_path: "tokenizer_config.json",
+        bytes: 443,
+        sha256: "a1d6bc8734a6f635dc158508bef000f8e2e5a759c7d92f984b2c86e5ff53425b",
+    },
+];
 
 static SEMANTIC_STATE: OnceLock<Mutex<SemanticState>> = OnceLock::new();
 static CACHE_DIR_OVERRIDE: OnceLock<Mutex<Option<PathBuf>>> = OnceLock::new();
@@ -1031,7 +1068,273 @@ pub(crate) fn check_reranker_deployment() -> RerankerDeploymentStatus {
     }
 }
 
-pub(crate) fn repair_reranker_deployment() -> Result<RerankerDeploymentStatus, String> {
+fn reranker_part_path(final_path: &Path) -> Result<PathBuf, String> {
+    let file_name = final_path
+        .file_name()
+        .and_then(|value| value.to_str())
+        .ok_or_else(|| "RERANKER_DEPLOYMENT_INVALID: artifact_file_name".to_string())?;
+    Ok(final_path.with_file_name(format!("{file_name}.part")))
+}
+
+fn file_sha256(path: &Path) -> Result<String, String> {
+    let mut file = File::open(path)
+        .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: open_for_hash:{error}"))?;
+    let mut digest = Sha256::new();
+    let mut buffer = vec![0_u8; RERANKER_DOWNLOAD_CHUNK_BYTES];
+    loop {
+        let count = file
+            .read(&mut buffer)
+            .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: hash_read:{error}"))?;
+        if count == 0 {
+            break;
+        }
+        digest.update(&buffer[..count]);
+    }
+    Ok(format!("{:x}", digest.finalize()))
+}
+
+fn artifact_is_valid(path: &Path, artifact: RerankerArtifact) -> Result<bool, String> {
+    if !path.is_file() {
+        return Ok(false);
+    }
+    let size = path
+        .metadata()
+        .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: artifact_metadata:{error}"))?
+        .len();
+    if size != artifact.bytes {
+        return Ok(false);
+    }
+    Ok(file_sha256(path)? == artifact.sha256)
+}
+
+fn quarantine_reranker_artifact(path: &Path) -> Result<(), String> {
+    if !path.exists() {
+        return Ok(());
+    }
+    let file_name = path
+        .file_name()
+        .and_then(|value| value.to_str())
+        .ok_or_else(|| "RERANKER_DEPLOYMENT_INVALID: artifact_file_name".to_string())?;
+    let quarantined = path.with_file_name(format!(
+        "{file_name}.invalid-{}-{}",
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs(),
+        Uuid::new_v4()
+    ));
+    fs::rename(path, quarantined)
+        .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: quarantine:{error}"))
+}
+
+fn reranker_download_url(artifact: RerankerArtifact) -> String {
+    let endpoint = env::var("HF_ENDPOINT")
+        .unwrap_or_else(|_| "https://huggingface.co".to_string())
+        .trim_end_matches('/')
+        .to_string();
+    format!(
+        "{endpoint}/{RERANKER_MODEL_NAME}/resolve/{RERANKER_REVISION}/{}",
+        artifact.relative_path
+    )
+}
+
+fn ensure_reranker_not_cancelled(cancelled: Option<&AtomicBool>) -> Result<(), String> {
+    if cancelled.is_some_and(|flag| flag.load(std::sync::atomic::Ordering::Relaxed)) {
+        Err("RERANKER_DEPLOYMENT_CANCELLED: 用户停止了交叉编码器部署".to_string())
+    } else {
+        Ok(())
+    }
+}
+
+fn with_transfer_speed(
+    mut progress: SemanticDownloadProgress,
+    transferred_bytes: u64,
+    started_at: Instant,
+) -> SemanticDownloadProgress {
+    let elapsed = started_at.elapsed().as_secs_f64();
+    progress.bytes_per_second = if elapsed > 0.0 {
+        (transferred_bytes as f64 / elapsed) as u64
+    } else {
+        0
+    };
+    progress
+}
+
+fn download_reranker_artifact<F>(
+    client: &reqwest::blocking::Client,
+    model_dir: &Path,
+    artifact: RerankerArtifact,
+    cancelled: Option<&AtomicBool>,
+    on_progress: &mut F,
+) -> Result<(), String>
+where
+    F: FnMut(SemanticDownloadProgress),
+{
+    ensure_reranker_not_cancelled(cancelled)?;
+    let final_path = model_dir.join(artifact.relative_path);
+    let phase = if artifact.relative_path.ends_with(".onnx") {
+        "model"
+    } else {
+        "tokenizer"
+    };
+    if artifact_is_valid(&final_path, artifact)? {
+        let started = Instant::now();
+        on_progress(with_transfer_speed(
+            progress_event(
+                "skipped",
+                phase,
+                artifact.relative_path,
+                artifact.bytes,
+                artifact.bytes,
+                started,
+                "文件完整性校验通过，无需下载",
+            ),
+            0,
+            started,
+        ));
+        return Ok(());
+    }
+    if final_path.exists() {
+        quarantine_reranker_artifact(&final_path)?;
+    }
+    let parent = final_path
+        .parent()
+        .ok_or_else(|| "RERANKER_DEPLOYMENT_INVALID: artifact_parent".to_string())?;
+    fs::create_dir_all(parent)
+        .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: create_artifact_dir:{error}"))?;
+    let part_path = reranker_part_path(&final_path)?;
+    let mut resume_from = part_path
+        .metadata()
+        .map(|metadata| metadata.len())
+        .unwrap_or(0);
+    if resume_from > artifact.bytes {
+        File::create(&part_path)
+            .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: reset_partial:{error}"))?;
+        resume_from = 0;
+    }
+    let mut request = client.get(reranker_download_url(artifact));
+    if resume_from > 0 {
+        request = request.header(reqwest::header::RANGE, format!("bytes={resume_from}-"));
+    }
+    let mut response = request
+        .send()
+        .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: network:{error}"))?;
+    let resumed = resume_from > 0 && response.status() == reqwest::StatusCode::PARTIAL_CONTENT;
+    if !response.status().is_success() {
+        return Err(format!(
+            "RERANKER_DEPLOYMENT_FAILED: http_status:{}",
+            response.status().as_u16()
+        ));
+    }
+    if resume_from > 0 && !resumed {
+        resume_from = 0;
+    }
+    let mut output = OpenOptions::new()
+        .create(true)
+        .write(true)
+        .append(resumed)
+        .truncate(!resumed)
+        .open(&part_path)
+        .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: open_partial:{error}"))?;
+    let started = Instant::now();
+    let mut downloaded = resume_from;
+    on_progress(with_transfer_speed(
+        progress_event(
+            "downloading",
+            phase,
+            artifact.relative_path,
+            downloaded,
+            artifact.bytes,
+            started,
+            if resumed {
+                "继续下载"
+            } else {
+                "开始下载"
+            },
+        ),
+        0,
+        started,
+    ));
+    let mut buffer = vec![0_u8; RERANKER_DOWNLOAD_CHUNK_BYTES];
+    loop {
+        ensure_reranker_not_cancelled(cancelled)?;
+        let count = response
+            .read(&mut buffer)
+            .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: network_read:{error}"))?;
+        if count == 0 {
+            break;
+        }
+        output
+            .write_all(&buffer[..count])
+            .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: disk_write:{error}"))?;
+        downloaded = downloaded.saturating_add(count as u64);
+        if downloaded > artifact.bytes {
+            return Err("RERANKER_DEPLOYMENT_INVALID: artifact_too_large".to_string());
+        }
+        on_progress(with_transfer_speed(
+            progress_event(
+                "downloading",
+                phase,
+                artifact.relative_path,
+                downloaded,
+                artifact.bytes,
+                started,
+                "正在下载",
+            ),
+            downloaded.saturating_sub(resume_from),
+            started,
+        ));
+    }
+    output
+        .flush()
+        .and_then(|_| output.sync_all())
+        .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: disk_flush:{error}"))?;
+    drop(output);
+    ensure_reranker_not_cancelled(cancelled)?;
+    on_progress(with_transfer_speed(
+        progress_event(
+            "verifying",
+            phase,
+            artifact.relative_path,
+            downloaded,
+            artifact.bytes,
+            started,
+            "正在校验文件大小与 SHA-256",
+        ),
+        downloaded.saturating_sub(resume_from),
+        started,
+    ));
+    if !artifact_is_valid(&part_path, artifact)? {
+        return Err(format!(
+            "RERANKER_DEPLOYMENT_INVALID: checksum:{}",
+            artifact.relative_path
+        ));
+    }
+    fs::rename(&part_path, &final_path)
+        .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: atomic_rename:{error}"))?;
+    on_progress(with_transfer_speed(
+        progress_event(
+            "complete",
+            phase,
+            artifact.relative_path,
+            artifact.bytes,
+            artifact.bytes,
+            started,
+            "下载、校验与原子提交完成",
+        ),
+        downloaded.saturating_sub(resume_from),
+        started,
+    ));
+    Ok(())
+}
+
+pub(crate) fn repair_reranker_deployment_with_progress<F>(
+    cancelled: Option<&AtomicBool>,
+    mut on_progress: F,
+) -> Result<RerankerDeploymentStatus, String>
+where
+    F: FnMut(SemanticDownloadProgress),
+{
     let model_dir = cross_encoder_model_dir();
     if !model_dir.is_absolute() {
         return Err("RERANKER_DEPLOYMENT_INVALID: model_directory_not_absolute".to_string());
@@ -1043,13 +1346,27 @@ pub(crate) fn repair_reranker_deployment() -> Result<RerankerDeploymentStatus, S
         return Err("RERANKER_DEPLOYMENT_FAILED: runtime_missing".to_string());
     }
     env::set_var("ORT_DYLIB_PATH", runtime);
-    let options = RerankInitOptions::new(RerankerModel::BGERerankerBase)
-        .with_cache_dir(model_dir.clone())
-        .with_max_length(512)
-        .with_show_download_progress(false);
-    let model = catch_unwind(AssertUnwindSafe(|| TextRerank::try_new(options)))
-        .map_err(|_| "RERANKER_DEPLOYMENT_FAILED: initialization_panic".to_string())?
-        .map_err(|_| "RERANKER_DEPLOYMENT_FAILED: download_or_initialization".to_string())?;
+    let client = reqwest::blocking::Client::builder()
+        .connect_timeout(Duration::from_secs(30))
+        .timeout(Duration::from_secs(2 * 60 * 60))
+        .user_agent("LunaWiki-reranker-provision/1")
+        .build()
+        .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: client:{error}"))?;
+    for artifact in RERANKER_ARTIFACTS {
+        download_reranker_artifact(&client, &model_dir, *artifact, cancelled, &mut on_progress)?;
+    }
+    ensure_reranker_not_cancelled(cancelled)?;
+    on_progress(progress_event(
+        "verifying",
+        "inference",
+        "model initialization",
+        0,
+        0,
+        Instant::now(),
+        "正在加载模型并执行健康探针",
+    ));
+    let model = initialize_cross_encoder(&model_dir)
+        .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: {error}"))?;
     let state = CROSS_ENCODER_STATE.get_or_init(|| Mutex::new(CrossEncoderState::default()));
     let mut state = state
         .lock()
@@ -1975,7 +2292,8 @@ mod tests {
     #[test]
     #[ignore = "downloads and initializes the production BAAI/bge-reranker-base model"]
     fn provisions_and_health_checks_the_real_production_reranker() {
-        let status = repair_reranker_deployment().expect("production reranker deployment");
+        let status = repair_reranker_deployment_with_progress(None, |_| {})
+            .expect("production reranker deployment");
         assert_eq!(status.state, "ready");
         assert_eq!(status.model_name, RERANKER_MODEL_NAME);
         assert!(status.health_checked);

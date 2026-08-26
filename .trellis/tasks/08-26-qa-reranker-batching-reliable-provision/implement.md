@@ -11,13 +11,13 @@
 
 ## Phase 2 — Cancellable progress-aware provisioning
 
-- [ ] 新增固定 revision/file/size/SHA-256 artifact manifest。
-- [ ] 用可控流式 downloader 替换 reranker 的 FastEmbed 隐式下载，保留底层分类错误。
-- [ ] 实现 `.part → size/SHA-256 → flush/sync → atomic rename`。
-- [ ] 增加 request-scoped cancellation token、active-run 互斥和 cancel Tauri command。
-- [ ] 增加 typed progress Channel：bytes/total/speed/percent/phase/file/status/message。
-- [ ] 设置页显示真实进度与取消按钮；query-time no-download 保持不变。
-- [ ] 本地 Git commit：`feat(qa): make reranker provisioning cancellable`。
+- [x] 新增固定 revision/file/size/SHA-256 artifact manifest。
+- [x] 用可控 reqwest 流式 downloader 替换 reranker 的 FastEmbed 隐式下载，保留 network/http/read/write/verify 分类错误。
+- [x] 实现 `.part → size/SHA-256 → flush/sync → atomic rename`，支持 Range 续传与无 Range 时安全重置。
+- [x] 增加 request-scoped cancellation token、active-run 互斥和 cancel Tauri command。
+- [x] 增加 typed progress Channel：bytes/total/speed/percent/phase/file/status/message；续传速度只计算本次传输字节。
+- [x] 设置页显示真实进度与取消按钮；query-time no-download 保持不变。
+- [x] 本地 Git commit：`feat(qa): make reranker provisioning cancellable`。
 
 ## Phase 3 — Failure injection and production verification
 
