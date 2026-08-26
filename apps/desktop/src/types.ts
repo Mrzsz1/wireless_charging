@@ -658,6 +658,9 @@ export type QaRunManifest = {
   rerankerStatus?: string
   rerankerLatencyMs?: number
   rerankerCandidateCount?: number
+  rerankerBatchSize?: number
+  rerankerBatchCount?: number
+  rerankerModelMaxLength?: number
   rerankerFallback?: boolean
   rerankerFallbackReason?: string
   evidenceManagerVersion?: string
@@ -807,6 +810,9 @@ export type QuestionContext = {
     rerankerStatus?: string
     rerankerLatencyMs?: number
     rerankerCandidateCount?: number
+    rerankerBatchSize?: number
+    rerankerBatchCount?: number
+    rerankerModelMaxLength?: number
     rerankerFallback?: boolean
     rerankerFallbackReason?: string
     evidenceManagerVersion?: string

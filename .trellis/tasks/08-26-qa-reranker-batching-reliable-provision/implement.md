@@ -2,12 +2,12 @@
 
 ## Phase 1 — Batched inference and score fusion
 
-- [ ] 在真实模型上采集 batch size matrix，确认当前 `Some(16)` 与 ONNX/Rayon 线程行为。
-- [ ] 引入明确的 batch config/telemetry，复用单一 Cross-Encoder session，避免线程过度订阅。
-- [ ] 冻结 base score/rank，并实现稳定归一化后的 base + Cross-Encoder score fusion。
-- [ ] 保持 explicit source 与 relation adjustments；不缩减候选数量。
-- [ ] 运行 reranker unit tests 与现有 13 项 RAG suite；不新增 `dwpt-beb-planning` 专项回归用例。
-- [ ] 本地 Git commit：`perf(qa): batch and fuse cross-encoder reranking`。
+- [x] 在真实模型上比较现有 batch 16 与单批 batch 80，确认 FastEmbed `par_chunks` 与 ONNX 全核执行的过度订阅风险。
+- [x] 引入明确的 batch config/telemetry，复用单一 Cross-Encoder session，默认单批覆盖最多 80 个候选。
+- [x] 冻结 base score/rank，并实现稳定归一化后的 base + Cross-Encoder score fusion。
+- [x] 保持 explicit source 与 relation adjustments；增加统一 document-repeat score penalty，不缩减候选数量、不按用例特判。
+- [x] reranker unit tests 与现有 13 项 RAG suite 通过；未新增 `dwpt-beb-planning` 专项回归用例。平均 reranker latency 35553.7 ms，fallback 0/13。
+- [x] 本地 Git commit：`perf(qa): batch and fuse cross-encoder reranking`。
 
 ## Phase 2 — Cancellable progress-aware provisioning
 

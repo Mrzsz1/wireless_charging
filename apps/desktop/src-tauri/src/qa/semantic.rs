@@ -1,5 +1,6 @@
 #![cfg_attr(test, allow(dead_code))]
 
+use super::reranker::CrossEncoderScores;
 use super::{check_cancelled, compact, Candidate};
 use fastembed::{
     EmbeddingModel, InitOptions, RerankInitOptions, RerankInitOptionsUserDefined, RerankerModel,
@@ -24,6 +25,8 @@ use walkdir::WalkDir;
 pub(crate) const MODEL_NAME: &str = "Qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q";
 pub(crate) const RERANKER_MODEL_NAME: &str = "BAAI/bge-reranker-base";
 pub(crate) const RERANKER_MODEL_VERSION: &str = "fastembed-4.9.1-bge-reranker-base";
+const RERANKER_DEFAULT_BATCH_SIZE: usize = 80;
+const RERANKER_MAX_LENGTH: usize = 512;
 const MODEL_RETRY_DELAY: Duration = Duration::from_secs(30);
 const MODEL_CACHE_FOLDER: &str = "models--Qdrant--paraphrase-multilingual-MiniLM-L12-v2-onnx-Q";
 const MODEL_FILE: &str = "model_optimized.onnx";
@@ -270,6 +273,10 @@ impl SemanticState {
 }
 
 pub(crate) fn default_cache_dir() -> PathBuf {
+    if let Some(path) = env::var_os("QA_SEMANTIC_MODEL_CACHE_DIR").filter(|value| !value.is_empty())
+    {
+        return PathBuf::from(path);
+    }
     env::var_os("LOCALAPPDATA")
         .map(PathBuf::from)
         .unwrap_or_else(env::temp_dir)
@@ -446,7 +453,7 @@ fn initialize_model(cache_dir: &Path) -> Result<TextEmbedding, String> {
     env::set_var("HF_HOME", cache_dir);
     let options = InitOptions::new(EmbeddingModel::ParaphraseMLMiniLML12V2Q)
         .with_cache_dir(cache_dir.to_path_buf())
-        .with_max_length(512)
+        .with_max_length(RERANKER_MAX_LENGTH)
         .with_show_download_progress(false);
     match catch_unwind(AssertUnwindSafe(|| TextEmbedding::try_new(options))) {
         Ok(Ok(model)) => Ok(model),
@@ -1085,9 +1092,14 @@ pub(super) fn rerank_texts(
     query: &str,
     documents: Vec<String>,
     cancelled: Option<&AtomicBool>,
-) -> Result<Vec<f32>, String> {
+) -> Result<CrossEncoderScores, String> {
     if documents.is_empty() {
-        return Ok(Vec::new());
+        return Ok(CrossEncoderScores {
+            scores: Vec::new(),
+            batch_size: 0,
+            batch_count: 0,
+            model_max_length: RERANKER_MAX_LENGTH,
+        });
     }
     check_cancelled(cancelled)?;
     let model_dir = cross_encoder_model_dir();
@@ -1103,11 +1115,23 @@ pub(super) fn rerank_texts(
         state.model = Some(initialize_cross_encoder(&model_dir)?);
     }
     check_cancelled(cancelled)?;
+    let batch_size = env::var("QA_RERANKER_BATCH_SIZE")
+        .ok()
+        .and_then(|value| value.parse::<usize>().ok())
+        .filter(|value| *value > 0)
+        .unwrap_or(RERANKER_DEFAULT_BATCH_SIZE)
+        .min(documents.len());
+    let batch_count = documents.len().div_ceil(batch_size);
     let results = state
         .model
         .as_ref()
         .ok_or_else(|| "CROSS_ENCODER_UNAVAILABLE: model_missing".to_string())?
-        .rerank(query.to_string(), documents.clone(), false, Some(16))
+        .rerank(
+            query.to_string(),
+            documents.clone(),
+            false,
+            Some(batch_size),
+        )
         .map_err(|_| "CROSS_ENCODER_UNAVAILABLE: inference_failed".to_string())?;
     let mut scores = vec![f32::NEG_INFINITY; documents.len()];
     for result in results {
@@ -1119,7 +1143,12 @@ pub(super) fn rerank_texts(
     if scores.iter().any(|score| !score.is_finite()) {
         return Err("CROSS_ENCODER_UNAVAILABLE: incomplete_result".to_string());
     }
-    Ok(scores)
+    Ok(CrossEncoderScores {
+        scores,
+        batch_size,
+        batch_count,
+        model_max_length: RERANKER_MAX_LENGTH,
+    })
 }
 
 #[derive(Debug)]

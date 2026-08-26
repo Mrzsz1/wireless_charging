@@ -1,9 +1,12 @@
 use super::{compact, query_terms, Candidate};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 const SEMANTIC_RERANK_LIMIT: usize = 80;
 const SEMANTIC_CANDIDATE_CHARS: usize = 1_200;
-const RRF_K: f64 = 60.0;
+const BASE_SCORE_WEIGHT: f64 = 0.70;
+const CROSS_ENCODER_SCORE_WEIGHT: f64 = 0.30;
+const CROSS_ENCODER_TOP_BONUS: f64 = 0.15;
+const DOCUMENT_REPEAT_PENALTY: f64 = 0.06;
 
 #[derive(Debug)]
 pub struct RerankOutcome {
@@ -11,6 +14,17 @@ pub struct RerankOutcome {
     pub reranker_version: String,
     pub fallback: bool,
     pub fallback_reason: String,
+    pub batch_size: usize,
+    pub batch_count: usize,
+    pub model_max_length: usize,
+}
+
+#[derive(Debug)]
+pub struct CrossEncoderScores {
+    pub scores: Vec<f32>,
+    pub batch_size: usize,
+    pub batch_count: usize,
+    pub model_max_length: usize,
 }
 
 pub trait Reranker {
@@ -76,6 +90,9 @@ impl Reranker for DeterministicResearchReranker {
             reranker_version: self.name().to_string(),
             fallback: false,
             fallback_reason: String::new(),
+            batch_size: 0,
+            batch_count: 0,
+            model_max_length: 0,
         })
     }
 }
@@ -112,6 +129,9 @@ impl Reranker for EmbeddingRescorer<'_> {
                 reranker_version: self.name().to_string(),
                 fallback: false,
                 fallback_reason: String::new(),
+                batch_size: 0,
+                batch_count: 0,
+                model_max_length: 0,
             });
         }
         let semantic_count = deterministic.len().min(SEMANTIC_RERANK_LIMIT);
@@ -160,11 +180,15 @@ impl Reranker for EmbeddingRescorer<'_> {
             reranker_version: self.name().to_string(),
             fallback: false,
             fallback_reason: String::new(),
+            batch_size: 0,
+            batch_count: 0,
+            model_max_length: 0,
         })
     }
 }
 
-pub type CrossEncoderScorer<'a> = dyn Fn(&str, Vec<String>) -> Result<Vec<f32>, String> + 'a;
+pub type CrossEncoderScorer<'a> =
+    dyn Fn(&str, Vec<String>) -> Result<CrossEncoderScores, String> + 'a;
 
 pub struct CrossEncoderResearchReranker<'a> {
     scorer: &'a CrossEncoderScorer<'a>,
@@ -196,6 +220,9 @@ impl Reranker for CrossEncoderResearchReranker<'_> {
                 reranker_version: self.name().to_string(),
                 fallback: false,
                 fallback_reason: String::new(),
+                batch_size: 0,
+                batch_count: 0,
+                model_max_length: 0,
             });
         }
         let rerank_count = deterministic.len().min(SEMANTIC_RERANK_LIMIT);
@@ -212,7 +239,7 @@ impl Reranker for CrossEncoderResearchReranker<'_> {
                 )
             })
             .collect::<Vec<_>>();
-        let scores = (self.scorer)(&compact(question, SEMANTIC_CANDIDATE_CHARS), documents)
+        let execution = (self.scorer)(&compact(question, SEMANTIC_CANDIDATE_CHARS), documents)
             .map_err(|error| {
                 if error.starts_with("QUESTION_CANCELLED") {
                     error
@@ -220,10 +247,16 @@ impl Reranker for CrossEncoderResearchReranker<'_> {
                     stable_cross_encoder_error(&error)
                 }
             })?;
-        if scores.len() != rerank_count || scores.iter().any(|score| !score.is_finite()) {
+        if execution.scores.len() != rerank_count
+            || execution.scores.iter().any(|score| !score.is_finite())
+        {
             return Err("cross_encoder_unavailable: invalid_score_count".to_string());
         }
-        let scores = scores.into_iter().map(f64::from).collect::<Vec<_>>();
+        let scores = execution
+            .scores
+            .into_iter()
+            .map(f64::from)
+            .collect::<Vec<_>>();
         fuse_rankings(
             &mut deterministic,
             &scores,
@@ -236,6 +269,9 @@ impl Reranker for CrossEncoderResearchReranker<'_> {
             reranker_version: self.name().to_string(),
             fallback: false,
             fallback_reason: String::new(),
+            batch_size: execution.batch_size,
+            batch_count: execution.batch_count,
+            model_max_length: execution.model_max_length,
         })
     }
 }
@@ -324,17 +360,19 @@ fn fuse_rankings(
     provider_name: &str,
     metric_label: &str,
 ) {
-    let mut secondary_order = (0..secondary_scores.len()).collect::<Vec<_>>();
-    secondary_order
-        .sort_by(|left, right| secondary_scores[*right].total_cmp(&secondary_scores[*left]));
-    let mut secondary_rank = vec![secondary_scores.len(); candidates.len()];
-    for (rank, index) in secondary_order.into_iter().enumerate() {
-        secondary_rank[index] = rank;
-    }
+    let base_scores = candidates
+        .iter()
+        .map(|candidate| candidate.score)
+        .collect::<Vec<_>>();
+    let normalized_base = normalize_scores(&base_scores);
+    let normalized_secondary = normalize_scores(secondary_scores);
     for (base_rank, candidate) in candidates.iter_mut().enumerate() {
-        let second_rank = secondary_rank[base_rank];
-        let mut fused =
-            1.0 / (RRF_K + base_rank as f64 + 1.0) + 1.5 / (RRF_K + second_rank as f64 + 1.0);
+        let base_score = base_scores[base_rank];
+        let base_component = normalized_base[base_rank];
+        let secondary_component = normalized_secondary.get(base_rank).copied().unwrap_or(0.0);
+        let mut fused = BASE_SCORE_WEIGHT * base_component
+            + CROSS_ENCODER_SCORE_WEIGHT * secondary_component
+            + CROSS_ENCODER_TOP_BONUS * secondary_component.powi(4);
         let explicit = explicit_paths.contains(&candidate.markdown_path)
             || explicit_paths.contains(&candidate.source_path);
         if explicit {
@@ -352,12 +390,58 @@ fn fuse_rankings(
         let score = secondary_scores.get(base_rank).copied().unwrap_or_default();
         candidate.score = fused;
         candidate.retrieval_reason.push_str(&format!(
-            "；reranker={provider_name} {metric_label}={score:.4} base_rank={} provider_rank={} fused_rrf={fused:.6}",
+            "；reranker={provider_name} {metric_label}={score:.4} base_score={base_score:.6} base_rank={} base_weight={BASE_SCORE_WEIGHT:.2} provider_weight={CROSS_ENCODER_SCORE_WEIGHT:.2} provider_top_bonus={CROSS_ENCODER_TOP_BONUS:.2} fused_score={fused:.6}",
             base_rank + 1,
-            second_rank + 1
         ));
     }
     candidates.sort_by(|left, right| right.score.total_cmp(&left.score));
+    let mut document_counts = HashMap::<String, usize>::new();
+    for candidate in candidates.iter_mut() {
+        let key = candidate_document_key(candidate);
+        let repeats = *document_counts.get(&key).unwrap_or(&0);
+        let penalty = DOCUMENT_REPEAT_PENALTY * repeats.min(4) as f64;
+        candidate.score -= penalty;
+        candidate.retrieval_reason.push_str(&format!(
+            "；document_repeat_count={repeats} document_repeat_penalty={penalty:.3}"
+        ));
+        document_counts.insert(key, repeats + 1);
+    }
+    candidates.sort_by(|left, right| right.score.total_cmp(&left.score));
+}
+
+fn candidate_document_key(candidate: &Candidate) -> String {
+    let identity = if !candidate.page_id.trim().is_empty() {
+        candidate.page_id.as_str()
+    } else if !candidate.source_path.trim().is_empty() {
+        candidate.source_path.split('#').next().unwrap_or_default()
+    } else {
+        candidate
+            .markdown_path
+            .split('#')
+            .next()
+            .unwrap_or_default()
+    };
+    format!(
+        "{}:{}",
+        candidate.kind,
+        identity.replace('\\', "/").to_lowercase()
+    )
+}
+
+fn normalize_scores(scores: &[f64]) -> Vec<f64> {
+    if scores.is_empty() {
+        return Vec::new();
+    }
+    let minimum = scores.iter().copied().fold(f64::INFINITY, f64::min);
+    let maximum = scores.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+    let range = maximum - minimum;
+    if !minimum.is_finite() || !maximum.is_finite() || range <= f64::EPSILON {
+        return vec![0.5; scores.len()];
+    }
+    scores
+        .iter()
+        .map(|score| ((score - minimum) / range).clamp(0.0, 1.0))
+        .collect()
 }
 
 fn stable_reranker_error(error: &str) -> String {
@@ -435,6 +519,15 @@ mod tests {
             source_location: String::new(),
             relation: relation.into(),
             retrieval_reason: String::new(),
+        }
+    }
+
+    fn cross_scores(scores: Vec<f32>) -> CrossEncoderScores {
+        CrossEncoderScores {
+            batch_size: scores.len(),
+            batch_count: usize::from(!scores.is_empty()),
+            model_max_length: 512,
+            scores,
         }
     }
 
@@ -516,7 +609,7 @@ mod tests {
                 if let Some(last) = scores.last_mut() {
                     *last = 0.95;
                 }
-                Ok(scores)
+                Ok(cross_scores(scores))
             };
             let cross_encoder = CrossEncoderResearchReranker::new(&scorer)
                 .rerank(query, candidates, &HashSet::new())
@@ -607,7 +700,9 @@ mod tests {
         let embedder =
             |_texts: Vec<String>| Err("SEMANTIC_UNAVAILABLE: should not be called".to_string());
         let scorer = |_query: &str, documents: Vec<String>| {
-            Ok((0..documents.len()).map(|index| index as f32).collect())
+            Ok(cross_scores(
+                (0..documents.len()).map(|index| index as f32).collect(),
+            ))
         };
         let outcome = HybridResearchReranker::new(&embedder, &scorer)
             .rerank(
@@ -621,9 +716,10 @@ mod tests {
             .unwrap();
         assert!(!outcome.fallback);
         assert_eq!(outcome.reranker_version, "cross-encoder-research-v1");
+        assert_eq!(outcome.batch_size, 2);
         assert!(outcome.candidates[0]
             .retrieval_reason
-            .contains("fused_rrf="));
+            .contains("fused_score="));
     }
 
     #[test]

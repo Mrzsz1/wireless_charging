@@ -3,7 +3,7 @@
   "name": "qa-reranker-batching-reliable-provision",
   "title": "Cross-Encoder 批量重排、分数融合与可取消可靠部署",
   "description": "",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": null,
   "scope": null,
   "package": null,

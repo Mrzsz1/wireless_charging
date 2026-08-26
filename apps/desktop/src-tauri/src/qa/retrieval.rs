@@ -40,6 +40,9 @@ pub struct RetrievalOutcome {
     pub reranker_status: String,
     pub reranker_latency_ms: u64,
     pub reranker_candidate_count: usize,
+    pub reranker_batch_size: usize,
+    pub reranker_batch_count: usize,
+    pub reranker_model_max_length: usize,
     pub reranker_fallback: bool,
     pub reranker_fallback_reason: String,
 }
@@ -442,6 +445,9 @@ fn run_retrieval_with_reranker(
                 reranker_status: "not_run".to_string(),
                 reranker_latency_ms: 0,
                 reranker_candidate_count: 0,
+                reranker_batch_size: 0,
+                reranker_batch_count: 0,
+                reranker_model_max_length: 0,
                 reranker_fallback: false,
                 reranker_fallback_reason: String::new(),
             });
@@ -468,6 +474,9 @@ fn run_retrieval_with_reranker(
             reranker_status: "not_run".to_string(),
             reranker_latency_ms: 0,
             reranker_candidate_count: 0,
+            reranker_batch_size: 0,
+            reranker_batch_count: 0,
+            reranker_model_max_length: 0,
             reranker_fallback: false,
             reranker_fallback_reason: String::new(),
         });
@@ -508,6 +517,9 @@ fn run_retrieval_with_reranker(
     let mut reranker_status = "not_run".to_string();
     let mut reranker_latency_ms = 0_u64;
     let mut reranker_candidate_count = 0_usize;
+    let mut reranker_batch_size = 0_usize;
+    let mut reranker_batch_count = 0_usize;
+    let mut reranker_model_max_length = 0_usize;
     let mut reranker_fallback = false;
     let mut reranker_fallback_reason = String::new();
     let mut queue = VecDeque::new();
@@ -711,6 +723,10 @@ fn run_retrieval_with_reranker(
                     let duration_ms = elapsed_ms(reranker_started);
                     reranker_latency_ms = reranker_latency_ms.saturating_add(duration_ms);
                     reranker_version = outcome.reranker_version;
+                    reranker_batch_size = reranker_batch_size.max(outcome.batch_size);
+                    reranker_batch_count = reranker_batch_count.saturating_add(outcome.batch_count);
+                    reranker_model_max_length =
+                        reranker_model_max_length.max(outcome.model_max_length);
                     if outcome.fallback {
                         reranker_status = "degraded".to_string();
                         reranker_fallback = true;
@@ -812,6 +828,9 @@ fn run_retrieval_with_reranker(
         reranker_status,
         reranker_latency_ms,
         reranker_candidate_count,
+        reranker_batch_size,
+        reranker_batch_count,
+        reranker_model_max_length,
         reranker_fallback,
         reranker_fallback_reason,
     })

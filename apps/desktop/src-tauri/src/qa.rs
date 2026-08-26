@@ -277,6 +277,12 @@ pub struct RetrievalQuery {
     #[serde(default)]
     pub reranker_candidate_count: usize,
     #[serde(default)]
+    pub reranker_batch_size: usize,
+    #[serde(default)]
+    pub reranker_batch_count: usize,
+    #[serde(default)]
+    pub reranker_model_max_length: usize,
+    #[serde(default)]
     pub reranker_fallback: bool,
     #[serde(default)]
     pub reranker_fallback_reason: String,
@@ -1104,6 +1110,9 @@ fn build_retrieval_query_with_understanding<'a>(
         reranker_status: "not_run".to_string(),
         reranker_latency_ms: 0,
         reranker_candidate_count: 0,
+        reranker_batch_size: 0,
+        reranker_batch_count: 0,
+        reranker_model_max_length: 0,
         reranker_fallback: false,
         reranker_fallback_reason: String::new(),
         evidence_manager_version: String::new(),
@@ -2602,6 +2611,9 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
         retrieval_query.reranker_status = outcome.reranker_status.clone();
         retrieval_query.reranker_latency_ms = outcome.reranker_latency_ms;
         retrieval_query.reranker_candidate_count = outcome.reranker_candidate_count;
+        retrieval_query.reranker_batch_size = outcome.reranker_batch_size;
+        retrieval_query.reranker_batch_count = outcome.reranker_batch_count;
+        retrieval_query.reranker_model_max_length = outcome.reranker_model_max_length;
         retrieval_query.reranker_fallback = outcome.reranker_fallback;
         retrieval_query.reranker_fallback_reason = outcome.reranker_fallback_reason.clone();
         retrieval_query.covered_facet_ids = outcome.covered_facets.iter().cloned().collect();
