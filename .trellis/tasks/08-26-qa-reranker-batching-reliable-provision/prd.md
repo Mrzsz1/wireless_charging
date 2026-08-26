@@ -54,14 +54,14 @@
 
 ## Acceptance Criteria
 
-- [ ] AC1：真实模型路径使用单 session 批量推理，并输出 batch/candidate/latency telemetry；同机平均 latency 低于 38101.1 ms 基线。
-- [ ] AC2：现有 13 项 RAG suite 达到 13/13 PASS，Cross-Encoder fallback rate 保持 0.000；不新增 `dwpt-beb-planning` 专项回归用例。
-- [ ] AC3：下载期间可取消，取消结果稳定、UI 可见，旧 ready 模型不受影响。
-- [ ] AC4：进度事件的字节数、总量、速度和百分比来自实际流式下载，完成值与落盘文件一致。
-- [ ] AC5：所有 manifest 文件遵循 `.part → SHA-256/size 校验 → 原子 rename`，损坏文件不能进入 ready。
-- [ ] AC6：磁盘不足、网络中断、损坏文件与重复 repair 测试全部通过，且没有 panic、并发覆盖或旧模型破坏。
-- [ ] AC7：query-time no-download 与非系统盘缓存配置保持不变。
-- [ ] AC8：每个实施阶段均单独本地 Git commit；不提交模型文件、不修改用户已有未跟踪文件、不上传 GitHub。
+- [x] AC1：真实模型路径使用单 session 批量推理，并输出 batch/candidate/latency telemetry；同机平均 latency 37105.6 ms，低于 38101.1 ms 基线。
+- [x] AC2：现有 13 项 RAG suite 达到 13/13 PASS，Cross-Encoder fallback rate 保持 0.000；未新增 `dwpt-beb-planning` 专项回归用例。
+- [x] AC3：下载期间可取消，取消结果稳定、UI 可见，旧 ready 模型不受影响。
+- [x] AC4：进度事件的字节数、总量、速度和百分比来自实际流式下载，完成值与落盘文件一致。
+- [x] AC5：所有 manifest 文件遵循 `.part → SHA-256/size 校验 → 原子 rename`，损坏文件不能进入 ready。
+- [x] AC6：磁盘不足、网络中断、损坏文件与重复 repair 测试全部通过，没有 panic、并发覆盖或旧模型破坏。
+- [x] AC7：query-time no-download 与非系统盘缓存配置保持不变。
+- [x] AC8：每个实施阶段均单独本地 Git commit；未提交模型文件、未修改用户已有未跟踪文件、未上传 GitHub。
 
 ## Out of Scope
 

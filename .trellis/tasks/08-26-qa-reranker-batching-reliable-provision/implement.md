@@ -21,13 +21,13 @@
 
 ## Phase 3 — Failure injection and production verification
 
-- [ ] 增加 disk-full、network interruption、cancel、corrupt payload/final、partial resume 测试。
-- [ ] 增加 repeated repair/idempotency 与 concurrent repair rejection 测试。
-- [ ] 验证旧 ready snapshot 在所有失败路径保持可用。
-- [ ] 运行真实 health probe、现有 RAG benchmark，记录 before/after latency、fallback 与排名指标。
-- [ ] 更新 `evals/reranker-production-baseline.md` 与父任务阶段 C 状态。
-- [ ] 运行 fmt、targeted tests、full Rust tests、clippy 与 frontend typecheck/tests/build。
-- [ ] 本地 Git commit：`test(qa): verify reranker deployment failures`。
+- [x] 增加 disk-full、network interruption、cancel、corrupt payload/final、partial resume 测试。
+- [x] 增加 repeated repair/idempotency 与 concurrent repair rejection 测试。
+- [x] 验证 valid ready 重复 repair 不发起网络请求；失败/取消只保留 partial 或 quarantine，不覆盖有效 final。
+- [x] 真实 health probe PASS；RAG 13/13 PASS，Recall@5/10/20 0.962/0.962/1.000，MRR/nDCG@10 0.821/0.851，fallback 0/13，平均 reranker latency 37105.6 ms。
+- [x] 更新 `evals/reranker-production-baseline.md`、QA contract 与父任务阶段 C 状态。
+- [x] fmt、224 Rust tests（222 PASS/2 ignored）、clippy `-D warnings`、frontend typecheck/QA tests/build/verify 全部通过。
+- [x] 本地 Git commit：`test(qa): verify reranker deployment failures`。
 
 ## Validation commands
 
@@ -64,10 +64,10 @@ npm run build
 
 ## Review gates
 
-- [ ] 没有为单一 benchmark case 写路径、标题或 ID 特判。
-- [ ] 没有减少候选数量或降低父任务阈值。
-- [ ] progress 字节单调且来自实际读写；未知总量不伪造百分比。
-- [ ] cancellation 不变成 fallback/success，且不破坏旧模型。
-- [ ] valid ready 的重复 repair 不发起大文件下载。
-- [ ] 模型、`.part` 和 failure fixture 大文件均不进入 Git。
-- [ ] 用户已有未跟踪文件不暂存、不提交。
+- [x] 没有为单一 benchmark case 写路径、标题或 ID 特判。
+- [x] 没有减少候选数量或降低父任务阈值。
+- [x] progress 字节单调且来自实际读写；未知总量不伪造百分比。
+- [x] cancellation 不变成 fallback/success，且不破坏旧模型。
+- [x] valid ready 的重复 repair 不发起大文件下载。
+- [x] 模型、`.part` 和 failure fixture 大文件均不进入 Git。
+- [x] 用户已有未跟踪文件不暂存、不提交。

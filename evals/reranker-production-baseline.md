@@ -9,19 +9,21 @@
 - 重新 provision：`PASS`；通过当前系统代理续传并完成离线落盘
 - ONNX SHA-256：`15b9a8c3da82eddf263df571281166e00e9308fe19d077084b642ebfcaf06d2b`
 - 真实模型 health probe：`PASS`（ignored production health test 1/1）
+- Provisioning：固定 revision/size/SHA-256 manifest；支持 `.part` 续传、真实字节进度、取消、原子提交与重复 repair 离线跳过。
+- Inference：单 session、最多 80 候选单批执行；manifest 记录 batch size/count/max length。
 - Query-time download：禁用；缺失时保持 EmbeddingRescorer → Deterministic fallback。
 
 ## 当前真实 RAG 运行
 
-- 用例：12/13 PASS，整体状态 `REVIEW`
-- Document Recall@5/10/20：0.885 / 0.885 / 0.962
-- MRR / nDCG@10：0.789 / 0.782
+- 用例：13/13 PASS
+- Document Recall@5/10/20：0.962 / 0.962 / 1.000
+- MRR / nDCG@10：0.821 / 0.851
 - Reranker fallback：0/13（0.000）
-- 平均 reranker latency：38101.1 ms
-- 剩余失败：`dwpt-beb-planning` 的 Top20 未覆盖全部 expected documents
+- 平均 reranker latency：37105.6 ms（低于本任务 38101.1 ms 基线）
+- `dwpt-beb-planning`：通过统一 score fusion 与 document-repeat penalty 恢复 Top20 覆盖；没有新增专项用例或路径/标题特判。
 
 ## Production Gate 判定
 
-Cross-Encoder 部署与 fallback 子门禁为 `PASS`：真实模型成功加载并完成 12 个实际重排用例，fallback rate 0.000 低于冻结上限 0.05。
+Cross-Encoder 部署、完整性、可靠性、检索质量与 fallback 子门禁为 `PASS`：真实模型成功加载，13/13 RAG 用例通过，fallback rate 0.000 低于冻结上限 0.05。
 
-整体 Production Gate 仍为 `FAIL/REVIEW`：RAG 回归仅 12/13 通过，平均重排耗时约 38.1 秒，且目标机器 performance 阈值尚未冻结。后续需要修复 `dwpt-beb-planning` 排序退化、优化 Cross-Encoder 候选批量与延迟，并补齐长任务取消、真实进度和 failure injection。
+整体 Production Gate 仍不据此宣告 Production Ready：目标机器 performance 阈值尚未冻结，平均 CPU 重排耗时仍约 37.1 秒；父任务还需要独立 held-out、真实 semantic verifier 与统一 release gate 证据。

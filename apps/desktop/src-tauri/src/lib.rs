@@ -2797,22 +2797,26 @@ async fn check_reranker_model_deployment() -> Result<qa::RerankerDeploymentStatu
         .map_err(|error| format!("交叉编码器检查线程失败：{error}"))?
 }
 
+fn begin_reranker_deployment(
+    active: &Mutex<Option<Arc<AtomicBool>>>,
+) -> Result<Arc<AtomicBool>, String> {
+    let cancelled = Arc::new(AtomicBool::new(false));
+    let mut current = active
+        .lock()
+        .map_err(|_| "交叉编码器部署状态锁定失败".to_string())?;
+    if current.is_some() {
+        return Err("RERANKER_DEPLOYMENT_BUSY: 已有交叉编码器部署任务正在运行".to_string());
+    }
+    *current = Some(Arc::clone(&cancelled));
+    Ok(cancelled)
+}
+
 #[tauri::command]
 async fn repair_reranker_model_deployment(
     on_event: Channel<qa::SemanticDownloadProgress>,
     state: State<'_, AppState>,
 ) -> Result<qa::RerankerDeploymentStatus, String> {
-    let cancelled = Arc::new(AtomicBool::new(false));
-    {
-        let mut active = state
-            .reranker_deployment_cancellation
-            .lock()
-            .map_err(|_| "交叉编码器部署状态锁定失败".to_string())?;
-        if active.is_some() {
-            return Err("RERANKER_DEPLOYMENT_BUSY: 已有交叉编码器部署任务正在运行".to_string());
-        }
-        *active = Some(Arc::clone(&cancelled));
-    }
+    let cancelled = begin_reranker_deployment(&state.reranker_deployment_cancellation)?;
     let worker_flag = Arc::clone(&cancelled);
     let joined = tauri::async_runtime::spawn_blocking(move || {
         qa::repair_reranker_deployment_with_progress(Some(worker_flag.as_ref()), |progress| {
@@ -4622,6 +4626,21 @@ pub fn run() {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn concurrent_reranker_repairs_are_rejected_until_the_active_run_clears() {
+        let active = Mutex::new(None);
+        let first = begin_reranker_deployment(&active).unwrap();
+        let error = begin_reranker_deployment(&active).unwrap_err();
+        assert!(error.starts_with("RERANKER_DEPLOYMENT_BUSY"));
+        assert!(active
+            .lock()
+            .unwrap()
+            .as_ref()
+            .is_some_and(|value| Arc::ptr_eq(value, &first)));
+        *active.lock().unwrap() = None;
+        assert!(begin_reranker_deployment(&active).is_ok());
+    }
 
     #[test]
     fn answer_request_registration_preserves_early_cancel_and_rejects_duplicates() {

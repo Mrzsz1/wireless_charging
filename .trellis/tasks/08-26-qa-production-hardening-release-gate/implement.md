@@ -22,11 +22,12 @@
 
 - [x] 固定模型 manifest/version/file integrity，增加 offline status/health DTO。
 - [x] 增加显式 provision/repair 命令与设置页入口；query-time 保持 no-download。
-- [ ] 为长时间 provision 增加 cancel/真实字节 progress，并完成磁盘不足/重复 repair failure injection。
+- [x] 长时间 provision 已增加 cancel/真实字节 progress、固定 manifest、`.part` 校验原子提交，并完成磁盘不足/网络中断/损坏/重复 repair failure injection。
 - [x] 增加 missing/corrupt/Hugging Face snapshot/offline/real health-check tests。
 - [x] 扩展 reranker requested/provider/model/available/candidate-count/latency/fallback telemetry 与 production baseline。
 - [x] 当前主机首次 provision 因 Hugging Face `os error 10060` 失败；随后在非系统盘完成续传、SHA-256 校验与真实 health probe。
 - [x] 重新运行真实 RAG benchmark：Cross-Encoder fallback 0/13，12/13 用例通过；`dwpt-beb-planning` Top20 退化且平均 reranker latency 38101.1 ms，整体保持 REVIEW。
+- [x] 批量推理与统一 score fusion 修复后再次运行：13/13 PASS，fallback 0/13，平均 reranker latency 37105.6 ms；目标机器 performance 阈值仍待父任务 release gate 冻结。
 - [x] 本地提交阶段检查点：`feat(qa): provision production reranker model`。
 
 ## Phase D — Adversarial, Failure, Stress and Metadata

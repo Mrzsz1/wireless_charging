@@ -1160,6 +1160,76 @@ fn with_transfer_speed(
     progress
 }
 
+struct RerankerStreamContext<'a> {
+    artifact: RerankerArtifact,
+    phase: &'a str,
+    resume_from: u64,
+    cancelled: Option<&'a AtomicBool>,
+}
+
+fn copy_reranker_stream<R, W, F>(
+    reader: &mut R,
+    writer: &mut W,
+    context: RerankerStreamContext<'_>,
+    on_progress: &mut F,
+) -> Result<u64, String>
+where
+    R: Read,
+    W: Write,
+    F: FnMut(SemanticDownloadProgress),
+{
+    let started = Instant::now();
+    let mut downloaded = context.resume_from;
+    on_progress(with_transfer_speed(
+        progress_event(
+            "downloading",
+            context.phase,
+            context.artifact.relative_path,
+            downloaded,
+            context.artifact.bytes,
+            started,
+            if context.resume_from > 0 {
+                "继续下载"
+            } else {
+                "开始下载"
+            },
+        ),
+        0,
+        started,
+    ));
+    let mut buffer = vec![0_u8; RERANKER_DOWNLOAD_CHUNK_BYTES];
+    loop {
+        ensure_reranker_not_cancelled(context.cancelled)?;
+        let count = reader
+            .read(&mut buffer)
+            .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: network_read:{error}"))?;
+        if count == 0 {
+            break;
+        }
+        writer
+            .write_all(&buffer[..count])
+            .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: disk_write:{error}"))?;
+        downloaded = downloaded.saturating_add(count as u64);
+        if downloaded > context.artifact.bytes {
+            return Err("RERANKER_DEPLOYMENT_INVALID: artifact_too_large".to_string());
+        }
+        on_progress(with_transfer_speed(
+            progress_event(
+                "downloading",
+                context.phase,
+                context.artifact.relative_path,
+                downloaded,
+                context.artifact.bytes,
+                started,
+                "正在下载",
+            ),
+            downloaded.saturating_sub(context.resume_from),
+            started,
+        ));
+    }
+    Ok(downloaded)
+}
+
 fn download_reranker_artifact<F>(
     client: &reqwest::blocking::Client,
     model_dir: &Path,
@@ -1237,54 +1307,17 @@ where
         .open(&part_path)
         .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: open_partial:{error}"))?;
     let started = Instant::now();
-    let mut downloaded = resume_from;
-    on_progress(with_transfer_speed(
-        progress_event(
-            "downloading",
+    let downloaded = copy_reranker_stream(
+        &mut response,
+        &mut output,
+        RerankerStreamContext {
+            artifact,
             phase,
-            artifact.relative_path,
-            downloaded,
-            artifact.bytes,
-            started,
-            if resumed {
-                "继续下载"
-            } else {
-                "开始下载"
-            },
-        ),
-        0,
-        started,
-    ));
-    let mut buffer = vec![0_u8; RERANKER_DOWNLOAD_CHUNK_BYTES];
-    loop {
-        ensure_reranker_not_cancelled(cancelled)?;
-        let count = response
-            .read(&mut buffer)
-            .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: network_read:{error}"))?;
-        if count == 0 {
-            break;
-        }
-        output
-            .write_all(&buffer[..count])
-            .map_err(|error| format!("RERANKER_DEPLOYMENT_FAILED: disk_write:{error}"))?;
-        downloaded = downloaded.saturating_add(count as u64);
-        if downloaded > artifact.bytes {
-            return Err("RERANKER_DEPLOYMENT_INVALID: artifact_too_large".to_string());
-        }
-        on_progress(with_transfer_speed(
-            progress_event(
-                "downloading",
-                phase,
-                artifact.relative_path,
-                downloaded,
-                artifact.bytes,
-                started,
-                "正在下载",
-            ),
-            downloaded.saturating_sub(resume_from),
-            started,
-        ));
-    }
+            resume_from,
+            cancelled,
+        },
+        on_progress,
+    )?;
     output
         .flush()
         .and_then(|_| output.sync_all())
@@ -2287,6 +2320,200 @@ mod tests {
         assert_eq!(reranker_artifact_root(cache.path()), Some(snapshot.clone()));
         let (model, _) = cross_encoder_artifacts(cache.path()).unwrap();
         assert_eq!(model, snapshot.join("onnx/model.onnx"));
+    }
+
+    const ABC_ARTIFACT: RerankerArtifact = RerankerArtifact {
+        relative_path: "fixture.bin",
+        bytes: 3,
+        sha256: "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+    };
+
+    struct InterruptedReader;
+
+    impl Read for InterruptedReader {
+        fn read(&mut self, _buffer: &mut [u8]) -> std::io::Result<usize> {
+            Err(std::io::Error::new(
+                std::io::ErrorKind::ConnectionReset,
+                "fixture network interruption",
+            ))
+        }
+    }
+
+    struct DiskFullWriter {
+        remaining: usize,
+    }
+
+    impl Write for DiskFullWriter {
+        fn write(&mut self, buffer: &[u8]) -> std::io::Result<usize> {
+            if self.remaining == 0 {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::StorageFull,
+                    "fixture disk full",
+                ));
+            }
+            let count = buffer.len().min(self.remaining);
+            self.remaining -= count;
+            Ok(count)
+        }
+
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+
+    struct CancellingReader<'a> {
+        payload: Cursor<Vec<u8>>,
+        cancelled: &'a AtomicBool,
+    }
+
+    impl Read for CancellingReader<'_> {
+        fn read(&mut self, buffer: &mut [u8]) -> std::io::Result<usize> {
+            let count = self.payload.read(buffer)?;
+            if count > 0 {
+                self.cancelled
+                    .store(true, std::sync::atomic::Ordering::Relaxed);
+            }
+            Ok(count)
+        }
+    }
+
+    #[test]
+    fn reranker_stream_reports_network_interruption_without_committing() {
+        let mut reader = InterruptedReader;
+        let mut writer = Vec::new();
+        let error = copy_reranker_stream(
+            &mut reader,
+            &mut writer,
+            RerankerStreamContext {
+                artifact: ABC_ARTIFACT,
+                phase: "model",
+                resume_from: 0,
+                cancelled: None,
+            },
+            &mut |_| {},
+        )
+        .unwrap_err();
+        assert!(error.starts_with("RERANKER_DEPLOYMENT_FAILED: network_read"));
+        assert!(writer.is_empty());
+    }
+
+    #[test]
+    fn reranker_stream_reports_disk_full_and_keeps_partial_bytes() {
+        let mut reader = Cursor::new(b"abc".to_vec());
+        let mut writer = DiskFullWriter { remaining: 2 };
+        let error = copy_reranker_stream(
+            &mut reader,
+            &mut writer,
+            RerankerStreamContext {
+                artifact: ABC_ARTIFACT,
+                phase: "model",
+                resume_from: 0,
+                cancelled: None,
+            },
+            &mut |_| {},
+        )
+        .unwrap_err();
+        assert!(error.starts_with("RERANKER_DEPLOYMENT_FAILED: disk_write"));
+        assert_eq!(writer.remaining, 0);
+    }
+
+    #[test]
+    fn reranker_stream_cancellation_is_terminal_and_not_a_download_failure() {
+        let cancelled = AtomicBool::new(false);
+        let mut reader = CancellingReader {
+            payload: Cursor::new(b"abc".to_vec()),
+            cancelled: &cancelled,
+        };
+        let mut writer = Vec::new();
+        let error = copy_reranker_stream(
+            &mut reader,
+            &mut writer,
+            RerankerStreamContext {
+                artifact: ABC_ARTIFACT,
+                phase: "model",
+                resume_from: 0,
+                cancelled: Some(&cancelled),
+            },
+            &mut |_| {},
+        )
+        .unwrap_err();
+        assert!(error.starts_with("RERANKER_DEPLOYMENT_CANCELLED"));
+        assert_eq!(writer, b"abc");
+    }
+
+    #[test]
+    fn reranker_stream_resume_progress_uses_total_and_session_bytes() {
+        let artifact = RerankerArtifact {
+            relative_path: "resume.bin",
+            bytes: 6,
+            sha256: "",
+        };
+        let mut reader = Cursor::new(b"def".to_vec());
+        let mut writer = b"abc".to_vec();
+        let mut progress = Vec::new();
+        let downloaded = copy_reranker_stream(
+            &mut reader,
+            &mut writer,
+            RerankerStreamContext {
+                artifact,
+                phase: "model",
+                resume_from: 3,
+                cancelled: None,
+            },
+            &mut |event| progress.push(event),
+        )
+        .unwrap();
+        assert_eq!(downloaded, 6);
+        assert_eq!(writer, b"abcdef");
+        assert_eq!(progress.first().unwrap().downloaded_bytes, 3);
+        assert_eq!(progress.last().unwrap().downloaded_bytes, 6);
+        assert_eq!(progress.last().unwrap().total_bytes, 6);
+        assert_eq!(progress.last().unwrap().percent, 100.0);
+        assert!(progress
+            .windows(2)
+            .all(|items| items[0].downloaded_bytes <= items[1].downloaded_bytes));
+    }
+
+    #[test]
+    fn corrupt_reranker_artifact_is_rejected_and_quarantined() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join(ABC_ARTIFACT.relative_path);
+        fs::write(&path, b"abd").unwrap();
+        assert!(!artifact_is_valid(&path, ABC_ARTIFACT).unwrap());
+        quarantine_reranker_artifact(&path).unwrap();
+        assert!(!path.exists());
+        assert_eq!(
+            fs::read_dir(directory.path())
+                .unwrap()
+                .filter_map(Result::ok)
+                .filter(|entry| entry.file_name().to_string_lossy().contains(".invalid-"))
+                .count(),
+            1
+        );
+    }
+
+    #[test]
+    fn repeated_reranker_repair_skips_valid_artifact_without_network() {
+        let directory = tempfile::tempdir().unwrap();
+        fs::write(directory.path().join(ABC_ARTIFACT.relative_path), b"abc").unwrap();
+        let client = reqwest::blocking::Client::new();
+        let mut events = Vec::new();
+        for _ in 0..2 {
+            download_reranker_artifact(
+                &client,
+                directory.path(),
+                ABC_ARTIFACT,
+                None,
+                &mut |event| events.push(event),
+            )
+            .unwrap();
+        }
+        assert_eq!(events.len(), 2);
+        assert!(events.iter().all(|event| event.status == "skipped"));
+        assert!(events.iter().all(|event| event.bytes_per_second == 0));
+        assert!(!reranker_part_path(&directory.path().join("fixture.bin"))
+            .unwrap()
+            .exists());
     }
 
     #[test]
