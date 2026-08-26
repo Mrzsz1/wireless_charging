@@ -1,0 +1,930 @@
+{
+  "schemaVersion": "qa-semantic-verifier-benchmark-v1",
+  "datasetRole": "model_independent_semantic_verification",
+  "status": "frozen",
+  "version": "2026-08-26-semantic-v1",
+  "caseCount": 100,
+  "casesSha256": "3b4993b4acdf7ca0b155948ca63d97525411f3a1be26c31534d6bbe7db88414c",
+  "cases": [
+    {
+      "id": "sem-001",
+      "category": "direct_entailment",
+      "claim": "Configuration D1 uses 2 mobile chargers.",
+      "evidence": [
+        "Configuration D1 uses 2 mobile chargers and applies deadline-aware routing."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-002",
+      "category": "bounded_paraphrase",
+      "claim": "Configuration P1 activates no more than 3 chargers.",
+      "evidence": [
+        "At most 3 chargers are activated in configuration P1."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-003",
+      "category": "multi_evidence_entailment",
+      "claim": "Policy M1 combines a deadline queue with partial charging.",
+      "evidence": [
+        "Policy M1 schedules requests with a deadline queue.",
+        "Policy M1 permits partial charging at each stop."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-004",
+      "category": "numeric_expansion",
+      "claim": "Experiment N1 evaluates 101 sensor nodes.",
+      "evidence": [
+        "Experiment N1 evaluates 11 sensor nodes."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-005",
+      "category": "negation_reversal",
+      "claim": "Model R1 assumes an obstacle-free environment.",
+      "evidence": [
+        "Model R1 explicitly includes polygonal obstacles and does not assume an obstacle-free environment."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-006",
+      "category": "condition_conflict",
+      "claim": "Guarantee C1 holds when transmission loss is 0.5.",
+      "evidence": [
+        "Guarantee C1 is proven only when transmission loss is at most 0.1."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-007",
+      "category": "scope_expansion",
+      "claim": "Method S1 improves latency for every network size.",
+      "evidence": [
+        "Method S1 improves average latency in the tested 50-node scenario."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-008",
+      "category": "causality_expansion",
+      "claim": "Higher charger density causes longer network lifetime in study A1.",
+      "evidence": [
+        "Study A1 reports a correlation between charger density and network lifetime."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-009",
+      "category": "missing_condition",
+      "claim": "Controller Q1 is validated in a real city deployment.",
+      "evidence": [
+        "Controller Q1 is evaluated only in simulation under synthetic mobility traces."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-010",
+      "category": "multi_evidence_insufficient",
+      "claim": "Policy U1 guarantees the best worst-case delay for all time horizons.",
+      "evidence": [
+        "Policy U1 reports lower average delay in one benchmark.",
+        "The evaluation of policy U1 uses a fixed 60-minute horizon."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-011",
+      "category": "direct_entailment",
+      "claim": "Configuration D2 uses 3 mobile chargers.",
+      "evidence": [
+        "Configuration D2 uses 3 mobile chargers and applies deadline-aware routing."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-012",
+      "category": "bounded_paraphrase",
+      "claim": "Configuration P2 activates no more than 4 chargers.",
+      "evidence": [
+        "At most 4 chargers are activated in configuration P2."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-013",
+      "category": "multi_evidence_entailment",
+      "claim": "Policy M2 combines a deadline queue with partial charging.",
+      "evidence": [
+        "Policy M2 schedules requests with a deadline queue.",
+        "Policy M2 permits partial charging at each stop."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-014",
+      "category": "numeric_expansion",
+      "claim": "Experiment N2 evaluates 102 sensor nodes.",
+      "evidence": [
+        "Experiment N2 evaluates 12 sensor nodes."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-015",
+      "category": "negation_reversal",
+      "claim": "Model R2 assumes an obstacle-free environment.",
+      "evidence": [
+        "Model R2 explicitly includes polygonal obstacles and does not assume an obstacle-free environment."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-016",
+      "category": "condition_conflict",
+      "claim": "Guarantee C2 holds when transmission loss is 0.5.",
+      "evidence": [
+        "Guarantee C2 is proven only when transmission loss is at most 0.1."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-017",
+      "category": "scope_expansion",
+      "claim": "Method S2 improves latency for every network size.",
+      "evidence": [
+        "Method S2 improves average latency in the tested 50-node scenario."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-018",
+      "category": "causality_expansion",
+      "claim": "Higher charger density causes longer network lifetime in study A2.",
+      "evidence": [
+        "Study A2 reports a correlation between charger density and network lifetime."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-019",
+      "category": "missing_condition",
+      "claim": "Controller Q2 is validated in a real city deployment.",
+      "evidence": [
+        "Controller Q2 is evaluated only in simulation under synthetic mobility traces."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-020",
+      "category": "multi_evidence_insufficient",
+      "claim": "Policy U2 guarantees the best worst-case delay for all time horizons.",
+      "evidence": [
+        "Policy U2 reports lower average delay in one benchmark.",
+        "The evaluation of policy U2 uses a fixed 60-minute horizon."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-021",
+      "category": "direct_entailment",
+      "claim": "Configuration D3 uses 4 mobile chargers.",
+      "evidence": [
+        "Configuration D3 uses 4 mobile chargers and applies deadline-aware routing."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-022",
+      "category": "bounded_paraphrase",
+      "claim": "Configuration P3 activates no more than 5 chargers.",
+      "evidence": [
+        "At most 5 chargers are activated in configuration P3."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-023",
+      "category": "multi_evidence_entailment",
+      "claim": "Policy M3 combines a deadline queue with partial charging.",
+      "evidence": [
+        "Policy M3 schedules requests with a deadline queue.",
+        "Policy M3 permits partial charging at each stop."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-024",
+      "category": "numeric_expansion",
+      "claim": "Experiment N3 evaluates 103 sensor nodes.",
+      "evidence": [
+        "Experiment N3 evaluates 13 sensor nodes."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-025",
+      "category": "negation_reversal",
+      "claim": "Model R3 assumes an obstacle-free environment.",
+      "evidence": [
+        "Model R3 explicitly includes polygonal obstacles and does not assume an obstacle-free environment."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-026",
+      "category": "condition_conflict",
+      "claim": "Guarantee C3 holds when transmission loss is 0.5.",
+      "evidence": [
+        "Guarantee C3 is proven only when transmission loss is at most 0.1."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-027",
+      "category": "scope_expansion",
+      "claim": "Method S3 improves latency for every network size.",
+      "evidence": [
+        "Method S3 improves average latency in the tested 50-node scenario."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-028",
+      "category": "causality_expansion",
+      "claim": "Higher charger density causes longer network lifetime in study A3.",
+      "evidence": [
+        "Study A3 reports a correlation between charger density and network lifetime."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-029",
+      "category": "missing_condition",
+      "claim": "Controller Q3 is validated in a real city deployment.",
+      "evidence": [
+        "Controller Q3 is evaluated only in simulation under synthetic mobility traces."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-030",
+      "category": "multi_evidence_insufficient",
+      "claim": "Policy U3 guarantees the best worst-case delay for all time horizons.",
+      "evidence": [
+        "Policy U3 reports lower average delay in one benchmark.",
+        "The evaluation of policy U3 uses a fixed 60-minute horizon."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-031",
+      "category": "direct_entailment",
+      "claim": "Configuration D4 uses 5 mobile chargers.",
+      "evidence": [
+        "Configuration D4 uses 5 mobile chargers and applies deadline-aware routing."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-032",
+      "category": "bounded_paraphrase",
+      "claim": "Configuration P4 activates no more than 6 chargers.",
+      "evidence": [
+        "At most 6 chargers are activated in configuration P4."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-033",
+      "category": "multi_evidence_entailment",
+      "claim": "Policy M4 combines a deadline queue with partial charging.",
+      "evidence": [
+        "Policy M4 schedules requests with a deadline queue.",
+        "Policy M4 permits partial charging at each stop."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-034",
+      "category": "numeric_expansion",
+      "claim": "Experiment N4 evaluates 104 sensor nodes.",
+      "evidence": [
+        "Experiment N4 evaluates 14 sensor nodes."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-035",
+      "category": "negation_reversal",
+      "claim": "Model R4 assumes an obstacle-free environment.",
+      "evidence": [
+        "Model R4 explicitly includes polygonal obstacles and does not assume an obstacle-free environment."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-036",
+      "category": "condition_conflict",
+      "claim": "Guarantee C4 holds when transmission loss is 0.5.",
+      "evidence": [
+        "Guarantee C4 is proven only when transmission loss is at most 0.1."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-037",
+      "category": "scope_expansion",
+      "claim": "Method S4 improves latency for every network size.",
+      "evidence": [
+        "Method S4 improves average latency in the tested 50-node scenario."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-038",
+      "category": "causality_expansion",
+      "claim": "Higher charger density causes longer network lifetime in study A4.",
+      "evidence": [
+        "Study A4 reports a correlation between charger density and network lifetime."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-039",
+      "category": "missing_condition",
+      "claim": "Controller Q4 is validated in a real city deployment.",
+      "evidence": [
+        "Controller Q4 is evaluated only in simulation under synthetic mobility traces."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-040",
+      "category": "multi_evidence_insufficient",
+      "claim": "Policy U4 guarantees the best worst-case delay for all time horizons.",
+      "evidence": [
+        "Policy U4 reports lower average delay in one benchmark.",
+        "The evaluation of policy U4 uses a fixed 60-minute horizon."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-041",
+      "category": "direct_entailment",
+      "claim": "Configuration D5 uses 6 mobile chargers.",
+      "evidence": [
+        "Configuration D5 uses 6 mobile chargers and applies deadline-aware routing."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-042",
+      "category": "bounded_paraphrase",
+      "claim": "Configuration P5 activates no more than 7 chargers.",
+      "evidence": [
+        "At most 7 chargers are activated in configuration P5."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-043",
+      "category": "multi_evidence_entailment",
+      "claim": "Policy M5 combines a deadline queue with partial charging.",
+      "evidence": [
+        "Policy M5 schedules requests with a deadline queue.",
+        "Policy M5 permits partial charging at each stop."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-044",
+      "category": "numeric_expansion",
+      "claim": "Experiment N5 evaluates 105 sensor nodes.",
+      "evidence": [
+        "Experiment N5 evaluates 15 sensor nodes."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-045",
+      "category": "negation_reversal",
+      "claim": "Model R5 assumes an obstacle-free environment.",
+      "evidence": [
+        "Model R5 explicitly includes polygonal obstacles and does not assume an obstacle-free environment."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-046",
+      "category": "condition_conflict",
+      "claim": "Guarantee C5 holds when transmission loss is 0.5.",
+      "evidence": [
+        "Guarantee C5 is proven only when transmission loss is at most 0.1."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-047",
+      "category": "scope_expansion",
+      "claim": "Method S5 improves latency for every network size.",
+      "evidence": [
+        "Method S5 improves average latency in the tested 50-node scenario."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-048",
+      "category": "causality_expansion",
+      "claim": "Higher charger density causes longer network lifetime in study A5.",
+      "evidence": [
+        "Study A5 reports a correlation between charger density and network lifetime."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-049",
+      "category": "missing_condition",
+      "claim": "Controller Q5 is validated in a real city deployment.",
+      "evidence": [
+        "Controller Q5 is evaluated only in simulation under synthetic mobility traces."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-050",
+      "category": "multi_evidence_insufficient",
+      "claim": "Policy U5 guarantees the best worst-case delay for all time horizons.",
+      "evidence": [
+        "Policy U5 reports lower average delay in one benchmark.",
+        "The evaluation of policy U5 uses a fixed 60-minute horizon."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-051",
+      "category": "direct_entailment",
+      "claim": "Configuration D6 uses 7 mobile chargers.",
+      "evidence": [
+        "Configuration D6 uses 7 mobile chargers and applies deadline-aware routing."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-052",
+      "category": "bounded_paraphrase",
+      "claim": "Configuration P6 activates no more than 8 chargers.",
+      "evidence": [
+        "At most 8 chargers are activated in configuration P6."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-053",
+      "category": "multi_evidence_entailment",
+      "claim": "Policy M6 combines a deadline queue with partial charging.",
+      "evidence": [
+        "Policy M6 schedules requests with a deadline queue.",
+        "Policy M6 permits partial charging at each stop."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-054",
+      "category": "numeric_expansion",
+      "claim": "Experiment N6 evaluates 106 sensor nodes.",
+      "evidence": [
+        "Experiment N6 evaluates 16 sensor nodes."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-055",
+      "category": "negation_reversal",
+      "claim": "Model R6 assumes an obstacle-free environment.",
+      "evidence": [
+        "Model R6 explicitly includes polygonal obstacles and does not assume an obstacle-free environment."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-056",
+      "category": "condition_conflict",
+      "claim": "Guarantee C6 holds when transmission loss is 0.5.",
+      "evidence": [
+        "Guarantee C6 is proven only when transmission loss is at most 0.1."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-057",
+      "category": "scope_expansion",
+      "claim": "Method S6 improves latency for every network size.",
+      "evidence": [
+        "Method S6 improves average latency in the tested 50-node scenario."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-058",
+      "category": "causality_expansion",
+      "claim": "Higher charger density causes longer network lifetime in study A6.",
+      "evidence": [
+        "Study A6 reports a correlation between charger density and network lifetime."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-059",
+      "category": "missing_condition",
+      "claim": "Controller Q6 is validated in a real city deployment.",
+      "evidence": [
+        "Controller Q6 is evaluated only in simulation under synthetic mobility traces."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-060",
+      "category": "multi_evidence_insufficient",
+      "claim": "Policy U6 guarantees the best worst-case delay for all time horizons.",
+      "evidence": [
+        "Policy U6 reports lower average delay in one benchmark.",
+        "The evaluation of policy U6 uses a fixed 60-minute horizon."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-061",
+      "category": "direct_entailment",
+      "claim": "Configuration D7 uses 8 mobile chargers.",
+      "evidence": [
+        "Configuration D7 uses 8 mobile chargers and applies deadline-aware routing."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-062",
+      "category": "bounded_paraphrase",
+      "claim": "Configuration P7 activates no more than 9 chargers.",
+      "evidence": [
+        "At most 9 chargers are activated in configuration P7."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-063",
+      "category": "multi_evidence_entailment",
+      "claim": "Policy M7 combines a deadline queue with partial charging.",
+      "evidence": [
+        "Policy M7 schedules requests with a deadline queue.",
+        "Policy M7 permits partial charging at each stop."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-064",
+      "category": "numeric_expansion",
+      "claim": "Experiment N7 evaluates 107 sensor nodes.",
+      "evidence": [
+        "Experiment N7 evaluates 17 sensor nodes."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-065",
+      "category": "negation_reversal",
+      "claim": "Model R7 assumes an obstacle-free environment.",
+      "evidence": [
+        "Model R7 explicitly includes polygonal obstacles and does not assume an obstacle-free environment."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-066",
+      "category": "condition_conflict",
+      "claim": "Guarantee C7 holds when transmission loss is 0.5.",
+      "evidence": [
+        "Guarantee C7 is proven only when transmission loss is at most 0.1."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-067",
+      "category": "scope_expansion",
+      "claim": "Method S7 improves latency for every network size.",
+      "evidence": [
+        "Method S7 improves average latency in the tested 50-node scenario."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-068",
+      "category": "causality_expansion",
+      "claim": "Higher charger density causes longer network lifetime in study A7.",
+      "evidence": [
+        "Study A7 reports a correlation between charger density and network lifetime."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-069",
+      "category": "missing_condition",
+      "claim": "Controller Q7 is validated in a real city deployment.",
+      "evidence": [
+        "Controller Q7 is evaluated only in simulation under synthetic mobility traces."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-070",
+      "category": "multi_evidence_insufficient",
+      "claim": "Policy U7 guarantees the best worst-case delay for all time horizons.",
+      "evidence": [
+        "Policy U7 reports lower average delay in one benchmark.",
+        "The evaluation of policy U7 uses a fixed 60-minute horizon."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-071",
+      "category": "direct_entailment",
+      "claim": "Configuration D8 uses 9 mobile chargers.",
+      "evidence": [
+        "Configuration D8 uses 9 mobile chargers and applies deadline-aware routing."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-072",
+      "category": "bounded_paraphrase",
+      "claim": "Configuration P8 activates no more than 10 chargers.",
+      "evidence": [
+        "At most 10 chargers are activated in configuration P8."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-073",
+      "category": "multi_evidence_entailment",
+      "claim": "Policy M8 combines a deadline queue with partial charging.",
+      "evidence": [
+        "Policy M8 schedules requests with a deadline queue.",
+        "Policy M8 permits partial charging at each stop."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-074",
+      "category": "numeric_expansion",
+      "claim": "Experiment N8 evaluates 108 sensor nodes.",
+      "evidence": [
+        "Experiment N8 evaluates 18 sensor nodes."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-075",
+      "category": "negation_reversal",
+      "claim": "Model R8 assumes an obstacle-free environment.",
+      "evidence": [
+        "Model R8 explicitly includes polygonal obstacles and does not assume an obstacle-free environment."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-076",
+      "category": "condition_conflict",
+      "claim": "Guarantee C8 holds when transmission loss is 0.5.",
+      "evidence": [
+        "Guarantee C8 is proven only when transmission loss is at most 0.1."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-077",
+      "category": "scope_expansion",
+      "claim": "Method S8 improves latency for every network size.",
+      "evidence": [
+        "Method S8 improves average latency in the tested 50-node scenario."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-078",
+      "category": "causality_expansion",
+      "claim": "Higher charger density causes longer network lifetime in study A8.",
+      "evidence": [
+        "Study A8 reports a correlation between charger density and network lifetime."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-079",
+      "category": "missing_condition",
+      "claim": "Controller Q8 is validated in a real city deployment.",
+      "evidence": [
+        "Controller Q8 is evaluated only in simulation under synthetic mobility traces."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-080",
+      "category": "multi_evidence_insufficient",
+      "claim": "Policy U8 guarantees the best worst-case delay for all time horizons.",
+      "evidence": [
+        "Policy U8 reports lower average delay in one benchmark.",
+        "The evaluation of policy U8 uses a fixed 60-minute horizon."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-081",
+      "category": "direct_entailment",
+      "claim": "Configuration D9 uses 10 mobile chargers.",
+      "evidence": [
+        "Configuration D9 uses 10 mobile chargers and applies deadline-aware routing."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-082",
+      "category": "bounded_paraphrase",
+      "claim": "Configuration P9 activates no more than 11 chargers.",
+      "evidence": [
+        "At most 11 chargers are activated in configuration P9."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-083",
+      "category": "multi_evidence_entailment",
+      "claim": "Policy M9 combines a deadline queue with partial charging.",
+      "evidence": [
+        "Policy M9 schedules requests with a deadline queue.",
+        "Policy M9 permits partial charging at each stop."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-084",
+      "category": "numeric_expansion",
+      "claim": "Experiment N9 evaluates 109 sensor nodes.",
+      "evidence": [
+        "Experiment N9 evaluates 19 sensor nodes."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-085",
+      "category": "negation_reversal",
+      "claim": "Model R9 assumes an obstacle-free environment.",
+      "evidence": [
+        "Model R9 explicitly includes polygonal obstacles and does not assume an obstacle-free environment."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-086",
+      "category": "condition_conflict",
+      "claim": "Guarantee C9 holds when transmission loss is 0.5.",
+      "evidence": [
+        "Guarantee C9 is proven only when transmission loss is at most 0.1."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-087",
+      "category": "scope_expansion",
+      "claim": "Method S9 improves latency for every network size.",
+      "evidence": [
+        "Method S9 improves average latency in the tested 50-node scenario."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-088",
+      "category": "causality_expansion",
+      "claim": "Higher charger density causes longer network lifetime in study A9.",
+      "evidence": [
+        "Study A9 reports a correlation between charger density and network lifetime."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-089",
+      "category": "missing_condition",
+      "claim": "Controller Q9 is validated in a real city deployment.",
+      "evidence": [
+        "Controller Q9 is evaluated only in simulation under synthetic mobility traces."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-090",
+      "category": "multi_evidence_insufficient",
+      "claim": "Policy U9 guarantees the best worst-case delay for all time horizons.",
+      "evidence": [
+        "Policy U9 reports lower average delay in one benchmark.",
+        "The evaluation of policy U9 uses a fixed 60-minute horizon."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-091",
+      "category": "direct_entailment",
+      "claim": "Configuration D10 uses 11 mobile chargers.",
+      "evidence": [
+        "Configuration D10 uses 11 mobile chargers and applies deadline-aware routing."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-092",
+      "category": "bounded_paraphrase",
+      "claim": "Configuration P10 activates no more than 12 chargers.",
+      "evidence": [
+        "At most 12 chargers are activated in configuration P10."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-093",
+      "category": "multi_evidence_entailment",
+      "claim": "Policy M10 combines a deadline queue with partial charging.",
+      "evidence": [
+        "Policy M10 schedules requests with a deadline queue.",
+        "Policy M10 permits partial charging at each stop."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "sem-094",
+      "category": "numeric_expansion",
+      "claim": "Experiment N10 evaluates 110 sensor nodes.",
+      "evidence": [
+        "Experiment N10 evaluates 20 sensor nodes."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-095",
+      "category": "negation_reversal",
+      "claim": "Model R10 assumes an obstacle-free environment.",
+      "evidence": [
+        "Model R10 explicitly includes polygonal obstacles and does not assume an obstacle-free environment."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-096",
+      "category": "condition_conflict",
+      "claim": "Guarantee C10 holds when transmission loss is 0.5.",
+      "evidence": [
+        "Guarantee C10 is proven only when transmission loss is at most 0.1."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "sem-097",
+      "category": "scope_expansion",
+      "claim": "Method S10 improves latency for every network size.",
+      "evidence": [
+        "Method S10 improves average latency in the tested 50-node scenario."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-098",
+      "category": "causality_expansion",
+      "claim": "Higher charger density causes longer network lifetime in study A10.",
+      "evidence": [
+        "Study A10 reports a correlation between charger density and network lifetime."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-099",
+      "category": "missing_condition",
+      "claim": "Controller Q10 is validated in a real city deployment.",
+      "evidence": [
+        "Controller Q10 is evaluated only in simulation under synthetic mobility traces."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "sem-100",
+      "category": "multi_evidence_insufficient",
+      "claim": "Policy U10 guarantees the best worst-case delay for all time horizons.",
+      "evidence": [
+        "Policy U10 reports lower average delay in one benchmark.",
+        "The evaluation of policy U10 uses a fixed 60-minute horizon."
+      ],
+      "gold": "unknown"
+    }
+  ]
+}

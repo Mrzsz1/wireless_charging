@@ -4500,6 +4500,29 @@ pub fn run_rag_evaluation_files(
     Ok(report.passed)
 }
 
+pub fn run_semantic_benchmark_files(
+    cases_path: &Path,
+    output: &Path,
+    provider: &str,
+    model: &str,
+    reasoning_effort: &str,
+) -> Result<bool, String> {
+    let suite = qa::semantic_benchmark::load_suite(cases_path)?;
+    let settings = qa::LunaSettings {
+        answer_provider: provider.to_string(),
+        codex_model: model.to_string(),
+        codex_reasoning_effort: reasoning_effort.to_string(),
+        endpoint: std::env::var("QA_COMPATIBLE_ENDPOINT").unwrap_or_default(),
+        api_key_env: std::env::var("QA_COMPATIBLE_KEY_ENV")
+            .unwrap_or_else(|_| "LUNA_API_KEY".to_string()),
+        timeout_seconds: 180,
+        ..qa::LunaSettings::default()
+    };
+    let report = qa::semantic_benchmark::evaluate(&suite, &settings, model, reasoning_effort)?;
+    qa::semantic_benchmark::write_report(&report, output)?;
+    Ok(report.real_provider_measured)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()

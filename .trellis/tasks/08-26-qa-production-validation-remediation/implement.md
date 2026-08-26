@@ -11,11 +11,11 @@
 
 ## Phase B — Real Semantic Verification
 
-- [ ] 建立 frozen claim-evidence benchmark 与 schema/hash 校验。
-- [ ] 新增真实 Codex/Compatible API benchmark CLI，复用生产 structured transport。
-- [ ] 输出真实 provider/model/config 与 accuracy/failure/fallback 指标。
-- [ ] 无 Provider、timeout、invalid JSON 与取消保持 fail closed。
-- [ ] 本地提交：`feat(qa): benchmark real semantic verification`。
+- [x] 建立 100 条 frozen claim-evidence benchmark 与 schema/hash 校验。
+- [x] 新增真实 Codex/Compatible API benchmark CLI，复用生产 structured transport。
+- [x] 输出真实 provider/model/config 与 accuracy/failure/fallback 指标。
+- [x] 无 Provider、timeout、invalid JSON 与取消保持 fail closed。
+- [x] 本地提交：`feat(qa): benchmark real semantic verification`。
 
 ## Phase C — Unified Production Eval Harness
 

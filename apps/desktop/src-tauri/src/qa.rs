@@ -20,6 +20,7 @@ mod research_memory;
 pub(crate) mod retrieval;
 mod retrieval_contract;
 mod semantic;
+pub(crate) mod semantic_benchmark;
 mod session;
 mod source_resolver;
 mod structured_answer;
