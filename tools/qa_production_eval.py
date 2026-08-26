@@ -23,6 +23,7 @@ from qa_eval_metadata import build_metadata_envelope, canonical_json_sha256
 RAG_REPORT = ROOT / "evals" / "reports" / "rag-evaluation-latest.json"
 CONVERSATION_REPORT = ROOT / "evals" / "reports" / "conversation-evaluation-latest.json"
 SEMANTIC_REPORT = ROOT / "evals" / "reports" / "semantic-verifier-real-latest.json"
+PERFORMANCE_REPORT = ROOT / "evals" / "reports" / "performance-latest.json"
 
 
 class ProductionEvalError(ValueError):
@@ -73,6 +74,7 @@ def artifact_metrics(
     conversation: dict[str, Any],
     semantic: dict[str, Any],
     heldout_metrics: dict[str, dict[str, Any]] | None = None,
+    performance_report: dict[str, Any] | None = None,
 ) -> dict[str, dict[str, Any]]:
     aggregate = rag.get("aggregate")
     cases = rag.get("cases")
@@ -126,11 +128,24 @@ def artifact_metrics(
             "unknownPrecision": semantic.get("unknownPrecision"),
             "fallbackRate": semantic.get("fallbackRate"),
         },
-        "performance": {
-            "targetProfileFrozen": False,
-            "measured": False,
-            "pendingReason": "target_profile_not_frozen",
-        },
+        "performance": (
+            {
+                "targetProfileFrozen": performance_report.get("targetProfileFrozen"),
+                "measured": performance_report.get("measured"),
+                "allModeSlosPassed": performance_report.get("allModeSlosPassed"),
+                "p95LatencyMs": performance_report.get("p95LatencyMs"),
+                "maxP95LatencyMs": performance_report.get("maxP95LatencyMs"),
+                "coldModelLoadMs": performance_report.get("coldModelLoadMs"),
+                "modes": performance_report.get("modes"),
+            }
+            if performance_report
+            else {
+                "targetProfileFrozen": False,
+                "measured": False,
+                "allModeSlosPassed": False,
+                "pendingReason": "target_profile_not_measured",
+            }
+        ),
     }
     if heldout_metrics:
         seals = {
@@ -164,6 +179,7 @@ def build_release(
     rag = load_json(RAG_REPORT)
     conversation = load_json(CONVERSATION_REPORT)
     semantic = load_json(SEMANTIC_REPORT)
+    performance = load_json(PERFORMANCE_REPORT) if PERFORMANCE_REPORT.exists() else None
     git_commit = subprocess.check_output(
         ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
     ).strip()
@@ -195,7 +211,13 @@ def build_release(
             name: load_json(heldout_derived / f"{name}.json")
             for name in ("heldout", "grounding", "open_research")
         }
-    metrics = artifact_metrics(rag, conversation, semantic, heldout_metrics)
+    metrics = artifact_metrics(
+        rag,
+        conversation,
+        semantic,
+        heldout_metrics,
+        performance,
+    )
     try:
         written = collect_metrics(run_dir, metadata, metrics)
     except CollectionError as exc:

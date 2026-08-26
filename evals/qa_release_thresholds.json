@@ -37,6 +37,7 @@
     {"id": "heldout.completeness", "artifact": "heldout.json", "metric": "citationCompleteness", "operator": ">=", "threshold": 0.98, "core": true},
     {"id": "performance.profile", "artifact": "performance.json", "metric": "targetProfileFrozen", "operator": "==", "threshold": true, "core": true},
     {"id": "performance.measured", "artifact": "performance.json", "metric": "measured", "operator": "==", "threshold": true, "core": true},
+    {"id": "performance.modeSlos", "artifact": "performance.json", "metric": "allModeSlosPassed", "operator": "==", "threshold": true, "core": false},
     {"id": "performance.latency", "artifact": "performance.json", "metric": "p95LatencyMs", "operator": "<=metric", "thresholdMetric": "maxP95LatencyMs", "core": false}
   ]
 }

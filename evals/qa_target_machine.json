@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "qa-target-performance-profile-v1",
+  "sealed": true,
+  "version": "2026-08-26-windows-cpu-v1",
+  "machineProfile": "Windows 11 x86_64, Intel mobile CPU class, >=32 GiB RAM, CPU ONNX",
+  "model": "BAAI/bge-reranker-base@2cfc18c",
+  "warmupRuns": 1,
+  "measuredRuns": 2,
+  "minimumSamplesPerMode": 6,
+  "coldModelLoadMaxMs": 60000,
+  "modes": {
+    "direct": {
+      "warmP95Ms": 20000
+    },
+    "research": {
+      "warmP95Ms": 30000
+    },
+    "exploratory": {
+      "warmP95Ms": 45000
+    }
+  }
+}

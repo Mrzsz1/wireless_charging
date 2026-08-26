@@ -183,6 +183,14 @@ pub struct QaRunManifest {
     #[serde(default)]
     pub reranker_model_max_length: usize,
     #[serde(default)]
+    pub reranker_model_load_ms: u64,
+    #[serde(default)]
+    pub reranker_input_prepare_ms: u64,
+    #[serde(default)]
+    pub reranker_inference_ms: u64,
+    #[serde(default)]
+    pub reranker_average_input_tokens: usize,
+    #[serde(default)]
     pub reranker_fallback: bool,
     #[serde(default)]
     pub reranker_fallback_reason: String,
@@ -1309,6 +1317,10 @@ pub fn build_run_manifest(
         reranker_batch_size: context.retrieval_query.reranker_batch_size,
         reranker_batch_count: context.retrieval_query.reranker_batch_count,
         reranker_model_max_length: context.retrieval_query.reranker_model_max_length,
+        reranker_model_load_ms: context.retrieval_query.reranker_model_load_ms,
+        reranker_input_prepare_ms: context.retrieval_query.reranker_input_prepare_ms,
+        reranker_inference_ms: context.retrieval_query.reranker_inference_ms,
+        reranker_average_input_tokens: context.retrieval_query.reranker_average_input_tokens,
         reranker_fallback: context.retrieval_query.reranker_fallback,
         reranker_fallback_reason: context.retrieval_query.reranker_fallback_reason.clone(),
         evidence_manager_version: context.retrieval_query.evidence_manager_version.clone(),

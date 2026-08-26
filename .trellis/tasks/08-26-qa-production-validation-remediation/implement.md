@@ -36,11 +36,11 @@
 
 ## Phase E — Performance Profile and Benchmark
 
-- [ ] 分离 model load/input prepare/inference telemetry。
-- [ ] 验证模型 session 复用、dedup/candidate cap/batch 顺序。
-- [ ] 新增 sealed target profile，按 ExecutionMode 定义 SLO。
-- [ ] 输出 cold 与 warm P50/P95/P99 `performance.json`。
-- [ ] 重跑统一 gate；外部 held-out 未完成前不得宣告 PASS。
+- [x] 分离 model load/input prepare/inference telemetry。
+- [x] 验证模型 session 复用、dedup/candidate cap/batch 顺序。
+- [x] 新增 sealed target profile，按 ExecutionMode 定义 SLO。
+- [x] 输出 cold 与 warm P50/P95/P99 `performance.json`。
+- [x] 重跑统一 gate；外部 held-out 未完成前不得宣告 PASS（19/31）。
 - [ ] 本地提交：`perf(qa): measure production reranker latency`。
 
 ## Final Verification

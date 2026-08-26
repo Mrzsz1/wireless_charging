@@ -88,6 +88,7 @@ pub struct EvaluationCaseResult {
     pub id: String,
     pub question: String,
     pub resolved_question: String,
+    pub execution_mode: String,
     pub notes: String,
     pub passed: bool,
     pub errors: Vec<String>,
@@ -110,6 +111,14 @@ pub struct EvaluationCaseResult {
     pub reranker_version: String,
     pub reranker_status: String,
     pub reranker_latency_ms: u64,
+    pub reranker_candidate_count: usize,
+    pub reranker_batch_size: usize,
+    pub reranker_batch_count: usize,
+    pub reranker_model_max_length: usize,
+    pub reranker_model_load_ms: u64,
+    pub reranker_input_prepare_ms: u64,
+    pub reranker_inference_ms: u64,
+    pub reranker_average_input_tokens: usize,
     pub reranker_fallback: bool,
     pub reranker_fallback_reason: String,
     pub attempted_kinds: Vec<String>,
@@ -142,6 +151,10 @@ pub struct EvaluationAggregate {
     pub average_latency_ms: f64,
     pub average_round_count: f64,
     pub average_reranker_latency_ms: f64,
+    pub average_reranker_model_load_ms: f64,
+    pub average_reranker_input_prepare_ms: f64,
+    pub average_reranker_inference_ms: f64,
+    pub average_reranker_input_tokens: f64,
     pub reranker_fallback_count: usize,
     pub reranker_fallback_rate: f64,
     pub error_categories: HashMap<String, usize>,
@@ -287,7 +300,11 @@ fn validate_suite(suite: &EvaluationSuite) -> Result<(), String> {
     Ok(())
 }
 
-fn evaluation_contract(case: &EvaluationCase, resolved_question: &str) -> RetrievalContract {
+fn evaluation_contract(
+    case: &EvaluationCase,
+    resolved_question: &str,
+    execution_mode: &str,
+) -> RetrievalContract {
     let mut contract = RetrievalContract::fallback(resolved_question);
     contract.scope = RetrievalScope {
         mode: case.scope_expectation.clone(),
@@ -322,7 +339,7 @@ fn evaluation_contract(case: &EvaluationCase, resolved_question: &str) -> Retrie
     contract.budget = RetrievalBudget {
         max_rounds: 3,
         max_queries: 12,
-        max_candidates: 160,
+        max_candidates: super::routing_policy(execution_mode).max_candidates,
     };
     contract
 }
@@ -564,11 +581,12 @@ fn evaluate_case(
         .collect::<Vec<_>>();
     let retrieval_query = super::build_retrieval_query(connection, &case.question, &conversation);
     let resolved_question = retrieval_query.resolved_question;
+    let execution_mode = retrieval_query.execution_mode;
     let outcome = super::retrieval::run_retrieval(
         connection,
         root,
         &resolved_question,
-        &evaluation_contract(case, &resolved_question),
+        &evaluation_contract(case, &resolved_question, &execution_mode),
         None,
     )?;
     let v2 = project_candidates(connection, root, &outcome.candidates)?;
@@ -710,6 +728,7 @@ fn evaluate_case(
         id: case.id.clone(),
         question: case.question.clone(),
         resolved_question,
+        execution_mode,
         notes: case.notes.clone(),
         passed: errors.is_empty(),
         errors,
@@ -736,6 +755,14 @@ fn evaluate_case(
         reranker_version: outcome.reranker_version,
         reranker_status: outcome.reranker_status,
         reranker_latency_ms: outcome.reranker_latency_ms,
+        reranker_candidate_count: outcome.reranker_candidate_count,
+        reranker_batch_size: outcome.reranker_batch_size,
+        reranker_batch_count: outcome.reranker_batch_count,
+        reranker_model_max_length: outcome.reranker_model_max_length,
+        reranker_model_load_ms: outcome.reranker_model_load_ms,
+        reranker_input_prepare_ms: outcome.reranker_input_prepare_ms,
+        reranker_inference_ms: outcome.reranker_inference_ms,
+        reranker_average_input_tokens: outcome.reranker_average_input_tokens,
         reranker_fallback: outcome.reranker_fallback,
         reranker_fallback_reason: outcome.reranker_fallback_reason,
         attempted_kinds,
@@ -810,6 +837,14 @@ pub fn evaluate(
         average_latency_ms: average(&cases, |case| case.latency_ms as f64),
         average_round_count: average(&cases, |case| case.round_count as f64),
         average_reranker_latency_ms: average(&cases, |case| case.reranker_latency_ms as f64),
+        average_reranker_model_load_ms: average(&cases, |case| case.reranker_model_load_ms as f64),
+        average_reranker_input_prepare_ms: average(&cases, |case| {
+            case.reranker_input_prepare_ms as f64
+        }),
+        average_reranker_inference_ms: average(&cases, |case| case.reranker_inference_ms as f64),
+        average_reranker_input_tokens: average(&cases, |case| {
+            case.reranker_average_input_tokens as f64
+        }),
         reranker_fallback_count,
         reranker_fallback_rate: if cases.is_empty() {
             0.0
@@ -957,7 +992,7 @@ pub fn write_report(
         .map_err(|error| format!("RAG_EVAL_WRITE_FAILED: {error}"))?;
     let aggregate = &report.aggregate;
     let mut markdown = format!(
-        "# 科研 RAG 检索评测\n\n- 状态：{}\n- 用例：{}/{}\n- Source resolution accuracy：{:.3}\n- Channel attempt rate：{:.3}\n- Document Recall@5/10/20：{:.3} / {:.3} / {:.3}\n- Heading Recall@20：{:.3}\n- Document MRR / Passage MRR / nDCG@10：{:.3} / {:.3} / {:.3}\n- Locator validity：{:.3}\n- Zero-evidence FN/FP：{} / {}\n- 平均检索耗时：{:.1} ms\n- 平均轮数：{:.2}\n- Reranker fallback：{} / {} ({:.3})\n- 平均 reranker 耗时：{:.1} ms\n\n## 用例\n\n",
+        "# 科研 RAG 检索评测\n\n- 状态：{}\n- 用例：{}/{}\n- Source resolution accuracy：{:.3}\n- Channel attempt rate：{:.3}\n- Document Recall@5/10/20：{:.3} / {:.3} / {:.3}\n- Heading Recall@20：{:.3}\n- Document MRR / Passage MRR / nDCG@10：{:.3} / {:.3} / {:.3}\n- Locator validity：{:.3}\n- Zero-evidence FN/FP：{} / {}\n- 平均检索耗时：{:.1} ms\n- 平均轮数：{:.2}\n- Reranker fallback：{} / {} ({:.3})\n- 平均 reranker 耗时：{:.1} ms\n- Reranker load/prepare/inference/input tokens：{:.1} / {:.1} / {:.1} ms / {:.1}\n\n## 用例\n\n",
         if report.passed { "PASS" } else { "REVIEW" },
         aggregate.passed_count,
         aggregate.case_count,
@@ -979,6 +1014,10 @@ pub fn write_report(
         aggregate.case_count,
         aggregate.reranker_fallback_rate,
         aggregate.average_reranker_latency_ms,
+        aggregate.average_reranker_model_load_ms,
+        aggregate.average_reranker_input_prepare_ms,
+        aggregate.average_reranker_inference_ms,
+        aggregate.average_reranker_input_tokens,
     );
     for case in &report.cases {
         markdown.push_str(&format!(

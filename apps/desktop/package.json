@@ -32,6 +32,7 @@
     "eval:semantic": "cargo run --manifest-path src-tauri/Cargo.toml --bin semantic-verifier-eval",
     "eval:conversation": "cargo run --manifest-path src-tauri/Cargo.toml --bin conversation-eval",
     "eval:production": "py -3 ../../tools/qa_production_eval.py",
+    "eval:performance": "cargo run --manifest-path src-tauri/Cargo.toml --bin reranker-performance-eval -- ../..",
     "eval:questions": "py -3 ../../tools/validate_research_question_dataset.py",
     "release:signed": "node scripts/build-signed-release.mjs",
     "fixture:updater": "node scripts/updater-fixture-server.mjs"

@@ -4532,6 +4532,26 @@ pub fn run_conversation_benchmark_files(cases_path: &Path, output: &Path) -> Res
         && report.objective_preservation >= 0.97)
 }
 
+pub fn run_rag_performance_files(
+    repository_root: &Path,
+    cases_path: &Path,
+    profile_path: &Path,
+    output: &Path,
+) -> Result<bool, String> {
+    let root = repository_root
+        .canonicalize()
+        .map_err(|error| format!("PERFORMANCE_REPOSITORY_INVALID: {error}"))?;
+    let mut connection = Connection::open_in_memory()
+        .map_err(|error| format!("PERFORMANCE_DATABASE_FAILED: {error}"))?;
+    db_schema(&connection)?;
+    rebuild_connection(&mut connection, &root)?;
+    let suite = qa::evaluation::load_suite(cases_path)?;
+    let profile = qa::performance_benchmark::load_profile(profile_path)?;
+    let report = qa::performance_benchmark::evaluate(&connection, &root, &suite, &profile)?;
+    qa::performance_benchmark::write_report(&report, output)?;
+    Ok(report.target_profile_frozen && report.measured && report.all_mode_slos_passed)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()

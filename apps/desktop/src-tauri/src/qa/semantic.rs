@@ -1449,6 +1449,8 @@ pub(super) fn rerank_texts(
             batch_size: 0,
             batch_count: 0,
             model_max_length: RERANKER_MAX_LENGTH,
+            model_load_ms: 0,
+            inference_ms: 0,
         });
     }
     check_cancelled(cancelled)?;
@@ -1461,9 +1463,19 @@ pub(super) fn rerank_texts(
         state.model = None;
         state.model_dir = Some(model_dir.clone());
     }
-    if state.model.is_none() {
+    let model_load_started = Instant::now();
+    let model_was_missing = state.model.is_none();
+    if model_was_missing {
         state.model = Some(initialize_cross_encoder(&model_dir)?);
     }
+    let model_load_ms = if model_was_missing {
+        model_load_started
+            .elapsed()
+            .as_millis()
+            .min(u128::from(u64::MAX)) as u64
+    } else {
+        0
+    };
     check_cancelled(cancelled)?;
     let batch_size = env::var("QA_RERANKER_BATCH_SIZE")
         .ok()
@@ -1472,6 +1484,7 @@ pub(super) fn rerank_texts(
         .unwrap_or(RERANKER_DEFAULT_BATCH_SIZE)
         .min(documents.len());
     let batch_count = documents.len().div_ceil(batch_size);
+    let inference_started = Instant::now();
     let results = state
         .model
         .as_ref()
@@ -1483,6 +1496,10 @@ pub(super) fn rerank_texts(
             Some(batch_size),
         )
         .map_err(|_| "CROSS_ENCODER_UNAVAILABLE: inference_failed".to_string())?;
+    let inference_ms = inference_started
+        .elapsed()
+        .as_millis()
+        .min(u128::from(u64::MAX)) as u64;
     let mut scores = vec![f32::NEG_INFINITY; documents.len()];
     for result in results {
         if result.index >= scores.len() || !result.score.is_finite() {
@@ -1498,6 +1515,8 @@ pub(super) fn rerank_texts(
         batch_size,
         batch_count,
         model_max_length: RERANKER_MAX_LENGTH,
+        model_load_ms,
+        inference_ms,
     })
 }
 

@@ -13,6 +13,7 @@ pub(crate) mod locator;
 mod markdown_parser;
 mod metrics;
 mod natural_answer;
+pub(crate) mod performance_benchmark;
 mod problem_understanding;
 mod provider_capabilities;
 mod query_plan;
@@ -284,6 +285,14 @@ pub struct RetrievalQuery {
     pub reranker_batch_count: usize,
     #[serde(default)]
     pub reranker_model_max_length: usize,
+    #[serde(default)]
+    pub reranker_model_load_ms: u64,
+    #[serde(default)]
+    pub reranker_input_prepare_ms: u64,
+    #[serde(default)]
+    pub reranker_inference_ms: u64,
+    #[serde(default)]
+    pub reranker_average_input_tokens: usize,
     #[serde(default)]
     pub reranker_fallback: bool,
     #[serde(default)]
@@ -1115,6 +1124,10 @@ fn build_retrieval_query_with_understanding<'a>(
         reranker_batch_size: 0,
         reranker_batch_count: 0,
         reranker_model_max_length: 0,
+        reranker_model_load_ms: 0,
+        reranker_input_prepare_ms: 0,
+        reranker_inference_ms: 0,
+        reranker_average_input_tokens: 0,
         reranker_fallback: false,
         reranker_fallback_reason: String::new(),
         evidence_manager_version: String::new(),
@@ -2617,6 +2630,10 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
         retrieval_query.reranker_batch_size = outcome.reranker_batch_size;
         retrieval_query.reranker_batch_count = outcome.reranker_batch_count;
         retrieval_query.reranker_model_max_length = outcome.reranker_model_max_length;
+        retrieval_query.reranker_model_load_ms = outcome.reranker_model_load_ms;
+        retrieval_query.reranker_input_prepare_ms = outcome.reranker_input_prepare_ms;
+        retrieval_query.reranker_inference_ms = outcome.reranker_inference_ms;
+        retrieval_query.reranker_average_input_tokens = outcome.reranker_average_input_tokens;
         retrieval_query.reranker_fallback = outcome.reranker_fallback;
         retrieval_query.reranker_fallback_reason = outcome.reranker_fallback_reason.clone();
         retrieval_query.covered_facet_ids = outcome.covered_facets.iter().cloned().collect();

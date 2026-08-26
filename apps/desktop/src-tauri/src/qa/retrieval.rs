@@ -43,6 +43,10 @@ pub struct RetrievalOutcome {
     pub reranker_batch_size: usize,
     pub reranker_batch_count: usize,
     pub reranker_model_max_length: usize,
+    pub reranker_model_load_ms: u64,
+    pub reranker_input_prepare_ms: u64,
+    pub reranker_inference_ms: u64,
+    pub reranker_average_input_tokens: usize,
     pub reranker_fallback: bool,
     pub reranker_fallback_reason: String,
 }
@@ -448,6 +452,10 @@ fn run_retrieval_with_reranker(
                 reranker_batch_size: 0,
                 reranker_batch_count: 0,
                 reranker_model_max_length: 0,
+                reranker_model_load_ms: 0,
+                reranker_input_prepare_ms: 0,
+                reranker_inference_ms: 0,
+                reranker_average_input_tokens: 0,
                 reranker_fallback: false,
                 reranker_fallback_reason: String::new(),
             });
@@ -477,6 +485,10 @@ fn run_retrieval_with_reranker(
             reranker_batch_size: 0,
             reranker_batch_count: 0,
             reranker_model_max_length: 0,
+            reranker_model_load_ms: 0,
+            reranker_input_prepare_ms: 0,
+            reranker_inference_ms: 0,
+            reranker_average_input_tokens: 0,
             reranker_fallback: false,
             reranker_fallback_reason: String::new(),
         });
@@ -520,6 +532,10 @@ fn run_retrieval_with_reranker(
     let mut reranker_batch_size = 0_usize;
     let mut reranker_batch_count = 0_usize;
     let mut reranker_model_max_length = 0_usize;
+    let mut reranker_model_load_ms = 0_u64;
+    let mut reranker_input_prepare_ms = 0_u64;
+    let mut reranker_inference_ms = 0_u64;
+    let mut reranker_average_input_tokens = 0_usize;
     let mut reranker_fallback = false;
     let mut reranker_fallback_reason = String::new();
     let mut queue = VecDeque::new();
@@ -717,6 +733,7 @@ fn run_retrieval_with_reranker(
         }
 
         current_candidates = reciprocal_rank_fusion(all_channels.clone(), &explicit_paths);
+        current_candidates.truncate(contract.budget.max_candidates);
         let fallback_candidates = current_candidates.clone();
         reranker_candidate_count = reranker_candidate_count.max(current_candidates.len());
         let reranker_started = Instant::now();
@@ -730,6 +747,14 @@ fn run_retrieval_with_reranker(
                     reranker_batch_count = reranker_batch_count.saturating_add(outcome.batch_count);
                     reranker_model_max_length =
                         reranker_model_max_length.max(outcome.model_max_length);
+                    reranker_model_load_ms =
+                        reranker_model_load_ms.saturating_add(outcome.model_load_ms);
+                    reranker_input_prepare_ms =
+                        reranker_input_prepare_ms.saturating_add(outcome.input_prepare_ms);
+                    reranker_inference_ms =
+                        reranker_inference_ms.saturating_add(outcome.inference_ms);
+                    reranker_average_input_tokens =
+                        reranker_average_input_tokens.max(outcome.average_input_tokens);
                     if outcome.fallback {
                         reranker_status = "degraded".to_string();
                         reranker_fallback = true;
@@ -834,6 +859,10 @@ fn run_retrieval_with_reranker(
         reranker_batch_size,
         reranker_batch_count,
         reranker_model_max_length,
+        reranker_model_load_ms,
+        reranker_input_prepare_ms,
+        reranker_inference_ms,
+        reranker_average_input_tokens,
         reranker_fallback,
         reranker_fallback_reason,
     })

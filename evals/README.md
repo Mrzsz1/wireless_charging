@@ -323,5 +323,21 @@ py -3 tools/qa_production_eval.py --use-existing --allow-fail
 
 Conversation 数据集使用 canonical constraint/objective ID，不做自然语言全文 exact match。
 当前 50/50 case 的 reference resolution、constraint preservation、objective preservation 均为
-1.000。外部 held-out 和 sealed performance profile 缺失时，harness 仍写出可审计工件并保持
-最终 FAIL，不手填通过值。
+1.000。外部 held-out 缺失时，harness 仍写出可审计工件并保持最终 FAIL，不手填通过值。
+
+### Sealed Reranker Performance Benchmark
+
+目标机器 profile 位于 `qa_target_machine.json`，工作负载位于
+`performance_rag_cases.json`。profile 必须在测量前冻结；benchmark 校验 profile 版本、模型、
+各 ExecutionMode 样本数和 SLO，然后输出 cold model load 与 warm P50/P95/P99：
+
+```powershell
+cd apps/desktop
+npm run eval:performance
+```
+
+报告写入 `evals/reports/performance-latest.json`，统一 harness 会将其包装成
+`qa-eval-metadata-v1` 的 `performance.json`。当前 sealed Windows CPU profile 的 Direct、
+Research、Exploratory P95 均通过各自冻结 SLO；详情见
+`performance-production-baseline.md`。该性能通过不替代独立 held-out、Grounding 或 Open Research
+人工证据。

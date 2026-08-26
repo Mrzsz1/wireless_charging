@@ -55,7 +55,7 @@ PASSING = {
     "reranker.json": {"realModelMeasured": True, "fallbackRate": 0.05},
     "semantic_verifier.json": {"realProviderMeasured": True, "invalidVerifiedStateCount": 0},
     "heldout.json": {"independentlyCurated": True, "cases": 30, "factualPrecision": 0.97, "unsupportedFactualClaimRate": 0.02, "citationIdPrecision": 0.98, "citationCompleteness": 0.98},
-    "performance.json": {"targetProfileFrozen": True, "measured": True, "p95LatencyMs": 900, "maxP95LatencyMs": 1000},
+    "performance.json": {"targetProfileFrozen": True, "measured": True, "allModeSlosPassed": True, "p95LatencyMs": 900, "maxP95LatencyMs": 1000},
 }
 
 

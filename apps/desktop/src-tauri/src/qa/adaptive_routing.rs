@@ -107,9 +107,9 @@ pub fn policy(mode: &str) -> RoutingPolicy {
         _ => ExecutionMode::Direct,
     };
     let (planner_enabled, rounds, queries, candidates, calls, tokens) = match mode {
-        ExecutionMode::Direct => (false, 1, 4, 40, 2, 8_000),
-        ExecutionMode::Research => (true, 2, 12, 80, 3, 18_000),
-        ExecutionMode::Exploratory => (true, 3, 20, 120, 5, 32_000),
+        ExecutionMode::Direct => (false, 1, 4, 30, 2, 8_000),
+        ExecutionMode::Research => (true, 2, 12, 50, 3, 18_000),
+        ExecutionMode::Exploratory => (true, 3, 20, 60, 5, 32_000),
     };
     RoutingPolicy {
         version: ROUTING_POLICY_VERSION.to_string(),

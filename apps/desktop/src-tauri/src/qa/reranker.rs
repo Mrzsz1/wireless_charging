@@ -1,8 +1,9 @@
 use super::{compact, query_terms, Candidate};
 use std::collections::{HashMap, HashSet};
+use std::time::Instant;
 
 const SEMANTIC_RERANK_LIMIT: usize = 80;
-const SEMANTIC_CANDIDATE_CHARS: usize = 1_200;
+const SEMANTIC_CANDIDATE_CHARS: usize = 900;
 const BASE_SCORE_WEIGHT: f64 = 0.70;
 const CROSS_ENCODER_SCORE_WEIGHT: f64 = 0.30;
 const CROSS_ENCODER_TOP_BONUS: f64 = 0.15;
@@ -17,6 +18,10 @@ pub struct RerankOutcome {
     pub batch_size: usize,
     pub batch_count: usize,
     pub model_max_length: usize,
+    pub model_load_ms: u64,
+    pub input_prepare_ms: u64,
+    pub inference_ms: u64,
+    pub average_input_tokens: usize,
 }
 
 #[derive(Debug)]
@@ -25,6 +30,8 @@ pub struct CrossEncoderScores {
     pub batch_size: usize,
     pub batch_count: usize,
     pub model_max_length: usize,
+    pub model_load_ms: u64,
+    pub inference_ms: u64,
 }
 
 pub trait Reranker {
@@ -93,6 +100,10 @@ impl Reranker for DeterministicResearchReranker {
             batch_size: 0,
             batch_count: 0,
             model_max_length: 0,
+            model_load_ms: 0,
+            input_prepare_ms: 0,
+            inference_ms: 0,
+            average_input_tokens: 0,
         })
     }
 }
@@ -132,6 +143,10 @@ impl Reranker for EmbeddingRescorer<'_> {
                 batch_size: 0,
                 batch_count: 0,
                 model_max_length: 0,
+                model_load_ms: 0,
+                input_prepare_ms: 0,
+                inference_ms: 0,
+                average_input_tokens: 0,
             });
         }
         let semantic_count = deterministic.len().min(SEMANTIC_RERANK_LIMIT);
@@ -183,6 +198,10 @@ impl Reranker for EmbeddingRescorer<'_> {
             batch_size: 0,
             batch_count: 0,
             model_max_length: 0,
+            model_load_ms: 0,
+            input_prepare_ms: 0,
+            inference_ms: 0,
+            average_input_tokens: 0,
         })
     }
 }
@@ -223,9 +242,14 @@ impl Reranker for CrossEncoderResearchReranker<'_> {
                 batch_size: 0,
                 batch_count: 0,
                 model_max_length: 0,
+                model_load_ms: 0,
+                input_prepare_ms: 0,
+                inference_ms: 0,
+                average_input_tokens: 0,
             });
         }
         let rerank_count = deterministic.len().min(SEMANTIC_RERANK_LIMIT);
+        let input_started = Instant::now();
         let documents = deterministic
             .iter()
             .take(rerank_count)
@@ -239,6 +263,19 @@ impl Reranker for CrossEncoderResearchReranker<'_> {
                 )
             })
             .collect::<Vec<_>>();
+        let average_input_tokens = if documents.is_empty() {
+            0
+        } else {
+            documents
+                .iter()
+                .map(|document| super::context::estimate_tokens(document) as usize)
+                .sum::<usize>()
+                / documents.len()
+        };
+        let input_prepare_ms = input_started
+            .elapsed()
+            .as_millis()
+            .min(u128::from(u64::MAX)) as u64;
         let execution = (self.scorer)(&compact(question, SEMANTIC_CANDIDATE_CHARS), documents)
             .map_err(|error| {
                 if error.starts_with("QUESTION_CANCELLED") {
@@ -272,6 +309,10 @@ impl Reranker for CrossEncoderResearchReranker<'_> {
             batch_size: execution.batch_size,
             batch_count: execution.batch_count,
             model_max_length: execution.model_max_length,
+            model_load_ms: execution.model_load_ms,
+            input_prepare_ms,
+            inference_ms: execution.inference_ms,
+            average_input_tokens,
         })
     }
 }
@@ -527,6 +568,8 @@ mod tests {
             batch_size: scores.len(),
             batch_count: usize::from(!scores.is_empty()),
             model_max_length: 512,
+            model_load_ms: 0,
+            inference_ms: 0,
             scores,
         }
     }

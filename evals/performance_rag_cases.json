@@ -1,0 +1,206 @@
+{
+  "schemaVersion": "qa-rag-evaluation-cases-v1",
+  "name": "qa-reranker-performance-workload-v1",
+  "cases": [
+    {
+      "id": "perf-direct-rose",
+      "question": "ROSE 研究什么问题？",
+      "aliases": [
+        "ROSE robust safe charging"
+      ],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": [
+        "wiki",
+        "paper"
+      ],
+      "expectedDocuments": [
+        "paper:sources/src-dai2022-rose-robust-safe-charging"
+      ],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": [
+        "graph"
+      ],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "performance workload"
+    },
+    {
+      "id": "perf-direct-wanda",
+      "question": "WANDA 研究了什么？",
+      "aliases": [
+        "WANDA multiple antennas"
+      ],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": [
+        "wiki",
+        "paper"
+      ],
+      "expectedDocuments": [
+        "paper:sources/src-dai-wanda-multi-antenna"
+      ],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": [
+        "graph"
+      ],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "performance workload"
+    },
+    {
+      "id": "perf-direct-ihatrpo",
+      "question": "IHATRPO 协调哪些设备？",
+      "aliases": [
+        "IHATRPO heterogeneous chargers"
+      ],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": [
+        "wiki",
+        "paper"
+      ],
+      "expectedDocuments": [
+        "paper:sources/src-yao2026-ihatrpo-heterogeneous-chargers"
+      ],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": [
+        "graph"
+      ],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "performance workload"
+    },
+    {
+      "id": "perf-research-rose-ccsp",
+      "question": "比较 ROSE 与 CCSP 的建模差异。",
+      "aliases": [
+        "ROSE CCSP comparison"
+      ],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": [
+        "wiki",
+        "paper"
+      ],
+      "expectedDocuments": [
+        "paper:sources/src-dai2022-rose-robust-safe-charging",
+        "paper:sources/src-ma-ccsp-concurrent-charging"
+      ],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": [
+        "graph"
+      ],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "performance workload"
+    },
+    {
+      "id": "perf-research-tide-gain",
+      "question": "比较 TIDE 与 GAIN 的控制目标差异。",
+      "aliases": [
+        "TIDE GAIN comparison"
+      ],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": [
+        "wiki",
+        "paper"
+      ],
+      "expectedDocuments": [
+        "paper:sources/src-ma-tide-dynamic-power",
+        "paper:sources/src-ma-concurrent-gain"
+      ],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": [
+        "graph"
+      ],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "performance workload"
+    },
+    {
+      "id": "perf-research-wanda-hipo",
+      "question": "比较 WANDA 与 HIPO 的放置约束。",
+      "aliases": [
+        "WANDA HIPO comparison"
+      ],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": [
+        "wiki",
+        "paper"
+      ],
+      "expectedDocuments": [
+        "paper:sources/src-dai-wanda-multi-antenna"
+      ],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": [
+        "graph"
+      ],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "performance workload"
+    },
+    {
+      "id": "perf-exploratory-rose",
+      "question": "ROSE 这个方法还能改进吗？",
+      "aliases": [
+        "ROSE multipath improvement"
+      ],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": [
+        "wiki",
+        "paper"
+      ],
+      "expectedDocuments": [
+        "paper:sources/src-dai2022-rose-robust-safe-charging"
+      ],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": [
+        "graph"
+      ],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "performance workload"
+    },
+    {
+      "id": "perf-exploratory-tide",
+      "question": "TIDE 有没有解法可以迁移？",
+      "aliases": [
+        "TIDE transferable solution"
+      ],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": [
+        "wiki",
+        "paper"
+      ],
+      "expectedDocuments": [
+        "paper:sources/src-ma-tide-dynamic-power"
+      ],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": [
+        "graph"
+      ],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "performance workload"
+    },
+    {
+      "id": "perf-exploratory-obstacle",
+      "question": "障碍环境多充电车问题该如何建模并设计新解法？",
+      "aliases": [
+        "obstacle multi MCV problem modeling solution"
+      ],
+      "scopeExpectation": "open",
+      "mustAttemptKinds": [
+        "wiki",
+        "paper"
+      ],
+      "expectedDocuments": [
+        "wiki:sources/src-rahaman2023-obstacle-mcv"
+      ],
+      "expectedHeadings": [],
+      "forbiddenEvidenceKinds": [
+        "graph"
+      ],
+      "locatorRequired": true,
+      "zeroEvidenceExpected": false,
+      "notes": "performance workload"
+    }
+  ]
+}
