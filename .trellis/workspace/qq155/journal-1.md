@@ -1422,3 +1422,38 @@ Preserved previous evidence with turn isolation, removed fixed history caps in f
 ### Next Steps
 
 - None - task complete
+
+
+## Session 43: 完成 Cross-Encoder 阶段 C 生产加固
+
+**Date**: 2026-08-26
+**Task**: 完成 Cross-Encoder 阶段 C 生产加固
+**Branch**: `master`
+
+### Summary
+
+完成最多 80 候选单批 Cross-Encoder 推理、基础/Cross-Encoder 分数融合与统一文档重复惩罚；实现固定 revision/size/SHA-256 manifest、Range 续传、真实字节进度、取消、互斥和 .part 原子提交；补齐磁盘不足、网络中断、损坏文件、partial resume、重复 repair 与并发 repair 测试。真实模型 health probe 通过，RAG 13/13 PASS，fallback 0/13；全量 Rust、Clippy、前端类型检查/测试/构建/verify 通过。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `4e86732` | (see git log) |
+| `d3a69ce` | (see git log) |
+| `e1f932b` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
