@@ -53,8 +53,8 @@
 - [x] AC5：Conversation 三项指标来自 canonical gold 与实际输出，不来自手填数值。
 - [x] AC6：held-out tooling 对 seal、独立双审、第三人裁决、blind export 和同一 RC 派生工件 fail closed。
 - [x] AC7：目标机器 profile 在性能测量前冻结；cold 与各 ExecutionMode warm P95 可审计。
-- [ ] AC8：全量 Rust/Python/frontend/RAG/Wiki/core-book 门禁通过，不引入新 Retriever/Agent/Intent 或阈值降低。
-- [ ] AC9：每阶段独立本地 Git commit，不 push GitHub，不包含用户已有未跟踪文件。
+- [x] AC8：全量 Rust/Python/frontend/RAG/Wiki/core-book 门禁通过，不引入新 Retriever/Agent/Intent 或阈值降低。
+- [x] AC9：每阶段独立本地 Git commit，不 push GitHub，不包含用户已有未跟踪文件。
 
 ## External Completion Boundary
 

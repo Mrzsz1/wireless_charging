@@ -41,16 +41,16 @@
 - [x] 新增 sealed target profile，按 ExecutionMode 定义 SLO。
 - [x] 输出 cold 与 warm P50/P95/P99 `performance.json`。
 - [x] 重跑统一 gate；外部 held-out 未完成前不得宣告 PASS（19/31）。
-- [ ] 本地提交：`perf(qa): measure production reranker latency`。
+- [x] 本地提交：`perf(qa): measure production reranker latency`（`7dba584`）。
 
 ## Final Verification
 
-- [ ] Rust fmt/test/clippy。
-- [ ] Python evaluator/release tests。
-- [ ] Frontend typecheck/tests/build/P3。
-- [ ] 真实 RAG、360 questions、Wiki/core-book。
-- [ ] 更新 QA spec、baselines、release report 与任务 AC。
-- [ ] 本地提交：`docs(qa): record remediation release status`。
+- [x] Rust fmt/test/clippy（234 passed，2 个需外部模型的 ignored tests）。
+- [x] Python evaluator/release tests（83 passed）。
+- [x] Frontend typecheck/tests/build/P3。
+- [x] 真实 RAG、360 questions、Wiki/core-book。
+- [x] 更新 QA spec、baselines、release report 与任务 AC。
+- [x] 本地提交：`docs(qa): record remediation release status`。
 
 ## Invariants
 
