@@ -1,9 +1,9 @@
 {
-  "id": "qa-production-hardening-release-gate",
-  "name": "qa-production-hardening-release-gate",
-  "title": "智能问答生产加固与最终发布门禁",
+  "id": "qa-reranker-batching-reliable-provision",
+  "name": "qa-reranker-batching-reliable-provision",
+  "title": "Cross-Encoder 批量重排、分数融合与可取消可靠部署",
   "description": "",
-  "status": "in_progress",
+  "status": "planning",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -18,10 +18,8 @@
   "commit": null,
   "pr_url": null,
   "subtasks": [],
-  "children": [
-    "08-26-qa-reranker-batching-reliable-provision"
-  ],
-  "parent": null,
+  "children": [],
+  "parent": "08-26-qa-production-hardening-release-gate",
   "relatedFiles": [],
   "notes": "",
   "meta": {}
