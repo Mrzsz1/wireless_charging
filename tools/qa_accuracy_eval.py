@@ -12,7 +12,16 @@ from typing import Any, Sequence
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DATASET = ROOT / "evals" / "heldout_questions.json"
-VALID_VERDICTS = {"supported", "contradicted", "not_verifiable"}
+VALID_VERDICTS = {
+    "supported",
+    "partially_supported",
+    "unsupported",
+    "contradicted",
+    "not_applicable",
+    # Kept for audit bundles exported before the production schema was frozen.
+    "not_verifiable",
+}
+VALID_DIMENSIONS = {"factual", "reference", "method", "constraint"}
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 # This is the serde field order of apps/desktop/src-tauri/src/qa.rs::EvidenceItem.
@@ -68,10 +77,21 @@ class AccuracyEvalError(ValueError):
 @dataclass(frozen=True)
 class Totals:
     supported: int = 0
+    partially_supported: int = 0
+    unsupported: int = 0
     contradicted: int = 0
     not_verifiable: int = 0
+    not_applicable: int = 0
     cited_ids: int = 0
     known_cited_ids: int = 0
+    applicable_claims: int = 0
+    cited_claims: int = 0
+    reference_supported: int = 0
+    reference_total: int = 0
+    method_supported: int = 0
+    method_total: int = 0
+    constraint_supported: int = 0
+    constraint_total: int = 0
     complete_answers: int = 0
     reviewed_answers: int = 0
 
@@ -153,6 +173,28 @@ def validate_dataset(dataset: dict[str, Any]) -> list[dict[str, Any]]:
         if case["id"] in seen:
             raise AccuracyEvalError(f"重复 held-out case id: {case['id']}")
         seen.add(case["id"])
+    if dataset.get("status") == "frozen":
+        curation = dataset.get("curation")
+        if not isinstance(curation, dict) or curation.get("independent") is not True:
+            raise AccuracyEvalError("frozen held-out 数据集缺少独立 curation 证明")
+        curator_hash = curation.get("curator_id_hash")
+        if not isinstance(curator_hash, str) or not SHA256_RE.fullmatch(curator_hash):
+            raise AccuracyEvalError("curation.curator_id_hash 必须为小写 SHA-256")
+        frozen_at = curation.get("frozen_at")
+        if not isinstance(frozen_at, str) or not frozen_at.strip():
+            raise AccuracyEvalError("curation.frozen_at 不能为空")
+        expected = curation.get("cases_sha256")
+        actual = hashlib.sha256(
+            json.dumps(
+                cases,
+                ensure_ascii=False,
+                allow_nan=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        if not isinstance(expected, str) or not hmac.compare_digest(expected, actual):
+            raise AccuracyEvalError("frozen held-out cases_sha256 校验失败")
     return cases
 
 
@@ -329,7 +371,7 @@ def _validate_evidence_and_manifest(
 
 def _validate_answer_claims(
     run: dict[str, Any], manifest: dict[str, Any], case_id: str
-) -> tuple[dict[str, str], list[str]]:
+) -> tuple[dict[str, str], dict[str, str], dict[str, list[str]]]:
     answer = run.get("answer")
     if not isinstance(answer, str) or not answer.strip():
         raise AccuracyEvalError(f"{case_id}: run 缺少非空 answer")
@@ -353,12 +395,18 @@ def _validate_answer_claims(
         )
 
     claim_text_by_id: dict[str, str] = {}
-    cited_ids: list[str] = []
+    claim_dimension_by_id: dict[str, str] = {}
+    citations_by_claim: dict[str, list[str]] = {}
     for claim in claims:
-        if not isinstance(claim, dict) or set(claim) != {
+        if not isinstance(claim, dict) or not {
             "claimId",
             "text",
             "citedEvidenceIds",
+        }.issubset(claim) or set(claim) - {
+            "claimId",
+            "text",
+            "citedEvidenceIds",
+            "dimension",
         }:
             raise AccuracyEvalError(f"{case_id}: answer claim schema 不匹配")
         claim_id = claim.get("claimId")
@@ -386,8 +434,12 @@ def _validate_answer_claims(
                     f"{case_id}: claim {claim_id} 的 [{citation}] 未出现在该 claim 文本中"
                 )
         claim_text_by_id[claim_id] = text
-        cited_ids.extend(citations)
-    return claim_text_by_id, cited_ids
+        dimension = claim.get("dimension", "factual")
+        if dimension not in VALID_DIMENSIONS:
+            raise AccuracyEvalError(f"{case_id}: claim {claim_id} dimension 非法")
+        claim_dimension_by_id[claim_id] = dimension
+        citations_by_claim[claim_id] = citations
+    return claim_text_by_id, claim_dimension_by_id, citations_by_claim
 
 
 def _validate_reviewer(
@@ -530,19 +582,58 @@ def _final_verdicts(
 
 def review_totals(run: dict[str, Any], review: dict[str, Any], case_id: str) -> Totals:
     known_ids, manifest = _validate_evidence_and_manifest(run, case_id)
-    expected_claims, cited_ids = _validate_answer_claims(run, manifest, case_id)
+    expected_claims, dimensions, citations_by_claim = _validate_answer_claims(
+        run, manifest, case_id
+    )
     final_verdicts = _final_verdicts(review, expected_claims, case_id)
     counts = {
         verdict: sum(value == verdict for value in final_verdicts.values())
         for verdict in VALID_VERDICTS
     }
     completeness = manifest["answerCompleteness"]
+    applicable = {
+        claim_id
+        for claim_id, verdict in final_verdicts.items()
+        if verdict != "not_applicable"
+    }
+    cited_ids = [
+        citation
+        for claim_id in applicable
+        for citation in citations_by_claim[claim_id]
+    ]
+    supported_verdicts = {"supported", "partially_supported"}
+
+    def dimension_counts(dimension: str) -> tuple[int, int]:
+        selected = [
+            claim_id
+            for claim_id in applicable
+            if dimensions[claim_id] == dimension
+        ]
+        return (
+            sum(final_verdicts[claim_id] in supported_verdicts for claim_id in selected),
+            len(selected),
+        )
+
+    reference_supported, reference_total = dimension_counts("reference")
+    method_supported, method_total = dimension_counts("method")
+    constraint_supported, constraint_total = dimension_counts("constraint")
     return Totals(
         supported=counts["supported"],
+        partially_supported=counts["partially_supported"],
+        unsupported=counts["unsupported"],
         contradicted=counts["contradicted"],
         not_verifiable=counts["not_verifiable"],
+        not_applicable=counts["not_applicable"],
         cited_ids=len(cited_ids),
         known_cited_ids=sum(citation in known_ids for citation in cited_ids),
+        applicable_claims=len(applicable),
+        cited_claims=sum(bool(citations_by_claim[claim_id]) for claim_id in applicable),
+        reference_supported=reference_supported,
+        reference_total=reference_total,
+        method_supported=method_supported,
+        method_total=method_total,
+        constraint_supported=constraint_supported,
+        constraint_total=constraint_total,
         complete_answers=int(completeness.get("complete") is True),
         reviewed_answers=1,
     )
@@ -587,33 +678,73 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"FAIL: {exc}")
         return 1
 
-    verifiable = totals.supported + totals.contradicted
-    all_claims = verifiable + totals.not_verifiable
-    factual_precision = totals.supported / verifiable if verifiable else 0.0
-    low, high = wilson_interval(totals.supported, verifiable)
+    supported_or_partial = totals.supported + totals.partially_supported
+    factual_denominator = (
+        supported_or_partial
+        + totals.unsupported
+        + totals.contradicted
+        + totals.not_verifiable
+    )
+    factual_precision = (
+        totals.supported / factual_denominator if factual_denominator else 0.0
+    )
+    low, high = wilson_interval(totals.supported, factual_denominator)
     citation_precision = (
         totals.known_cited_ids / totals.cited_ids if totals.cited_ids else 0.0
     )
     completeness_rate = totals.complete_answers / totals.reviewed_answers
+
+    def ratio(numerator: int, denominator: int) -> float | None:
+        return numerator / denominator if denominator else None
+
     print(
         json.dumps(
             {
                 "status": "evaluated",
+                "independentlyCurated": True,
+                "datasetVersion": dataset.get("version"),
+                "casesSha256": dataset.get("curation", {}).get("cases_sha256"),
                 "cases": totals.reviewed_answers,
                 "claims": {
                     "supported": totals.supported,
+                    "partiallySupported": totals.partially_supported,
+                    "unsupported": totals.unsupported,
                     "contradicted": totals.contradicted,
                     "notVerifiable": totals.not_verifiable,
+                    "notApplicable": totals.not_applicable,
                 },
                 "factualPrecision": factual_precision,
                 "factualPrecisionWilson95": [low, high],
-                "claimSupportRate": (
-                    totals.supported / all_claims if all_claims else 0.0
+                "claimSupportRate": ratio(
+                    supported_or_partial, factual_denominator
                 ),
-                "notVerifiableRate": (
-                    totals.not_verifiable / all_claims if all_claims else 0.0
+                "partialSupportRate": ratio(
+                    totals.partially_supported, factual_denominator
+                ),
+                "unsupportedFactualClaimRate": ratio(
+                    totals.unsupported + totals.not_verifiable,
+                    factual_denominator,
+                ),
+                "contradictedClaimRate": ratio(
+                    totals.contradicted, factual_denominator
+                ),
+                "notApplicableRate": ratio(
+                    totals.not_applicable,
+                    totals.applicable_claims + totals.not_applicable,
                 ),
                 "citationIdPrecision": citation_precision,
+                "citationCompleteness": ratio(
+                    totals.cited_claims, totals.applicable_claims
+                ),
+                "referenceSupportRate": ratio(
+                    totals.reference_supported, totals.reference_total
+                ),
+                "relevantMethodRecall": ratio(
+                    totals.method_supported, totals.method_total
+                ),
+                "criticalConstraintPreservation": ratio(
+                    totals.constraint_supported, totals.constraint_total
+                ),
                 "answerCompletenessRate": completeness_rate,
                 "semanticEntailmentChecked": False,
                 "reviewProtocol": "independent_double_review_with_adjudication",

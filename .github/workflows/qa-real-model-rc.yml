@@ -21,6 +21,7 @@ jobs:
     env:
       QA_RERANKER_MODEL_DIR: ${{ vars.QA_RERANKER_MODEL_DIR || 'E:\LunaWiki\models\reranker-bge-base' }}
       QA_RC_DATA_DIR: ${{ vars.QA_RC_DATA_DIR || 'E:\LunaWiki\qa-rc' }}
+      QA_RC_RUN_DIR: ${{ vars.QA_RC_RUN_DIR || 'E:\LunaWiki\qa-rc\current' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -50,10 +51,22 @@ jobs:
           npm ci
           npm run eval:rag
           Copy-Item -Recurse -Force ../../evals/reports "$env:QA_RC_DATA_DIR/reports-${{ github.sha }}"
+      - name: Frozen production release decision
+        if: always()
+        shell: pwsh
+        run: |
+          py -3 tools/check_qa_release_gate.py `
+            --artifacts "$env:QA_RC_RUN_DIR" `
+            --output "$env:QA_RC_DATA_DIR/release-decision-${{ github.sha }}.json" `
+            --report "$env:QA_RC_DATA_DIR/QA_PRODUCTION_RELEASE_REPORT-${{ github.sha }}.md"
       - name: Upload bounded benchmark artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: qa-real-model-rc-${{ github.sha }}
-          path: evals/reports/
-          if-no-files-found: error
+          path: |
+            evals/reports/
+            ${{ env.QA_RC_DATA_DIR }}/release-decision-${{ github.sha }}.json
+            ${{ env.QA_RC_DATA_DIR }}/QA_PRODUCTION_RELEASE_REPORT-${{ github.sha }}.md
+          if-no-files-found: warn
           retention-days: 30

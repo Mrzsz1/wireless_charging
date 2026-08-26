@@ -34,8 +34,8 @@ jobs:
           node-version: "22"
           cache: npm
           cache-dependency-path: apps/desktop/package-lock.json
-      - name: Python metadata contracts
-        run: python -m unittest tests.test_qa_eval_metadata -v
+      - name: Python metadata, held-out, and release-gate contracts
+        run: python -m unittest tests.test_qa_eval_metadata tests.test_qa_accuracy_eval tests.test_qa_release_gate -v
       - name: Rust formatting
         working-directory: apps/desktop/src-tauri
         run: cargo fmt --all -- --check

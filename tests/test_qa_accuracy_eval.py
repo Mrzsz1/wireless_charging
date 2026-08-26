@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import importlib.util
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -150,6 +152,12 @@ class QaAccuracyEvalTests(unittest.TestCase):
         with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
             qa_accuracy_eval.review_totals(run_fixture(), review, "case-1")
 
+    def test_duplicate_primary_reviewer_fails_closed(self) -> None:
+        review = review_fixture()
+        review["primary_reviews"][1]["reviewer_id_hash"] = "a" * 64
+        with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
+            qa_accuracy_eval.review_totals(run_fixture(), review, "case-1")
+
     def test_manifest_claim_count_99_with_one_verdict_fails_closed(self) -> None:
         run = run_fixture()
         run["runManifest"]["answerCompleteness"]["claimCount"] = 99
@@ -212,6 +220,53 @@ class QaAccuracyEvalTests(unittest.TestCase):
         del run["evidence"]
         with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
             qa_accuracy_eval.review_totals(run, review_fixture(), "case-1")
+
+    def test_partial_unsupported_and_dimension_metrics_are_counted(self) -> None:
+        run = run_fixture()
+        run["answerClaims"][0]["dimension"] = "method"
+        review = review_fixture("partially_supported", "partially_supported")
+        totals = qa_accuracy_eval.review_totals(run, review, "case-1")
+        self.assertEqual(totals.partially_supported, 1)
+        self.assertEqual(totals.method_supported, 1)
+        self.assertEqual(totals.method_total, 1)
+        self.assertEqual(totals.cited_claims, 1)
+
+        review = review_fixture("unsupported", "unsupported")
+        totals = qa_accuracy_eval.review_totals(run, review, "case-1")
+        self.assertEqual(totals.unsupported, 1)
+
+    def test_frozen_dataset_requires_independent_curation_and_case_hash(self) -> None:
+        dataset = {
+            "dataset_role": "production_accuracy",
+            "split": "heldout",
+            "status": "frozen",
+            "minimum_case_count": 1,
+            "cases": [{"id": "case-1", "type": "solve", "question": "q"}],
+        }
+        with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
+            qa_accuracy_eval.validate_dataset(dataset)
+
+    def test_frozen_dataset_hash_tampering_fails_closed(self) -> None:
+        cases = [{"id": "case-1", "type": "solve", "question": "q"}]
+        dataset = {
+            "dataset_role": "production_accuracy",
+            "split": "heldout",
+            "status": "frozen",
+            "minimum_case_count": 1,
+            "cases": cases,
+            "curation": {
+                "independent": True,
+                "curator_id_hash": "d" * 64,
+                "frozen_at": "2026-08-26T00:00:00Z",
+                "cases_sha256": hashlib.sha256(
+                    json.dumps(cases, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+                ).hexdigest(),
+            },
+        }
+        self.assertEqual(qa_accuracy_eval.validate_dataset(dataset), cases)
+        dataset["cases"][0]["question"] = "tampered"
+        with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
+            qa_accuracy_eval.validate_dataset(dataset)
 
         run = run_fixture()
         run["evidence"] = []

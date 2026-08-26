@@ -172,7 +172,7 @@ SHA-256 seal。结果见 `research-question-dataset-baseline.md`。生产事实�
 1. 由未参与检索器、提示词和回归集开发的研究者独立抽样，至少 30 题；
 2. 冻结后才生成 `evals/heldout-runs/<case-id>.json` 审计包；
 3. 匿名双人逐 claim 复核，分歧交第三人裁决，保存到 `evals/heldout-reviews/<case-id>.json`；
-4. 运行 `py -3 tools/qa_accuracy_eval.py`，报告事实 precision、Wilson 95% 区间、引用 ID 精度和结构完整率；
+4. 运行 `py -3 tools/qa_accuracy_eval.py`，报告事实 precision、Wilson 95% 区间、partial/unsupported/not-applicable、引用正确率/完整率以及 reference/method/constraint 指标；
 5. 自动语义蕴含保持未启用，结果中固定为 `semanticEntailmentChecked=false`。
 
 ### Held-out run 的可核验 schema
@@ -254,3 +254,21 @@ py -3 tools/qa_accuracy_eval.py --allow-pending
 ```
 
 智能问答中的“复制审计包”会导出问题、最终回答、本轮证据和 `QaRunManifest`；不包含凭据或 provider 原始 payload。
+
+冻结数据集还必须提供 `curation.independent=true`、匿名 curator hash、冻结时间和
+canonical `cases_sha256`。每个 `answerClaims` 可用 `dimension` 标注
+`factual/reference/method/constraint`；旧审计包缺省为 `factual`。
+
+## Production Release Gate
+
+冻结阈值位于 `qa_release_thresholds.json`。门禁只读取带统一 metadata envelope 的
+`evals/runs/<run-id>/` 工件；缺工件、缺字段、非有限数、非真实 reranker/semantic provider、
+未独立冻结 held-out 或未冻结目标机器性能配置均 fail closed：
+
+```powershell
+py -3 tools/check_qa_release_gate.py --artifacts evals/runs/<run-id> --report QA_PRODUCTION_RELEASE_REPORT.md
+```
+
+完整合格工件输出 `PASS`。默认不启用 `CONDITIONAL PASS`，事实可靠性、Grounding、真实模型
+与独立 held-out 等核心门禁在任何情况下都不得条件通过。PR CI 仅跑确定性 contract；真实模型
+Release Candidate gate 通过手动或定时 workflow 运行。

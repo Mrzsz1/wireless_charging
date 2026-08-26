@@ -41,12 +41,12 @@
 
 ## Phase E — Held-out Harness, Release Gate and Report
 
-- [ ] 扩展 held-out schema/metrics：partial/unsupported/not-applicable、citation completeness、reference/method/constraint 指标。
-- [ ] 保留双 reviewer、第三人 adjudication、checksum/Wilson CI fail-closed contract。
-- [ ] 新增冻结 release thresholds 与 `check_qa_release_gate.py`，输出逐项 PASS/FAIL reason。
-- [ ] 新增 artifact collector 与 `QA_PRODUCTION_RELEASE_REPORT.md` generator。
-- [ ] contract tests 覆盖当前真实 FAIL、完整合格 fixture PASS、核心可靠性不允许 conditional。
-- [ ] 本地提交：`feat(qa): automate production release gate`。
+- [x] 扩展 held-out schema/metrics：partial/unsupported/not-applicable、citation completeness、reference/method/constraint 指标。
+- [x] 保留双 reviewer、第三人 adjudication、checksum/Wilson CI fail-closed contract。
+- [x] 新增冻结 release thresholds 与 `check_qa_release_gate.py`，输出逐项 PASS/FAIL reason。
+- [x] 新增 artifact collector 与 `QA_PRODUCTION_RELEASE_REPORT.md` generator。
+- [x] contract tests 覆盖当前真实 FAIL、完整合格 fixture PASS、核心可靠性不允许 conditional。
+- [x] 本地提交：`feat(qa): automate production release gate`。
 
 ## Phase F — Full Integration and Final Audit
 

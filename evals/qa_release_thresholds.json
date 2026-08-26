@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "frozen": true,
+  "frozenAt": "2026-08-26",
+  "policy": {
+    "conditionalPassEnabled": false,
+    "missingArtifactDecision": "FAIL",
+    "nonFiniteMetricDecision": "FAIL"
+  },
+  "gates": [
+    {"id": "retrieval.recall20", "artifact": "retrieval.json", "metric": "documentRecallAt20", "operator": ">=", "threshold": 0.95, "core": true},
+    {"id": "retrieval.recall10", "artifact": "retrieval.json", "metric": "documentRecallAt10", "operator": ">=", "threshold": 0.90, "core": true},
+    {"id": "retrieval.mrr", "artifact": "retrieval.json", "metric": "mrr", "operator": ">=", "threshold": 0.85, "core": true},
+    {"id": "retrieval.ndcg10", "artifact": "retrieval.json", "metric": "ndcgAt10", "operator": ">=", "threshold": 0.85, "core": true},
+    {"id": "conversation.reference", "artifact": "conversation.json", "metric": "referenceResolution", "operator": ">=", "threshold": 0.95, "core": true},
+    {"id": "conversation.constraint", "artifact": "conversation.json", "metric": "constraintPreservation", "operator": ">=", "threshold": 0.97, "core": true},
+    {"id": "conversation.objective", "artifact": "conversation.json", "metric": "objectivePreservation", "operator": ">=", "threshold": 0.97, "core": true},
+    {"id": "grounding.precision", "artifact": "grounding.json", "metric": "factualClaimPrecision", "operator": ">=", "threshold": 0.97, "core": true},
+    {"id": "grounding.unsupported", "artifact": "grounding.json", "metric": "unsupportedFactualClaimRate", "operator": "<=", "threshold": 0.02, "core": true},
+    {"id": "grounding.contradicted", "artifact": "grounding.json", "metric": "contradictedClaimRate", "operator": "<=", "threshold": 0.01, "core": true},
+    {"id": "grounding.citations", "artifact": "grounding.json", "metric": "citationCorrectness", "operator": ">=", "threshold": 0.98, "core": true},
+    {"id": "research.methods", "artifact": "open_research.json", "metric": "relevantMethodRecall", "operator": ">=", "threshold": 0.90, "core": true},
+    {"id": "research.constraints", "artifact": "open_research.json", "metric": "criticalConstraintPreservation", "operator": ">=", "threshold": 0.97, "core": true},
+    {"id": "reliability.crashes", "artifact": "reliability.json", "metric": "crashCount", "operator": "==", "threshold": 0, "core": true},
+    {"id": "reliability.providerFailures", "artifact": "reliability.json", "metric": "providerFailureHandledRate", "operator": ">=", "threshold": 1.0, "core": true},
+    {"id": "reliability.fallback", "artifact": "reliability.json", "metric": "fallbackSuccessRate", "operator": ">=", "threshold": 0.99, "core": true},
+    {"id": "reliability.invalidVerified", "artifact": "reliability.json", "metric": "invalidVerifiedStateCount", "operator": "==", "threshold": 0, "core": true},
+    {"id": "reranker.realModel", "artifact": "reranker.json", "metric": "realModelMeasured", "operator": "==", "threshold": true, "core": true},
+    {"id": "reranker.fallback", "artifact": "reranker.json", "metric": "fallbackRate", "operator": "<=", "threshold": 0.05, "core": true},
+    {"id": "semantic.realProvider", "artifact": "semantic_verifier.json", "metric": "realProviderMeasured", "operator": "==", "threshold": true, "core": true},
+    {"id": "semantic.invalidVerified", "artifact": "semantic_verifier.json", "metric": "invalidVerifiedStateCount", "operator": "==", "threshold": 0, "core": true},
+    {"id": "heldout.independent", "artifact": "heldout.json", "metric": "independentlyCurated", "operator": "==", "threshold": true, "core": true},
+    {"id": "heldout.cases", "artifact": "heldout.json", "metric": "cases", "operator": ">=", "threshold": 30, "core": true},
+    {"id": "heldout.precision", "artifact": "heldout.json", "metric": "factualPrecision", "operator": ">=", "threshold": 0.97, "core": true},
+    {"id": "heldout.unsupported", "artifact": "heldout.json", "metric": "unsupportedFactualClaimRate", "operator": "<=", "threshold": 0.02, "core": true},
+    {"id": "heldout.citations", "artifact": "heldout.json", "metric": "citationIdPrecision", "operator": ">=", "threshold": 0.98, "core": true},
+    {"id": "heldout.completeness", "artifact": "heldout.json", "metric": "citationCompleteness", "operator": ">=", "threshold": 0.98, "core": true},
+    {"id": "performance.profile", "artifact": "performance.json", "metric": "targetProfileFrozen", "operator": "==", "threshold": true, "core": true},
+    {"id": "performance.measured", "artifact": "performance.json", "metric": "measured", "operator": "==", "threshold": true, "core": true},
+    {"id": "performance.latency", "artifact": "performance.json", "metric": "p95LatencyMs", "operator": "<=metric", "thresholdMetric": "maxP95LatencyMs", "core": false}
+  ]
+}
