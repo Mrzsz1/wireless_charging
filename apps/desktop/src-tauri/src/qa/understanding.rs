@@ -276,13 +276,14 @@ impl ConversationResolver for HybridConversationResolver<'_> {
                 routing_confidence: deterministic.routing_confidence,
                 escalated: true,
             },
-            Err(_) => {
+            Err(error) => {
                 let mut outcome = deterministic;
                 outcome.resolver_used = "hybrid-conversation-v1".to_string();
                 outcome.resolver_status = "failed_fallback".to_string();
                 outcome.resolver_latency_ms = elapsed_ms(started);
                 outcome.fallback = true;
-                outcome.fallback_reason = "provider_error".to_string();
+                outcome.fallback_reason =
+                    super::provider_capabilities::stable_provider_failure_kind(&error).to_string();
                 outcome.escalated = true;
                 outcome
             }
@@ -911,7 +912,38 @@ mod tests {
         let result = resolve_and_route(&input, Some(&mut planner));
         assert!(result.diagnostics.resolver_fallback);
         assert_eq!(result.diagnostics.resolver_status, "failed_fallback");
+        assert_eq!(result.diagnostics.resolver_fallback_reason, "unavailable");
         assert_eq!(result.routed.query.intent, ResearchIntent::LiteratureSearch);
+    }
+
+    #[test]
+    fn provider_failure_matrix_preserves_stable_fallback_reasons() {
+        let history = vec![turn("u1", "user", "讨论 CCSP 并发充电")];
+        let input = UnderstandingPlanningInput::new(
+            "它有哪些相关论文？",
+            &history,
+            Vec::new(),
+            vec![EntityCandidate {
+                value: "CCSP".to_string(),
+                source_message_id: "u1".to_string(),
+            }],
+        );
+        for (error, expected) in [
+            ("PROVIDER_TIMEOUT: endpoint detail", "timeout"),
+            ("UNDERSTANDING_INVALID: bad JSON", "invalid_response"),
+            ("LUNA_HTTP_ERROR: HTTP 429", "rate_limit"),
+            ("LLM_BUDGET_EXCEEDED: call budget", "budget"),
+        ] {
+            let mut planner = |_input: &UnderstandingPlanningInput| Err(error.to_string());
+            let result = resolve_and_route(&input, Some(&mut planner));
+            assert!(result.diagnostics.resolver_fallback, "{error}");
+            assert_eq!(result.diagnostics.resolver_status, "failed_fallback");
+            assert_eq!(result.diagnostics.resolver_fallback_reason, expected);
+            assert!(!result
+                .diagnostics
+                .resolver_fallback_reason
+                .contains("detail"));
+        }
     }
 
     #[test]

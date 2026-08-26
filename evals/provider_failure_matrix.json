@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "qa-provider-failure-matrix-v1",
+  "datasetRole": "development_regression",
+  "providers": [
+    {
+      "id": "codex-subscription",
+      "capabilities": {
+        "structuredOutput": true,
+        "planning": true,
+        "generation": true,
+        "semanticVerification": true
+      }
+    },
+    {
+      "id": "compatible-api",
+      "capabilities": {
+        "structuredOutput": true,
+        "planning": true,
+        "generation": true,
+        "semanticVerification": true
+      }
+    },
+    {
+      "id": "offline-evidence",
+      "capabilities": {
+        "structuredOutput": false,
+        "planning": false,
+        "generation": false,
+        "semanticVerification": false
+      }
+    }
+  ],
+  "failures": [
+    {"error": "PROVIDER_TIMEOUT: fixture", "expectedKind": "timeout"},
+    {"error": "UNDERSTANDING_INVALID: invalid JSON", "expectedKind": "invalid_response"},
+    {"error": "LUNA_HTTP_ERROR: HTTP 429", "expectedKind": "rate_limit"},
+    {"error": "LLM_BUDGET_EXCEEDED: call budget", "expectedKind": "budget"},
+    {"error": "PROVIDER_UNAVAILABLE: fixture", "expectedKind": "unavailable"},
+    {"error": "QUESTION_CANCELLED: fixture", "expectedKind": "cancelled"}
+  ]
+}

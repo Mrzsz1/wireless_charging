@@ -673,6 +673,9 @@ fn run_retrieval_with_reranker(
         let graph_started = Instant::now();
         let graph = super::graph::graph_candidates(connection, root, &terms, cancelled).and_then(
             |result| {
+                if !result.fallback_reason.is_empty() {
+                    return Err(format!("GRAPHIFY_UNAVAILABLE: {}", result.fallback_reason));
+                }
                 let graph_document_ids = result
                     .candidates
                     .into_iter()
@@ -841,6 +844,7 @@ mod tests {
     use super::*;
     use crate::qa::corpus;
     use std::sync::atomic::AtomicBool;
+    use tempfile::tempdir;
 
     struct FailingReranker;
 
@@ -943,6 +947,26 @@ mod tests {
             outcome.stop_reason.as_str(),
             "no_novel_candidates" | "max_rounds" | "all_requested_surfaces_attempted"
         ));
+    }
+
+    #[test]
+    fn unavailable_graphify_channel_is_explicitly_degraded() {
+        let root = tempdir().unwrap();
+        let connection = Connection::open_in_memory().unwrap();
+        corpus::db_schema(&connection).unwrap();
+        let outcome = run_retrieval(
+            &connection,
+            root.path(),
+            "wireless charging",
+            &RetrievalContract::fallback("wireless charging"),
+            None,
+        )
+        .unwrap();
+        assert!(outcome.attempts.iter().any(|attempt| {
+            attempt.name == "graph-mapped"
+                && attempt.status == "degraded"
+                && attempt.error_kind == "graphify_unavailable"
+        }));
     }
 
     #[test]

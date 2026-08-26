@@ -32,12 +32,12 @@
 
 ## Phase D — Adversarial, Failure, Stress and Metadata
 
-- [ ] 增加 prompt-injection/untrusted-evidence contract 与 regression。
-- [ ] 补齐 planner/embedding/reranker/verifier/graph/DB failure injection。
-- [ ] 增加 20/50/100 轮 ResearchSessionState stress 和 provider matrix tests。
-- [ ] 增加统一 eval metadata envelope、canonical dataset/runtime hashes 与安全字段校验。
-- [ ] 增加 deterministic PR CI 与 real-model RC workflow。
-- [ ] 本地提交：`test(qa): harden production failure paths`。
+- [x] 增加 prompt-injection/untrusted-evidence contract 与 regression。
+- [x] 补齐 planner/embedding/reranker/verifier/graph/DB failure injection。
+- [x] 增加 20/50/100 轮 ResearchSessionState stress 和 provider matrix tests。
+- [x] 增加统一 eval metadata envelope、canonical dataset/runtime hashes 与安全字段校验。
+- [x] 增加 deterministic PR CI 与 real-model RC workflow。
+- [x] 本地提交：`test(qa): harden production failure paths`。
 
 ## Phase E — Held-out Harness, Release Gate and Report
 

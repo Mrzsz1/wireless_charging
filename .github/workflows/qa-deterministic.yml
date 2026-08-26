@@ -1,0 +1,55 @@
+name: QA deterministic gate
+
+on:
+  pull_request:
+    paths:
+      - "apps/desktop/**"
+      - "evals/**"
+      - "tools/**"
+      - "tests/**"
+      - ".github/workflows/qa-*.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qa-deterministic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/desktop/package-lock.json
+      - name: Python metadata contracts
+        run: python -m unittest tests.test_qa_eval_metadata -v
+      - name: Rust formatting
+        working-directory: apps/desktop/src-tauri
+        run: cargo fmt --all -- --check
+      - name: Rust QA contracts
+        working-directory: apps/desktop/src-tauri
+        run: cargo test --lib
+      - name: Rust lint
+        working-directory: apps/desktop/src-tauri
+        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Frontend type-check and QA regressions
+        working-directory: apps/desktop
+        shell: pwsh
+        run: |
+          npm ci
+          npx tsc --noEmit
+          npm run test:qa-settings
+          npm run test:qa-evidence

@@ -55,6 +55,7 @@ pub(super) struct GraphCandidateResult {
     pub candidates: Vec<Candidate>,
     pub scanned_nodes: usize,
     pub cancel_check_count: usize,
+    pub fallback_reason: String,
 }
 
 #[derive(Clone)]
@@ -368,8 +369,17 @@ pub(super) fn graph_candidates(
     terms: &[String],
     cancelled: Option<&AtomicBool>,
 ) -> Result<GraphCandidateResult, String> {
+    let graph_path = root.join("graphify-out/graph.json");
     let Some(index) = load_graph_index(root) else {
-        return Ok(GraphCandidateResult::default());
+        return Ok(GraphCandidateResult {
+            fallback_reason: if graph_path.is_file() {
+                "graphify_invalid_or_unreadable"
+            } else {
+                "graphify_missing"
+            }
+            .to_string(),
+            ..GraphCandidateResult::default()
+        });
     };
     let pages = indexed_pages(connection, root);
     let candidate_indices = candidate_node_indices(&index, &pages, terms);
@@ -465,4 +475,54 @@ pub(super) fn graph_candidates(
         .sort_by(|left, right| right.score.total_cmp(&left.score));
     result.candidates.truncate(5);
     Ok(result)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    fn pages_db() -> Connection {
+        let connection = Connection::open_in_memory().expect("in-memory database");
+        connection
+            .execute_batch(
+                "CREATE TABLE pages(
+                    id TEXT PRIMARY KEY,
+                    page_type TEXT,
+                    title TEXT,
+                    source_path TEXT
+                );",
+            )
+            .expect("pages schema");
+        connection
+    }
+
+    #[test]
+    fn missing_or_corrupt_graphify_artifact_degrades_to_empty_channel() {
+        for corrupt in [false, true] {
+            let root = tempdir().expect("root");
+            if corrupt {
+                let graph_dir = root.path().join("graphify-out");
+                fs::create_dir_all(&graph_dir).expect("graph directory");
+                fs::write(graph_dir.join("graph.json"), b"{not-json").expect("corrupt graph");
+            }
+            let result = graph_candidates(
+                &pages_db(),
+                root.path(),
+                &["wireless charging".to_string()],
+                None,
+            )
+            .expect("Graphify failure is a degraded channel, not a request failure");
+            assert!(result.candidates.is_empty());
+            assert_eq!(result.scanned_nodes, 0);
+            assert_eq!(
+                result.fallback_reason,
+                if corrupt {
+                    "graphify_invalid_or_unreadable"
+                } else {
+                    "graphify_missing"
+                }
+            );
+        }
+    }
 }

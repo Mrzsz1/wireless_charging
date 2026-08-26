@@ -52,6 +52,34 @@ pub fn provider_descriptor(provider: &str) -> ProviderDescriptor {
     }
 }
 
+/// Reduce provider failures to a bounded, payload-free telemetry value.
+///
+/// Provider messages may contain endpoint details or response bodies.  Callers
+/// must persist only this classification, never the original error string.
+pub fn stable_provider_failure_kind(error: &str) -> &'static str {
+    let upper = error.to_ascii_uppercase();
+    if upper.starts_with("QUESTION_CANCELLED") || upper.contains("_CANCELLED") {
+        "cancelled"
+    } else if upper.contains("BUDGET") {
+        "budget"
+    } else if upper.contains("RATE_LIMIT")
+        || upper.contains("RATE LIMIT")
+        || upper.contains("HTTP 429")
+    {
+        "rate_limit"
+    } else if upper.contains("TIMEOUT") || upper.contains("TIMED OUT") {
+        "timeout"
+    } else if upper.contains("INVALID")
+        || upper.contains("JSON")
+        || upper.contains("PROTOCOL")
+        || upper.contains("SCHEMA")
+    {
+        "invalid_response"
+    } else {
+        "unavailable"
+    }
+}
+
 pub trait PlanningProvider: Send + Sync {
     fn descriptor(&self) -> ProviderDescriptor;
     fn complete_structured(
@@ -162,5 +190,46 @@ mod tests {
         };
         let provider = planning_provider(&settings, "", "").expect("planning provider");
         assert_eq!(provider.descriptor().id, PROVIDER_API);
+    }
+
+    #[test]
+    fn frozen_provider_matrix_covers_capabilities_and_failure_telemetry() {
+        let fixture: Value = serde_json::from_str(include_str!(
+            "../../../../../evals/provider_failure_matrix.json"
+        ))
+        .expect("provider matrix fixture");
+        assert_eq!(fixture["schemaVersion"], "qa-provider-failure-matrix-v1");
+        let providers = fixture["providers"].as_array().expect("providers");
+        assert_eq!(providers.len(), 3);
+        for row in providers {
+            let descriptor = provider_descriptor(row["id"].as_str().expect("provider id"));
+            let expected = &row["capabilities"];
+            assert_eq!(
+                descriptor.capabilities.natural_generation,
+                expected["generation"].as_bool().expect("generation")
+            );
+            assert_eq!(
+                descriptor.capabilities.structured_output,
+                expected["structuredOutput"]
+                    .as_bool()
+                    .expect("structured output")
+            );
+            assert_eq!(
+                descriptor.capabilities.query_planning,
+                expected["planning"].as_bool().expect("planning")
+            );
+            assert_eq!(
+                descriptor.capabilities.semantic_verification,
+                expected["semanticVerification"]
+                    .as_bool()
+                    .expect("semantic verification")
+            );
+        }
+        for failure in fixture["failures"].as_array().expect("failures") {
+            assert_eq!(
+                stable_provider_failure_kind(failure["error"].as_str().expect("error")),
+                failure["expectedKind"].as_str().expect("expected kind")
+            );
+        }
     }
 }

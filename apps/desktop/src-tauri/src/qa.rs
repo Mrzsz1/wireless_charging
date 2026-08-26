@@ -2440,10 +2440,11 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
                     planner_used = true;
                     retrieval_query.planner_status = "succeeded".to_string();
                 }
-                Err(_) => {
+                Err(error) => {
                     retrieval_query.planner_status = "failed_fallback".to_string();
                     retrieval_query.planner_fallback = true;
-                    retrieval_query.planner_fallback_reason = "provider_error".to_string();
+                    retrieval_query.planner_fallback_reason =
+                        provider_capabilities::stable_provider_failure_kind(&error).to_string();
                 }
             }
             retrieval_query.planner_latency_ms = planner_started
@@ -4199,10 +4200,7 @@ mod tests {
         item
     }
 
-    fn test_db() -> (tempfile::TempDir, Connection) {
-        let root = tempdir().unwrap();
-        fs::create_dir_all(root.path().join("graphify-out")).unwrap();
-        let connection = Connection::open_in_memory().unwrap();
+    fn initialize_test_db(connection: &Connection) {
         connection
             .execute_batch(
                 "CREATE TABLE pages(id TEXT PRIMARY KEY,page_type TEXT,title TEXT,year TEXT,body TEXT,source_path TEXT,modified_at TEXT);
@@ -4212,7 +4210,14 @@ mod tests {
                  CREATE VIRTUAL TABLE book_chapters_fts USING fts5(chapter_id UNINDEXED,title,body);",
             )
             .unwrap();
-        db_schema(&connection).unwrap();
+        db_schema(connection).unwrap();
+    }
+
+    fn test_db() -> (tempfile::TempDir, Connection) {
+        let root = tempdir().unwrap();
+        fs::create_dir_all(root.path().join("graphify-out")).unwrap();
+        let connection = Connection::open_in_memory().unwrap();
+        initialize_test_db(&connection);
         (root, connection)
     }
 
@@ -4854,9 +4859,10 @@ mod tests {
     }
 
     #[test]
-    fn query_planner_failure_is_auditable_and_falls_back() {
+    fn query_planner_timeout_is_auditable_and_falls_back() {
         let (root, connection) = test_db();
-        let mut planner = |_input: &QueryPlanningInput| Err("fixture planner failure".to_string());
+        let mut planner =
+            |_input: &QueryPlanningInput| Err("PROVIDER_TIMEOUT: secret endpoint".to_string());
         let context = prepare_question_with_history_budget_and_planner(
             &connection,
             root.path(),
@@ -4873,10 +4879,7 @@ mod tests {
         assert!(!context.retrieval_query.planner_used);
         assert_eq!(context.retrieval_query.planner_status, "failed_fallback");
         assert!(context.retrieval_query.planner_fallback);
-        assert_eq!(
-            context.retrieval_query.planner_fallback_reason,
-            "provider_error"
-        );
+        assert_eq!(context.retrieval_query.planner_fallback_reason, "timeout");
     }
 
     #[test]
@@ -5217,6 +5220,44 @@ mod tests {
                 .unwrap()
                 .is_empty()
         );
+    }
+
+    #[test]
+    fn locked_database_fails_without_partial_session_or_message_writes() {
+        let root = tempdir().unwrap();
+        fs::create_dir_all(root.path().join("graphify-out")).unwrap();
+        let database_path = root.path().join("qa-lock-fixture.sqlite");
+        let mut connection = Connection::open(&database_path).unwrap();
+        initialize_test_db(&connection);
+        connection.busy_timeout(Duration::from_millis(0)).unwrap();
+        let mut context =
+            prepare_question(&connection, root.path(), "unknown locked subject", 4).unwrap();
+        context.evidence.clear();
+
+        let locker = Connection::open(&database_path).unwrap();
+        locker.busy_timeout(Duration::from_millis(0)).unwrap();
+        locker.execute_batch("BEGIN EXCLUSIVE").unwrap();
+        let error = persist_exchange(
+            &mut connection,
+            root.path(),
+            Some("must-not-persist"),
+            &context,
+            normalize_unverified_answer("A model-only answer."),
+            PROVIDER_CODEX,
+            "fixture",
+        )
+        .unwrap_err();
+        assert!(error.to_ascii_lowercase().contains("locked"), "{error}");
+        locker.execute_batch("ROLLBACK").unwrap();
+
+        let sessions: i64 = connection
+            .query_row("SELECT COUNT(*) FROM chat_sessions", [], |row| row.get(0))
+            .unwrap();
+        let messages: i64 = connection
+            .query_row("SELECT COUNT(*) FROM chat_messages", [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(sessions, 0);
+        assert_eq!(messages, 0);
     }
 
     #[test]

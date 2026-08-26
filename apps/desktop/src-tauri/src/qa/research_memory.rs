@@ -225,4 +225,69 @@ mod tests {
         assert!(!state.hypotheses.is_empty());
         assert!(state.open_questions[0].contains("现在的方法和约束"));
     }
+
+    fn stress_history(message_count: usize) -> Vec<ConversationTurn> {
+        assert!(matches!(message_count, 20 | 50 | 100));
+        let user_count = message_count / 2;
+        let mut user_turns = (0..user_count)
+            .map(|index| {
+                format!(
+                    "无线传感器网络移动充电第 {index} 轮仍受电池容量约束，目标是最大化网络寿命。"
+                )
+            })
+            .collect::<Vec<_>>();
+        user_turns[user_count - 4] = "目标改为最小化死亡节点。".to_string();
+        user_turns[user_count - 3] = "方法改用 ALNS。".to_string();
+        user_turns[user_count - 2] = "约束改为时间窗约束和电池容量约束。".to_string();
+        user_turns[user_count - 1] = "去掉时间窗约束。".to_string();
+        user_turns
+            .into_iter()
+            .enumerate()
+            .flat_map(|(index, content)| {
+                [
+                    turn(index * 2, "user", &content),
+                    turn(index * 2 + 1, "assistant", "已按最新状态继续分析。"),
+                ]
+            })
+            .collect()
+    }
+
+    #[test]
+    fn twenty_fifty_and_one_hundred_message_stress_uses_only_latest_research_state() {
+        for message_count in [20, 50, 100] {
+            let history = stress_history(message_count);
+            assert_eq!(history.len(), message_count);
+            let state = derive(&history, "现在的目标、方法与约束是什么？");
+            assert_eq!(
+                state.active_problem, "wireless_sensor_network",
+                "{message_count}"
+            );
+            assert_eq!(
+                state.objectives,
+                vec!["minimize_dead_nodes"],
+                "{message_count}"
+            );
+            assert_eq!(
+                state.methods,
+                vec!["adaptive_large_neighborhood_search"],
+                "{message_count}"
+            );
+            assert!(
+                state.constraints.contains(&"battery_capacity".to_string()),
+                "{message_count}"
+            );
+            assert!(
+                !state.constraints.contains(&"time_windows".to_string()),
+                "{message_count}"
+            );
+            assert!(
+                !state
+                    .objectives
+                    .contains(&"maximize_network_lifetime".to_string()),
+                "{message_count}"
+            );
+            assert_eq!(state.source_message_ids.len(), message_count / 2);
+            assert_eq!(state.revision, message_count / 2);
+        }
+    }
 }

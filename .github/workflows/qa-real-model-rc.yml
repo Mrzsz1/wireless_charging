@@ -1,0 +1,59 @@
+name: QA real-model release candidate
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "20 18 * * 6"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qa-real-model-rc
+  cancel-in-progress: false
+
+jobs:
+  real-model-rc:
+    # This label identifies the controlled target machine.  Model and eval data
+    # stay on its non-system drive; ordinary PR jobs never provision a model.
+    runs-on: [self-hosted, windows, x64, qa-rc]
+    timeout-minutes: 120
+    env:
+      QA_RERANKER_MODEL_DIR: ${{ vars.QA_RERANKER_MODEL_DIR || 'E:\LunaWiki\models\reranker-bge-base' }}
+      QA_RC_DATA_DIR: ${{ vars.QA_RC_DATA_DIR || 'E:\LunaWiki\qa-rc' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/desktop/package-lock.json
+      - name: Enforce non-system model and data locations
+        shell: pwsh
+        run: |
+          $model = [IO.Path]::GetFullPath($env:QA_RERANKER_MODEL_DIR)
+          $data = [IO.Path]::GetFullPath($env:QA_RC_DATA_DIR)
+          if ($model.StartsWith('C:\', [StringComparison]::OrdinalIgnoreCase)) { throw 'model directory must not use C:' }
+          if ($data.StartsWith('C:\', [StringComparison]::OrdinalIgnoreCase)) { throw 'evaluation data directory must not use C:' }
+          New-Item -ItemType Directory -Force -Path $model, $data | Out-Null
+      - name: Explicit provision, integrity verification, and real health probe
+        working-directory: apps/desktop/src-tauri
+        run: cargo test provisions_and_health_checks_the_real_production_reranker --lib -- --ignored --nocapture
+      - name: Real reranker RAG benchmark
+        working-directory: apps/desktop
+        shell: pwsh
+        run: |
+          npm ci
+          npm run eval:rag
+          Copy-Item -Recurse -Force ../../evals/reports "$env:QA_RC_DATA_DIR/reports-${{ github.sha }}"
+      - name: Upload bounded benchmark artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-real-model-rc-${{ github.sha }}
+          path: evals/reports/
+          if-no-files-found: error
+          retention-days: 30
