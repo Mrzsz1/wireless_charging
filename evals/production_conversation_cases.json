@@ -1,0 +1,2621 @@
+{
+  "schemaVersion": "qa-production-conversation-cases-v1",
+  "datasetRole": "production_conversation_evaluation",
+  "status": "frozen",
+  "version": "2026-08-26-conversation-v1",
+  "caseCount": 50,
+  "casesSha256": "b5fe8e50a1f5e7400838924e726afc4aab3ef0ca9d44697548277bc397f14226",
+  "canonicalValues": {
+    "multi_vehicle_coordination": [
+      "multi_vehicle_coordination"
+    ],
+    "deadlines": [
+      "deadlines"
+    ],
+    "minimize_dead_nodes": [
+      "minimize_dead_nodes"
+    ]
+  },
+  "cases": [
+    {
+      "id": "conv-rose-1",
+      "turns": [
+        {
+          "id": "rose-1-u1",
+          "role": "user",
+          "content": "先讨论 ROSE 方法。",
+          "requestId": "rose-1-r1"
+        },
+        {
+          "id": "rose-1-a1",
+          "role": "assistant",
+          "content": "当前方法是 ROSE。",
+          "requestId": "rose-1-r1"
+        },
+        {
+          "id": "rose-1-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 ROSE。",
+          "requestId": "rose-1-r2"
+        },
+        {
+          "id": "rose-1-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 ROSE。",
+          "requestId": "rose-1-r2"
+        },
+        {
+          "id": "rose-1-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "rose-1-r3"
+        },
+        {
+          "id": "rose-1-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "rose-1-r3"
+        }
+      ],
+      "question": "它在这个模型里还适合吗？",
+      "expectedReferences": [
+        "ROSE"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-rose-2",
+      "turns": [
+        {
+          "id": "rose-2-u1",
+          "role": "user",
+          "content": "先讨论 ROSE 方法。",
+          "requestId": "rose-2-r1"
+        },
+        {
+          "id": "rose-2-a1",
+          "role": "assistant",
+          "content": "当前方法是 ROSE。",
+          "requestId": "rose-2-r1"
+        },
+        {
+          "id": "rose-2-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 ROSE。",
+          "requestId": "rose-2-r2"
+        },
+        {
+          "id": "rose-2-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 ROSE。",
+          "requestId": "rose-2-r2"
+        },
+        {
+          "id": "rose-2-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "rose-2-r3"
+        },
+        {
+          "id": "rose-2-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "rose-2-r3"
+        }
+      ],
+      "question": "这个方法还能怎样改进？",
+      "expectedReferences": [
+        "ROSE"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-rose-3",
+      "turns": [
+        {
+          "id": "rose-3-u1",
+          "role": "user",
+          "content": "先讨论 ROSE 方法。",
+          "requestId": "rose-3-r1"
+        },
+        {
+          "id": "rose-3-a1",
+          "role": "assistant",
+          "content": "当前方法是 ROSE。",
+          "requestId": "rose-3-r1"
+        },
+        {
+          "id": "rose-3-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 ROSE。",
+          "requestId": "rose-3-r2"
+        },
+        {
+          "id": "rose-3-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 ROSE。",
+          "requestId": "rose-3-r2"
+        },
+        {
+          "id": "rose-3-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "rose-3-r3"
+        },
+        {
+          "id": "rose-3-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "rose-3-r3"
+        }
+      ],
+      "question": "它和另一个方案如何比较？",
+      "expectedReferences": [
+        "ROSE"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-rose-4",
+      "turns": [
+        {
+          "id": "rose-4-u1",
+          "role": "user",
+          "content": "先讨论 ROSE 方法。",
+          "requestId": "rose-4-r1"
+        },
+        {
+          "id": "rose-4-a1",
+          "role": "assistant",
+          "content": "当前方法是 ROSE。",
+          "requestId": "rose-4-r1"
+        },
+        {
+          "id": "rose-4-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 ROSE。",
+          "requestId": "rose-4-r2"
+        },
+        {
+          "id": "rose-4-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 ROSE。",
+          "requestId": "rose-4-r2"
+        },
+        {
+          "id": "rose-4-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "rose-4-r3"
+        },
+        {
+          "id": "rose-4-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "rose-4-r3"
+        }
+      ],
+      "question": "之前那个方法的限制是什么？",
+      "expectedReferences": [
+        "ROSE"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-rose-5",
+      "turns": [
+        {
+          "id": "rose-5-u1",
+          "role": "user",
+          "content": "先讨论 ROSE 方法。",
+          "requestId": "rose-5-r1"
+        },
+        {
+          "id": "rose-5-a1",
+          "role": "assistant",
+          "content": "当前方法是 ROSE。",
+          "requestId": "rose-5-r1"
+        },
+        {
+          "id": "rose-5-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 ROSE。",
+          "requestId": "rose-5-r2"
+        },
+        {
+          "id": "rose-5-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 ROSE。",
+          "requestId": "rose-5-r2"
+        },
+        {
+          "id": "rose-5-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "rose-5-r3"
+        },
+        {
+          "id": "rose-5-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "rose-5-r3"
+        }
+      ],
+      "question": "它有没有可迁移的解法？",
+      "expectedReferences": [
+        "ROSE"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-ccsp-1",
+      "turns": [
+        {
+          "id": "ccsp-1-u1",
+          "role": "user",
+          "content": "先讨论 CCSP 方法。",
+          "requestId": "ccsp-1-r1"
+        },
+        {
+          "id": "ccsp-1-a1",
+          "role": "assistant",
+          "content": "当前方法是 CCSP。",
+          "requestId": "ccsp-1-r1"
+        },
+        {
+          "id": "ccsp-1-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 CCSP。",
+          "requestId": "ccsp-1-r2"
+        },
+        {
+          "id": "ccsp-1-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 CCSP。",
+          "requestId": "ccsp-1-r2"
+        },
+        {
+          "id": "ccsp-1-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "ccsp-1-r3"
+        },
+        {
+          "id": "ccsp-1-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "ccsp-1-r3"
+        }
+      ],
+      "question": "它在这个模型里还适合吗？",
+      "expectedReferences": [
+        "CCSP"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-ccsp-2",
+      "turns": [
+        {
+          "id": "ccsp-2-u1",
+          "role": "user",
+          "content": "先讨论 CCSP 方法。",
+          "requestId": "ccsp-2-r1"
+        },
+        {
+          "id": "ccsp-2-a1",
+          "role": "assistant",
+          "content": "当前方法是 CCSP。",
+          "requestId": "ccsp-2-r1"
+        },
+        {
+          "id": "ccsp-2-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 CCSP。",
+          "requestId": "ccsp-2-r2"
+        },
+        {
+          "id": "ccsp-2-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 CCSP。",
+          "requestId": "ccsp-2-r2"
+        },
+        {
+          "id": "ccsp-2-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "ccsp-2-r3"
+        },
+        {
+          "id": "ccsp-2-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "ccsp-2-r3"
+        }
+      ],
+      "question": "这个方法还能怎样改进？",
+      "expectedReferences": [
+        "CCSP"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-ccsp-3",
+      "turns": [
+        {
+          "id": "ccsp-3-u1",
+          "role": "user",
+          "content": "先讨论 CCSP 方法。",
+          "requestId": "ccsp-3-r1"
+        },
+        {
+          "id": "ccsp-3-a1",
+          "role": "assistant",
+          "content": "当前方法是 CCSP。",
+          "requestId": "ccsp-3-r1"
+        },
+        {
+          "id": "ccsp-3-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 CCSP。",
+          "requestId": "ccsp-3-r2"
+        },
+        {
+          "id": "ccsp-3-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 CCSP。",
+          "requestId": "ccsp-3-r2"
+        },
+        {
+          "id": "ccsp-3-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "ccsp-3-r3"
+        },
+        {
+          "id": "ccsp-3-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "ccsp-3-r3"
+        }
+      ],
+      "question": "它和另一个方案如何比较？",
+      "expectedReferences": [
+        "CCSP"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-ccsp-4",
+      "turns": [
+        {
+          "id": "ccsp-4-u1",
+          "role": "user",
+          "content": "先讨论 CCSP 方法。",
+          "requestId": "ccsp-4-r1"
+        },
+        {
+          "id": "ccsp-4-a1",
+          "role": "assistant",
+          "content": "当前方法是 CCSP。",
+          "requestId": "ccsp-4-r1"
+        },
+        {
+          "id": "ccsp-4-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 CCSP。",
+          "requestId": "ccsp-4-r2"
+        },
+        {
+          "id": "ccsp-4-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 CCSP。",
+          "requestId": "ccsp-4-r2"
+        },
+        {
+          "id": "ccsp-4-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "ccsp-4-r3"
+        },
+        {
+          "id": "ccsp-4-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "ccsp-4-r3"
+        }
+      ],
+      "question": "之前那个方法的限制是什么？",
+      "expectedReferences": [
+        "CCSP"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-ccsp-5",
+      "turns": [
+        {
+          "id": "ccsp-5-u1",
+          "role": "user",
+          "content": "先讨论 CCSP 方法。",
+          "requestId": "ccsp-5-r1"
+        },
+        {
+          "id": "ccsp-5-a1",
+          "role": "assistant",
+          "content": "当前方法是 CCSP。",
+          "requestId": "ccsp-5-r1"
+        },
+        {
+          "id": "ccsp-5-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 CCSP。",
+          "requestId": "ccsp-5-r2"
+        },
+        {
+          "id": "ccsp-5-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 CCSP。",
+          "requestId": "ccsp-5-r2"
+        },
+        {
+          "id": "ccsp-5-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "ccsp-5-r3"
+        },
+        {
+          "id": "ccsp-5-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "ccsp-5-r3"
+        }
+      ],
+      "question": "它有没有可迁移的解法？",
+      "expectedReferences": [
+        "CCSP"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-gain-1",
+      "turns": [
+        {
+          "id": "gain-1-u1",
+          "role": "user",
+          "content": "先讨论 GAIN 方法。",
+          "requestId": "gain-1-r1"
+        },
+        {
+          "id": "gain-1-a1",
+          "role": "assistant",
+          "content": "当前方法是 GAIN。",
+          "requestId": "gain-1-r1"
+        },
+        {
+          "id": "gain-1-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 GAIN。",
+          "requestId": "gain-1-r2"
+        },
+        {
+          "id": "gain-1-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 GAIN。",
+          "requestId": "gain-1-r2"
+        },
+        {
+          "id": "gain-1-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "gain-1-r3"
+        },
+        {
+          "id": "gain-1-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "gain-1-r3"
+        }
+      ],
+      "question": "它在这个模型里还适合吗？",
+      "expectedReferences": [
+        "GAIN"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-gain-2",
+      "turns": [
+        {
+          "id": "gain-2-u1",
+          "role": "user",
+          "content": "先讨论 GAIN 方法。",
+          "requestId": "gain-2-r1"
+        },
+        {
+          "id": "gain-2-a1",
+          "role": "assistant",
+          "content": "当前方法是 GAIN。",
+          "requestId": "gain-2-r1"
+        },
+        {
+          "id": "gain-2-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 GAIN。",
+          "requestId": "gain-2-r2"
+        },
+        {
+          "id": "gain-2-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 GAIN。",
+          "requestId": "gain-2-r2"
+        },
+        {
+          "id": "gain-2-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "gain-2-r3"
+        },
+        {
+          "id": "gain-2-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "gain-2-r3"
+        }
+      ],
+      "question": "这个方法还能怎样改进？",
+      "expectedReferences": [
+        "GAIN"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-gain-3",
+      "turns": [
+        {
+          "id": "gain-3-u1",
+          "role": "user",
+          "content": "先讨论 GAIN 方法。",
+          "requestId": "gain-3-r1"
+        },
+        {
+          "id": "gain-3-a1",
+          "role": "assistant",
+          "content": "当前方法是 GAIN。",
+          "requestId": "gain-3-r1"
+        },
+        {
+          "id": "gain-3-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 GAIN。",
+          "requestId": "gain-3-r2"
+        },
+        {
+          "id": "gain-3-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 GAIN。",
+          "requestId": "gain-3-r2"
+        },
+        {
+          "id": "gain-3-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "gain-3-r3"
+        },
+        {
+          "id": "gain-3-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "gain-3-r3"
+        }
+      ],
+      "question": "它和另一个方案如何比较？",
+      "expectedReferences": [
+        "GAIN"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-gain-4",
+      "turns": [
+        {
+          "id": "gain-4-u1",
+          "role": "user",
+          "content": "先讨论 GAIN 方法。",
+          "requestId": "gain-4-r1"
+        },
+        {
+          "id": "gain-4-a1",
+          "role": "assistant",
+          "content": "当前方法是 GAIN。",
+          "requestId": "gain-4-r1"
+        },
+        {
+          "id": "gain-4-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 GAIN。",
+          "requestId": "gain-4-r2"
+        },
+        {
+          "id": "gain-4-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 GAIN。",
+          "requestId": "gain-4-r2"
+        },
+        {
+          "id": "gain-4-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "gain-4-r3"
+        },
+        {
+          "id": "gain-4-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "gain-4-r3"
+        }
+      ],
+      "question": "之前那个方法的限制是什么？",
+      "expectedReferences": [
+        "GAIN"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-gain-5",
+      "turns": [
+        {
+          "id": "gain-5-u1",
+          "role": "user",
+          "content": "先讨论 GAIN 方法。",
+          "requestId": "gain-5-r1"
+        },
+        {
+          "id": "gain-5-a1",
+          "role": "assistant",
+          "content": "当前方法是 GAIN。",
+          "requestId": "gain-5-r1"
+        },
+        {
+          "id": "gain-5-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 GAIN。",
+          "requestId": "gain-5-r2"
+        },
+        {
+          "id": "gain-5-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 GAIN。",
+          "requestId": "gain-5-r2"
+        },
+        {
+          "id": "gain-5-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "gain-5-r3"
+        },
+        {
+          "id": "gain-5-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "gain-5-r3"
+        }
+      ],
+      "question": "它有没有可迁移的解法？",
+      "expectedReferences": [
+        "GAIN"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-tide-1",
+      "turns": [
+        {
+          "id": "tide-1-u1",
+          "role": "user",
+          "content": "先讨论 TIDE 方法。",
+          "requestId": "tide-1-r1"
+        },
+        {
+          "id": "tide-1-a1",
+          "role": "assistant",
+          "content": "当前方法是 TIDE。",
+          "requestId": "tide-1-r1"
+        },
+        {
+          "id": "tide-1-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 TIDE。",
+          "requestId": "tide-1-r2"
+        },
+        {
+          "id": "tide-1-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 TIDE。",
+          "requestId": "tide-1-r2"
+        },
+        {
+          "id": "tide-1-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "tide-1-r3"
+        },
+        {
+          "id": "tide-1-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "tide-1-r3"
+        }
+      ],
+      "question": "它在这个模型里还适合吗？",
+      "expectedReferences": [
+        "TIDE"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-tide-2",
+      "turns": [
+        {
+          "id": "tide-2-u1",
+          "role": "user",
+          "content": "先讨论 TIDE 方法。",
+          "requestId": "tide-2-r1"
+        },
+        {
+          "id": "tide-2-a1",
+          "role": "assistant",
+          "content": "当前方法是 TIDE。",
+          "requestId": "tide-2-r1"
+        },
+        {
+          "id": "tide-2-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 TIDE。",
+          "requestId": "tide-2-r2"
+        },
+        {
+          "id": "tide-2-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 TIDE。",
+          "requestId": "tide-2-r2"
+        },
+        {
+          "id": "tide-2-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "tide-2-r3"
+        },
+        {
+          "id": "tide-2-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "tide-2-r3"
+        }
+      ],
+      "question": "这个方法还能怎样改进？",
+      "expectedReferences": [
+        "TIDE"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-tide-3",
+      "turns": [
+        {
+          "id": "tide-3-u1",
+          "role": "user",
+          "content": "先讨论 TIDE 方法。",
+          "requestId": "tide-3-r1"
+        },
+        {
+          "id": "tide-3-a1",
+          "role": "assistant",
+          "content": "当前方法是 TIDE。",
+          "requestId": "tide-3-r1"
+        },
+        {
+          "id": "tide-3-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 TIDE。",
+          "requestId": "tide-3-r2"
+        },
+        {
+          "id": "tide-3-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 TIDE。",
+          "requestId": "tide-3-r2"
+        },
+        {
+          "id": "tide-3-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "tide-3-r3"
+        },
+        {
+          "id": "tide-3-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "tide-3-r3"
+        }
+      ],
+      "question": "它和另一个方案如何比较？",
+      "expectedReferences": [
+        "TIDE"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-tide-4",
+      "turns": [
+        {
+          "id": "tide-4-u1",
+          "role": "user",
+          "content": "先讨论 TIDE 方法。",
+          "requestId": "tide-4-r1"
+        },
+        {
+          "id": "tide-4-a1",
+          "role": "assistant",
+          "content": "当前方法是 TIDE。",
+          "requestId": "tide-4-r1"
+        },
+        {
+          "id": "tide-4-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 TIDE。",
+          "requestId": "tide-4-r2"
+        },
+        {
+          "id": "tide-4-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 TIDE。",
+          "requestId": "tide-4-r2"
+        },
+        {
+          "id": "tide-4-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "tide-4-r3"
+        },
+        {
+          "id": "tide-4-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "tide-4-r3"
+        }
+      ],
+      "question": "之前那个方法的限制是什么？",
+      "expectedReferences": [
+        "TIDE"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-tide-5",
+      "turns": [
+        {
+          "id": "tide-5-u1",
+          "role": "user",
+          "content": "先讨论 TIDE 方法。",
+          "requestId": "tide-5-r1"
+        },
+        {
+          "id": "tide-5-a1",
+          "role": "assistant",
+          "content": "当前方法是 TIDE。",
+          "requestId": "tide-5-r1"
+        },
+        {
+          "id": "tide-5-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 TIDE。",
+          "requestId": "tide-5-r2"
+        },
+        {
+          "id": "tide-5-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 TIDE。",
+          "requestId": "tide-5-r2"
+        },
+        {
+          "id": "tide-5-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "tide-5-r3"
+        },
+        {
+          "id": "tide-5-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "tide-5-r3"
+        }
+      ],
+      "question": "它有没有可迁移的解法？",
+      "expectedReferences": [
+        "TIDE"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-wanda-1",
+      "turns": [
+        {
+          "id": "wanda-1-u1",
+          "role": "user",
+          "content": "先讨论 WANDA 方法。",
+          "requestId": "wanda-1-r1"
+        },
+        {
+          "id": "wanda-1-a1",
+          "role": "assistant",
+          "content": "当前方法是 WANDA。",
+          "requestId": "wanda-1-r1"
+        },
+        {
+          "id": "wanda-1-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 WANDA。",
+          "requestId": "wanda-1-r2"
+        },
+        {
+          "id": "wanda-1-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 WANDA。",
+          "requestId": "wanda-1-r2"
+        },
+        {
+          "id": "wanda-1-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "wanda-1-r3"
+        },
+        {
+          "id": "wanda-1-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "wanda-1-r3"
+        }
+      ],
+      "question": "它在这个模型里还适合吗？",
+      "expectedReferences": [
+        "WANDA"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-wanda-2",
+      "turns": [
+        {
+          "id": "wanda-2-u1",
+          "role": "user",
+          "content": "先讨论 WANDA 方法。",
+          "requestId": "wanda-2-r1"
+        },
+        {
+          "id": "wanda-2-a1",
+          "role": "assistant",
+          "content": "当前方法是 WANDA。",
+          "requestId": "wanda-2-r1"
+        },
+        {
+          "id": "wanda-2-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 WANDA。",
+          "requestId": "wanda-2-r2"
+        },
+        {
+          "id": "wanda-2-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 WANDA。",
+          "requestId": "wanda-2-r2"
+        },
+        {
+          "id": "wanda-2-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "wanda-2-r3"
+        },
+        {
+          "id": "wanda-2-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "wanda-2-r3"
+        }
+      ],
+      "question": "这个方法还能怎样改进？",
+      "expectedReferences": [
+        "WANDA"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-wanda-3",
+      "turns": [
+        {
+          "id": "wanda-3-u1",
+          "role": "user",
+          "content": "先讨论 WANDA 方法。",
+          "requestId": "wanda-3-r1"
+        },
+        {
+          "id": "wanda-3-a1",
+          "role": "assistant",
+          "content": "当前方法是 WANDA。",
+          "requestId": "wanda-3-r1"
+        },
+        {
+          "id": "wanda-3-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 WANDA。",
+          "requestId": "wanda-3-r2"
+        },
+        {
+          "id": "wanda-3-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 WANDA。",
+          "requestId": "wanda-3-r2"
+        },
+        {
+          "id": "wanda-3-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "wanda-3-r3"
+        },
+        {
+          "id": "wanda-3-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "wanda-3-r3"
+        }
+      ],
+      "question": "它和另一个方案如何比较？",
+      "expectedReferences": [
+        "WANDA"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-wanda-4",
+      "turns": [
+        {
+          "id": "wanda-4-u1",
+          "role": "user",
+          "content": "先讨论 WANDA 方法。",
+          "requestId": "wanda-4-r1"
+        },
+        {
+          "id": "wanda-4-a1",
+          "role": "assistant",
+          "content": "当前方法是 WANDA。",
+          "requestId": "wanda-4-r1"
+        },
+        {
+          "id": "wanda-4-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 WANDA。",
+          "requestId": "wanda-4-r2"
+        },
+        {
+          "id": "wanda-4-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 WANDA。",
+          "requestId": "wanda-4-r2"
+        },
+        {
+          "id": "wanda-4-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "wanda-4-r3"
+        },
+        {
+          "id": "wanda-4-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "wanda-4-r3"
+        }
+      ],
+      "question": "之前那个方法的限制是什么？",
+      "expectedReferences": [
+        "WANDA"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-wanda-5",
+      "turns": [
+        {
+          "id": "wanda-5-u1",
+          "role": "user",
+          "content": "先讨论 WANDA 方法。",
+          "requestId": "wanda-5-r1"
+        },
+        {
+          "id": "wanda-5-a1",
+          "role": "assistant",
+          "content": "当前方法是 WANDA。",
+          "requestId": "wanda-5-r1"
+        },
+        {
+          "id": "wanda-5-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 WANDA。",
+          "requestId": "wanda-5-r2"
+        },
+        {
+          "id": "wanda-5-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 WANDA。",
+          "requestId": "wanda-5-r2"
+        },
+        {
+          "id": "wanda-5-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "wanda-5-r3"
+        },
+        {
+          "id": "wanda-5-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "wanda-5-r3"
+        }
+      ],
+      "question": "它有没有可迁移的解法？",
+      "expectedReferences": [
+        "WANDA"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-hipo-1",
+      "turns": [
+        {
+          "id": "hipo-1-u1",
+          "role": "user",
+          "content": "先讨论 HIPO 方法。",
+          "requestId": "hipo-1-r1"
+        },
+        {
+          "id": "hipo-1-a1",
+          "role": "assistant",
+          "content": "当前方法是 HIPO。",
+          "requestId": "hipo-1-r1"
+        },
+        {
+          "id": "hipo-1-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 HIPO。",
+          "requestId": "hipo-1-r2"
+        },
+        {
+          "id": "hipo-1-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 HIPO。",
+          "requestId": "hipo-1-r2"
+        },
+        {
+          "id": "hipo-1-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "hipo-1-r3"
+        },
+        {
+          "id": "hipo-1-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "hipo-1-r3"
+        }
+      ],
+      "question": "它在这个模型里还适合吗？",
+      "expectedReferences": [
+        "HIPO"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-hipo-2",
+      "turns": [
+        {
+          "id": "hipo-2-u1",
+          "role": "user",
+          "content": "先讨论 HIPO 方法。",
+          "requestId": "hipo-2-r1"
+        },
+        {
+          "id": "hipo-2-a1",
+          "role": "assistant",
+          "content": "当前方法是 HIPO。",
+          "requestId": "hipo-2-r1"
+        },
+        {
+          "id": "hipo-2-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 HIPO。",
+          "requestId": "hipo-2-r2"
+        },
+        {
+          "id": "hipo-2-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 HIPO。",
+          "requestId": "hipo-2-r2"
+        },
+        {
+          "id": "hipo-2-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "hipo-2-r3"
+        },
+        {
+          "id": "hipo-2-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "hipo-2-r3"
+        }
+      ],
+      "question": "这个方法还能怎样改进？",
+      "expectedReferences": [
+        "HIPO"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-hipo-3",
+      "turns": [
+        {
+          "id": "hipo-3-u1",
+          "role": "user",
+          "content": "先讨论 HIPO 方法。",
+          "requestId": "hipo-3-r1"
+        },
+        {
+          "id": "hipo-3-a1",
+          "role": "assistant",
+          "content": "当前方法是 HIPO。",
+          "requestId": "hipo-3-r1"
+        },
+        {
+          "id": "hipo-3-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 HIPO。",
+          "requestId": "hipo-3-r2"
+        },
+        {
+          "id": "hipo-3-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 HIPO。",
+          "requestId": "hipo-3-r2"
+        },
+        {
+          "id": "hipo-3-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "hipo-3-r3"
+        },
+        {
+          "id": "hipo-3-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "hipo-3-r3"
+        }
+      ],
+      "question": "它和另一个方案如何比较？",
+      "expectedReferences": [
+        "HIPO"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-hipo-4",
+      "turns": [
+        {
+          "id": "hipo-4-u1",
+          "role": "user",
+          "content": "先讨论 HIPO 方法。",
+          "requestId": "hipo-4-r1"
+        },
+        {
+          "id": "hipo-4-a1",
+          "role": "assistant",
+          "content": "当前方法是 HIPO。",
+          "requestId": "hipo-4-r1"
+        },
+        {
+          "id": "hipo-4-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 HIPO。",
+          "requestId": "hipo-4-r2"
+        },
+        {
+          "id": "hipo-4-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 HIPO。",
+          "requestId": "hipo-4-r2"
+        },
+        {
+          "id": "hipo-4-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "hipo-4-r3"
+        },
+        {
+          "id": "hipo-4-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "hipo-4-r3"
+        }
+      ],
+      "question": "之前那个方法的限制是什么？",
+      "expectedReferences": [
+        "HIPO"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-hipo-5",
+      "turns": [
+        {
+          "id": "hipo-5-u1",
+          "role": "user",
+          "content": "先讨论 HIPO 方法。",
+          "requestId": "hipo-5-r1"
+        },
+        {
+          "id": "hipo-5-a1",
+          "role": "assistant",
+          "content": "当前方法是 HIPO。",
+          "requestId": "hipo-5-r1"
+        },
+        {
+          "id": "hipo-5-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 HIPO。",
+          "requestId": "hipo-5-r2"
+        },
+        {
+          "id": "hipo-5-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 HIPO。",
+          "requestId": "hipo-5-r2"
+        },
+        {
+          "id": "hipo-5-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "hipo-5-r3"
+        },
+        {
+          "id": "hipo-5-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "hipo-5-r3"
+        }
+      ],
+      "question": "它有没有可迁移的解法？",
+      "expectedReferences": [
+        "HIPO"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-ra-dmcs-1",
+      "turns": [
+        {
+          "id": "ra-dmcs-1-u1",
+          "role": "user",
+          "content": "先讨论 RA-DMCS 方法。",
+          "requestId": "ra-dmcs-1-r1"
+        },
+        {
+          "id": "ra-dmcs-1-a1",
+          "role": "assistant",
+          "content": "当前方法是 RA-DMCS。",
+          "requestId": "ra-dmcs-1-r1"
+        },
+        {
+          "id": "ra-dmcs-1-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 RA-DMCS。",
+          "requestId": "ra-dmcs-1-r2"
+        },
+        {
+          "id": "ra-dmcs-1-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 RA-DMCS。",
+          "requestId": "ra-dmcs-1-r2"
+        },
+        {
+          "id": "ra-dmcs-1-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "ra-dmcs-1-r3"
+        },
+        {
+          "id": "ra-dmcs-1-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "ra-dmcs-1-r3"
+        }
+      ],
+      "question": "它在这个模型里还适合吗？",
+      "expectedReferences": [
+        "RA-DMCS"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-ra-dmcs-2",
+      "turns": [
+        {
+          "id": "ra-dmcs-2-u1",
+          "role": "user",
+          "content": "先讨论 RA-DMCS 方法。",
+          "requestId": "ra-dmcs-2-r1"
+        },
+        {
+          "id": "ra-dmcs-2-a1",
+          "role": "assistant",
+          "content": "当前方法是 RA-DMCS。",
+          "requestId": "ra-dmcs-2-r1"
+        },
+        {
+          "id": "ra-dmcs-2-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 RA-DMCS。",
+          "requestId": "ra-dmcs-2-r2"
+        },
+        {
+          "id": "ra-dmcs-2-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 RA-DMCS。",
+          "requestId": "ra-dmcs-2-r2"
+        },
+        {
+          "id": "ra-dmcs-2-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "ra-dmcs-2-r3"
+        },
+        {
+          "id": "ra-dmcs-2-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "ra-dmcs-2-r3"
+        }
+      ],
+      "question": "这个方法还能怎样改进？",
+      "expectedReferences": [
+        "RA-DMCS"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-ra-dmcs-3",
+      "turns": [
+        {
+          "id": "ra-dmcs-3-u1",
+          "role": "user",
+          "content": "先讨论 RA-DMCS 方法。",
+          "requestId": "ra-dmcs-3-r1"
+        },
+        {
+          "id": "ra-dmcs-3-a1",
+          "role": "assistant",
+          "content": "当前方法是 RA-DMCS。",
+          "requestId": "ra-dmcs-3-r1"
+        },
+        {
+          "id": "ra-dmcs-3-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 RA-DMCS。",
+          "requestId": "ra-dmcs-3-r2"
+        },
+        {
+          "id": "ra-dmcs-3-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 RA-DMCS。",
+          "requestId": "ra-dmcs-3-r2"
+        },
+        {
+          "id": "ra-dmcs-3-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "ra-dmcs-3-r3"
+        },
+        {
+          "id": "ra-dmcs-3-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "ra-dmcs-3-r3"
+        }
+      ],
+      "question": "它和另一个方案如何比较？",
+      "expectedReferences": [
+        "RA-DMCS"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-ra-dmcs-4",
+      "turns": [
+        {
+          "id": "ra-dmcs-4-u1",
+          "role": "user",
+          "content": "先讨论 RA-DMCS 方法。",
+          "requestId": "ra-dmcs-4-r1"
+        },
+        {
+          "id": "ra-dmcs-4-a1",
+          "role": "assistant",
+          "content": "当前方法是 RA-DMCS。",
+          "requestId": "ra-dmcs-4-r1"
+        },
+        {
+          "id": "ra-dmcs-4-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 RA-DMCS。",
+          "requestId": "ra-dmcs-4-r2"
+        },
+        {
+          "id": "ra-dmcs-4-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 RA-DMCS。",
+          "requestId": "ra-dmcs-4-r2"
+        },
+        {
+          "id": "ra-dmcs-4-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "ra-dmcs-4-r3"
+        },
+        {
+          "id": "ra-dmcs-4-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "ra-dmcs-4-r3"
+        }
+      ],
+      "question": "之前那个方法的限制是什么？",
+      "expectedReferences": [
+        "RA-DMCS"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-ra-dmcs-5",
+      "turns": [
+        {
+          "id": "ra-dmcs-5-u1",
+          "role": "user",
+          "content": "先讨论 RA-DMCS 方法。",
+          "requestId": "ra-dmcs-5-r1"
+        },
+        {
+          "id": "ra-dmcs-5-a1",
+          "role": "assistant",
+          "content": "当前方法是 RA-DMCS。",
+          "requestId": "ra-dmcs-5-r1"
+        },
+        {
+          "id": "ra-dmcs-5-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 RA-DMCS。",
+          "requestId": "ra-dmcs-5-r2"
+        },
+        {
+          "id": "ra-dmcs-5-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 RA-DMCS。",
+          "requestId": "ra-dmcs-5-r2"
+        },
+        {
+          "id": "ra-dmcs-5-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "ra-dmcs-5-r3"
+        },
+        {
+          "id": "ra-dmcs-5-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "ra-dmcs-5-r3"
+        }
+      ],
+      "question": "它有没有可迁移的解法？",
+      "expectedReferences": [
+        "RA-DMCS"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-felkh-3d-1",
+      "turns": [
+        {
+          "id": "felkh-3d-1-u1",
+          "role": "user",
+          "content": "先讨论 FELKH-3D 方法。",
+          "requestId": "felkh-3d-1-r1"
+        },
+        {
+          "id": "felkh-3d-1-a1",
+          "role": "assistant",
+          "content": "当前方法是 FELKH-3D。",
+          "requestId": "felkh-3d-1-r1"
+        },
+        {
+          "id": "felkh-3d-1-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 FELKH-3D。",
+          "requestId": "felkh-3d-1-r2"
+        },
+        {
+          "id": "felkh-3d-1-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 FELKH-3D。",
+          "requestId": "felkh-3d-1-r2"
+        },
+        {
+          "id": "felkh-3d-1-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "felkh-3d-1-r3"
+        },
+        {
+          "id": "felkh-3d-1-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "felkh-3d-1-r3"
+        }
+      ],
+      "question": "它在这个模型里还适合吗？",
+      "expectedReferences": [
+        "FELKH-3D"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-felkh-3d-2",
+      "turns": [
+        {
+          "id": "felkh-3d-2-u1",
+          "role": "user",
+          "content": "先讨论 FELKH-3D 方法。",
+          "requestId": "felkh-3d-2-r1"
+        },
+        {
+          "id": "felkh-3d-2-a1",
+          "role": "assistant",
+          "content": "当前方法是 FELKH-3D。",
+          "requestId": "felkh-3d-2-r1"
+        },
+        {
+          "id": "felkh-3d-2-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 FELKH-3D。",
+          "requestId": "felkh-3d-2-r2"
+        },
+        {
+          "id": "felkh-3d-2-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 FELKH-3D。",
+          "requestId": "felkh-3d-2-r2"
+        },
+        {
+          "id": "felkh-3d-2-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "felkh-3d-2-r3"
+        },
+        {
+          "id": "felkh-3d-2-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "felkh-3d-2-r3"
+        }
+      ],
+      "question": "这个方法还能怎样改进？",
+      "expectedReferences": [
+        "FELKH-3D"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-felkh-3d-3",
+      "turns": [
+        {
+          "id": "felkh-3d-3-u1",
+          "role": "user",
+          "content": "先讨论 FELKH-3D 方法。",
+          "requestId": "felkh-3d-3-r1"
+        },
+        {
+          "id": "felkh-3d-3-a1",
+          "role": "assistant",
+          "content": "当前方法是 FELKH-3D。",
+          "requestId": "felkh-3d-3-r1"
+        },
+        {
+          "id": "felkh-3d-3-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 FELKH-3D。",
+          "requestId": "felkh-3d-3-r2"
+        },
+        {
+          "id": "felkh-3d-3-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 FELKH-3D。",
+          "requestId": "felkh-3d-3-r2"
+        },
+        {
+          "id": "felkh-3d-3-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "felkh-3d-3-r3"
+        },
+        {
+          "id": "felkh-3d-3-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "felkh-3d-3-r3"
+        }
+      ],
+      "question": "它和另一个方案如何比较？",
+      "expectedReferences": [
+        "FELKH-3D"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-felkh-3d-4",
+      "turns": [
+        {
+          "id": "felkh-3d-4-u1",
+          "role": "user",
+          "content": "先讨论 FELKH-3D 方法。",
+          "requestId": "felkh-3d-4-r1"
+        },
+        {
+          "id": "felkh-3d-4-a1",
+          "role": "assistant",
+          "content": "当前方法是 FELKH-3D。",
+          "requestId": "felkh-3d-4-r1"
+        },
+        {
+          "id": "felkh-3d-4-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 FELKH-3D。",
+          "requestId": "felkh-3d-4-r2"
+        },
+        {
+          "id": "felkh-3d-4-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 FELKH-3D。",
+          "requestId": "felkh-3d-4-r2"
+        },
+        {
+          "id": "felkh-3d-4-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "felkh-3d-4-r3"
+        },
+        {
+          "id": "felkh-3d-4-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "felkh-3d-4-r3"
+        }
+      ],
+      "question": "之前那个方法的限制是什么？",
+      "expectedReferences": [
+        "FELKH-3D"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-felkh-3d-5",
+      "turns": [
+        {
+          "id": "felkh-3d-5-u1",
+          "role": "user",
+          "content": "先讨论 FELKH-3D 方法。",
+          "requestId": "felkh-3d-5-r1"
+        },
+        {
+          "id": "felkh-3d-5-a1",
+          "role": "assistant",
+          "content": "当前方法是 FELKH-3D。",
+          "requestId": "felkh-3d-5-r1"
+        },
+        {
+          "id": "felkh-3d-5-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 FELKH-3D。",
+          "requestId": "felkh-3d-5-r2"
+        },
+        {
+          "id": "felkh-3d-5-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 FELKH-3D。",
+          "requestId": "felkh-3d-5-r2"
+        },
+        {
+          "id": "felkh-3d-5-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "felkh-3d-5-r3"
+        },
+        {
+          "id": "felkh-3d-5-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "felkh-3d-5-r3"
+        }
+      ],
+      "question": "它有没有可迁移的解法？",
+      "expectedReferences": [
+        "FELKH-3D"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-ihatrpo-1",
+      "turns": [
+        {
+          "id": "ihatrpo-1-u1",
+          "role": "user",
+          "content": "先讨论 IHATRPO 方法。",
+          "requestId": "ihatrpo-1-r1"
+        },
+        {
+          "id": "ihatrpo-1-a1",
+          "role": "assistant",
+          "content": "当前方法是 IHATRPO。",
+          "requestId": "ihatrpo-1-r1"
+        },
+        {
+          "id": "ihatrpo-1-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 IHATRPO。",
+          "requestId": "ihatrpo-1-r2"
+        },
+        {
+          "id": "ihatrpo-1-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 IHATRPO。",
+          "requestId": "ihatrpo-1-r2"
+        },
+        {
+          "id": "ihatrpo-1-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "ihatrpo-1-r3"
+        },
+        {
+          "id": "ihatrpo-1-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "ihatrpo-1-r3"
+        }
+      ],
+      "question": "它在这个模型里还适合吗？",
+      "expectedReferences": [
+        "IHATRPO"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-ihatrpo-2",
+      "turns": [
+        {
+          "id": "ihatrpo-2-u1",
+          "role": "user",
+          "content": "先讨论 IHATRPO 方法。",
+          "requestId": "ihatrpo-2-r1"
+        },
+        {
+          "id": "ihatrpo-2-a1",
+          "role": "assistant",
+          "content": "当前方法是 IHATRPO。",
+          "requestId": "ihatrpo-2-r1"
+        },
+        {
+          "id": "ihatrpo-2-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 IHATRPO。",
+          "requestId": "ihatrpo-2-r2"
+        },
+        {
+          "id": "ihatrpo-2-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 IHATRPO。",
+          "requestId": "ihatrpo-2-r2"
+        },
+        {
+          "id": "ihatrpo-2-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "ihatrpo-2-r3"
+        },
+        {
+          "id": "ihatrpo-2-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "ihatrpo-2-r3"
+        }
+      ],
+      "question": "这个方法还能怎样改进？",
+      "expectedReferences": [
+        "IHATRPO"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-ihatrpo-3",
+      "turns": [
+        {
+          "id": "ihatrpo-3-u1",
+          "role": "user",
+          "content": "先讨论 IHATRPO 方法。",
+          "requestId": "ihatrpo-3-r1"
+        },
+        {
+          "id": "ihatrpo-3-a1",
+          "role": "assistant",
+          "content": "当前方法是 IHATRPO。",
+          "requestId": "ihatrpo-3-r1"
+        },
+        {
+          "id": "ihatrpo-3-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 IHATRPO。",
+          "requestId": "ihatrpo-3-r2"
+        },
+        {
+          "id": "ihatrpo-3-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 IHATRPO。",
+          "requestId": "ihatrpo-3-r2"
+        },
+        {
+          "id": "ihatrpo-3-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "ihatrpo-3-r3"
+        },
+        {
+          "id": "ihatrpo-3-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "ihatrpo-3-r3"
+        }
+      ],
+      "question": "它和另一个方案如何比较？",
+      "expectedReferences": [
+        "IHATRPO"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-ihatrpo-4",
+      "turns": [
+        {
+          "id": "ihatrpo-4-u1",
+          "role": "user",
+          "content": "先讨论 IHATRPO 方法。",
+          "requestId": "ihatrpo-4-r1"
+        },
+        {
+          "id": "ihatrpo-4-a1",
+          "role": "assistant",
+          "content": "当前方法是 IHATRPO。",
+          "requestId": "ihatrpo-4-r1"
+        },
+        {
+          "id": "ihatrpo-4-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 IHATRPO。",
+          "requestId": "ihatrpo-4-r2"
+        },
+        {
+          "id": "ihatrpo-4-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 IHATRPO。",
+          "requestId": "ihatrpo-4-r2"
+        },
+        {
+          "id": "ihatrpo-4-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "ihatrpo-4-r3"
+        },
+        {
+          "id": "ihatrpo-4-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "ihatrpo-4-r3"
+        }
+      ],
+      "question": "之前那个方法的限制是什么？",
+      "expectedReferences": [
+        "IHATRPO"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-ihatrpo-5",
+      "turns": [
+        {
+          "id": "ihatrpo-5-u1",
+          "role": "user",
+          "content": "先讨论 IHATRPO 方法。",
+          "requestId": "ihatrpo-5-r1"
+        },
+        {
+          "id": "ihatrpo-5-a1",
+          "role": "assistant",
+          "content": "当前方法是 IHATRPO。",
+          "requestId": "ihatrpo-5-r1"
+        },
+        {
+          "id": "ihatrpo-5-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 IHATRPO。",
+          "requestId": "ihatrpo-5-r2"
+        },
+        {
+          "id": "ihatrpo-5-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 IHATRPO。",
+          "requestId": "ihatrpo-5-r2"
+        },
+        {
+          "id": "ihatrpo-5-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "ihatrpo-5-r3"
+        },
+        {
+          "id": "ihatrpo-5-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "ihatrpo-5-r3"
+        }
+      ],
+      "question": "它有没有可迁移的解法？",
+      "expectedReferences": [
+        "IHATRPO"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-diccs-1",
+      "turns": [
+        {
+          "id": "diccs-1-u1",
+          "role": "user",
+          "content": "先讨论 DICCS 方法。",
+          "requestId": "diccs-1-r1"
+        },
+        {
+          "id": "diccs-1-a1",
+          "role": "assistant",
+          "content": "当前方法是 DICCS。",
+          "requestId": "diccs-1-r1"
+        },
+        {
+          "id": "diccs-1-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 DICCS。",
+          "requestId": "diccs-1-r2"
+        },
+        {
+          "id": "diccs-1-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 DICCS。",
+          "requestId": "diccs-1-r2"
+        },
+        {
+          "id": "diccs-1-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "diccs-1-r3"
+        },
+        {
+          "id": "diccs-1-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "diccs-1-r3"
+        }
+      ],
+      "question": "它在这个模型里还适合吗？",
+      "expectedReferences": [
+        "DICCS"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-diccs-2",
+      "turns": [
+        {
+          "id": "diccs-2-u1",
+          "role": "user",
+          "content": "先讨论 DICCS 方法。",
+          "requestId": "diccs-2-r1"
+        },
+        {
+          "id": "diccs-2-a1",
+          "role": "assistant",
+          "content": "当前方法是 DICCS。",
+          "requestId": "diccs-2-r1"
+        },
+        {
+          "id": "diccs-2-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 DICCS。",
+          "requestId": "diccs-2-r2"
+        },
+        {
+          "id": "diccs-2-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 DICCS。",
+          "requestId": "diccs-2-r2"
+        },
+        {
+          "id": "diccs-2-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "diccs-2-r3"
+        },
+        {
+          "id": "diccs-2-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "diccs-2-r3"
+        }
+      ],
+      "question": "这个方法还能怎样改进？",
+      "expectedReferences": [
+        "DICCS"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-diccs-3",
+      "turns": [
+        {
+          "id": "diccs-3-u1",
+          "role": "user",
+          "content": "先讨论 DICCS 方法。",
+          "requestId": "diccs-3-r1"
+        },
+        {
+          "id": "diccs-3-a1",
+          "role": "assistant",
+          "content": "当前方法是 DICCS。",
+          "requestId": "diccs-3-r1"
+        },
+        {
+          "id": "diccs-3-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 DICCS。",
+          "requestId": "diccs-3-r2"
+        },
+        {
+          "id": "diccs-3-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 DICCS。",
+          "requestId": "diccs-3-r2"
+        },
+        {
+          "id": "diccs-3-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "diccs-3-r3"
+        },
+        {
+          "id": "diccs-3-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "diccs-3-r3"
+        }
+      ],
+      "question": "它和另一个方案如何比较？",
+      "expectedReferences": [
+        "DICCS"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-diccs-4",
+      "turns": [
+        {
+          "id": "diccs-4-u1",
+          "role": "user",
+          "content": "先讨论 DICCS 方法。",
+          "requestId": "diccs-4-r1"
+        },
+        {
+          "id": "diccs-4-a1",
+          "role": "assistant",
+          "content": "当前方法是 DICCS。",
+          "requestId": "diccs-4-r1"
+        },
+        {
+          "id": "diccs-4-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 DICCS。",
+          "requestId": "diccs-4-r2"
+        },
+        {
+          "id": "diccs-4-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 DICCS。",
+          "requestId": "diccs-4-r2"
+        },
+        {
+          "id": "diccs-4-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "diccs-4-r3"
+        },
+        {
+          "id": "diccs-4-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "diccs-4-r3"
+        }
+      ],
+      "question": "之前那个方法的限制是什么？",
+      "expectedReferences": [
+        "DICCS"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    },
+    {
+      "id": "conv-diccs-5",
+      "turns": [
+        {
+          "id": "diccs-5-u1",
+          "role": "user",
+          "content": "先讨论 DICCS 方法。",
+          "requestId": "diccs-5-r1"
+        },
+        {
+          "id": "diccs-5-a1",
+          "role": "assistant",
+          "content": "当前方法是 DICCS。",
+          "requestId": "diccs-5-r1"
+        },
+        {
+          "id": "diccs-5-u2",
+          "role": "user",
+          "content": "无线传感器网络使用多个移动充电车和节点 deadline，方法仍用 DICCS。",
+          "requestId": "diccs-5-r2"
+        },
+        {
+          "id": "diccs-5-a2",
+          "role": "assistant",
+          "content": "已记录多个充电车、deadline 与 DICCS。",
+          "requestId": "diccs-5-r2"
+        },
+        {
+          "id": "diccs-5-u3",
+          "role": "user",
+          "content": "目标改成最小化死亡节点。",
+          "requestId": "diccs-5-r3"
+        },
+        {
+          "id": "diccs-5-a3",
+          "role": "assistant",
+          "content": "已将当前目标更新为最小化死亡节点。",
+          "requestId": "diccs-5-r3"
+        }
+      ],
+      "question": "它有没有可迁移的解法？",
+      "expectedReferences": [
+        "DICCS"
+      ],
+      "expectedConstraints": [
+        "multi_vehicle_coordination",
+        "deadlines"
+      ],
+      "expectedObjectives": [
+        "minimize_dead_nodes"
+      ]
+    }
+  ]
+}

@@ -90,17 +90,31 @@ def collect(
     metadata: dict[str, Any],
     artifacts: list[tuple[str, Path]],
 ) -> list[Path]:
+    metric_artifacts: dict[str, dict[str, Any]] = {}
+    for name, source in artifacts:
+        payload = _load_json(source)
+        metrics = payload.get("metrics", payload)
+        if not isinstance(metrics, dict):
+            raise CollectionError(f"{source}: metrics must be an object")
+        metric_artifacts[name] = metrics
+    return collect_metrics(run_dir, metadata, metric_artifacts)
+
+
+def collect_metrics(
+    run_dir: Path,
+    metadata: dict[str, Any],
+    artifacts: dict[str, dict[str, Any]],
+) -> list[Path]:
     validate_metadata_envelope(metadata)
+    unknown = set(artifacts) - ALLOWED_ARTIFACTS
+    if unknown:
+        raise CollectionError(f"unsupported artifacts: {sorted(unknown)}")
     if run_dir.exists() and any(run_dir.iterdir()):
         raise CollectionError(f"run directory must be new or empty: {run_dir}")
     run_dir.mkdir(parents=True, exist_ok=True)
     written: list[Path] = []
     try:
-        for name, source in artifacts:
-            payload = _load_json(source)
-            metrics = payload.get("metrics", payload)
-            if not isinstance(metrics, dict):
-                raise CollectionError(f"{source}: metrics must be an object")
+        for name, metrics in artifacts.items():
             _validate_safe_metrics(metrics)
             destination = run_dir / f"{name}.json"
             _atomic_json(destination, {"metadata": metadata, "metrics": metrics})

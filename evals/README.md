@@ -272,3 +272,26 @@ py -3 tools/check_qa_release_gate.py --artifacts evals/runs/<run-id> --report QA
 完整合格工件输出 `PASS`。默认不启用 `CONDITIONAL PASS`，事实可靠性、Grounding、真实模型
 与独立 held-out 等核心门禁在任何情况下都不得条件通过。PR CI 仅跑确定性 contract；真实模型
 Release Candidate gate 通过手动或定时 workflow 运行。
+
+### 统一 Production Eval Harness
+
+`tools/qa_production_eval.py` 是单一生产评测入口。默认顺序运行真实 RAG、50-case
+Conversation evaluator、真实 Semantic Verifier benchmark 和 reliability contracts，再在
+`evals/releases/<git-sha>/` 原子生成 manifest、retrieval/conversation/reliability/reranker/
+semantic/performance 工件、release gate 和报告：
+
+```powershell
+cd apps/desktop
+npm run eval:production
+```
+
+已单独完成昂贵模型运行时，可复用同一工作树中的 latest machine reports：
+
+```powershell
+py -3 tools/qa_production_eval.py --use-existing --allow-fail
+```
+
+Conversation 数据集使用 canonical constraint/objective ID，不做自然语言全文 exact match。
+当前 50/50 case 的 reference resolution、constraint preservation、objective preservation 均为
+1.000。外部 held-out 和 sealed performance profile 缺失时，harness 仍写出可审计工件并保持
+最终 FAIL，不手填通过值。

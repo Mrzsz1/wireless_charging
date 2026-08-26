@@ -4523,6 +4523,15 @@ pub fn run_semantic_benchmark_files(
     Ok(report.real_provider_measured)
 }
 
+pub fn run_conversation_benchmark_files(cases_path: &Path, output: &Path) -> Result<bool, String> {
+    let suite = qa::conversation_benchmark::load_suite(cases_path)?;
+    let report = qa::conversation_benchmark::evaluate(&suite)?;
+    qa::conversation_benchmark::write_report(&report, output)?;
+    Ok(report.reference_resolution >= 0.95
+        && report.constraint_preservation >= 0.97
+        && report.objective_preservation >= 0.97)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()

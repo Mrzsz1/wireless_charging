@@ -22,6 +22,13 @@ assert COLLECT_SPEC and COLLECT_SPEC.loader
 collector = importlib.util.module_from_spec(COLLECT_SPEC)
 sys.modules[COLLECT_SPEC.name] = collector
 COLLECT_SPEC.loader.exec_module(collector)
+PRODUCTION_SPEC = importlib.util.spec_from_file_location(
+    "qa_production_eval", ROOT / "tools" / "qa_production_eval.py"
+)
+assert PRODUCTION_SPEC and PRODUCTION_SPEC.loader
+production = importlib.util.module_from_spec(PRODUCTION_SPEC)
+sys.modules[PRODUCTION_SPEC.name] = production
+PRODUCTION_SPEC.loader.exec_module(production)
 
 
 METADATA = {
@@ -134,6 +141,47 @@ class QaReleaseGateTests(unittest.TestCase):
             unsafe.write_text(json.dumps({"prompt": "raw prompt"}), encoding="utf-8")
             with self.assertRaises(collector.CollectionError):
                 collector.collect(root / "unsafe-run", METADATA, [("grounding", unsafe)])
+
+    def test_production_harness_derives_metrics_from_machine_reports(self) -> None:
+        metrics = production.artifact_metrics(
+            {
+                "aggregate": {
+                    "documentRecallAt20": 1.0,
+                    "documentRecallAt10": 0.96,
+                    "documentMrr": 0.962,
+                    "passageMrr": 0.90,
+                    "ndcgAt10": 0.851,
+                    "rerankerFallbackRate": 0.0,
+                    "averageRerankerLatencyMs": 1200.0,
+                },
+                "cases": [
+                    {
+                        "rerankerVersion": "cross-encoder-research-v1",
+                        "rerankerStatus": "succeeded",
+                    }
+                ],
+            },
+            {
+                "schemaVersion": "qa-production-conversation-report-v1",
+                "referenceResolution": 1.0,
+                "constraintPreservation": 0.99,
+                "objectivePreservation": 0.98,
+                "caseCount": 50,
+            },
+            {
+                "schemaVersion": "qa-semantic-verifier-report-v1",
+                "realProviderMeasured": True,
+                "invalidVerifiedStateCount": 0,
+                "accuracy": 0.82,
+                "contradictionRecall": 1.0,
+                "unknownPrecision": 1.0,
+                "fallbackRate": 0.0,
+            },
+        )
+        self.assertEqual(metrics["retrieval"]["mrr"], 0.962)
+        self.assertTrue(metrics["reranker"]["realModelMeasured"])
+        self.assertTrue(metrics["semantic_verifier"]["realProviderMeasured"])
+        self.assertFalse(metrics["performance"]["targetProfileFrozen"])
 
 
 if __name__ == "__main__":

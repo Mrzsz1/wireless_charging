@@ -19,11 +19,11 @@
 
 ## Phase C — Unified Production Eval Harness
 
-- [ ] 实现 `qa-production-eval` orchestrator 和同一 Git SHA 输出目录。
-- [ ] 实现 canonical conversation evaluator 与三项指标工件。
-- [ ] 自动收集 retrieval/reranker/semantic/performance，不允许人工填数。
-- [ ] 接入 release gate/report，验证缺失外部输入时诚实 FAIL。
-- [ ] 本地提交：`feat(qa): generate production evaluation artifacts`。
+- [x] 实现 `qa-production-eval` orchestrator 和同一 Git SHA 输出目录。
+- [x] 实现 canonical 50-case conversation evaluator 与三项指标工件。
+- [x] 自动收集 retrieval/reliability/reranker/semantic/performance，不允许人工填数。
+- [x] 接入 release gate/report，验证缺失外部输入时诚实 FAIL（15/30 PASS）。
+- [x] 本地提交：`feat(qa): generate production evaluation artifacts`。
 
 ## Phase D — Independent Held-out Tooling
 

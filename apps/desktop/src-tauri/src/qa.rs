@@ -1,6 +1,7 @@
 mod adaptive_routing;
 mod claim_verification;
 mod context;
+pub(crate) mod conversation_benchmark;
 pub(crate) mod corpus;
 mod coverage;
 pub(crate) mod evaluation;
