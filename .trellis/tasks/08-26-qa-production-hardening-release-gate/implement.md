@@ -50,13 +50,13 @@
 
 ## Phase F — Full Integration and Final Audit
 
-- [ ] `cargo fmt --check`。
-- [ ] 全量 Rust tests + clippy `-D warnings`。
-- [ ] frontend typecheck/tests/build、P3、RAG、360 questions、Wiki/core-book gates。
-- [ ] atomic/semantic/reranker/held-out/release-gate 全部专项验证。
-- [ ] 生成当前 commit 对应的生产 release report；缺失外部生产证据时保持 FAIL 并列出原因。
-- [ ] 更新 `.trellis/spec/backend/qa-contract.md`、eval baselines 和任务验收清单，不降低阈值。
-- [ ] 本地提交：`docs(qa): record production release decision`。
+- [x] `cargo fmt --check`。
+- [x] 全量 Rust tests + clippy `-D warnings`。
+- [x] frontend typecheck/tests/build、P3、RAG、360 questions、Wiki/core-book gates。
+- [x] atomic/semantic/reranker/held-out/release-gate 全部专项验证。
+- [x] 生成当前 commit 对应的生产 release report；缺失外部生产证据时保持 FAIL 并列出原因。
+- [x] 更新 `.trellis/spec/backend/qa-contract.md`、eval baselines 和任务验收清单，不降低阈值。
+- [x] 本地提交：`docs(qa): record production release decision`。
 
 ## Risky Files / Rollback Points
 

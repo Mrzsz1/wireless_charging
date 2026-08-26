@@ -75,18 +75,18 @@
 
 ## Acceptance Criteria
 
-- [ ] AC1：复合“建议+事实”不再因建议词而绕过 verification，50+ atomic cases 全部通过。
-- [ ] AC2：每个 AtomicClaim 只有一个主要 proposition，并保留准确 Evidence ID 映射。
-- [ ] AC3：语义 Provider 成功时真实记录 semantic checked/provider/model/confidence；heuristic fallback 保持 semantic checked=false。
-- [ ] AC4：semantic timeout/invalid/budget/unavailable 逐 Claim fail-soft，deterministic fallback 完成且状态不伪装。
-- [ ] AC5：Cross-Encoder 有显式 status/provision/repair/health，query-time 保持离线；真实模型 gate 能区分 enabled 与 fallback。
-- [ ] AC6：对抗 Grounding、知识 prompt injection、失败注入、Provider matrix、20/50/100 轮 stress regression 通过。
-- [ ] AC7：held-out evaluator 对不独立、少于 30、缺 run/review、reviewer 重复、缺 adjudication、checksum 篡改全部 fail closed。
-- [ ] AC8：release gate 在当前缺失独立 held-out/真实模型实测时给出诚实 FAIL 与具体原因；完整合格 fixture 可 PASS。
-- [ ] AC9：发布报告包含审阅要求的全部元数据、指标、fallback、限制和最终决策。
-- [ ] AC10：CI 分离 deterministic PR gate 与真实模型 RC gate。
-- [ ] AC11：全量 Rust fmt/test/clippy、frontend typecheck/tests/build、P3、RAG、question corpus、Wiki、held-out harness 与 release gate contract tests全部通过。
-- [ ] AC12：每阶段独立本地 Git commit；不包含用户已有未跟踪文件；未再次请求前不 push。
+- [x] AC1：复合“建议+事实”不再因建议词而绕过 verification，50+ atomic cases 全部通过。
+- [x] AC2：每个 AtomicClaim 只有一个主要 proposition，并保留准确 Evidence ID 映射。
+- [x] AC3：语义 Provider 成功时真实记录 semantic checked/provider/model/confidence；heuristic fallback 保持 semantic checked=false。
+- [x] AC4：semantic timeout/invalid/budget/unavailable 逐 Claim fail-soft，deterministic fallback 完成且状态不伪装。
+- [x] AC5：Cross-Encoder 有显式 status/provision/repair/health，query-time 保持离线；真实模型 gate 能区分 enabled 与 fallback。
+- [x] AC6：对抗 Grounding、知识 prompt injection、失败注入、Provider matrix、20/50/100 轮 stress regression 通过。
+- [x] AC7：held-out evaluator 对不独立、少于 30、缺 run/review、reviewer 重复、缺 adjudication、checksum 篡改全部 fail closed。
+- [x] AC8：release gate 在当前缺失独立 held-out/真实模型实测时给出诚实 FAIL 与具体原因；完整合格 fixture 可 PASS。
+- [x] AC9：发布报告包含审阅要求的全部元数据、指标、fallback、限制和最终决策。
+- [x] AC10：CI 分离 deterministic PR gate 与真实模型 RC gate。
+- [x] AC11：全量 Rust fmt/test/clippy、frontend typecheck/tests/build、P3、RAG、question corpus、Wiki、held-out harness 与 release gate contract tests全部通过。
+- [x] AC12：每阶段独立本地 Git commit；不包含用户已有未跟踪文件；未再次请求前不 push。
 
 ## Out of Scope
 
