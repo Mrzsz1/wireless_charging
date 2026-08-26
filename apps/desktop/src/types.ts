@@ -653,11 +653,20 @@ export type QaRunManifest = {
   claimVerifierVersion?: string
   verificationStatus?: 'not_run' | 'succeeded' | 'unavailable' | string
   verificationFallback?: boolean
+  semanticVerificationChecked?: boolean
+  heuristicVerificationChecked?: boolean
+  verificationProvider?: string
+  verificationModel?: string
+  semanticVerificationStatus?: 'not_run' | 'not_requested' | 'succeeded' | 'unavailable' | string
+  semanticVerificationLatencyMs?: number
+  semanticVerificationFallbackReason?: string
   verifiedClaimCount?: number
   partiallySupportedClaimCount?: number
   contradictedClaimCount?: number
   notVerifiableClaimCount?: number
   notApplicableClaimCount?: number
+  unverifiedClaimCount?: number
+  unavailableClaimCount?: number
   repairedClaimCount?: number
   claimVerifications?: VerifiedClaim[]
   problemParserVersion?: string

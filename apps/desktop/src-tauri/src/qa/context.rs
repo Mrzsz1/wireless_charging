@@ -14,7 +14,7 @@ pub const ANSWER_SCHEMA_VERSION: &str = "qa-natural-markdown-v2";
 pub const LEGACY_ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v4";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v17";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v18";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -192,6 +192,20 @@ pub struct QaRunManifest {
     #[serde(default)]
     pub verification_fallback: bool,
     #[serde(default)]
+    pub semantic_verification_checked: bool,
+    #[serde(default)]
+    pub heuristic_verification_checked: bool,
+    #[serde(default)]
+    pub verification_provider: String,
+    #[serde(default)]
+    pub verification_model: String,
+    #[serde(default)]
+    pub semantic_verification_status: String,
+    #[serde(default)]
+    pub semantic_verification_latency_ms: u64,
+    #[serde(default)]
+    pub semantic_verification_fallback_reason: String,
+    #[serde(default)]
     pub verified_claim_count: usize,
     #[serde(default)]
     pub partially_supported_claim_count: usize,
@@ -201,6 +215,10 @@ pub struct QaRunManifest {
     pub not_verifiable_claim_count: usize,
     #[serde(default)]
     pub not_applicable_claim_count: usize,
+    #[serde(default)]
+    pub unverified_claim_count: usize,
+    #[serde(default)]
+    pub unavailable_claim_count: usize,
     #[serde(default)]
     pub repaired_claim_count: usize,
     #[serde(default)]
@@ -1275,11 +1293,20 @@ pub fn build_run_manifest(
         claim_verifier_version: String::new(),
         verification_status: "not_run".to_string(),
         verification_fallback: false,
+        semantic_verification_checked: false,
+        heuristic_verification_checked: false,
+        verification_provider: String::new(),
+        verification_model: String::new(),
+        semantic_verification_status: "not_run".to_string(),
+        semantic_verification_latency_ms: 0,
+        semantic_verification_fallback_reason: String::new(),
         verified_claim_count: 0,
         partially_supported_claim_count: 0,
         contradicted_claim_count: 0,
         not_verifiable_claim_count: 0,
         not_applicable_claim_count: 0,
+        unverified_claim_count: 0,
+        unavailable_claim_count: 0,
         repaired_claim_count: 0,
         claim_verifications: Vec::new(),
         problem_parser_version: context.retrieval_query.problem_parser_version.clone(),

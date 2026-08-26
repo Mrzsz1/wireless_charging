@@ -3424,6 +3424,10 @@ async fn ask_luna(
         context.retrieval_query.provider_capabilities = [
             (planning_capabilities.understanding, "understanding"),
             (planning_capabilities.query_planning, "query_planning"),
+            (
+                planning_capabilities.semantic_verification,
+                "semantic_verification",
+            ),
             (planning_capabilities.structured_output, "structured_output"),
             (
                 planning_capabilities.natural_generation,
@@ -3671,8 +3675,6 @@ async fn ask_luna(
         return Err("问答已取消".to_string());
     }
 
-    qa::record_llm_budget_usage(&mut context, budget_guard.usage());
-
     let (answer, provider, model, offline) = match generated {
         Ok((answer, provider, model)) => {
             let offline = provider == qa::PROVIDER_OFFLINE;
@@ -3726,6 +3728,49 @@ async fn ask_luna(
             return Err(error);
         }
     };
+
+    let semantic_verification = {
+        let verifier_settings = settings.clone();
+        let verifier_model = model.clone();
+        let verifier_effort = effective_codex_effort.clone();
+        let verifier_answer = answer.clone();
+        let verifier_evidence = context.evidence.clone();
+        let verifier_budget = budget_guard.clone();
+        let verifier_cancel = cancel_flag.clone();
+        match tauri::async_runtime::spawn_blocking(move || {
+            qa::run_semantic_verification(
+                &verifier_settings,
+                &verifier_model,
+                &verifier_effort,
+                &verifier_answer,
+                &verifier_evidence,
+                &verifier_budget,
+                &verifier_cancel,
+            )
+        })
+        .await
+        {
+            Ok(Ok(batch)) => batch,
+            Ok(Err(error))
+                if cancel_flag.load(Ordering::SeqCst)
+                    || error.starts_with("QUESTION_CANCELLED") =>
+            {
+                let _ = on_event.send(qa::AnswerStreamEvent::Cancelled {
+                    request_id: request_id.clone(),
+                });
+                finish_answer_request(&state, &request_id);
+                return Err("问答已取消".to_string());
+            }
+            Ok(Err(_)) | Err(_) => qa::SemanticVerificationBatch {
+                provider: provider.clone(),
+                model: model.clone(),
+                status: "unavailable".to_string(),
+                fallback_reason: "semantic_verifier_task_error".to_string(),
+                ..qa::SemanticVerificationBatch::default()
+            },
+        }
+    };
+    qa::record_llm_budget_usage(&mut context, budget_guard.usage());
 
     if !current_repository_matches(&state, &authoritative_repository_id) {
         finish_answer_request(&state, &request_id);
@@ -3796,14 +3841,20 @@ async fn ask_luna(
             enforce_answer_schema: !qa::natural_answer_v2_enabled()
                 && provider != qa::PROVIDER_OFFLINE,
         };
-        let audit = qa::audit_generated_answer(&context, &answer, &metadata);
-        let persisted = qa::persist_exchange_with_metadata(
+        let audit = qa::audit_generated_answer_with_semantic(
+            &context,
+            &answer,
+            &metadata,
+            Some(&semantic_verification),
+        );
+        let persisted = qa::persist_exchange_with_metadata_and_semantic(
             connection,
             &root,
             Some(&session_id),
             &context,
             answer,
             metadata,
+            Some(&semantic_verification),
         );
         (persisted, audit)
     };

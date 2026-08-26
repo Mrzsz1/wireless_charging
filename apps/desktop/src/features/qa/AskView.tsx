@@ -88,7 +88,9 @@ function verificationStatusLabel(status: string) {
     : status === 'partially_supported' ? '部分支持'
       : status === 'contradicted' ? '冲突'
         : status === 'not_verifiable' ? '不可核验'
-          : '不适用'
+          : status === 'unverified' ? '未验证'
+            : status === 'unavailable' ? '验证不可用'
+              : '不适用'
 }
 
 function MessageContent({ content, evidence, onCitation }: { content: string; evidence: EvidenceItem[]; onCitation: (item: EvidenceItem) => void }) {

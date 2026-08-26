@@ -28,6 +28,7 @@ pub(crate) mod vector_store;
 pub(crate) mod vector_sync;
 
 pub use adaptive_routing::{policy as routing_policy, LlmBudgetGuard, LlmBudgetUsage};
+pub use claim_verification::SemanticVerificationBatch;
 use claim_verification::VerificationStatus;
 pub use claim_verification::VerifiedClaim;
 pub use context::{
@@ -42,7 +43,7 @@ pub use metrics::RetrievalDiagnostics;
 use metrics::RetrievalDiagnosticsBuilder;
 #[cfg(test)]
 pub use metrics::{evaluate_retrieval_quality, RetrievalRankingObservation};
-pub use provider_capabilities::{planning_provider, provider_descriptor};
+pub use provider_capabilities::{planning_provider, provider_descriptor, PlanningProvider};
 pub use query_plan::{
     parse_query_plan, query_plan_prompt, query_plan_schema, QueryFacet, QueryPlan,
     QueryPlanningInput,
@@ -3359,7 +3360,21 @@ pub fn persist_exchange_with_metadata(
     answer: String,
     metadata: ProviderRunMetadata,
 ) -> Result<AskResult, String> {
-    let audit = audit_generated_answer(context, &answer, &metadata);
+    persist_exchange_with_metadata_and_semantic(
+        connection, root, session_id, context, answer, metadata, None,
+    )
+}
+
+pub fn persist_exchange_with_metadata_and_semantic(
+    connection: &mut Connection,
+    root: &Path,
+    session_id: Option<&str>,
+    context: &QuestionContext,
+    answer: String,
+    metadata: ProviderRunMetadata,
+    semantic: Option<&SemanticVerificationBatch>,
+) -> Result<AskResult, String> {
+    let audit = audit_generated_answer_with_semantic(context, &answer, &metadata, semantic);
     let AnswerAudit {
         answer,
         citation_validation,
@@ -3558,8 +3573,8 @@ fn apply_claim_verification(
     evidence: &[EvidenceItem],
     answer: &str,
 ) -> CitationValidation {
-    validation.entailment_checked = false;
-    validation.heuristic_verification_checked = report.verification_status == "succeeded";
+    validation.entailment_checked = report.semantic_verification_checked;
+    validation.heuristic_verification_checked = report.heuristic_verification_checked;
     if report.verification_status != "succeeded" {
         validation.supported = false;
         validation.grounding_status = "unverified".to_string();
@@ -3596,7 +3611,10 @@ fn apply_claim_verification(
         }
         if matches!(
             claim.verification_status,
-            VerificationStatus::Contradicted | VerificationStatus::NotVerifiable
+            VerificationStatus::Unverified
+                | VerificationStatus::Unavailable
+                | VerificationStatus::Contradicted
+                | VerificationStatus::NotVerifiable
         ) {
             unsupported_claims.push(compact(&claim.text, 180));
         }
@@ -3626,10 +3644,17 @@ fn apply_claim_verification(
     };
     validation.unsupported_claims = unsupported_claims;
     validation.syntax_valid = validation.unknown_ids.is_empty();
+    let invalid_verification_state = report.claims.iter().any(|claim| {
+        matches!(
+            claim.verification_status,
+            VerificationStatus::Unverified | VerificationStatus::Unavailable
+        )
+    });
     validation.coverage_valid = factual_claim_count > 0
         && cited_claim_count == factual_claim_count
         && report.contradicted_count == 0
-        && report.not_verifiable_count == 0;
+        && report.not_verifiable_count == 0
+        && !invalid_verification_state;
     validation.supported = validation.coverage_valid
         && report.partially_supported_count == 0
         && report.supported_count == factual_claim_count;
@@ -3654,6 +3679,15 @@ pub fn audit_generated_answer(
     answer: &str,
     metadata: &ProviderRunMetadata,
 ) -> AnswerAudit {
+    audit_generated_answer_with_semantic(context, answer, metadata, None)
+}
+
+pub fn audit_generated_answer_with_semantic(
+    context: &QuestionContext,
+    answer: &str,
+    metadata: &ProviderRunMetadata,
+    semantic: Option<&claim_verification::SemanticVerificationBatch>,
+) -> AnswerAudit {
     let structured = metadata.enforce_answer_schema
         && !context.evidence.is_empty()
         && metadata.provider != PROVIDER_OFFLINE;
@@ -3668,8 +3702,11 @@ pub fn audit_generated_answer(
             let verified_answer = if context.evidence.is_empty() {
                 canonical_answer
             } else {
-                let (repaired, report) =
-                    claim_verification::verify_and_repair(&canonical_answer, &context.evidence);
+                let (repaired, report) = claim_verification::verify_and_repair_with_semantic(
+                    &canonical_answer,
+                    &context.evidence,
+                    semantic,
+                );
                 verification_report = report;
                 repaired
             };
@@ -3707,8 +3744,11 @@ pub fn audit_generated_answer(
                 &context.evidence,
             ) {
                 Ok(result) => {
-                    let (repaired, report) =
-                        claim_verification::verify_and_repair(&result.markdown, &context.evidence);
+                    let (repaired, report) = claim_verification::verify_and_repair_with_semantic(
+                        &result.markdown,
+                        &context.evidence,
+                        semantic,
+                    );
                     verification_report = report;
                     let mut validation = if repaired == result.markdown {
                         result.validation
@@ -3747,8 +3787,11 @@ pub fn audit_generated_answer(
             let final_answer = if context.evidence.is_empty() {
                 canonical_answer
             } else {
-                let (repaired, report) =
-                    claim_verification::verify_and_repair(&canonical_answer, &context.evidence);
+                let (repaired, report) = claim_verification::verify_and_repair_with_semantic(
+                    &canonical_answer,
+                    &context.evidence,
+                    semantic,
+                );
                 verification_report = report;
                 if repaired != canonical_answer {
                     validation = validate_citations(&repaired, &context.evidence);
@@ -3794,11 +3837,22 @@ pub fn audit_generated_answer(
     run_manifest.claim_verifier_version = verification_report.verifier_version;
     run_manifest.verification_status = verification_report.verification_status;
     run_manifest.verification_fallback = verification_report.fallback;
+    run_manifest.semantic_verification_checked = verification_report.semantic_verification_checked;
+    run_manifest.heuristic_verification_checked =
+        verification_report.heuristic_verification_checked;
+    run_manifest.verification_provider = verification_report.semantic_provider;
+    run_manifest.verification_model = verification_report.semantic_model;
+    run_manifest.semantic_verification_status = verification_report.semantic_status;
+    run_manifest.semantic_verification_latency_ms = verification_report.semantic_latency_ms;
+    run_manifest.semantic_verification_fallback_reason =
+        verification_report.semantic_fallback_reason;
     run_manifest.verified_claim_count = verification_report.supported_count;
     run_manifest.partially_supported_claim_count = verification_report.partially_supported_count;
     run_manifest.contradicted_claim_count = verification_report.contradicted_count;
     run_manifest.not_verifiable_claim_count = verification_report.not_verifiable_count;
     run_manifest.not_applicable_claim_count = verification_report.not_applicable_count;
+    run_manifest.unverified_claim_count = verification_report.unverified_count;
+    run_manifest.unavailable_claim_count = verification_report.unavailable_count;
     run_manifest.repaired_claim_count = verification_report.repaired_count;
     run_manifest.claim_verifications = verification_report.claims;
     AnswerAudit {
@@ -3817,6 +3871,47 @@ pub fn record_llm_budget_usage(context: &mut QuestionContext, usage: LlmBudgetUs
     context.retrieval_query.routing_token_cost_reserved = usage.token_cost_reserved;
     context.retrieval_query.routing_budget_rejections = usage.rejections;
     context.retrieval_query.routing_llm_stages = usage.stages;
+}
+
+pub fn run_semantic_verification(
+    settings: &LunaSettings,
+    model: &str,
+    codex_reasoning_effort: &str,
+    answer: &str,
+    evidence: &[EvidenceItem],
+    budget_guard: &LlmBudgetGuard,
+    cancelled: &AtomicBool,
+) -> Result<SemanticVerificationBatch, String> {
+    let descriptor = provider_descriptor(&settings.answer_provider);
+    if !descriptor.capabilities.semantic_verification {
+        return Ok(SemanticVerificationBatch {
+            version: claim_verification::SEMANTIC_VERIFIER_VERSION.to_string(),
+            provider: descriptor.id,
+            model: model.to_string(),
+            status: "not_requested".to_string(),
+            fallback_reason: "provider_capability_unavailable".to_string(),
+            ..SemanticVerificationBatch::default()
+        });
+    }
+    let Some(provider) = planning_provider(settings, model, codex_reasoning_effort) else {
+        return Ok(SemanticVerificationBatch {
+            version: claim_verification::SEMANTIC_VERIFIER_VERSION.to_string(),
+            provider: descriptor.id,
+            model: model.to_string(),
+            status: "unavailable".to_string(),
+            fallback_reason: "provider_unavailable".to_string(),
+            ..SemanticVerificationBatch::default()
+        });
+    };
+    let adapter = claim_verification::StructuredVerificationProvider::new(provider.as_ref());
+    claim_verification::run_semantic_verification(
+        &adapter,
+        model,
+        answer,
+        evidence,
+        budget_guard,
+        cancelled,
+    )
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -5141,7 +5236,7 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v17");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v18");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.resolver_status, "succeeded");
@@ -5239,6 +5334,56 @@ mod tests {
         assert_eq!(audit.run_manifest.repaired_claim_count, 1);
         assert!(!audit.citation_validation.supported);
         assert!(!audit.answer.contains("made of cheese"));
+    }
+
+    #[test]
+    fn semantic_verification_is_projected_to_manifest_and_citation_validation() {
+        let (root, connection) = test_db();
+        let mut context =
+            prepare_question(&connection, root.path(), "fixture scheduling", 4).unwrap();
+        let mut source = evidence("E1");
+        source.snippet = "ROSE schedules a mobile charger with PSO.".to_string();
+        context.evidence = vec![source];
+        let metadata = ProviderRunMetadata {
+            provider: PROVIDER_API.to_string(),
+            model_requested: "fixture".to_string(),
+            model_resolved: "fixture".to_string(),
+            temperature: Some(0.1),
+            max_output_tokens: 1_800,
+            context_window_tokens: 32_768,
+            enforce_answer_schema: false,
+        };
+        let semantic = SemanticVerificationBatch {
+            version: claim_verification::SEMANTIC_VERIFIER_VERSION.to_string(),
+            provider: PROVIDER_API.to_string(),
+            model: "fixture-nli".to_string(),
+            status: "succeeded".to_string(),
+            latency_ms: 17,
+            results: vec![claim_verification::SemanticVerificationResult {
+                claim_id: "C1".to_string(),
+                status: claim_verification::SemanticEntailment::Entailed,
+                confidence: Some(0.97),
+                reason: Some("direct entailment".to_string()),
+            }],
+            ..SemanticVerificationBatch::default()
+        };
+        let audit = audit_generated_answer_with_semantic(
+            &context,
+            "ROSE schedules a mobile charger with PSO [E1].",
+            &metadata,
+            Some(&semantic),
+        );
+
+        assert!(audit.citation_validation.entailment_checked);
+        assert!(audit.citation_validation.heuristic_verification_checked);
+        assert!(audit.run_manifest.semantic_verification_checked);
+        assert_eq!(
+            audit.run_manifest.verification_provider,
+            PROVIDER_API.to_string()
+        );
+        assert_eq!(audit.run_manifest.verification_model, "fixture-nli");
+        assert_eq!(audit.run_manifest.semantic_verification_latency_ms, 17);
+        assert_eq!(audit.run_manifest.schema_version, "qa-run-v18");
     }
 
     #[test]

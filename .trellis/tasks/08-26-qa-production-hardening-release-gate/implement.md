@@ -11,12 +11,12 @@
 
 ## Phase B — Semantic VerificationProvider
 
-- [ ] 为 Provider capability 增加 semantic verification，共用 Codex/API structured transport。
-- [ ] 实现 batch prompt/schema/parser、SemanticEntailment、合并矩阵与逐 Claim fallback。
-- [ ] 将 verifier call 接入 request-scoped LlmBudgetGuard，消除持锁 Provider 调用与重复 audit 风险。
-- [ ] 增加 timeout/invalid JSON/budget/unavailable/contradiction/scope/causality regression。
-- [ ] 扩展 manifest/UI-safe telemetry，semantic 与 heuristic checked 分离。
-- [ ] 本地提交：`feat(qa): add semantic claim verification`。
+- [x] 为 Provider capability 增加 semantic verification，共用 Codex/API structured transport。
+- [x] 实现 batch prompt/schema/parser、SemanticEntailment、合并矩阵与逐 Claim fallback。
+- [x] 将 verifier call 接入 request-scoped LlmBudgetGuard，Provider 调用位于 repository write lock 之前且 audit 不会重复调用 Provider。
+- [x] 增加 timeout/invalid JSON/budget/unavailable/contradiction/scope/causality regression。
+- [x] 扩展 manifest/UI-safe telemetry，semantic 与 heuristic checked 分离。
+- [x] 本地提交：`feat(qa): add semantic claim verification`。
 
 ## Phase C — Cross-Encoder Production Lifecycle
 

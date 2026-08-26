@@ -12,6 +12,7 @@ pub struct ProviderCapabilities {
     pub structured_output: bool,
     pub understanding: bool,
     pub query_planning: bool,
+    pub semantic_verification: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -28,18 +29,21 @@ pub fn provider_descriptor(provider: &str) -> ProviderDescriptor {
             structured_output: true,
             understanding: true,
             query_planning: true,
+            semantic_verification: true,
         },
         PROVIDER_OFFLINE => ProviderCapabilities {
             natural_generation: false,
             structured_output: false,
             understanding: false,
             query_planning: false,
+            semantic_verification: false,
         },
         _ => ProviderCapabilities {
             natural_generation: false,
             structured_output: false,
             understanding: false,
             query_planning: false,
+            semantic_verification: false,
         },
     };
     ProviderDescriptor {
@@ -140,6 +144,7 @@ mod tests {
         assert_eq!(codex.capabilities, api.capabilities);
         assert!(codex.capabilities.understanding);
         assert!(codex.capabilities.query_planning);
+        assert!(codex.capabilities.semantic_verification);
         assert!(
             !provider_descriptor(PROVIDER_OFFLINE)
                 .capabilities
