@@ -3790,6 +3790,7 @@ pub fn audit_generated_answer(
         completeness,
         now_string(),
     );
+    run_manifest.claim_extractor_version = verification_report.claim_extractor_version;
     run_manifest.claim_verifier_version = verification_report.verifier_version;
     run_manifest.verification_status = verification_report.verification_status;
     run_manifest.verification_fallback = verification_report.fallback;
@@ -5140,7 +5141,7 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v16");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v17");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.resolver_status, "succeeded");

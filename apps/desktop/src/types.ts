@@ -568,18 +568,28 @@ export type AnswerCompletenessValidation = {
 
 export type ClaimType = 'knowledge_fact' | 'general_knowledge' | 'reasoned_inference' | 'research_suggestion'
 
-export type VerificationStatus = 'supported' | 'partially_supported' | 'contradicted' | 'not_verifiable' | 'not_applicable'
+export type VerificationStatus =
+  | 'unverified'
+  | 'supported'
+  | 'partially_supported'
+  | 'contradicted'
+  | 'not_verifiable'
+  | 'not_applicable'
+  | 'unavailable'
 
-export type VerifiedClaim = {
+export type AtomicClaim = {
   id: string
   text: string
   evidenceIds: string[]
   claimType: ClaimType
   verificationStatus: VerificationStatus
+  confidence?: number | null
   verificationMethod: string
   alignmentScore: number
   reason: string
 }
+
+export type VerifiedClaim = AtomicClaim
 
 export type QaRunManifest = {
   schemaVersion: string
@@ -639,6 +649,7 @@ export type QaRunManifest = {
   evidenceDocumentCount?: number
   evidenceParentExpansionCount?: number
   evidenceEstimatedTokens?: number
+  claimExtractorVersion?: string
   claimVerifierVersion?: string
   verificationStatus?: 'not_run' | 'succeeded' | 'unavailable' | string
   verificationFallback?: boolean

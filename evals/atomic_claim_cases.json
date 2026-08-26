@@ -1,0 +1,697 @@
+{
+  "schemaVersion": "qa-atomic-claim-cases-v1",
+  "datasetRole": "development_regression",
+  "caseCount": 50,
+  "cases": [
+    {
+      "id": "suggestion-because-fact-1",
+      "answer": "建议采用 PSO，因为已有研究证明 PSO 在该场景中具有更高效率。[E1]",
+      "expectedClaimTypes": [
+        "research_suggestion",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [],
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "suggestion-because-fact-2",
+      "answer": "建议采用 ALNS，因为已有研究证明 ALNS 在该场景中具有更高效率。[E1]",
+      "expectedClaimTypes": [
+        "research_suggestion",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [],
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "suggestion-because-fact-3",
+      "answer": "建议采用 GA，因为已有研究证明 GA 在该场景中具有更高效率。[E1]",
+      "expectedClaimTypes": [
+        "research_suggestion",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [],
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "suggestion-because-fact-4",
+      "answer": "建议采用 ACO，因为已有研究证明 ACO 在该场景中具有更高效率。[E1]",
+      "expectedClaimTypes": [
+        "research_suggestion",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [],
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "suggestion-because-fact-5",
+      "answer": "建议采用 VNS，因为已有研究证明 VNS 在该场景中具有更高效率。[E1]",
+      "expectedClaimTypes": [
+        "research_suggestion",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [],
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "fact-therefore-suggestion-1",
+      "answer": "该方法降低了运行时间 [E1]，因此可以考虑用于更大规模实例。",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "research_suggestion"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "fact-therefore-suggestion-2",
+      "answer": "该模型减少了移动距离 [E1]，因此可以考虑用于更大规模实例。",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "research_suggestion"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "fact-therefore-suggestion-3",
+      "answer": "该策略提高了充电覆盖率 [E1]，因此可以考虑用于更大规模实例。",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "research_suggestion"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "fact-therefore-suggestion-4",
+      "answer": "该算法降低了能耗 [E1]，因此可以考虑用于更大规模实例。",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "research_suggestion"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "fact-therefore-suggestion-5",
+      "answer": "该方案减少了死亡节点 [E1]，因此可以考虑用于更大规模实例。",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "research_suggestion"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "parallel-facts-1",
+      "answer": "ROSE 使用粒子群机制 [E1]，同时实验显示效率得到提高 [E2]。",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        [
+          "E2"
+        ]
+      ]
+    },
+    {
+      "id": "parallel-facts-2",
+      "answer": "算法采用分解框架 [E1]，同时消融结果显示局部搜索有效 [E2]。",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        [
+          "E2"
+        ]
+      ]
+    },
+    {
+      "id": "parallel-facts-3",
+      "answer": "模型包含时间窗约束 [E1]，同时求解器报告约束全部满足 [E2]。",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        [
+          "E2"
+        ]
+      ]
+    },
+    {
+      "id": "parallel-facts-4",
+      "answer": "系统使用两辆移动充电器 [E1]，同时结果显示死亡节点减少 [E2]。",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        [
+          "E2"
+        ]
+      ]
+    },
+    {
+      "id": "parallel-facts-5",
+      "answer": "实验采用五十个节点 [E1]，同时作者报告总距离下降 [E2]。",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        [
+          "E2"
+        ]
+      ]
+    },
+    {
+      "id": "qualified-inference-1",
+      "answer": "综合来看，可以推断该方法可能更适合动态场景，但目前没有直接实验验证。[E1]",
+      "expectedClaimTypes": [
+        "reasoned_inference"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "qualified-inference-2",
+      "answer": "综合来看，可以推断该机制可能有助于缓解拥塞，但目前没有直接实验验证。[E1]",
+      "expectedClaimTypes": [
+        "reasoned_inference"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "qualified-inference-3",
+      "answer": "综合来看，可以推断该分解方式可能提升可扩展性，但目前没有直接实验验证。[E1]",
+      "expectedClaimTypes": [
+        "reasoned_inference"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "qualified-inference-4",
+      "answer": "综合来看，可以推断该策略可能适用于异构充电器，但目前没有直接实验验证。[E1]",
+      "expectedClaimTypes": [
+        "reasoned_inference"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "qualified-inference-5",
+      "answer": "综合来看，可以推断该结果可能支持进一步在线优化，但目前没有直接实验验证。[E1]",
+      "expectedClaimTypes": [
+        "reasoned_inference"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "general-knowledge-1",
+      "answer": "一般而言，PSO 是一种群智能启发式算法。",
+      "expectedClaimTypes": [
+        "general_knowledge"
+      ],
+      "expectedEvidenceIds": [
+        []
+      ]
+    },
+    {
+      "id": "general-knowledge-2",
+      "answer": "通常来说，局部搜索依赖邻域结构。",
+      "expectedClaimTypes": [
+        "general_knowledge"
+      ],
+      "expectedEvidenceIds": [
+        []
+      ]
+    },
+    {
+      "id": "general-knowledge-3",
+      "answer": "知识库之外，整数规划可用于表达离散决策。",
+      "expectedClaimTypes": [
+        "general_knowledge"
+      ],
+      "expectedEvidenceIds": [
+        []
+      ]
+    },
+    {
+      "id": "general-knowledge-4",
+      "answer": "通用知识认为，多目标优化需要处理目标冲突。",
+      "expectedClaimTypes": [
+        "general_knowledge"
+      ],
+      "expectedEvidenceIds": [
+        []
+      ]
+    },
+    {
+      "id": "general-knowledge-5",
+      "answer": "General knowledge: heuristics do not guarantee global optimality.",
+      "expectedClaimTypes": [
+        "general_knowledge"
+      ],
+      "expectedEvidenceIds": [
+        []
+      ]
+    },
+    {
+      "id": "english-suggestion-because-fact-1",
+      "answer": "As a research suggestion, consider PSO, because prior studies report improved search efficiency [E1].",
+      "expectedClaimTypes": [
+        "research_suggestion",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [],
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "english-suggestion-because-fact-2",
+      "answer": "As a research suggestion, consider ALNS, because prior studies report improved search efficiency [E1].",
+      "expectedClaimTypes": [
+        "research_suggestion",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [],
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "english-suggestion-because-fact-3",
+      "answer": "As a research suggestion, consider GA, because prior studies report improved search efficiency [E1].",
+      "expectedClaimTypes": [
+        "research_suggestion",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [],
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "english-suggestion-because-fact-4",
+      "answer": "As a research suggestion, consider ACO, because prior studies report improved search efficiency [E1].",
+      "expectedClaimTypes": [
+        "research_suggestion",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [],
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "english-suggestion-because-fact-5",
+      "answer": "As a research suggestion, consider VNS, because prior studies report improved search efficiency [E1].",
+      "expectedClaimTypes": [
+        "research_suggestion",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [],
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "english-fact-therefore-suggestion-1",
+      "answer": "The experiment reduced runtime [E1], therefore as a research suggestion, consider a larger trial.",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "research_suggestion"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "english-fact-therefore-suggestion-2",
+      "answer": "The method improved coverage [E1], therefore as a research suggestion, consider a larger trial.",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "research_suggestion"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "english-fact-therefore-suggestion-3",
+      "answer": "The solver preserved every deadline [E1], therefore as a research suggestion, consider a larger trial.",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "research_suggestion"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "english-fact-therefore-suggestion-4",
+      "answer": "The policy reduced travel distance [E1], therefore as a research suggestion, consider a larger trial.",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "research_suggestion"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "english-fact-therefore-suggestion-5",
+      "answer": "The model lowered energy consumption [E1], therefore as a research suggestion, consider a larger trial.",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "research_suggestion"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "citation-laundering-1",
+      "answer": "证据只支持基线事实 [E1]，并且回答还声称全局最优。",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "citation-laundering-2",
+      "answer": "证据只支持基线事实 [E1]，并且回答还声称所有规模更快。",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "citation-laundering-3",
+      "answer": "证据只支持基线事实 [E1]，并且回答还声称复杂度为 O(n)。",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "citation-laundering-4",
+      "answer": "证据只支持基线事实 [E1]，并且回答还声称必然降低能耗。",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "citation-laundering-5",
+      "answer": "证据只支持基线事实 [E1]，并且回答还声称保证零死亡节点。",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        []
+      ]
+    },
+    {
+      "id": "contrast-two-facts-1",
+      "answer": "Evidence confirms the measured observation [E1], but the answer also claims all instances are optimal [E2].",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        [
+          "E2"
+        ]
+      ]
+    },
+    {
+      "id": "contrast-two-facts-2",
+      "answer": "Evidence confirms the measured observation [E1], but the answer also claims causality is proven [E2].",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        [
+          "E2"
+        ]
+      ]
+    },
+    {
+      "id": "contrast-two-facts-3",
+      "answer": "Evidence confirms the measured observation [E1], but the answer also claims runtime is linear [E2].",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        [
+          "E2"
+        ]
+      ]
+    },
+    {
+      "id": "contrast-two-facts-4",
+      "answer": "Evidence confirms the measured observation [E1], but the answer also claims every constraint is feasible [E2].",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        [
+          "E2"
+        ]
+      ]
+    },
+    {
+      "id": "contrast-two-facts-5",
+      "answer": "Evidence confirms the measured observation [E1], but the answer also claims energy use always decreases [E2].",
+      "expectedClaimTypes": [
+        "knowledge_fact",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [
+          "E1"
+        ],
+        [
+          "E2"
+        ]
+      ]
+    },
+    {
+      "id": "sentence-boundary-1",
+      "answer": "建议进一步评估 PSO。已有工作报告 PSO 能提高搜索效率 [E1]。",
+      "expectedClaimTypes": [
+        "research_suggestion",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [],
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "sentence-boundary-2",
+      "answer": "建议进一步评估 ALNS。已有工作报告 ALNS 能提高搜索效率 [E1]。",
+      "expectedClaimTypes": [
+        "research_suggestion",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [],
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "sentence-boundary-3",
+      "answer": "建议进一步评估 GA。已有工作报告 GA 能提高搜索效率 [E1]。",
+      "expectedClaimTypes": [
+        "research_suggestion",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [],
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "sentence-boundary-4",
+      "answer": "建议进一步评估 ACO。已有工作报告 ACO 能提高搜索效率 [E1]。",
+      "expectedClaimTypes": [
+        "research_suggestion",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [],
+        [
+          "E1"
+        ]
+      ]
+    },
+    {
+      "id": "sentence-boundary-5",
+      "answer": "建议进一步评估 VNS。已有工作报告 VNS 能提高搜索效率 [E1]。",
+      "expectedClaimTypes": [
+        "research_suggestion",
+        "knowledge_fact"
+      ],
+      "expectedEvidenceIds": [
+        [],
+        [
+          "E1"
+        ]
+      ]
+    }
+  ]
+}

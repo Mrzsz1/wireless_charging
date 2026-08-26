@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
 pub const CLAIM_VERIFIER_VERSION: &str = "deterministic-claim-verifier-v2";
+pub const ATOMIC_CLAIM_EXTRACTOR_VERSION: &str = "atomic-claim-extractor-v1";
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -19,29 +20,36 @@ pub enum ClaimType {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum VerificationStatus {
+    Unverified,
     Supported,
     PartiallySupported,
     Contradicted,
     NotVerifiable,
     NotApplicable,
+    Unavailable,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub struct VerifiedClaim {
+pub struct AtomicClaim {
     pub id: String,
     pub text: String,
     pub evidence_ids: Vec<String>,
     pub claim_type: ClaimType,
     pub verification_status: VerificationStatus,
+    #[serde(default)]
+    pub confidence: Option<f32>,
     pub verification_method: String,
     pub alignment_score: f64,
     pub reason: String,
 }
 
+pub type VerifiedClaim = AtomicClaim;
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct ClaimVerificationReport {
+    pub claim_extractor_version: String,
     pub verifier_version: String,
     pub verification_status: String,
     pub fallback: bool,
@@ -56,6 +64,114 @@ pub struct ClaimVerificationReport {
     pub research_suggestion_count: usize,
     pub repaired_count: usize,
     pub claims: Vec<VerifiedClaim>,
+}
+
+pub fn extract_atomic_claims(answer: &str) -> Vec<AtomicClaim> {
+    let body_end = answer_body_end(answer);
+    claim_segments(&answer[..body_end])
+        .into_iter()
+        .flat_map(|segment| split_atomic_segment(&segment))
+        .filter_map(|text| {
+            let claim_type = classify_claim(&text);
+            (is_factual_claim(&text) || claim_type != ClaimType::KnowledgeFact)
+                .then_some((text, claim_type))
+        })
+        .enumerate()
+        .map(|(index, (text, claim_type))| AtomicClaim {
+            id: format!("C{}", index + 1),
+            evidence_ids: extract_citation_ids(&text),
+            text,
+            claim_type,
+            verification_status: VerificationStatus::Unverified,
+            confidence: None,
+            verification_method: "not_run".to_string(),
+            alignment_score: 0.0,
+            reason: "not_verified".to_string(),
+        })
+        .collect()
+}
+
+fn answer_body_end(answer: &str) -> usize {
+    [
+        answer.find(natural_answer::APPENDIX_HEADING),
+        answer.find(super::MODEL_SUPPLEMENT_HEADING),
+    ]
+    .into_iter()
+    .flatten()
+    .min()
+    .unwrap_or(answer.len())
+}
+
+fn split_atomic_segment(segment: &str) -> Vec<String> {
+    const CONNECTORS: &[&str] = &[
+        "，因为",
+        "，因此",
+        "，所以",
+        "，从而",
+        "，同时",
+        "，并且",
+        "，而且",
+        "，但是",
+        "，然而",
+        "，而",
+        ", because ",
+        ", therefore ",
+        ", so ",
+        ", while ",
+        ", but ",
+    ];
+    let mut clauses = vec![segment.trim().to_string()];
+    for connector in CONNECTORS {
+        let mut next = Vec::new();
+        for clause in clauses {
+            let Some(position) = clause.find(connector) else {
+                next.push(clause);
+                continue;
+            };
+            let separator_len = connector
+                .chars()
+                .next()
+                .map(char::len_utf8)
+                .unwrap_or_default();
+            let left = clause[..position].trim();
+            let right = clause[position + separator_len..].trim();
+            if atomic_clause_is_informative(left)
+                && atomic_clause_is_informative(right)
+                && !is_uncertainty_qualifier(right)
+            {
+                next.push(left.to_string());
+                next.push(right.to_string());
+            } else {
+                next.push(clause);
+            }
+        }
+        clauses = next;
+    }
+    clauses
+}
+
+fn atomic_clause_is_informative(value: &str) -> bool {
+    let without_citations = value
+        .replace(['[', ']', '（', '）', '(', ')'], " ")
+        .replace(|character: char| character.is_ascii_digit(), " ");
+    without_citations
+        .chars()
+        .filter(|character| character.is_alphanumeric())
+        .count()
+        >= 4
+}
+
+fn is_uncertainty_qualifier(value: &str) -> bool {
+    let lower = value.to_lowercase();
+    [
+        "但目前没有直接实验验证",
+        "但是目前没有直接实验验证",
+        "然而目前没有直接实验验证",
+        "but there is no direct experimental evidence",
+        "but direct experimental evidence is unavailable",
+    ]
+    .iter()
+    .any(|prefix| lower.starts_with(prefix))
 }
 
 pub trait VerificationProvider {
@@ -151,33 +267,22 @@ pub fn verify_and_repair_with(
     evidence: &[EvidenceItem],
     provider: &dyn VerificationProvider,
 ) -> (String, ClaimVerificationReport) {
-    let body_end = [
-        answer.find(natural_answer::APPENDIX_HEADING),
-        answer.find(super::MODEL_SUPPLEMENT_HEADING),
-    ]
-    .into_iter()
-    .flatten()
-    .min()
-    .unwrap_or(answer.len());
-    let body = &answer[..body_end];
     let by_id = evidence
         .iter()
         .map(|item| (item.id.as_str(), item))
         .collect::<HashMap<_, _>>();
     let mut report = ClaimVerificationReport {
+        claim_extractor_version: ATOMIC_CLAIM_EXTRACTOR_VERSION.to_string(),
         verifier_version: provider.version().to_string(),
         verification_status: "succeeded".to_string(),
         fallback: provider.version() == CLAIM_VERIFIER_VERSION,
         ..ClaimVerificationReport::default()
     };
 
-    for segment in claim_segments(body) {
-        let claim_type = classify_claim(&segment);
-        if !is_factual_claim(&segment) && claim_type == ClaimType::KnowledgeFact {
-            continue;
-        }
+    for mut claim in extract_atomic_claims(answer) {
+        let claim_type = claim.claim_type;
         increment_type(&mut report, claim_type);
-        let ids = extract_citation_ids(&segment);
+        let ids = claim.evidence_ids.clone();
         let aligned = ids
             .iter()
             .filter_map(|id| by_id.get(id.as_str()).copied())
@@ -213,7 +318,7 @@ pub fn verify_and_repair_with(
                     "mapping_gate".to_string(),
                 )
             } else {
-                match provider.verify(&segment, &aligned) {
+                match provider.verify(&claim.text, &aligned) {
                     Ok((status, score, reason)) => (
                         status,
                         score,
@@ -231,16 +336,12 @@ pub fn verify_and_repair_with(
             };
 
         increment_status(&mut report, verification_status);
-        report.claims.push(VerifiedClaim {
-            id: format!("C{}", report.claims.len() + 1),
-            text: segment,
-            evidence_ids: ids,
-            claim_type,
-            verification_status,
-            verification_method: method,
-            alignment_score: score,
-            reason,
-        });
+        claim.verification_status = verification_status;
+        claim.confidence = Some(score.clamp(0.0, 1.0) as f32);
+        claim.verification_method = method;
+        claim.alignment_score = score;
+        claim.reason = reason;
+        report.claims.push(claim);
     }
     report.claim_count = report.claims.len();
 
@@ -252,7 +353,10 @@ pub fn verify_and_repair_with(
             }
             VerificationStatus::NotVerifiable => Some("当前证据不足以核验该陈述。"),
             VerificationStatus::PartiallySupported => Some("现有证据仅部分支持："),
-            VerificationStatus::Supported | VerificationStatus::NotApplicable => None,
+            VerificationStatus::Unverified
+            | VerificationStatus::Unavailable
+            | VerificationStatus::Supported
+            | VerificationStatus::NotApplicable => None,
         };
         let Some(replacement) = replacement else {
             continue;
@@ -321,6 +425,7 @@ fn report_with_reason(
         evidence_ids: Vec::new(),
         claim_type: ClaimType::KnowledgeFact,
         verification_status: VerificationStatus::NotVerifiable,
+        confidence: None,
         verification_method: "provider_error".to_string(),
         alignment_score: 0.0,
         reason: compact(&reason, 120),
@@ -339,6 +444,7 @@ fn increment_type(report: &mut ClaimVerificationReport, claim_type: ClaimType) {
 
 fn increment_status(report: &mut ClaimVerificationReport, status: VerificationStatus) {
     match status {
+        VerificationStatus::Unverified | VerificationStatus::Unavailable => {}
         VerificationStatus::Supported => report.supported_count += 1,
         VerificationStatus::PartiallySupported => report.partially_supported_count += 1,
         VerificationStatus::Contradicted => report.contradicted_count += 1,
@@ -454,6 +560,23 @@ mod tests {
         expected_verification_status: VerificationStatus,
     }
 
+    #[derive(Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    struct AtomicCases {
+        schema_version: String,
+        case_count: usize,
+        cases: Vec<AtomicCase>,
+    }
+
+    #[derive(Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    struct AtomicCase {
+        id: String,
+        answer: String,
+        expected_claim_types: Vec<ClaimType>,
+        expected_evidence_ids: Vec<Vec<String>>,
+    }
+
     fn evidence(snippet: &str) -> EvidenceItem {
         EvidenceItem {
             id: "E1".to_string(),
@@ -555,6 +678,56 @@ mod tests {
             assert_eq!(claim_type, case.expected_claim_type, "{}", case.id);
             assert_eq!(status, case.expected_verification_status, "{}", case.id);
         }
+    }
+
+    #[test]
+    fn frozen_atomic_claim_matrix_blocks_claim_smuggling_and_preserves_local_citations() {
+        let fixture: AtomicCases =
+            serde_json::from_str(include_str!("../../../../../evals/atomic_claim_cases.json"))
+                .expect("valid atomic claim cases");
+        assert_eq!(fixture.schema_version, "qa-atomic-claim-cases-v1");
+        assert_eq!(fixture.case_count, fixture.cases.len());
+        assert!(fixture.cases.len() >= 50);
+        for case in fixture.cases {
+            let claims = extract_atomic_claims(&case.answer);
+            let claim_types = claims
+                .iter()
+                .map(|claim| claim.claim_type)
+                .collect::<Vec<_>>();
+            let evidence_ids = claims
+                .iter()
+                .map(|claim| claim.evidence_ids.clone())
+                .collect::<Vec<_>>();
+            assert_eq!(claim_types, case.expected_claim_types, "{}", case.id);
+            assert_eq!(evidence_ids, case.expected_evidence_ids, "{}", case.id);
+            assert!(claims.iter().all(|claim| {
+                claim.verification_status == VerificationStatus::Unverified
+                    && claim.confidence.is_none()
+            }));
+        }
+    }
+
+    #[test]
+    fn suggestion_reason_is_verified_as_two_independent_claims() {
+        let answer = "建议采用 PSO，因为已有研究证明 PSO 总能获得全局最优。[E1]";
+        let (_, report) = verify_and_repair(
+            answer,
+            &[evidence(
+                "PSO is a heuristic and does not guarantee a global optimum.",
+            )],
+        );
+        assert_eq!(report.claims.len(), 2);
+        assert_eq!(report.claims[0].claim_type, ClaimType::ResearchSuggestion);
+        assert_eq!(
+            report.claims[0].verification_status,
+            VerificationStatus::NotApplicable
+        );
+        assert_eq!(report.claims[1].claim_type, ClaimType::KnowledgeFact);
+        assert_ne!(
+            report.claims[1].verification_status,
+            VerificationStatus::NotApplicable
+        );
+        assert_eq!(report.claims[1].evidence_ids, vec!["E1"]);
     }
 
     #[test]

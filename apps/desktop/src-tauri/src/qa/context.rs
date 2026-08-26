@@ -14,7 +14,7 @@ pub const ANSWER_SCHEMA_VERSION: &str = "qa-natural-markdown-v2";
 pub const LEGACY_ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v4";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v16";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v17";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -183,6 +183,8 @@ pub struct QaRunManifest {
     pub evidence_parent_expansion_count: usize,
     #[serde(default)]
     pub evidence_estimated_tokens: u32,
+    #[serde(default)]
+    pub claim_extractor_version: String,
     #[serde(default)]
     pub claim_verifier_version: String,
     #[serde(default)]
@@ -1269,6 +1271,7 @@ pub fn build_run_manifest(
         evidence_document_count: context.retrieval_query.evidence_document_count,
         evidence_parent_expansion_count: context.retrieval_query.evidence_parent_expansion_count,
         evidence_estimated_tokens: context.retrieval_query.evidence_estimated_tokens,
+        claim_extractor_version: String::new(),
         claim_verifier_version: String::new(),
         verification_status: "not_run".to_string(),
         verification_fallback: false,
