@@ -27,12 +27,12 @@
 
 ## Phase D — Independent Held-out Tooling
 
-- [ ] 增加 50 题独立 curator 模板和 canonical method/constraint schema。
-- [ ] 实现 freeze seal、同一 RC run bundle 和 blind reviewer export。
-- [ ] 实现 A/B review 与 C adjudication 导入校验。
-- [ ] 从同一 held-out 派生 heldout/grounding/open-research 工件。
-- [ ] 外部人员输入未到位时保留 pending/FAIL。
-- [ ] 本地提交：`feat(qa): add independent heldout review workflow`。
+- [x] 增加 50 题独立 curator 模板和 canonical method/constraint schema。
+- [x] 实现 freeze seal、同一 RC run bundle 和 blind reviewer export。
+- [x] 实现 A/B review 与 C adjudication 导入校验。
+- [x] 从同一 held-out 派生 heldout/grounding/open-research 工件。
+- [x] 外部人员输入未到位时保留 pending/FAIL。
+- [x] 本地提交：`feat(qa): add independent heldout review workflow`。
 
 ## Phase E — Performance Profile and Benchmark
 

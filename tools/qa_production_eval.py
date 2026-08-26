@@ -69,7 +69,10 @@ def run_reliability_contracts() -> None:
 
 
 def artifact_metrics(
-    rag: dict[str, Any], conversation: dict[str, Any], semantic: dict[str, Any]
+    rag: dict[str, Any],
+    conversation: dict[str, Any],
+    semantic: dict[str, Any],
+    heldout_metrics: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, dict[str, Any]]:
     aggregate = rag.get("aggregate")
     cases = rag.get("cases")
@@ -90,7 +93,7 @@ def artifact_metrics(
         )
         for case in cases
     )
-    return {
+    artifacts = {
         "retrieval": {
             "documentRecallAt20": aggregate.get("documentRecallAt20"),
             "documentRecallAt10": aggregate.get("documentRecallAt10"),
@@ -129,6 +132,14 @@ def artifact_metrics(
             "pendingReason": "target_profile_not_frozen",
         },
     }
+    if heldout_metrics:
+        seals = {
+            payload.get("sourceRun") for payload in heldout_metrics.values()
+        }
+        if set(heldout_metrics) != {"heldout", "grounding", "open_research"} or len(seals) != 1:
+            raise ProductionEvalError("held-out derived artifacts must share one sourceRun")
+        artifacts.update(heldout_metrics)
+    return artifacts
 
 
 def _atomic_json(path: Path, value: dict[str, Any]) -> None:
@@ -145,6 +156,7 @@ def build_release(
     output_root: Path,
     *,
     run_expensive: bool,
+    heldout_derived: Path | None = None,
 ) -> tuple[Path, dict[str, Any]]:
     if run_expensive:
         run_evaluations()
@@ -177,7 +189,13 @@ def build_release(
         git_commit=git_commit,
     )
     run_dir = output_root / git_commit
-    metrics = artifact_metrics(rag, conversation, semantic)
+    heldout_metrics = None
+    if heldout_derived is not None and heldout_derived.exists():
+        heldout_metrics = {
+            name: load_json(heldout_derived / f"{name}.json")
+            for name in ("heldout", "grounding", "open_research")
+        }
+    metrics = artifact_metrics(rag, conversation, semantic, heldout_metrics)
     try:
         written = collect_metrics(run_dir, metadata, metrics)
     except CollectionError as exc:
@@ -204,6 +222,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run the QA production evaluation harness")
     parser.add_argument("--output-root", type=Path, default=ROOT / "evals" / "releases")
     parser.add_argument("--use-existing", action="store_true", help="Reuse the latest real RAG/conversation/semantic reports")
+    parser.add_argument(
+        "--heldout-derived",
+        type=Path,
+        default=ROOT / "evals" / "heldout-derived-latest",
+    )
     parser.add_argument("--allow-fail", action="store_true")
     return parser
 
@@ -212,7 +235,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         run_dir, decision = build_release(
-            args.output_root, run_expensive=not args.use_existing
+            args.output_root,
+            run_expensive=not args.use_existing,
+            heldout_derived=args.heldout_derived,
         )
     except (ProductionEvalError, OSError, ValueError, subprocess.CalledProcessError) as exc:
         print(f"FAIL: {exc}", file=sys.stderr)

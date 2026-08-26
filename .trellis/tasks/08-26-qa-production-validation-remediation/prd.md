@@ -51,7 +51,7 @@
 - [x] AC3：真实 Semantic Provider benchmark 生成有效工件，且 invalid verified state = 0；无真实 Provider 时保持 FAIL。
 - [x] AC4：统一 harness 自动生成 conversation/reranker/semantic/performance 工件并执行 release gate。
 - [x] AC5：Conversation 三项指标来自 canonical gold 与实际输出，不来自手填数值。
-- [ ] AC6：held-out tooling 对 seal、独立双审、第三人裁决、blind export 和同一 RC 派生工件 fail closed。
+- [x] AC6：held-out tooling 对 seal、独立双审、第三人裁决、blind export 和同一 RC 派生工件 fail closed。
 - [ ] AC7：目标机器 profile 在性能测量前冻结；cold 与各 ExecutionMode warm P95 可审计。
 - [ ] AC8：全量 Rust/Python/frontend/RAG/Wiki/core-book 门禁通过，不引入新 Retriever/Agent/Intent 或阈值降低。
 - [ ] AC9：每阶段独立本地 Git commit，不 push GitHub，不包含用户已有未跟踪文件。

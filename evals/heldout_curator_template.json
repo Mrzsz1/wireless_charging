@@ -1,0 +1,513 @@
+{
+  "canonicalIdPolicy": {
+    "constraintIds": "Use stable critical-constraint IDs evaluated through the final answer.",
+    "methodIds": "Use stable method-family IDs, not display-string exact match."
+  },
+  "cases": [
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-001",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-002",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-003",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-004",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-005",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-006",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-007",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-008",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-009",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-010",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-011",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-012",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-013",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-014",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-015",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-016",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-017",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-018",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-019",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-020",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-021",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-022",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-023",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-024",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-025",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-026",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-027",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-028",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-029",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-030",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-031",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-032",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-033",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-034",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-035",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-036",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-037",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-038",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-039",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-040",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-041",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-042",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-043",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-044",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-045",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-046",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-047",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-048",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-049",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    },
+    {
+      "acceptableMethodFamilies": [],
+      "criticalConstraints": [],
+      "difficulty": "",
+      "id": "heldout-050",
+      "notesForReviewers": "",
+      "question": "",
+      "stratum": "",
+      "type": ""
+    }
+  ],
+  "curatorIdHash": "",
+  "datasetVersion": "",
+  "independent": false,
+  "schemaVersion": "qa-independent-heldout-workflow-v1",
+  "status": "draft"
+}

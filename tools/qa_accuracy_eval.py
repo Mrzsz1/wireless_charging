@@ -161,7 +161,23 @@ def validate_dataset(dataset: dict[str, Any]) -> list[dict[str, Any]]:
     cases = dataset.get("cases")
     if not isinstance(cases, list):
         raise AccuracyEvalError("held-out 数据集缺少 cases 数组")
-    allowed_types = {"solve", "novelty", "relationship"}
+    allowed_types = {
+        "solve",
+        "novelty",
+        "relationship",
+        "direct_fact",
+        "literature_search",
+        "comparison",
+        "origin_derivation",
+        "method_improvement",
+        "solution_search",
+        "problem_modeling",
+        "follow_up",
+        "exploratory_research",
+        "zero_evidence",
+        "contradictory_evidence",
+        "multi_hop",
+    }
     seen: set[str] = set()
     for case in cases:
         if not isinstance(case, dict) or not all(

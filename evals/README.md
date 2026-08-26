@@ -255,6 +255,36 @@ py -3 tools/qa_accuracy_eval.py --allow-pending
 
 智能问答中的“复制审计包”会导出问题、最终回答、本轮证据和 `QaRunManifest`；不包含凭据或 provider 原始 payload。
 
+### 独立 curator 与盲审工作流
+
+仓库提供 50-case 空白模板，不预填 Codex 生成的问题或真值：
+
+```powershell
+py -3 tools/qa_heldout_workflow.py template --cases 50 --output evals/heldout_curator_template.json
+```
+
+独立 curator 填写问题、canonical critical-constraint ID 与 acceptable method-family ID，完成
+独立性声明和匿名 SHA-256 后冻结：
+
+```powershell
+py -3 tools/qa_heldout_workflow.py freeze --draft CURATOR_DRAFT.json --frozen-at UTC_TIMESTAMP --output FROZEN_HELDOUT.json
+```
+
+冻结后运行同一 Release Candidate，再导出不含 system verification verdict/run manifest 的盲审包：
+
+```powershell
+py -3 tools/qa_heldout_workflow.py export-review --dataset FROZEN_HELDOUT.json --runs HELDOUT_RUNS --output BLIND_REVIEW_BUNDLES
+```
+
+A/B reviewer 和 C adjudicator 完成后，从同一 dataset/run seal 派生全部三个工件：
+
+```powershell
+py -3 tools/qa_heldout_workflow.py derive --dataset FROZEN_HELDOUT.json --runs HELDOUT_RUNS --reviews HELDOUT_REVIEWS --output evals/heldout-derived-latest
+```
+
+`qa-production-eval` 自动读取该目录。缺 run/review、重复 reviewer、非独立 reviewer、漏 claim、
+缺 adjudication、checksum 篡改或三个工件 sourceRun 不一致都会 fail closed。
+
 冻结数据集还必须提供 `curation.independent=true`、匿名 curator hash、冻结时间和
 canonical `cases_sha256`。每个 `answerClaims` 可用 `dimension` 标注
 `factual/reference/method/constraint`；旧审计包缺省为 `factual`。
