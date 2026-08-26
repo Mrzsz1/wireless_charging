@@ -25,7 +25,8 @@
 - [ ] 为长时间 provision 增加 cancel/真实字节 progress，并完成磁盘不足/重复 repair failure injection。
 - [x] 增加 missing/corrupt/Hugging Face snapshot/offline/real health-check tests。
 - [x] 扩展 reranker requested/provider/model/available/candidate-count/latency/fallback telemetry 与 production baseline。
-- [x] 在当前主机尝试真实 provision + RAG benchmark；保存明确 FAIL（模型 missing，provision download_or_initialization，fallback 12/13）。
+- [x] 当前主机首次 provision 因 Hugging Face `os error 10060` 失败；随后在非系统盘完成续传、SHA-256 校验与真实 health probe。
+- [x] 重新运行真实 RAG benchmark：Cross-Encoder fallback 0/13，12/13 用例通过；`dwpt-beb-planning` Top20 退化且平均 reranker latency 38101.1 ms，整体保持 REVIEW。
 - [x] 本地提交阶段检查点：`feat(qa): provision production reranker model`。
 
 ## Phase D — Adversarial, Failure, Stress and Metadata
