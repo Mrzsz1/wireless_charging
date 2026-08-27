@@ -2,6 +2,7 @@ mod adaptive_routing;
 mod claim_verification;
 mod context;
 pub(crate) mod conversation_benchmark;
+pub(crate) mod conversation_state_benchmark;
 pub(crate) mod corpus;
 mod coverage;
 pub(crate) mod evaluation;
@@ -19,12 +20,15 @@ mod provider_capabilities;
 mod query_plan;
 mod reranker;
 mod research_memory;
+mod research_query_context;
 pub(crate) mod retrieval;
 mod retrieval_contract;
 mod semantic;
 pub(crate) mod semantic_benchmark;
 mod session;
 mod source_resolver;
+mod state_mutation;
+mod state_reducer;
 mod structured_answer;
 mod understanding;
 pub(crate) mod vector_store;
@@ -51,6 +55,7 @@ pub use query_plan::{
     parse_query_plan, query_plan_prompt, query_plan_schema, QueryFacet, QueryPlan,
     QueryPlanningInput,
 };
+pub use research_query_context::ResearchQueryContext;
 pub type QueryPlanner<'a> = dyn FnMut(&QueryPlanningInput) -> Result<QueryPlan, String> + 'a;
 pub use understanding::{
     parse_understanding_plan, understanding_prompt, understanding_schema, UnderstandingPlan,
@@ -215,7 +220,7 @@ pub struct ConversationTurn {
     pub request_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct RetrievalQuery {
     pub original_question: String,
@@ -365,6 +370,30 @@ pub struct RetrievalQuery {
     pub attempted_kinds: Vec<String>,
     #[serde(default)]
     pub source_gaps: Vec<String>,
+    #[serde(default)]
+    pub research_query_context: ResearchQueryContext,
+    #[serde(default)]
+    pub research_state_version: String,
+    #[serde(default)]
+    pub state_patch_operation_count: usize,
+    #[serde(default)]
+    pub state_patch_low_confidence_count: usize,
+    #[serde(default)]
+    pub state_patch_rejected_count: usize,
+    #[serde(default)]
+    pub state_changed: bool,
+    #[serde(default)]
+    pub state_warning_count: usize,
+    #[serde(default)]
+    pub query_context_objective_count: usize,
+    #[serde(default)]
+    pub query_context_constraint_count: usize,
+    #[serde(default)]
+    pub query_context_parameter_count: usize,
+    #[serde(default)]
+    pub query_context_excluded_method_count: usize,
+    #[serde(skip, default = "research_memory::ResearchSessionState::default_v2")]
+    pub canonical_research_state: research_memory::ResearchSessionState,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
@@ -1068,6 +1097,7 @@ fn build_retrieval_query_with_understanding<'a>(
     planner: Option<&'a mut QuestionUnderstandingPlanner<'a>>,
 ) -> RetrievalQuery {
     let original_question = question.trim().to_string();
+    let mut research_state = research_memory::derive_history(history);
     let explicit_entities = extract_question_entities(connection, &original_question);
     let history_entities = if contains_reference(&original_question) && explicit_entities.len() < 2
     {
@@ -1080,13 +1110,56 @@ fn build_retrieval_query_with_understanding<'a>(
         history,
         explicit_entities,
         history_entities,
-    );
+    )
+    .with_current_state(research_state.summary());
     let understood = understanding::resolve_and_route(&input, planner);
     let routed = understood.routed;
     let diagnostics = understood.diagnostics;
+    let deterministic_patch = state_mutation::extract_deterministic_patch(
+        &original_question,
+        &routed.query.entities,
+        &research_state.summary(),
+        None,
+    );
+    let proposed_patch = if understood.state_patch.operations.is_empty() {
+        deterministic_patch.clone()
+    } else {
+        understood.state_patch
+    };
+    let selected_patch =
+        state_mutation::validate_patch(proposed_patch).unwrap_or(deterministic_patch);
+    let (state_patch, state_apply_report) = research_memory::apply_current_patch(
+        &mut research_state,
+        &original_question,
+        Some(selected_patch),
+        &routed.query.entities,
+    );
+    let research_context = research_query_context::build_research_query_context(
+        &routed.query.standalone_question,
+        routed.query.intent,
+        &research_state,
+        &routed.query.entities,
+    );
     let question_intent = routed.query.intent.answer_profile().to_string();
     let problem = problem_understanding::understand(&routed.query.standalone_question);
     let routing_policy = adaptive_routing::policy(routed.execution_mode.as_str());
+    let mut problem_objectives = problem.representation.objectives.clone();
+    let mut problem_constraints = problem.representation.constraints.clone();
+    for objective in &research_context.objectives {
+        if !problem_objectives.contains(objective) {
+            problem_objectives.push(objective.clone());
+        }
+    }
+    for constraint in &research_context.constraints {
+        if !problem_constraints.contains(constraint) {
+            problem_constraints.push(constraint.clone());
+        }
+    }
+    let mut problem_search_terms = problem.search_terms.clone();
+    problem_search_terms.extend(research_query_context::retrieval_terms(&research_context));
+    problem_search_terms.sort();
+    problem_search_terms.dedup();
+    problem_search_terms.truncate(48);
     RetrievalQuery {
         original_question: routed.query.original_question,
         resolved_question: routed.query.standalone_question,
@@ -1141,8 +1214,8 @@ fn build_retrieval_query_with_understanding<'a>(
         method_matcher_version: problem.matcher_version,
         problem_understanding_status: problem.status,
         problem_domain: problem.representation.domain,
-        problem_objectives: problem.representation.objectives,
-        problem_constraints: problem.representation.constraints,
+        problem_objectives,
+        problem_constraints,
         related_problem_types: problem.representation.related_problem_types,
         candidate_methods: Vec::new(),
         method_hypotheses: problem
@@ -1153,7 +1226,7 @@ fn build_retrieval_query_with_understanding<'a>(
         discovered_methods: Vec::new(),
         corroborated_method_hypotheses: Vec::new(),
         method_evidence_provenance: Vec::new(),
-        problem_search_terms: problem.search_terms,
+        problem_search_terms,
         routing_policy_version: routing_policy.version,
         routing_max_rounds: routing_policy.max_retrieval_rounds,
         routing_max_queries: routing_policy.max_queries,
@@ -1168,6 +1241,18 @@ fn build_retrieval_query_with_understanding<'a>(
         requested_kinds: Vec::new(),
         attempted_kinds: Vec::new(),
         source_gaps: Vec::new(),
+        research_query_context: research_context.clone(),
+        research_state_version: research_state.state_version.clone(),
+        state_patch_operation_count: state_patch.operations.len(),
+        state_patch_low_confidence_count: state_patch.low_confidence_count(),
+        state_patch_rejected_count: state_apply_report.rejected_operations.len(),
+        state_changed: state_apply_report.changed,
+        state_warning_count: state_apply_report.warnings.len(),
+        query_context_objective_count: research_context.objectives.len(),
+        query_context_constraint_count: research_context.constraints.len(),
+        query_context_parameter_count: research_context.parameters.len(),
+        query_context_excluded_method_count: research_context.excluded_methods.len(),
+        canonical_research_state: research_state,
     }
 }
 
@@ -1499,9 +1584,14 @@ fn index_expansion_terms(candidates: &[Candidate], known_terms: &HashSet<String>
     terms
 }
 
-fn planning_input(resolved_question: &str, candidates: &[Candidate]) -> QueryPlanningInput {
+fn planning_input(
+    resolved_question: &str,
+    research_context: &ResearchQueryContext,
+    candidates: &[Candidate],
+) -> QueryPlanningInput {
     QueryPlanningInput {
         resolved_question: resolved_question.to_string(),
+        research_context: research_context.clone(),
         baseline_candidates: candidates
             .iter()
             .filter(|candidate| candidate.kind != "graph")
@@ -2398,7 +2488,10 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
         guard.reconfigure(routing_policy.clone());
     }
     let mut initial_terms = query_terms(&retrieval_query.resolved_question);
-    if retrieval_query.execution_mode == "research" {
+    if matches!(
+        retrieval_query.execution_mode.as_str(),
+        "research" | "exploratory"
+    ) {
         initial_terms.extend(retrieval_query.problem_search_terms.iter().cloned());
         initial_terms.sort();
         initial_terms.dedup();
@@ -2441,6 +2534,7 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
     );
 
     let mut plan = QueryPlan::fallback(&retrieval_query.resolved_question);
+    research_query_context::enrich_contract(&mut plan, &retrieval_query.research_query_context);
     let mut planner_used = false;
     if routing_policy.planner_enabled {
         if let Some(planner) = planner.as_mut() {
@@ -2448,10 +2542,15 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
             let planner_started = Instant::now();
             match planner(&planning_input(
                 &retrieval_query.resolved_question,
+                &retrieval_query.research_query_context,
                 &candidates,
             )) {
                 Ok(planned) => {
                     plan = planned;
+                    research_query_context::enrich_contract(
+                        &mut plan,
+                        &retrieval_query.research_query_context,
+                    );
                     planner_used = true;
                     retrieval_query.planner_status = "succeeded".to_string();
                 }
@@ -2683,7 +2782,17 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
     }
     let method_discovery =
         discover_methods_from_evidence(&candidates, &retrieval_query.method_hypotheses);
-    retrieval_query.candidate_methods = method_discovery.discovered.clone();
+    retrieval_query.candidate_methods = method_discovery
+        .discovered
+        .iter()
+        .filter(|method| {
+            !research_query_context::method_is_excluded(
+                method,
+                &retrieval_query.research_query_context,
+            )
+        })
+        .cloned()
+        .collect();
     retrieval_query.discovered_methods = method_discovery.discovered;
     retrieval_query.corroborated_method_hypotheses = method_discovery.corroborated_hypotheses;
     retrieval_query.method_evidence_provenance = method_discovery.provenance;
@@ -2896,12 +3005,13 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
             }
         })
         .collect();
-    let (conversation, evidence, context_plan) = context::build_context_plan(
+    let (conversation, evidence, context_plan) = context::build_context_plan_with_state(
         &conversation,
         question,
         evidence,
         context_window_tokens,
         max_output_tokens,
+        retrieval_query.canonical_research_state.clone(),
     );
     let retrieval_diagnostics = diagnostics.finish(evidence.len());
     let mut context = QuestionContext {
@@ -4878,6 +4988,67 @@ mod tests {
     }
 
     #[test]
+    fn planner_and_fallback_receive_the_post_patch_research_state() {
+        let (root, connection) = test_db();
+        let history = vec![ConversationTurn {
+            id: "state-u1".to_string(),
+            role: "user".to_string(),
+            content: "目标是最小化死亡节点，约束包括时间窗和 deadline，使用 PSO，移动充电车 3 辆。"
+                .to_string(),
+            request_id: "state-r1".to_string(),
+        }];
+        let mut observed_context = None;
+        let mut planner = |input: &QueryPlanningInput| {
+            observed_context = Some(input.research_context.clone());
+            Ok(QueryPlan::fallback(&input.resolved_question))
+        };
+        let context = prepare_question_with_history_budget_and_planner(
+            &connection,
+            root.path(),
+            "PSO 不用了，deadline 保留，移动充电车改成 2 辆。请检索并比较有哪些相关论文与算法更合适？",
+            10,
+            "state-request",
+            history,
+            None,
+            DEFAULT_CONTEXT_WINDOW_TOKENS,
+            LunaSettings::default().max_output_tokens,
+            Some(&mut planner),
+        )
+        .unwrap();
+
+        let observed = observed_context.expect("exploratory planning should receive state context");
+        assert_eq!(observed, context.retrieval_query.research_query_context);
+        assert!(observed.constraints.contains(&"deadlines".to_string()));
+        assert!(observed
+            .excluded_methods
+            .contains(&"particle_swarm_optimization".to_string()));
+        assert!(!observed
+            .active_methods
+            .contains(&"particle_swarm_optimization".to_string()));
+        assert!(matches!(
+            observed
+                .parameters
+                .get("mobile_charger_count")
+                .map(|parameter| &parameter.value),
+            Some(state_mutation::ParameterValue::Integer(2))
+        ));
+        assert_eq!(context.retrieval_query.state_patch_rejected_count, 0);
+        assert!(context.retrieval_query.state_changed);
+        assert_eq!(
+            context
+                .context_plan
+                .research_state
+                .parameters
+                .get("mobile_charger_count")
+                .map(|parameter| &parameter.value),
+            observed
+                .parameters
+                .get("mobile_charger_count")
+                .map(|parameter| &parameter.value)
+        );
+    }
+
+    #[test]
     fn query_planner_timeout_is_auditable_and_falls_back() {
         let (root, connection) = test_db();
         let mut planner =
@@ -5313,7 +5484,7 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v18");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v19");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.resolver_status, "succeeded");
@@ -5460,7 +5631,7 @@ mod tests {
         );
         assert_eq!(audit.run_manifest.verification_model, "fixture-nli");
         assert_eq!(audit.run_manifest.semantic_verification_latency_ms, 17);
-        assert_eq!(audit.run_manifest.schema_version, "qa-run-v18");
+        assert_eq!(audit.run_manifest.schema_version, "qa-run-v19");
     }
 
     #[test]

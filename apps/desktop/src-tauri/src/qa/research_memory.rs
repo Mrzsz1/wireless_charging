@@ -1,131 +1,117 @@
+use super::state_mutation::{
+    extract_deterministic_patch, ResearchParameter, ResearchStatePatch, ResearchStateSummary,
+};
+use super::state_reducer::{apply_patch, StateApplyReport};
 use super::{problem_understanding, ConversationTurn};
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
-pub const RESEARCH_STATE_VERSION: &str = "research-session-state-v1";
+pub const RESEARCH_STATE_VERSION: &str = "research-session-state-v2";
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct ResearchSessionState {
     pub schema_version: String,
+    pub state_version: String,
     pub revision: usize,
     pub active_problem: String,
     pub objectives: Vec<String>,
     pub constraints: Vec<String>,
     pub assumptions: Vec<String>,
     pub methods: Vec<String>,
+    #[serde(default)]
+    pub excluded_methods: Vec<String>,
+    #[serde(default)]
+    pub parameters: BTreeMap<String, ResearchParameter>,
     pub papers: Vec<String>,
     pub hypotheses: Vec<String>,
     pub open_questions: Vec<String>,
     pub source_message_ids: Vec<String>,
+    #[serde(default)]
+    pub last_patch_id: String,
 }
 
-pub fn derive(history: &[ConversationTurn], current_question: &str) -> ResearchSessionState {
-    let mut state = ResearchSessionState {
-        schema_version: RESEARCH_STATE_VERSION.to_string(),
-        ..ResearchSessionState::default()
-    };
-    for turn in history.iter().filter(|turn| turn.role == "user") {
-        apply_turn(&mut state, &turn.content, Some(&turn.id));
+impl ResearchSessionState {
+    pub fn default_v2() -> Self {
+        Self {
+            schema_version: RESEARCH_STATE_VERSION.to_string(),
+            state_version: RESEARCH_STATE_VERSION.to_string(),
+            ..Self::default()
+        }
     }
-    apply_turn(&mut state, current_question, None);
-    state.open_questions.truncate(12);
-    state.hypotheses.truncate(12);
-    state.papers.truncate(16);
-    state.methods.truncate(16);
+
+    pub fn summary(&self) -> ResearchStateSummary {
+        ResearchStateSummary {
+            objectives: self.objectives.clone(),
+            constraints: self.constraints.clone(),
+            assumptions: self.assumptions.clone(),
+            active_methods: self.methods.clone(),
+            excluded_methods: self.excluded_methods.clone(),
+            parameters: self.parameters.clone(),
+        }
+    }
+}
+
+pub fn derive_history(history: &[ConversationTurn]) -> ResearchSessionState {
+    let mut state = ResearchSessionState::default_v2();
+    for turn in history.iter().filter(|turn| turn.role == "user") {
+        apply_turn(&mut state, &turn.content, Some(&turn.id), None, &[]);
+    }
+    bound_state(&mut state);
     state
 }
 
-fn apply_turn(state: &mut ResearchSessionState, content: &str, message_id: Option<&str>) {
+pub fn derive(history: &[ConversationTurn], current_question: &str) -> ResearchSessionState {
+    let mut state = derive_history(history);
+    apply_turn(&mut state, current_question, None, None, &[]);
+    bound_state(&mut state);
+    state
+}
+
+pub fn apply_current_patch(
+    state: &mut ResearchSessionState,
+    current_question: &str,
+    patch: Option<ResearchStatePatch>,
+    resolved_references: &[String],
+) -> (ResearchStatePatch, StateApplyReport) {
+    apply_turn(state, current_question, None, patch, resolved_references)
+}
+
+fn apply_turn(
+    state: &mut ResearchSessionState,
+    content: &str,
+    message_id: Option<&str>,
+    supplied_patch: Option<ResearchStatePatch>,
+    resolved_references: &[String],
+) -> (ResearchStatePatch, StateApplyReport) {
+    let patch = supplied_patch.unwrap_or_else(|| {
+        extract_deterministic_patch(
+            content,
+            resolved_references,
+            &state.summary(),
+            message_id.map(str::to_string),
+        )
+    });
+    let report = apply_patch(state, &patch);
     let parsed = problem_understanding::understand(content);
     let lower = content.to_lowercase();
-    let replace_objective = contains_any(
-        &lower,
-        &[
-            "目标改为",
-            "目标改成",
-            "现在目标",
-            "改成最小化",
-            "改成最大化",
-            "objective is now",
-        ],
-    );
-    let replace_constraints = contains_any(
-        &lower,
-        &["约束改为", "约束改成", "现在约束", "constraints are now"],
-    );
-    let replace_methods = contains_any(&lower, &["改用", "换成", "方法改为", "method is now"]);
-    let remove = contains_any(
-        &lower,
-        &["去掉", "删除", "移除", "不再考虑", "remove", "drop"],
-    );
-    let meaningful = parsed.representation.domain != "unknown"
+    let meaningful = report.changed
+        || !patch.operations.is_empty()
+        || parsed.representation.domain != "unknown"
         || !parsed.representation.objectives.is_empty()
         || !parsed.representation.constraints.is_empty()
         || !parsed.representation.assumptions.is_empty()
-        || contains_any(
-            &lower,
-            &[
-                "假设", "如果", "论文", "rose", "tide", "pso", "alns", "milp",
-            ],
-        );
-    if !meaningful {
-        if content.trim().ends_with(['?', '？']) {
-            push_latest(&mut state.open_questions, content.trim(), 240);
+        || contains_any(&lower, &["假设", "如果", "论文", "paper"])
+        || content.trim().ends_with(['?', '？']);
+    if meaningful {
+        state.revision = state.revision.saturating_add(1);
+        if let Some(id) = message_id {
+            push_unique(&mut state.source_message_ids, id);
         }
-        return;
-    }
-
-    state.revision += 1;
-    if let Some(id) = message_id {
-        push_unique(&mut state.source_message_ids, id);
     }
     if parsed.representation.domain != "unknown" {
         state.active_problem = parsed.representation.domain;
     }
-    update_values(
-        &mut state.objectives,
-        parsed.representation.objectives,
-        replace_objective,
-        remove,
-    );
-    update_values(
-        &mut state.constraints,
-        parsed.representation.constraints,
-        replace_constraints,
-        remove,
-    );
-    update_values(
-        &mut state.assumptions,
-        parsed.representation.assumptions,
-        false,
-        remove,
-    );
-
-    let mut mentioned_methods = parsed
-        .candidate_methods
-        .into_iter()
-        .filter(|method| lower.contains(&method.method.replace('_', " ")))
-        .map(|method| method.method)
-        .collect::<Vec<_>>();
-    for (needle, canonical) in [
-        ("pso", "particle_swarm_optimization"),
-        ("粒子群", "particle_swarm_optimization"),
-        ("alns", "adaptive_large_neighborhood_search"),
-        ("milp", "mixed_integer_linear_programming"),
-        ("遗传算法", "genetic_algorithm"),
-        ("强化学习", "reinforcement_learning"),
-    ] {
-        if lower.contains(needle) {
-            push_unique(&mut mentioned_methods, canonical);
-        }
-    }
-    update_values(
-        &mut state.methods,
-        mentioned_methods,
-        replace_methods,
-        remove,
-    );
-
     for token in content.split(|character: char| !character.is_ascii_alphanumeric()) {
         if token.len() >= 3
             && token.len() <= 24
@@ -142,20 +128,22 @@ fn apply_turn(state: &mut ResearchSessionState, content: &str, message_id: Optio
     if content.trim().ends_with(['?', '？']) {
         push_latest(&mut state.open_questions, content.trim(), 240);
     }
+    bound_state(state);
+    (patch, report)
 }
 
-fn update_values(target: &mut Vec<String>, values: Vec<String>, replace: bool, remove: bool) {
-    if values.is_empty() {
-        return;
-    }
-    if replace {
-        target.clear();
-    }
-    if remove {
-        target.retain(|current| !values.contains(current));
-    } else {
-        for value in values {
-            push_unique(target, &value);
+fn bound_state(state: &mut ResearchSessionState) {
+    state.open_questions.truncate(12);
+    state.hypotheses.truncate(12);
+    state.papers.truncate(16);
+    state.methods.truncate(16);
+    state.excluded_methods.truncate(16);
+    state.objectives.truncate(16);
+    state.constraints.truncate(24);
+    state.assumptions.truncate(16);
+    while state.parameters.len() > 16 {
+        if let Some(key) = state.parameters.keys().next_back().cloned() {
+            state.parameters.remove(&key);
         }
     }
 }
@@ -179,6 +167,7 @@ fn push_latest(values: &mut Vec<String>, value: &str, maximum_chars: usize) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::qa::state_mutation::ParameterValue;
 
     fn turn(index: usize, role: &str, content: &str) -> ConversationTurn {
         ConversationTurn {
@@ -190,57 +179,69 @@ mod tests {
     }
 
     #[test]
-    fn twenty_turn_research_chat_uses_latest_objective_constraint_method_and_hypothesis() {
-        let user_turns = [
-            "无线传感器网络移动充电要最大化网络寿命。",
-            "先用 PSO。",
-            "加入时间窗约束。",
-            "假设节点静态。",
-            "参考 ROSE 论文。",
-            "路径还受电池容量限制。",
-            "如果采用多个充电车会怎样？",
-            "方法改用 ALNS。",
-            "目标改为最小化死亡节点。",
-            "去掉时间窗约束，后续怎么解？",
+    fn mixed_state_mutation_removes_adds_overwrites_and_keeps_per_object() {
+        let history = vec![
+            turn(
+                0,
+                "user",
+                "模型有 3 辆移动充电车，有 deadline 和障碍物，目标是最小化死亡节点。",
+            ),
+            turn(1, "assistant", "已记录。"),
+            turn(2, "user", "先考虑 PSO 和 ALNS。"),
+            turn(3, "assistant", "已记录。"),
         ];
-        let mut history = Vec::new();
-        for (index, content) in user_turns.iter().enumerate() {
-            history.push(turn(index * 2, "user", content));
-            history.push(turn(index * 2 + 1, "assistant", "已记录并继续分析。"));
-        }
-        assert_eq!(history.len(), 20);
-        let state = derive(&history, "现在的方法和约束是什么？");
-        assert_eq!(state.active_problem, "wireless_sensor_network");
-        assert_eq!(state.objectives, vec!["minimize_dead_nodes"]);
-        assert!(!state.constraints.contains(&"time_windows".to_string()));
-        assert!(state.constraints.contains(&"battery_capacity".to_string()));
+        let state = derive(
+            &history,
+            "PSO 不用了，把 3 辆移动充电车改成 2 辆，deadline 保留，障碍物也保留。",
+        );
+        assert_eq!(
+            state.parameters["mobile_charger_count"].value,
+            ParameterValue::Integer(2)
+        );
+        assert!(!state
+            .methods
+            .contains(&"particle_swarm_optimization".to_string()));
+        assert!(state
+            .methods
+            .contains(&"adaptive_large_neighborhood_search".to_string()));
+        assert!(state
+            .excluded_methods
+            .contains(&"particle_swarm_optimization".to_string()));
+        assert!(state.constraints.contains(&"deadlines".to_string()));
         assert!(state
             .constraints
-            .contains(&"multi_vehicle_coordination".to_string()));
-        assert_eq!(state.methods, vec!["adaptive_large_neighborhood_search"]);
-        assert!(state
-            .assumptions
-            .contains(&"stationary_sensor_nodes".to_string()));
-        assert!(state.papers.contains(&"ROSE".to_string()));
-        assert!(!state.hypotheses.is_empty());
-        assert!(state.open_questions[0].contains("现在的方法和约束"));
+            .contains(&"obstacle_avoidance".to_string()));
+    }
+
+    #[test]
+    fn sentence_wide_remove_no_longer_deletes_the_kept_constraint() {
+        let state = derive(
+            &[],
+            "加入时间窗和容量约束。去掉时间窗，但是容量约束继续保留。",
+        );
+        assert!(!state.constraints.contains(&"time_windows".to_string()));
+        assert!(state.constraints.contains(&"battery_capacity".to_string()));
     }
 
     fn stress_history(message_count: usize) -> Vec<ConversationTurn> {
         assert!(matches!(message_count, 20 | 50 | 100));
         let user_count = message_count / 2;
-        let mut user_turns = (0..user_count)
-            .map(|index| {
-                format!(
-                    "无线传感器网络移动充电第 {index} 轮仍受电池容量约束，目标是最大化网络寿命。"
-                )
-            })
-            .collect::<Vec<_>>();
-        user_turns[user_count - 4] = "目标改为最小化死亡节点。".to_string();
-        user_turns[user_count - 3] = "方法改用 ALNS。".to_string();
-        user_turns[user_count - 2] = "约束改为时间窗约束和电池容量约束。".to_string();
-        user_turns[user_count - 1] = "去掉时间窗约束。".to_string();
-        user_turns
+        let mut turns = vec![
+            "无线传感器网络移动充电目标是最大化网络寿命。".to_string(),
+            "加入电池容量约束。".to_string(),
+            "先考虑 PSO。".to_string(),
+            "有 3 辆移动充电车。".to_string(),
+        ];
+        while turns.len() + 4 < user_count {
+            turns.push("继续分析当前模型。".to_string());
+        }
+        turns.extend([
+            "目标改成最小化死亡节点。".to_string(),
+            "PSO 不用了，换成 ALNS。".to_string(),
+            "增加 deadline。".to_string(),
+            "移动充电车改成 2 辆。".to_string(),
+        ]);
+        turns
             .into_iter()
             .enumerate()
             .flat_map(|(index, content)| {
@@ -253,41 +254,20 @@ mod tests {
     }
 
     #[test]
-    fn twenty_fifty_and_one_hundred_message_stress_uses_only_latest_research_state() {
+    fn twenty_fifty_and_one_hundred_message_stress_uses_canonical_latest_state() {
         for message_count in [20, 50, 100] {
             let history = stress_history(message_count);
             assert_eq!(history.len(), message_count);
-            let state = derive(&history, "现在的目标、方法与约束是什么？");
+            let state = derive(&history, "现在有什么方法适合这个模型？");
+            assert_eq!(state.schema_version, RESEARCH_STATE_VERSION);
+            assert_eq!(state.objectives, vec!["minimize_dead_nodes"]);
+            assert_eq!(state.methods, vec!["adaptive_large_neighborhood_search"]);
+            assert!(state.constraints.contains(&"battery_capacity".to_string()));
+            assert!(state.constraints.contains(&"deadlines".to_string()));
             assert_eq!(
-                state.active_problem, "wireless_sensor_network",
-                "{message_count}"
+                state.parameters["mobile_charger_count"].value,
+                ParameterValue::Integer(2)
             );
-            assert_eq!(
-                state.objectives,
-                vec!["minimize_dead_nodes"],
-                "{message_count}"
-            );
-            assert_eq!(
-                state.methods,
-                vec!["adaptive_large_neighborhood_search"],
-                "{message_count}"
-            );
-            assert!(
-                state.constraints.contains(&"battery_capacity".to_string()),
-                "{message_count}"
-            );
-            assert!(
-                !state.constraints.contains(&"time_windows".to_string()),
-                "{message_count}"
-            );
-            assert!(
-                !state
-                    .objectives
-                    .contains(&"maximize_network_lifetime".to_string()),
-                "{message_count}"
-            );
-            assert_eq!(state.source_message_ids.len(), message_count / 2);
-            assert_eq!(state.revision, message_count / 2);
         }
     }
 }

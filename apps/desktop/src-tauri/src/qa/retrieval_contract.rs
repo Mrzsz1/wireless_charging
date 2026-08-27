@@ -1,3 +1,4 @@
+use super::research_query_context::ResearchQueryContext;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::HashSet;
@@ -64,6 +65,8 @@ pub struct RetrievalPlanningCandidate {
 #[serde(rename_all = "camelCase")]
 pub struct RetrievalPlanningInput {
     pub resolved_question: String,
+    #[serde(default)]
+    pub research_context: ResearchQueryContext,
     pub baseline_candidates: Vec<RetrievalPlanningCandidate>,
 }
 
@@ -286,6 +289,7 @@ pub fn retrieval_contract_prompt(input: &RetrievalPlanningInput) -> String {
         "你是科研知识库检索规划器。只输出符合 Provider 原生 JSON Schema 的 RetrievalContract，不输出 Markdown 或答案。\n\
          规划检索范围、显式来源、概念、同义表达、相关问题、证据面与预算。不要输出 answerProfile，不要输出 minimumEvidence，也不要判断事实真假或证据是否充分。\n\
          explicitSources 只放用户明确指定的书名、论文名或可审计来源；不得编造来源。requestedKinds 是允许尝试的来源类型，mustAttemptKinds 是必须实际尝试并记录状态的类型。\n\
+         researchContext 是应用当前消息 StatePatch 后的最新研究状态投影。开放方法搜索必须保留其中的目标、关键约束和参数；excludedMethods 不得作为首选推荐，但不能据此硬过滤有价值的比较证据。\n\
          searchQueries 需要保留问题尾部概念，可给少量中英表达；补查最多两轮，因此 maxRounds 最大为 3。baselineCandidates 只是候选摘要，不能限制未知术语。\n\
          完整格式示例（所有内容仅演示结构，严禁复制事实）：\n{example}\n输入 JSON：{input_json}"
     )

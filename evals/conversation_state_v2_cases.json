@@ -1,0 +1,1731 @@
+{
+  "schemaVersion": "qa-conversation-state-cases-v2",
+  "datasetRole": "conversation_state_evaluation",
+  "status": "frozen",
+  "version": "conversation-state-v2.0.0",
+  "caseCount": 17,
+  "cases": [
+    {
+      "id": "conv-v2-001",
+      "turns": [
+        {
+          "id": "conv-v2-001-m1",
+          "role": "user",
+          "content": "约束包括时间窗和容量约束。",
+          "requestId": "conv-v2-001-r1"
+        }
+      ],
+      "question": "去掉时间窗，容量约束保留。",
+      "expectedFinalState": {
+        "objectives": [],
+        "constraints": [
+          "battery_capacity"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {}
+      },
+      "expectedQueryContext": {
+        "objectives": [],
+        "constraints": [],
+        "parameters": [],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": true,
+      "parameterOverwrite": false,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 2,
+      "referenceRequired": false
+    },
+    {
+      "id": "conv-v2-002",
+      "turns": [
+        {
+          "id": "conv-v2-002-m1",
+          "role": "user",
+          "content": "使用 PSO。",
+          "requestId": "conv-v2-002-r1"
+        }
+      ],
+      "question": "PSO 不用了，换成 ALNS。",
+      "expectedFinalState": {
+        "objectives": [],
+        "constraints": [],
+        "assumptions": [],
+        "methods": [
+          "adaptive_large_neighborhood_search"
+        ],
+        "excludedMethods": [
+          "particle_swarm_optimization"
+        ],
+        "parameters": {}
+      },
+      "expectedQueryContext": {
+        "objectives": [],
+        "constraints": [],
+        "parameters": [],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": true,
+      "parameterOverwrite": false,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 2,
+      "referenceRequired": false
+    },
+    {
+      "id": "conv-v2-003",
+      "turns": [
+        {
+          "id": "conv-v2-003-m1",
+          "role": "user",
+          "content": "目标是最大化网络寿命。",
+          "requestId": "conv-v2-003-r1"
+        }
+      ],
+      "question": "目标不再是最大化网络寿命，改成最小化死亡节点。",
+      "expectedFinalState": {
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {}
+      },
+      "expectedQueryContext": {
+        "objectives": [],
+        "constraints": [],
+        "parameters": [],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": true,
+      "parameterOverwrite": false,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 2,
+      "referenceRequired": false
+    },
+    {
+      "id": "conv-v2-004",
+      "turns": [
+        {
+          "id": "conv-v2-004-m1",
+          "role": "user",
+          "content": "约束包括 deadline、容量约束和障碍物。",
+          "requestId": "conv-v2-004-r1"
+        }
+      ],
+      "question": "现在只保留 deadline 和容量约束。",
+      "expectedFinalState": {
+        "objectives": [],
+        "constraints": [
+          "deadlines",
+          "battery_capacity"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {}
+      },
+      "expectedQueryContext": {
+        "objectives": [],
+        "constraints": [],
+        "parameters": [],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": true,
+      "parameterOverwrite": false,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 1,
+      "referenceRequired": false
+    },
+    {
+      "id": "conv-v2-005",
+      "turns": [
+        {
+          "id": "conv-v2-005-m1",
+          "role": "user",
+          "content": "约束包括 deadline。",
+          "requestId": "conv-v2-005-r1"
+        }
+      ],
+      "question": "去掉 deadline……不对，还是保留。",
+      "expectedFinalState": {
+        "objectives": [],
+        "constraints": [
+          "deadlines"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {}
+      },
+      "expectedQueryContext": {
+        "objectives": [],
+        "constraints": [],
+        "parameters": [],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": true,
+      "parameterOverwrite": false,
+      "protectDestructive": true,
+      "expectedPatchOperationCount": 2,
+      "referenceRequired": false
+    },
+    {
+      "id": "conv-v2-006",
+      "turns": [
+        {
+          "id": "conv-v2-006-m1",
+          "role": "user",
+          "content": "约束包括 deadline。",
+          "requestId": "conv-v2-006-r1"
+        }
+      ],
+      "question": "保留 deadline，等等，还是去掉。",
+      "expectedFinalState": {
+        "objectives": [],
+        "constraints": [],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {}
+      },
+      "expectedQueryContext": {
+        "objectives": [],
+        "constraints": [],
+        "parameters": [],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": true,
+      "parameterOverwrite": false,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 2,
+      "referenceRequired": false
+    },
+    {
+      "id": "conv-v2-007",
+      "turns": [],
+      "question": "有 3 辆移动充电车。",
+      "expectedFinalState": {
+        "objectives": [],
+        "constraints": [
+          "multi_vehicle_coordination"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "value": {
+              "type": "integer",
+              "value": 3
+            }
+          }
+        }
+      },
+      "expectedQueryContext": {
+        "objectives": [],
+        "constraints": [],
+        "parameters": [],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": false,
+      "parameterOverwrite": false,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 2,
+      "referenceRequired": false
+    },
+    {
+      "id": "conv-v2-008",
+      "turns": [
+        {
+          "id": "conv-v2-008-m1",
+          "role": "user",
+          "content": "有 3 辆移动充电车。",
+          "requestId": "conv-v2-008-r1"
+        }
+      ],
+      "question": "改成 2 辆。",
+      "expectedFinalState": {
+        "objectives": [],
+        "constraints": [
+          "multi_vehicle_coordination"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "value": {
+              "type": "integer",
+              "value": 2
+            }
+          }
+        }
+      },
+      "expectedQueryContext": {
+        "objectives": [],
+        "constraints": [],
+        "parameters": [],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": false,
+      "parameterOverwrite": true,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 2,
+      "referenceRequired": false
+    },
+    {
+      "id": "conv-v2-009",
+      "turns": [],
+      "question": "deadline 改成 30 分钟。",
+      "expectedFinalState": {
+        "objectives": [],
+        "constraints": [
+          "deadlines"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "deadline": {
+            "value": {
+              "type": "integer",
+              "value": 30
+            },
+            "unit": "minute"
+          }
+        }
+      },
+      "expectedQueryContext": {
+        "objectives": [],
+        "constraints": [],
+        "parameters": [],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": false,
+      "parameterOverwrite": false,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 2,
+      "referenceRequired": false
+    },
+    {
+      "id": "conv-v2-010",
+      "turns": [
+        {
+          "id": "conv-v2-010-m1",
+          "role": "user",
+          "content": "模型有 2 辆移动充电车，约束包括 deadline 和障碍物，目标是最小化死亡节点。",
+          "requestId": "conv-v2-010-r1"
+        }
+      ],
+      "question": "有没有什么算法适合这个模型？",
+      "expectedFinalState": {
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "value": {
+              "type": "integer",
+              "value": 2
+            }
+          }
+        }
+      },
+      "expectedQueryContext": {
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "parameters": [
+          "mobile_charger_count"
+        ],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": false,
+      "parameterOverwrite": false,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 0,
+      "referenceRequired": true
+    },
+    {
+      "id": "conv-v2-011",
+      "turns": [
+        {
+          "id": "conv-v2-011-m1",
+          "role": "user",
+          "content": "模型有 2 辆移动充电车，约束包括 deadline 和障碍物，目标是最小化死亡节点。",
+          "requestId": "conv-v2-011-r1"
+        }
+      ],
+      "question": "这个模型还能怎么改进？",
+      "expectedFinalState": {
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "value": {
+              "type": "integer",
+              "value": 2
+            }
+          }
+        }
+      },
+      "expectedQueryContext": {
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "parameters": [
+          "mobile_charger_count"
+        ],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": false,
+      "parameterOverwrite": false,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 0,
+      "referenceRequired": true
+    },
+    {
+      "id": "conv-v2-012",
+      "turns": [
+        {
+          "id": "conv-v2-012-m1",
+          "role": "user",
+          "content": "模型有 2 辆移动充电车，约束包括 deadline 和障碍物，目标是最小化死亡节点。",
+          "requestId": "conv-v2-012-r1"
+        }
+      ],
+      "question": "有没有别的领域的方法可以迁移过来？",
+      "expectedFinalState": {
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "value": {
+              "type": "integer",
+              "value": 2
+            }
+          }
+        }
+      },
+      "expectedQueryContext": {
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "parameters": [
+          "mobile_charger_count"
+        ],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": false,
+      "parameterOverwrite": false,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 0,
+      "referenceRequired": true
+    },
+    {
+      "id": "conv-v2-013",
+      "turns": [
+        {
+          "id": "conv-v2-013-m1",
+          "role": "user",
+          "content": "模型有 3 辆移动充电车，使用 PSO，约束包括 deadline。",
+          "requestId": "conv-v2-013-r1"
+        }
+      ],
+      "question": "改成 2 辆车，PSO 不用了，deadline 留着。有什么算法更合适？",
+      "expectedFinalState": {
+        "objectives": [],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [
+          "particle_swarm_optimization"
+        ],
+        "parameters": {
+          "mobile_charger_count": {
+            "value": {
+              "type": "integer",
+              "value": 2
+            }
+          }
+        }
+      },
+      "expectedQueryContext": {
+        "objectives": [],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines"
+        ],
+        "parameters": [
+          "mobile_charger_count"
+        ],
+        "activeMethods": [],
+        "excludedMethods": [
+          "particle_swarm_optimization"
+        ]
+      },
+      "mixedOperation": true,
+      "parameterOverwrite": true,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 4,
+      "referenceRequired": true
+    },
+    {
+      "id": "conv-v2-014",
+      "turns": [
+        {
+          "id": "conv-v2-014-m1",
+          "role": "user",
+          "content": "使用 PSO、ALNS 和 MILP。",
+          "requestId": "conv-v2-014-r1"
+        }
+      ],
+      "question": "那个方法不要了。",
+      "expectedFinalState": {
+        "objectives": [],
+        "constraints": [],
+        "assumptions": [],
+        "methods": [
+          "particle_swarm_optimization",
+          "adaptive_large_neighborhood_search",
+          "mixed_integer_linear_programming"
+        ],
+        "excludedMethods": [],
+        "parameters": {}
+      },
+      "expectedQueryContext": {
+        "objectives": [],
+        "constraints": [],
+        "parameters": [],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": false,
+      "parameterOverwrite": false,
+      "protectDestructive": true,
+      "expectedPatchOperationCount": 1,
+      "referenceRequired": false
+    },
+    {
+      "id": "conv-v2-015",
+      "turns": [
+        {
+          "id": "conv-v2-015-m1",
+          "role": "user",
+          "content": "模型有 2 辆移动充电车，约束包括 deadline 和障碍物，目标是最小化死亡节点。",
+          "requestId": "conv-v2-015-r1"
+        },
+        {
+          "id": "conv-v2-015-m2",
+          "role": "assistant",
+          "content": "已记录当前模型。",
+          "requestId": "conv-v2-015-r1"
+        },
+        {
+          "id": "conv-v2-015-m3",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-015-r2"
+        },
+        {
+          "id": "conv-v2-015-m4",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-015-r2"
+        },
+        {
+          "id": "conv-v2-015-m5",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-015-r3"
+        },
+        {
+          "id": "conv-v2-015-m6",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-015-r3"
+        },
+        {
+          "id": "conv-v2-015-m7",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-015-r4"
+        },
+        {
+          "id": "conv-v2-015-m8",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-015-r4"
+        },
+        {
+          "id": "conv-v2-015-m9",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-015-r5"
+        },
+        {
+          "id": "conv-v2-015-m10",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-015-r5"
+        },
+        {
+          "id": "conv-v2-015-m11",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-015-r6"
+        },
+        {
+          "id": "conv-v2-015-m12",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-015-r6"
+        },
+        {
+          "id": "conv-v2-015-m13",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-015-r7"
+        },
+        {
+          "id": "conv-v2-015-m14",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-015-r7"
+        },
+        {
+          "id": "conv-v2-015-m15",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-015-r8"
+        },
+        {
+          "id": "conv-v2-015-m16",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-015-r8"
+        },
+        {
+          "id": "conv-v2-015-m17",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-015-r9"
+        },
+        {
+          "id": "conv-v2-015-m18",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-015-r9"
+        },
+        {
+          "id": "conv-v2-015-m19",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-015-r10"
+        },
+        {
+          "id": "conv-v2-015-m20",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-015-r10"
+        }
+      ],
+      "question": "那现在有什么方法适合？",
+      "expectedFinalState": {
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "value": {
+              "type": "integer",
+              "value": 2
+            }
+          }
+        }
+      },
+      "expectedQueryContext": {
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "parameters": [
+          "mobile_charger_count"
+        ],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": false,
+      "parameterOverwrite": false,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 0,
+      "referenceRequired": true
+    },
+    {
+      "id": "conv-v2-016",
+      "turns": [
+        {
+          "id": "conv-v2-016-m1",
+          "role": "user",
+          "content": "模型有 2 辆移动充电车，约束包括 deadline 和障碍物，目标是最小化死亡节点。",
+          "requestId": "conv-v2-016-r1"
+        },
+        {
+          "id": "conv-v2-016-m2",
+          "role": "assistant",
+          "content": "已记录当前模型。",
+          "requestId": "conv-v2-016-r1"
+        },
+        {
+          "id": "conv-v2-016-m3",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r2"
+        },
+        {
+          "id": "conv-v2-016-m4",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r2"
+        },
+        {
+          "id": "conv-v2-016-m5",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r3"
+        },
+        {
+          "id": "conv-v2-016-m6",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r3"
+        },
+        {
+          "id": "conv-v2-016-m7",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r4"
+        },
+        {
+          "id": "conv-v2-016-m8",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r4"
+        },
+        {
+          "id": "conv-v2-016-m9",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r5"
+        },
+        {
+          "id": "conv-v2-016-m10",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r5"
+        },
+        {
+          "id": "conv-v2-016-m11",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r6"
+        },
+        {
+          "id": "conv-v2-016-m12",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r6"
+        },
+        {
+          "id": "conv-v2-016-m13",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r7"
+        },
+        {
+          "id": "conv-v2-016-m14",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r7"
+        },
+        {
+          "id": "conv-v2-016-m15",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r8"
+        },
+        {
+          "id": "conv-v2-016-m16",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r8"
+        },
+        {
+          "id": "conv-v2-016-m17",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r9"
+        },
+        {
+          "id": "conv-v2-016-m18",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r9"
+        },
+        {
+          "id": "conv-v2-016-m19",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r10"
+        },
+        {
+          "id": "conv-v2-016-m20",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r10"
+        },
+        {
+          "id": "conv-v2-016-m21",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r11"
+        },
+        {
+          "id": "conv-v2-016-m22",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r11"
+        },
+        {
+          "id": "conv-v2-016-m23",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r12"
+        },
+        {
+          "id": "conv-v2-016-m24",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r12"
+        },
+        {
+          "id": "conv-v2-016-m25",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r13"
+        },
+        {
+          "id": "conv-v2-016-m26",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r13"
+        },
+        {
+          "id": "conv-v2-016-m27",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r14"
+        },
+        {
+          "id": "conv-v2-016-m28",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r14"
+        },
+        {
+          "id": "conv-v2-016-m29",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r15"
+        },
+        {
+          "id": "conv-v2-016-m30",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r15"
+        },
+        {
+          "id": "conv-v2-016-m31",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r16"
+        },
+        {
+          "id": "conv-v2-016-m32",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r16"
+        },
+        {
+          "id": "conv-v2-016-m33",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r17"
+        },
+        {
+          "id": "conv-v2-016-m34",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r17"
+        },
+        {
+          "id": "conv-v2-016-m35",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r18"
+        },
+        {
+          "id": "conv-v2-016-m36",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r18"
+        },
+        {
+          "id": "conv-v2-016-m37",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r19"
+        },
+        {
+          "id": "conv-v2-016-m38",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r19"
+        },
+        {
+          "id": "conv-v2-016-m39",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r20"
+        },
+        {
+          "id": "conv-v2-016-m40",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r20"
+        },
+        {
+          "id": "conv-v2-016-m41",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r21"
+        },
+        {
+          "id": "conv-v2-016-m42",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r21"
+        },
+        {
+          "id": "conv-v2-016-m43",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r22"
+        },
+        {
+          "id": "conv-v2-016-m44",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r22"
+        },
+        {
+          "id": "conv-v2-016-m45",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r23"
+        },
+        {
+          "id": "conv-v2-016-m46",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r23"
+        },
+        {
+          "id": "conv-v2-016-m47",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r24"
+        },
+        {
+          "id": "conv-v2-016-m48",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r24"
+        },
+        {
+          "id": "conv-v2-016-m49",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-016-r25"
+        },
+        {
+          "id": "conv-v2-016-m50",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-016-r25"
+        }
+      ],
+      "question": "那现在有什么方法适合？",
+      "expectedFinalState": {
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "value": {
+              "type": "integer",
+              "value": 2
+            }
+          }
+        }
+      },
+      "expectedQueryContext": {
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "parameters": [
+          "mobile_charger_count"
+        ],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": false,
+      "parameterOverwrite": false,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 0,
+      "referenceRequired": true
+    },
+    {
+      "id": "conv-v2-017",
+      "turns": [
+        {
+          "id": "conv-v2-017-m1",
+          "role": "user",
+          "content": "模型有 2 辆移动充电车，约束包括 deadline 和障碍物，目标是最小化死亡节点。",
+          "requestId": "conv-v2-017-r1"
+        },
+        {
+          "id": "conv-v2-017-m2",
+          "role": "assistant",
+          "content": "已记录当前模型。",
+          "requestId": "conv-v2-017-r1"
+        },
+        {
+          "id": "conv-v2-017-m3",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r2"
+        },
+        {
+          "id": "conv-v2-017-m4",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r2"
+        },
+        {
+          "id": "conv-v2-017-m5",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r3"
+        },
+        {
+          "id": "conv-v2-017-m6",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r3"
+        },
+        {
+          "id": "conv-v2-017-m7",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r4"
+        },
+        {
+          "id": "conv-v2-017-m8",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r4"
+        },
+        {
+          "id": "conv-v2-017-m9",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r5"
+        },
+        {
+          "id": "conv-v2-017-m10",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r5"
+        },
+        {
+          "id": "conv-v2-017-m11",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r6"
+        },
+        {
+          "id": "conv-v2-017-m12",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r6"
+        },
+        {
+          "id": "conv-v2-017-m13",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r7"
+        },
+        {
+          "id": "conv-v2-017-m14",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r7"
+        },
+        {
+          "id": "conv-v2-017-m15",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r8"
+        },
+        {
+          "id": "conv-v2-017-m16",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r8"
+        },
+        {
+          "id": "conv-v2-017-m17",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r9"
+        },
+        {
+          "id": "conv-v2-017-m18",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r9"
+        },
+        {
+          "id": "conv-v2-017-m19",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r10"
+        },
+        {
+          "id": "conv-v2-017-m20",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r10"
+        },
+        {
+          "id": "conv-v2-017-m21",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r11"
+        },
+        {
+          "id": "conv-v2-017-m22",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r11"
+        },
+        {
+          "id": "conv-v2-017-m23",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r12"
+        },
+        {
+          "id": "conv-v2-017-m24",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r12"
+        },
+        {
+          "id": "conv-v2-017-m25",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r13"
+        },
+        {
+          "id": "conv-v2-017-m26",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r13"
+        },
+        {
+          "id": "conv-v2-017-m27",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r14"
+        },
+        {
+          "id": "conv-v2-017-m28",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r14"
+        },
+        {
+          "id": "conv-v2-017-m29",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r15"
+        },
+        {
+          "id": "conv-v2-017-m30",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r15"
+        },
+        {
+          "id": "conv-v2-017-m31",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r16"
+        },
+        {
+          "id": "conv-v2-017-m32",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r16"
+        },
+        {
+          "id": "conv-v2-017-m33",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r17"
+        },
+        {
+          "id": "conv-v2-017-m34",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r17"
+        },
+        {
+          "id": "conv-v2-017-m35",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r18"
+        },
+        {
+          "id": "conv-v2-017-m36",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r18"
+        },
+        {
+          "id": "conv-v2-017-m37",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r19"
+        },
+        {
+          "id": "conv-v2-017-m38",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r19"
+        },
+        {
+          "id": "conv-v2-017-m39",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r20"
+        },
+        {
+          "id": "conv-v2-017-m40",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r20"
+        },
+        {
+          "id": "conv-v2-017-m41",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r21"
+        },
+        {
+          "id": "conv-v2-017-m42",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r21"
+        },
+        {
+          "id": "conv-v2-017-m43",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r22"
+        },
+        {
+          "id": "conv-v2-017-m44",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r22"
+        },
+        {
+          "id": "conv-v2-017-m45",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r23"
+        },
+        {
+          "id": "conv-v2-017-m46",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r23"
+        },
+        {
+          "id": "conv-v2-017-m47",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r24"
+        },
+        {
+          "id": "conv-v2-017-m48",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r24"
+        },
+        {
+          "id": "conv-v2-017-m49",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r25"
+        },
+        {
+          "id": "conv-v2-017-m50",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r25"
+        },
+        {
+          "id": "conv-v2-017-m51",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r26"
+        },
+        {
+          "id": "conv-v2-017-m52",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r26"
+        },
+        {
+          "id": "conv-v2-017-m53",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r27"
+        },
+        {
+          "id": "conv-v2-017-m54",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r27"
+        },
+        {
+          "id": "conv-v2-017-m55",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r28"
+        },
+        {
+          "id": "conv-v2-017-m56",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r28"
+        },
+        {
+          "id": "conv-v2-017-m57",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r29"
+        },
+        {
+          "id": "conv-v2-017-m58",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r29"
+        },
+        {
+          "id": "conv-v2-017-m59",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r30"
+        },
+        {
+          "id": "conv-v2-017-m60",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r30"
+        },
+        {
+          "id": "conv-v2-017-m61",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r31"
+        },
+        {
+          "id": "conv-v2-017-m62",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r31"
+        },
+        {
+          "id": "conv-v2-017-m63",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r32"
+        },
+        {
+          "id": "conv-v2-017-m64",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r32"
+        },
+        {
+          "id": "conv-v2-017-m65",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r33"
+        },
+        {
+          "id": "conv-v2-017-m66",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r33"
+        },
+        {
+          "id": "conv-v2-017-m67",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r34"
+        },
+        {
+          "id": "conv-v2-017-m68",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r34"
+        },
+        {
+          "id": "conv-v2-017-m69",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r35"
+        },
+        {
+          "id": "conv-v2-017-m70",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r35"
+        },
+        {
+          "id": "conv-v2-017-m71",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r36"
+        },
+        {
+          "id": "conv-v2-017-m72",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r36"
+        },
+        {
+          "id": "conv-v2-017-m73",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r37"
+        },
+        {
+          "id": "conv-v2-017-m74",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r37"
+        },
+        {
+          "id": "conv-v2-017-m75",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r38"
+        },
+        {
+          "id": "conv-v2-017-m76",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r38"
+        },
+        {
+          "id": "conv-v2-017-m77",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r39"
+        },
+        {
+          "id": "conv-v2-017-m78",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r39"
+        },
+        {
+          "id": "conv-v2-017-m79",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r40"
+        },
+        {
+          "id": "conv-v2-017-m80",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r40"
+        },
+        {
+          "id": "conv-v2-017-m81",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r41"
+        },
+        {
+          "id": "conv-v2-017-m82",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r41"
+        },
+        {
+          "id": "conv-v2-017-m83",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r42"
+        },
+        {
+          "id": "conv-v2-017-m84",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r42"
+        },
+        {
+          "id": "conv-v2-017-m85",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r43"
+        },
+        {
+          "id": "conv-v2-017-m86",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r43"
+        },
+        {
+          "id": "conv-v2-017-m87",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r44"
+        },
+        {
+          "id": "conv-v2-017-m88",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r44"
+        },
+        {
+          "id": "conv-v2-017-m89",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r45"
+        },
+        {
+          "id": "conv-v2-017-m90",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r45"
+        },
+        {
+          "id": "conv-v2-017-m91",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r46"
+        },
+        {
+          "id": "conv-v2-017-m92",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r46"
+        },
+        {
+          "id": "conv-v2-017-m93",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r47"
+        },
+        {
+          "id": "conv-v2-017-m94",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r47"
+        },
+        {
+          "id": "conv-v2-017-m95",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r48"
+        },
+        {
+          "id": "conv-v2-017-m96",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r48"
+        },
+        {
+          "id": "conv-v2-017-m97",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r49"
+        },
+        {
+          "id": "conv-v2-017-m98",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r49"
+        },
+        {
+          "id": "conv-v2-017-m99",
+          "role": "user",
+          "content": "继续分析当前模型。",
+          "requestId": "conv-v2-017-r50"
+        },
+        {
+          "id": "conv-v2-017-m100",
+          "role": "assistant",
+          "content": "继续。",
+          "requestId": "conv-v2-017-r50"
+        }
+      ],
+      "question": "那现在有什么方法适合？",
+      "expectedFinalState": {
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "value": {
+              "type": "integer",
+              "value": 2
+            }
+          }
+        }
+      },
+      "expectedQueryContext": {
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "parameters": [
+          "mobile_charger_count"
+        ],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": false,
+      "parameterOverwrite": false,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 0,
+      "referenceRequired": true
+    }
+  ]
+}

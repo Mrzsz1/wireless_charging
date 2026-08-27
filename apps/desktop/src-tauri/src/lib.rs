@@ -4532,6 +4532,17 @@ pub fn run_conversation_benchmark_files(cases_path: &Path, output: &Path) -> Res
         && report.objective_preservation >= 0.97)
 }
 
+pub fn run_conversation_state_benchmark_files(
+    cases_path: &Path,
+    output: &Path,
+) -> Result<bool, String> {
+    let suite = qa::conversation_state_benchmark::load_suite(cases_path)?;
+    let report = qa::conversation_state_benchmark::evaluate(&suite)?;
+    let passed = report.passed;
+    qa::conversation_state_benchmark::write_report(&report, output)?;
+    Ok(passed)
+}
+
 pub fn run_rag_performance_files(
     repository_root: &Path,
     cases_path: &Path,

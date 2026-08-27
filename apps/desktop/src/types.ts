@@ -542,18 +542,50 @@ export type ContextPlan = {
   budget: ContextBudget
 }
 
+export type ResearchParameterValue =
+  | { type: 'integer'; value: number }
+  | { type: 'float'; value: number }
+  | { type: 'boolean'; value: boolean }
+  | { type: 'text'; value: string }
+
+export type ResearchParameter = {
+  key: string
+  value: ResearchParameterValue
+  unit?: string | null
+  sourceMessageId?: string | null
+  updatedAtTurn: number
+}
+
 export type ResearchSessionState = {
   schemaVersion: string
+  stateVersion: string
   revision: number
   activeProblem: string
   objectives: string[]
   constraints: string[]
   assumptions: string[]
   methods: string[]
+  excludedMethods: string[]
+  parameters: Record<string, ResearchParameter>
   papers: string[]
   hypotheses: string[]
   openQuestions: string[]
   sourceMessageIds: string[]
+  lastPatchId: string
+}
+
+export type ResearchQueryContext = {
+  schemaVersion: string
+  currentQuestion: string
+  researchIntent: string
+  objectives: string[]
+  constraints: string[]
+  assumptions: string[]
+  parameters: Record<string, ResearchParameter>
+  activeMethods: string[]
+  excludedMethods: string[]
+  resolvedReferences: string[]
+  sourceStateRevision: number
 }
 
 export type EvidenceChecksum = {
@@ -710,6 +742,15 @@ export type QaRunManifest = {
   researchStateRevision?: number
   researchStateObjectiveCount?: number
   researchStateConstraintCount?: number
+  statePatchOperationCount?: number
+  statePatchLowConfidenceCount?: number
+  statePatchRejectedCount?: number
+  stateChanged?: boolean
+  stateWarningCount?: number
+  queryContextObjectiveCount?: number
+  queryContextConstraintCount?: number
+  queryContextParameterCount?: number
+  queryContextExcludedMethodCount?: number
   routingPolicyVersion?: string
   routingMaxRounds?: number
   routingMaxQueries?: number
@@ -857,6 +898,17 @@ export type QuestionContext = {
     requestedKinds?: string[]
     attemptedKinds?: string[]
     sourceGaps?: string[]
+    researchQueryContext?: ResearchQueryContext
+    researchStateVersion?: string
+    statePatchOperationCount?: number
+    statePatchLowConfidenceCount?: number
+    statePatchRejectedCount?: number
+    stateChanged?: boolean
+    stateWarningCount?: number
+    queryContextObjectiveCount?: number
+    queryContextConstraintCount?: number
+    queryContextParameterCount?: number
+    queryContextExcludedMethodCount?: number
   }
   conversation: ConversationTurn[]
   evidence: EvidenceItem[]

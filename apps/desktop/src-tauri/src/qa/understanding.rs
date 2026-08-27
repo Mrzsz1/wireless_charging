@@ -1,10 +1,13 @@
+use super::state_mutation::{
+    state_patch_schema, validate_patch, ResearchStatePatch, ResearchStateSummary,
+};
 use super::{compact, ConversationTurn};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::HashSet;
 use std::time::Instant;
 
-pub const UNDERSTANDING_SCHEMA_VERSION: &str = "qa-understanding-v1";
+pub const UNDERSTANDING_SCHEMA_VERSION: &str = "qa-understanding-v2";
 const MAX_HISTORY_TURNS: usize = 16;
 const MAX_HISTORY_CHARS: usize = 1_200;
 const MAX_STANDALONE_CHARS: usize = 2_000;
@@ -116,7 +119,7 @@ pub struct UnderstandingTurn {
     pub content: String,
 }
 
-#[derive(Debug, Serialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct UnderstandingPlanningInput {
     pub original_question: String,
@@ -124,6 +127,8 @@ pub struct UnderstandingPlanningInput {
     pub current_entities: Vec<String>,
     #[serde(skip)]
     pub history_entities: Vec<EntityCandidate>,
+    #[serde(default)]
+    pub current_state: ResearchStateSummary,
 }
 
 impl UnderstandingPlanningInput {
@@ -149,11 +154,17 @@ impl UnderstandingPlanningInput {
             recent_history,
             current_entities,
             history_entities,
+            current_state: ResearchStateSummary::default(),
         }
+    }
+
+    pub fn with_current_state(mut self, current_state: ResearchStateSummary) -> Self {
+        self.current_state = current_state;
+        self
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct UnderstandingPlan {
     pub schema_version: String,
@@ -162,6 +173,8 @@ pub struct UnderstandingPlan {
     pub used_history_message_ids: Vec<String>,
     pub intent: ResearchIntent,
     pub execution_mode: ExecutionMode,
+    #[serde(default)]
+    pub state_patch: ResearchStatePatch,
 }
 
 pub type UnderstandingPlanner<'a> =
@@ -182,10 +195,11 @@ pub struct UnderstandingDiagnostics {
     pub resolver_escalated: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct UnderstandingResult {
     pub routed: RoutedResearchQuery,
     pub diagnostics: UnderstandingDiagnostics,
+    pub state_patch: ResearchStatePatch,
 }
 
 #[derive(Debug)]
@@ -200,6 +214,7 @@ pub struct ResolverOutcome {
     pub fallback_reason: String,
     pub routing_confidence: String,
     pub escalated: bool,
+    pub state_patch: ResearchStatePatch,
 }
 
 pub trait ConversationResolver {
@@ -225,6 +240,7 @@ impl ConversationResolver for DeterministicConversationResolver {
             routing_confidence: deterministic_routing_confidence(&input.original_question, reason)
                 .to_string(),
             escalated: false,
+            state_patch: ResearchStatePatch::empty(None),
         }
     }
 }
@@ -275,6 +291,7 @@ impl ConversationResolver for HybridConversationResolver<'_> {
                 fallback_reason: String::new(),
                 routing_confidence: deterministic.routing_confidence,
                 escalated: true,
+                state_patch: plan.state_patch,
             },
             Err(error) => {
                 let mut outcome = deterministic;
@@ -392,6 +409,7 @@ pub fn resolve_and_route<'a>(
             routing_confidence,
             resolver_escalated,
         },
+        state_patch: resolved.state_patch,
     }
 }
 
@@ -770,6 +788,8 @@ pub fn parse_understanding_plan(
     if plan.schema_version != UNDERSTANDING_SCHEMA_VERSION {
         return Err("UNDERSTANDING_INVALID: schemaVersion 不受支持".to_string());
     }
+    plan.state_patch = validate_patch(plan.state_patch)
+        .map_err(|error| format!("UNDERSTANDING_INVALID: {error}"))?;
     plan.standalone_question = compact(&plan.standalone_question, MAX_STANDALONE_CHARS);
     if plan.standalone_question.chars().count() < 2 {
         return Err("UNDERSTANDING_INVALID: standaloneQuestion 不能为空".to_string());
@@ -816,14 +836,15 @@ pub fn understanding_schema() -> Value {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "additionalProperties": false,
-        "required": ["schemaVersion", "standaloneQuestion", "resolvedEntities", "usedHistoryMessageIds", "intent", "executionMode"],
+        "required": ["schemaVersion", "standaloneQuestion", "resolvedEntities", "usedHistoryMessageIds", "intent", "executionMode", "statePatch"],
         "properties": {
             "schemaVersion": {"type": "string", "const": UNDERSTANDING_SCHEMA_VERSION},
             "standaloneQuestion": {"type": "string", "minLength": 2, "maxLength": MAX_STANDALONE_CHARS},
             "resolvedEntities": {"type": "array", "maxItems": MAX_ENTITIES, "items": {"type": "string", "minLength": 1, "maxLength": 160}},
             "usedHistoryMessageIds": {"type": "array", "maxItems": MAX_HISTORY_TURNS, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 160}},
             "intent": {"type": "string", "enum": intents},
-            "executionMode": {"type": "string", "enum": modes}
+            "executionMode": {"type": "string", "enum": modes},
+            "statePatch": state_patch_schema()
         }
     })
 }
@@ -834,6 +855,7 @@ pub fn understanding_prompt(input: &UnderstandingPlanningInput) -> String {
         "你是科研问答的问题理解器。只输出符合原生 JSON Schema 的对象。\n\
          将当前问题改写为无需查看历史也能理解的 standaloneQuestion，保留目标、约束、假设、否定和比较对象。\n\
          resolvedEntities 只能来自当前问题或 recentHistory；usedHistoryMessageIds 只能填写实际参与消解的 messageId。\n\
+         statePatch 只能描述当前消息对 currentState 的逐对象有序修改，不能生成最终 State；没有修改时 operations 必须为空。低置信度破坏性操作保持 low，让后端 fail closed。\n\
          intent 使用最具体的科研意图。简单事实用 direct；需要多来源检索用 research；方法改进、解法搜索、问题建模和开放探索用 exploratory。\n\
          不回答问题，不生成证据，不编造论文、方法或约束。输入 JSON：{payload}"
     )
@@ -983,6 +1005,7 @@ mod tests {
                 used_history_message_ids: Vec::new(),
                 intent: ResearchIntent::ExploratoryResearch,
                 execution_mode: ExecutionMode::Exploratory,
+                state_patch: ResearchStatePatch::empty(None),
             })
         };
         let result = resolve_and_route(&input, Some(&mut planner));

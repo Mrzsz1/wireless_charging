@@ -1,0 +1,1241 @@
+{
+  "schemaVersion": "qa-conversation-state-report-v2",
+  "datasetVersion": "conversation-state-v2.0.0",
+  "datasetSha256": "d1c451f5d5b1d174abfb90aed3f03809a86d2596773dd09e484f4561bfebbb64",
+  "caseCount": 17,
+  "stateExactMatch": 1.0,
+  "objectiveExactMatch": 1.0,
+  "constraintExactMatch": 1.0,
+  "methodExactMatch": 1.0,
+  "parameterExactMatch": 1.0,
+  "mixedOperationExactMatch": 1.0,
+  "parameterOverwriteExactMatch": 1.0,
+  "unexpectedStateRate": 0.0,
+  "destructiveMutationErrorRate": 0.0,
+  "queryContextObjectiveRecall": 1.0,
+  "queryContextConstraintRecall": 1.0,
+  "queryContextParameterRecall": 1.0,
+  "queryContextExcludedMethodAccuracy": 1.0,
+  "referenceResolutionAccuracy": 1.0,
+  "passed": true,
+  "results": [
+    {
+      "id": "conv-v2-001",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "queryContextObjectiveHits": 0,
+      "queryContextObjectiveTotal": 0,
+      "queryContextConstraintHits": 0,
+      "queryContextConstraintTotal": 0,
+      "queryContextParameterHits": 0,
+      "queryContextParameterTotal": 0,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 2,
+        "activeProblem": "",
+        "objectives": [],
+        "constraints": [
+          "battery_capacity"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {},
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [],
+        "sourceMessageIds": [
+          "conv-v2-001-m1"
+        ],
+        "lastPatchId": "patch:current"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "去掉时间窗，容量约束保留。",
+        "researchIntent": "direct_factual",
+        "objectives": [],
+        "constraints": [
+          "battery_capacity"
+        ],
+        "assumptions": [],
+        "parameters": {},
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 2
+      }
+    },
+    {
+      "id": "conv-v2-002",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "queryContextObjectiveHits": 0,
+      "queryContextObjectiveTotal": 0,
+      "queryContextConstraintHits": 0,
+      "queryContextConstraintTotal": 0,
+      "queryContextParameterHits": 0,
+      "queryContextParameterTotal": 0,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 2,
+        "activeProblem": "",
+        "objectives": [],
+        "constraints": [],
+        "assumptions": [],
+        "methods": [
+          "adaptive_large_neighborhood_search"
+        ],
+        "excludedMethods": [
+          "particle_swarm_optimization"
+        ],
+        "parameters": {},
+        "papers": [
+          "PSO",
+          "ALNS"
+        ],
+        "hypotheses": [],
+        "openQuestions": [],
+        "sourceMessageIds": [
+          "conv-v2-002-m1"
+        ],
+        "lastPatchId": "patch:current"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "PSO 不用了，换成 ALNS。",
+        "researchIntent": "direct_factual",
+        "objectives": [],
+        "constraints": [],
+        "assumptions": [],
+        "parameters": {},
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 2
+      }
+    },
+    {
+      "id": "conv-v2-003",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "queryContextObjectiveHits": 0,
+      "queryContextObjectiveTotal": 0,
+      "queryContextConstraintHits": 0,
+      "queryContextConstraintTotal": 0,
+      "queryContextParameterHits": 0,
+      "queryContextParameterTotal": 0,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 2,
+        "activeProblem": "",
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {},
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [],
+        "sourceMessageIds": [
+          "conv-v2-003-m1"
+        ],
+        "lastPatchId": "patch:current"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "目标不再是最大化网络寿命，改成最小化死亡节点。",
+        "researchIntent": "direct_factual",
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [],
+        "assumptions": [],
+        "parameters": {},
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 2
+      }
+    },
+    {
+      "id": "conv-v2-004",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "queryContextObjectiveHits": 0,
+      "queryContextObjectiveTotal": 0,
+      "queryContextConstraintHits": 0,
+      "queryContextConstraintTotal": 0,
+      "queryContextParameterHits": 0,
+      "queryContextParameterTotal": 0,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 2,
+        "activeProblem": "",
+        "objectives": [],
+        "constraints": [
+          "deadlines",
+          "battery_capacity"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {},
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [],
+        "sourceMessageIds": [
+          "conv-v2-004-m1"
+        ],
+        "lastPatchId": "patch:current"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "现在只保留 deadline 和容量约束。",
+        "researchIntent": "direct_factual",
+        "objectives": [],
+        "constraints": [
+          "deadlines",
+          "battery_capacity"
+        ],
+        "assumptions": [],
+        "parameters": {},
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 2
+      }
+    },
+    {
+      "id": "conv-v2-005",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "queryContextObjectiveHits": 0,
+      "queryContextObjectiveTotal": 0,
+      "queryContextConstraintHits": 0,
+      "queryContextConstraintTotal": 0,
+      "queryContextParameterHits": 0,
+      "queryContextParameterTotal": 0,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 2,
+        "activeProblem": "",
+        "objectives": [],
+        "constraints": [
+          "deadlines"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {},
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [],
+        "sourceMessageIds": [
+          "conv-v2-005-m1"
+        ],
+        "lastPatchId": "patch:current"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "去掉 deadline……不对，还是保留。",
+        "researchIntent": "direct_factual",
+        "objectives": [],
+        "constraints": [
+          "deadlines"
+        ],
+        "assumptions": [],
+        "parameters": {},
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 2
+      }
+    },
+    {
+      "id": "conv-v2-006",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "queryContextObjectiveHits": 0,
+      "queryContextObjectiveTotal": 0,
+      "queryContextConstraintHits": 0,
+      "queryContextConstraintTotal": 0,
+      "queryContextParameterHits": 0,
+      "queryContextParameterTotal": 0,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 2,
+        "activeProblem": "",
+        "objectives": [],
+        "constraints": [],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {},
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [],
+        "sourceMessageIds": [
+          "conv-v2-006-m1"
+        ],
+        "lastPatchId": "patch:current"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "保留 deadline，等等，还是去掉。",
+        "researchIntent": "direct_factual",
+        "objectives": [],
+        "constraints": [],
+        "assumptions": [],
+        "parameters": {},
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 2
+      }
+    },
+    {
+      "id": "conv-v2-007",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "queryContextObjectiveHits": 0,
+      "queryContextObjectiveTotal": 0,
+      "queryContextConstraintHits": 0,
+      "queryContextConstraintTotal": 0,
+      "queryContextParameterHits": 0,
+      "queryContextParameterTotal": 0,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 1,
+        "activeProblem": "wireless_sensor_network",
+        "objectives": [],
+        "constraints": [
+          "multi_vehicle_coordination"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 3
+            },
+            "unit": null,
+            "sourceMessageId": null,
+            "updatedAtTurn": 1
+          }
+        },
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [],
+        "sourceMessageIds": [],
+        "lastPatchId": "patch:current"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "有 3 辆移动充电车。",
+        "researchIntent": "direct_factual",
+        "objectives": [],
+        "constraints": [
+          "multi_vehicle_coordination"
+        ],
+        "assumptions": [],
+        "parameters": {},
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 1
+      }
+    },
+    {
+      "id": "conv-v2-008",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "queryContextObjectiveHits": 0,
+      "queryContextObjectiveTotal": 0,
+      "queryContextConstraintHits": 0,
+      "queryContextConstraintTotal": 0,
+      "queryContextParameterHits": 0,
+      "queryContextParameterTotal": 0,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 2,
+        "activeProblem": "wireless_sensor_network",
+        "objectives": [],
+        "constraints": [
+          "multi_vehicle_coordination"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": null,
+            "updatedAtTurn": 2
+          }
+        },
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [],
+        "sourceMessageIds": [
+          "conv-v2-008-m1"
+        ],
+        "lastPatchId": "patch:current"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "改成 2 辆。",
+        "researchIntent": "direct_factual",
+        "objectives": [],
+        "constraints": [
+          "multi_vehicle_coordination"
+        ],
+        "assumptions": [],
+        "parameters": {},
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 2
+      }
+    },
+    {
+      "id": "conv-v2-009",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "queryContextObjectiveHits": 0,
+      "queryContextObjectiveTotal": 0,
+      "queryContextConstraintHits": 0,
+      "queryContextConstraintTotal": 0,
+      "queryContextParameterHits": 0,
+      "queryContextParameterTotal": 0,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 1,
+        "activeProblem": "",
+        "objectives": [],
+        "constraints": [
+          "deadlines"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "deadline": {
+            "key": "deadline",
+            "value": {
+              "type": "integer",
+              "value": 30
+            },
+            "unit": "minute",
+            "sourceMessageId": null,
+            "updatedAtTurn": 1
+          }
+        },
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [],
+        "sourceMessageIds": [],
+        "lastPatchId": "patch:current"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "deadline 改成 30 分钟。",
+        "researchIntent": "direct_factual",
+        "objectives": [],
+        "constraints": [
+          "deadlines"
+        ],
+        "assumptions": [],
+        "parameters": {},
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 1
+      }
+    },
+    {
+      "id": "conv-v2-010",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "queryContextObjectiveHits": 1,
+      "queryContextObjectiveTotal": 1,
+      "queryContextConstraintHits": 3,
+      "queryContextConstraintTotal": 3,
+      "queryContextParameterHits": 1,
+      "queryContextParameterTotal": 1,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 2,
+        "activeProblem": "wireless_sensor_network",
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": "conv-v2-010-m1",
+            "updatedAtTurn": 1
+          }
+        },
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [
+          "有没有什么算法适合这个模型？"
+        ],
+        "sourceMessageIds": [
+          "conv-v2-010-m1"
+        ],
+        "lastPatchId": "patch:conv-v2-010-m1"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "有没有什么算法适合这个模型？",
+        "researchIntent": "follow_up",
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": "conv-v2-010-m1",
+            "updatedAtTurn": 1
+          }
+        },
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 2
+      }
+    },
+    {
+      "id": "conv-v2-011",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "queryContextObjectiveHits": 1,
+      "queryContextObjectiveTotal": 1,
+      "queryContextConstraintHits": 3,
+      "queryContextConstraintTotal": 3,
+      "queryContextParameterHits": 1,
+      "queryContextParameterTotal": 1,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 2,
+        "activeProblem": "wireless_sensor_network",
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": "conv-v2-011-m1",
+            "updatedAtTurn": 1
+          }
+        },
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [
+          "这个模型还能怎么改进？"
+        ],
+        "sourceMessageIds": [
+          "conv-v2-011-m1"
+        ],
+        "lastPatchId": "patch:conv-v2-011-m1"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "这个模型还能怎么改进？",
+        "researchIntent": "method_improvement",
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": "conv-v2-011-m1",
+            "updatedAtTurn": 1
+          }
+        },
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 2
+      }
+    },
+    {
+      "id": "conv-v2-012",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "queryContextObjectiveHits": 1,
+      "queryContextObjectiveTotal": 1,
+      "queryContextConstraintHits": 3,
+      "queryContextConstraintTotal": 3,
+      "queryContextParameterHits": 1,
+      "queryContextParameterTotal": 1,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 2,
+        "activeProblem": "wireless_sensor_network",
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": "conv-v2-012-m1",
+            "updatedAtTurn": 1
+          }
+        },
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [
+          "有没有别的领域的方法可以迁移过来？"
+        ],
+        "sourceMessageIds": [
+          "conv-v2-012-m1"
+        ],
+        "lastPatchId": "patch:conv-v2-012-m1"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "有没有别的领域的方法可以迁移过来？",
+        "researchIntent": "direct_factual",
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": "conv-v2-012-m1",
+            "updatedAtTurn": 1
+          }
+        },
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 2
+      }
+    },
+    {
+      "id": "conv-v2-013",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "queryContextObjectiveHits": 0,
+      "queryContextObjectiveTotal": 0,
+      "queryContextConstraintHits": 2,
+      "queryContextConstraintTotal": 2,
+      "queryContextParameterHits": 1,
+      "queryContextParameterTotal": 1,
+      "queryContextExcludedMethodHits": 1,
+      "queryContextExcludedMethodTotal": 1,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 2,
+        "activeProblem": "wireless_sensor_network",
+        "objectives": [],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [
+          "particle_swarm_optimization"
+        ],
+        "parameters": {
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": null,
+            "updatedAtTurn": 2
+          }
+        },
+        "papers": [
+          "PSO"
+        ],
+        "hypotheses": [],
+        "openQuestions": [
+          "改成 2 辆车，PSO 不用了，deadline 留着。有什么算法更合适？"
+        ],
+        "sourceMessageIds": [
+          "conv-v2-013-m1"
+        ],
+        "lastPatchId": "patch:current"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "改成 2 辆车，PSO 不用了，deadline 留着。有什么算法更合适？",
+        "researchIntent": "direct_factual",
+        "objectives": [],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines"
+        ],
+        "assumptions": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": null,
+            "updatedAtTurn": 2
+          }
+        },
+        "activeMethods": [],
+        "excludedMethods": [
+          "particle_swarm_optimization"
+        ],
+        "resolvedReferences": [],
+        "sourceStateRevision": 2
+      }
+    },
+    {
+      "id": "conv-v2-014",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "queryContextObjectiveHits": 0,
+      "queryContextObjectiveTotal": 0,
+      "queryContextConstraintHits": 0,
+      "queryContextConstraintTotal": 0,
+      "queryContextParameterHits": 0,
+      "queryContextParameterTotal": 0,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 2,
+        "activeProblem": "",
+        "objectives": [],
+        "constraints": [],
+        "assumptions": [],
+        "methods": [
+          "particle_swarm_optimization",
+          "adaptive_large_neighborhood_search",
+          "mixed_integer_linear_programming"
+        ],
+        "excludedMethods": [],
+        "parameters": {},
+        "papers": [
+          "PSO",
+          "ALNS",
+          "MILP"
+        ],
+        "hypotheses": [],
+        "openQuestions": [],
+        "sourceMessageIds": [
+          "conv-v2-014-m1"
+        ],
+        "lastPatchId": "patch:current"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "那个方法不要了。 相关实体：PSO；ALNS；MILP",
+        "researchIntent": "follow_up",
+        "objectives": [],
+        "constraints": [],
+        "assumptions": [],
+        "parameters": {},
+        "activeMethods": [
+          "particle_swarm_optimization",
+          "adaptive_large_neighborhood_search",
+          "mixed_integer_linear_programming"
+        ],
+        "excludedMethods": [],
+        "resolvedReferences": [
+          "PSO",
+          "ALNS",
+          "MILP"
+        ],
+        "sourceStateRevision": 2
+      }
+    },
+    {
+      "id": "conv-v2-015",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "queryContextObjectiveHits": 1,
+      "queryContextObjectiveTotal": 1,
+      "queryContextConstraintHits": 3,
+      "queryContextConstraintTotal": 3,
+      "queryContextParameterHits": 1,
+      "queryContextParameterTotal": 1,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 2,
+        "activeProblem": "wireless_sensor_network",
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": "conv-v2-015-m1",
+            "updatedAtTurn": 1
+          }
+        },
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [
+          "那现在有什么方法适合？"
+        ],
+        "sourceMessageIds": [
+          "conv-v2-015-m1"
+        ],
+        "lastPatchId": "patch:conv-v2-015-m1"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "那现在有什么方法适合？",
+        "researchIntent": "direct_factual",
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": "conv-v2-015-m1",
+            "updatedAtTurn": 1
+          }
+        },
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 2
+      }
+    },
+    {
+      "id": "conv-v2-016",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "queryContextObjectiveHits": 1,
+      "queryContextObjectiveTotal": 1,
+      "queryContextConstraintHits": 3,
+      "queryContextConstraintTotal": 3,
+      "queryContextParameterHits": 1,
+      "queryContextParameterTotal": 1,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 2,
+        "activeProblem": "wireless_sensor_network",
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": "conv-v2-016-m1",
+            "updatedAtTurn": 1
+          }
+        },
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [
+          "那现在有什么方法适合？"
+        ],
+        "sourceMessageIds": [
+          "conv-v2-016-m1"
+        ],
+        "lastPatchId": "patch:conv-v2-016-m1"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "那现在有什么方法适合？",
+        "researchIntent": "direct_factual",
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": "conv-v2-016-m1",
+            "updatedAtTurn": 1
+          }
+        },
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 2
+      }
+    },
+    {
+      "id": "conv-v2-017",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "queryContextObjectiveHits": 1,
+      "queryContextObjectiveTotal": 1,
+      "queryContextConstraintHits": 3,
+      "queryContextConstraintTotal": 3,
+      "queryContextParameterHits": 1,
+      "queryContextParameterTotal": 1,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 2,
+        "activeProblem": "wireless_sensor_network",
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": "conv-v2-017-m1",
+            "updatedAtTurn": 1
+          }
+        },
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [
+          "那现在有什么方法适合？"
+        ],
+        "sourceMessageIds": [
+          "conv-v2-017-m1"
+        ],
+        "lastPatchId": "patch:conv-v2-017-m1"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "那现在有什么方法适合？",
+        "researchIntent": "direct_factual",
+        "objectives": [
+          "minimize_dead_nodes"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines",
+          "obstacle_avoidance"
+        ],
+        "assumptions": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": "conv-v2-017-m1",
+            "updatedAtTurn": 1
+          }
+        },
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 2
+      }
+    }
+  ]
+}

@@ -14,7 +14,7 @@ pub const ANSWER_SCHEMA_VERSION: &str = "qa-natural-markdown-v2";
 pub const LEGACY_ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v4";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v18";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v19";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -41,7 +41,7 @@ pub struct ContextBudget {
     pub truncated: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct ContextPlan {
     pub schema_version: String,
@@ -281,6 +281,24 @@ pub struct QaRunManifest {
     #[serde(default)]
     pub research_state_constraint_count: usize,
     #[serde(default)]
+    pub state_patch_operation_count: usize,
+    #[serde(default)]
+    pub state_patch_low_confidence_count: usize,
+    #[serde(default)]
+    pub state_patch_rejected_count: usize,
+    #[serde(default)]
+    pub state_changed: bool,
+    #[serde(default)]
+    pub state_warning_count: usize,
+    #[serde(default)]
+    pub query_context_objective_count: usize,
+    #[serde(default)]
+    pub query_context_constraint_count: usize,
+    #[serde(default)]
+    pub query_context_parameter_count: usize,
+    #[serde(default)]
+    pub query_context_excluded_method_count: usize,
+    #[serde(default)]
     pub routing_policy_version: String,
     #[serde(default)]
     pub routing_max_rounds: usize,
@@ -469,12 +487,32 @@ fn build_memory(exchanges: &[[ConversationTurn; 2]], budget: u32) -> (String, Ve
     (serialized, ids, truncated)
 }
 
+#[allow(dead_code)]
 pub fn build_context_plan(
     history: &[ConversationTurn],
     question: &str,
     evidence: Vec<EvidenceItem>,
     context_window_tokens: u32,
     max_output_tokens: u32,
+) -> (Vec<ConversationTurn>, Vec<EvidenceItem>, ContextPlan) {
+    let research_state = research_memory::derive(history, question);
+    build_context_plan_with_state(
+        history,
+        question,
+        evidence,
+        context_window_tokens,
+        max_output_tokens,
+        research_state,
+    )
+}
+
+pub fn build_context_plan_with_state(
+    history: &[ConversationTurn],
+    question: &str,
+    evidence: Vec<EvidenceItem>,
+    context_window_tokens: u32,
+    max_output_tokens: u32,
+    research_state: ResearchSessionState,
 ) -> (Vec<ConversationTurn>, Vec<EvidenceItem>, ContextPlan) {
     let context_window_tokens = context_window_tokens.clamp(8_192, 1_000_000);
     let output_reserve_tokens = max_output_tokens
@@ -560,7 +598,6 @@ pub fn build_context_plan(
         })
         .cloned()
         .collect::<Vec<_>>();
-    let research_state = research_memory::derive(history, question);
     let research_state_tokens =
         estimate_tokens(&serde_json::to_string(&research_state).unwrap_or_default());
     let memory_budget = history_budget
@@ -1365,10 +1402,21 @@ pub fn build_run_manifest(
             .corroborated_method_hypotheses
             .clone(),
         method_evidence_provenance: context.retrieval_query.method_evidence_provenance.clone(),
-        research_state_version: context.context_plan.research_state.schema_version.clone(),
+        research_state_version: context.retrieval_query.research_state_version.clone(),
         research_state_revision: context.context_plan.research_state.revision,
         research_state_objective_count: context.context_plan.research_state.objectives.len(),
         research_state_constraint_count: context.context_plan.research_state.constraints.len(),
+        state_patch_operation_count: context.retrieval_query.state_patch_operation_count,
+        state_patch_low_confidence_count: context.retrieval_query.state_patch_low_confidence_count,
+        state_patch_rejected_count: context.retrieval_query.state_patch_rejected_count,
+        state_changed: context.retrieval_query.state_changed,
+        state_warning_count: context.retrieval_query.state_warning_count,
+        query_context_objective_count: context.retrieval_query.query_context_objective_count,
+        query_context_constraint_count: context.retrieval_query.query_context_constraint_count,
+        query_context_parameter_count: context.retrieval_query.query_context_parameter_count,
+        query_context_excluded_method_count: context
+            .retrieval_query
+            .query_context_excluded_method_count,
         routing_policy_version: context.retrieval_query.routing_policy_version.clone(),
         routing_max_rounds: context.retrieval_query.routing_max_rounds,
         routing_max_queries: context.retrieval_query.routing_max_queries,
