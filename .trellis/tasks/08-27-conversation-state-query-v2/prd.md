@@ -46,14 +46,14 @@
 
 ## Acceptance Criteria
 
-- [ ] AC1：mixed operation、parameter overwrite 与 self-correction exact match 为 100%。
-- [ ] AC2：ambiguous destructive mutation 与 replace-source-missing 均 fail closed；destructive mutation error rate = 0。
-- [ ] AC3：State/Objectives/Constraints/Methods/Parameters exact match ≥ 0.98，unexpected state rate ≤ 0.01。
-- [ ] AC4：Query Context objective/constraint/parameter recall 与 excluded-method accuracy ≥ 0.97。
-- [ ] AC5：Planner 输入和 fallback contract 可审计地使用 post-patch state；组合 case 不再使用旧参数或已排除方法作为主要推荐目标。
-- [ ] AC6：20/50/100-turn benchmark 使用 canonical state，而非无限历史 Prompt。
-- [ ] AC7：相关 Rust fmt/check/tests 与必要 Retrieval/Semantic/Reranker regression 通过；不运行 GUI/安装包无关测试。
-- [ ] AC8：规范、基线、报告、本地 Git 提交与 Trellis 归档完成；用户未跟踪文件保持不变。
+- [x] AC1：mixed operation、parameter overwrite 与 self-correction exact match 为 100%。
+- [x] AC2：ambiguous destructive mutation 与 replace-source-missing 均 fail closed；destructive mutation error rate = 0。
+- [x] AC3：State/Objectives/Constraints/Methods/Parameters exact match ≥ 0.98，unexpected state rate ≤ 0.01。
+- [x] AC4：Query Context objective/constraint/parameter recall 与 excluded-method accuracy ≥ 0.97。
+- [x] AC5：Planner 输入和 fallback contract 可审计地使用 post-patch state；组合 case 不再使用旧参数或已排除方法作为主要推荐目标。
+- [x] AC6：20/50/100-turn benchmark 使用 canonical state，而非无限历史 Prompt。
+- [x] AC7：相关 Rust fmt/check/tests 与必要 Retrieval/Semantic/Reranker regression 通过；不运行 GUI/安装包无关测试。
+- [x] AC8：规范、基线、报告、本地 Git 提交与 Trellis 归档完成；用户未跟踪文件保持不变。
 
 ## Production boundary
 

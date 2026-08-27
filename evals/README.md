@@ -144,16 +144,20 @@ cargo test problem_understanding --lib
 数据见 `problem-understanding-cases.json`，结果见
 `problem-understanding-baseline.md`。
 
-## Research Session State 回归
+## Research Session State / Query Context v2 回归
 
-20 轮科研聊天门禁覆盖目标、约束、方法、假设的新增、替换和删除，后续问题必须读取最新状态：
+`conversation_state_v2_cases.json` 冻结 14 个状态语义用例和 20/50/100 轮长对话用例，覆盖
+逐对象 add/remove/keep/replace/set/set_all/clear、参数覆盖、模糊破坏性操作 fail-closed，
+以及 Patch 应用后的最新状态进入 Query Planner：
 
 ```powershell
-cd apps/desktop/src-tauri
-cargo test research_memory --lib
+cd apps/desktop
+npm run eval:conversation:state:v2
 ```
 
-结果见 `research-session-state-baseline.md`。
+报告输出到 `reports/conversation-state-v2-report.json`。生产门禁要求状态与分字段 exact match
+至少 0.98、开放问题关键状态 recall 至少 0.97、unexpected state 至多 0.01，且破坏性误修改为 0。
+当前冻结结果见 `conversation-state-v2-baseline.md`。
 
 ## Adaptive Query Routing 回归
 
