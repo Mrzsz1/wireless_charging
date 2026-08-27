@@ -63,6 +63,10 @@ class QaHeldoutWorkflowTests(unittest.TestCase):
         self.assertEqual(len(template["cases"]), 50)
         self.assertFalse(template["independent"])
         self.assertTrue(all(not case["question"] for case in template["cases"]))
+        self.assertEqual(
+            template["allowedTypes"],
+            list(workflow.accuracy.heldout_contract.CONTRACT["allowedTypes"]),
+        )
 
     def test_freeze_rejects_blank_or_non_independent_draft(self) -> None:
         template = workflow.curator_template()

@@ -25,10 +25,10 @@
 
 ## Phase D — Documentation and limited verification
 
-- [ ] Update eval README and backend QA contract.
-- [ ] Run fmt/check/clippy, Python tests, runner synthetic tests and required QA/retrieval/conversation/semantic regression filters.
-- [ ] Confirm heldout template remains empty and no heldout candidate content entered tests.
-- [ ] Check ACs, commit, archive and journal.
+- [x] Update eval README and backend QA contract.
+- [x] Run fmt/check/clippy, Python tests, runner synthetic tests and required QA/retrieval/conversation/semantic regression filters.
+- [x] Confirm heldout template remains empty and no heldout candidate content entered tests.
+- [x] Check ACs, commit, archive and journal.
 
 ## Explicitly excluded
 

@@ -189,6 +189,36 @@ SHA-256 seal。结果见 `research-question-dataset-baseline.md`。生产事实�
 
 ## Production held-out 准确率
 
+### Phase 1：冻结前 Runner
+
+`heldout-eval` 是与题目内容无关的正式运行器。仓库内 `heldout_questions.json` 仍是
+`cases=[]` 的公开 schema/template；正式 frozen dataset 可保存在仓库外，并通过路径传入：
+
+```powershell
+cd apps/desktop
+npm run eval:heldout:run -- `
+  --dataset <PRIVATE_FROZEN_DATASET_PATH> `
+  --output-dir <PRIVATE_RUN_ROOT> `
+  --repository ../.. `
+  --provider codex-subscription `
+  --model <MODEL> `
+  --reasoning-effort <EFFORT>
+```
+
+Runner 在执行模型前验证 `production_accuracy/heldout/frozen`、独立 curator、小写 SHA-256
+身份、冻结时间、canonical cases SHA-256、至少 30 题、唯一 ID 和 canonical ResearchIntent。
+工作区存在未提交或未跟踪内容时直接终止。输出身份由 dataset SHA、Git commit 和 runtime
+config 共同确定，已有完整或 `.part` run 均不覆盖。
+
+每题使用空历史和独立 session ID，走当前生产 planning/retrieval/generation/semantic audit
+核心函数，并原样保存最终 answer、完整 EvidenceItem、QaRunManifest 及本轮 atomic claims。
+写入前会复核 claimCount、claim 原文、citation IDs 和生产 evidence checksums；所有 case
+完成后才将整个 `.part` run directory 原子改名为正式目录。Runner 不评分、不写 reviewer
+verdict，也不读取 `research_questions_v1.json` 的 heldout 内容作为测试夹具。
+
+Canonical type 单一来源是 `evals/heldout_contract.json`；Rust Runner、Python evaluator、
+curator workflow 和公开 template 必须与它一致。
+
 `heldout_questions.json` 是独立冻结入口。当前状态为 `awaiting_independent_curation`，不预填模型自行构造的“真值”。冻结要求：
 
 1. 由未参与检索器、提示词和回归集开发的研究者独立抽样，至少 30 题；

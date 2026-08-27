@@ -616,6 +616,31 @@ mod tests {
     }
 
     #[test]
+    fn runner_rejects_duplicate_ids_and_noncanonical_types() {
+        let root = TempDir::new().unwrap();
+        for (name, mut value) in [
+            ("duplicate", dataset_value("frozen", true)),
+            ("type", dataset_value("frozen", true)),
+        ] {
+            if name == "duplicate" {
+                let first_id = value["cases"][0]["id"].clone();
+                value["cases"][1]["id"] = first_id;
+            } else {
+                value["cases"][0]["type"] = Value::String("solve".to_string());
+            }
+            let cases = value["cases"].clone();
+            let mut canonical = String::new();
+            canonical_json(&cases, &mut canonical).unwrap();
+            value["curation"]["cases_sha256"] = Value::String(sha256_hex(canonical));
+            let path = write_dataset(root.path(), &value);
+            assert!(
+                load_and_validate_dataset(&path, &contract()).is_err(),
+                "{name}"
+            );
+        }
+    }
+
+    #[test]
     fn rust_contract_and_canonical_hash_match_the_shared_python_contract() {
         let repository = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..");
         let loaded = load_contract(&repository.join("evals/heldout_contract.json")).unwrap();
@@ -670,6 +695,18 @@ mod tests {
             bundle.pointer("/heldoutRun/model").and_then(Value::as_str),
             Some("fixture-model")
         );
+        assert_eq!(
+            bundle
+                .pointer("/heldoutRun/gitCommit")
+                .and_then(Value::as_str),
+            Some("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        );
+        assert_eq!(
+            bundle
+                .pointer("/heldoutRun/datasetSha256")
+                .and_then(Value::as_str),
+            Some(dataset.cases_sha256.as_str())
+        );
         assert!(bundle
             .pointer("/heldoutRun/sessionId")
             .and_then(Value::as_str)
@@ -688,6 +725,41 @@ mod tests {
             |_, _| Ok(fixture_audit("fixture-provider", "fixture-model")),
         )
         .is_err());
+    }
+
+    #[test]
+    fn runner_fails_when_resolved_runtime_changes_between_cases() {
+        let root = TempDir::new().unwrap();
+        let dataset_path = write_dataset(root.path(), &dataset_value("frozen", true));
+        let dataset = load_and_validate_dataset(&dataset_path, &contract()).unwrap();
+        let config = HeldoutRuntimeConfig {
+            provider: "fixture-provider".to_string(),
+            model: "fixture-model".to_string(),
+            reasoning_effort: "low".to_string(),
+        };
+        let mut calls = 0;
+        let result = run_with_executor(
+            &dataset,
+            &root.path().join("runs"),
+            &GitSnapshot {
+                commit: "a".repeat(40),
+            },
+            &config,
+            "embedding-fixture",
+            |_, _| {
+                calls += 1;
+                Ok(fixture_audit(
+                    "fixture-provider",
+                    if calls == 1 {
+                        "fixture-model"
+                    } else {
+                        "drifted-model"
+                    },
+                ))
+            },
+        );
+        assert!(result.is_err());
+        assert_eq!(calls, 2);
     }
 
     #[test]

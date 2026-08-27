@@ -69,6 +69,7 @@ def curator_template(case_count: int = 50) -> dict[str, Any]:
             "methodIds": "Use stable method-family IDs, not display-string exact match.",
             "constraintIds": "Use stable critical-constraint IDs evaluated through the final answer.",
         },
+        "allowedTypes": list(accuracy.heldout_contract.CONTRACT["allowedTypes"]),
         "cases": [
             {
                 "id": f"heldout-{index:03d}",
@@ -90,6 +91,10 @@ def freeze_draft(draft: dict[str, Any], frozen_at: str) -> dict[str, Any]:
         raise HeldoutWorkflowError("unsupported curator template schema")
     if draft.get("independent") is not True:
         raise HeldoutWorkflowError("curator must attest independent=true")
+    if draft.get("allowedTypes") != list(
+        accuracy.heldout_contract.CONTRACT["allowedTypes"]
+    ):
+        raise HeldoutWorkflowError("curator template allowedTypes contract drift")
     curator_hash = draft.get("curatorIdHash")
     if not isinstance(curator_hash, str) or not accuracy.SHA256_RE.fullmatch(curator_hash):
         raise HeldoutWorkflowError("curatorIdHash must be a lowercase SHA-256")

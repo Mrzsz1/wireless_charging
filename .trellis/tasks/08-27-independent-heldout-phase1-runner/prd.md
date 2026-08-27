@@ -43,14 +43,14 @@
 
 ## Acceptance Criteria
 
-- [ ] AC1：Runner CLI、外部 dataset/output/repository 参数和 npm entry point 完成。
-- [ ] AC2：Rust/Python/template canonical allowed types 完全一致。
-- [ ] AC3：所有冻结/curation/hash/count/case 校验均 fail closed。
-- [ ] AC4：默认 executor 使用生产 QA 核心函数，case 会话隔离且不读取 heldout 候选内容。
-- [ ] AC5：审计包直接保存同轮 answer/evidence/runManifest/claim projection，并通过 claim 与 checksum 自校验。
-- [ ] AC6：run identity 不覆盖、Git dirty fail closed、输出原子写入。
-- [ ] AC7：synthetic runner tests 与必要现有 QA/retrieval/conversation/semantic tests 通过。
-- [ ] AC8：规范、README、本地 Git 提交、Trellis 归档与 journal 完成。
+- [x] AC1：Runner CLI、外部 dataset/output/repository 参数和 npm entry point 完成。
+- [x] AC2：Rust/Python/template canonical allowed types 完全一致。
+- [x] AC3：所有冻结/curation/hash/count/case 校验均 fail closed。
+- [x] AC4：默认 executor 使用生产 QA 核心函数，case 会话隔离且不读取 heldout 候选内容。
+- [x] AC5：审计包直接保存同轮 answer/evidence/runManifest/claim projection，并通过 claim 与 checksum 自校验。
+- [x] AC6：run identity 不覆盖、Git dirty fail closed、输出原子写入。
+- [x] AC7：synthetic runner tests 与必要现有 QA/retrieval/conversation/semantic tests 通过。
+- [x] AC8：规范、README、本地 Git 提交、Trellis 归档与 journal 完成。
 
 ## Production boundary
 

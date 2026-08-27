@@ -40,6 +40,8 @@ apps/desktop/public/data/library.json
 .codegraph/
 work/
 evals/heldout-derived-latest/
+evals/heldout-runs/
+heldout-runs/
 
 # Graphify local-only (可选提交 graph.json 供团队；cost/cache 本地)
 graphify-out/cost.json
