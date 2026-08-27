@@ -439,20 +439,50 @@ fn resolve_visible_claim_source(
     if chunks.len() < 2 {
         return None;
     }
-    let first_relative = answer_body[*cursor..].find(chunks[0])?;
-    let start = *cursor + first_relative;
-    let mut end = start + chunks[0].len();
-    for chunk in chunks.iter().skip(1) {
-        let remaining = &answer_body[end..];
-        let relative = remaining.find(chunk)?;
-        let gap = &remaining[..relative];
-        if gap.contains('\n') || gap.chars().count() > 2_048 {
-            return None;
+    let mut candidate_cursor = *cursor;
+    while let Some(first_relative) = answer_body[candidate_cursor..].find(chunks[0]) {
+        let start = candidate_cursor + first_relative;
+        let mut end = start + chunks[0].len();
+        let mut matched = true;
+        for chunk in chunks.iter().skip(1) {
+            let remaining = &answer_body[end..];
+            let line_end = remaining.find('\n').unwrap_or(remaining.len());
+            let bounded_end = remaining
+                .char_indices()
+                .nth(2_048)
+                .map(|(index, _)| index)
+                .unwrap_or(remaining.len())
+                .min(line_end);
+            let Some(relative) = remaining[..bounded_end].find(chunk) else {
+                matched = false;
+                break;
+            };
+            if contains_claim_boundary(&remaining[..relative]) {
+                matched = false;
+                break;
+            }
+            end += relative + chunk.len();
         }
-        end += relative + chunk.len();
+        if matched {
+            *cursor = end;
+            return Some(answer_body[start..end].to_string());
+        }
+        candidate_cursor = start + chunks[0].len();
     }
-    *cursor = end;
-    Some(answer_body[start..end].to_string())
+    None
+}
+
+fn contains_claim_boundary(value: &str) -> bool {
+    let mut characters = value.chars().peekable();
+    while let Some(character) = characters.next() {
+        if matches!(character, '。' | '！' | '？' | '!' | '?' | ';' | '；') {
+            return true;
+        }
+        if character == '.' && characters.peek().map_or(true, |next| next.is_whitespace()) {
+            return true;
+        }
+    }
+    false
 }
 
 fn atomic_json<T: Serialize>(path: &Path, value: &T) -> Result<(), String> {
@@ -936,6 +966,21 @@ mod tests {
             "[Paper](https://example.test/paper) supports charging."
         );
         assert!(answer.contains(&projected));
+    }
+
+    #[test]
+    fn source_recovery_skips_an_earlier_nonmatching_visible_chunk() {
+        let answer =
+            "[Paper](intro) summary. [Paper](https://example.test/paper) supports charging.";
+        let canonical = "[Paper](                      ) supports charging.";
+        let mut cursor = 0;
+
+        let projected = resolve_visible_claim_source(answer, canonical, &mut cursor).unwrap();
+
+        assert_eq!(
+            projected,
+            "[Paper](https://example.test/paper) supports charging."
+        );
     }
 
     #[test]
