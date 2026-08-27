@@ -380,6 +380,15 @@ fn build_bundle(
     let answer_claims = claims
         .iter()
         .map(|claim| {
+            if claim.id.trim().is_empty() {
+                return Err("HELDOUT_AUDIT_INVALID: claim_projection:empty_claim_id".to_string());
+            }
+            if !claim_ids.insert(claim.id.clone()) {
+                return Err(format!(
+                    "HELDOUT_AUDIT_INVALID: claim_projection:duplicate_claim_id:claim={}",
+                    claim.id
+                ));
+            }
             let repaired_text = project_claim_after_repair(claim);
             let canonical_text = project_natural_visible_text(&repaired_text);
             let visible_text = resolve_visible_claim_source(
@@ -387,19 +396,34 @@ fn build_bundle(
                 &canonical_text,
                 &mut answer_cursor,
             )
-            .ok_or_else(|| "HELDOUT_AUDIT_INVALID: claim_projection".to_string())?;
+            .map_err(|reason| {
+                format!(
+                    "HELDOUT_AUDIT_INVALID: claim_projection:{reason}:claim={}",
+                    claim.id
+                )
+            })?;
             let unique_citation_count = claim.evidence_ids.iter().collect::<HashSet<_>>().len();
-            if claim.id.trim().is_empty()
-                || !claim_ids.insert(claim.id.clone())
-                || visible_text.is_empty()
-                || !audit.answer.contains(&visible_text)
-                || unique_citation_count != claim.evidence_ids.len()
-                || claim
-                    .evidence_ids
-                    .iter()
-                    .any(|id| !evidence_ids.contains(id))
+            if visible_text.is_empty() || !audit.answer.contains(&visible_text) {
+                return Err(format!(
+                    "HELDOUT_AUDIT_INVALID: claim_projection:visible_text_integrity:claim={}",
+                    claim.id
+                ));
+            }
+            if unique_citation_count != claim.evidence_ids.len() {
+                return Err(format!(
+                    "HELDOUT_AUDIT_INVALID: claim_projection:duplicate_citation_id:claim={}",
+                    claim.id
+                ));
+            }
+            if claim
+                .evidence_ids
+                .iter()
+                .any(|id| !evidence_ids.contains(id))
             {
-                return Err("HELDOUT_AUDIT_INVALID: claim_projection".to_string());
+                return Err(format!(
+                    "HELDOUT_AUDIT_INVALID: claim_projection:unknown_citation_id:claim={}",
+                    claim.id
+                ));
             }
             Ok(HeldoutAnswerClaim {
                 claim_id: claim.id.clone(),
@@ -422,14 +446,17 @@ fn resolve_visible_claim_source(
     answer_body: &str,
     canonical_text: &str,
     cursor: &mut usize,
-) -> Option<String> {
-    if canonical_text.is_empty() || *cursor > answer_body.len() {
-        return None;
+) -> Result<String, &'static str> {
+    if canonical_text.is_empty() {
+        return Err("empty_visible_projection");
+    }
+    if *cursor > answer_body.len() {
+        return Err("cursor_out_of_range");
     }
     if let Some(relative) = answer_body[*cursor..].find(canonical_text) {
         let start = *cursor + relative;
         *cursor = start + canonical_text.len();
-        return Some(canonical_text.to_string());
+        return Ok(canonical_text.to_string());
     }
 
     // Claim extraction deliberately masks Markdown link destinations and
@@ -437,10 +464,12 @@ fn resolve_visible_claim_source(
     // return the exact final Markdown source span so containment stays strict.
     let chunks = canonical_text.split_whitespace().collect::<Vec<_>>();
     if chunks.len() < 2 {
-        return None;
+        return Err("single_visible_chunk_not_found");
     }
     let mut candidate_cursor = *cursor;
+    let mut found_first_chunk = false;
     while let Some(first_relative) = answer_body[candidate_cursor..].find(chunks[0]) {
+        found_first_chunk = true;
         let start = candidate_cursor + first_relative;
         let mut end = start + chunks[0].len();
         let mut matched = true;
@@ -465,11 +494,15 @@ fn resolve_visible_claim_source(
         }
         if matched {
             *cursor = end;
-            return Some(answer_body[start..end].to_string());
+            return Ok(answer_body[start..end].to_string());
         }
         candidate_cursor = start + chunks[0].len();
     }
-    None
+    if found_first_chunk {
+        Err("ordered_visible_chunks_not_found")
+    } else {
+        Err("first_visible_chunk_not_found")
+    }
 }
 
 fn contains_claim_boundary(value: &str) -> bool {
@@ -890,17 +923,15 @@ mod tests {
 
         let mut claim_bad = fixture_audit("fixture-provider", "fixture-model");
         claim_bad.answer = "different answer".to_string();
-        assert_eq!(
-            build_bundle(&case, claim_bad, fixture_metadata()).unwrap_err(),
-            "HELDOUT_AUDIT_INVALID: claim_projection"
-        );
+        assert!(build_bundle(&case, claim_bad, fixture_metadata())
+            .unwrap_err()
+            .contains("claim_projection:first_visible_chunk_not_found:claim=C1"));
 
         let mut unknown_citation = fixture_audit("fixture-provider", "fixture-model");
         unknown_citation.run_manifest.claim_verifications[0].evidence_ids = vec!["E99".to_string()];
-        assert_eq!(
-            build_bundle(&case, unknown_citation, fixture_metadata()).unwrap_err(),
-            "HELDOUT_AUDIT_INVALID: claim_projection"
-        );
+        assert!(build_bundle(&case, unknown_citation, fixture_metadata())
+            .unwrap_err()
+            .contains("claim_projection:unknown_citation_id:claim=C1"));
 
         let mut duplicate_claim = fixture_audit("fixture-provider", "fixture-model");
         duplicate_claim
@@ -908,17 +939,15 @@ mod tests {
             .claim_verifications
             .push(duplicate_claim.run_manifest.claim_verifications[0].clone());
         duplicate_claim.run_manifest.answer_completeness.claim_count = 2;
-        assert_eq!(
-            build_bundle(&case, duplicate_claim, fixture_metadata()).unwrap_err(),
-            "HELDOUT_AUDIT_INVALID: claim_projection"
-        );
+        assert!(build_bundle(&case, duplicate_claim, fixture_metadata())
+            .unwrap_err()
+            .contains("claim_projection:duplicate_claim_id:claim=C1"));
 
         let mut empty_projection = fixture_audit("fixture-provider", "fixture-model");
         empty_projection.run_manifest.claim_verifications[0].text = "[E1]".to_string();
-        assert_eq!(
-            build_bundle(&case, empty_projection, fixture_metadata()).unwrap_err(),
-            "HELDOUT_AUDIT_INVALID: claim_projection"
-        );
+        assert!(build_bundle(&case, empty_projection, fixture_metadata())
+            .unwrap_err()
+            .contains("claim_projection:empty_visible_projection:claim=C1"));
 
         let mut checksum_bad = fixture_audit("fixture-provider", "fixture-model");
         checksum_bad.run_manifest.evidence_checksums[0].sha256 = "0".repeat(64);
