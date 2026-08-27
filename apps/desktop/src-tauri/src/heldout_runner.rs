@@ -458,6 +458,13 @@ fn resolve_visible_claim_source(
         *cursor = start + canonical_text.len();
         return Ok(canonical_text.to_string());
     }
+    if let Some(start) = answer_body.find(canonical_text) {
+        // Adjacent or overlapping atomic claims can be collapsed by the
+        // existing AnswerRepair into the same fixed visible sentence. Reuse
+        // only an exact final-answer span; never relax containment or fuzz it.
+        *cursor = (*cursor).max(start + canonical_text.len());
+        return Ok(canonical_text.to_string());
+    }
 
     // Claim extraction deliberately masks Markdown link destinations and
     // code/math literals. Match the remaining visible chunks in order, then
@@ -1010,6 +1017,19 @@ mod tests {
             projected,
             "[Paper](https://example.test/paper) supports charging."
         );
+    }
+
+    #[test]
+    fn exact_visible_repair_sentence_can_be_shared_by_overlapping_claims() {
+        let answer = "当前证据不足以支持这一结论。";
+        let mut cursor = answer.len();
+
+        let projected =
+            resolve_visible_claim_source(answer, "当前证据不足以支持这一结论。", &mut cursor)
+                .unwrap();
+
+        assert_eq!(projected, answer);
+        assert_eq!(cursor, answer.len());
     }
 
     #[test]

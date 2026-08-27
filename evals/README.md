@@ -261,6 +261,8 @@ natural renderer 的同一纯转换：截断既有 `## 参考证据` appendix、
 Atomic claim extractor 会故意遮蔽 Markdown link target 与 code/math literal。若语义 claim 因此不是
 最终 Markdown source 的直接子串，Runner 仅允许在同一行按顺序匹配其剩余可见片段，并导出匹配到的
 精确最终 source span；跨行、超长 gap 或匹配失败仍 fail closed，最终 `answer.contains(text)` 保护不变。
+若相邻或重叠 atomic claims 被既有 AnswerRepair 合并为同一个固定可见替换句，多个 claim ID 仅可复用
+最终答案中完全相同的完整句；不得模糊匹配或生成新文本。
 
 `citedEvidenceIds` 是从 `runManifest.claimVerifications.evidenceIds` 保留的结构化 provenance mapping，
 不要求以 `[E#]` token 出现在最终可见 claim 文本中。Rust Runner 和 Python evaluator 分别校验每个

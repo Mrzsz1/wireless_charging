@@ -21,6 +21,8 @@ The renderer consumes this pipeline for the answer body. The held-out runner con
 
 Claim extraction intentionally masks Markdown link destinations and code/math literals. When that semantic claim projection cannot be a literal source substring, the harness matches its remaining visible chunks in original claim order within one final-answer line and exports the exact matched Markdown source span. The span must still be a literal substring of the final answer; ambiguous cross-line or oversized gaps fail closed.
 
+Adjacent or overlapping atomic claims may be collapsed by the existing AnswerRepair into one identical fixed visible sentence. In that case only, an exact complete-text match already present earlier in the final answer may be reused by multiple claim IDs. This never applies fuzzy matching and never weakens literal final-answer containment.
+
 ## Bundle contract v2
 
 - `answerClaims[].text` is the canonical visible projection and must be non-empty and a byte-for-byte substring of final `answer`.
