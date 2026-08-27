@@ -1563,3 +1563,38 @@ Preserved previous evidence with turn isolation, removed fixed history caps in f
 ### Next Steps
 
 - None - task complete
+
+
+## Session 47: Conversation State Query v2
+
+**Date**: 2026-08-27
+**Task**: Conversation State Query v2
+**Branch**: `master`
+
+### Summary
+
+Implemented ordered per-object ResearchStatePatch and deterministic reducer, upgraded ResearchSessionState v2, built post-patch ResearchQueryContext for planner/fallback retrieval, added telemetry and TypeScript contracts, and froze a 17-case conversation-state benchmark with all production thresholds passing.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `c22ba12` | (see git log) |
+| `cbc08fd` | (see git log) |
+| `6d9758d` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
