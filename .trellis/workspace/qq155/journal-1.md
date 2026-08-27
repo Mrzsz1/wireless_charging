@@ -1598,3 +1598,36 @@ Implemented ordered per-object ResearchStatePatch and deterministic reducer, upg
 ### Next Steps
 
 - None - task complete
+
+
+## Session 48: Research State Parameter Safety
+
+**Date**: 2026-08-27
+**Task**: Research State Parameter Safety
+**Branch**: `master`
+
+### Summary
+
+Tightened deterministic parameter inheritance to strict value-only follow-ups with one candidate, rejected unknown named and multi-candidate updates, preserved structured custom parameters, added telemetry, and extended Conversation State v2 to 22 passing cases.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `a06972e` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
