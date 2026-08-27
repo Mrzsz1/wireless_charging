@@ -9,19 +9,19 @@
 
 ## Phase B — Rust runner core
 
-- [ ] Add strict DTOs and frozen dataset validation matching Python.
-- [ ] Add Git cleanliness/commit/runtime identity and no-overwrite directory reservation.
-- [ ] Add audit claim/evidence/checksum validation and atomic bundle/run completion writes.
-- [ ] Add synthetic tests for all fail-closed boundaries and case isolation.
-- [ ] Commit Phase B.
+- [x] Add strict DTOs and frozen dataset validation matching Python.
+- [x] Add Git cleanliness/commit/runtime identity and no-overwrite directory reservation.
+- [x] Add audit claim/evidence/checksum validation and atomic bundle/run completion writes.
+- [x] Add synthetic tests for all fail-closed boundaries and case isolation.
+- [x] Commit Phase B.
 
 ## Phase C — Production executor and CLI
 
-- [ ] Add reusable one-shot production QA executor without changing QA algorithms/prompts.
-- [ ] Wire `heldout-eval` CLI and npm script with external paths and runtime overrides.
-- [ ] Record provider/model/effort, verifier/reranker/embedding, KB snapshot, dataset SHA and Git commit.
-- [ ] Prove fixture tests inject only at runner boundary while public CLI always uses production executor.
-- [ ] Commit Phase C.
+- [x] Add reusable one-shot production QA executor without changing QA algorithms/prompts.
+- [x] Wire `heldout-eval` CLI and npm script with external paths and runtime overrides.
+- [x] Record provider/model/effort, verifier/reranker/embedding, KB snapshot, dataset SHA and Git commit.
+- [x] Prove fixture tests inject only at runner boundary while public CLI always uses production executor.
+- [x] Commit Phase C.
 
 ## Phase D — Documentation and limited verification
 

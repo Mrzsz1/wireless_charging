@@ -15,12 +15,16 @@ use walkdir::WalkDir;
 
 mod codex_subscription;
 mod compile_center;
+mod heldout_runner;
 mod literature_ingest;
 mod process_support;
+mod production_heldout;
 mod qa;
 mod repository_watcher;
 mod research_trail;
 mod search_credentials;
+
+pub use heldout_runner::HeldoutRunOptions;
 
 #[derive(Default)]
 struct RepositoryState {
@@ -4541,6 +4545,10 @@ pub fn run_conversation_state_benchmark_files(
     let passed = report.passed;
     qa::conversation_state_benchmark::write_report(&report, output)?;
     Ok(passed)
+}
+
+pub fn run_independent_heldout(options: HeldoutRunOptions) -> Result<PathBuf, String> {
+    production_heldout::run(options)
 }
 
 pub fn run_rag_performance_files(

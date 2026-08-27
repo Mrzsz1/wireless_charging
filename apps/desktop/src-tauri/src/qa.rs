@@ -42,6 +42,8 @@ pub use context::{
     estimate_tokens, CitationRepair, ContextBudget, ContextPlan, ProviderRunMetadata,
     QaRunManifest, DEFAULT_CONTEXT_WINDOW_TOKENS,
 };
+#[cfg(test)]
+pub use context::{AnswerCompletenessValidation, EvidenceChecksum};
 use grounding::{claim_segments, extract_citation_ids};
 pub use grounding::{
     normalize_unverified_answer, repair_unknown_citations, trusted_context, validate_citations,
@@ -3164,6 +3166,10 @@ pub fn natural_answer_v2_enabled() -> bool {
         configured.trim().to_ascii_lowercase().as_str(),
         "0" | "false" | "off" | "no"
     )
+}
+
+pub fn embedding_model_name() -> &'static str {
+    semantic::MODEL_NAME
 }
 
 pub fn codex_output_schema(context: &QuestionContext) -> Option<Value> {
