@@ -30,7 +30,14 @@ ACCURACY_TEST_SPEC.loader.exec_module(fixture)
 
 
 def frozen_dataset() -> dict[str, object]:
-    cases = [{"id": "case-1", "type": "direct_fact", "question": "fixture question"}]
+    cases = [
+        {
+            "id": f"case-{index}",
+            "type": "direct_factual",
+            "question": f"synthetic fixture question {index}",
+        }
+        for index in range(1, 31)
+    ]
     digest = hashlib.sha256(
         json.dumps(cases, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
@@ -39,7 +46,7 @@ def frozen_dataset() -> dict[str, object]:
         "dataset_role": "production_accuracy",
         "split": "heldout",
         "status": "frozen",
-        "minimum_case_count": 1,
+        "minimum_case_count": 30,
         "curation": {
             "independent": True,
             "curator_id_hash": "d" * 64,
@@ -81,12 +88,17 @@ class QaHeldoutWorkflowTests(unittest.TestCase):
             reviews.mkdir()
             dataset = root / "dataset.json"
             dataset.write_text(json.dumps(frozen_dataset()), encoding="utf-8")
-            (runs / "case-1.json").write_text(
-                json.dumps(fixture.run_fixture()), encoding="utf-8"
-            )
-            (reviews / "case-1.json").write_text(
-                json.dumps(fixture.review_fixture()), encoding="utf-8"
-            )
+            for case in frozen_dataset()["cases"]:
+                run = fixture.run_fixture()
+                run["question"] = case["question"]
+                (runs / f"{case['id']}.json").write_text(
+                    json.dumps(run), encoding="utf-8"
+                )
+                review = fixture.review_fixture()
+                review["case_id"] = case["id"]
+                (reviews / f"{case['id']}.json").write_text(
+                    json.dumps(review), encoding="utf-8"
+                )
             metrics = workflow.derive_metrics(dataset, runs, reviews)
         self.assertEqual(set(metrics), {"heldout", "grounding", "open_research"})
         seals = {payload["sourceRun"] for payload in metrics.values()}

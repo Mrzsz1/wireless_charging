@@ -6,11 +6,18 @@ import hmac
 import json
 import math
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Sequence
 
 ROOT = Path(__file__).resolve().parents[1]
+TOOLS = ROOT / "tools"
+if str(TOOLS) not in sys.path:
+    sys.path.insert(0, str(TOOLS))
+
+import heldout_contract
+
 DEFAULT_DATASET = ROOT / "evals" / "heldout_questions.json"
 VALID_VERDICTS = {
     "supported",
@@ -23,6 +30,7 @@ VALID_VERDICTS = {
 }
 VALID_DIMENSIONS = {"factual", "reference", "method", "constraint"}
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+VALID_HELDOUT_TYPES = heldout_contract.VALID_HELDOUT_TYPES
 
 # This is the serde field order of apps/desktop/src-tauri/src/qa.rs::EvidenceItem.
 # QaRunManifest hashes serde_json::to_vec(EvidenceItem), so the evaluator must
@@ -150,68 +158,10 @@ def wilson_interval(
 
 
 def validate_dataset(dataset: dict[str, Any]) -> list[dict[str, Any]]:
-    if (
-        dataset.get("dataset_role") != "production_accuracy"
-        or dataset.get("split") != "heldout"
-    ):
-        raise AccuracyEvalError("数据集必须标记为 production_accuracy / heldout")
-    minimum = dataset.get("minimum_case_count")
-    if isinstance(minimum, bool) or not isinstance(minimum, int) or minimum <= 0:
-        raise AccuracyEvalError("minimum_case_count 必须是正整数")
-    cases = dataset.get("cases")
-    if not isinstance(cases, list):
-        raise AccuracyEvalError("held-out 数据集缺少 cases 数组")
-    allowed_types = {
-        "solve",
-        "novelty",
-        "relationship",
-        "direct_fact",
-        "literature_search",
-        "comparison",
-        "origin_derivation",
-        "method_improvement",
-        "solution_search",
-        "problem_modeling",
-        "follow_up",
-        "exploratory_research",
-        "zero_evidence",
-        "contradictory_evidence",
-        "multi_hop",
-    }
-    seen: set[str] = set()
-    for case in cases:
-        if not isinstance(case, dict) or not all(
-            case.get(key) for key in ("id", "type", "question")
-        ):
-            raise AccuracyEvalError("每个 held-out case 必须包含 id/type/question")
-        if case["type"] not in allowed_types:
-            raise AccuracyEvalError(f"{case['id']}: held-out type 非法")
-        if case["id"] in seen:
-            raise AccuracyEvalError(f"重复 held-out case id: {case['id']}")
-        seen.add(case["id"])
-    if dataset.get("status") == "frozen":
-        curation = dataset.get("curation")
-        if not isinstance(curation, dict) or curation.get("independent") is not True:
-            raise AccuracyEvalError("frozen held-out 数据集缺少独立 curation 证明")
-        curator_hash = curation.get("curator_id_hash")
-        if not isinstance(curator_hash, str) or not SHA256_RE.fullmatch(curator_hash):
-            raise AccuracyEvalError("curation.curator_id_hash 必须为小写 SHA-256")
-        frozen_at = curation.get("frozen_at")
-        if not isinstance(frozen_at, str) or not frozen_at.strip():
-            raise AccuracyEvalError("curation.frozen_at 不能为空")
-        expected = curation.get("cases_sha256")
-        actual = hashlib.sha256(
-            json.dumps(
-                cases,
-                ensure_ascii=False,
-                allow_nan=False,
-                sort_keys=True,
-                separators=(",", ":"),
-            ).encode("utf-8")
-        ).hexdigest()
-        if not isinstance(expected, str) or not hmac.compare_digest(expected, actual):
-            raise AccuracyEvalError("frozen held-out cases_sha256 校验失败")
-    return cases
+    try:
+        return heldout_contract.validate_dataset(dataset)
+    except heldout_contract.HeldoutContractError as exc:
+        raise AccuracyEvalError(str(exc)) from exc
 
 
 def _validate_evidence_item(item: Any, case_id: str) -> dict[str, Any]:

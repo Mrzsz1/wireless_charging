@@ -2,10 +2,10 @@
 
 ## Phase A — Shared freeze contract
 
-- [ ] Add canonical heldout contract file and update heldout template types.
-- [ ] Extract Python dataset validation/hash/type rules into a shared module.
-- [ ] Update `qa_accuracy_eval.py` and its tests to consume the shared rules.
-- [ ] Commit Phase A.
+- [x] Add canonical heldout contract file and update heldout template types.
+- [x] Extract Python dataset validation/hash/type rules into a shared module.
+- [x] Update `qa_accuracy_eval.py` and its tests to consume the shared rules.
+- [x] Commit Phase A.
 
 ## Phase B — Rust runner core
 

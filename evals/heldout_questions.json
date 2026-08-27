@@ -10,7 +10,7 @@
   "review_policy": "回答与证据包匿名化后逐 claim 双人复核；分歧由第三人裁决。语义蕴含自动判定不在本阶段范围内。",
   "case_schema": {
     "required": ["id", "type", "question"],
-    "allowed_types": ["solve", "novelty", "relationship"],
+    "allowed_types": ["direct_factual", "literature_search", "comparison", "origin_derivation", "method_improvement", "solution_search", "problem_modeling", "related_problem", "counterfactual", "novelty"],
     "optional": ["stratum", "difficulty", "notes_for_reviewers"],
     "frozen_curation_required": ["curation.independent", "curation.curator_id_hash", "curation.frozen_at", "curation.cases_sha256"]
   },

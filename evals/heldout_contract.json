@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "qa-heldout-contract-v1",
+  "allowedTypes": [
+    "direct_factual",
+    "literature_search",
+    "comparison",
+    "origin_derivation",
+    "method_improvement",
+    "solution_search",
+    "problem_modeling",
+    "related_problem",
+    "counterfactual",
+    "novelty"
+  ],
+  "minimumCaseCount": 30,
+  "datasetRole": "production_accuracy",
+  "split": "heldout"
+}

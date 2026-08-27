@@ -23,7 +23,8 @@ OPEN_RESEARCH_TYPES = {
     "method_improvement",
     "solution_search",
     "problem_modeling",
-    "exploratory_research",
+    "related_problem",
+    "counterfactual",
     "novelty",
 }
 
@@ -105,6 +106,8 @@ def freeze_draft(draft: dict[str, Any], frozen_at: str) -> dict[str, Any]:
         if case["id"] in seen:
             raise HeldoutWorkflowError(f"duplicate case id: {case['id']}")
         seen.add(case["id"])
+        if case["type"] not in accuracy.VALID_HELDOUT_TYPES:
+            raise HeldoutWorkflowError(f"{case['id']}: type must use canonical ResearchIntent")
         for field in ("criticalConstraints", "acceptableMethodFamilies"):
             if not isinstance(case.get(field), list) or any(
                 not isinstance(value, str) or not value.strip() for value in case[field]

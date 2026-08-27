@@ -104,6 +104,10 @@ class QaAccuracyEvalTests(unittest.TestCase):
         self.assertEqual(dataset["dataset_role"], "production_accuracy")
         self.assertEqual(dataset["split"], "heldout")
         self.assertEqual(dataset["status"], "awaiting_independent_curation")
+        self.assertEqual(
+            dataset["case_schema"]["allowed_types"],
+            qa_accuracy_eval.heldout_contract.CONTRACT["allowedTypes"],
+        )
 
     def test_wilson_interval_is_bounded_and_not_point_estimate_only(self) -> None:
         low, high = qa_accuracy_eval.wilson_interval(8, 10)
@@ -236,23 +240,30 @@ class QaAccuracyEvalTests(unittest.TestCase):
         self.assertEqual(totals.unsupported, 1)
 
     def test_frozen_dataset_requires_independent_curation_and_case_hash(self) -> None:
+        cases = [
+            {"id": f"case-{index}", "type": "direct_factual", "question": f"q{index}"}
+            for index in range(30)
+        ]
         dataset = {
             "dataset_role": "production_accuracy",
             "split": "heldout",
             "status": "frozen",
-            "minimum_case_count": 1,
-            "cases": [{"id": "case-1", "type": "solve", "question": "q"}],
+            "minimum_case_count": 30,
+            "cases": cases,
         }
         with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
             qa_accuracy_eval.validate_dataset(dataset)
 
     def test_frozen_dataset_hash_tampering_fails_closed(self) -> None:
-        cases = [{"id": "case-1", "type": "solve", "question": "q"}]
+        cases = [
+            {"id": f"case-{index}", "type": "direct_factual", "question": f"q{index}"}
+            for index in range(30)
+        ]
         dataset = {
             "dataset_role": "production_accuracy",
             "split": "heldout",
             "status": "frozen",
-            "minimum_case_count": 1,
+            "minimum_case_count": 30,
             "cases": cases,
             "curation": {
                 "independent": True,
