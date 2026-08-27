@@ -7,9 +7,9 @@
   "candidate_pool": "research_questions_v1.json#split=heldout",
   "candidate_count": 80,
   "selection_policy": "由未参与检索器、提示词或回归集开发的研究者独立抽样并冻结；冻结前不用于实现决策。",
-  "review_policy": "回答与证据包匿名化后逐 claim 双人复核；分歧由第三人裁决。语义蕴含自动判定不在本阶段范围内。",
+  "review_policy": "回答与证据包匿名化后，由两名独立 reviewer 分别逐 claim、逐 expected method family、逐 expected critical constraint 复核；任一通道分歧均由第三名不同 reviewer 裁决。",
   "case_schema": {
-    "required": ["id", "type", "question"],
+    "required": ["id", "type", "question", "acceptableMethodFamilies", "criticalConstraints"],
     "allowed_types": ["direct_factual", "literature_search", "comparison", "origin_derivation", "method_improvement", "solution_search", "problem_modeling", "related_problem", "counterfactual", "novelty"],
     "optional": ["stratum", "difficulty", "notes_for_reviewers"],
     "frozen_curation_required": ["curation.independent", "curation.curator_id_hash", "curation.frozen_at", "curation.cases_sha256"]
@@ -18,17 +18,22 @@
     "required": ["question", "answer", "answerClaims", "evidence", "runManifest"],
     "answer_claim_required": ["claimId", "text", "citedEvidenceIds"],
     "answer_claim_optional": {"dimension": ["factual", "reference", "method", "constraint"]},
+    "answer_claim_dimension_contract": "dimension 缺省为 factual，仅用于 claim 分类诊断；不得作为 relevantMethodRecall 或 criticalConstraintPreservation 的分母或分子。",
     "claim_count_contract": "runManifest.answerCompleteness.claimCount 必须等于 answerClaims 长度；每个 text 必须逐字存在于 answer。",
     "evidence_integrity_contract": "每个完整 EvidenceItem 按 Rust EvidenceItem 字段序规范 JSON 序列化，重新计算 SHA-256，并与 runManifest.evidenceChecksums 的 evidenceId、stableSourceId、sha256 一一校验。"
   },
   "review_schema": {
     "required": ["case_id", "primary_reviews"],
     "primary_review_count": 2,
-    "primary_review_required": ["reviewer_id_hash", "blinded", "independent", "claims"],
+    "primary_review_required": ["reviewer_id_hash", "blinded", "independent", "claims", "method_coverage", "constraint_coverage"],
     "claim_required": ["claim_id", "claim", "verdict"],
     "allowed_verdicts": ["supported", "partially_supported", "unsupported", "contradicted", "not_applicable", "not_verifiable"],
-    "coverage_contract": "两名不同 reviewer 必须分别且完整覆盖 answerClaims；claim 文本必须逐字一致。",
-    "adjudication_contract": "两名 primary reviewer 对任一 claim 分歧时，必须由第三个不同 reviewer 仅对全部分歧 claim 裁决。"
+    "method_coverage_required": ["method_family", "verdict"],
+    "allowed_method_coverage_verdicts": ["covered", "not_covered"],
+    "constraint_coverage_required": ["constraint", "verdict"],
+    "allowed_constraint_coverage_verdicts": ["preserved", "not_preserved"],
+    "coverage_contract": "两名不同 reviewer 必须分别完整覆盖 answerClaims、冻结 acceptableMethodFamilies 和冻结 criticalConstraints；方法与约束指标分母只取冻结数组长度。",
+    "adjudication_contract": "两名 primary reviewer 对任一 claim、method family 或 critical constraint 分歧时，必须由第三个不同 reviewer 仅对三个通道的全部分歧项裁决；无分歧通道提交空数组。"
   },
   "cases": []
 }

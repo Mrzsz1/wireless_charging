@@ -102,6 +102,26 @@ def validate_dataset(
     if frozen:
         if len(cases) < minimum:
             raise HeldoutContractError("frozen held-out cases 少于 minimum_case_count")
+        if dataset.get("candidate_pool") != "research_questions_v1.json#split=heldout":
+            raise HeldoutContractError("frozen held-out candidate_pool 来源非法")
+        if dataset.get("candidate_count") != 80:
+            raise HeldoutContractError("frozen held-out candidate_count 必须为 80")
+        pool_hash = dataset.get("candidate_pool_cases_sha256")
+        if not isinstance(pool_hash, str) or not SHA256_RE.fullmatch(pool_hash):
+            raise HeldoutContractError(
+                "frozen held-out candidate_pool_cases_sha256 必须为小写 SHA-256"
+            )
+        for case in cases:
+            for field in ("acceptableMethodFamilies", "criticalConstraints"):
+                values = case.get(field)
+                if (
+                    not isinstance(values, list)
+                    or any(not isinstance(value, str) or not value.strip() for value in values)
+                    or len(values) != len(set(values))
+                ):
+                    raise HeldoutContractError(
+                        f"{case['id']}: frozen {field} 必须为无重复非空字符串数组"
+                    )
         curation = dataset.get("curation")
         if not isinstance(curation, dict) or curation.get("independent") is not True:
             raise HeldoutContractError("frozen held-out 数据集缺少独立 curation 证明")

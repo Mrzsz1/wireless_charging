@@ -17,8 +17,9 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 import qa_accuracy_eval as accuracy
+import validate_research_question_dataset as research_dataset
 
-SCHEMA_VERSION = "qa-independent-heldout-workflow-v1"
+SCHEMA_VERSION = "qa-independent-heldout-workflow-v2"
 OPEN_RESEARCH_TYPES = {
     "method_improvement",
     "solution_search",
@@ -72,7 +73,7 @@ def curator_template(case_count: int = 50) -> dict[str, Any]:
         "allowedTypes": list(accuracy.heldout_contract.CONTRACT["allowedTypes"]),
         "cases": [
             {
-                "id": f"heldout-{index:03d}",
+                "id": "",
                 "type": "",
                 "question": "",
                 "stratum": "",
@@ -86,7 +87,28 @@ def curator_template(case_count: int = 50) -> dict[str, Any]:
     }
 
 
-def freeze_draft(draft: dict[str, Any], frozen_at: str) -> dict[str, Any]:
+def _load_heldout_candidate_pool(candidate_pool_path: Path) -> tuple[dict[str, dict[str, Any]], str]:
+    try:
+        payload = accuracy.load_json(candidate_pool_path)
+        all_cases = research_dataset.validate_payload(payload)
+    except (accuracy.AccuracyEvalError, research_dataset.ResearchQuestionDatasetError) as exc:
+        raise HeldoutWorkflowError(f"candidate pool validation failed: {exc}") from exc
+    heldout = [case for case in all_cases if case["split"] == "heldout"]
+    if len(heldout) != 80:
+        raise HeldoutWorkflowError("candidate pool must contain exactly 80 heldout cases")
+    if any(case["intent"] not in accuracy.VALID_HELDOUT_TYPES for case in heldout):
+        raise HeldoutWorkflowError("candidate pool heldout intent is not canonical")
+    pool_hash = payload.get("casesSha256")
+    if not isinstance(pool_hash, str) or not accuracy.SHA256_RE.fullmatch(pool_hash):
+        raise HeldoutWorkflowError("candidate pool casesSha256 is invalid")
+    return {str(case["id"]): case for case in heldout}, pool_hash
+
+
+def freeze_draft(
+    draft: dict[str, Any],
+    frozen_at: str,
+    candidate_pool_path: Path = research_dataset.DATASET,
+) -> dict[str, Any]:
     if draft.get("schemaVersion") != SCHEMA_VERSION:
         raise HeldoutWorkflowError("unsupported curator template schema")
     if draft.get("independent") is not True:
@@ -104,6 +126,7 @@ def freeze_draft(draft: dict[str, Any], frozen_at: str) -> dict[str, Any]:
     cases = draft.get("cases")
     if not isinstance(cases, list) or len(cases) < 30:
         raise HeldoutWorkflowError("at least 30 independently curated cases are required")
+    candidates, candidate_pool_hash = _load_heldout_candidate_pool(candidate_pool_path)
     seen: set[str] = set()
     for case in cases:
         if not isinstance(case, dict) or not all(case.get(key) for key in ("id", "type", "question")):
@@ -113,11 +136,22 @@ def freeze_draft(draft: dict[str, Any], frozen_at: str) -> dict[str, Any]:
         seen.add(case["id"])
         if case["type"] not in accuracy.VALID_HELDOUT_TYPES:
             raise HeldoutWorkflowError(f"{case['id']}: type must use canonical ResearchIntent")
+        candidate = candidates.get(case["id"])
+        if candidate is None:
+            raise HeldoutWorkflowError(f"{case['id']}: case is not in sealed heldout candidate pool")
+        if case["question"] != candidate["question"]:
+            raise HeldoutWorkflowError(f"{case['id']}: question differs from sealed candidate")
+        if case["type"] != candidate["intent"]:
+            raise HeldoutWorkflowError(
+                f"{case['id']}: type differs from sealed candidate ResearchIntent"
+            )
         for field in ("criticalConstraints", "acceptableMethodFamilies"):
             if not isinstance(case.get(field), list) or any(
                 not isinstance(value, str) or not value.strip() for value in case[field]
-            ):
-                raise HeldoutWorkflowError(f"{case['id']}: {field} must be a string array")
+            ) or len(case[field]) != len(set(case[field])):
+                raise HeldoutWorkflowError(
+                    f"{case['id']}: {field} must be a unique non-empty string array"
+                )
         if case["type"] in OPEN_RESEARCH_TYPES and not (
             case["criticalConstraints"] or case["acceptableMethodFamilies"]
         ):
@@ -143,6 +177,9 @@ def freeze_draft(draft: dict[str, Any], frozen_at: str) -> dict[str, Any]:
         "split": "heldout",
         "status": "frozen",
         "minimum_case_count": 30,
+        "candidate_pool": "research_questions_v1.json#split=heldout",
+        "candidate_count": 80,
+        "candidate_pool_cases_sha256": candidate_pool_hash,
         "curation": {
             "independent": True,
             "curator_id_hash": curator_hash,
@@ -168,7 +205,7 @@ def blind_review_bundle(case: dict[str, Any], run: dict[str, Any]) -> dict[str, 
         if item["id"] in known_ids
     ]
     return {
-        "schemaVersion": "qa-blind-heldout-review-v1",
+        "schemaVersion": "qa-blind-heldout-review-v2",
         "caseId": case_id,
         "question": case["question"],
         "answer": run["answer"],
@@ -183,10 +220,21 @@ def blind_review_bundle(case: dict[str, Any], run: dict[str, Any]) -> dict[str, 
         ],
         "evidence": evidence,
         "allowedVerdicts": sorted(accuracy.VALID_VERDICTS),
+        "expectedMethodFamilies": case["acceptableMethodFamilies"],
+        "expectedCriticalConstraints": case["criticalConstraints"],
+        "allowedMethodCoverageVerdicts": sorted(
+            accuracy.VALID_METHOD_COVERAGE_VERDICTS
+        ),
+        "allowedConstraintCoverageVerdicts": sorted(
+            accuracy.VALID_CONSTRAINT_COVERAGE_VERDICTS
+        ),
         "reviewerInstructions": {
             "blinded": True,
             "systemVerdictHidden": True,
             "reviewEachClaimExactlyOnce": True,
+            "reviewEachExpectedMethodFamilyExactlyOnce": True,
+            "reviewEachExpectedCriticalConstraintExactlyOnce": True,
+            "coverageDenominatorsComeOnlyFromFrozenCase": True,
         },
     }
 
@@ -221,7 +269,7 @@ def derive_metrics(
         review = accuracy.load_json(reviews_dir / f"{case['id']}.json")
         if run.get("question") != case["question"]:
             raise HeldoutWorkflowError(f"{case['id']}: run question mismatch")
-        totals = totals.add(accuracy.review_totals(run, review, case["id"]))
+        totals = totals.add(accuracy.review_totals(run, review, case))
     factual_total = (
         totals.supported
         + totals.partially_supported

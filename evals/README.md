@@ -272,6 +272,12 @@ UTF-8 compact JSON（与 `serde_json::to_vec(EvidenceItem)` 一致），从当�
       "independent": true,
       "claims": [
         {"claim_id": "C1", "claim": "与 answerClaims 完全一致 [E1]", "verdict": "supported"}
+      ],
+      "method_coverage": [
+        {"method_family": "METHOD_A", "verdict": "covered"}
+      ],
+      "constraint_coverage": [
+        {"constraint": "CONSTRAINT_X", "verdict": "preserved"}
       ]
     },
     {
@@ -280,6 +286,12 @@ UTF-8 compact JSON（与 `serde_json::to_vec(EvidenceItem)` 一致），从当�
       "independent": true,
       "claims": [
         {"claim_id": "C1", "claim": "与 answerClaims 完全一致 [E1]", "verdict": "contradicted"}
+      ],
+      "method_coverage": [
+        {"method_family": "METHOD_A", "verdict": "not_covered"}
+      ],
+      "constraint_coverage": [
+        {"constraint": "CONSTRAINT_X", "verdict": "preserved"}
       ]
     }
   ],
@@ -289,15 +301,19 @@ UTF-8 compact JSON（与 `serde_json::to_vec(EvidenceItem)` 一致），从当�
     "independent": true,
     "claims": [
       {"claim_id": "C1", "claim": "与 answerClaims 完全一致 [E1]", "verdict": "not_verifiable"}
-    ]
+    ],
+    "method_coverage": [
+      {"method_family": "METHOD_A", "verdict": "not_covered"}
+    ],
+    "constraint_coverage": []
   }
 }
 ```
 
-两份 primary review 必须来自不同 reviewer，且各自恰好覆盖全部 `answerClaims` 一次。
-无分歧时省略 `adjudication`；存在分歧时必须由不同于两名 primary reviewer 的第三人
-裁决全部且仅裁决分歧 claim。聚合统计每个 claim 只计一次：一致 verdict 直接采用，
-分歧 verdict 采用第三人裁决。
+两份 primary review 必须来自不同 reviewer，且各自恰好覆盖全部 `answerClaims`、冻结
+`acceptableMethodFamilies` 和冻结 `criticalConstraints` 一次。无分歧时省略 `adjudication`；
+任一通道存在分歧时必须由不同于两名 primary reviewer 的第三人裁决全部且仅裁决分歧项，
+无分歧通道提交空数组。聚合统计每项只计一次：一致 verdict 直接采用，分歧 verdict 采用第三人裁决。
 
 在独立题集冻结前可验证入口状态：
 
@@ -315,8 +331,9 @@ py -3 tools/qa_accuracy_eval.py --allow-pending
 py -3 tools/qa_heldout_workflow.py template --cases 50 --output evals/heldout_curator_template.json
 ```
 
-独立 curator 填写问题、canonical critical-constraint ID 与 acceptable method-family ID，完成
-独立性声明和匿名 SHA-256 后冻结：
+独立 curator 从 sealed `research_questions_v1.json#split=heldout` 的 80 个候选中选题，填写
+canonical critical-constraint ID 与 acceptable method-family ID，完成独立性声明和匿名 SHA-256
+后冻结。freeze 会校验 candidate pool seal/count 以及每题 ID、question、ResearchIntent/type：
 
 ```powershell
 py -3 tools/qa_heldout_workflow.py freeze --draft CURATOR_DRAFT.json --frozen-at UTC_TIMESTAMP --output FROZEN_HELDOUT.json
@@ -335,11 +352,13 @@ py -3 tools/qa_heldout_workflow.py derive --dataset FROZEN_HELDOUT.json --runs H
 ```
 
 `qa-production-eval` 自动读取该目录。缺 run/review、重复 reviewer、非独立 reviewer、漏 claim、
-缺 adjudication、checksum 篡改或三个工件 sourceRun 不一致都会 fail closed。
+漏 method/constraint coverage、缺 adjudication、checksum 篡改或三个工件 sourceRun 不一致都会 fail closed。
 
 冻结数据集还必须提供 `curation.independent=true`、匿名 curator hash、冻结时间和
 canonical `cases_sha256`。每个 `answerClaims` 可用 `dimension` 标注
-`factual/reference/method/constraint`；旧审计包缺省为 `factual`。
+`factual/reference/method/constraint`；旧审计包缺省为 `factual`，但该字段只用于 claim 分类诊断。
+`relevantMethodRecall` 的分母只来自冻结 `acceptableMethodFamilies`，
+`criticalConstraintPreservation` 的分母只来自冻结 `criticalConstraints`，两者均不读取系统 claim 数量。
 
 ## Production Release Gate
 

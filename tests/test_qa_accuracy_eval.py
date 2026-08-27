@@ -17,6 +17,12 @@ qa_accuracy_eval = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = qa_accuracy_eval
 SPEC.loader.exec_module(qa_accuracy_eval)
 
+CASE = {
+    "id": "case-1",
+    "acceptableMethodFamilies": [],
+    "criticalConstraints": [],
+}
+
 
 def evidence() -> dict[str, object]:
     return {
@@ -82,6 +88,8 @@ def primary_review(reviewer: str, verdict: str = "supported") -> dict[str, objec
                 "verdict": verdict,
             }
         ],
+        "method_coverage": [],
+        "constraint_coverage": [],
     }
 
 
@@ -143,7 +151,7 @@ class QaAccuracyEvalTests(unittest.TestCase):
 
     def test_two_agreeing_independent_reviews_count_each_claim_once(self) -> None:
         totals = qa_accuracy_eval.review_totals(
-            run_fixture(), review_fixture(), "case-1"
+            run_fixture(), review_fixture(), CASE
         )
         self.assertEqual(totals.supported, 1)
         self.assertEqual(totals.reviewed_answers, 1)
@@ -154,19 +162,19 @@ class QaAccuracyEvalTests(unittest.TestCase):
         review = review_fixture()
         review["primary_reviews"] = review["primary_reviews"][:1]
         with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
-            qa_accuracy_eval.review_totals(run_fixture(), review, "case-1")
+            qa_accuracy_eval.review_totals(run_fixture(), review, CASE)
 
     def test_duplicate_primary_reviewer_fails_closed(self) -> None:
         review = review_fixture()
         review["primary_reviews"][1]["reviewer_id_hash"] = "a" * 64
         with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
-            qa_accuracy_eval.review_totals(run_fixture(), review, "case-1")
+            qa_accuracy_eval.review_totals(run_fixture(), review, CASE)
 
     def test_manifest_claim_count_99_with_one_verdict_fails_closed(self) -> None:
         run = run_fixture()
         run["runManifest"]["answerCompleteness"]["claimCount"] = 99
         with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
-            qa_accuracy_eval.review_totals(run, review_fixture(), "case-1")
+            qa_accuracy_eval.review_totals(run, review_fixture(), CASE)
 
     def test_each_primary_review_must_cover_every_declared_claim(self) -> None:
         run = run_fixture()
@@ -180,12 +188,12 @@ class QaAccuracyEvalTests(unittest.TestCase):
         )
         run["runManifest"]["answerCompleteness"]["claimCount"] = 2
         with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
-            qa_accuracy_eval.review_totals(run, review_fixture(), "case-1")
+            qa_accuracy_eval.review_totals(run, review_fixture(), CASE)
 
     def test_disagreement_requires_distinct_third_reviewer_adjudication(self) -> None:
         review = review_fixture("supported", "contradicted")
         with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
-            qa_accuracy_eval.review_totals(run_fixture(), review, "case-1")
+            qa_accuracy_eval.review_totals(run_fixture(), review, CASE)
 
         review["adjudication"] = {
             "reviewer_id_hash": "c" * 64,
@@ -198,15 +206,17 @@ class QaAccuracyEvalTests(unittest.TestCase):
                     "verdict": "not_verifiable",
                 }
             ],
+            "method_coverage": [],
+            "constraint_coverage": [],
         }
-        totals = qa_accuracy_eval.review_totals(run_fixture(), review, "case-1")
+        totals = qa_accuracy_eval.review_totals(run_fixture(), review, CASE)
         self.assertEqual(totals.not_verifiable, 1)
 
     def test_forged_checksum_fails_closed(self) -> None:
         run = run_fixture()
         run["runManifest"]["evidenceChecksums"][0]["sha256"] = "0" * 64
         with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
-            qa_accuracy_eval.review_totals(run, review_fixture(), "case-1")
+            qa_accuracy_eval.review_totals(run, review_fixture(), CASE)
 
     def test_tampered_evidence_content_fails_closed(self) -> None:
         run = run_fixture()
@@ -217,31 +227,110 @@ class QaAccuracyEvalTests(unittest.TestCase):
             original["runManifest"]["evidenceChecksums"],
         )
         with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
-            qa_accuracy_eval.review_totals(run, review_fixture(), "case-1")
+            qa_accuracy_eval.review_totals(run, review_fixture(), CASE)
 
     def test_missing_evidence_or_manifest_checksum_fails_closed(self) -> None:
         run = run_fixture()
         del run["evidence"]
         with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
-            qa_accuracy_eval.review_totals(run, review_fixture(), "case-1")
+            qa_accuracy_eval.review_totals(run, review_fixture(), CASE)
 
     def test_partial_unsupported_and_dimension_metrics_are_counted(self) -> None:
         run = run_fixture()
         run["answerClaims"][0]["dimension"] = "method"
         review = review_fixture("partially_supported", "partially_supported")
-        totals = qa_accuracy_eval.review_totals(run, review, "case-1")
+        totals = qa_accuracy_eval.review_totals(run, review, CASE)
         self.assertEqual(totals.partially_supported, 1)
-        self.assertEqual(totals.method_supported, 1)
-        self.assertEqual(totals.method_total, 1)
+        self.assertEqual(totals.method_supported, 0)
+        self.assertEqual(totals.method_total, 0)
         self.assertEqual(totals.cited_claims, 1)
 
         review = review_fixture("unsupported", "unsupported")
-        totals = qa_accuracy_eval.review_totals(run, review, "case-1")
+        totals = qa_accuracy_eval.review_totals(run, review, CASE)
         self.assertEqual(totals.unsupported, 1)
+
+    def test_method_and_constraint_totals_come_from_frozen_case_not_claim_dimension(self) -> None:
+        case = {
+            "id": "case-1",
+            "acceptableMethodFamilies": ["A", "B", "C", "D"],
+            "criticalConstraints": ["X", "Y", "Z"],
+        }
+        review = review_fixture()
+        for primary in review["primary_reviews"]:
+            primary["method_coverage"] = [
+                {"method_family": method, "verdict": "covered" if method == "A" else "not_covered"}
+                for method in case["acceptableMethodFamilies"]
+            ]
+            primary["constraint_coverage"] = [
+                {"constraint": constraint, "verdict": "preserved" if constraint == "X" else "not_preserved"}
+                for constraint in case["criticalConstraints"]
+            ]
+
+        for dimension in ("factual", "method"):
+            with self.subTest(dimension=dimension):
+                run = run_fixture()
+                run["answerClaims"][0]["dimension"] = dimension
+                totals = qa_accuracy_eval.review_totals(run, review, case)
+                self.assertEqual((totals.method_supported, totals.method_total), (1, 4))
+                self.assertEqual((totals.constraint_supported, totals.constraint_total), (1, 3))
+
+    def test_coverage_must_exactly_cover_frozen_expectations(self) -> None:
+        case = {
+            "id": "case-1",
+            "acceptableMethodFamilies": ["A", "B"],
+            "criticalConstraints": ["X"],
+        }
+        review = review_fixture()
+        for primary in review["primary_reviews"]:
+            primary["method_coverage"] = [
+                {"method_family": "A", "verdict": "covered"}
+            ]
+            primary["constraint_coverage"] = [
+                {"constraint": "X", "verdict": "preserved"}
+            ]
+        with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
+            qa_accuracy_eval.review_totals(run_fixture(), review, case)
+
+    def test_coverage_disagreement_requires_exact_third_reviewer_adjudication(self) -> None:
+        case = {
+            "id": "case-1",
+            "acceptableMethodFamilies": ["A"],
+            "criticalConstraints": ["X"],
+        }
+        review = review_fixture()
+        review["primary_reviews"][0]["method_coverage"] = [
+            {"method_family": "A", "verdict": "covered"}
+        ]
+        review["primary_reviews"][1]["method_coverage"] = [
+            {"method_family": "A", "verdict": "not_covered"}
+        ]
+        for primary in review["primary_reviews"]:
+            primary["constraint_coverage"] = [
+                {"constraint": "X", "verdict": "preserved"}
+            ]
+        with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
+            qa_accuracy_eval.review_totals(run_fixture(), review, case)
+
+        review["adjudication"] = {
+            "reviewer_id_hash": "c" * 64,
+            "blinded": True,
+            "independent": True,
+            "claims": [],
+            "method_coverage": [{"method_family": "A", "verdict": "not_covered"}],
+            "constraint_coverage": [],
+        }
+        totals = qa_accuracy_eval.review_totals(run_fixture(), review, case)
+        self.assertEqual((totals.method_supported, totals.method_total), (0, 1))
 
     def test_frozen_dataset_requires_independent_curation_and_case_hash(self) -> None:
         cases = [
-            {"id": f"case-{index}", "type": "direct_factual", "question": f"q{index}"}
+            {
+                "id": f"case-{index}",
+                "type": "direct_factual",
+                "question": f"q{index}",
+                "acceptableMethodFamilies": [],
+                "criticalConstraints": [],
+            }
             for index in range(30)
         ]
         dataset = {
@@ -256,7 +345,13 @@ class QaAccuracyEvalTests(unittest.TestCase):
 
     def test_frozen_dataset_hash_tampering_fails_closed(self) -> None:
         cases = [
-            {"id": f"case-{index}", "type": "direct_factual", "question": f"q{index}"}
+            {
+                "id": f"case-{index}",
+                "type": "direct_factual",
+                "question": f"q{index}",
+                "acceptableMethodFamilies": [],
+                "criticalConstraints": [],
+            }
             for index in range(30)
         ]
         dataset = {
@@ -264,6 +359,9 @@ class QaAccuracyEvalTests(unittest.TestCase):
             "split": "heldout",
             "status": "frozen",
             "minimum_case_count": 30,
+            "candidate_pool": "research_questions_v1.json#split=heldout",
+            "candidate_count": 80,
+            "candidate_pool_cases_sha256": "e" * 64,
             "cases": cases,
             "curation": {
                 "independent": True,
@@ -283,12 +381,12 @@ class QaAccuracyEvalTests(unittest.TestCase):
         run["evidence"] = []
         run["runManifest"]["evidenceChecksums"] = []
         with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
-            qa_accuracy_eval.review_totals(run, review_fixture(), "case-1")
+            qa_accuracy_eval.review_totals(run, review_fixture(), CASE)
 
         run = run_fixture()
         del run["runManifest"]["evidenceChecksums"]
         with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
-            qa_accuracy_eval.review_totals(run, review_fixture(), "case-1")
+            qa_accuracy_eval.review_totals(run, review_fixture(), CASE)
 
 
 if __name__ == "__main__":
