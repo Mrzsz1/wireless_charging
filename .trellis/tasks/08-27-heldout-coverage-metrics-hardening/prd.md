@@ -17,13 +17,13 @@
 
 ## Acceptance Criteria
 
-- [ ] `Expected methods=[A,B,C,D]` 且回答只覆盖 A 时，`relevantMethodRecall == 0.25`，即使唯一 claim 的 dimension 为 `factual` 或 `method` 也不变。
-- [ ] `Expected constraints=[X,Y,Z]` 且回答只保留 X 时，`criticalConstraintPreservation == 1/3`。
-- [ ] coverage 缺项、重复项、未知项、非法 verdict 均失败关闭。
-- [ ] method/constraint 双评审分歧缺少第三人裁决时失败；第三人必须与两名 primary reviewer 不同且只覆盖全部分歧项。
-- [ ] freeze 对非 sealed pool、heldout 候选数不等于 80、pool seal 错误、ID/question/type 漂移全部失败关闭。
-- [ ] blind review bundle 明确包含 expected method families、expected critical constraints 及各自 verdict 契约。
-- [ ] Python evaluator/workflow tests 通过，并更新 `evals/heldout_questions.json` 与 backend QA contract。
+- [x] `Expected methods=[A,B,C,D]` 且回答只覆盖 A 时，`relevantMethodRecall == 0.25`，即使唯一 claim 的 dimension 为 `factual` 或 `method` 也不变。
+- [x] `Expected constraints=[X,Y,Z]` 且回答只保留 X 时，`criticalConstraintPreservation == 1/3`。
+- [x] coverage 缺项、重复项、未知项、非法 verdict 均失败关闭。
+- [x] method/constraint 双评审分歧缺少第三人裁决时失败；第三人必须与两名 primary reviewer 不同且只覆盖全部分歧项。
+- [x] freeze 对非 sealed pool、heldout 候选数不等于 80、pool seal 错误、ID/question/type 漂移全部失败关闭。
+- [x] blind review bundle 明确包含 expected method families、expected critical constraints 及各自 verdict 契约。
+- [x] Python evaluator/workflow tests 通过，并更新 `evals/heldout_questions.json` 与 backend QA contract。
 
 ## Notes
 
