@@ -1,4 +1,4 @@
-use crate::qa::{EvidenceItem, QaRunManifest};
+use crate::qa::{project_natural_visible_text, EvidenceItem, QaRunManifest};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -10,7 +10,7 @@ use std::process::Command;
 use uuid::Uuid;
 
 pub const CONTRACT_SCHEMA_VERSION: &str = "qa-heldout-contract-v1";
-pub const RUN_SCHEMA_VERSION: &str = "qa-heldout-run-v1";
+pub const RUN_SCHEMA_VERSION: &str = "qa-heldout-run-v2";
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -375,19 +375,23 @@ fn build_bundle(
     let answer_claims = claims
         .iter()
         .map(|claim| {
+            let visible_text = project_natural_visible_text(&claim.text);
+            let unique_citation_count = claim.evidence_ids.iter().collect::<HashSet<_>>().len();
             if claim.id.trim().is_empty()
                 || !claim_ids.insert(claim.id.clone())
-                || claim.text.trim().is_empty()
-                || !audit.answer.contains(&claim.text)
-                || claim.evidence_ids.iter().any(|id| {
-                    !evidence_ids.contains(id) || !claim.text.contains(&format!("[{id}]"))
-                })
+                || visible_text.is_empty()
+                || !audit.answer.contains(&visible_text)
+                || unique_citation_count != claim.evidence_ids.len()
+                || claim
+                    .evidence_ids
+                    .iter()
+                    .any(|id| !evidence_ids.contains(id))
             {
                 return Err("HELDOUT_AUDIT_INVALID: claim_projection".to_string());
             }
             Ok(HeldoutAnswerClaim {
                 claim_id: claim.id.clone(),
-                text: claim.text.clone(),
+                text: visible_text,
                 cited_evidence_ids: claim.evidence_ids.clone(),
             })
         })
@@ -587,9 +591,30 @@ mod tests {
         manifest.verification_provider = provider.to_string();
         manifest.verification_model = model.to_string();
         QaCaseAudit {
-            answer: "Synthetic claim [E1]".to_string(),
+            answer:
+                "Synthetic claim\n\n## 参考证据\n\n- [知识库 · Synthetic evidence](evidence:E1)\n"
+                    .to_string(),
             evidence: vec![evidence],
             run_manifest: manifest,
+        }
+    }
+
+    fn fixture_metadata() -> HeldoutCaseRunMetadata {
+        HeldoutCaseRunMetadata {
+            schema_version: RUN_SCHEMA_VERSION.to_string(),
+            dataset_version: "synthetic-v1".to_string(),
+            dataset_sha256: "b".repeat(64),
+            git_commit: "a".repeat(40),
+            runtime_id: "runtime".to_string(),
+            provider: "fixture-provider".to_string(),
+            model: "fixture-model".to_string(),
+            reasoning_effort: "low".to_string(),
+            session_id: Uuid::new_v4().to_string(),
+            semantic_verifier_provider: String::new(),
+            semantic_verifier_model: String::new(),
+            reranker_model: String::new(),
+            embedding_model: String::new(),
+            knowledge_base_snapshot: String::new(),
         }
     }
 
@@ -692,6 +717,24 @@ mod tests {
             Some("fixture-provider")
         );
         assert_eq!(
+            bundle
+                .pointer("/heldoutRun/schemaVersion")
+                .and_then(Value::as_str),
+            Some("qa-heldout-run-v2")
+        );
+        assert_eq!(
+            bundle
+                .pointer("/answerClaims/0/text")
+                .and_then(Value::as_str),
+            Some("Synthetic claim")
+        );
+        assert_eq!(
+            bundle
+                .pointer("/answerClaims/0/citedEvidenceIds/0")
+                .and_then(Value::as_str),
+            Some("E1")
+        );
+        assert_eq!(
             bundle.pointer("/heldoutRun/model").and_then(Value::as_str),
             Some("fixture-model")
         );
@@ -763,30 +806,47 @@ mod tests {
     }
 
     #[test]
-    fn runner_rejects_claim_and_checksum_mismatch() {
+    fn runner_rejects_invalid_visible_claim_projection_and_checksum() {
         let case: HeldoutCase = serde_json::from_value(cases()[0].clone()).unwrap();
-        let metadata = HeldoutCaseRunMetadata {
-            schema_version: RUN_SCHEMA_VERSION.to_string(),
-            dataset_version: "synthetic-v1".to_string(),
-            dataset_sha256: "b".repeat(64),
-            git_commit: "a".repeat(40),
-            runtime_id: "runtime".to_string(),
-            provider: "fixture-provider".to_string(),
-            model: "fixture-model".to_string(),
-            reasoning_effort: "low".to_string(),
-            session_id: Uuid::new_v4().to_string(),
-            semantic_verifier_provider: String::new(),
-            semantic_verifier_model: String::new(),
-            reranker_model: String::new(),
-            embedding_model: String::new(),
-            knowledge_base_snapshot: String::new(),
-        };
+
         let mut claim_bad = fixture_audit("fixture-provider", "fixture-model");
         claim_bad.answer = "different answer".to_string();
-        assert!(build_bundle(&case, claim_bad, metadata.clone()).is_err());
+        assert_eq!(
+            build_bundle(&case, claim_bad, fixture_metadata()).unwrap_err(),
+            "HELDOUT_AUDIT_INVALID: claim_projection"
+        );
+
+        let mut unknown_citation = fixture_audit("fixture-provider", "fixture-model");
+        unknown_citation.run_manifest.claim_verifications[0].evidence_ids = vec!["E99".to_string()];
+        assert_eq!(
+            build_bundle(&case, unknown_citation, fixture_metadata()).unwrap_err(),
+            "HELDOUT_AUDIT_INVALID: claim_projection"
+        );
+
+        let mut duplicate_claim = fixture_audit("fixture-provider", "fixture-model");
+        duplicate_claim
+            .run_manifest
+            .claim_verifications
+            .push(duplicate_claim.run_manifest.claim_verifications[0].clone());
+        duplicate_claim.run_manifest.answer_completeness.claim_count = 2;
+        assert_eq!(
+            build_bundle(&case, duplicate_claim, fixture_metadata()).unwrap_err(),
+            "HELDOUT_AUDIT_INVALID: claim_projection"
+        );
+
+        let mut empty_projection = fixture_audit("fixture-provider", "fixture-model");
+        empty_projection.run_manifest.claim_verifications[0].text = "[E1]".to_string();
+        assert_eq!(
+            build_bundle(&case, empty_projection, fixture_metadata()).unwrap_err(),
+            "HELDOUT_AUDIT_INVALID: claim_projection"
+        );
+
         let mut checksum_bad = fixture_audit("fixture-provider", "fixture-model");
         checksum_bad.run_manifest.evidence_checksums[0].sha256 = "0".repeat(64);
-        assert!(build_bundle(&case, checksum_bad, metadata).is_err());
+        assert_eq!(
+            build_bundle(&case, checksum_bad, fixture_metadata()).unwrap_err(),
+            "HELDOUT_AUDIT_INVALID: evidence_checksum_mismatch"
+        );
     }
 
     #[test]

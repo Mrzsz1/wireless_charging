@@ -121,6 +121,19 @@ fn redact_windows_absolute_paths(value: &str) -> String {
     result
 }
 
+fn visible_text_projection(value: &str) -> (String, Vec<String>) {
+    let raw_body = strip_existing_appendix(value).trim();
+    let (body, removed_ids) = strip_evidence_tokens(raw_body);
+    let visible = redact_windows_absolute_paths(&sanitize_markdown_link_targets(body.trim()))
+        .trim()
+        .to_string();
+    (visible, removed_ids)
+}
+
+pub(crate) fn project_visible_text(value: &str) -> String {
+    visible_text_projection(value).0
+}
+
 fn escaped_label(value: &str) -> String {
     value
         .replace('[', "［")
@@ -188,7 +201,7 @@ pub fn render(answer: &str, evidence: &[EvidenceItem]) -> Result<NaturalAnswerRe
     if raw_body.chars().count() > 200_000 {
         return Err("回答正文超过安全长度上限".to_string());
     }
-    let (body, removed_ids) = strip_evidence_tokens(raw_body);
+    let (body, removed_ids) = visible_text_projection(answer);
     let known_ids = evidence
         .iter()
         .map(|item| item.id.as_str())
@@ -197,9 +210,6 @@ pub fn render(answer: &str, evidence: &[EvidenceItem]) -> Result<NaturalAnswerRe
         .into_iter()
         .filter(|id| !known_ids.contains(id.as_str()))
         .collect::<Vec<_>>();
-    let body = redact_windows_absolute_paths(&sanitize_markdown_link_targets(body.trim()))
-        .trim()
-        .to_string();
     if evidence.is_empty() {
         let markdown = normalize_unverified_answer(&body);
         return Ok(NaturalAnswerResult {
@@ -311,5 +321,27 @@ mod tests {
         assert!(rendered.markdown.contains("本地路径已隐藏"));
         assert!(rendered.markdown.contains("#blocked-link"));
         assert_eq!(rendered.repair.removed_unknown_ids, vec!["E99"]);
+    }
+
+    #[test]
+    fn visible_projection_is_the_exact_render_body_transformation() {
+        let raw = "Synthetic [link](file:///C:/secret.txt) C:\\private\\note.md [E1]";
+        let projected = project_visible_text(raw);
+        let rendered = render(raw, &[evidence("E1")]).unwrap();
+        let rendered_body = rendered
+            .markdown
+            .split_once(&format!("\n\n{APPENDIX_HEADING}"))
+            .map(|(body, _)| body)
+            .unwrap();
+
+        assert_eq!(
+            projected,
+            "Synthetic [link](#blocked-link) [本地路径已隐藏]"
+        );
+        assert_eq!(rendered_body, projected);
+        assert_eq!(
+            rendered.markdown,
+            "Synthetic [link](#blocked-link) [本地路径已隐藏]\n\n## 参考证据\n\n- [书籍 · Approximation Algorithms · Euclidean TSP](evidence:E1)\n"
+        );
     }
 }

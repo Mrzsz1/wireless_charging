@@ -211,8 +211,9 @@ Runner 在执行模型前验证 `production_accuracy/heldout/frozen`、独立 cu
 config 共同确定，已有完整或 `.part` run 均不覆盖。
 
 每题使用空历史和独立 session ID，走当前生产 planning/retrieval/generation/semantic audit
-核心函数，并原样保存最终 answer、完整 EvidenceItem、QaRunManifest 及本轮 atomic claims。
-写入前会复核 claimCount、claim 原文、citation IDs 和生产 evidence checksums；所有 case
+核心函数，并原样保存最终 answer、完整 EvidenceItem、QaRunManifest 及本轮 atomic claims 的
+deterministic visible-text projection。写入前会复核 claimCount、最终可见 claim、结构化 citation IDs
+和生产 evidence checksums；所有 case
 完成后才将整个 `.part` run directory 原子改名为正式目录。Runner 不评分、不写 reviewer
 verdict，也不读取 `research_questions_v1.json` 的 heldout 内容作为测试夹具。
 
@@ -234,9 +235,9 @@ curator workflow 和公开 template 必须与它一致。
 ```json
 {
   "question": "冻结题目原文",
-  "answer": "最终回答正文，含 [E1]",
+  "answer": "Synthetic claim\n\n## 参考证据\n\n- [知识库 · Synthetic evidence](evidence:E1)",
   "answerClaims": [
-    {"claimId": "C1", "text": "回答中逐字存在的 claim [E1]", "citedEvidenceIds": ["E1"]}
+    {"claimId": "C1", "text": "Synthetic claim", "citedEvidenceIds": ["E1"]}
   ],
   "evidence": ["完整 EvidenceItem 对象"],
   "runManifest": {
@@ -248,10 +249,16 @@ curator workflow 和公开 template 必须与它一致。
 }
 ```
 
-`answerClaims` 是人工评审的冻结 claim 清单。其长度必须严格等于
-`runManifest.answerCompleteness.claimCount`，每个 `text` 必须逐字出现在
-`answer` 中，每个 `citedEvidenceIds` 也必须以 `[E#]` 出现在该 claim 文本中。这样评审不能用
-“manifest 声明 99 个 claim、实际只提交 1 个 verdict”的方式缩小分母。
+`qa-heldout-run-v2` 的 `answerClaims` 是人工评审的冻结可见 claim 清单。Runner 对 pre-render
+verified claim 使用 natural renderer 的同一纯转换：截断既有 `## 参考证据` appendix、trim、移除
+`[E<digits>]`、清理 unsafe Markdown link target、隐藏 Windows drive/UNC absolute path，再 trim。
+投影结果必须非空且逐字出现在最终 `answer`。其长度必须严格等于
+`runManifest.answerCompleteness.claimCount`，因此评审不能用“manifest 声明 99 个 claim、实际只提交
+1 个 verdict”的方式缩小分母。
+
+`citedEvidenceIds` 是从 `runManifest.claimVerifications.evidenceIds` 保留的结构化 provenance mapping，
+不要求以 `[E#]` token 出现在最终可见 claim 文本中。Rust Runner 和 Python evaluator 分别校验每个
+ID 都属于当前 run 的完整 `EvidenceItem.id` 集合；任一未知 ID 都 fail closed。
 
 证据数组及 checksum 数组必须非空，并保留 Rust `EvidenceItem` 的全部字段。评测器按该结构体的固定字段顺序生成
 UTF-8 compact JSON（与 `serde_json::to_vec(EvidenceItem)` 一致），从当前 `evidence`
@@ -271,7 +278,7 @@ UTF-8 compact JSON（与 `serde_json::to_vec(EvidenceItem)` 一致），从当�
       "blinded": true,
       "independent": true,
       "claims": [
-        {"claim_id": "C1", "claim": "与 answerClaims 完全一致 [E1]", "verdict": "supported"}
+        {"claim_id": "C1", "claim": "与 answerClaims 完全一致", "verdict": "supported"}
       ],
       "method_coverage": [
         {"method_family": "METHOD_A", "verdict": "covered"}
@@ -285,7 +292,7 @@ UTF-8 compact JSON（与 `serde_json::to_vec(EvidenceItem)` 一致），从当�
       "blinded": true,
       "independent": true,
       "claims": [
-        {"claim_id": "C1", "claim": "与 answerClaims 完全一致 [E1]", "verdict": "contradicted"}
+        {"claim_id": "C1", "claim": "与 answerClaims 完全一致", "verdict": "contradicted"}
       ],
       "method_coverage": [
         {"method_family": "METHOD_A", "verdict": "not_covered"}
@@ -300,7 +307,7 @@ UTF-8 compact JSON（与 `serde_json::to_vec(EvidenceItem)` 一致），从当�
     "blinded": true,
     "independent": true,
     "claims": [
-      {"claim_id": "C1", "claim": "与 answerClaims 完全一致 [E1]", "verdict": "not_verifiable"}
+      {"claim_id": "C1", "claim": "与 answerClaims 完全一致", "verdict": "not_verifiable"}
     ],
     "method_coverage": [
       {"method_family": "METHOD_A", "verdict": "not_covered"}

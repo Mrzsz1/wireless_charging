@@ -338,7 +338,10 @@ def _validate_evidence_and_manifest(
 
 
 def _validate_answer_claims(
-    run: dict[str, Any], manifest: dict[str, Any], case_id: str
+    run: dict[str, Any],
+    manifest: dict[str, Any],
+    known_evidence_ids: set[str],
+    case_id: str,
 ) -> tuple[dict[str, str], dict[str, str], dict[str, list[str]]]:
     answer = run.get("answer")
     if not isinstance(answer, str) or not answer.strip():
@@ -396,11 +399,11 @@ def _validate_answer_claims(
             )
         if len(citations) != len(set(citations)):
             raise AccuracyEvalError(f"{case_id}: claim {claim_id} 包含重复 citation ID")
-        for citation in citations:
-            if f"[{citation}]" not in text:
-                raise AccuracyEvalError(
-                    f"{case_id}: claim {claim_id} 的 [{citation}] 未出现在该 claim 文本中"
-                )
+        unknown_citations = sorted(set(citations) - known_evidence_ids)
+        if unknown_citations:
+            raise AccuracyEvalError(
+                f"{case_id}: claim {claim_id} 包含未知 citedEvidenceIds: {unknown_citations}"
+            )
         claim_text_by_id[claim_id] = text
         dimension = claim.get("dimension", "factual")
         if dimension not in VALID_DIMENSIONS:
@@ -659,7 +662,7 @@ def review_totals(
     )
     known_ids, manifest = _validate_evidence_and_manifest(run, case_id)
     expected_claims, dimensions, citations_by_claim = _validate_answer_claims(
-        run, manifest, case_id
+        run, manifest, known_ids, case_id
     )
     final_verdicts, final_methods, final_constraints = _final_verdicts(
         review,

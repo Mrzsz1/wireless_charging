@@ -193,7 +193,9 @@ def freeze_draft(
 def blind_review_bundle(case: dict[str, Any], run: dict[str, Any]) -> dict[str, Any]:
     case_id = case["id"]
     known_ids, manifest = accuracy._validate_evidence_and_manifest(run, case_id)
-    claims, dimensions, citations = accuracy._validate_answer_claims(run, manifest, case_id)
+    claims, dimensions, citations = accuracy._validate_answer_claims(
+        run, manifest, known_ids, case_id
+    )
     evidence = [
         {
             "id": item["id"],
