@@ -1667,3 +1667,38 @@ Unified the canonical held-out ResearchIntent contract, added shared Python free
 ### Next Steps
 
 - None - task complete
+
+
+## Session 50: Held-out 覆盖指标与冻结来源加固
+
+**Date**: 2026-08-27
+**Task**: Held-out 覆盖指标与冻结来源加固
+**Branch**: `master`
+
+### Summary
+
+将方法召回和关键约束保留率改为冻结期望集合分母；新增独立 coverage 双评审和第三人裁决；freeze 校验 sealed 80-candidate pool 的 ID/question/ResearchIntent；加入 1/4 与 1/3 退化回归并更新公开 schema/spec。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `a3d471c` | (see git log) |
+| `2bc4030` | (see git log) |
+| `4f062c5` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
