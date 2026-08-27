@@ -249,8 +249,10 @@ curator workflow 和公开 template 必须与它一致。
 }
 ```
 
-`qa-heldout-run-v2` 的 `answerClaims` 是人工评审的冻结可见 claim 清单。Runner 对 pre-render
-verified claim 使用 natural renderer 的同一纯转换：截断既有 `## 参考证据` appendix、trim、移除
+`qa-heldout-run-v2` 的 `answerClaims` 是人工评审的冻结可见 claim 清单。Runner 先复用 production
+AnswerRepair 的纯状态映射：contradicted/not-verifiable 使用既有固定替换句，partially-supported 使用
+既有降级前缀，其他状态保持原 claim；该提取不改变任何 verifier 判断或用户答案。随后对结果使用
+natural renderer 的同一纯转换：截断既有 `## 参考证据` appendix、trim、移除
 `[E<digits>]`、清理 unsafe Markdown link target、隐藏 Windows drive/UNC absolute path，再 trim。
 投影结果必须非空且逐字出现在最终 `answer`。其长度必须严格等于
 `runManifest.answerCompleteness.claimCount`，因此评审不能用“manifest 声明 99 个 claim、实际只提交

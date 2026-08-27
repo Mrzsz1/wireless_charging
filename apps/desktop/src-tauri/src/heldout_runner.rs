@@ -1,4 +1,6 @@
-use crate::qa::{project_natural_visible_text, EvidenceItem, QaRunManifest};
+use crate::qa::{
+    project_claim_after_repair, project_natural_visible_text, EvidenceItem, QaRunManifest,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -375,7 +377,8 @@ fn build_bundle(
     let answer_claims = claims
         .iter()
         .map(|claim| {
-            let visible_text = project_natural_visible_text(&claim.text);
+            let repaired_text = project_claim_after_repair(claim);
+            let visible_text = project_natural_visible_text(&repaired_text);
             let unique_citation_count = claim.evidence_ids.iter().collect::<HashSet<_>>().len();
             if claim.id.trim().is_empty()
                 || !claim_ids.insert(claim.id.clone())
@@ -847,6 +850,26 @@ mod tests {
             build_bundle(&case, checksum_bad, fixture_metadata()).unwrap_err(),
             "HELDOUT_AUDIT_INVALID: evidence_checksum_mismatch"
         );
+    }
+
+    #[test]
+    fn runner_projects_the_claim_text_that_answer_repair_left_visible() {
+        let case: HeldoutCase = serde_json::from_value(cases()[0].clone()).unwrap();
+        let mut audit = fixture_audit("fixture-provider", "fixture-model");
+        audit.run_manifest.claim_verifications[0] =
+            serde_json::from_value::<VerifiedClaim>(json!({
+                "id":"C1","text":"Synthetic claim [E1]","evidenceIds":["E1"],
+                "claimType":"knowledge_fact","verificationStatus":"not_verifiable","confidence":0.0,
+                "verificationMethod":"fixture","alignmentScore":0.0,"reason":"synthetic"
+            }))
+            .unwrap();
+        audit.answer = "当前证据不足以支持这一结论。\n\n## 参考证据\n\n- [知识库 · Synthetic evidence](evidence:E1)\n"
+            .to_string();
+
+        let bundle = build_bundle(&case, audit, fixture_metadata()).unwrap();
+
+        assert_eq!(bundle.answer_claims[0].text, "当前证据不足以支持这一结论。");
+        assert_eq!(bundle.answer_claims[0].cited_evidence_ids, vec!["E1"]);
     }
 
     #[test]

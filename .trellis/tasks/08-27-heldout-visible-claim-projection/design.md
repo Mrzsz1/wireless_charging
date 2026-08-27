@@ -6,6 +6,8 @@ The production QA pipeline remains authoritative and unchanged. This task change
 
 ## Shared canonical transformation
 
+Before natural rendering, the existing AnswerRepair may replace a claim according to its already-decided verification status. The harness first uses the same pure `project_claim_after_repair` mapping used by production repair: contradicted/not-verifiable claims become the existing fixed replacement sentence, partially supported claims receive the existing prefix, and other statuses keep the original text. This is a pure extraction of current behavior, not a verifier-policy change.
+
 `qa/natural_answer.rs` owns one pure projection pipeline:
 
 1. cut any existing backend appendix at `## 参考证据`;

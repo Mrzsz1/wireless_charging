@@ -50,6 +50,24 @@ pub struct AtomicClaim {
 
 pub type VerifiedClaim = AtomicClaim;
 
+const CONTRADICTED_REPLACEMENT: &str = "当前证据与该陈述存在冲突，本轮不采纳该结论。";
+const NOT_VERIFIABLE_REPLACEMENT: &str = "当前证据不足以支持这一结论。";
+const PARTIALLY_SUPPORTED_PREFIX: &str = "现有证据仅部分支持：";
+
+pub(crate) fn project_claim_after_repair(claim: &VerifiedClaim) -> String {
+    match claim.verification_status {
+        VerificationStatus::Contradicted => CONTRADICTED_REPLACEMENT.to_string(),
+        VerificationStatus::NotVerifiable => NOT_VERIFIABLE_REPLACEMENT.to_string(),
+        VerificationStatus::PartiallySupported => {
+            format!("{PARTIALLY_SUPPORTED_PREFIX}{}", claim.text)
+        }
+        VerificationStatus::Unverified
+        | VerificationStatus::Unavailable
+        | VerificationStatus::Supported
+        | VerificationStatus::NotApplicable => claim.text.clone(),
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct ClaimVerificationReport {
@@ -686,27 +704,17 @@ pub fn verify_and_repair_with_semantic(
 
     let mut repaired = answer.to_string();
     for claim in &report.claims {
-        let replacement = match claim.verification_status {
-            VerificationStatus::Contradicted => {
-                Some("当前证据与该陈述存在冲突，本轮不采纳该结论。")
-            }
-            VerificationStatus::NotVerifiable => Some("当前证据不足以支持这一结论。"),
-            VerificationStatus::PartiallySupported => Some("现有证据仅部分支持："),
-            VerificationStatus::Unverified
-            | VerificationStatus::Unavailable
-            | VerificationStatus::Supported
-            | VerificationStatus::NotApplicable => None,
-        };
-        let Some(replacement) = replacement else {
+        let projected = project_claim_after_repair(claim);
+        if projected == claim.text {
             continue;
-        };
+        }
         if claim.verification_status == VerificationStatus::PartiallySupported {
             if let Some(index) = repaired.find(&claim.text) {
-                repaired.insert_str(index, replacement);
+                repaired.insert_str(index, PARTIALLY_SUPPORTED_PREFIX);
                 report.repaired_count += 1;
             }
         } else if repaired.contains(&claim.text) {
-            repaired = repaired.replacen(&claim.text, replacement, 1);
+            repaired = repaired.replacen(&claim.text, &projected, 1);
             report.repaired_count += 1;
         }
     }

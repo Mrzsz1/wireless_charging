@@ -20,7 +20,7 @@
     "answer_claim_required": ["claimId", "text", "citedEvidenceIds"],
     "answer_claim_optional": {"dimension": ["factual", "reference", "method", "constraint"]},
     "answer_claim_dimension_contract": "dimension 缺省为 factual，仅用于 claim 分类诊断；不得作为 relevantMethodRecall 或 criticalConstraintPreservation 的分母或分子。",
-    "claim_count_contract": "runManifest.answerCompleteness.claimCount 必须等于 answerClaims 长度；每个 text 是 renderer 同规范生成的最终可见文本，必须非空且逐字存在于最终 answer。",
+    "claim_count_contract": "runManifest.answerCompleteness.claimCount 必须等于 answerClaims 长度；每个 text 先按已有 AnswerRepair 状态映射、再按 renderer 同规范生成最终可见文本，必须非空且逐字存在于最终 answer。",
     "structured_provenance_contract": "citedEvidenceIds 从 runManifest.claimVerifications.evidenceIds 原样保留，不要求以 [E#] token 出现在最终可见 claim.text；Rust runner 与 Python evaluator 必须分别验证其为完整 evidence ID 集合的子集。",
     "evidence_integrity_contract": "每个完整 EvidenceItem 按 Rust EvidenceItem 字段序规范 JSON 序列化，重新计算 SHA-256，并与 runManifest.evidenceChecksums 的 evidenceId、stableSourceId、sha256 一一校验。"
   },
