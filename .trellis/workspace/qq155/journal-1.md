@@ -1631,3 +1631,39 @@ Tightened deterministic parameter inheritance to strict value-only follow-ups wi
 ### Next Steps
 
 - None - task complete
+
+
+## Session 49: Independent Held-out Phase 1 Runner
+
+**Date**: 2026-08-27
+**Task**: Independent Held-out Phase 1 Runner
+**Branch**: `master`
+
+### Summary
+
+Unified the canonical held-out ResearchIntent contract, added shared Python freeze validation, implemented a strict Rust runner with clean-Git/run-identity/audit-integrity/atomic-output gates, wired a real production QA one-shot executor and external-path CLI, and verified only synthetic fixtures plus targeted QA regressions.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `5fb5664` | (see git log) |
+| `76bd81d` | (see git log) |
+| `36a5d40` | (see git log) |
+| `f6a1986` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
