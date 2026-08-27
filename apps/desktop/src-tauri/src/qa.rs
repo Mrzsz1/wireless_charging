@@ -54,6 +54,7 @@ use metrics::RetrievalDiagnosticsBuilder;
 #[cfg(test)]
 pub use metrics::{evaluate_retrieval_quality, RetrievalRankingObservation};
 pub(crate) use natural_answer::project_visible_text as project_natural_visible_text;
+pub(crate) use natural_answer::visible_body_source as natural_visible_body_source;
 pub use provider_capabilities::{planning_provider, provider_descriptor, PlanningProvider};
 pub use query_plan::{
     parse_query_plan, query_plan_prompt, query_plan_schema, QueryFacet, QueryPlan,

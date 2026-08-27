@@ -258,6 +258,10 @@ natural renderer 的同一纯转换：截断既有 `## 参考证据` appendix、
 `runManifest.answerCompleteness.claimCount`，因此评审不能用“manifest 声明 99 个 claim、实际只提交
 1 个 verdict”的方式缩小分母。
 
+Atomic claim extractor 会故意遮蔽 Markdown link target 与 code/math literal。若语义 claim 因此不是
+最终 Markdown source 的直接子串，Runner 仅允许在同一行按顺序匹配其剩余可见片段，并导出匹配到的
+精确最终 source span；跨行、超长 gap 或匹配失败仍 fail closed，最终 `answer.contains(text)` 保护不变。
+
 `citedEvidenceIds` 是从 `runManifest.claimVerifications.evidenceIds` 保留的结构化 provenance mapping，
 不要求以 `[E#]` token 出现在最终可见 claim 文本中。Rust Runner 和 Python evaluator 分别校验每个
 ID 都属于当前 run 的完整 `EvidenceItem.id` 集合；任一未知 ID 都 fail closed。

@@ -121,8 +121,12 @@ fn redact_windows_absolute_paths(value: &str) -> String {
     result
 }
 
+pub(crate) fn visible_body_source(value: &str) -> &str {
+    strip_existing_appendix(value).trim()
+}
+
 fn visible_text_projection(value: &str) -> (String, Vec<String>) {
-    let raw_body = strip_existing_appendix(value).trim();
+    let raw_body = visible_body_source(value);
     let (body, removed_ids) = strip_evidence_tokens(raw_body);
     let visible = redact_windows_absolute_paths(&sanitize_markdown_link_targets(body.trim()))
         .trim()
@@ -194,7 +198,7 @@ fn appendix(evidence: &[EvidenceItem]) -> (String, Vec<String>) {
 }
 
 pub fn render(answer: &str, evidence: &[EvidenceItem]) -> Result<NaturalAnswerResult, String> {
-    let raw_body = strip_existing_appendix(answer).trim();
+    let raw_body = visible_body_source(answer);
     if raw_body.is_empty() && !evidence.is_empty() {
         return Err("回答正文为空".to_string());
     }

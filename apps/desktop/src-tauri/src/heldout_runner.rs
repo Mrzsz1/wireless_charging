@@ -1,5 +1,6 @@
 use crate::qa::{
-    project_claim_after_repair, project_natural_visible_text, EvidenceItem, QaRunManifest,
+    natural_visible_body_source, project_claim_after_repair, project_natural_visible_text,
+    EvidenceItem, QaRunManifest,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -374,11 +375,19 @@ fn build_bundle(
         return Err("HELDOUT_AUDIT_INVALID: claim_count".to_string());
     }
     let mut claim_ids = HashSet::new();
+    let mut answer_cursor = 0;
+    let visible_answer_body = natural_visible_body_source(&audit.answer);
     let answer_claims = claims
         .iter()
         .map(|claim| {
             let repaired_text = project_claim_after_repair(claim);
-            let visible_text = project_natural_visible_text(&repaired_text);
+            let canonical_text = project_natural_visible_text(&repaired_text);
+            let visible_text = resolve_visible_claim_source(
+                visible_answer_body,
+                &canonical_text,
+                &mut answer_cursor,
+            )
+            .ok_or_else(|| "HELDOUT_AUDIT_INVALID: claim_projection".to_string())?;
             let unique_citation_count = claim.evidence_ids.iter().collect::<HashSet<_>>().len();
             if claim.id.trim().is_empty()
                 || !claim_ids.insert(claim.id.clone())
@@ -407,6 +416,43 @@ fn build_bundle(
         run_manifest: audit.run_manifest,
         heldout_run: metadata,
     })
+}
+
+fn resolve_visible_claim_source(
+    answer_body: &str,
+    canonical_text: &str,
+    cursor: &mut usize,
+) -> Option<String> {
+    if canonical_text.is_empty() || *cursor > answer_body.len() {
+        return None;
+    }
+    if let Some(relative) = answer_body[*cursor..].find(canonical_text) {
+        let start = *cursor + relative;
+        *cursor = start + canonical_text.len();
+        return Some(canonical_text.to_string());
+    }
+
+    // Claim extraction deliberately masks Markdown link destinations and
+    // code/math literals. Match the remaining visible chunks in order, then
+    // return the exact final Markdown source span so containment stays strict.
+    let chunks = canonical_text.split_whitespace().collect::<Vec<_>>();
+    if chunks.len() < 2 {
+        return None;
+    }
+    let first_relative = answer_body[*cursor..].find(chunks[0])?;
+    let start = *cursor + first_relative;
+    let mut end = start + chunks[0].len();
+    for chunk in chunks.iter().skip(1) {
+        let remaining = &answer_body[end..];
+        let relative = remaining.find(chunk)?;
+        let gap = &remaining[..relative];
+        if gap.contains('\n') || gap.chars().count() > 2_048 {
+            return None;
+        }
+        end += relative + chunk.len();
+    }
+    *cursor = end;
+    Some(answer_body[start..end].to_string())
 }
 
 fn atomic_json<T: Serialize>(path: &Path, value: &T) -> Result<(), String> {
@@ -870,6 +916,26 @@ mod tests {
 
         assert_eq!(bundle.answer_claims[0].text, "当前证据不足以支持这一结论。");
         assert_eq!(bundle.answer_claims[0].cited_evidence_ids, vec!["E1"]);
+    }
+
+    #[test]
+    fn runner_recovers_exact_final_markdown_for_masked_link_targets() {
+        let answer = "[Paper](https://example.test/paper) supports charging.\n\n## 参考证据";
+        let canonical = "[Paper](                          ) supports charging.";
+        let mut cursor = 0;
+
+        let projected = resolve_visible_claim_source(
+            natural_visible_body_source(answer),
+            canonical,
+            &mut cursor,
+        )
+        .unwrap();
+
+        assert_eq!(
+            projected,
+            "[Paper](https://example.test/paper) supports charging."
+        );
+        assert!(answer.contains(&projected));
     }
 
     #[test]
