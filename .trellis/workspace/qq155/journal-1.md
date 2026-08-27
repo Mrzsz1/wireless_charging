@@ -1530,3 +1530,36 @@ Preserved previous evidence with turn isolation, removed fixed history caps in f
 ### Next Steps
 
 - None - task complete
+
+
+## Session 46: Semantic Verifier v2 语义边界与评测升级
+
+**Date**: 2026-08-27
+**Task**: Semantic Verifier v2 语义边界与评测升级
+**Branch**: `master`
+
+### Summary
+
+修正 v1 十个 simulation-only missing_condition Gold 并重新密封；升级 semantic-claim-verifier-v2 三态决策 Prompt 与 Unknown 修复语义；导入 60-case 20/20/20 v2 数据集；补齐六项 precision/recall、Macro F1、混淆矩阵、分类统计及逐题审计字段；仅运行最小相关测试并执行一次真实 Codex Provider，60/60、全部指标 1.0、无 fallback。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `edddde1` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

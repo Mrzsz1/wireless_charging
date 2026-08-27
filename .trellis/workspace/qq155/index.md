@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 45
-- **Last Active**: 2026-08-26
+- **Total Sessions**: 46
+- **Last Active**: 2026-08-27
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1532 | Active |
+| `journal-1.md` | ~1565 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 46 | 2026-08-27 | Semantic Verifier v2 语义边界与评测升级 | `edddde1` | `master` |
 | 45 | 2026-08-26 | 智能问答生产验证剩余问题整改 | `7bd1a60`, `0b28fd0`, `58cd5f6`, `c30f29c`, `7dba584`, `3cd7234` | `master` |
 | 44 | 2026-08-26 | 完成智能问答生产加固与发布门禁 | `9457dad`, `66c5bba`, `d169872` | `master` |
 | 43 | 2026-08-26 | 完成 Cross-Encoder 阶段 C 生产加固 | `4e86732`, `d3a69ce`, `e1f932b` | `master` |
