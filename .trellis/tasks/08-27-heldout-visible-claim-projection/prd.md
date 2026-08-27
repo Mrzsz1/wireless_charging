@@ -19,15 +19,16 @@
 
 ## Acceptance Criteria
 
-- [ ] `Synthetic claim [E1]` 投影为 `Synthetic claim`，最终回答包含该文本，导出 `citedEvidenceIds=["E1"]` 并通过。
-- [ ] projected claim 不存在最终 answer 时失败。
-- [ ] unknown `E99`、duplicate claim ID、empty projected claim、evidence checksum tampering 均失败。
-- [ ] Python evaluator 独立拒绝 unknown citedEvidenceId，同时仍要求 claim text 逐字存在于最终 answer。
-- [ ] natural answer renderer 与 heldout projection 的链接清理、Windows 路径隐藏和 evidence-token 移除使用同一纯函数；现有最终用户可见输出回归保持不变。
-- [ ] 聚焦 Rust/Python 测试全部通过，公开 schema/spec 已同步。
+- [x] `Synthetic claim [E1]` 投影为 `Synthetic claim`，最终回答包含该文本，导出 `citedEvidenceIds=["E1"]` 并通过。
+- [x] projected claim 不存在最终 answer 时失败。
+- [x] unknown `E99`、duplicate claim ID、empty projected claim、evidence checksum tampering 均失败。
+- [x] Python evaluator 独立拒绝 unknown citedEvidenceId，同时仍要求 claim text 逐字存在于最终 answer。
+- [x] natural answer renderer 与 heldout projection 的链接清理、Windows 路径隐藏和 evidence-token 移除使用同一纯函数；现有最终用户可见输出回归保持不变。
+- [x] 聚焦 Rust/Python 测试全部通过，公开 schema/spec 已同步。
 - [ ] 旧失败 `.part` 被登记为 `invalid_harness_run`，新的 40-case run 从零开始并完整结束。
 
 ## Notes
 
 - frozen heldout dataset 为只读输入，本任务不修改其任何字段或 seal。
 - 各阶段使用本地 Git commit 保存；未收到上传指令前不推送 GitHub。
+- 完整运行已从第 1 题重新开始，visible-claim audit 连续通过 20 个 case；随后由独立生产门禁 `LLM_BUDGET_EXCEEDED: generator:token_budget` 终止。该 partial 已原样保存为 `incomplete_runtime_failure`，未读取答案、未删除、未提升为成功 run。完成 40/40 需要用户另行允许处理被本任务明确禁止修改的生产生成预算。
