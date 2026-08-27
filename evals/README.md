@@ -113,6 +113,24 @@ cargo test obvious_unsupported_claim_is_repaired_and_never_reported_as_verified 
 冻结状态矩阵见 `claim-verification-cases.json`，门禁记录见
 `claim-verification-baseline.md`。
 
+### Semantic Verifier v2
+
+`semantic_verification_v2_cases.json` 从审阅后的 `reports/semantic_benchmark_v2.md`
+转换并密封，共 60 条不同语义表达，标签为 20 entailed / 20 contradicted / 20 unknown。
+它专门检查“缺少支持不等于明确反驳”、范围/因果/时间/条件外推和真实排他语义。
+
+真实 Provider 仅需在准备好最终代码后运行一次：
+
+```powershell
+cd apps/desktop
+npm run eval:semantic:v2
+```
+
+输出 `reports/semantic-verifier-v2-report.json`，包含三类 precision/recall、Macro F1、
+混淆矩阵、category metrics、失败 case，以及逐题 status/latency/provider/fallback。
+逐题 latency 是 batch 总延迟的确定性分配，不能解释为独立调用耗时。当前真实基线见
+`semantic-verifier-v2-baseline.md`。该数据对开发者可见，不得替代 Independent Production Held-out。
+
 ## Problem Understanding / Method Matcher 回归
 
 冻结的 50 个真实问题描述覆盖 domain、objective、constraints、related problem type 与

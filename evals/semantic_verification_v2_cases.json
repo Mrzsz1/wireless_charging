@@ -1,0 +1,559 @@
+{
+  "schemaVersion": "qa-semantic-verifier-benchmark-v2",
+  "datasetRole": "development_regression_semantic_verification",
+  "status": "frozen",
+  "version": "semantic-v2-2026-08-27",
+  "caseCount": 60,
+  "casesSha256": "afdb2e85957fb288b388f483ffbdfea4f668cf2bd2276cd80c1f0340f04e5f09",
+  "labelDistribution": {
+    "entailed": 20,
+    "contradicted": 20,
+    "unknown": 20
+  },
+  "cases": [
+    {
+      "id": "SV2-001",
+      "category": "direct_entailment",
+      "claim": "The reported charging tour visits four scheduled stops before returning to the depot.",
+      "evidence": [
+        "Evidence states that the charging tour contains four scheduled stops before returning to the depot."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-002",
+      "category": "bounded_paraphrase",
+      "claim": "For the tested 80-node instance, the scheduler achieved a lower average response time than FCFS.",
+      "evidence": [
+        "In the evaluated 80-node instance, the proposed scheduler reduced mean response time relative to the FCFS baseline."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-003",
+      "category": "negative_entailment",
+      "claim": "The heuristic is not proven to be globally optimal.",
+      "evidence": [
+        "The paper explicitly states that the heuristic does not provide a proof of global optimality."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-004",
+      "category": "condition_entailment",
+      "claim": "At a packet-loss rate of 0.05, the stated stability condition is satisfied.",
+      "evidence": [
+        "The stability result holds when packet loss is no greater than 0.08."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-005",
+      "category": "multi_evidence_entailment",
+      "claim": "Vehicle V2 has enough capacity to carry request R7, considering capacity alone.",
+      "evidence": [
+        "Vehicle V2 has capacity 120 units.",
+        "Request R7 requires 40 units."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-006",
+      "category": "bounded_comparison",
+      "claim": "In that 30-minute simulation setting, ALNS had lower median travel distance than the greedy method.",
+      "evidence": [
+        "Under the same 30-minute simulation horizon, ALNS obtained a smaller median travel distance than the greedy baseline."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-007",
+      "category": "definition_entailment",
+      "claim": "A sensor with zero residual energy counts as a dead node under this definition.",
+      "evidence": [
+        "A dead node is defined as a sensor whose residual energy has reached zero."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-008",
+      "category": "explicit_method_usage",
+      "claim": "PSO is used to optimize the charging sequence in the described method.",
+      "evidence": [
+        "The optimization stage uses particle swarm optimization to tune the charging sequence."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-009",
+      "category": "bounded_result",
+      "claim": "All 12 reported instances finished within 300 seconds.",
+      "evidence": [
+        "Across the 12 reported instances, every run completed within the 300-second time limit."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-010",
+      "category": "source_entailment",
+      "claim": "The obstacle-avoidance constraint is derived from the geometric feasibility model in Section 4.",
+      "evidence": [
+        "The article attributes the obstacle-avoidance constraint to the geometric feasibility model introduced in Section 4."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-011",
+      "category": "multi_evidence_entailment",
+      "claim": "The reported route begins and ends at depot D.",
+      "evidence": [
+        "The charger starts at depot D.",
+        "The final route returns to depot D."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-012",
+      "category": "bounded_probability",
+      "claim": "The reported experiment succeeded in 93% of its 100 trials.",
+      "evidence": [
+        "The experiment reports a success rate of 0.93 over 100 independent trials."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-013",
+      "category": "constraint_entailment",
+      "claim": "A schedule that starts service after a node's deadline violates the stated model constraint.",
+      "evidence": [
+        "The model requires every service to begin before the corresponding node deadline."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-014",
+      "category": "bounded_efficiency",
+      "claim": "In the 40-node benchmark, preprocessing removed more than half of the candidate edges.",
+      "evidence": [
+        "For the 40-node benchmark, preprocessing reduced candidate edges from 780 to 214."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-015",
+      "category": "explicit_absence",
+      "claim": "The 25 recorded test runs contained zero communication failures.",
+      "evidence": [
+        "No communication failures occurred in any of the 25 recorded test runs."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-016",
+      "category": "multi_evidence_entailment",
+      "claim": "The evaluated configuration does not include node mobility during a run.",
+      "evidence": [
+        "Method M uses a static node set.",
+        "Node positions are fixed throughout each run."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-017",
+      "category": "bounded_tradeoff",
+      "claim": "In the reported experiment, the higher tested charger speed was associated with a shorter average tour duration.",
+      "evidence": [
+        "When charger speed increased from 1 m/s to 2 m/s in the reported experiment, average tour duration decreased from 68 to 51 minutes."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-018",
+      "category": "explicit_limitation",
+      "claim": "High memory use is acknowledged as a limitation of the dynamic programming variant.",
+      "evidence": [
+        "The authors list high memory consumption as a limitation of the dynamic programming variant."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-019",
+      "category": "bounded_ordering",
+      "claim": "Method A achieved the best objective value among A, B and C on D3.",
+      "evidence": [
+        "On dataset D3, method A ranked first, method B second, and method C third by objective value."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-020",
+      "category": "conditional_entailment",
+      "claim": "Under the theorem's assumptions, the system has one mobile charger.",
+      "evidence": [
+        "The theorem assumes a single mobile charger and a connected communication graph."
+      ],
+      "gold": "entailed"
+    },
+    {
+      "id": "SV2-021",
+      "category": "numeric_conflict",
+      "claim": "The experiment uses 42 charging targets.",
+      "evidence": [
+        "The experiment uses 24 charging targets."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-022",
+      "category": "negation_conflict",
+      "claim": "The method guarantees that every node is serviced before depletion.",
+      "evidence": [
+        "The method does not guarantee that every node is serviced before depletion."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-023",
+      "category": "exclusive_environment",
+      "claim": "The prototype has already been validated in an outdoor field deployment.",
+      "evidence": [
+        "The prototype was evaluated exclusively in a hardware-in-the-loop simulator and was never deployed outdoors."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-024",
+      "category": "condition_conflict",
+      "claim": "The convergence statement is valid for alpha = 0.6.",
+      "evidence": [
+        "The convergence statement is valid only when alpha is in the interval [0, 0.2]."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-025",
+      "category": "ordering_conflict",
+      "claim": "PSO ranked ahead of ALNS on B7.",
+      "evidence": [
+        "On benchmark B7, PSO ranked fourth while ALNS ranked first."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-026",
+      "category": "count_conflict",
+      "claim": "The model contains three mobile chargers.",
+      "evidence": [
+        "The model contains exactly two mobile chargers."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-027",
+      "category": "time_conflict",
+      "claim": "The reported simulation horizon is 2 hours.",
+      "evidence": [
+        "The reported simulation horizon is 90 minutes."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-028",
+      "category": "explicit_nonuse",
+      "claim": "The implementation uses reinforcement learning to choose charging actions.",
+      "evidence": [
+        "The implementation does not use reinforcement learning; decisions are produced by a rule-based scheduler."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-029",
+      "category": "direction_conflict",
+      "claim": "The higher penalty coefficient reduced the reported objective value.",
+      "evidence": [
+        "Increasing the penalty coefficient from 1 to 3 increased the reported objective value from 210 to 264."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-030",
+      "category": "topology_conflict",
+      "claim": "The evaluated network contains a cycle.",
+      "evidence": [
+        "The evaluated network is a tree with no cycles."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-031",
+      "category": "exclusive_dataset",
+      "claim": "The reported results include experiments on real-world mobility traces.",
+      "evidence": [
+        "All reported results were obtained on synthetic instances; no real-world traces were used."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-032",
+      "category": "threshold_conflict",
+      "claim": "A request predicted to finish in 22 minutes is accepted under this rule.",
+      "evidence": [
+        "A request is rejected whenever its predicted completion time exceeds 15 minutes."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-033",
+      "category": "capacity_conflict",
+      "claim": "Vehicle V1 can legally carry a 70-unit request without splitting it.",
+      "evidence": [
+        "Vehicle V1 has a hard payload limit of 50 units."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-034",
+      "category": "identity_conflict",
+      "claim": "Algorithm 2 is identified as a genetic algorithm.",
+      "evidence": [
+        "The paper identifies Algorithm 2 as an ALNS procedure."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-035",
+      "category": "metric_conflict",
+      "claim": "The table reports an average delay below 10 seconds for method K.",
+      "evidence": [
+        "The table reports an average delay of 18.4 seconds for method K."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-036",
+      "category": "availability_conflict",
+      "claim": "The authors released the source code with the paper.",
+      "evidence": [
+        "The appendix states that source code was not released."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-037",
+      "category": "assumption_conflict",
+      "claim": "The formulation models obstacles that move during optimization.",
+      "evidence": [
+        "The formulation explicitly assumes static obstacles whose locations do not change during optimization."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-038",
+      "category": "objective_conflict",
+      "claim": "The optimization objective is to maximize total travel distance.",
+      "evidence": [
+        "The optimization objective is to minimize the number of dead nodes."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-039",
+      "category": "scope_exclusion",
+      "claim": "The theorem covers disconnected graphs as well.",
+      "evidence": [
+        "The theorem is stated only for connected graphs and explicitly excludes disconnected graphs."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-040",
+      "category": "probability_conflict",
+      "claim": "The measured packet delivery ratio exceeds 0.90.",
+      "evidence": [
+        "The measured packet delivery ratio is 0.72."
+      ],
+      "gold": "contradicted"
+    },
+    {
+      "id": "SV2-041",
+      "category": "scope_expansion",
+      "claim": "The strategy reduces energy consumption for every network size and topology.",
+      "evidence": [
+        "The proposed strategy reduced energy consumption on the tested 60-node topology."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-042",
+      "category": "causality_expansion",
+      "claim": "Increasing charger density causes longer network lifetime.",
+      "evidence": [
+        "Runs with higher charger density also showed longer network lifetime."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-043",
+      "category": "simulation_to_real",
+      "claim": "The controller will maintain the same performance after deployment in a real city.",
+      "evidence": [
+        "The controller was evaluated in a simulator using realistic traffic traces."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-044",
+      "category": "unsupported_guarantee",
+      "claim": "The heuristic is guaranteed to find the global optimum on every instance.",
+      "evidence": [
+        "The heuristic found the best known solution on 9 of 10 benchmark instances."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-045",
+      "category": "average_to_worst_case",
+      "claim": "Method R has the lowest worst-case delay.",
+      "evidence": [
+        "Method R had the lowest average delay in the reported experiments."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-046",
+      "category": "temporal_extrapolation",
+      "claim": "The policy remains stable for arbitrarily long deployments.",
+      "evidence": [
+        "The policy remained stable during a 2-hour evaluation."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-047",
+      "category": "unreported_mechanism",
+      "claim": "Method A reduces travel distance because its neighborhood operator preserves route convexity.",
+      "evidence": [
+        "The paper reports that method A reduces total travel distance."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-048",
+      "category": "missing_baseline",
+      "claim": "The new method outperforms PSO on instance X.",
+      "evidence": [
+        "The new method achieved an objective value of 148 on instance X."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-049",
+      "category": "single_seed_generalization",
+      "claim": "The algorithm usually converges in fewer than 100 iterations.",
+      "evidence": [
+        "With random seed 17, the algorithm converged after 84 iterations."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-050",
+      "category": "cross_domain_transfer",
+      "claim": "The same method will perform well for mobile wireless chargers.",
+      "evidence": [
+        "The scheduling method performed well for warehouse robots."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-051",
+      "category": "partial_condition",
+      "claim": "The theorem also proves feasibility with three chargers and polygonal obstacles.",
+      "evidence": [
+        "The theorem proves feasibility when there is one charger and no obstacles."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-052",
+      "category": "missing_statistical_significance",
+      "claim": "Method A is statistically significantly better than Method B.",
+      "evidence": [
+        "Method A had a mean score of 91.2 and Method B a mean score of 90.8."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-053",
+      "category": "correlation_direction_to_policy",
+      "claim": "The scheduler explicitly prioritizes nodes by residual energy.",
+      "evidence": [
+        "Nodes with lower residual energy were more likely to receive earlier service in the logs."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-054",
+      "category": "unseen_failure_mode",
+      "claim": "The system is safe from battery overheating under all operating conditions.",
+      "evidence": [
+        "No battery overheating occurred in 30 laboratory runs."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-055",
+      "category": "parameter_extrapolation",
+      "claim": "Performance will continue improving if beta is increased to 1.0.",
+      "evidence": [
+        "Performance improved as beta increased from 0.1 to 0.3 in the reported sweep."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-056",
+      "category": "source_omission",
+      "claim": "The model does not support obstacles.",
+      "evidence": [
+        "The excerpt describes the routing objective and energy constraint but says nothing about obstacle handling."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-057",
+      "category": "multi_evidence_insufficient",
+      "claim": "Method Z dominates baseline B on every relevant metric and dataset.",
+      "evidence": [
+        "Method Z lowered mean latency in dataset D1.",
+        "It used less memory than baseline B in D2."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-058",
+      "category": "implementation_to_theory",
+      "claim": "The optimization problem has a unique global optimum.",
+      "evidence": [
+        "The implementation returned the same solution in five repeated runs."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-059",
+      "category": "limited_real_world",
+      "claim": "The prototype is reliable across cities, seasons, and weather conditions.",
+      "evidence": [
+        "The prototype was tested on one university campus for three days."
+      ],
+      "gold": "unknown"
+    },
+    {
+      "id": "SV2-060",
+      "category": "method_presence_to_reason",
+      "claim": "The authors chose ALNS because it is guaranteed to outperform PSO on this problem class.",
+      "evidence": [
+        "The authors use ALNS in the final solver."
+      ],
+      "gold": "unknown"
+    }
+  ]
+}

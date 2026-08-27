@@ -2,9 +2,9 @@
   "schemaVersion": "qa-semantic-verifier-benchmark-v1",
   "datasetRole": "model_independent_semantic_verification",
   "status": "frozen",
-  "version": "2026-08-26-semantic-v1",
+  "version": "2026-08-27-semantic-v1.1",
   "caseCount": 100,
-  "casesSha256": "3b4993b4acdf7ca0b155948ca63d97525411f3a1be26c31534d6bbe7db88414c",
+  "casesSha256": "e01861b4d673dc2d3c009b1901a2d88c5ba08987894cd95e38f98a0eb5bd3222",
   "cases": [
     {
       "id": "sem-001",
@@ -86,7 +86,7 @@
       "evidence": [
         "Controller Q1 is evaluated only in simulation under synthetic mobility traces."
       ],
-      "gold": "unknown"
+      "gold": "contradicted"
     },
     {
       "id": "sem-010",
@@ -178,7 +178,7 @@
       "evidence": [
         "Controller Q2 is evaluated only in simulation under synthetic mobility traces."
       ],
-      "gold": "unknown"
+      "gold": "contradicted"
     },
     {
       "id": "sem-020",
@@ -270,7 +270,7 @@
       "evidence": [
         "Controller Q3 is evaluated only in simulation under synthetic mobility traces."
       ],
-      "gold": "unknown"
+      "gold": "contradicted"
     },
     {
       "id": "sem-030",
@@ -362,7 +362,7 @@
       "evidence": [
         "Controller Q4 is evaluated only in simulation under synthetic mobility traces."
       ],
-      "gold": "unknown"
+      "gold": "contradicted"
     },
     {
       "id": "sem-040",
@@ -454,7 +454,7 @@
       "evidence": [
         "Controller Q5 is evaluated only in simulation under synthetic mobility traces."
       ],
-      "gold": "unknown"
+      "gold": "contradicted"
     },
     {
       "id": "sem-050",
@@ -546,7 +546,7 @@
       "evidence": [
         "Controller Q6 is evaluated only in simulation under synthetic mobility traces."
       ],
-      "gold": "unknown"
+      "gold": "contradicted"
     },
     {
       "id": "sem-060",
@@ -638,7 +638,7 @@
       "evidence": [
         "Controller Q7 is evaluated only in simulation under synthetic mobility traces."
       ],
-      "gold": "unknown"
+      "gold": "contradicted"
     },
     {
       "id": "sem-070",
@@ -730,7 +730,7 @@
       "evidence": [
         "Controller Q8 is evaluated only in simulation under synthetic mobility traces."
       ],
-      "gold": "unknown"
+      "gold": "contradicted"
     },
     {
       "id": "sem-080",
@@ -822,7 +822,7 @@
       "evidence": [
         "Controller Q9 is evaluated only in simulation under synthetic mobility traces."
       ],
-      "gold": "unknown"
+      "gold": "contradicted"
     },
     {
       "id": "sem-090",
@@ -914,7 +914,7 @@
       "evidence": [
         "Controller Q10 is evaluated only in simulation under synthetic mobility traces."
       ],
-      "gold": "unknown"
+      "gold": "contradicted"
     },
     {
       "id": "sem-100",

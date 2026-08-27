@@ -30,6 +30,7 @@
     "test:qa-evidence": "node --experimental-strip-types --test tests/qa-evidence-state.test.ts",
     "eval:rag": "cargo run --manifest-path src-tauri/Cargo.toml --bin rag-eval -- ../..",
     "eval:semantic": "cargo run --manifest-path src-tauri/Cargo.toml --bin semantic-verifier-eval",
+    "eval:semantic:v2": "cargo run --manifest-path src-tauri/Cargo.toml --bin semantic-verifier-eval -- codex-subscription gpt-5.6-luna low ../../evals/semantic_verification_v2_cases.json ../../evals/reports/semantic-verifier-v2-report.json",
     "eval:conversation": "cargo run --manifest-path src-tauri/Cargo.toml --bin conversation-eval",
     "eval:production": "py -3 ../../tools/qa_production_eval.py",
     "eval:performance": "cargo run --manifest-path src-tauri/Cargo.toml --bin reranker-performance-eval -- ../..",

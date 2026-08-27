@@ -1,0 +1,1581 @@
+{
+  "schemaVersion": "qa-semantic-verifier-report-v2",
+  "datasetVersion": "semantic-v2-2026-08-27",
+  "datasetSha256": "afdb2e85957fb288b388f483ffbdfea4f668cf2bd2276cd80c1f0340f04e5f09",
+  "provider": "codex-subscription",
+  "model": "gpt-5.6-luna",
+  "reasoningEffort": "low",
+  "batchSize": 20,
+  "caseLatencyAllocation": "batch_total_evenly_allocated",
+  "realProviderMeasured": true,
+  "caseCount": 60,
+  "completedCaseCount": 60,
+  "accuracy": 1.0,
+  "overallAccuracy": 1.0,
+  "entailedPrecision": 1.0,
+  "entailedRecall": 1.0,
+  "contradictionPrecision": 1.0,
+  "contradictionRecall": 1.0,
+  "unknownPrecision": 1.0,
+  "unknownRecall": 1.0,
+  "macroF1": 1.0,
+  "confusionMatrix": {
+    "contradicted": {
+      "contradicted": 20,
+      "entailed": 0,
+      "unknown": 0
+    },
+    "entailed": {
+      "contradicted": 0,
+      "entailed": 20,
+      "unknown": 0
+    },
+    "unknown": {
+      "contradicted": 0,
+      "entailed": 0,
+      "unknown": 20
+    }
+  },
+  "categoryMetrics": {
+    "assumption_conflict": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "availability_conflict": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "average_to_worst_case": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "bounded_comparison": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      }
+    },
+    "bounded_efficiency": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      }
+    },
+    "bounded_ordering": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      }
+    },
+    "bounded_paraphrase": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      }
+    },
+    "bounded_probability": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      }
+    },
+    "bounded_result": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      }
+    },
+    "bounded_tradeoff": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      }
+    },
+    "capacity_conflict": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "causality_expansion": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "condition_conflict": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "condition_entailment": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      }
+    },
+    "conditional_entailment": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      }
+    },
+    "constraint_entailment": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      }
+    },
+    "correlation_direction_to_policy": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "count_conflict": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "cross_domain_transfer": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "definition_entailment": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      }
+    },
+    "direct_entailment": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      }
+    },
+    "direction_conflict": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "exclusive_dataset": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "exclusive_environment": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "explicit_absence": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      }
+    },
+    "explicit_limitation": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      }
+    },
+    "explicit_method_usage": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      }
+    },
+    "explicit_nonuse": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "identity_conflict": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "implementation_to_theory": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "limited_real_world": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "method_presence_to_reason": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "metric_conflict": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "missing_baseline": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "missing_statistical_significance": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "multi_evidence_entailment": {
+      "count": 3,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 3,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 3,
+        "unknown": 0
+      }
+    },
+    "multi_evidence_insufficient": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "negation_conflict": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "negative_entailment": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      }
+    },
+    "numeric_conflict": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "objective_conflict": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "ordering_conflict": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "parameter_extrapolation": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "partial_condition": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "probability_conflict": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "scope_exclusion": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "scope_expansion": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "simulation_to_real": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "single_seed_generalization": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "source_entailment": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 1,
+        "unknown": 0
+      }
+    },
+    "source_omission": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "temporal_extrapolation": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "threshold_conflict": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "time_conflict": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "topology_conflict": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      },
+      "predictionDistribution": {
+        "contradicted": 1,
+        "entailed": 0,
+        "unknown": 0
+      }
+    },
+    "unreported_mechanism": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "unseen_failure_mode": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    },
+    "unsupported_guarantee": {
+      "count": 1,
+      "accuracy": 1.0,
+      "goldDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      },
+      "predictionDistribution": {
+        "contradicted": 0,
+        "entailed": 0,
+        "unknown": 1
+      }
+    }
+  },
+  "failedCases": [],
+  "timeoutRate": 0.0,
+  "invalidJsonRate": 0.0,
+  "fallbackRate": 0.0,
+  "invalidVerifiedStateCount": 0,
+  "totalLatencyMs": 64507,
+  "results": [
+    {
+      "id": "SV2-001",
+      "category": "direct_entailment",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1115,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-002",
+      "category": "bounded_paraphrase",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1115,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-003",
+      "category": "negative_entailment",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1115,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-004",
+      "category": "condition_entailment",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1115,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-005",
+      "category": "multi_evidence_entailment",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1115,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-006",
+      "category": "bounded_comparison",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1115,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-007",
+      "category": "definition_entailment",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1115,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-008",
+      "category": "explicit_method_usage",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1115,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-009",
+      "category": "bounded_result",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1115,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-010",
+      "category": "source_entailment",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1114,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-011",
+      "category": "multi_evidence_entailment",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1114,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-012",
+      "category": "bounded_probability",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1114,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-013",
+      "category": "constraint_entailment",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1114,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-014",
+      "category": "bounded_efficiency",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1114,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-015",
+      "category": "explicit_absence",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1114,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-016",
+      "category": "multi_evidence_entailment",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1114,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-017",
+      "category": "bounded_tradeoff",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1114,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-018",
+      "category": "explicit_limitation",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1114,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-019",
+      "category": "bounded_ordering",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1114,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-020",
+      "category": "conditional_entailment",
+      "gold": "entailed",
+      "predicted": "entailed",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1114,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-021",
+      "category": "numeric_conflict",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 994,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-022",
+      "category": "negation_conflict",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 994,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-023",
+      "category": "exclusive_environment",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 994,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-024",
+      "category": "condition_conflict",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 994,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-025",
+      "category": "ordering_conflict",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 994,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-026",
+      "category": "count_conflict",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 994,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-027",
+      "category": "time_conflict",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 994,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-028",
+      "category": "explicit_nonuse",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 993,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-029",
+      "category": "direction_conflict",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 993,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-030",
+      "category": "topology_conflict",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 993,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-031",
+      "category": "exclusive_dataset",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 993,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-032",
+      "category": "threshold_conflict",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 993,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-033",
+      "category": "capacity_conflict",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 993,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-034",
+      "category": "identity_conflict",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 993,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-035",
+      "category": "metric_conflict",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 993,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-036",
+      "category": "availability_conflict",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 993,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-037",
+      "category": "assumption_conflict",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 993,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-038",
+      "category": "objective_conflict",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 993,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-039",
+      "category": "scope_exclusion",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 993,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-040",
+      "category": "probability_conflict",
+      "gold": "contradicted",
+      "predicted": "contradicted",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 993,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-041",
+      "category": "scope_expansion",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1118,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-042",
+      "category": "causality_expansion",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1118,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-043",
+      "category": "simulation_to_real",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1118,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-044",
+      "category": "unsupported_guarantee",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1118,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-045",
+      "category": "average_to_worst_case",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1118,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-046",
+      "category": "temporal_extrapolation",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1118,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-047",
+      "category": "unreported_mechanism",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1118,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-048",
+      "category": "missing_baseline",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1118,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-049",
+      "category": "single_seed_generalization",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1118,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-050",
+      "category": "cross_domain_transfer",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1118,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-051",
+      "category": "partial_condition",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1118,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-052",
+      "category": "missing_statistical_significance",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1117,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-053",
+      "category": "correlation_direction_to_policy",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1117,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-054",
+      "category": "unseen_failure_mode",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1117,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-055",
+      "category": "parameter_extrapolation",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1117,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-056",
+      "category": "source_omission",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1117,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-057",
+      "category": "multi_evidence_insufficient",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1117,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-058",
+      "category": "implementation_to_theory",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1117,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-059",
+      "category": "limited_real_world",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1117,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    },
+    {
+      "id": "SV2-060",
+      "category": "method_presence_to_reason",
+      "gold": "unknown",
+      "predicted": "unknown",
+      "correct": true,
+      "status": "succeeded",
+      "latencyMs": 1117,
+      "provider": "codex-subscription",
+      "fallback": false,
+      "fallbackReason": ""
+    }
+  ]
+}

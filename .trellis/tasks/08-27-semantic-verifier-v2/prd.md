@@ -39,12 +39,12 @@
 
 ## Acceptance Criteria
 
-- [ ] AC1：三态 Prompt 与版本升级，包含严格决策树和最小通用反例，无 benchmark 特判。
-- [ ] AC2：v1 十个错误 Gold、版本和 SHA-256 被一致修正。
-- [ ] AC3：60-case v2 JSON 通过 schema/hash/20-20-20 分布校验。
-- [ ] AC4：v2 报告包含全部要求的总体、逐类、混淆矩阵、失败 case 与逐题运行字段。
-- [ ] AC5：相关 Rust 测试、fmt/check 通过；真实 Provider 仅运行一次且报告完整。
-- [ ] AC6：未改动其他 QA 架构，未宣称 Production Ready，用户原有未跟踪文件保持不变。
+- [x] AC1：三态 Prompt 与版本升级，包含严格决策树和最小通用反例，无 benchmark 特判。
+- [x] AC2：v1 十个错误 Gold、版本和 SHA-256 被一致修正。
+- [x] AC3：60-case v2 JSON 通过 schema/hash/20-20-20 分布校验。
+- [x] AC4：v2 报告包含全部要求的总体、逐类、混淆矩阵、失败 case 与逐题运行字段。
+- [x] AC5：相关 Rust 测试、fmt/check 通过；真实 Provider 仅运行一次且报告完整。
+- [x] AC6：未改动其他 QA 架构，未宣称 Production Ready，用户原有未跟踪文件保持不变。
 
 ## External Boundary
 
