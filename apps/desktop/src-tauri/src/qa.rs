@@ -381,6 +381,14 @@ pub struct RetrievalQuery {
     #[serde(default)]
     pub state_patch_rejected_count: usize,
     #[serde(default)]
+    pub parameter_implicit_reference_resolved_count: usize,
+    #[serde(default)]
+    pub parameter_implicit_reference_rejected_count: usize,
+    #[serde(default)]
+    pub parameter_unknown_name_count: usize,
+    #[serde(default)]
+    pub parameter_state_corruption_count: usize,
+    #[serde(default)]
     pub state_changed: bool,
     #[serde(default)]
     pub state_warning_count: usize,
@@ -1126,8 +1134,9 @@ fn build_retrieval_query_with_understanding<'a>(
     } else {
         understood.state_patch
     };
-    let selected_patch =
-        state_mutation::validate_patch(proposed_patch).unwrap_or(deterministic_patch);
+    let mut selected_patch = state_mutation::validate_patch(proposed_patch)
+        .unwrap_or_else(|_| deterministic_patch.clone());
+    selected_patch.inherit_parameter_detection_telemetry(&deterministic_patch);
     let (state_patch, state_apply_report) = research_memory::apply_current_patch(
         &mut research_state,
         &original_question,
@@ -1246,6 +1255,12 @@ fn build_retrieval_query_with_understanding<'a>(
         state_patch_operation_count: state_patch.operations.len(),
         state_patch_low_confidence_count: state_patch.low_confidence_count(),
         state_patch_rejected_count: state_apply_report.rejected_operations.len(),
+        parameter_implicit_reference_resolved_count: state_patch
+            .parameter_implicit_reference_resolved_count,
+        parameter_implicit_reference_rejected_count: state_patch
+            .parameter_implicit_reference_rejected_count,
+        parameter_unknown_name_count: state_patch.parameter_unknown_name_count,
+        parameter_state_corruption_count: state_patch.parameter_state_corruption_count,
         state_changed: state_apply_report.changed,
         state_warning_count: state_apply_report.warnings.len(),
         query_context_objective_count: research_context.objectives.len(),
@@ -5484,7 +5499,7 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v19");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v20");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.resolver_status, "succeeded");
@@ -5631,7 +5646,7 @@ mod tests {
         );
         assert_eq!(audit.run_manifest.verification_model, "fixture-nli");
         assert_eq!(audit.run_manifest.semantic_verification_latency_ms, 17);
-        assert_eq!(audit.run_manifest.schema_version, "qa-run-v19");
+        assert_eq!(audit.run_manifest.schema_version, "qa-run-v20");
     }
 
     #[test]

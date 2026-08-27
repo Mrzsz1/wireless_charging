@@ -146,9 +146,9 @@ cargo test problem_understanding --lib
 
 ## Research Session State / Query Context v2 回归
 
-`conversation_state_v2_cases.json` 冻结 14 个状态语义用例和 20/50/100 轮长对话用例，覆盖
+`conversation_state_v2_cases.json` 冻结 14 个状态语义用例、5 个参数安全用例和 20/50/100 轮长对话用例，覆盖
 逐对象 add/remove/keep/replace/set/set_all/clear、参数覆盖、模糊破坏性操作 fail-closed，
-以及 Patch 应用后的最新状态进入 Query Planner：
+未知参数名防污染、多参数省略引用 fail-closed，以及 Patch 应用后的最新状态进入 Query Planner：
 
 ```powershell
 cd apps/desktop

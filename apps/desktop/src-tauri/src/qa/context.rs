@@ -14,7 +14,7 @@ pub const ANSWER_SCHEMA_VERSION: &str = "qa-natural-markdown-v2";
 pub const LEGACY_ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v4";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v19";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v20";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -286,6 +286,14 @@ pub struct QaRunManifest {
     pub state_patch_low_confidence_count: usize,
     #[serde(default)]
     pub state_patch_rejected_count: usize,
+    #[serde(default)]
+    pub parameter_implicit_reference_resolved_count: usize,
+    #[serde(default)]
+    pub parameter_implicit_reference_rejected_count: usize,
+    #[serde(default)]
+    pub parameter_unknown_name_count: usize,
+    #[serde(default)]
+    pub parameter_state_corruption_count: usize,
     #[serde(default)]
     pub state_changed: bool,
     #[serde(default)]
@@ -1409,6 +1417,14 @@ pub fn build_run_manifest(
         state_patch_operation_count: context.retrieval_query.state_patch_operation_count,
         state_patch_low_confidence_count: context.retrieval_query.state_patch_low_confidence_count,
         state_patch_rejected_count: context.retrieval_query.state_patch_rejected_count,
+        parameter_implicit_reference_resolved_count: context
+            .retrieval_query
+            .parameter_implicit_reference_resolved_count,
+        parameter_implicit_reference_rejected_count: context
+            .retrieval_query
+            .parameter_implicit_reference_rejected_count,
+        parameter_unknown_name_count: context.retrieval_query.parameter_unknown_name_count,
+        parameter_state_corruption_count: context.retrieval_query.parameter_state_corruption_count,
         state_changed: context.retrieval_query.state_changed,
         state_warning_count: context.retrieval_query.state_warning_count,
         query_context_objective_count: context.retrieval_query.query_context_objective_count,

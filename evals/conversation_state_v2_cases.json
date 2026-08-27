@@ -2,8 +2,8 @@
   "schemaVersion": "qa-conversation-state-cases-v2",
   "datasetRole": "conversation_state_evaluation",
   "status": "frozen",
-  "version": "conversation-state-v2.0.0",
-  "caseCount": 17,
+  "version": "conversation-state-v2.1.0",
+  "caseCount": 22,
   "cases": [
     {
       "id": "conv-v2-001",
@@ -37,7 +37,8 @@
       "parameterOverwrite": false,
       "protectDestructive": false,
       "expectedPatchOperationCount": 2,
-      "referenceRequired": false
+      "referenceRequired": false,
+      "protectParameterState": false
     },
     {
       "id": "conv-v2-002",
@@ -73,7 +74,8 @@
       "parameterOverwrite": false,
       "protectDestructive": false,
       "expectedPatchOperationCount": 2,
-      "referenceRequired": false
+      "referenceRequired": false,
+      "protectParameterState": false
     },
     {
       "id": "conv-v2-003",
@@ -107,7 +109,8 @@
       "parameterOverwrite": false,
       "protectDestructive": false,
       "expectedPatchOperationCount": 2,
-      "referenceRequired": false
+      "referenceRequired": false,
+      "protectParameterState": false
     },
     {
       "id": "conv-v2-004",
@@ -142,7 +145,8 @@
       "parameterOverwrite": false,
       "protectDestructive": false,
       "expectedPatchOperationCount": 1,
-      "referenceRequired": false
+      "referenceRequired": false,
+      "protectParameterState": false
     },
     {
       "id": "conv-v2-005",
@@ -176,7 +180,8 @@
       "parameterOverwrite": false,
       "protectDestructive": true,
       "expectedPatchOperationCount": 2,
-      "referenceRequired": false
+      "referenceRequired": false,
+      "protectParameterState": false
     },
     {
       "id": "conv-v2-006",
@@ -208,7 +213,8 @@
       "parameterOverwrite": false,
       "protectDestructive": false,
       "expectedPatchOperationCount": 2,
-      "referenceRequired": false
+      "referenceRequired": false,
+      "protectParameterState": false
     },
     {
       "id": "conv-v2-007",
@@ -242,7 +248,8 @@
       "parameterOverwrite": false,
       "protectDestructive": false,
       "expectedPatchOperationCount": 2,
-      "referenceRequired": false
+      "referenceRequired": false,
+      "protectParameterState": false
     },
     {
       "id": "conv-v2-008",
@@ -283,7 +290,8 @@
       "parameterOverwrite": true,
       "protectDestructive": false,
       "expectedPatchOperationCount": 2,
-      "referenceRequired": false
+      "referenceRequired": false,
+      "protectParameterState": false
     },
     {
       "id": "conv-v2-009",
@@ -318,7 +326,8 @@
       "parameterOverwrite": false,
       "protectDestructive": false,
       "expectedPatchOperationCount": 2,
-      "referenceRequired": false
+      "referenceRequired": false,
+      "protectParameterState": false
     },
     {
       "id": "conv-v2-010",
@@ -371,7 +380,8 @@
       "parameterOverwrite": false,
       "protectDestructive": false,
       "expectedPatchOperationCount": 0,
-      "referenceRequired": true
+      "referenceRequired": true,
+      "protectParameterState": false
     },
     {
       "id": "conv-v2-011",
@@ -424,7 +434,8 @@
       "parameterOverwrite": false,
       "protectDestructive": false,
       "expectedPatchOperationCount": 0,
-      "referenceRequired": true
+      "referenceRequired": true,
+      "protectParameterState": false
     },
     {
       "id": "conv-v2-012",
@@ -477,7 +488,8 @@
       "parameterOverwrite": false,
       "protectDestructive": false,
       "expectedPatchOperationCount": 0,
-      "referenceRequired": true
+      "referenceRequired": true,
+      "protectParameterState": false
     },
     {
       "id": "conv-v2-013",
@@ -528,7 +540,8 @@
       "parameterOverwrite": true,
       "protectDestructive": false,
       "expectedPatchOperationCount": 4,
-      "referenceRequired": true
+      "referenceRequired": true,
+      "protectParameterState": false
     },
     {
       "id": "conv-v2-014",
@@ -564,7 +577,8 @@
       "parameterOverwrite": false,
       "protectDestructive": true,
       "expectedPatchOperationCount": 1,
-      "referenceRequired": false
+      "referenceRequired": false,
+      "protectParameterState": false
     },
     {
       "id": "conv-v2-015",
@@ -731,7 +745,8 @@
       "parameterOverwrite": false,
       "protectDestructive": false,
       "expectedPatchOperationCount": 0,
-      "referenceRequired": true
+      "referenceRequired": true,
+      "protectParameterState": false
     },
     {
       "id": "conv-v2-016",
@@ -1078,7 +1093,8 @@
       "parameterOverwrite": false,
       "protectDestructive": false,
       "expectedPatchOperationCount": 0,
-      "referenceRequired": true
+      "referenceRequired": true,
+      "protectParameterState": false
     },
     {
       "id": "conv-v2-017",
@@ -1725,7 +1741,236 @@
       "parameterOverwrite": false,
       "protectDestructive": false,
       "expectedPatchOperationCount": 0,
-      "referenceRequired": true
+      "referenceRequired": true,
+      "protectParameterState": false
+    },
+    {
+      "id": "conv-v2-018",
+      "turns": [
+        {
+          "id": "conv-v2-018-m1",
+          "role": "user",
+          "content": "有 2 辆移动充电车。",
+          "requestId": "conv-v2-018-r1"
+        }
+      ],
+      "question": "充电功率改成 50W。",
+      "expectedFinalState": {
+        "objectives": [],
+        "constraints": [
+          "multi_vehicle_coordination"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "value": {
+              "type": "integer",
+              "value": 2
+            }
+          }
+        }
+      },
+      "expectedQueryContext": {
+        "objectives": [],
+        "constraints": [],
+        "parameters": [],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": false,
+      "parameterOverwrite": false,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 0,
+      "referenceRequired": false,
+      "protectParameterState": true
+    },
+    {
+      "id": "conv-v2-019",
+      "turns": [
+        {
+          "id": "conv-v2-019-m1",
+          "role": "user",
+          "content": "deadline 改成 30 分钟。",
+          "requestId": "conv-v2-019-r1"
+        }
+      ],
+      "question": "无线充电效率改成 0.82。",
+      "expectedFinalState": {
+        "objectives": [],
+        "constraints": [
+          "deadlines"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "deadline": {
+            "value": {
+              "type": "integer",
+              "value": 30
+            },
+            "unit": "minute"
+          }
+        }
+      },
+      "expectedQueryContext": {
+        "objectives": [],
+        "constraints": [],
+        "parameters": [],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": false,
+      "parameterOverwrite": false,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 0,
+      "referenceRequired": false,
+      "protectParameterState": true
+    },
+    {
+      "id": "conv-v2-020",
+      "turns": [
+        {
+          "id": "conv-v2-020-m1",
+          "role": "user",
+          "content": "deadline 改成 30 分钟。",
+          "requestId": "conv-v2-020-r1"
+        }
+      ],
+      "question": "还是改成 20 分钟吧。",
+      "expectedFinalState": {
+        "objectives": [],
+        "constraints": [
+          "deadlines"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "deadline": {
+            "value": {
+              "type": "integer",
+              "value": 20
+            },
+            "unit": "minute"
+          }
+        }
+      },
+      "expectedQueryContext": {
+        "objectives": [],
+        "constraints": [],
+        "parameters": [],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": false,
+      "parameterOverwrite": true,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 1,
+      "referenceRequired": false,
+      "protectParameterState": false
+    },
+    {
+      "id": "conv-v2-021",
+      "turns": [
+        {
+          "id": "conv-v2-021-m1",
+          "role": "user",
+          "content": "deadline 改成 30 分钟，有 2 辆移动充电车。",
+          "requestId": "conv-v2-021-r1"
+        }
+      ],
+      "question": "改成 20。",
+      "expectedFinalState": {
+        "objectives": [],
+        "constraints": [
+          "deadlines",
+          "multi_vehicle_coordination"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "deadline": {
+            "value": {
+              "type": "integer",
+              "value": 30
+            },
+            "unit": "minute"
+          },
+          "mobile_charger_count": {
+            "value": {
+              "type": "integer",
+              "value": 2
+            }
+          }
+        }
+      },
+      "expectedQueryContext": {
+        "objectives": [],
+        "constraints": [],
+        "parameters": [],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": false,
+      "parameterOverwrite": false,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 0,
+      "referenceRequired": false,
+      "protectParameterState": true
+    },
+    {
+      "id": "conv-v2-022",
+      "turns": [
+        {
+          "id": "conv-v2-022-m1",
+          "role": "user",
+          "content": "有 2 辆移动充电车。",
+          "requestId": "conv-v2-022-r1"
+        }
+      ],
+      "question": "deadline 改成 40 分钟。",
+      "expectedFinalState": {
+        "objectives": [],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "value": {
+              "type": "integer",
+              "value": 2
+            }
+          },
+          "deadline": {
+            "value": {
+              "type": "integer",
+              "value": 40
+            },
+            "unit": "minute"
+          }
+        }
+      },
+      "expectedQueryContext": {
+        "objectives": [],
+        "constraints": [],
+        "parameters": [],
+        "activeMethods": [],
+        "excludedMethods": []
+      },
+      "mixedOperation": false,
+      "parameterOverwrite": false,
+      "protectDestructive": false,
+      "expectedPatchOperationCount": 2,
+      "referenceRequired": false,
+      "protectParameterState": true
     }
   ]
 }

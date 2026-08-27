@@ -124,6 +124,14 @@ pub struct ResearchStatePatch {
     pub confidence: PatchConfidence,
     #[serde(default)]
     pub source_message_id: Option<String>,
+    #[serde(skip, default)]
+    pub parameter_implicit_reference_resolved_count: usize,
+    #[serde(skip, default)]
+    pub parameter_implicit_reference_rejected_count: usize,
+    #[serde(skip, default)]
+    pub parameter_unknown_name_count: usize,
+    #[serde(skip, default)]
+    pub parameter_state_corruption_count: usize,
 }
 
 impl ResearchStatePatch {
@@ -137,6 +145,10 @@ impl ResearchStatePatch {
             operations: Vec::new(),
             confidence: PatchConfidence::High,
             source_message_id,
+            parameter_implicit_reference_resolved_count: 0,
+            parameter_implicit_reference_rejected_count: 0,
+            parameter_unknown_name_count: 0,
+            parameter_state_corruption_count: 0,
         }
     }
 
@@ -145,6 +157,15 @@ impl ResearchStatePatch {
             .iter()
             .filter(|operation| operation.confidence == PatchConfidence::Low)
             .count()
+    }
+
+    pub fn inherit_parameter_detection_telemetry(&mut self, detected: &Self) {
+        self.parameter_implicit_reference_resolved_count =
+            detected.parameter_implicit_reference_resolved_count;
+        self.parameter_implicit_reference_rejected_count =
+            detected.parameter_implicit_reference_rejected_count;
+        self.parameter_unknown_name_count = detected.parameter_unknown_name_count;
+        self.parameter_state_corruption_count = detected.parameter_state_corruption_count;
     }
 }
 
@@ -314,6 +335,53 @@ fn first_number(value: &str) -> Option<ParameterValue> {
         .next_back()
 }
 
+fn is_parameter_value_only_followup(clause: &str) -> bool {
+    let Some(number_start) = clause
+        .char_indices()
+        .find_map(|(index, character)| character.is_ascii_digit().then_some(index))
+    else {
+        return false;
+    };
+    let prefix = clause[..number_start]
+        .trim()
+        .trim_end_matches(|character: char| {
+            character.is_whitespace()
+                || matches!(character, '-' | '+' | '.' | ':' | '：' | ',' | '，')
+        })
+        .chars()
+        .filter(|character| !character.is_whitespace())
+        .collect::<String>();
+    matches!(
+        prefix.as_str(),
+        "改成"
+            | "改为"
+            | "设成"
+            | "设为"
+            | "设置为"
+            | "还是改成"
+            | "还是改为"
+            | "还是设成"
+            | "还是设为"
+            | "还是用"
+            | "这个参数改成"
+            | "这个参数改为"
+            | "这个参数设成"
+            | "这个参数设为"
+            | "这个参数设置为"
+            | "那个参数改成"
+            | "那个参数改为"
+            | "那个参数设成"
+            | "那个参数设为"
+            | "那个参数设置为"
+            | "它改成"
+            | "它改为"
+            | "changeto"
+            | "setto"
+            | "thisparameterto"
+            | "thatparameterto"
+    )
+}
+
 fn action_for_clause(clause: &str) -> Option<StateAction> {
     if contains_any(clause, &["只保留", "only keep", "set all"]) {
         Some(StateAction::SetAll)
@@ -341,7 +409,19 @@ fn action_for_clause(clause: &str) -> Option<StateAction> {
         Some(StateAction::Remove)
     } else if contains_any(clause, &["保留", "不变", "继续用", "keep", "remain"]) {
         Some(StateAction::Keep)
-    } else if contains_any(clause, &["改成", "改为", "设置", "set to", "change to"]) {
+    } else if contains_any(
+        clause,
+        &[
+            "改成",
+            "改为",
+            "设成",
+            "设为",
+            "设置",
+            "还是用",
+            "set to",
+            "change to",
+        ],
+    ) {
         Some(StateAction::Set)
     } else if contains_any(
         clause,
@@ -417,62 +497,69 @@ pub fn extract_deterministic_patch(
         let action = action_for_clause(&clause);
         let mut clause_operations = Vec::new();
 
-        let parameter_target = parameter_key(&clause)
-            .map(|(key, unit)| (key.to_string(), unit.map(str::to_string)))
-            .or_else(|| {
-                let set_like = matches!(action, Some(StateAction::Set | StateAction::Add));
-                if set_like && clause.contains('辆') {
-                    Some(("mobile_charger_count".to_string(), None))
-                } else if set_like && current_state.parameters.len() == 1 {
-                    current_state
-                        .parameters
-                        .iter()
-                        .next()
-                        .map(|(key, parameter)| (key.clone(), parameter.unit.clone()))
-                } else {
-                    None
-                }
+        let numeric_value = first_number(&clause);
+        let known_parameter =
+            parameter_key(&clause).map(|(key, unit)| (key.to_string(), unit.map(str::to_string)));
+        let set_like = matches!(action, Some(StateAction::Set | StateAction::Add));
+        let parameter_target = if known_parameter.is_some() {
+            known_parameter
+        } else if set_like && numeric_value.is_some() && is_parameter_value_only_followup(&clause) {
+            if current_state.parameters.len() == 1 {
+                patch.parameter_implicit_reference_resolved_count += 1;
+                current_state
+                    .parameters
+                    .iter()
+                    .next()
+                    .map(|(key, parameter)| (key.clone(), parameter.unit.clone()))
+            } else {
+                patch.parameter_implicit_reference_rejected_count += 1;
+                None
+            }
+        } else {
+            if set_like && numeric_value.is_some() {
+                patch.parameter_implicit_reference_rejected_count += 1;
+                patch.parameter_unknown_name_count += 1;
+            }
+            None
+        };
+        if let (Some((key, default_unit)), Some(value)) = (parameter_target, numeric_value) {
+            let unit = if clause.contains("分钟") || clause.contains("minute") {
+                Some("minute".to_string())
+            } else if clause.contains("m/s") || clause.contains("米每秒") {
+                Some("m/s".to_string())
+            } else {
+                default_unit
+            };
+            clause_operations.push(ResearchStateOperation {
+                action: StateAction::Set,
+                field: StateField::Parameter,
+                value: Some(StateValue::Parameter {
+                    parameter: ResearchParameter {
+                        key: key.clone(),
+                        value,
+                        unit,
+                        source_message_id: source_message_id.clone(),
+                        updated_at_turn: 0,
+                    },
+                }),
+                previous_value: None,
+                confidence: PatchConfidence::High,
             });
-        if let Some((key, default_unit)) = parameter_target {
-            if let Some(value) = first_number(&clause) {
-                let unit = if clause.contains("分钟") || clause.contains("minute") {
-                    Some("minute".to_string())
-                } else if clause.contains("m/s") || clause.contains("米每秒") {
-                    Some("m/s".to_string())
-                } else {
-                    default_unit
-                };
-                clause_operations.push(ResearchStateOperation {
-                    action: StateAction::Set,
-                    field: StateField::Parameter,
-                    value: Some(StateValue::Parameter {
-                        parameter: ResearchParameter {
-                            key: key.clone(),
-                            value,
-                            unit,
-                            source_message_id: source_message_id.clone(),
-                            updated_at_turn: 0,
-                        },
-                    }),
-                    previous_value: None,
-                    confidence: PatchConfidence::High,
-                });
-                if key == "mobile_charger_count" {
-                    if let Some(ParameterValue::Integer(count)) = clause_operations
-                        .last()
-                        .and_then(|operation| operation.value.as_ref())
-                        .and_then(|value| match value {
-                            StateValue::Parameter { parameter } => Some(parameter.value.clone()),
-                            _ => None,
-                        })
-                    {
-                        if count > 1 {
-                            clause_operations.push(operation_for_text(
-                                StateAction::Add,
-                                StateField::Constraint,
-                                "multi_vehicle_coordination".to_string(),
-                            ));
-                        }
+            if key == "mobile_charger_count" {
+                if let Some(ParameterValue::Integer(count)) = clause_operations
+                    .last()
+                    .and_then(|operation| operation.value.as_ref())
+                    .and_then(|value| match value {
+                        StateValue::Parameter { parameter } => Some(parameter.value.clone()),
+                        _ => None,
+                    })
+                {
+                    if count > 1 {
+                        clause_operations.push(operation_for_text(
+                            StateAction::Add,
+                            StateField::Constraint,
+                            "multi_vehicle_coordination".to_string(),
+                        ));
                     }
                 }
             }
@@ -534,7 +621,14 @@ pub fn extract_deterministic_patch(
                 for value in values {
                     let reduced_action =
                         if effective_action == StateAction::Set && field != StateField::Parameter {
-                            StateAction::SetAll
+                            if clause_operations
+                                .iter()
+                                .any(|operation| operation.field == StateField::Parameter)
+                            {
+                                StateAction::Add
+                            } else {
+                                StateAction::SetAll
+                            }
                         } else {
                             effective_action
                         };
@@ -689,9 +783,12 @@ fn normalize_text_value(value: &str) -> String {
 }
 
 fn normalize_parameter_key(value: &str) -> String {
+    let lowered = value.trim().to_lowercase();
+    let (explicit_custom, value) = lowered
+        .strip_prefix("custom:")
+        .map_or((false, lowered.as_str()), |suffix| (true, suffix));
     let normalized = value
         .trim()
-        .to_lowercase()
         .chars()
         .map(|character| {
             if character.is_alphanumeric() {
@@ -713,7 +810,7 @@ fn normalize_parameter_key(value: &str) -> String {
         "transmission_loss",
         "energy_threshold",
     ];
-    if KNOWN.contains(&normalized) {
+    if !explicit_custom && KNOWN.contains(&normalized) {
         normalized.to_string()
     } else if normalized.is_empty() {
         String::new()
@@ -872,5 +969,97 @@ mod tests {
         assert_eq!(patch.operations[0].action, StateAction::Clear);
         assert_eq!(patch.operations[0].field, StateField::Method);
         assert!(patch.operations[0].value.is_none());
+    }
+
+    fn parameter(key: &str, value: ParameterValue, unit: Option<&str>) -> ResearchParameter {
+        ResearchParameter {
+            key: key.to_string(),
+            value,
+            unit: unit.map(str::to_string),
+            source_message_id: Some("fixture".to_string()),
+            updated_at_turn: 1,
+        }
+    }
+
+    #[test]
+    fn unknown_named_parameter_never_inherits_the_only_existing_parameter() {
+        let mut current = ResearchStateSummary::default();
+        current.parameters.insert(
+            "mobile_charger_count".to_string(),
+            parameter("mobile_charger_count", ParameterValue::Integer(2), None),
+        );
+        for message in [
+            "充电功率改成 50W。",
+            "无线充电效率改成 0.82。",
+            "最大转向角设置为 30 度。",
+            "单次最大服务时间改成 15 分钟。",
+            "路径惩罚系数设成 0.4。",
+        ] {
+            let patch = extract_deterministic_patch(message, &[], &current, None);
+            assert!(patch.operations.is_empty(), "{message}");
+            assert_eq!(patch.parameter_implicit_reference_rejected_count, 1);
+            assert_eq!(patch.parameter_unknown_name_count, 1);
+            assert_eq!(patch.parameter_state_corruption_count, 0);
+        }
+    }
+
+    #[test]
+    fn value_only_followup_requires_exactly_one_parameter_candidate() {
+        let mut unique = ResearchStateSummary::default();
+        unique.parameters.insert(
+            "deadline".to_string(),
+            parameter("deadline", ParameterValue::Integer(30), Some("minute")),
+        );
+        let resolved = extract_deterministic_patch("还是改成 20 分钟吧。", &[], &unique, None);
+        assert_eq!(resolved.parameter_implicit_reference_resolved_count, 1);
+        assert!(matches!(
+            resolved.operations.first().and_then(|operation| operation.value.as_ref()),
+            Some(StateValue::Parameter { parameter })
+                if parameter.key == "deadline"
+                    && parameter.value == ParameterValue::Integer(20)
+                    && parameter.unit.as_deref() == Some("minute")
+        ));
+
+        unique.parameters.insert(
+            "mobile_charger_count".to_string(),
+            parameter("mobile_charger_count", ParameterValue::Integer(2), None),
+        );
+        let rejected = extract_deterministic_patch("改成 20。", &[], &unique, None);
+        assert!(rejected.operations.is_empty());
+        assert_eq!(rejected.parameter_implicit_reference_rejected_count, 1);
+        assert_eq!(rejected.parameter_state_corruption_count, 0);
+    }
+
+    #[test]
+    fn known_and_structured_custom_parameters_do_not_overwrite_existing_keys() {
+        let mut current = ResearchStateSummary::default();
+        current.parameters.insert(
+            "mobile_charger_count".to_string(),
+            parameter("mobile_charger_count", ParameterValue::Integer(2), None),
+        );
+        let known = extract_deterministic_patch("deadline 改成 40 分钟。", &[], &current, None);
+        assert!(matches!(
+            known.operations.first().and_then(|operation| operation.value.as_ref()),
+            Some(StateValue::Parameter { parameter }) if parameter.key == "deadline"
+        ));
+
+        for key in ["charging_power", "custom:charging_power"] {
+            let mut structured = ResearchStatePatch::empty(None);
+            structured.operations.push(ResearchStateOperation {
+                action: StateAction::Set,
+                field: StateField::Parameter,
+                value: Some(StateValue::Parameter {
+                    parameter: parameter(key, ParameterValue::Integer(50), Some("W")),
+                }),
+                previous_value: None,
+                confidence: PatchConfidence::High,
+            });
+            let validated = validate_patch(structured).unwrap();
+            assert!(matches!(
+                validated.operations[0].value,
+                Some(StateValue::Parameter { ref parameter })
+                    if parameter.key == "custom:charging_power"
+            ));
+        }
     }
 }

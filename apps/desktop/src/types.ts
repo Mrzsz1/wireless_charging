@@ -745,6 +745,10 @@ export type QaRunManifest = {
   statePatchOperationCount?: number
   statePatchLowConfidenceCount?: number
   statePatchRejectedCount?: number
+  parameterImplicitReferenceResolvedCount?: number
+  parameterImplicitReferenceRejectedCount?: number
+  parameterUnknownNameCount?: number
+  parameterStateCorruptionCount?: number
   stateChanged?: boolean
   stateWarningCount?: number
   queryContextObjectiveCount?: number
@@ -903,6 +907,10 @@ export type QuestionContext = {
     statePatchOperationCount?: number
     statePatchLowConfidenceCount?: number
     statePatchRejectedCount?: number
+    parameterImplicitReferenceResolvedCount?: number
+    parameterImplicitReferenceRejectedCount?: number
+    parameterUnknownNameCount?: number
+    parameterStateCorruptionCount?: number
     stateChanged?: boolean
     stateWarningCount?: number
     queryContextObjectiveCount?: number

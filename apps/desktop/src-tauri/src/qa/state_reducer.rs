@@ -279,6 +279,10 @@ mod tests {
             operations,
             confidence: PatchConfidence::High,
             source_message_id: None,
+            parameter_implicit_reference_resolved_count: 0,
+            parameter_implicit_reference_rejected_count: 0,
+            parameter_unknown_name_count: 0,
+            parameter_state_corruption_count: 0,
         }
     }
 

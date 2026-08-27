@@ -1,8 +1,8 @@
 {
   "schemaVersion": "qa-conversation-state-report-v2",
-  "datasetVersion": "conversation-state-v2.0.0",
-  "datasetSha256": "d1c451f5d5b1d174abfb90aed3f03809a86d2596773dd09e484f4561bfebbb64",
-  "caseCount": 17,
+  "datasetVersion": "conversation-state-v2.1.0",
+  "datasetSha256": "490c425c2564a1fcb27a0e3c60b86708a7efa3046219158bb220f6ece6f050bd",
+  "caseCount": 22,
   "stateExactMatch": 1.0,
   "objectiveExactMatch": 1.0,
   "constraintExactMatch": 1.0,
@@ -17,6 +17,11 @@
   "queryContextParameterRecall": 1.0,
   "queryContextExcludedMethodAccuracy": 1.0,
   "referenceResolutionAccuracy": 1.0,
+  "parameterImplicitReferenceResolvedCount": 3,
+  "parameterImplicitReferenceRejectedCount": 3,
+  "parameterUnknownNameCount": 2,
+  "parameterStateCorruptionCount": 0,
+  "reportedParameterStateCorruptionCount": 0,
   "passed": true,
   "results": [
     {
@@ -30,6 +35,11 @@
       "unexpectedStateCount": 0,
       "destructiveMutationError": false,
       "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
       "queryContextObjectiveHits": 0,
       "queryContextObjectiveTotal": 0,
       "queryContextConstraintHits": 0,
@@ -86,6 +96,11 @@
       "unexpectedStateCount": 0,
       "destructiveMutationError": false,
       "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
       "queryContextObjectiveHits": 0,
       "queryContextObjectiveTotal": 0,
       "queryContextConstraintHits": 0,
@@ -145,6 +160,11 @@
       "unexpectedStateCount": 0,
       "destructiveMutationError": false,
       "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
       "queryContextObjectiveHits": 0,
       "queryContextObjectiveTotal": 0,
       "queryContextConstraintHits": 0,
@@ -201,6 +221,11 @@
       "unexpectedStateCount": 0,
       "destructiveMutationError": false,
       "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
       "queryContextObjectiveHits": 0,
       "queryContextObjectiveTotal": 0,
       "queryContextConstraintHits": 0,
@@ -259,6 +284,11 @@
       "unexpectedStateCount": 0,
       "destructiveMutationError": false,
       "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
       "queryContextObjectiveHits": 0,
       "queryContextObjectiveTotal": 0,
       "queryContextConstraintHits": 0,
@@ -315,6 +345,11 @@
       "unexpectedStateCount": 0,
       "destructiveMutationError": false,
       "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
       "queryContextObjectiveHits": 0,
       "queryContextObjectiveTotal": 0,
       "queryContextConstraintHits": 0,
@@ -367,6 +402,11 @@
       "unexpectedStateCount": 0,
       "destructiveMutationError": false,
       "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
       "queryContextObjectiveHits": 0,
       "queryContextObjectiveTotal": 0,
       "queryContextConstraintHits": 0,
@@ -432,6 +472,11 @@
       "unexpectedStateCount": 0,
       "destructiveMutationError": false,
       "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 1,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
       "queryContextObjectiveHits": 0,
       "queryContextObjectiveTotal": 0,
       "queryContextConstraintHits": 0,
@@ -499,6 +544,11 @@
       "unexpectedStateCount": 0,
       "destructiveMutationError": false,
       "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
       "queryContextObjectiveHits": 0,
       "queryContextObjectiveTotal": 0,
       "queryContextConstraintHits": 0,
@@ -564,6 +614,11 @@
       "unexpectedStateCount": 0,
       "destructiveMutationError": false,
       "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
       "queryContextObjectiveHits": 1,
       "queryContextObjectiveTotal": 1,
       "queryContextConstraintHits": 3,
@@ -652,6 +707,11 @@
       "unexpectedStateCount": 0,
       "destructiveMutationError": false,
       "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
       "queryContextObjectiveHits": 1,
       "queryContextObjectiveTotal": 1,
       "queryContextConstraintHits": 3,
@@ -740,6 +800,11 @@
       "unexpectedStateCount": 0,
       "destructiveMutationError": false,
       "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
       "queryContextObjectiveHits": 1,
       "queryContextObjectiveTotal": 1,
       "queryContextConstraintHits": 3,
@@ -828,6 +893,11 @@
       "unexpectedStateCount": 0,
       "destructiveMutationError": false,
       "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 1,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
       "queryContextObjectiveHits": 0,
       "queryContextObjectiveTotal": 0,
       "queryContextConstraintHits": 2,
@@ -916,6 +986,11 @@
       "unexpectedStateCount": 0,
       "destructiveMutationError": false,
       "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
       "queryContextObjectiveHits": 0,
       "queryContextObjectiveTotal": 0,
       "queryContextConstraintHits": 0,
@@ -984,6 +1059,11 @@
       "unexpectedStateCount": 0,
       "destructiveMutationError": false,
       "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
       "queryContextObjectiveHits": 1,
       "queryContextObjectiveTotal": 1,
       "queryContextConstraintHits": 3,
@@ -1072,6 +1152,11 @@
       "unexpectedStateCount": 0,
       "destructiveMutationError": false,
       "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
       "queryContextObjectiveHits": 1,
       "queryContextObjectiveTotal": 1,
       "queryContextConstraintHits": 3,
@@ -1160,6 +1245,11 @@
       "unexpectedStateCount": 0,
       "destructiveMutationError": false,
       "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
       "queryContextObjectiveHits": 1,
       "queryContextObjectiveTotal": 1,
       "queryContextConstraintHits": 3,
@@ -1231,6 +1321,392 @@
             "updatedAtTurn": 1
           }
         },
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 2
+      }
+    },
+    {
+      "id": "conv-v2-018",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 1,
+      "parameterUnknownNameCount": 1,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
+      "queryContextObjectiveHits": 0,
+      "queryContextObjectiveTotal": 0,
+      "queryContextConstraintHits": 0,
+      "queryContextConstraintTotal": 0,
+      "queryContextParameterHits": 0,
+      "queryContextParameterTotal": 0,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 1,
+        "activeProblem": "wireless_sensor_network",
+        "objectives": [],
+        "constraints": [
+          "multi_vehicle_coordination"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": "conv-v2-018-m1",
+            "updatedAtTurn": 1
+          }
+        },
+        "papers": [
+          "50W"
+        ],
+        "hypotheses": [],
+        "openQuestions": [],
+        "sourceMessageIds": [
+          "conv-v2-018-m1"
+        ],
+        "lastPatchId": "patch:conv-v2-018-m1"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "充电功率改成 50W。",
+        "researchIntent": "direct_factual",
+        "objectives": [],
+        "constraints": [
+          "multi_vehicle_coordination"
+        ],
+        "assumptions": [],
+        "parameters": {},
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 1
+      }
+    },
+    {
+      "id": "conv-v2-019",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 1,
+      "parameterUnknownNameCount": 1,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
+      "queryContextObjectiveHits": 0,
+      "queryContextObjectiveTotal": 0,
+      "queryContextConstraintHits": 0,
+      "queryContextConstraintTotal": 0,
+      "queryContextParameterHits": 0,
+      "queryContextParameterTotal": 0,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 1,
+        "activeProblem": "",
+        "objectives": [],
+        "constraints": [
+          "deadlines"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "deadline": {
+            "key": "deadline",
+            "value": {
+              "type": "integer",
+              "value": 30
+            },
+            "unit": "minute",
+            "sourceMessageId": "conv-v2-019-m1",
+            "updatedAtTurn": 1
+          }
+        },
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [],
+        "sourceMessageIds": [
+          "conv-v2-019-m1"
+        ],
+        "lastPatchId": "patch:conv-v2-019-m1"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "无线充电效率改成 0.82。",
+        "researchIntent": "direct_factual",
+        "objectives": [],
+        "constraints": [
+          "deadlines"
+        ],
+        "assumptions": [],
+        "parameters": {},
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 1
+      }
+    },
+    {
+      "id": "conv-v2-020",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 1,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
+      "queryContextObjectiveHits": 0,
+      "queryContextObjectiveTotal": 0,
+      "queryContextConstraintHits": 0,
+      "queryContextConstraintTotal": 0,
+      "queryContextParameterHits": 0,
+      "queryContextParameterTotal": 0,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 2,
+        "activeProblem": "",
+        "objectives": [],
+        "constraints": [
+          "deadlines"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "deadline": {
+            "key": "deadline",
+            "value": {
+              "type": "integer",
+              "value": 20
+            },
+            "unit": "minute",
+            "sourceMessageId": null,
+            "updatedAtTurn": 2
+          }
+        },
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [],
+        "sourceMessageIds": [
+          "conv-v2-020-m1"
+        ],
+        "lastPatchId": "patch:current"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "还是改成 20 分钟吧。",
+        "researchIntent": "direct_factual",
+        "objectives": [],
+        "constraints": [
+          "deadlines"
+        ],
+        "assumptions": [],
+        "parameters": {},
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 2
+      }
+    },
+    {
+      "id": "conv-v2-021",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 1,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
+      "queryContextObjectiveHits": 0,
+      "queryContextObjectiveTotal": 0,
+      "queryContextConstraintHits": 0,
+      "queryContextConstraintTotal": 0,
+      "queryContextParameterHits": 0,
+      "queryContextParameterTotal": 0,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 1,
+        "activeProblem": "wireless_sensor_network",
+        "objectives": [],
+        "constraints": [
+          "deadlines",
+          "multi_vehicle_coordination"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "deadline": {
+            "key": "deadline",
+            "value": {
+              "type": "integer",
+              "value": 30
+            },
+            "unit": "minute",
+            "sourceMessageId": "conv-v2-021-m1",
+            "updatedAtTurn": 1
+          },
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": "conv-v2-021-m1",
+            "updatedAtTurn": 1
+          }
+        },
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [],
+        "sourceMessageIds": [
+          "conv-v2-021-m1"
+        ],
+        "lastPatchId": "patch:conv-v2-021-m1"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "改成 20。",
+        "researchIntent": "direct_factual",
+        "objectives": [],
+        "constraints": [
+          "deadlines",
+          "multi_vehicle_coordination"
+        ],
+        "assumptions": [],
+        "parameters": {},
+        "activeMethods": [],
+        "excludedMethods": [],
+        "resolvedReferences": [],
+        "sourceStateRevision": 1
+      }
+    },
+    {
+      "id": "conv-v2-022",
+      "stateExactMatch": true,
+      "objectiveExactMatch": true,
+      "constraintExactMatch": true,
+      "methodExactMatch": true,
+      "parameterExactMatch": true,
+      "patchOperationCountMatch": true,
+      "unexpectedStateCount": 0,
+      "destructiveMutationError": false,
+      "referenceResolutionCorrect": true,
+      "parameterImplicitReferenceResolvedCount": 0,
+      "parameterImplicitReferenceRejectedCount": 0,
+      "parameterUnknownNameCount": 0,
+      "reportedParameterStateCorruptionCount": 0,
+      "parameterStateCorruption": false,
+      "queryContextObjectiveHits": 0,
+      "queryContextObjectiveTotal": 0,
+      "queryContextConstraintHits": 0,
+      "queryContextConstraintTotal": 0,
+      "queryContextParameterHits": 0,
+      "queryContextParameterTotal": 0,
+      "queryContextExcludedMethodHits": 0,
+      "queryContextExcludedMethodTotal": 0,
+      "actualState": {
+        "schemaVersion": "research-session-state-v2",
+        "stateVersion": "research-session-state-v2",
+        "revision": 2,
+        "activeProblem": "wireless_sensor_network",
+        "objectives": [],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines"
+        ],
+        "assumptions": [],
+        "methods": [],
+        "excludedMethods": [],
+        "parameters": {
+          "deadline": {
+            "key": "deadline",
+            "value": {
+              "type": "integer",
+              "value": 40
+            },
+            "unit": "minute",
+            "sourceMessageId": null,
+            "updatedAtTurn": 2
+          },
+          "mobile_charger_count": {
+            "key": "mobile_charger_count",
+            "value": {
+              "type": "integer",
+              "value": 2
+            },
+            "unit": null,
+            "sourceMessageId": "conv-v2-022-m1",
+            "updatedAtTurn": 1
+          }
+        },
+        "papers": [],
+        "hypotheses": [],
+        "openQuestions": [],
+        "sourceMessageIds": [
+          "conv-v2-022-m1"
+        ],
+        "lastPatchId": "patch:current"
+      },
+      "actualQueryContext": {
+        "schemaVersion": "research-query-context-v1",
+        "currentQuestion": "deadline 改成 40 分钟。",
+        "researchIntent": "direct_factual",
+        "objectives": [],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines"
+        ],
+        "assumptions": [],
+        "parameters": {},
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],

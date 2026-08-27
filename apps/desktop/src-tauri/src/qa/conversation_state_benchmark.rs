@@ -80,6 +80,8 @@ pub struct ConversationStateCase {
     pub protect_destructive: bool,
     #[serde(default)]
     pub reference_required: bool,
+    #[serde(default)]
+    pub protect_parameter_state: bool,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -106,6 +108,11 @@ pub struct ConversationStateCaseResult {
     pub unexpected_state_count: usize,
     pub destructive_mutation_error: bool,
     pub reference_resolution_correct: bool,
+    pub parameter_implicit_reference_resolved_count: usize,
+    pub parameter_implicit_reference_rejected_count: usize,
+    pub parameter_unknown_name_count: usize,
+    pub reported_parameter_state_corruption_count: usize,
+    pub parameter_state_corruption: bool,
     pub query_context_objective_hits: usize,
     pub query_context_objective_total: usize,
     pub query_context_constraint_hits: usize,
@@ -139,6 +146,11 @@ pub struct ConversationStateReport {
     pub query_context_parameter_recall: f64,
     pub query_context_excluded_method_accuracy: f64,
     pub reference_resolution_accuracy: f64,
+    pub parameter_implicit_reference_resolved_count: usize,
+    pub parameter_implicit_reference_rejected_count: usize,
+    pub parameter_unknown_name_count: usize,
+    pub parameter_state_corruption_count: usize,
+    pub reported_parameter_state_corruption_count: usize,
     pub passed: bool,
     pub results: Vec<ConversationStateCaseResult>,
 }
@@ -309,6 +321,13 @@ pub fn evaluate(suite: &ConversationStateSuite) -> Result<ConversationStateRepor
             unexpected_state_count: unexpected_count(&state, &case.expected_final_state),
             destructive_mutation_error: case.protect_destructive && !state_exact,
             reference_resolution_correct,
+            parameter_implicit_reference_resolved_count: query
+                .parameter_implicit_reference_resolved_count,
+            parameter_implicit_reference_rejected_count: query
+                .parameter_implicit_reference_rejected_count,
+            parameter_unknown_name_count: query.parameter_unknown_name_count,
+            reported_parameter_state_corruption_count: query.parameter_state_corruption_count,
+            parameter_state_corruption: case.protect_parameter_state && !parameter_exact,
             query_context_objective_hits: hits(&expected_context.objectives, &context.objectives),
             query_context_objective_total: expected_context.objectives.len(),
             query_context_constraint_hits: hits(
@@ -413,6 +432,26 @@ pub fn evaluate(suite: &ConversationStateSuite) -> Result<ConversationStateRepor
             .filter(|(case, _)| case.reference_required)
             .map(|(_, result)| result.reference_resolution_correct),
     );
+    let parameter_implicit_reference_resolved_count = results
+        .iter()
+        .map(|result| result.parameter_implicit_reference_resolved_count)
+        .sum();
+    let parameter_implicit_reference_rejected_count = results
+        .iter()
+        .map(|result| result.parameter_implicit_reference_rejected_count)
+        .sum();
+    let parameter_unknown_name_count = results
+        .iter()
+        .map(|result| result.parameter_unknown_name_count)
+        .sum();
+    let reported_parameter_state_corruption_count = results
+        .iter()
+        .map(|result| result.reported_parameter_state_corruption_count)
+        .sum();
+    let parameter_state_corruption_count = results
+        .iter()
+        .filter(|result| result.parameter_state_corruption)
+        .count();
     let passed = count >= 17
         && mixed_operation_exact_match == 1.0
         && parameter_overwrite_exact_match == 1.0
@@ -427,7 +466,8 @@ pub fn evaluate(suite: &ConversationStateSuite) -> Result<ConversationStateRepor
         && query_context_constraint_recall >= 0.97
         && query_context_parameter_recall >= 0.97
         && query_context_excluded_method_accuracy >= 0.97
-        && reference_resolution_accuracy >= 0.97;
+        && reference_resolution_accuracy >= 0.97
+        && parameter_state_corruption_count == 0;
     Ok(ConversationStateReport {
         schema_version: REPORT_SCHEMA_VERSION.to_string(),
         dataset_version: suite.version.clone(),
@@ -447,6 +487,11 @@ pub fn evaluate(suite: &ConversationStateSuite) -> Result<ConversationStateRepor
         query_context_parameter_recall,
         query_context_excluded_method_accuracy,
         reference_resolution_accuracy,
+        parameter_implicit_reference_resolved_count,
+        parameter_implicit_reference_rejected_count,
+        parameter_unknown_name_count,
+        parameter_state_corruption_count,
+        reported_parameter_state_corruption_count,
         passed,
         results,
     })
