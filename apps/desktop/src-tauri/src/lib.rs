@@ -5227,10 +5227,39 @@ mod tests {
         assert!(report.passed, "{:#?}", report.remaining_risks);
         assert_eq!(report.aggregate.source_resolution_accuracy, 1.0);
         assert_eq!(report.aggregate.channel_attempt_rate, 1.0);
-        assert_eq!(report.aggregate.document_recall_at_20, 1.0);
+        assert_eq!(report.aggregate.work_recall_at_20, Some(1.0));
+        assert_eq!(
+            report.aggregate.ranking_eligible_case_count,
+            suite.cases.len() - report.aggregate.zero_evidence_case_count
+        );
         assert_eq!(report.aggregate.locator_validity, 1.0);
         assert_eq!(report.aggregate.zero_evidence_false_negative, 0);
         assert_eq!(report.aggregate.zero_evidence_false_positive, 0);
+        assert_eq!(report.aggregate.zero_evidence_true_positive, 1);
+        assert_eq!(report.aggregate.zero_evidence_true_negative, 12);
+        assert_eq!(report.aggregate.zero_evidence_precision, Some(1.0));
+        assert_eq!(report.aggregate.zero_evidence_recall, Some(1.0));
+        assert_eq!(report.aggregate.zero_evidence_specificity, Some(1.0));
+        let zero_evidence = report
+            .cases
+            .iter()
+            .find(|case| case.id == "true-zero-evidence")
+            .expect("zero-evidence case");
+        assert!(!zero_evidence.ranking_metrics_eligible);
+        assert_eq!(zero_evidence.work_recall_at_20, None);
+        assert_eq!(zero_evidence.document_recall_at_20, None);
+        assert_eq!(zero_evidence.work_mrr, None);
+        assert_eq!(zero_evidence.ndcg_at_10, None);
+        assert_eq!(
+            report.aggregate.document_recall_at_20,
+            report.aggregate.work_recall_at_20
+        );
+        assert_eq!(report.aggregate.document_mrr, report.aggregate.work_mrr);
+        assert_eq!(report.aggregate.mrr, report.aggregate.work_mrr);
+        assert_eq!(
+            report.aggregate.ndcg_at_10,
+            report.aggregate.work_ndcg_at_10
+        );
         let payload = serde_json::to_string(&report).expect("report JSON");
         let root_string = root.to_string_lossy().to_string();
         for prohibited in [

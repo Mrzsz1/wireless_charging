@@ -47,7 +47,7 @@ METADATA = {
 
 
 PASSING = {
-    "retrieval.json": {"documentRecallAt20": 0.95, "documentRecallAt10": 0.90, "mrr": 0.85, "ndcgAt10": 0.85},
+    "retrieval.json": {"workRecallAt20": 0.95, "workRecallAt10": 0.90, "workMrr": 0.85, "workNdcgAt10": 0.85},
     "conversation.json": {"referenceResolution": 0.95, "constraintPreservation": 0.97, "objectivePreservation": 0.97},
     "grounding.json": {"factualClaimPrecision": 0.97, "unsupportedFactualClaimRate": 0.02, "contradictedClaimRate": 0.01, "citationCorrectness": 0.98},
     "open_research.json": {"relevantMethodRecall": 0.90, "criticalConstraintPreservation": 0.97},
@@ -99,8 +99,8 @@ class QaReleaseGateTests(unittest.TestCase):
             path = Path(temporary)
             write_artifacts(path)
             artifact = json.loads((path / "retrieval.json").read_text(encoding="utf-8"))
-            artifact["metrics"]["mrr"] = float("nan")
-            del artifact["metrics"]["ndcgAt10"]
+            artifact["metrics"]["workMrr"] = float("nan")
+            del artifact["metrics"]["workNdcgAt10"]
             (path / "retrieval.json").write_text(json.dumps(artifact), encoding="utf-8")
             result = gate.evaluate_release(path)
         failed = {item["gate_id"] for item in result["gates"] if not item["passed"]}
@@ -145,12 +145,22 @@ class QaReleaseGateTests(unittest.TestCase):
     def test_production_harness_derives_metrics_from_machine_reports(self) -> None:
         metrics = production.artifact_metrics(
             {
+                "schemaVersion": "qa-rag-evaluation-report-v4",
+                "caseDatasetSha256": "d" * 64,
+                "caseCount": 1,
                 "aggregate": {
-                    "documentRecallAt20": 1.0,
-                    "documentRecallAt10": 0.96,
-                    "documentMrr": 0.962,
+                    "caseCount": 1,
+                    "workRecallAt20": 1.0,
+                    "workRecallAt10": 0.96,
+                    "workMrr": 0.962,
+                    "workNdcgAt10": 0.851,
+                    "exactSourceRecallAt20": 0.9,
+                    "exactSourceRecallAt10": 0.8,
+                    "exactSourceMrr": 0.75,
+                    "exactSourceNdcgAt10": 0.70,
                     "passageMrr": 0.90,
-                    "ndcgAt10": 0.851,
+                    "rankingEligibleCaseCount": 1,
+                    "zeroEvidenceCaseCount": 0,
                     "rerankerFallbackRate": 0.0,
                     "averageRerankerLatencyMs": 1200.0,
                 },
@@ -178,10 +188,30 @@ class QaReleaseGateTests(unittest.TestCase):
                 "fallbackRate": 0.0,
             },
         )
-        self.assertEqual(metrics["retrieval"]["mrr"], 0.962)
+        self.assertEqual(metrics["retrieval"]["workMrr"], 0.962)
+        self.assertEqual(metrics["retrieval"]["caseDatasetSha256"], "d" * 64)
         self.assertTrue(metrics["reranker"]["realModelMeasured"])
         self.assertTrue(metrics["semantic_verifier"]["realProviderMeasured"])
         self.assertFalse(metrics["performance"]["targetProfileFrozen"])
+
+    def test_retrieval_threshold_values_are_unchanged_after_metric_rename(self) -> None:
+        thresholds = json.loads(
+            (ROOT / "evals" / "qa_release_thresholds.json").read_text(encoding="utf-8")
+        )
+        retrieval = {
+            item["metric"]: item["threshold"]
+            for item in thresholds["gates"]
+            if item["id"].startswith("retrieval.")
+        }
+        self.assertEqual(
+            retrieval,
+            {
+                "workRecallAt20": 0.95,
+                "workRecallAt10": 0.90,
+                "workMrr": 0.85,
+                "workNdcgAt10": 0.85,
+            },
+        )
 
 
 if __name__ == "__main__":

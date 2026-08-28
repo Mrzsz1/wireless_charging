@@ -51,10 +51,18 @@ cd apps/desktop
 npm run eval:rag
 ```
 
-默认报告位于 `evals/reports/rag-evaluation-latest.{json,md}`，包含 source resolution、
-requested channel attempt、文档 Recall@5/10/20、heading Recall、MRR、nDCG@10、locator
-validity、零证据 FN/FP、轮数、耗时以及逐题 legacy/v2 改善和退化。关键用例与 Top20、
-locator、通道、来源解析属于硬门禁；平均排序指标用于诊断，不能单独掩盖关键来源失败。
+默认报告位于 `evals/reports/rag-evaluation-latest.{json,md}`。`qa-rag-evaluation-report-v4`
+把生产相关性单位固定为 Canonical Research Work：`wiki:sources/<id>` 与
+`paper:sources/<id>` 统一映射到 `source:<id>`，Work Recall/MRR/nDCG 由同一个去重后的
+相关性视图计算；exact-source 指标独立保留作表面来源诊断，passage MRR 仅作诊断。
+
+`expectedDocuments=[]` 只允许用于 `zeroEvidenceExpected=true`。这类用例逐题排序指标写为
+JSON `null`、Markdown `N/A`，并从排序聚合分母排除；报告显式记录
+`rankingEligibleCaseCount`、`zeroEvidenceCaseCount` 以及 zero-evidence TP/FP/FN/TN、precision、
+recall、specificity。报告还携带 `caseDatasetSha256` 与 `caseCount`，Markdown 完全由同一个
+JSON report object 渲染。v4 中 `documentRecallAt*`、`documentMrr`/`mrr`、`ndcgAt10` 仅是
+Work 指标的兼容别名；发布门禁直接读取 `workRecallAt10/20`、`workMrr`、`workNdcgAt10`。
+关键用例与 Top20、locator、通道、来源解析仍是硬门禁，排序平均值不能掩盖关键来源失败。
 
 ## Conversation Understanding 回归
 

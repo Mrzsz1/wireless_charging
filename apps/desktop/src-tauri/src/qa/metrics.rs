@@ -115,6 +115,7 @@ pub struct RetrievalRankingObservation {
 #[derive(Debug, Clone, Default, PartialEq)]
 #[cfg(test)]
 pub struct RetrievalQualityMetrics {
+    pub ranking_eligible_count: usize,
     pub recall_at_5: f64,
     pub recall_at_10: f64,
     pub recall_at_20: f64,
@@ -132,23 +133,44 @@ pub fn evaluate_retrieval_quality(
         return RetrievalQualityMetrics::default();
     }
     let count = observations.len() as f64;
+    let ranking_observations = observations
+        .iter()
+        .filter(|observation| !observation.relevant_ids.is_empty())
+        .collect::<Vec<_>>();
+    let ranking_count = ranking_observations.len() as f64;
     let average_recall = |cutoff| {
-        observations
+        if ranking_observations.is_empty() {
+            return 0.0;
+        }
+        ranking_observations
             .iter()
             .map(|observation| recall_at(observation, cutoff))
             .sum::<f64>()
-            / count
+            / ranking_count
     };
     RetrievalQualityMetrics {
+        ranking_eligible_count: ranking_observations.len(),
         recall_at_5: average_recall(5),
         recall_at_10: average_recall(10),
         recall_at_20: average_recall(20),
-        mrr: observations.iter().map(reciprocal_rank).sum::<f64>() / count,
-        ndcg_at_10: observations
-            .iter()
-            .map(|observation| ndcg_at(observation, 10))
-            .sum::<f64>()
-            / count,
+        mrr: if ranking_observations.is_empty() {
+            0.0
+        } else {
+            ranking_observations
+                .iter()
+                .map(|observation| reciprocal_rank(observation))
+                .sum::<f64>()
+                / ranking_count
+        },
+        ndcg_at_10: if ranking_observations.is_empty() {
+            0.0
+        } else {
+            ranking_observations
+                .iter()
+                .map(|observation| ndcg_at(observation, 10))
+                .sum::<f64>()
+                / ranking_count
+        },
         required_kind_coverage: observations
             .iter()
             .filter(|observation| observation.required_kind_covered)
@@ -174,9 +196,7 @@ fn relevant_set(observation: &RetrievalRankingObservation) -> HashSet<&str> {
 #[cfg(test)]
 fn recall_at(observation: &RetrievalRankingObservation, cutoff: usize) -> f64 {
     let relevant = relevant_set(observation);
-    if relevant.is_empty() {
-        return 1.0;
-    }
+    debug_assert!(!relevant.is_empty());
     let hits = observation
         .ranked_ids
         .iter()
@@ -201,9 +221,7 @@ fn reciprocal_rank(observation: &RetrievalRankingObservation) -> f64 {
 #[cfg(test)]
 fn ndcg_at(observation: &RetrievalRankingObservation, cutoff: usize) -> f64 {
     let relevant = relevant_set(observation);
-    if relevant.is_empty() {
-        return 1.0;
-    }
+    debug_assert!(!relevant.is_empty());
     let dcg = observation
         .ranked_ids
         .iter()
@@ -240,6 +258,50 @@ mod tests {
         assert!(metrics.ndcg_at_10 > 0.6 && metrics.ndcg_at_10 < 1.0);
         assert_eq!(metrics.required_kind_coverage, 1.0);
         assert_eq!(metrics.pair_coverage, 0.0);
+    }
+
+    #[test]
+    fn zero_evidence_observations_do_not_enter_ranking_denominators() {
+        let metrics = evaluate_retrieval_quality(&[
+            RetrievalRankingObservation {
+                ranked_ids: Vec::new(),
+                relevant_ids: Vec::new(),
+                required_kind_covered: true,
+                pair_covered: true,
+            },
+            RetrievalRankingObservation {
+                ranked_ids: vec!["target".into()],
+                relevant_ids: vec!["target".into()],
+                required_kind_covered: true,
+                pair_covered: true,
+            },
+        ]);
+        assert_eq!(metrics.ranking_eligible_count, 1);
+        assert_eq!(metrics.recall_at_5, 1.0);
+        assert_eq!(metrics.mrr, 1.0);
+        assert_eq!(metrics.ndcg_at_10, 1.0);
+    }
+
+    #[test]
+    fn zero_evidence_case_cannot_raise_a_positive_mrr_of_zero() {
+        let metrics = evaluate_retrieval_quality(&[
+            RetrievalRankingObservation {
+                ranked_ids: Vec::new(),
+                relevant_ids: Vec::new(),
+                required_kind_covered: true,
+                pair_covered: true,
+            },
+            RetrievalRankingObservation {
+                ranked_ids: vec!["noise".into()],
+                relevant_ids: vec!["target".into()],
+                required_kind_covered: true,
+                pair_covered: false,
+            },
+        ]);
+        assert_eq!(metrics.ranking_eligible_count, 1);
+        assert_eq!(metrics.mrr, 0.0);
+        assert_eq!(metrics.recall_at_20, 0.0);
+        assert_eq!(metrics.ndcg_at_10, 0.0);
     }
 
     #[test]

@@ -21,18 +21,18 @@
 
 ## Acceptance Criteria
 
-- [ ] synthetic positive MRR=0 与正确 zero-evidence case 聚合后 work MRR 仍为 0，不得变成 0.5。
-- [ ] zero-evidence case 的 per-case work/exact Recall/MRR/nDCG 序列化为 `null`，aggregate 只统计 eligible cases。
-- [ ] Wiki expected/Paper returned 或反向时 work Recall/MRR/nDCG 命中，exact-source 指标不命中。
-- [ ] rank1 wiki A、rank2 paper A、rank3 paper B 的 work ranking 折叠为 A/B；同 work 不重复 gain 或占位。
-- [ ] expected wiki A、paper A、paper B 的 work denominator 为 2，exact denominator 为 3。
-- [ ] work Recall/MRR/nDCG 从同一个 canonical relevance view 计算。
-- [ ] zero-evidence precision/recall/specificity 与 FP/FN 使用独立 classification confusion counts。
-- [ ] ambiguous empty expected case 被 validator 拒绝。
-- [ ] report v4 公开所有 denominator 与 dataset fingerprint；JSON/Markdown consistency test 通过。
-- [ ] release threshold 字段迁移但数值完全不变。
-- [ ] 修正后的现有 dev/regression RAG benchmark 已运行并报告真实指标。
-- [ ] fmt/check/clippy、聚焦 Rust/Python tests 通过，production retrieval source files没有行为修改。
+- [x] synthetic positive MRR=0 与正确 zero-evidence case 聚合后 work MRR 仍为 0，不得变成 0.5。
+- [x] zero-evidence case 的 per-case work/exact Recall/MRR/nDCG 序列化为 `null`，aggregate 只统计 eligible cases。
+- [x] Wiki expected/Paper returned 或反向时 work Recall/MRR/nDCG 命中，exact-source 指标不命中。
+- [x] rank1 wiki A、rank2 paper A、rank3 paper B 的 work ranking 折叠为 A/B；同 work 不重复 gain 或占位。
+- [x] expected wiki A、paper A、paper B 的 work denominator 为 2，exact denominator 为 3。
+- [x] work Recall/MRR/nDCG 从同一个 canonical relevance view 计算。
+- [x] zero-evidence precision/recall/specificity 与 FP/FN 使用独立 classification confusion counts。
+- [x] ambiguous empty expected case 被 validator 拒绝。
+- [x] report v4 公开所有 denominator 与 dataset fingerprint；JSON/Markdown consistency test 通过。
+- [x] release threshold 字段迁移但数值完全不变。
+- [x] 修正后的现有 dev/regression RAG benchmark 已运行并报告真实指标。
+- [x] fmt/check/clippy、聚焦 Rust/Python tests 通过，production retrieval source files没有行为修改。
 
 ## Notes
 

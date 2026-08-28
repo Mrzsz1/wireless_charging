@@ -8,16 +8,17 @@ use super::{
 };
 use rusqlite::{Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub const CASE_SCHEMA_VERSION: &str = "qa-rag-evaluation-cases-v1";
-pub const REPORT_SCHEMA_VERSION: &str = "qa-rag-evaluation-report-v3";
-pub const MRR_DIAGNOSTIC_SCHEMA_VERSION: &str = "qa-mrr-diagnostics-v1";
+pub const REPORT_SCHEMA_VERSION: &str = "qa-rag-evaluation-report-v4";
+pub const MRR_DIAGNOSTIC_SCHEMA_VERSION: &str = "qa-mrr-diagnostics-v2";
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct EvaluationSuite {
     pub schema_version: String,
@@ -25,7 +26,7 @@ pub struct EvaluationSuite {
     pub cases: Vec<EvaluationCase>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct EvaluationCase {
     pub id: String,
@@ -50,7 +51,7 @@ pub struct EvaluationCase {
     pub notes: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct EvaluationConversationTurn {
     pub id: String,
@@ -95,14 +96,26 @@ pub struct EvaluationCaseResult {
     pub error_categories: Vec<String>,
     pub source_resolution_correct: bool,
     pub channel_attempt_rate: f64,
-    pub document_recall_at_5: f64,
-    pub document_recall_at_10: f64,
-    pub document_recall_at_20: f64,
-    pub heading_recall_at_20: f64,
-    pub passage_mrr: f64,
-    pub document_mrr: f64,
-    pub mrr: f64,
-    pub ndcg_at_10: f64,
+    pub ranking_metrics_eligible: bool,
+    pub heading_metrics_eligible: bool,
+    pub work_recall_at_5: Option<f64>,
+    pub work_recall_at_10: Option<f64>,
+    pub work_recall_at_20: Option<f64>,
+    pub work_mrr: Option<f64>,
+    pub work_ndcg_at_10: Option<f64>,
+    pub exact_source_recall_at_5: Option<f64>,
+    pub exact_source_recall_at_10: Option<f64>,
+    pub exact_source_recall_at_20: Option<f64>,
+    pub exact_source_mrr: Option<f64>,
+    pub exact_source_ndcg_at_10: Option<f64>,
+    pub document_recall_at_5: Option<f64>,
+    pub document_recall_at_10: Option<f64>,
+    pub document_recall_at_20: Option<f64>,
+    pub heading_recall_at_20: Option<f64>,
+    pub passage_mrr: Option<f64>,
+    pub document_mrr: Option<f64>,
+    pub mrr: Option<f64>,
+    pub ndcg_at_10: Option<f64>,
     pub locator_validity: f64,
     pub zero_evidence_observed: bool,
     pub latency_ms: u64,
@@ -135,19 +148,37 @@ pub struct EvaluationCaseResult {
 pub struct EvaluationAggregate {
     pub case_count: usize,
     pub passed_count: usize,
+    pub ranking_eligible_case_count: usize,
+    pub heading_eligible_case_count: usize,
+    pub zero_evidence_case_count: usize,
     pub source_resolution_accuracy: f64,
     pub channel_attempt_rate: f64,
-    pub document_recall_at_5: f64,
-    pub document_recall_at_10: f64,
-    pub document_recall_at_20: f64,
-    pub heading_recall_at_20: f64,
-    pub passage_mrr: f64,
-    pub document_mrr: f64,
-    pub mrr: f64,
-    pub ndcg_at_10: f64,
+    pub work_recall_at_5: Option<f64>,
+    pub work_recall_at_10: Option<f64>,
+    pub work_recall_at_20: Option<f64>,
+    pub work_mrr: Option<f64>,
+    pub work_ndcg_at_10: Option<f64>,
+    pub exact_source_recall_at_5: Option<f64>,
+    pub exact_source_recall_at_10: Option<f64>,
+    pub exact_source_recall_at_20: Option<f64>,
+    pub exact_source_mrr: Option<f64>,
+    pub exact_source_ndcg_at_10: Option<f64>,
+    pub document_recall_at_5: Option<f64>,
+    pub document_recall_at_10: Option<f64>,
+    pub document_recall_at_20: Option<f64>,
+    pub heading_recall_at_20: Option<f64>,
+    pub passage_mrr: Option<f64>,
+    pub document_mrr: Option<f64>,
+    pub mrr: Option<f64>,
+    pub ndcg_at_10: Option<f64>,
     pub locator_validity: f64,
-    pub zero_evidence_false_negative: usize,
+    pub zero_evidence_true_positive: usize,
     pub zero_evidence_false_positive: usize,
+    pub zero_evidence_false_negative: usize,
+    pub zero_evidence_true_negative: usize,
+    pub zero_evidence_precision: Option<f64>,
+    pub zero_evidence_recall: Option<f64>,
+    pub zero_evidence_specificity: Option<f64>,
     pub average_latency_ms: f64,
     pub average_round_count: f64,
     pub average_reranker_latency_ms: f64,
@@ -165,6 +196,8 @@ pub struct EvaluationAggregate {
 pub struct EvaluationReport {
     pub schema_version: String,
     pub suite_name: String,
+    pub case_dataset_sha256: String,
+    pub case_count: usize,
     pub generated_at_unix: u64,
     pub index_snapshot_id: String,
     pub retriever_version: String,
@@ -202,8 +235,8 @@ pub struct MrrDiagnosticCase {
     pub question: String,
     pub first_relevant_passage_rank: Option<usize>,
     pub first_relevant_document_rank: Option<usize>,
-    pub passage_mrr: f64,
-    pub document_mrr: f64,
+    pub passage_mrr: Option<f64>,
+    pub document_mrr: Option<f64>,
     pub top_10: Vec<MrrDiagnosticCandidate>,
 }
 
@@ -287,6 +320,12 @@ fn validate_suite(suite: &EvaluationSuite) -> Result<(), String> {
         if case.zero_evidence_expected && !case.expected_documents.is_empty() {
             return Err(format!(
                 "RAG_EVAL_CASES_INVALID: {} 零证据用例声明了 expectedDocuments",
+                case.id
+            ));
+        }
+        if !case.zero_evidence_expected && case.expected_documents.is_empty() {
+            return Err(format!(
+                "RAG_EVAL_CASES_INVALID: {} expectedDocuments 为空时必须声明 zeroEvidenceExpected=true",
                 case.id
             ));
         }
@@ -437,7 +476,7 @@ fn project_candidates(
                 score: candidate.score,
                 stable_source_id: candidate_key(candidate),
                 kind: candidate.kind.clone(),
-                canonical_document_id: canonical_document_id(&document_id),
+                canonical_document_id: relevance_work_id(&document_id),
                 document_id,
                 block_id: candidate.node_id.clone(),
                 title: candidate.title.clone(),
@@ -478,7 +517,7 @@ fn collapse_documents(ranked: &[RankedEvidence]) -> Vec<RankedEvidence> {
         .collect()
 }
 
-fn canonical_document_id(document_id: &str) -> String {
+fn relevance_work_id(document_id: &str) -> String {
     document_id
         .strip_prefix("wiki:sources/")
         .or_else(|| document_id.strip_prefix("paper:sources/"))
@@ -486,20 +525,69 @@ fn canonical_document_id(document_id: &str) -> String {
         .unwrap_or_else(|| document_id.to_string())
 }
 
-fn recall_at(ranked: &[RankedEvidence], expected: &[String], cutoff: usize) -> f64 {
-    if expected.is_empty() {
-        return 1.0;
+#[derive(Debug, Clone)]
+struct RankingRelevanceView {
+    ranked_ids: Vec<String>,
+    expected_ids: HashSet<String>,
+}
+
+impl RankingRelevanceView {
+    fn new(
+        ranked: &[RankedEvidence],
+        expected: &[String],
+        identity: impl Fn(&str) -> String,
+    ) -> Self {
+        let mut seen = HashSet::new();
+        let ranked_ids = ranked
+            .iter()
+            .map(|item| identity(&item.document_id))
+            .filter(|id| seen.insert(id.clone()))
+            .collect();
+        let expected_ids = expected.iter().map(|id| identity(id)).collect();
+        Self {
+            ranked_ids,
+            expected_ids,
+        }
     }
-    expected
-        .iter()
-        .filter(|id| {
-            ranked
-                .iter()
-                .take(cutoff)
-                .any(|item| item.document_id == id.as_str())
-        })
-        .count() as f64
-        / expected.len() as f64
+
+    fn recall_at(&self, cutoff: usize) -> f64 {
+        debug_assert!(!self.expected_ids.is_empty());
+        let hits = self
+            .ranked_ids
+            .iter()
+            .take(cutoff)
+            .filter(|id| self.expected_ids.contains(*id))
+            .count();
+        hits as f64 / self.expected_ids.len() as f64
+    }
+
+    fn reciprocal_rank(&self) -> f64 {
+        self.ranked_ids
+            .iter()
+            .position(|id| self.expected_ids.contains(id))
+            .map(|index| 1.0 / (index + 1) as f64)
+            .unwrap_or(0.0)
+    }
+
+    fn ndcg_at(&self, cutoff: usize) -> f64 {
+        debug_assert!(!self.expected_ids.is_empty());
+        let dcg = self
+            .ranked_ids
+            .iter()
+            .take(cutoff)
+            .enumerate()
+            .filter(|(_, id)| self.expected_ids.contains(*id))
+            .map(|(index, _)| 1.0 / ((index + 2) as f64).log2())
+            .sum::<f64>();
+        let ideal = (0..self.expected_ids.len().min(cutoff))
+            .map(|index| 1.0 / ((index + 2) as f64).log2())
+            .sum::<f64>();
+        if ideal == 0.0 {
+            0.0
+        } else {
+            dcg / ideal
+        }
+    }
 }
 
 fn heading_recall(ranked: &[RankedEvidence], expected: &[String], cutoff: usize) -> f64 {
@@ -519,49 +607,12 @@ fn heading_recall(ranked: &[RankedEvidence], expected: &[String], cutoff: usize)
         / expected.len() as f64
 }
 
-#[cfg(test)]
-fn reciprocal_rank(ranked: &[RankedEvidence], expected: &[String]) -> f64 {
+fn passage_reciprocal_rank(ranked: &[RankedEvidence], expected: &HashSet<String>) -> f64 {
     ranked
         .iter()
-        .position(|item| expected.contains(&item.document_id))
+        .position(|item| expected.contains(&relevance_work_id(&item.document_id)))
         .map(|index| 1.0 / (index + 1) as f64)
-        .unwrap_or_else(|| if expected.is_empty() { 1.0 } else { 0.0 })
-}
-
-fn reciprocal_rank_canonical(ranked: &[RankedEvidence], expected: &[String]) -> f64 {
-    let expected = expected
-        .iter()
-        .map(|document| canonical_document_id(document))
-        .collect::<HashSet<_>>();
-    ranked
-        .iter()
-        .position(|item| expected.contains(&item.canonical_document_id))
-        .map(|index| 1.0 / (index + 1) as f64)
-        .unwrap_or_else(|| if expected.is_empty() { 1.0 } else { 0.0 })
-}
-
-fn ndcg_at(ranked: &[RankedEvidence], expected: &[String], cutoff: usize) -> f64 {
-    if expected.is_empty() {
-        return 1.0;
-    }
-    let mut seen = HashSet::new();
-    let dcg = ranked
-        .iter()
-        .take(cutoff)
-        .enumerate()
-        .filter(|(_, item)| {
-            expected.contains(&item.document_id) && seen.insert(item.document_id.clone())
-        })
-        .map(|(index, _)| 1.0 / ((index + 2) as f64).log2())
-        .sum::<f64>();
-    let ideal = (0..expected.len().min(cutoff))
-        .map(|index| 1.0 / ((index + 2) as f64).log2())
-        .sum::<f64>();
-    if ideal == 0.0 {
-        1.0
-    } else {
-        dcg / ideal
-    }
+        .unwrap_or(0.0)
 }
 
 fn evaluate_case(
@@ -645,10 +696,31 @@ fn evaluate_case(
                     .iter()
                     .any(|source| case.expected_documents.contains(&source.document_id))
         };
-    let recall5 = recall_at(&v2, &case.expected_documents, 5);
-    let recall10 = recall_at(&v2, &case.expected_documents, 10);
-    let recall20 = recall_at(&v2, &case.expected_documents, 20);
-    let heading20 = heading_recall(&v2, &case.expected_headings, 20);
+    let ranking_metrics_eligible = !case.expected_documents.is_empty();
+    let heading_metrics_eligible = !case.expected_headings.is_empty();
+    let work_view = ranking_metrics_eligible
+        .then(|| RankingRelevanceView::new(&v2, &case.expected_documents, relevance_work_id));
+    let exact_source_view = ranking_metrics_eligible
+        .then(|| RankingRelevanceView::new(&v2, &case.expected_documents, ToOwned::to_owned));
+    let work_recall_at_5 = work_view.as_ref().map(|view| view.recall_at(5));
+    let work_recall_at_10 = work_view.as_ref().map(|view| view.recall_at(10));
+    let work_recall_at_20 = work_view.as_ref().map(|view| view.recall_at(20));
+    let work_mrr = work_view
+        .as_ref()
+        .map(RankingRelevanceView::reciprocal_rank);
+    let work_ndcg_at_10 = work_view.as_ref().map(|view| view.ndcg_at(10));
+    let exact_source_recall_at_5 = exact_source_view.as_ref().map(|view| view.recall_at(5));
+    let exact_source_recall_at_10 = exact_source_view.as_ref().map(|view| view.recall_at(10));
+    let exact_source_recall_at_20 = exact_source_view.as_ref().map(|view| view.recall_at(20));
+    let exact_source_mrr = exact_source_view
+        .as_ref()
+        .map(RankingRelevanceView::reciprocal_rank);
+    let exact_source_ndcg_at_10 = exact_source_view.as_ref().map(|view| view.ndcg_at(10));
+    let passage_mrr = work_view
+        .as_ref()
+        .map(|view| passage_reciprocal_rank(&v2, &view.expected_ids));
+    let heading20 =
+        heading_metrics_eligible.then(|| heading_recall(&v2, &case.expected_headings, 20));
     let mut errors = Vec::new();
     let mut categories = HashSet::new();
     let mut record = |condition: bool, message: &str, category: &str| {
@@ -668,12 +740,12 @@ fn evaluate_case(
         "coverage",
     );
     record(
-        recall20 < 1.0,
+        work_recall_at_20.map(|value| value < 1.0).unwrap_or(false),
         "Top20 未覆盖全部 expectedDocuments",
         "fusion_or_reranker",
     );
     record(
-        heading20 < 1.0,
+        heading20.map(|value| value < 1.0).unwrap_or(false),
         "Top20 未覆盖全部 expectedHeadings",
         "chunking_or_retrieval",
     );
@@ -735,14 +807,26 @@ fn evaluate_case(
         error_categories,
         source_resolution_correct,
         channel_attempt_rate,
-        document_recall_at_5: recall5,
-        document_recall_at_10: recall10,
-        document_recall_at_20: recall20,
+        ranking_metrics_eligible,
+        heading_metrics_eligible,
+        work_recall_at_5,
+        work_recall_at_10,
+        work_recall_at_20,
+        work_mrr,
+        work_ndcg_at_10,
+        exact_source_recall_at_5,
+        exact_source_recall_at_10,
+        exact_source_recall_at_20,
+        exact_source_mrr,
+        exact_source_ndcg_at_10,
+        document_recall_at_5: work_recall_at_5,
+        document_recall_at_10: work_recall_at_10,
+        document_recall_at_20: work_recall_at_20,
         heading_recall_at_20: heading20,
-        passage_mrr: reciprocal_rank_canonical(&v2, &case.expected_documents),
-        document_mrr: reciprocal_rank_canonical(&v2_documents, &case.expected_documents),
-        mrr: reciprocal_rank_canonical(&v2_documents, &case.expected_documents),
-        ndcg_at_10: ndcg_at(&v2, &case.expected_documents, 10),
+        passage_mrr,
+        document_mrr: work_mrr,
+        mrr: work_mrr,
+        ndcg_at_10: work_ndcg_at_10,
         locator_validity,
         zero_evidence_observed,
         latency_ms: outcome
@@ -783,6 +867,24 @@ fn average(cases: &[EvaluationCaseResult], value: impl Fn(&EvaluationCaseResult)
     }
 }
 
+fn average_optional(
+    cases: &[EvaluationCaseResult],
+    value: impl Fn(&EvaluationCaseResult) -> Option<f64>,
+) -> Option<f64> {
+    let values = cases.iter().filter_map(value).collect::<Vec<_>>();
+    (!values.is_empty()).then(|| values.iter().sum::<f64>() / values.len() as f64)
+}
+
+fn ratio(numerator: usize, denominator: usize) -> Option<f64> {
+    (denominator > 0).then(|| numerator as f64 / denominator as f64)
+}
+
+fn case_dataset_sha256(suite: &EvaluationSuite) -> Result<String, String> {
+    let payload = serde_json::to_vec(&suite.cases)
+        .map_err(|error| format!("RAG_EVAL_CASES_HASH_FAILED: {error}"))?;
+    Ok(format!("{:x}", Sha256::digest(payload)))
+}
+
 pub fn evaluate(
     connection: &Connection,
     root: &Path,
@@ -799,6 +901,14 @@ pub fn evaluate(
             *category_counts.entry(category.clone()).or_insert(0) += 1;
         }
     }
+    let true_positive = suite
+        .cases
+        .iter()
+        .zip(&cases)
+        .filter(|(expected, observed)| {
+            expected.zero_evidence_expected && observed.zero_evidence_observed
+        })
+        .count();
     let false_negative = suite
         .cases
         .iter()
@@ -815,25 +925,64 @@ pub fn evaluate(
             !expected.zero_evidence_expected && observed.zero_evidence_observed
         })
         .count();
+    let true_negative = suite
+        .cases
+        .iter()
+        .zip(&cases)
+        .filter(|(expected, observed)| {
+            !expected.zero_evidence_expected && !observed.zero_evidence_observed
+        })
+        .count();
     let reranker_fallback_count = cases.iter().filter(|case| case.reranker_fallback).count();
+    let ranking_eligible_case_count = cases
+        .iter()
+        .filter(|case| case.ranking_metrics_eligible)
+        .count();
+    let heading_eligible_case_count = cases
+        .iter()
+        .filter(|case| case.heading_metrics_eligible)
+        .count();
+    let zero_evidence_case_count = suite
+        .cases
+        .iter()
+        .filter(|case| case.zero_evidence_expected)
+        .count();
     let aggregate = EvaluationAggregate {
         case_count: cases.len(),
         passed_count: cases.iter().filter(|case| case.passed).count(),
+        ranking_eligible_case_count,
+        heading_eligible_case_count,
+        zero_evidence_case_count,
         source_resolution_accuracy: average(&cases, |case| {
             case.source_resolution_correct as u8 as f64
         }),
         channel_attempt_rate: average(&cases, |case| case.channel_attempt_rate),
-        document_recall_at_5: average(&cases, |case| case.document_recall_at_5),
-        document_recall_at_10: average(&cases, |case| case.document_recall_at_10),
-        document_recall_at_20: average(&cases, |case| case.document_recall_at_20),
-        heading_recall_at_20: average(&cases, |case| case.heading_recall_at_20),
-        passage_mrr: average(&cases, |case| case.passage_mrr),
-        document_mrr: average(&cases, |case| case.document_mrr),
-        mrr: average(&cases, |case| case.document_mrr),
-        ndcg_at_10: average(&cases, |case| case.ndcg_at_10),
+        work_recall_at_5: average_optional(&cases, |case| case.work_recall_at_5),
+        work_recall_at_10: average_optional(&cases, |case| case.work_recall_at_10),
+        work_recall_at_20: average_optional(&cases, |case| case.work_recall_at_20),
+        work_mrr: average_optional(&cases, |case| case.work_mrr),
+        work_ndcg_at_10: average_optional(&cases, |case| case.work_ndcg_at_10),
+        exact_source_recall_at_5: average_optional(&cases, |case| case.exact_source_recall_at_5),
+        exact_source_recall_at_10: average_optional(&cases, |case| case.exact_source_recall_at_10),
+        exact_source_recall_at_20: average_optional(&cases, |case| case.exact_source_recall_at_20),
+        exact_source_mrr: average_optional(&cases, |case| case.exact_source_mrr),
+        exact_source_ndcg_at_10: average_optional(&cases, |case| case.exact_source_ndcg_at_10),
+        document_recall_at_5: average_optional(&cases, |case| case.work_recall_at_5),
+        document_recall_at_10: average_optional(&cases, |case| case.work_recall_at_10),
+        document_recall_at_20: average_optional(&cases, |case| case.work_recall_at_20),
+        heading_recall_at_20: average_optional(&cases, |case| case.heading_recall_at_20),
+        passage_mrr: average_optional(&cases, |case| case.passage_mrr),
+        document_mrr: average_optional(&cases, |case| case.work_mrr),
+        mrr: average_optional(&cases, |case| case.work_mrr),
+        ndcg_at_10: average_optional(&cases, |case| case.work_ndcg_at_10),
         locator_validity: average(&cases, |case| case.locator_validity),
-        zero_evidence_false_negative: false_negative,
+        zero_evidence_true_positive: true_positive,
         zero_evidence_false_positive: false_positive,
+        zero_evidence_false_negative: false_negative,
+        zero_evidence_true_negative: true_negative,
+        zero_evidence_precision: ratio(true_positive, true_positive + false_positive),
+        zero_evidence_recall: ratio(true_positive, true_positive + false_negative),
+        zero_evidence_specificity: ratio(true_negative, true_negative + false_positive),
         average_latency_ms: average(&cases, |case| case.latency_ms as f64),
         average_round_count: average(&cases, |case| case.round_count as f64),
         average_reranker_latency_ms: average(&cases, |case| case.reranker_latency_ms as f64),
@@ -861,6 +1010,8 @@ pub fn evaluate(
     Ok(EvaluationReport {
         schema_version: REPORT_SCHEMA_VERSION.into(),
         suite_name: suite.name.clone(),
+        case_dataset_sha256: case_dataset_sha256(suite)?,
+        case_count: cases.len(),
         generated_at_unix: SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap_or_default()
@@ -878,7 +1029,7 @@ pub fn evaluate(
 fn first_relevant_rank(ranked: &[RankedEvidence], expected: &[String]) -> Option<usize> {
     let expected = expected
         .iter()
-        .map(|document| canonical_document_id(document))
+        .map(|document| relevance_work_id(document))
         .collect::<HashSet<_>>();
     ranked
         .iter()
@@ -908,7 +1059,7 @@ pub fn mrr_diagnostics(report: &EvaluationReport, suite: &EvaluationSuite) -> Mr
                 .collect::<HashMap<_, _>>();
             let expected_canonical = expected
                 .iter()
-                .map(|document| canonical_document_id(document))
+                .map(|document| relevance_work_id(document))
                 .collect::<HashSet<_>>();
             let top_10 = case
                 .v2_evidence
@@ -955,7 +1106,7 @@ pub fn mrr_diagnostics(report: &EvaluationReport, suite: &EvaluationSuite) -> Mr
     });
     MrrDiagnosticReport {
         schema_version: MRR_DIAGNOSTIC_SCHEMA_VERSION.to_string(),
-        metric_unit: "document".to_string(),
+        metric_unit: "canonical_research_work".to_string(),
         passage_metric_is_diagnostic_only: true,
         cases,
     }
@@ -990,24 +1141,50 @@ pub fn write_report(
         .map_err(|error| format!("RAG_EVAL_SERIALIZE_FAILED: {error}"))?;
     fs::write(json_path, format!("{json}\n"))
         .map_err(|error| format!("RAG_EVAL_WRITE_FAILED: {error}"))?;
+    fs::write(markdown_path, render_markdown(report))
+        .map_err(|error| format!("RAG_EVAL_WRITE_FAILED: {error}"))
+}
+
+fn metric(value: Option<f64>) -> String {
+    value
+        .map(|value| format!("{value:.3}"))
+        .unwrap_or_else(|| "N/A".to_string())
+}
+
+pub fn render_markdown(report: &EvaluationReport) -> String {
     let aggregate = &report.aggregate;
     let mut markdown = format!(
-        "# 科研 RAG 检索评测\n\n- 状态：{}\n- 用例：{}/{}\n- Source resolution accuracy：{:.3}\n- Channel attempt rate：{:.3}\n- Document Recall@5/10/20：{:.3} / {:.3} / {:.3}\n- Heading Recall@20：{:.3}\n- Document MRR / Passage MRR / nDCG@10：{:.3} / {:.3} / {:.3}\n- Locator validity：{:.3}\n- Zero-evidence FN/FP：{} / {}\n- 平均检索耗时：{:.1} ms\n- 平均轮数：{:.2}\n- Reranker fallback：{} / {} ({:.3})\n- 平均 reranker 耗时：{:.1} ms\n- Reranker load/prepare/inference/input tokens：{:.1} / {:.1} / {:.1} ms / {:.1}\n\n## 用例\n\n",
+        "# 科研 RAG 检索评测\n\n- Schema：{}\n- Case dataset SHA-256：{}\n- 状态：{}\n- 用例：{}/{}\n- Ranking eligible / zero-evidence：{} / {}\n- Source resolution accuracy：{:.3}\n- Channel attempt rate：{:.3}\n- Work Recall@5/10/20：{} / {} / {}\n- Work MRR / nDCG@10：{} / {}\n- Exact-source Recall@5/10/20：{} / {} / {}\n- Exact-source MRR / nDCG@10：{} / {}\n- Heading Recall@20（eligible={}）：{}\n- Passage MRR（diagnostic-only）：{}\n- Locator validity：{:.3}\n- Zero-evidence TP/FP/FN/TN：{} / {} / {} / {}\n- Zero-evidence precision/recall/specificity：{} / {} / {}\n- 平均检索耗时：{:.1} ms\n- 平均轮数：{:.2}\n- Reranker fallback：{} / {} ({:.3})\n- 平均 reranker 耗时：{:.1} ms\n- Reranker load/prepare/inference/input tokens：{:.1} / {:.1} / {:.1} ms / {:.1}\n\n## 用例\n\n",
+        report.schema_version,
+        report.case_dataset_sha256,
         if report.passed { "PASS" } else { "REVIEW" },
         aggregate.passed_count,
         aggregate.case_count,
+        aggregate.ranking_eligible_case_count,
+        aggregate.zero_evidence_case_count,
         aggregate.source_resolution_accuracy,
         aggregate.channel_attempt_rate,
-        aggregate.document_recall_at_5,
-        aggregate.document_recall_at_10,
-        aggregate.document_recall_at_20,
-        aggregate.heading_recall_at_20,
-        aggregate.document_mrr,
-        aggregate.passage_mrr,
-        aggregate.ndcg_at_10,
+        metric(aggregate.work_recall_at_5),
+        metric(aggregate.work_recall_at_10),
+        metric(aggregate.work_recall_at_20),
+        metric(aggregate.work_mrr),
+        metric(aggregate.work_ndcg_at_10),
+        metric(aggregate.exact_source_recall_at_5),
+        metric(aggregate.exact_source_recall_at_10),
+        metric(aggregate.exact_source_recall_at_20),
+        metric(aggregate.exact_source_mrr),
+        metric(aggregate.exact_source_ndcg_at_10),
+        aggregate.heading_eligible_case_count,
+        metric(aggregate.heading_recall_at_20),
+        metric(aggregate.passage_mrr),
         aggregate.locator_validity,
-        aggregate.zero_evidence_false_negative,
+        aggregate.zero_evidence_true_positive,
         aggregate.zero_evidence_false_positive,
+        aggregate.zero_evidence_false_negative,
+        aggregate.zero_evidence_true_negative,
+        metric(aggregate.zero_evidence_precision),
+        metric(aggregate.zero_evidence_recall),
+        metric(aggregate.zero_evidence_specificity),
         aggregate.average_latency_ms,
         aggregate.average_round_count,
         aggregate.reranker_fallback_count,
@@ -1021,16 +1198,19 @@ pub fn write_report(
     );
     for case in &report.cases {
         markdown.push_str(&format!(
-            "### {} · {}\n\n- 状态：{}\n- 通道：{}\n- Stop：{}\n- Recall@5/20：{:.3} / {:.3}\n- Document/Passage MRR：{:.3} / {:.3}\n- Locator：{:.3}\n- Reranker：{} / {} / {} ms{}\n",
+            "### {} · {}\n\n- 状态：{}\n- 通道：{}\n- Stop：{}\n- Work Recall@5/20：{} / {}\n- Exact-source Recall@5/20：{} / {}\n- Work/Exact-source/Passage MRR：{} / {} / {}\n- Locator：{:.3}\n- Reranker：{} / {} / {} ms{}\n",
             case.id,
             case.question,
             if case.passed { "PASS" } else { "REVIEW" },
             case.attempted_kinds.join(", "),
             case.stop_reason,
-            case.document_recall_at_5,
-            case.document_recall_at_20,
-            case.document_mrr,
-            case.passage_mrr,
+            metric(case.work_recall_at_5),
+            metric(case.work_recall_at_20),
+            metric(case.exact_source_recall_at_5),
+            metric(case.exact_source_recall_at_20),
+            metric(case.work_mrr),
+            metric(case.exact_source_mrr),
+            metric(case.passage_mrr),
             case.locator_validity,
             case.reranker_version,
             case.reranker_status,
@@ -1058,7 +1238,7 @@ pub fn write_report(
             markdown.push_str(&format!("- {risk}\n"));
         }
     }
-    fs::write(markdown_path, markdown).map_err(|error| format!("RAG_EVAL_WRITE_FAILED: {error}"))
+    markdown
 }
 
 #[cfg(test)]
@@ -1072,7 +1252,7 @@ mod tests {
             stable_source_id: block_id.into(),
             kind: "paper".into(),
             document_id: document_id.into(),
-            canonical_document_id: canonical_document_id(document_id),
+            canonical_document_id: relevance_work_id(document_id),
             block_id: block_id.into(),
             title: block_id.into(),
             relation: "content_block_v2".into(),
@@ -1118,6 +1298,12 @@ mod tests {
         suite.cases[1].id = "case-1".into();
         suite.cases[0].zero_evidence_expected = true;
         assert!(validate_suite(&suite).unwrap_err().contains("零证据"));
+        suite.cases[0].zero_evidence_expected = false;
+        suite.cases[0].expected_documents.clear();
+        suite.cases[0].locator_required = false;
+        assert!(validate_suite(&suite)
+            .unwrap_err()
+            .contains("zeroEvidenceExpected=true"));
         assert!(serde_json::from_str::<EvaluationSuite>(
             r#"{"schemaVersion":"qa-rag-evaluation-cases-v1","name":"x","cases":[],"unknown":true}"#,
         )
@@ -1125,7 +1311,7 @@ mod tests {
     }
 
     #[test]
-    fn document_mrr_collapses_duplicate_passages_before_ranking() {
+    fn work_metrics_collapse_duplicate_passages_before_ranking() {
         let passages = vec![
             ranked(1, "paper:noise", "noise-1"),
             ranked(2, "paper:noise", "noise-2"),
@@ -1139,15 +1325,17 @@ mod tests {
                 .collect::<Vec<_>>(),
             vec![(1, "paper:noise"), (2, "paper:target")]
         );
+        let view =
+            RankingRelevanceView::new(&passages, &["paper:target".into()], relevance_work_id);
+        assert_eq!(view.reciprocal_rank(), 0.5);
         assert_eq!(
-            reciprocal_rank(&passages, &["paper:target".into()]),
+            passage_reciprocal_rank(&passages, &view.expected_ids),
             1.0 / 3.0
         );
-        assert_eq!(reciprocal_rank(&documents, &["paper:target".into()]), 0.5);
     }
 
     #[test]
-    fn canonical_document_mrr_treats_wiki_source_and_primary_paper_as_one_work() {
+    fn work_metrics_treat_wiki_source_and_primary_paper_as_one_work() {
         let ranked = vec![
             ranked(1, "wiki:sources/src-target", "wiki-target"),
             ranked(2, "paper:sources/src-target", "paper-target"),
@@ -1155,9 +1343,115 @@ mod tests {
         let documents = collapse_documents(&ranked);
         assert_eq!(documents.len(), 1);
         assert_eq!(documents[0].canonical_document_id, "source:src-target");
-        assert_eq!(
-            reciprocal_rank_canonical(&ranked, &["paper:sources/src-target".into()]),
-            1.0
+        let work = RankingRelevanceView::new(
+            &ranked,
+            &["paper:sources/src-target".into()],
+            relevance_work_id,
         );
+        let exact =
+            RankingRelevanceView::new(&ranked, &["paper:sources/src-target".into()], |id| {
+                id.to_string()
+            });
+        assert_eq!(work.reciprocal_rank(), 1.0);
+        assert_eq!(exact.reciprocal_rank(), 0.5);
+    }
+
+    #[test]
+    fn paired_surface_matches_work_but_not_exact_source() {
+        let ranked = vec![ranked(1, "wiki:sources/src-target", "wiki-target")];
+        let expected = vec!["paper:sources/src-target".into()];
+        let work = RankingRelevanceView::new(&ranked, &expected, relevance_work_id);
+        let exact = RankingRelevanceView::new(&ranked, &expected, |id| id.to_string());
+        assert_eq!(work.recall_at(1), 1.0);
+        assert_eq!(work.reciprocal_rank(), 1.0);
+        assert_eq!(work.ndcg_at(1), 1.0);
+        assert_eq!(exact.recall_at(1), 0.0);
+        assert_eq!(exact.reciprocal_rank(), 0.0);
+        assert_eq!(exact.ndcg_at(1), 0.0);
+    }
+
+    #[test]
+    fn zero_evidence_ranking_metrics_are_not_eligible() {
+        let ranked = vec![ranked(1, "paper:noise", "noise")];
+        let expected = Vec::<String>::new();
+        assert!(expected.is_empty());
+        assert!(ranking_metrics(&ranked, &expected).is_none());
+    }
+
+    fn ranking_metrics(ranked: &[RankedEvidence], expected: &[String]) -> Option<(f64, f64, f64)> {
+        (!expected.is_empty()).then(|| {
+            let view = RankingRelevanceView::new(ranked, expected, relevance_work_id);
+            (view.recall_at(10), view.reciprocal_rank(), view.ndcg_at(10))
+        })
+    }
+
+    #[test]
+    fn duplicate_expected_and_ranked_ids_share_one_denominator_and_order() {
+        let ranked = vec![
+            ranked(1, "wiki:sources/a", "a-wiki"),
+            ranked(2, "paper:sources/a", "a-paper"),
+            ranked(3, "paper:sources/b", "b-paper"),
+        ];
+        let expected = vec![
+            "wiki:sources/a".into(),
+            "paper:sources/a".into(),
+            "paper:sources/b".into(),
+        ];
+        let view = RankingRelevanceView::new(&ranked, &expected, relevance_work_id);
+        let exact = RankingRelevanceView::new(&ranked, &expected, |id| id.to_string());
+        assert_eq!(view.expected_ids.len(), 2);
+        assert_eq!(exact.expected_ids.len(), 3);
+        assert_eq!(view.ranked_ids, vec!["source:a", "source:b"]);
+        assert_eq!(view.recall_at(1), 0.5);
+        assert_eq!(view.recall_at(2), 1.0);
+        assert_eq!(view.reciprocal_rank(), 1.0);
+        assert_eq!(view.ndcg_at(10), 1.0);
+    }
+
+    #[test]
+    fn markdown_is_rendered_from_report_object_and_marks_null_as_na() {
+        let mut aggregate = EvaluationAggregate::default();
+        aggregate.case_count = 1;
+        aggregate.zero_evidence_case_count = 1;
+        aggregate.zero_evidence_true_positive = 1;
+        aggregate.zero_evidence_precision = Some(1.0);
+        let report = EvaluationReport {
+            schema_version: REPORT_SCHEMA_VERSION.into(),
+            suite_name: "fixture".into(),
+            case_dataset_sha256: "a".repeat(64),
+            case_count: 1,
+            generated_at_unix: 0,
+            index_snapshot_id: "fixture".into(),
+            retriever_version: "fixture".into(),
+            answer_format: "fixture".into(),
+            passed: true,
+            aggregate,
+            cases: Vec::new(),
+            remaining_risks: Vec::new(),
+        };
+        let markdown = render_markdown(&report);
+        assert!(markdown.contains(REPORT_SCHEMA_VERSION));
+        assert!(markdown.contains("Work Recall@5/10/20：N/A / N/A / N/A"));
+        assert!(markdown.contains("Zero-evidence TP/FP/FN/TN：1 / 0 / 0 / 0"));
+    }
+
+    #[test]
+    fn case_dataset_hash_is_deterministic_and_content_bound() {
+        let mut suite = EvaluationSuite {
+            schema_version: CASE_SCHEMA_VERSION.into(),
+            name: "fixture".into(),
+            cases: (0..8).map(|index| case(&format!("case-{index}"))).collect(),
+        };
+        let initial = case_dataset_sha256(&suite).expect("hash");
+        assert_eq!(initial, case_dataset_sha256(&suite).expect("hash"));
+        assert_eq!(initial.len(), 64);
+        suite.cases[0].question.push('变');
+        assert_ne!(initial, case_dataset_sha256(&suite).expect("changed hash"));
+    }
+
+    #[test]
+    fn zero_evidence_ratios_are_null_when_their_denominator_is_empty() {
+        assert_eq!(ratio(0, 0), None);
+        assert_eq!(ratio(2, 4), Some(0.5));
     }
 }

@@ -8,10 +8,10 @@
     "nonFiniteMetricDecision": "FAIL"
   },
   "gates": [
-    {"id": "retrieval.recall20", "artifact": "retrieval.json", "metric": "documentRecallAt20", "operator": ">=", "threshold": 0.95, "core": true},
-    {"id": "retrieval.recall10", "artifact": "retrieval.json", "metric": "documentRecallAt10", "operator": ">=", "threshold": 0.90, "core": true},
-    {"id": "retrieval.mrr", "artifact": "retrieval.json", "metric": "mrr", "operator": ">=", "threshold": 0.85, "core": true},
-    {"id": "retrieval.ndcg10", "artifact": "retrieval.json", "metric": "ndcgAt10", "operator": ">=", "threshold": 0.85, "core": true},
+    {"id": "retrieval.recall20", "artifact": "retrieval.json", "metric": "workRecallAt20", "operator": ">=", "threshold": 0.95, "core": true},
+    {"id": "retrieval.recall10", "artifact": "retrieval.json", "metric": "workRecallAt10", "operator": ">=", "threshold": 0.90, "core": true},
+    {"id": "retrieval.mrr", "artifact": "retrieval.json", "metric": "workMrr", "operator": ">=", "threshold": 0.85, "core": true},
+    {"id": "retrieval.ndcg10", "artifact": "retrieval.json", "metric": "workNdcgAt10", "operator": ">=", "threshold": 0.85, "core": true},
     {"id": "conversation.reference", "artifact": "conversation.json", "metric": "referenceResolution", "operator": ">=", "threshold": 0.95, "core": true},
     {"id": "conversation.constraint", "artifact": "conversation.json", "metric": "constraintPreservation", "operator": ">=", "threshold": 0.97, "core": true},
     {"id": "conversation.objective", "artifact": "conversation.json", "metric": "objectivePreservation", "operator": ">=", "threshold": 0.97, "core": true},

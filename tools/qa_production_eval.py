@@ -80,6 +80,17 @@ def artifact_metrics(
     cases = rag.get("cases")
     if not isinstance(aggregate, dict) or not isinstance(cases, list):
         raise ProductionEvalError("RAG report schema is invalid")
+    if rag.get("schemaVersion") != "qa-rag-evaluation-report-v4":
+        raise ProductionEvalError("RAG report schema version is invalid")
+    dataset_sha256 = rag.get("caseDatasetSha256")
+    if (
+        not isinstance(dataset_sha256, str)
+        or len(dataset_sha256) != 64
+        or any(character not in "0123456789abcdef" for character in dataset_sha256)
+        or rag.get("caseCount") != len(cases)
+        or aggregate.get("caseCount") != len(cases)
+    ):
+        raise ProductionEvalError("RAG report dataset identity is invalid")
     if conversation.get("schemaVersion") != "qa-production-conversation-report-v1":
         raise ProductionEvalError("conversation report schema is invalid")
     if semantic.get("schemaVersion") != "qa-semantic-verifier-report-v1":
@@ -97,11 +108,18 @@ def artifact_metrics(
     )
     artifacts = {
         "retrieval": {
-            "documentRecallAt20": aggregate.get("documentRecallAt20"),
-            "documentRecallAt10": aggregate.get("documentRecallAt10"),
-            "mrr": aggregate.get("documentMrr", aggregate.get("mrr")),
+            "workRecallAt20": aggregate.get("workRecallAt20"),
+            "workRecallAt10": aggregate.get("workRecallAt10"),
+            "workMrr": aggregate.get("workMrr"),
+            "workNdcgAt10": aggregate.get("workNdcgAt10"),
+            "exactSourceRecallAt20": aggregate.get("exactSourceRecallAt20"),
+            "exactSourceRecallAt10": aggregate.get("exactSourceRecallAt10"),
+            "exactSourceMrr": aggregate.get("exactSourceMrr"),
+            "exactSourceNdcgAt10": aggregate.get("exactSourceNdcgAt10"),
             "passageMrr": aggregate.get("passageMrr"),
-            "ndcgAt10": aggregate.get("ndcgAt10"),
+            "rankingEligibleCaseCount": aggregate.get("rankingEligibleCaseCount"),
+            "zeroEvidenceCaseCount": aggregate.get("zeroEvidenceCaseCount"),
+            "caseDatasetSha256": dataset_sha256,
         },
         "conversation": {
             "referenceResolution": conversation.get("referenceResolution"),
@@ -184,7 +202,7 @@ def build_release(
         ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
     ).strip()
     datasets = {
-        "rag": {"version": rag.get("suiteName"), "sha256": canonical_json_sha256(load_json(ROOT / "evals" / "rag_retrieval_cases.json"))},
+        "rag": {"version": rag.get("suiteName"), "sha256": rag.get("caseDatasetSha256")},
         "conversation": {"version": conversation.get("datasetVersion"), "sha256": conversation.get("datasetSha256")},
         "semantic": {"version": semantic.get("datasetVersion"), "sha256": semantic.get("datasetSha256")},
     }
