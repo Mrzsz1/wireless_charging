@@ -110,26 +110,18 @@ fn execute_case(
         let prompt = qa::understanding_prompt(input);
         let schema = qa::understanding_schema();
         let reserved = qa::estimate_tokens(&prompt).saturating_add(1_024);
-        understanding_budget.reserve("understanding", reserved)?;
-        let result = understanding_provider
-            .ok_or_else(|| "PLANNING_PROVIDER_UNAVAILABLE: understanding".to_string())?
-            .complete_structured(&prompt, &schema, &cancel);
-        let raw = match result {
-            Ok(value) => value,
-            Err(error) => {
-                understanding_budget.settle(
-                    "understanding",
-                    qa::estimate_tokens(&prompt),
-                    reserved,
-                );
-                return Err(error);
-            }
+        let reservation = understanding_budget.reserve("understanding", reserved)?;
+        let Some(provider) = understanding_provider else {
+            reservation.release()?;
+            return Err("PLANNING_PROVIDER_UNAVAILABLE: understanding".to_string());
         };
-        understanding_budget.settle(
-            "understanding",
-            qa::estimate_tokens(&prompt).saturating_add(qa::estimate_tokens(&raw)),
-            reserved,
-        );
+        let result = provider.complete_structured(&prompt, &schema, &cancel);
+        let actual = result
+            .as_ref()
+            .map(|raw| qa::estimate_tokens(&prompt).saturating_add(qa::estimate_tokens(raw)))
+            .unwrap_or_else(|_| qa::estimate_tokens(&prompt));
+        reservation.settle(actual)?;
+        let raw = result?;
         qa::parse_understanding_plan(&raw, input)
     };
     let planner_budget = budget_guard.clone();
@@ -138,22 +130,18 @@ fn execute_case(
         let prompt = qa::query_plan_prompt(input);
         let schema = qa::query_plan_schema();
         let reserved = qa::estimate_tokens(&prompt).saturating_add(1_536);
-        planner_budget.reserve("planner", reserved)?;
-        let result = query_planning_provider
-            .ok_or_else(|| "PLANNING_PROVIDER_UNAVAILABLE: query_plan".to_string())?
-            .complete_structured(&prompt, &schema, &cancel);
-        let raw = match result {
-            Ok(value) => value,
-            Err(error) => {
-                planner_budget.settle("planner", qa::estimate_tokens(&prompt), reserved);
-                return Err(error);
-            }
+        let reservation = planner_budget.reserve("planner", reserved)?;
+        let Some(provider) = query_planning_provider else {
+            reservation.release()?;
+            return Err("PLANNING_PROVIDER_UNAVAILABLE: query_plan".to_string());
         };
-        planner_budget.settle(
-            "planner",
-            qa::estimate_tokens(&prompt).saturating_add(qa::estimate_tokens(&raw)),
-            reserved,
-        );
+        let result = provider.complete_structured(&prompt, &schema, &cancel);
+        let actual = result
+            .as_ref()
+            .map(|raw| qa::estimate_tokens(&prompt).saturating_add(qa::estimate_tokens(raw)))
+            .unwrap_or_else(|_| qa::estimate_tokens(&prompt));
+        reservation.settle(actual)?;
+        let raw = result?;
         qa::parse_query_plan(&raw, &input.resolved_question)
     };
     let planner = (planning_provider.is_some() && capabilities.query_planning).then_some(
@@ -200,7 +188,7 @@ fn execute_case(
     let prompt = qa::build_codex_prompt(&context);
     let prompt_cost = qa::estimate_tokens(&prompt);
     let reserved = prompt_cost.saturating_add(settings.max_output_tokens);
-    budget_guard.reserve("generator", reserved)?;
+    let reservation = budget_guard.reserve("generator", reserved)?;
     let generated = match runtime.provider.as_str() {
         qa::PROVIDER_CODEX => codex_subscription::stream_answer(
             &prompt,
@@ -218,7 +206,7 @@ fn execute_case(
         .as_ref()
         .map(|(answer, _)| prompt_cost.saturating_add(qa::estimate_tokens(answer)))
         .unwrap_or(prompt_cost);
-    budget_guard.settle("generator", actual, reserved);
+    reservation.settle(actual)?;
     let (answer, resolved_model) = generated?;
     let answer = if context.evidence.is_empty() {
         qa::normalize_unverified_answer(&answer)

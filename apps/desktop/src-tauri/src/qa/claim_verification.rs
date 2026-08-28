@@ -461,23 +461,26 @@ pub fn run_semantic_verification(
     };
     let prompt_cost = context::estimate_tokens(&prompt);
     let reserved = prompt_cost.saturating_add(1_024);
-    if let Err(error) = budget_guard.reserve("semantic_verifier", reserved) {
-        return Ok(SemanticVerificationBatch {
-            version: SEMANTIC_VERIFIER_VERSION.to_string(),
-            provider: provider_id,
-            model: model.to_string(),
-            status: "unavailable".to_string(),
-            fallback_reason: stable_provider_error(&error),
-            ..SemanticVerificationBatch::default()
-        });
-    }
+    let reservation = match budget_guard.reserve("semantic_verifier", reserved) {
+        Ok(reservation) => reservation,
+        Err(error) => {
+            return Ok(SemanticVerificationBatch {
+                version: SEMANTIC_VERIFIER_VERSION.to_string(),
+                provider: provider_id,
+                model: model.to_string(),
+                status: "unavailable".to_string(),
+                fallback_reason: stable_provider_error(&error),
+                ..SemanticVerificationBatch::default()
+            });
+        }
+    };
     let started = Instant::now();
     let raw = provider.complete_verification(&prompt, &schema, cancelled);
     let actual = raw
         .as_ref()
         .map(|value| prompt_cost.saturating_add(context::estimate_tokens(value)))
         .unwrap_or(prompt_cost);
-    budget_guard.settle("semantic_verifier", actual, reserved);
+    reservation.settle(actual)?;
     let latency_ms = started.elapsed().as_millis().min(u128::from(u64::MAX)) as u64;
     let raw = match raw {
         Ok(value) => value,
@@ -1254,8 +1257,16 @@ mod tests {
         assert_eq!(timed_out.fallback_reason, "provider_timeout");
 
         let exhausted = LlmBudgetGuard::new(super::super::adaptive_routing::policy("direct"));
-        exhausted.reserve("generator", 1_000).unwrap();
-        exhausted.reserve("other", 1_000).unwrap();
+        exhausted
+            .reserve("generator", 1_000)
+            .unwrap()
+            .release()
+            .unwrap();
+        exhausted
+            .reserve("other", 1_000)
+            .unwrap()
+            .release()
+            .unwrap();
         let rejected = run_semantic_verification(
             &invalid,
             "fixture",

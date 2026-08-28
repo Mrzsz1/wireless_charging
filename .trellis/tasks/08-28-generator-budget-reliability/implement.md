@@ -47,3 +47,12 @@
 - Highest risk: a call site drops a handle before provider invocation or forgets to settle after a real call. The RAII default must fail safe and tests must cover both cases.
 - Manifest field additions require Rust/TypeScript synchronization and v21 versioning.
 - No policy-number, prompt, retrieval, state, evidence or verifier-judgment changes are permitted.
+
+## Completion Record
+
+- Root-cause regression failed before the fix and passes after the ledger rewrite.
+- Budget core now uses unique RAII reservation handles and used + in-flight admission.
+- Production understanding/planner/generator/verifier boundaries use owned handles.
+- Manifest v21 and frontend diagnostics expose used/in-flight/ceiling/history.
+- Rust QA: 208 passed, 2 ignored; frontend tests/build, fmt and clippy passed.
+- No held-out data was used and 8k/18k/32k ceilings were unchanged.

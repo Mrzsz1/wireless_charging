@@ -3403,26 +3403,18 @@ async fn ask_luna(
             let prompt = qa::understanding_prompt(input);
             let schema = qa::understanding_schema();
             let reserved = qa::estimate_tokens(&prompt).saturating_add(1_024);
-            understanding_budget.reserve("understanding", reserved)?;
-            let result = understanding_provider
-                .ok_or_else(|| "PLANNING_PROVIDER_UNAVAILABLE: understanding".to_string())?
-                .complete_structured(&prompt, &schema, &understanding_cancel);
-            let raw = match result {
-                Ok(value) => value,
-                Err(error) => {
-                    understanding_budget.settle(
-                        "understanding",
-                        qa::estimate_tokens(&prompt),
-                        reserved,
-                    );
-                    return Err(error);
-                }
+            let reservation = understanding_budget.reserve("understanding", reserved)?;
+            let Some(provider) = understanding_provider else {
+                reservation.release()?;
+                return Err("PLANNING_PROVIDER_UNAVAILABLE: understanding".to_string());
             };
-            understanding_budget.settle(
-                "understanding",
-                qa::estimate_tokens(&prompt).saturating_add(qa::estimate_tokens(&raw)),
-                reserved,
-            );
+            let result = provider.complete_structured(&prompt, &schema, &understanding_cancel);
+            let actual = result
+                .as_ref()
+                .map(|raw| qa::estimate_tokens(&prompt).saturating_add(qa::estimate_tokens(raw)))
+                .unwrap_or_else(|_| qa::estimate_tokens(&prompt));
+            reservation.settle(actual)?;
+            let raw = result?;
             qa::parse_understanding_plan(&raw, input)
         };
         let planner_budget = budget_guard.clone();
@@ -3431,22 +3423,18 @@ async fn ask_luna(
             let prompt = qa::query_plan_prompt(input);
             let schema = qa::query_plan_schema();
             let reserved = qa::estimate_tokens(&prompt).saturating_add(1_536);
-            planner_budget.reserve("planner", reserved)?;
-            let result = query_planning_provider
-                .ok_or_else(|| "PLANNING_PROVIDER_UNAVAILABLE: query_plan".to_string())?
-                .complete_structured(&prompt, &schema, &planner_cancel);
-            let raw = match result {
-                Ok(value) => value,
-                Err(error) => {
-                    planner_budget.settle("planner", qa::estimate_tokens(&prompt), reserved);
-                    return Err(error);
-                }
+            let reservation = planner_budget.reserve("planner", reserved)?;
+            let Some(provider) = query_planning_provider else {
+                reservation.release()?;
+                return Err("PLANNING_PROVIDER_UNAVAILABLE: query_plan".to_string());
             };
-            planner_budget.settle(
-                "planner",
-                qa::estimate_tokens(&prompt).saturating_add(qa::estimate_tokens(&raw)),
-                reserved,
-            );
+            let result = provider.complete_structured(&prompt, &schema, &planner_cancel);
+            let actual = result
+                .as_ref()
+                .map(|raw| qa::estimate_tokens(&prompt).saturating_add(qa::estimate_tokens(raw)))
+                .unwrap_or_else(|_| qa::estimate_tokens(&prompt));
+            reservation.settle(actual)?;
+            let raw = result?;
             qa::parse_query_plan(&raw, &input.resolved_question)
         };
         let planner = (planning_provider.is_some() && planning_capabilities.query_planning)
@@ -3635,43 +3623,46 @@ async fn ask_luna(
             let prompt = qa::build_codex_prompt(&context);
             let output_schema = qa::codex_output_schema(&context);
             let reserved = qa::estimate_tokens(&prompt).saturating_add(settings.max_output_tokens);
-            if let Err(error) = budget_guard.reserve("generator", reserved) {
-                Err(error)
-            } else {
-                let model = effective_codex_model.clone();
-                let reasoning_effort = effective_codex_effort.clone();
-                let timeout = Duration::from_secs(settings.timeout_seconds.max(180));
-                let stream_channel = on_event.clone();
-                let stream_request_id = request_id.clone();
-                let stream_cancel_flag = cancel_flag.clone();
-                let generation_budget = budget_guard.clone();
-                let prompt_cost = qa::estimate_tokens(&prompt);
-                tauri::async_runtime::spawn_blocking(move || {
-                    let result = codex_subscription::stream_answer(
-                        &prompt,
-                        output_schema.as_ref(),
-                        &model,
-                        &reasoning_effort,
-                        timeout,
-                        &stream_cancel_flag,
-                        |content| {
-                            stream_channel
-                                .send(qa::AnswerStreamEvent::Token {
-                                    request_id: stream_request_id.clone(),
-                                    content: content.to_string(),
-                                })
-                                .map_err(|error| format!("CODEX_CHANNEL_ERROR: {error}"))
-                        },
-                    );
-                    let actual = result
-                        .as_ref()
-                        .map(|(answer, _)| prompt_cost.saturating_add(qa::estimate_tokens(answer)))
-                        .unwrap_or(prompt_cost);
-                    generation_budget.settle("generator", actual, reserved);
-                    result.map(|(answer, model)| (answer, qa::PROVIDER_CODEX.to_string(), model))
-                })
-                .await
-                .map_err(|error| format!("CODEX_TASK_ERROR: {error}"))?
+            match budget_guard.reserve("generator", reserved) {
+                Err(error) => Err(error),
+                Ok(reservation) => {
+                    let model = effective_codex_model.clone();
+                    let reasoning_effort = effective_codex_effort.clone();
+                    let timeout = Duration::from_secs(settings.timeout_seconds.max(180));
+                    let stream_channel = on_event.clone();
+                    let stream_request_id = request_id.clone();
+                    let stream_cancel_flag = cancel_flag.clone();
+                    let prompt_cost = qa::estimate_tokens(&prompt);
+                    tauri::async_runtime::spawn_blocking(move || {
+                        let result = codex_subscription::stream_answer(
+                            &prompt,
+                            output_schema.as_ref(),
+                            &model,
+                            &reasoning_effort,
+                            timeout,
+                            &stream_cancel_flag,
+                            |content| {
+                                stream_channel
+                                    .send(qa::AnswerStreamEvent::Token {
+                                        request_id: stream_request_id.clone(),
+                                        content: content.to_string(),
+                                    })
+                                    .map_err(|error| format!("CODEX_CHANNEL_ERROR: {error}"))
+                            },
+                        );
+                        let actual = result
+                            .as_ref()
+                            .map(|(answer, _)| {
+                                prompt_cost.saturating_add(qa::estimate_tokens(answer))
+                            })
+                            .unwrap_or(prompt_cost);
+                        reservation.settle(actual)?;
+                        result
+                            .map(|(answer, model)| (answer, qa::PROVIDER_CODEX.to_string(), model))
+                    })
+                    .await
+                    .map_err(|error| format!("CODEX_TASK_ERROR: {error}"))?
+                }
             }
         }
         qa::PROVIDER_CODEX => Err("CODEX_NOT_READY: 请在设置中登录 ChatGPT".to_string()),
@@ -3681,40 +3672,42 @@ async fn ask_luna(
         qa::PROVIDER_API => {
             let prompt_cost = qa::estimate_tokens(&qa::build_codex_prompt(&context));
             let reserved = prompt_cost.saturating_add(settings.max_output_tokens);
-            if let Err(error) = budget_guard.reserve("generator", reserved) {
-                Err(error)
-            } else {
-                let remote_settings = settings.clone();
-                let remote_context = context.clone();
-                let stream_channel = on_event.clone();
-                let stream_request_id = request_id.clone();
-                let stream_cancel_flag = cancel_flag.clone();
-                let generation_budget = budget_guard.clone();
-                tauri::async_runtime::spawn_blocking(move || {
-                    let result = qa::stream_luna(
-                        &remote_settings,
-                        &remote_context,
-                        &stream_cancel_flag,
-                        |content| {
-                            stream_channel
-                                .send(qa::AnswerStreamEvent::Token {
-                                    request_id: stream_request_id.clone(),
-                                    content: content.to_string(),
-                                })
-                                .map_err(|error| format!("LUNA_CHANNEL_ERROR: {error}"))
-                        },
-                    );
-                    let actual = result
-                        .as_ref()
-                        .map(|(answer, _)| prompt_cost.saturating_add(qa::estimate_tokens(answer)))
-                        .unwrap_or(prompt_cost);
-                    generation_budget.settle("generator", actual, reserved);
-                    result.map(|(answer, resolved_model)| {
-                        (answer, qa::PROVIDER_API.to_string(), resolved_model)
+            match budget_guard.reserve("generator", reserved) {
+                Err(error) => Err(error),
+                Ok(reservation) => {
+                    let remote_settings = settings.clone();
+                    let remote_context = context.clone();
+                    let stream_channel = on_event.clone();
+                    let stream_request_id = request_id.clone();
+                    let stream_cancel_flag = cancel_flag.clone();
+                    tauri::async_runtime::spawn_blocking(move || {
+                        let result = qa::stream_luna(
+                            &remote_settings,
+                            &remote_context,
+                            &stream_cancel_flag,
+                            |content| {
+                                stream_channel
+                                    .send(qa::AnswerStreamEvent::Token {
+                                        request_id: stream_request_id.clone(),
+                                        content: content.to_string(),
+                                    })
+                                    .map_err(|error| format!("LUNA_CHANNEL_ERROR: {error}"))
+                            },
+                        );
+                        let actual = result
+                            .as_ref()
+                            .map(|(answer, _)| {
+                                prompt_cost.saturating_add(qa::estimate_tokens(answer))
+                            })
+                            .unwrap_or(prompt_cost);
+                        reservation.settle(actual)?;
+                        result.map(|(answer, resolved_model)| {
+                            (answer, qa::PROVIDER_API.to_string(), resolved_model)
+                        })
                     })
-                })
-                .await
-                .map_err(|error| format!("LUNA_TASK_ERROR: {error}"))?
+                    .await
+                    .map_err(|error| format!("LUNA_TASK_ERROR: {error}"))?
+                }
             }
         }
         qa::PROVIDER_OFFLINE => Ok((
@@ -3744,6 +3737,7 @@ async fn ask_luna(
             (answer, provider, model, offline)
         }
         Err(error) => {
+            qa::record_llm_budget_usage(&mut context, budget_guard.usage());
             let (code, message) = answer_error_parts(&error);
             let model_requested = match settings.answer_provider.as_str() {
                 qa::PROVIDER_CODEX => effective_codex_model.clone(),

@@ -11,6 +11,7 @@
 - 当前 settlement 由 `stage + reserved` 参数手工匹配，没有 reservation ID/handle；部分 `?`、task error 或 panic 路径存在 in-flight 泄漏风险，重复 settle 也缺少结构性防护。
 - `reconfigure` 当前只替换 policy，已有 usage 不会清空；该行为必须保留。
 - 当前固定 policy 为 Direct 8,000、Research 18,000、Exploratory 32,000，本轮不修改。
+- 用户已审阅规划并明确批准开始实施。
 
 ## Requirements
 
@@ -32,19 +33,19 @@
 
 ## Acceptance Criteria
 
-- [ ] 已完成阶段的未使用预留可被后续 generator 使用，8k/4k→1k/6k synthetic regression PASS。
-- [ ] `used + inFlight + new > ceiling` 仍稳定返回 `LLM_BUDGET_EXCEEDED:*:token_budget`。
-- [ ] 两笔并发 reservation 均进入 in-flight，不能超卖。
-- [ ] settle/release 后 callsUsed 不下降。
-- [ ] Direct→Research reconfigure 保留 used/in-flight/calls/history，采用新 ceiling。
-- [ ] Provider error、调用前 error、task panic/drop 均不泄漏 in-flight。
-- [ ] handle 不可克隆且 settle 消耗所有权；settle 后 Drop 不会重复释放。
-- [ ] manifest v21 和前端类型/显示公开 ceiling、used、in-flight、reserved total、calls、rejections。
-- [ ] 复杂 development synthetic flow 能完成 understanding→planner→generator→verifier，不再因历史预留触发 generator token budget。
-- [ ] 真正超预算 synthetic flow 仍 FAIL。
-- [ ] Direct/Research/Exploratory ceiling 保持 8,000/18,000/32,000。
-- [ ] 聚焦 Rust/Frontend tests、fmt、clippy、type-check/build 通过。
-- [ ] 未使用 held-out，未改变 Retrieval/Prompt/State/Answer/Semantic Verifier 行为。
+- [x] 已完成阶段的未使用预留可被后续 generator 使用，8k/4k→1k/6k synthetic regression PASS。
+- [x] `used + inFlight + new > ceiling` 仍稳定返回 `LLM_BUDGET_EXCEEDED:*:token_budget`。
+- [x] 两笔并发 reservation 均进入 in-flight，不能超卖。
+- [x] settle/release 后 callsUsed 不下降。
+- [x] Direct→Research reconfigure 保留 used/in-flight/calls/history，采用新 ceiling。
+- [x] Provider error、调用前 error、task panic/drop 均不泄漏 in-flight。
+- [x] handle 不可克隆且 settle 消耗所有权；settle 后 Drop 不会重复释放。
+- [x] manifest v21 和前端类型/显示公开 ceiling、used、in-flight、reserved total、calls、rejections。
+- [x] 复杂 development synthetic flow 能完成 understanding→planner→generator→verifier，不再因历史预留触发 generator token budget。
+- [x] 真正超预算 synthetic flow 仍 FAIL。
+- [x] Direct/Research/Exploratory ceiling 保持 8,000/18,000/32,000。
+- [x] 聚焦 Rust/Frontend tests、fmt、clippy、type-check/build 通过。
+- [x] 未使用 held-out，未改变 Retrieval/Prompt/State/Answer/Semantic Verifier 行为。
 
 ## Out of Scope
 

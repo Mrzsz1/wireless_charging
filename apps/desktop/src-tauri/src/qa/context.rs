@@ -14,7 +14,7 @@ pub const ANSWER_SCHEMA_VERSION: &str = "qa-natural-markdown-v2";
 pub const LEGACY_ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v4";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v20";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v21";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -323,7 +323,11 @@ pub struct QaRunManifest {
     #[serde(default)]
     pub routing_token_cost_used: u32,
     #[serde(default)]
+    pub routing_token_cost_in_flight: u32,
+    #[serde(default)]
     pub routing_token_cost_reserved: u32,
+    #[serde(default)]
+    pub routing_token_cost_reserved_total: u32,
     #[serde(default)]
     pub routing_budget_rejections: Vec<String>,
     #[serde(default)]
@@ -1441,7 +1445,11 @@ pub fn build_run_manifest(
         routing_token_cost_ceiling: context.retrieval_query.routing_token_cost_ceiling,
         routing_llm_calls_used: context.retrieval_query.routing_llm_calls_used,
         routing_token_cost_used: context.retrieval_query.routing_token_cost_used,
+        routing_token_cost_in_flight: context.retrieval_query.routing_token_cost_in_flight,
         routing_token_cost_reserved: context.retrieval_query.routing_token_cost_reserved,
+        routing_token_cost_reserved_total: context
+            .retrieval_query
+            .routing_token_cost_reserved_total,
         routing_budget_rejections: context.retrieval_query.routing_budget_rejections.clone(),
         routing_llm_stages: context.retrieval_query.routing_llm_stages.clone(),
         retrieval_stop_reason: context.retrieval_diagnostics.stop_reason.clone(),

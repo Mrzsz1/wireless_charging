@@ -364,7 +364,11 @@ pub struct RetrievalQuery {
     #[serde(default)]
     pub routing_token_cost_used: u32,
     #[serde(default)]
+    pub routing_token_cost_in_flight: u32,
+    #[serde(default)]
     pub routing_token_cost_reserved: u32,
+    #[serde(default)]
+    pub routing_token_cost_reserved_total: u32,
     #[serde(default)]
     pub routing_budget_rejections: Vec<String>,
     #[serde(default)]
@@ -1249,7 +1253,9 @@ fn build_retrieval_query_with_understanding<'a>(
         routing_token_cost_ceiling: routing_policy.token_cost_ceiling,
         routing_llm_calls_used: 0,
         routing_token_cost_used: 0,
+        routing_token_cost_in_flight: 0,
         routing_token_cost_reserved: 0,
+        routing_token_cost_reserved_total: 0,
         routing_budget_rejections: Vec::new(),
         routing_llm_stages: Vec::new(),
         requested_kinds: Vec::new(),
@@ -4039,7 +4045,9 @@ pub fn audit_generated_answer_with_semantic(
 pub fn record_llm_budget_usage(context: &mut QuestionContext, usage: LlmBudgetUsage) {
     context.retrieval_query.routing_llm_calls_used = usage.calls_used;
     context.retrieval_query.routing_token_cost_used = usage.token_cost_used;
+    context.retrieval_query.routing_token_cost_in_flight = usage.token_cost_in_flight;
     context.retrieval_query.routing_token_cost_reserved = usage.token_cost_reserved;
+    context.retrieval_query.routing_token_cost_reserved_total = usage.token_cost_reserved_total;
     context.retrieval_query.routing_budget_rejections = usage.rejections;
     context.retrieval_query.routing_llm_stages = usage.stages;
 }
@@ -5486,6 +5494,18 @@ mod tests {
         context.conversation = conversation;
         context.evidence = evidence;
         context.context_plan = context_plan;
+        let budget_guard = LlmBudgetGuard::new(routing_policy("research"));
+        budget_guard
+            .reserve("understanding", 4_000)
+            .unwrap()
+            .settle(2_200)
+            .unwrap();
+        budget_guard
+            .reserve("generator", 8_000)
+            .unwrap()
+            .release()
+            .unwrap();
+        record_llm_budget_usage(&mut context, budget_guard.usage());
         assert!(codex_output_schema(&context).is_none());
         let metadata = ProviderRunMetadata {
             provider: PROVIDER_API.to_string(),
@@ -5508,7 +5528,7 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v20");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v21");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.resolver_status, "succeeded");
@@ -5518,6 +5538,14 @@ mod tests {
         );
         assert_eq!(result.run_manifest.research_intent, "direct_factual");
         assert_eq!(result.run_manifest.execution_mode, "direct");
+        assert_eq!(result.run_manifest.routing_llm_calls_used, 2);
+        assert_eq!(result.run_manifest.routing_token_cost_used, 2_200);
+        assert_eq!(result.run_manifest.routing_token_cost_in_flight, 0);
+        assert_eq!(result.run_manifest.routing_token_cost_reserved, 12_000);
+        assert_eq!(
+            result.run_manifest.routing_token_cost_reserved_total,
+            12_000
+        );
         assert_eq!(result.run_manifest.model_requested, "fixture-requested");
         assert_eq!(result.run_manifest.model_resolved, "fixture-resolved");
         assert_eq!(
@@ -5655,7 +5683,7 @@ mod tests {
         );
         assert_eq!(audit.run_manifest.verification_model, "fixture-nli");
         assert_eq!(audit.run_manifest.semantic_verification_latency_ms, 17);
-        assert_eq!(audit.run_manifest.schema_version, "qa-run-v20");
+        assert_eq!(audit.run_manifest.schema_version, "qa-run-v21");
     }
 
     #[test]
