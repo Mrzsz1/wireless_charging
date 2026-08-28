@@ -1702,3 +1702,37 @@ Unified the canonical held-out ResearchIntent contract, added shared Python free
 ### Next Steps
 
 - None - task complete
+
+
+## Session 51: Evaluation Semantics Hardening v4
+
+**Date**: 2026-08-28
+**Task**: Evaluation Semantics Hardening v4
+**Branch**: `master`
+
+### Summary
+
+统一 Canonical Research Work 的 Recall/MRR/nDCG 语义；zero-evidence 排除排序分母并输出 null/N/A；新增 exact-source diagnostics、zero-evidence confusion、report v4 dataset identity；迁移 release gate 字段且保持阈值；13-case RAG 回归 PASS。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `602e94f` | (see git log) |
+| `53ee2ba` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
