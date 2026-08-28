@@ -1770,3 +1770,37 @@ Unified the canonical held-out ResearchIntent contract, added shared Python free
 ### Next Steps
 
 - None - task complete
+
+
+## Session 53: Generator Budget Ledger Reliability
+
+**Date**: 2026-08-28
+**Task**: Generator Budget Ledger Reliability
+**Branch**: `master`
+
+### Summary
+
+修复 LlmBudgetGuard 将历史累计预留用于准入导致 generator 误拒绝的问题；引入唯一 RAII reservation handle、used+in-flight 公式、manifest v21 telemetry 和前端诊断；保持 8k/18k/32k 与所有 QA 内容行为不变。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `79cc680` | (see git log) |
+| `67950c0` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

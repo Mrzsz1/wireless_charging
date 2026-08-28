@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 52
+- **Total Sessions**: 53
 - **Last Active**: 2026-08-28
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1772 | Active |
+| `journal-1.md` | ~1806 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 53 | 2026-08-28 | Generator Budget Ledger Reliability | `79cc680`, `67950c0` | `master` |
 | 52 | 2026-08-28 | Eval Semantics Hardening Audit | `fea657a`, `f08e67b` | `master` |
 | 51 | 2026-08-28 | Evaluation Semantics Hardening v4 | `602e94f`, `53ee2ba` | `master` |
 | 50 | 2026-08-27 | Held-out 覆盖指标与冻结来源加固 | `a3d471c`, `2bc4030`, `4f062c5` | `master` |
