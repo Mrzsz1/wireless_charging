@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 51
+- **Total Sessions**: 52
 - **Last Active**: 2026-08-28
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1738 | Active |
+| `journal-1.md` | ~1772 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 52 | 2026-08-28 | Eval Semantics Hardening Audit | `fea657a`, `f08e67b` | `master` |
 | 51 | 2026-08-28 | Evaluation Semantics Hardening v4 | `602e94f`, `53ee2ba` | `master` |
 | 50 | 2026-08-27 | Held-out 覆盖指标与冻结来源加固 | `a3d471c`, `2bc4030`, `4f062c5` | `master` |
 | 49 | 2026-08-27 | Independent Held-out Phase 1 Runner | `5fb5664`, `76bd81d`, `36a5d40`, `f6a1986` | `master` |

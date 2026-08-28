@@ -1736,3 +1736,37 @@ Unified the canonical held-out ResearchIntent contract, added shared Python free
 ### Next Steps
 
 - None - task complete
+
+
+## Session 52: Eval Semantics Hardening Audit
+
+**Date**: 2026-08-28
+**Task**: Eval Semantics Hardening Audit
+**Branch**: `master`
+
+### Summary
+
+逐条复核评测语义方案，确认既有实现满足全部功能契约；补齐 production optional-average 分母与真实 report JSON null 序列化的直接回归测试；未修改 production QA/Retrieval，未使用 held-out。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `fea657a` | (see git log) |
+| `f08e67b` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
