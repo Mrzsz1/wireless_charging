@@ -5261,6 +5261,28 @@ mod tests {
             report.aggregate.work_ndcg_at_10
         );
         let payload = serde_json::to_string(&report).expect("report JSON");
+        let serialized = serde_json::from_str::<serde_json::Value>(&payload).expect("report value");
+        let serialized_zero_evidence = serialized["cases"]
+            .as_array()
+            .and_then(|cases| cases.iter().find(|case| case["id"] == "true-zero-evidence"))
+            .expect("serialized zero-evidence case");
+        for field in [
+            "workRecallAt5",
+            "workRecallAt10",
+            "workRecallAt20",
+            "workMrr",
+            "workNdcgAt10",
+            "exactSourceRecallAt5",
+            "exactSourceRecallAt10",
+            "exactSourceRecallAt20",
+            "exactSourceMrr",
+            "exactSourceNdcgAt10",
+        ] {
+            assert!(
+                serialized_zero_evidence[field].is_null(),
+                "zero-evidence {field} must serialize as null"
+            );
+        }
         let root_string = root.to_string_lossy().to_string();
         for prohibited in [
             root_string.as_str(),

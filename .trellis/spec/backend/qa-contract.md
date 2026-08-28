@@ -420,6 +420,7 @@ Claim splitting and same-claim citation attachment are part of the `natural-mark
 ### 12.4 Required verification
 
 - Unit tests cover strict fixture parsing, unresolved-source fail-closed behavior, duplicate identity, reranker degradation, real-repository evaluation, migration preservation, and report redaction.
+- Zero-evidence ranking regressions must exercise the production `EvaluationAggregate` path rather than only a parallel test metric helper: averaging `Some(0.0)` with an ineligible `None` must remain `Some(0.0)`, all-ineligible input must remain `None`, and the real `qa-rag-evaluation-report-v4` serialization must emit JSON `null` for every ineligible work/exact Recall, MRR, and nDCG field.
 - Release verification includes Rust formatting/tests/clippy, Python tests and Wiki evaluation, QA frontend tests, frontend production build, P3 verification, `npm run eval:rag`, `cargo build --release`, `npm run tauri build`, strict GUI smoke, and strict installer install/launch/uninstall smoke.
 - GUI research-trail smoke waits for both library FTS completion and the cold-start retrieval result/error. Its cold-start budget must cover first semantic initialization; an explicit backend error still fails immediately.
 

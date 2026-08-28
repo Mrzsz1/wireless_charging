@@ -30,3 +30,12 @@
 
 - 审计记录与代码补丁分开提交，便于撤销无必要的实现改动。
 - 任一补丁触及 production Retrieval 行为时停止并回到规划边界复核。
+
+## Completion Record
+
+- Evidence matrix: complete in `audit.md`.
+- Confirmed gap: production optional-average denominator and real-report null serialization lacked direct regression assertions.
+- Fix: behavior-preserving `average_present` helper plus production-path unit/integration assertions.
+- Tests: evaluation 10 passed; metrics 4 passed; real 13-case suite integration 1 passed; Python 8 passed.
+- Quality: fmt and clippy passed.
+- Production/held-out: no production Retrieval/QA behavior changed; no held-out data used.

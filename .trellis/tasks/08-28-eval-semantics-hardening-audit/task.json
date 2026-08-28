@@ -3,7 +3,7 @@
   "name": "eval-semantics-hardening-audit",
   "title": "复核并补齐 Eval Semantics Hardening",
   "description": "",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": null,
   "scope": null,
   "package": null,

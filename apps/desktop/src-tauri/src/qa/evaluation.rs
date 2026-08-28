@@ -871,8 +871,17 @@ fn average_optional(
     cases: &[EvaluationCaseResult],
     value: impl Fn(&EvaluationCaseResult) -> Option<f64>,
 ) -> Option<f64> {
-    let values = cases.iter().filter_map(value).collect::<Vec<_>>();
-    (!values.is_empty()).then(|| values.iter().sum::<f64>() / values.len() as f64)
+    average_present(cases.iter().map(value))
+}
+
+fn average_present(values: impl IntoIterator<Item = Option<f64>>) -> Option<f64> {
+    let (sum, count) = values
+        .into_iter()
+        .flatten()
+        .fold((0.0, 0usize), |(sum, count), value| {
+            (sum + value, count + 1)
+        });
+    (count > 0).then(|| sum / count as f64)
 }
 
 fn ratio(numerator: usize, denominator: usize) -> Option<f64> {
@@ -1453,5 +1462,11 @@ mod tests {
     fn zero_evidence_ratios_are_null_when_their_denominator_is_empty() {
         assert_eq!(ratio(0, 0), None);
         assert_eq!(ratio(2, 4), Some(0.5));
+    }
+
+    #[test]
+    fn zero_evidence_does_not_raise_production_optional_average() {
+        assert_eq!(average_present([Some(0.0), None]), Some(0.0));
+        assert_eq!(average_present([None, None]), None);
     }
 }

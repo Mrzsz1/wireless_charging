@@ -10,6 +10,7 @@
 - 同一方案已在历史任务 `archive/2026-08/08-28-eval-semantics-hardening` 中实施，主要实现提交为 `53ee2ba`，并已随 `master` 推送到 GitHub。
 - 当前代码已经存在 `qa-rag-evaluation-report-v4`、`RankingRelevanceView`、`relevance_work_id`、work/exact-source 指标、zero-evidence eligibility/confusion metrics、dataset fingerprint 和 work-level release gate 字段。
 - 当前基线显示 13/13 PASS、ranking eligible 12、zero-evidence 1；Work Recall@10/20 为 1.000/1.000、Work MRR 为 0.958333、Work nDCG@10 为 0.969244。
+- 用户已批准开始实施；本任务采用“复核现状并仅补齐确认存在的缺口”，不为制造代码差异而重复改写已满足契约的实现。
 
 ## Requirements
 
@@ -25,13 +26,13 @@
 
 ## Acceptance Criteria
 
-- [ ] 附件全部验收项都有明确的 code/test/report 证据或缺口记录。
-- [ ] zero-evidence denominator exclusion、null serialization、classification confusion metrics 均有回归覆盖。
-- [ ] Wiki/Paper work identity、returned duplicate、expected duplicate 和 shared relevance view 均有回归覆盖。
-- [ ] report v4 identity、Markdown consistency 和 threshold invariance 均有回归覆盖。
-- [ ] 如发现缺口，补丁仅落在 evaluation、metric helper、report、tests、docs 或 release metric mapping 范围。
-- [ ] 聚焦 Rust/Python 测试、fmt、clippy 通过；仅在必要时重跑现有 13-case RAG suite。
-- [ ] 最终报告明确是否修改 production QA behavior、是否使用 held-out、真实修正指标和本地 commit SHA。
+- [x] 附件全部验收项都有明确的 code/test/report 证据或缺口记录。
+- [x] zero-evidence denominator exclusion、null serialization、classification confusion metrics 均有回归覆盖。
+- [x] Wiki/Paper work identity、returned duplicate、expected duplicate 和 shared relevance view 均有回归覆盖。
+- [x] report v4 identity、Markdown consistency 和 threshold invariance 均有回归覆盖。
+- [x] 如发现缺口，补丁仅落在 evaluation、metric helper、report、tests、docs 或 release metric mapping 范围。
+- [x] 聚焦 Rust/Python 测试、fmt、clippy 通过；仅在必要时重跑现有 13-case RAG suite。
+- [x] 最终报告明确是否修改 production QA behavior、是否使用 held-out、真实修正指标和本地 commit SHA。
 
 ## Out of Scope
 
@@ -39,10 +40,6 @@
 - 性能 benchmark 与 Retrieval/Reranker/Generator 性能优化。
 - Independent Held-out 的继续运行、重选题或评分。
 - 为重复完成同一需求而无差别重写现有实现。
-
-## Open Question
-
-- 本任务应采用“复核现状并仅补齐缺口”，还是要求在没有缺口时也重新修改代码？推荐前者，避免制造无意义差异和新的回归风险。
 
 ## Source
 
