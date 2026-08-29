@@ -302,7 +302,15 @@ where
         on_token,
     );
     record_llm_budget_usage(context, budget_guard.usage());
-    result
+    result.map(|mut generated| {
+        generated.audit = audit_generated_answer_with_semantic(
+            context,
+            &generated.answer,
+            &generated.metadata,
+            Some(&generated.semantic_verification),
+        );
+        generated
+    })
 }
 
 #[cfg(test)]
