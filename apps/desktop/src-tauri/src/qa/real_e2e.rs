@@ -11,7 +11,7 @@ use std::sync::atomic::AtomicBool;
 use uuid::Uuid;
 
 const CASE_SCHEMA_VERSION: &str = "qa-real-generator-e2e-cases-v1";
-const REPORT_SCHEMA_VERSION: &str = "qa-real-generator-e2e-report-v1";
+const REPORT_SCHEMA_VERSION: &str = "qa-real-generator-e2e-report-v2";
 const CORE_VERSION: &str = "qa-production-core-v1";
 const EXPECTED_CATEGORIES: [&str; 5] = [
     "direct",
@@ -73,32 +73,65 @@ pub struct RealE2eCaseResult {
     pub category: String,
     pub passed: bool,
     pub turn_count: usize,
-    pub execution_mode: String,
+    pub persisted_turn_count: usize,
+    pub persisted: bool,
+    pub pre_persist: Option<GroundingObservation>,
+    #[serde(rename = "final")]
+    pub final_result: Option<GroundingObservation>,
+    pub state_valid: bool,
+    pub errors: Vec<String>,
+}
+
+#[derive(Debug, Clone, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ClaimDiagnostic {
+    pub claim_id: String,
+    pub claim_type: String,
+    pub verification_status: String,
+    pub evidence_id_count: usize,
+    pub reason_code: String,
+    pub alignment_score: f64,
+    pub claim_text_sha256: String,
+}
+
+#[derive(Debug, Clone, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GroundingObservation {
+    pub answer_non_empty: bool,
     pub provider: String,
     pub model: String,
-    pub evidence_count: usize,
-    pub citation_valid: bool,
-    pub grounding_status: String,
-    pub verification_status: String,
-    pub answer_complete: bool,
-    pub contradicted_claim_count: usize,
-    pub not_verifiable_claim_count: usize,
-    pub unverified_claim_count: usize,
-    pub semantic_status: String,
-    pub semantic_fallback_reason: String,
+    pub answer_format: String,
+    pub manifest_schema: String,
+    pub execution_mode: String,
     pub generator_stage_observed: bool,
     pub generator_budget_rejected: bool,
     pub routing_budget_rejection_count: usize,
     pub routing_llm_calls_used: usize,
     pub routing_token_cost_used: u32,
     pub routing_token_cost_ceiling: u32,
+    pub evidence_count: usize,
+    pub evidence_selected_count: usize,
+    pub citation_valid: bool,
+    pub unknown_citation_count: usize,
+    pub grounding_status: String,
+    pub verification_status: String,
+    pub answer_complete: bool,
+    pub claim_count: usize,
+    pub supported_claim_count: usize,
+    pub partially_supported_claim_count: usize,
+    pub contradicted_claim_count: usize,
+    pub not_verifiable_claim_count: usize,
+    pub research_suggestion_count: usize,
+    pub repaired_claim_count: usize,
+    pub uncited_knowledge_fact_count: usize,
+    pub unverified_claim_count: usize,
+    pub semantic_status: String,
+    pub semantic_fallback_reason: String,
     pub planner_status: String,
     pub retrieval_round_count: usize,
-    pub evidence_selected_count: usize,
     pub reranker_provider: String,
     pub reranker_fallback: bool,
-    pub state_valid: bool,
-    pub errors: Vec<String>,
+    pub claims: Vec<ClaimDiagnostic>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -116,7 +149,8 @@ pub struct RealE2eReport {
     pub real_provider_measured: bool,
     pub generator_fallback_count: usize,
     pub generator_budget_rejection_count: usize,
-    pub invalid_citation_count: usize,
+    pub pre_persist_invalid_citation_count: usize,
+    pub final_invalid_citation_count: usize,
     pub semantic_succeeded_count: usize,
     pub semantic_unavailable_count: usize,
     pub passed: bool,
@@ -152,38 +186,6 @@ impl Drop for TemporaryWorkspace {
         }
         let _ = fs::remove_dir(&self.root);
     }
-}
-
-#[derive(Debug, Default)]
-struct TurnObservation {
-    answer_non_empty: bool,
-    provider: String,
-    model: String,
-    answer_format: String,
-    manifest_schema: String,
-    execution_mode: String,
-    generator_stage_observed: bool,
-    generator_budget_rejected: bool,
-    routing_budget_rejection_count: usize,
-    routing_llm_calls_used: usize,
-    routing_token_cost_used: u32,
-    routing_token_cost_ceiling: u32,
-    evidence_count: usize,
-    evidence_selected_count: usize,
-    citation_valid: bool,
-    unknown_citation_count: usize,
-    grounding_status: String,
-    verification_status: String,
-    answer_complete: bool,
-    contradicted_claim_count: usize,
-    not_verifiable_claim_count: usize,
-    unverified_claim_count: usize,
-    semantic_status: String,
-    semantic_fallback_reason: String,
-    planner_status: String,
-    retrieval_round_count: usize,
-    reranker_provider: String,
-    reranker_fallback: bool,
 }
 
 fn cases_sha256(cases: &[RealE2eCase]) -> Result<String, String> {
@@ -261,146 +263,160 @@ fn configure_local_models() -> Result<(), String> {
     configure_semantic_cache_dir(None).map(|_| ())
 }
 
-fn observation(result: &AskResult) -> TurnObservation {
+fn enum_label<T: Serialize>(value: &T) -> String {
+    serde_json::to_value(value)
+        .ok()
+        .and_then(|value| value.as_str().map(str::to_string))
+        .unwrap_or_else(|| "unknown".to_string())
+}
+
+fn stable_code(value: &str) -> String {
+    let normalized = value
+        .chars()
+        .filter(|character| character.is_ascii_alphanumeric() || *character == '_')
+        .take(96)
+        .collect::<String>()
+        .to_ascii_lowercase();
+    if normalized.is_empty() {
+        "unknown".to_string()
+    } else {
+        normalized
+    }
+}
+
+fn claim_diagnostics(claims: &[VerifiedClaim]) -> Vec<ClaimDiagnostic> {
+    claims
+        .iter()
+        .map(|claim| {
+            let verification_status = enum_label(&claim.verification_status);
+            ClaimDiagnostic {
+                claim_id: claim.id.clone(),
+                claim_type: enum_label(&claim.claim_type),
+                verification_status: verification_status.clone(),
+                evidence_id_count: claim.evidence_ids.len(),
+                reason_code: stable_code(&format!(
+                    "{}_{}",
+                    claim.verification_method, verification_status
+                )),
+                alignment_score: claim.alignment_score,
+                claim_text_sha256: format!("{:x}", Sha256::digest(claim.text.as_bytes())),
+            }
+        })
+        .collect()
+}
+
+fn citation_contract_valid(validation: &CitationValidation, evidence_ids: &HashSet<&str>) -> bool {
+    let ids_known = validation
+        .appendix_evidence_ids
+        .iter()
+        .all(|id| evidence_ids.contains(id.as_str()));
+    if validation.zero_evidence {
+        validation.unknown_ids.is_empty()
+            && !validation.has_citations
+            && validation.appendix_evidence_ids.is_empty()
+    } else {
+        validation.supported
+            && validation.unknown_ids.is_empty()
+            && validation.appendix_integrity
+            && ids_known
+    }
+}
+
+fn observation_from_parts(
+    answer_non_empty: bool,
+    manifest: &QaRunManifest,
+    validation: &CitationValidation,
+    evidence_ids: &HashSet<&str>,
+    evidence_count: usize,
+) -> GroundingObservation {
+    let claims = claim_diagnostics(&manifest.claim_verifications);
+    let research_suggestion_count = claims
+        .iter()
+        .filter(|claim| claim.claim_type == "research_suggestion")
+        .count();
+    let uncited_knowledge_fact_count = manifest
+        .claim_verifications
+        .iter()
+        .filter(|claim| {
+            enum_label(&claim.claim_type) == "knowledge_fact" && claim.evidence_ids.is_empty()
+        })
+        .count();
+    GroundingObservation {
+        answer_non_empty,
+        provider: manifest.provider.clone(),
+        model: manifest.model_resolved.clone(),
+        answer_format: manifest.answer_format.clone(),
+        manifest_schema: manifest.schema_version.clone(),
+        execution_mode: manifest.execution_mode.clone(),
+        generator_stage_observed: manifest
+            .routing_llm_stages
+            .iter()
+            .any(|stage| stage == "generator"),
+        generator_budget_rejected: manifest
+            .routing_budget_rejections
+            .iter()
+            .any(|rejection| rejection.starts_with("generator:")),
+        routing_budget_rejection_count: manifest.routing_budget_rejections.len(),
+        routing_llm_calls_used: manifest.routing_llm_calls_used,
+        routing_token_cost_used: manifest.routing_token_cost_used,
+        routing_token_cost_ceiling: manifest.routing_token_cost_ceiling,
+        evidence_count,
+        evidence_selected_count: manifest.evidence_selected_count,
+        citation_valid: citation_contract_valid(validation, evidence_ids),
+        unknown_citation_count: validation.unknown_ids.len(),
+        grounding_status: validation.grounding_status.clone(),
+        verification_status: manifest.verification_status.clone(),
+        answer_complete: manifest.answer_completeness.complete,
+        claim_count: claims.len(),
+        supported_claim_count: manifest.verified_claim_count,
+        partially_supported_claim_count: manifest.partially_supported_claim_count,
+        contradicted_claim_count: manifest.contradicted_claim_count,
+        not_verifiable_claim_count: manifest.not_verifiable_claim_count,
+        research_suggestion_count,
+        repaired_claim_count: manifest.repaired_claim_count,
+        uncited_knowledge_fact_count,
+        unverified_claim_count: manifest.unverified_claim_count,
+        semantic_status: manifest.semantic_verification_status.clone(),
+        semantic_fallback_reason: manifest.semantic_verification_fallback_reason.clone(),
+        planner_status: manifest.planner_status.clone(),
+        retrieval_round_count: manifest.retrieval_round_count,
+        reranker_provider: manifest.reranker_provider.clone(),
+        reranker_fallback: manifest.reranker_fallback,
+        claims,
+    }
+}
+
+fn observation(result: &AskResult) -> GroundingObservation {
     let evidence_ids = result
         .evidence
         .iter()
         .map(|item| item.id.as_str())
         .collect::<HashSet<_>>();
-    let appendix_ids_known = result
-        .citation_validation
-        .appendix_evidence_ids
-        .iter()
-        .all(|id| evidence_ids.contains(id.as_str()));
-    TurnObservation {
-        answer_non_empty: !result.assistant_message.content.trim().is_empty(),
-        provider: result.run_manifest.provider.clone(),
-        model: result.run_manifest.model_resolved.clone(),
-        answer_format: result.run_manifest.answer_format.clone(),
-        manifest_schema: result.run_manifest.schema_version.clone(),
-        execution_mode: result.run_manifest.execution_mode.clone(),
-        generator_stage_observed: result
-            .run_manifest
-            .routing_llm_stages
-            .iter()
-            .any(|stage| stage == "generator"),
-        generator_budget_rejected: result
-            .run_manifest
-            .routing_budget_rejections
-            .iter()
-            .any(|rejection| rejection.starts_with("generator:")),
-        routing_budget_rejection_count: result.run_manifest.routing_budget_rejections.len(),
-        routing_llm_calls_used: result.run_manifest.routing_llm_calls_used,
-        routing_token_cost_used: result.run_manifest.routing_token_cost_used,
-        routing_token_cost_ceiling: result.run_manifest.routing_token_cost_ceiling,
-        evidence_count: result.evidence.len(),
-        evidence_selected_count: result.run_manifest.evidence_selected_count,
-        citation_valid: result.citation_validation.unknown_ids.is_empty()
-            && result.citation_validation.appendix_integrity
-            && appendix_ids_known,
-        unknown_citation_count: result.citation_validation.unknown_ids.len(),
-        grounding_status: result.citation_validation.grounding_status.clone(),
-        verification_status: result.run_manifest.verification_status.clone(),
-        answer_complete: result.run_manifest.answer_completeness.complete,
-        contradicted_claim_count: result.run_manifest.contradicted_claim_count,
-        not_verifiable_claim_count: result.run_manifest.not_verifiable_claim_count,
-        unverified_claim_count: result.run_manifest.unverified_claim_count,
-        semantic_status: result.run_manifest.semantic_verification_status.clone(),
-        semantic_fallback_reason: result
-            .run_manifest
-            .semantic_verification_fallback_reason
-            .clone(),
-        planner_status: result.run_manifest.planner_status.clone(),
-        retrieval_round_count: result.run_manifest.retrieval_round_count,
-        reranker_provider: result.run_manifest.reranker_provider.clone(),
-        reranker_fallback: result.run_manifest.reranker_fallback,
-    }
+    observation_from_parts(
+        !result.assistant_message.content.trim().is_empty(),
+        &result.run_manifest,
+        &result.citation_validation,
+        &evidence_ids,
+        result.evidence.len(),
+    )
 }
 
-fn observation_from_audit(context: &QuestionContext, audit: &AnswerAudit) -> TurnObservation {
+fn observation_from_audit(context: &QuestionContext, audit: &AnswerAudit) -> GroundingObservation {
     let evidence_ids = context
         .evidence
         .iter()
         .map(|item| item.id.as_str())
         .collect::<HashSet<_>>();
-    let appendix_ids_known = audit
-        .citation_validation
-        .appendix_evidence_ids
-        .iter()
-        .all(|id| evidence_ids.contains(id.as_str()));
-    TurnObservation {
-        answer_non_empty: !audit.answer.trim().is_empty(),
-        provider: audit.run_manifest.provider.clone(),
-        model: audit.run_manifest.model_resolved.clone(),
-        answer_format: audit.run_manifest.answer_format.clone(),
-        manifest_schema: audit.run_manifest.schema_version.clone(),
-        execution_mode: audit.run_manifest.execution_mode.clone(),
-        generator_stage_observed: audit
-            .run_manifest
-            .routing_llm_stages
-            .iter()
-            .any(|stage| stage == "generator"),
-        generator_budget_rejected: audit
-            .run_manifest
-            .routing_budget_rejections
-            .iter()
-            .any(|rejection| rejection.starts_with("generator:")),
-        routing_budget_rejection_count: audit.run_manifest.routing_budget_rejections.len(),
-        routing_llm_calls_used: audit.run_manifest.routing_llm_calls_used,
-        routing_token_cost_used: audit.run_manifest.routing_token_cost_used,
-        routing_token_cost_ceiling: audit.run_manifest.routing_token_cost_ceiling,
-        evidence_count: context.evidence.len(),
-        evidence_selected_count: audit.run_manifest.evidence_selected_count,
-        citation_valid: audit.citation_validation.unknown_ids.is_empty()
-            && audit.citation_validation.appendix_integrity
-            && appendix_ids_known,
-        unknown_citation_count: audit.citation_validation.unknown_ids.len(),
-        grounding_status: audit.citation_validation.grounding_status.clone(),
-        verification_status: audit.run_manifest.verification_status.clone(),
-        answer_complete: audit.run_manifest.answer_completeness.complete,
-        contradicted_claim_count: audit.run_manifest.contradicted_claim_count,
-        not_verifiable_claim_count: audit.run_manifest.not_verifiable_claim_count,
-        unverified_claim_count: audit.run_manifest.unverified_claim_count,
-        semantic_status: audit.run_manifest.semantic_verification_status.clone(),
-        semantic_fallback_reason: audit
-            .run_manifest
-            .semantic_verification_fallback_reason
-            .clone(),
-        planner_status: audit.run_manifest.planner_status.clone(),
-        retrieval_round_count: audit.run_manifest.retrieval_round_count,
-        reranker_provider: audit.run_manifest.reranker_provider.clone(),
-        reranker_fallback: audit.run_manifest.reranker_fallback,
-    }
+    observation_from_parts(
+        !audit.answer.trim().is_empty(),
+        &audit.run_manifest,
+        &audit.citation_validation,
+        &evidence_ids,
+        context.evidence.len(),
+    )
 }
 
-fn apply_observation(result: &mut RealE2eCaseResult, observed: &TurnObservation) {
-    result.execution_mode = observed.execution_mode.clone();
-    result.provider = observed.provider.clone();
-    result.model = observed.model.clone();
-    result.evidence_count = observed.evidence_count;
-    result.citation_valid = observed.citation_valid;
-    result.grounding_status = observed.grounding_status.clone();
-    result.verification_status = observed.verification_status.clone();
-    result.answer_complete = observed.answer_complete;
-    result.contradicted_claim_count = observed.contradicted_claim_count;
-    result.not_verifiable_claim_count = observed.not_verifiable_claim_count;
-    result.unverified_claim_count = observed.unverified_claim_count;
-    result.semantic_status = observed.semantic_status.clone();
-    result.semantic_fallback_reason = observed.semantic_fallback_reason.clone();
-    result.generator_stage_observed = observed.generator_stage_observed;
-    result.generator_budget_rejected = observed.generator_budget_rejected;
-    result.routing_budget_rejection_count = observed.routing_budget_rejection_count;
-    result.routing_llm_calls_used = observed.routing_llm_calls_used;
-    result.routing_token_cost_used = observed.routing_token_cost_used;
-    result.routing_token_cost_ceiling = observed.routing_token_cost_ceiling;
-    result.planner_status = observed.planner_status.clone();
-    result.retrieval_round_count = observed.retrieval_round_count;
-    result.evidence_selected_count = observed.evidence_selected_count;
-    result.reranker_provider = observed.reranker_provider.clone();
-    result.reranker_fallback = observed.reranker_fallback;
-}
-
-fn validate_observation(case: &RealE2eCase, observed: &TurnObservation) -> Vec<String> {
+fn validate_observation(case: &RealE2eCase, observed: &GroundingObservation) -> Vec<String> {
     let mut errors = Vec::new();
     let mut require = |valid: bool, code: &str| {
         if !valid {
@@ -470,6 +486,21 @@ fn validate_observation(case: &RealE2eCase, observed: &TurnObservation) -> Vec<S
     errors
 }
 
+fn apply_final_observation(
+    case: &RealE2eCase,
+    result: &mut RealE2eCaseResult,
+    observed: GroundingObservation,
+) {
+    result.errors.extend(validate_observation(case, &observed));
+    result.final_result = Some(observed);
+}
+
+fn apply_persistence_failure(result: &mut RealE2eCaseResult, error: &str) -> String {
+    let code = safe_error_code(error);
+    result.errors.push(code.clone());
+    code
+}
+
 fn validate_state(case: &RealE2eCase, context: &QuestionContext) -> bool {
     let expected = &case.expected_research_state;
     if expected.objectives.is_empty()
@@ -506,17 +537,37 @@ fn validate_state(case: &RealE2eCase, context: &QuestionContext) -> bool {
 
 fn safe_error_code(error: &str) -> String {
     let raw = error.split(':').next().unwrap_or("runner_failure").trim();
-    let normalized = raw
-        .chars()
-        .filter(|character| character.is_ascii_alphanumeric() || *character == '_')
-        .take(64)
-        .collect::<String>()
-        .to_ascii_lowercase();
-    if normalized.is_empty() {
+    let normalized = stable_code(raw);
+    if normalized == "unknown" {
         "runner_failure".to_string()
     } else {
         normalized
     }
+}
+
+fn trace_observation(
+    event: &str,
+    status: &str,
+    request_id: &str,
+    case_id: &str,
+    observed: &GroundingObservation,
+    persisted: Option<bool>,
+    error_code: &str,
+) {
+    let mut trace = trace::QaTraceEvent::new(event, "real_e2e", status, request_id);
+    trace.case_id = case_id.to_string();
+    trace.execution_mode = observed.execution_mode.clone();
+    trace.provider = observed.provider.clone();
+    trace.model = observed.model.clone();
+    trace.evidence_count = Some(observed.evidence_count);
+    trace.claim_count = Some(observed.claim_count);
+    trace.supported_claim_count = Some(observed.supported_claim_count);
+    trace.contradicted_claim_count = Some(observed.contradicted_claim_count);
+    trace.not_verifiable_claim_count = Some(observed.not_verifiable_claim_count);
+    trace.repaired_claim_count = Some(observed.repaired_claim_count);
+    trace.persisted = persisted;
+    trace.error_code = error_code.to_string();
+    trace::emit(&trace);
 }
 
 fn write_report(report: &RealE2eReport, output: &Path) -> Result<(), String> {
@@ -539,6 +590,22 @@ pub fn run_files(
     requested_model: &str,
     requested_effort: &str,
 ) -> Result<RealE2eReport, String> {
+    let repository_root = repository
+        .canonicalize()
+        .map_err(|_| "QA_REAL_E2E_REPOSITORY_INVALID".to_string())?;
+    trace::configure_cli_file(
+        repository_root
+            .join("apps")
+            .join("desktop")
+            .join("logs")
+            .join("qa-real-e2e.jsonl"),
+    )?;
+    trace::emit(&trace::QaTraceEvent::new(
+        "qa_e2e_started",
+        "real_e2e",
+        "started",
+        "",
+    ));
     let suite = load_suite(cases_path)?;
     configure_local_models()?;
     let codex_status = codex_subscription::get_status();
@@ -622,7 +689,17 @@ pub fn run_files(
             ) {
                 Ok(prepared) => prepared,
                 Err(error) => {
-                    result.errors.push(safe_error_code(&error));
+                    let code = safe_error_code(&error);
+                    let mut trace = trace::QaTraceEvent::new(
+                        "qa_prepare_failed",
+                        "prepare",
+                        "failed",
+                        &request_id,
+                    );
+                    trace.case_id = case.id.clone();
+                    trace.error_code = code.clone();
+                    trace::emit(&trace);
+                    result.errors.push(code);
                     break;
                 }
             };
@@ -639,27 +716,38 @@ pub fn run_files(
             ) {
                 Ok(generated) => generated,
                 Err(error) => {
-                    result.errors.push(safe_error_code(&error));
+                    let code = safe_error_code(&error);
+                    let mut trace = trace::QaTraceEvent::new(
+                        "qa_generate_failed",
+                        "generator",
+                        "failed",
+                        &request_id,
+                    );
+                    trace.case_id = case.id.clone();
+                    trace.error_code = code.clone();
+                    trace::emit(&trace);
+                    result.errors.push(code);
                     break;
                 }
             };
-            let mut observed = observation_from_audit(&context, &generated.audit);
+            let pre_persist = observation_from_audit(&context, &generated.audit);
             result.turn_count += 1;
-            if turn_index + 1 == case.turns.len() {
-                let state_valid = validate_state(case, &context);
-                if !state_valid {
-                    result.errors.push("research_state_mismatch".to_string());
-                }
-                result.state_valid &= state_valid;
-            }
-            result.errors.extend(validate_observation(case, &observed));
-            apply_observation(&mut result, &observed);
-            models.insert(result.model.clone());
-            if result.semantic_status == "succeeded" {
+            trace_observation(
+                "qa_pre_persist_audited",
+                "completed",
+                &request_id,
+                &case.id,
+                &pre_persist,
+                Some(false),
+                "",
+            );
+            models.insert(pre_persist.model.clone());
+            if pre_persist.semantic_status == "succeeded" {
                 semantic_succeeded_count += 1;
-            } else if result.semantic_status == "unavailable" {
+            } else if pre_persist.semantic_status == "unavailable" {
                 semantic_unavailable_count += 1;
             }
+            result.pre_persist = Some(pre_persist.clone());
             let semantic = generated.semantic_verification.clone();
             let persisted = match persist_exchange_with_metadata_and_semantic(
                 &mut connection,
@@ -672,31 +760,66 @@ pub fn run_files(
             ) {
                 Ok(persisted) => persisted,
                 Err(error) => {
-                    result.errors.push(safe_error_code(&error));
+                    let code = apply_persistence_failure(&mut result, &error);
+                    trace_observation(
+                        "qa_persist_failed",
+                        "failed",
+                        &request_id,
+                        &case.id,
+                        &pre_persist,
+                        Some(false),
+                        &code,
+                    );
                     break;
                 }
             };
-            observed = observation(&persisted);
-            apply_observation(&mut result, &observed);
+            let final_observation = observation(&persisted);
+            result.persisted_turn_count += 1;
+            if turn_index + 1 == case.turns.len() {
+                let state_valid = validate_state(case, &context);
+                if !state_valid {
+                    result.errors.push("research_state_mismatch".to_string());
+                }
+                result.state_valid &= state_valid;
+            }
+            trace_observation(
+                "qa_persist_completed",
+                "succeeded",
+                &request_id,
+                &case.id,
+                &final_observation,
+                Some(true),
+                "",
+            );
+            apply_final_observation(case, &mut result, final_observation);
         }
         result.errors.sort();
         result.errors.dedup();
-        result.passed = result.turn_count == case.turns.len() && result.errors.is_empty();
+        result.persisted = result.persisted_turn_count == case.turns.len();
+        result.passed = result.persisted && result.errors.is_empty();
         results.push(result);
     }
 
     let passed_count = results.iter().filter(|result| result.passed).count();
     let generator_fallback_count = results
         .iter()
-        .filter(|result| !result.provider.is_empty() && result.provider != PROVIDER_CODEX)
+        .filter_map(|result| result.pre_persist.as_ref())
+        .filter(|observed| !observed.provider.is_empty() && observed.provider != PROVIDER_CODEX)
         .count();
     let generator_budget_rejection_count = results
         .iter()
-        .filter(|result| result.generator_budget_rejected)
+        .filter_map(|result| result.pre_persist.as_ref())
+        .filter(|observed| observed.generator_budget_rejected)
         .count();
-    let invalid_citation_count = results
+    let pre_persist_invalid_citation_count = results
         .iter()
-        .filter(|result| !result.provider.is_empty() && !result.citation_valid)
+        .filter_map(|result| result.pre_persist.as_ref())
+        .filter(|observed| !observed.provider.is_empty() && !observed.citation_valid)
+        .count();
+    let final_invalid_citation_count = results
+        .iter()
+        .filter_map(|result| result.final_result.as_ref())
+        .filter(|observed| !observed.provider.is_empty() && !observed.citation_valid)
         .count();
     let mut models = models.into_iter().collect::<Vec<_>>();
     models.sort();
@@ -710,18 +833,29 @@ pub fn run_files(
         generator_invocation_count,
         provider: PROVIDER_CODEX.to_string(),
         models,
-        real_provider_measured: results
-            .iter()
-            .all(|result| result.provider == PROVIDER_CODEX && !result.model.trim().is_empty()),
+        real_provider_measured: results.iter().all(|result| {
+            result.pre_persist.as_ref().is_some_and(|observed| {
+                observed.provider == PROVIDER_CODEX && !observed.model.trim().is_empty()
+            })
+        }),
         generator_fallback_count,
         generator_budget_rejection_count,
-        invalid_citation_count,
+        pre_persist_invalid_citation_count,
+        final_invalid_citation_count,
         semantic_succeeded_count,
         semantic_unavailable_count,
         passed: selected_case.is_none() && passed_count == results.len(),
         results,
     };
     write_report(&report, output)?;
+    let mut completed = trace::QaTraceEvent::new(
+        "qa_e2e_completed",
+        "real_e2e",
+        if report.passed { "passed" } else { "failed" },
+        "",
+    );
+    completed.persisted = Some(report.results.iter().all(|result| result.persisted));
+    trace::emit(&completed);
     Ok(report)
 }
 
@@ -756,7 +890,7 @@ mod tests {
     #[test]
     fn observation_rejects_unknown_citation_and_generator_budget_failure() {
         let case = case("direct");
-        let observed = TurnObservation {
+        let observed = GroundingObservation {
             answer_non_empty: true,
             provider: PROVIDER_CODEX.to_string(),
             model: "gpt-fixture".to_string(),
@@ -785,6 +919,7 @@ mod tests {
             retrieval_round_count: 1,
             reranker_provider: "cross-encoder-research-v1".to_string(),
             reranker_fallback: false,
+            ..GroundingObservation::default()
         };
         let errors = validate_observation(&case, &observed);
         assert!(errors.contains(&"generator_budget_rejected".to_string()));
@@ -795,7 +930,7 @@ mod tests {
     #[test]
     fn zero_evidence_accepts_semantic_not_run() {
         let case = case("zero_evidence");
-        let observed = TurnObservation {
+        let observed = GroundingObservation {
             answer_non_empty: true,
             provider: PROVIDER_CODEX.to_string(),
             model: "gpt-fixture".to_string(),
@@ -806,7 +941,7 @@ mod tests {
             citation_valid: true,
             answer_complete: true,
             retrieval_round_count: 1,
-            ..TurnObservation::default()
+            ..GroundingObservation::default()
         };
 
         assert!(validate_observation(&case, &observed).is_empty());
@@ -827,7 +962,8 @@ mod tests {
             real_provider_measured: true,
             generator_fallback_count: 0,
             generator_budget_rejection_count: 0,
-            invalid_citation_count: 0,
+            pre_persist_invalid_citation_count: 0,
+            final_invalid_citation_count: 0,
             semantic_succeeded_count: 1,
             semantic_unavailable_count: 0,
             passed: true,
@@ -848,6 +984,109 @@ mod tests {
         ] {
             assert!(!serialized.contains(forbidden), "forbidden={forbidden}");
         }
+    }
+
+    #[test]
+    fn claim_diagnostic_hashes_text_and_keeps_only_reason_code() {
+        let claim_text = "Sensitive synthetic claim text [E1].";
+        let diagnostics = claim_diagnostics(&[VerifiedClaim {
+            id: "C1".to_string(),
+            text: claim_text.to_string(),
+            evidence_ids: vec!["E1".to_string()],
+            claim_type: crate::qa::claim_verification::ClaimType::KnowledgeFact,
+            verification_status: crate::qa::claim_verification::VerificationStatus::NotVerifiable,
+            confidence: Some(0.7),
+            verification_method: "semantic_nli".to_string(),
+            alignment_score: 0.42,
+            reason: "Provider explanation may repeat sensitive claim text".to_string(),
+        }]);
+
+        let serialized = serde_json::to_string(&diagnostics).unwrap();
+        assert!(!serialized.contains(claim_text));
+        assert!(!serialized.contains("Provider explanation"));
+        assert_eq!(diagnostics[0].claim_text_sha256.len(), 64);
+        assert_eq!(diagnostics[0].reason_code, "semantic_nli_not_verifiable");
+    }
+
+    #[test]
+    fn evidence_backed_citation_contract_requires_supported_grounding() {
+        let ids = HashSet::from(["E1"]);
+        let invalid = CitationValidation {
+            unknown_ids: Vec::new(),
+            appendix_integrity: true,
+            appendix_evidence_ids: vec!["E1".to_string()],
+            grounding_status: "invalid".to_string(),
+            supported: false,
+            ..CitationValidation::default()
+        };
+        assert!(!citation_contract_valid(&invalid, &ids));
+
+        let supported = CitationValidation {
+            supported: true,
+            grounding_status: "supported".to_string(),
+            ..invalid
+        };
+        assert!(citation_contract_valid(&supported, &ids));
+    }
+
+    #[test]
+    fn pre_persist_diagnostics_never_pollute_final_verdict_errors() {
+        let case = case("direct");
+        let pre_persist = GroundingObservation {
+            citation_valid: false,
+            grounding_status: "invalid".to_string(),
+            ..GroundingObservation::default()
+        };
+        let final_observation = GroundingObservation {
+            answer_non_empty: true,
+            provider: PROVIDER_CODEX.to_string(),
+            model: "gpt-fixture".to_string(),
+            answer_format: "natural-markdown-v2".to_string(),
+            manifest_schema: "qa-run-v21".to_string(),
+            execution_mode: "direct".to_string(),
+            generator_stage_observed: true,
+            evidence_count: 1,
+            evidence_selected_count: 1,
+            citation_valid: true,
+            grounding_status: "supported".to_string(),
+            verification_status: "succeeded".to_string(),
+            answer_complete: true,
+            semantic_status: "succeeded".to_string(),
+            planner_status: "policy_disabled".to_string(),
+            retrieval_round_count: 1,
+            reranker_provider: "cross-encoder-research-v1".to_string(),
+            ..GroundingObservation::default()
+        };
+        let mut result = RealE2eCaseResult {
+            pre_persist: Some(pre_persist),
+            ..RealE2eCaseResult::default()
+        };
+
+        apply_final_observation(&case, &mut result, final_observation);
+
+        assert!(result.errors.is_empty());
+        assert!(!result.pre_persist.as_ref().unwrap().citation_valid);
+        assert!(result.final_result.as_ref().unwrap().citation_valid);
+    }
+
+    #[test]
+    fn persistence_failure_has_no_final_observation() {
+        let mut result = RealE2eCaseResult {
+            pre_persist: Some(GroundingObservation {
+                citation_valid: false,
+                grounding_status: "invalid".to_string(),
+                ..GroundingObservation::default()
+            }),
+            ..RealE2eCaseResult::default()
+        };
+
+        let code =
+            apply_persistence_failure(&mut result, "CITATION_VALIDATION_FAILED: fixture details");
+
+        assert_eq!(code, "citation_validation_failed");
+        assert_eq!(result.errors, vec!["citation_validation_failed"]);
+        assert!(result.final_result.is_none());
+        assert!(!result.persisted);
     }
 
     #[test]

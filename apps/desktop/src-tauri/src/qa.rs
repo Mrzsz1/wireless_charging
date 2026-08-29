@@ -32,6 +32,7 @@ mod source_resolver;
 mod state_mutation;
 mod state_reducer;
 mod structured_answer;
+pub(crate) mod trace;
 mod understanding;
 pub(crate) mod vector_store;
 pub(crate) mod vector_sync;

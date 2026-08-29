@@ -2,11 +2,11 @@
 
 ## Phase A — Runner v2 与日志基础
 
-- [ ] 先写 Runner 回归：prePersist 失败不污染 final errors，persistence failure 使 `persisted=false/final=null`。
-- [ ] 实现 v2 `GroundingObservation`/`ClaimDiagnostic` 投影与聚合计数。
-- [ ] 新增 typed `qa::trace` 事件、E2E 软件目录日志 sink 与脱敏/清理 tests。
-- [ ] 将 Desktop log plugin 改为 debug/release 常驻b的 AppLogDir 有界旋转配置。
-- [ ] 执行 targeted tests，Git 提交 Phase A。
+- [x] 先写 Runner 回归：prePersist 失败不污染 final errors，persistence failure 使 `persisted=false/final=null`。
+- [x] 实现 v2 `GroundingObservation`/`ClaimDiagnostic` 投影与聚合计数。
+- [x] 新增 typed `qa::trace` 事件、E2E 软件目录日志 sink 与脱敏/清理 tests。
+- [x] 将 Desktop log plugin 改为 debug/release 常驻b的 AppLogDir 有界旋转配置。
+- [x] 执行 targeted tests，Git 提交 Phase A。
 
 ## Phase B — Generator Prompt Grounding
 

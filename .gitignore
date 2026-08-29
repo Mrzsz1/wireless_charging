@@ -35,6 +35,7 @@ __pycache__/
 **/target/
 apps/desktop/dist/
 apps/desktop/public/data/library.json
+apps/desktop/logs/
 
 # Local analysis/runtime state
 .codegraph/
