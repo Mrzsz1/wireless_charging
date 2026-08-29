@@ -28,7 +28,7 @@
 - [x] `cargo clippy --lib --bins -- -D warnings`。
 - [x] Rust QA/runner tests。
 - [x] `npm run build` 与 script wiring 检查。
-- [ ] 更新任务 AC、提交报告、归档 Trellis 并记录 journal。
+- [x] 更新任务 AC、提交报告、归档 Trellis 并记录 journal。
 
 ## Guardrails
 
