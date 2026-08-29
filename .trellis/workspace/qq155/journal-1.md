@@ -1804,3 +1804,38 @@ Unified the canonical held-out ResearchIntent contract, added shared Python free
 ### Next Steps
 
 - None - task complete
+
+
+## Session 54: QA Core Functional Regression
+
+**Date**: 2026-08-29
+**Task**: QA Core Functional Regression
+**Branch**: `master`
+
+### Summary
+
+Completed full non-heldout QA core regression, fixed multi-charger constraint preservation, verified 374 passing cases including real local reranker and Codex Semantic v2, built and installed v0.12.4 to E drive.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `9f85851` | (see git log) |
+| `202d8f0` | (see git log) |
+| `175c80e` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

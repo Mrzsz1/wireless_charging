@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 53
-- **Last Active**: 2026-08-28
+- **Total Sessions**: 54
+- **Last Active**: 2026-08-29
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1806 | Active |
+| `journal-1.md` | ~1841 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 54 | 2026-08-29 | QA Core Functional Regression | `9f85851`, `202d8f0`, `175c80e` | `master` |
 | 53 | 2026-08-28 | Generator Budget Ledger Reliability | `79cc680`, `67950c0` | `master` |
 | 52 | 2026-08-28 | Eval Semantics Hardening Audit | `fea657a`, `f08e67b` | `master` |
 | 51 | 2026-08-28 | Evaluation Semantics Hardening v4 | `602e94f`, `53ee2ba` | `master` |
