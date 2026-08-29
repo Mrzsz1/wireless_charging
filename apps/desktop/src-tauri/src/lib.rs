@@ -3367,132 +3367,22 @@ async fn ask_luna(
         connection
             .execute_batch("PRAGMA query_only=ON; BEGIN;")
             .map_err(|error| format!("配置问答只读连接失败：{error}"))?;
-        if let Some(existing_session) = worker_request.session_id.as_deref() {
-            qa::get_session(&connection, &worker_root, existing_session)?;
-        }
-        let conversation = qa::conversation_history(
+        let prepared = qa::prepare_production_qa(
             &connection,
             &worker_root,
-            worker_request.session_id.as_deref(),
-        )?;
-        if worker_cancel.load(Ordering::SeqCst) {
-            return Err("QUESTION_CANCELLED: 用户停止了问答".to_string());
-        }
-        let settings = qa::get_luna_settings(&connection, &worker_root, false)?;
-        let initial_route =
-            qa::build_retrieval_query(&connection, &worker_request.question, &conversation);
-        let budget_guard =
-            qa::LlmBudgetGuard::new(qa::routing_policy(&initial_route.execution_mode));
-        let planner_model = worker_request
-            .codex_model
-            .as_deref()
-            .unwrap_or(settings.codex_model.as_str())
-            .to_string();
-        let planner_effort = worker_request
-            .codex_reasoning_effort
-            .as_deref()
-            .unwrap_or(settings.codex_reasoning_effort.as_str())
-            .to_string();
-        let planning_provider = qa::planning_provider(&settings, &planner_model, &planner_effort);
-        let planning_capabilities = qa::provider_descriptor(&settings.answer_provider).capabilities;
-        let planner_cancel = worker_cancel.clone();
-        let understanding_cancel = worker_cancel.clone();
-        let understanding_budget = budget_guard.clone();
-        let understanding_provider = planning_provider.as_deref();
-        let mut understanding_planner = |input: &qa::UnderstandingPlanningInput| {
-            let prompt = qa::understanding_prompt(input);
-            let schema = qa::understanding_schema();
-            let reserved = qa::estimate_tokens(&prompt).saturating_add(1_024);
-            let reservation = understanding_budget.reserve("understanding", reserved)?;
-            let Some(provider) = understanding_provider else {
-                reservation.release()?;
-                return Err("PLANNING_PROVIDER_UNAVAILABLE: understanding".to_string());
-            };
-            let result = provider.complete_structured(&prompt, &schema, &understanding_cancel);
-            let actual = result
-                .as_ref()
-                .map(|raw| qa::estimate_tokens(&prompt).saturating_add(qa::estimate_tokens(raw)))
-                .unwrap_or_else(|_| qa::estimate_tokens(&prompt));
-            reservation.settle(actual)?;
-            let raw = result?;
-            qa::parse_understanding_plan(&raw, input)
-        };
-        let planner_budget = budget_guard.clone();
-        let query_planning_provider = planning_provider.as_deref();
-        let mut query_planner = |input: &qa::QueryPlanningInput| {
-            let prompt = qa::query_plan_prompt(input);
-            let schema = qa::query_plan_schema();
-            let reserved = qa::estimate_tokens(&prompt).saturating_add(1_536);
-            let reservation = planner_budget.reserve("planner", reserved)?;
-            let Some(provider) = query_planning_provider else {
-                reservation.release()?;
-                return Err("PLANNING_PROVIDER_UNAVAILABLE: query_plan".to_string());
-            };
-            let result = provider.complete_structured(&prompt, &schema, &planner_cancel);
-            let actual = result
-                .as_ref()
-                .map(|raw| qa::estimate_tokens(&prompt).saturating_add(qa::estimate_tokens(raw)))
-                .unwrap_or_else(|_| qa::estimate_tokens(&prompt));
-            reservation.settle(actual)?;
-            let raw = result?;
-            qa::parse_query_plan(&raw, &input.resolved_question)
-        };
-        let planner = (planning_provider.is_some() && planning_capabilities.query_planning)
-            .then_some(
-                &mut query_planner
-                    as &mut dyn FnMut(&qa::QueryPlanningInput) -> Result<qa::QueryPlan, String>,
-            );
-        let understanding = (planning_provider.is_some() && planning_capabilities.understanding)
-            .then_some(
-                &mut understanding_planner
-                    as &mut dyn FnMut(
-                        &qa::UnderstandingPlanningInput,
-                    ) -> Result<qa::UnderstandingPlan, String>,
-            );
-        let mut context = qa::prepare_question_with_history_budget_and_planners(
-            &connection,
-            &worker_root,
-            &worker_request.question,
-            worker_request.evidence_limit.unwrap_or(14),
+            &worker_request,
             &worker_request_id,
-            conversation,
-            Some(&worker_cancel),
-            settings.context_window_tokens,
-            settings.max_output_tokens,
-            planner,
-            understanding,
-            Some(&budget_guard),
+            &worker_cancel,
         )?;
-        context.retrieval_query.planning_provider = planning_provider
-            .as_ref()
-            .map(|provider| provider.descriptor().id)
-            .unwrap_or_else(|| qa::PROVIDER_OFFLINE.to_string());
-        context.retrieval_query.provider_capabilities = [
-            (planning_capabilities.understanding, "understanding"),
-            (planning_capabilities.query_planning, "query_planning"),
-            (
-                planning_capabilities.semantic_verification,
-                "semantic_verification",
-            ),
-            (planning_capabilities.structured_output, "structured_output"),
-            (
-                planning_capabilities.natural_generation,
-                "natural_generation",
-            ),
-        ]
-        .into_iter()
-        .filter(|(enabled, _)| *enabled)
-        .map(|(_, capability)| capability.to_string())
-        .collect();
         connection
             .execute_batch("COMMIT;")
             .map_err(|error| format!("提交问答只读快照失败：{error}"))?;
-        Ok::<_, String>((context, settings, budget_guard))
+        Ok::<_, String>((prepared.context, prepared.settings, prepared.budget_guard))
     })
     .await
     .unwrap_or_else(|error| Err(format!("QUESTION_TASK_ERROR: {error}")));
 
-    let (mut context, settings, budget_guard) = match prepared {
+    let (context, settings, budget_guard) = match prepared {
         Ok(value) => value,
         Err(error)
             if cancel_flag.load(Ordering::SeqCst) || error.starts_with("QUESTION_CANCELLED") =>
@@ -3615,107 +3505,43 @@ async fn ask_luna(
         });
     }
 
-    let generated: Result<(String, String, String), String> = match settings
-        .answer_provider
-        .as_str()
-    {
-        qa::PROVIDER_CODEX if codex_ready => {
-            let prompt = qa::build_codex_prompt(&context);
-            let output_schema = qa::codex_output_schema(&context);
-            let reserved = qa::estimate_tokens(&prompt).saturating_add(settings.max_output_tokens);
-            match budget_guard.reserve("generator", reserved) {
-                Err(error) => Err(error),
-                Ok(reservation) => {
-                    let model = effective_codex_model.clone();
-                    let reasoning_effort = effective_codex_effort.clone();
-                    let timeout = Duration::from_secs(settings.timeout_seconds.max(180));
-                    let stream_channel = on_event.clone();
-                    let stream_request_id = request_id.clone();
-                    let stream_cancel_flag = cancel_flag.clone();
-                    let prompt_cost = qa::estimate_tokens(&prompt);
-                    tauri::async_runtime::spawn_blocking(move || {
-                        let result = codex_subscription::stream_answer(
-                            &prompt,
-                            output_schema.as_ref(),
-                            &model,
-                            &reasoning_effort,
-                            timeout,
-                            &stream_cancel_flag,
-                            |content| {
-                                stream_channel
-                                    .send(qa::AnswerStreamEvent::Token {
-                                        request_id: stream_request_id.clone(),
-                                        content: content.to_string(),
-                                    })
-                                    .map_err(|error| format!("CODEX_CHANNEL_ERROR: {error}"))
-                            },
-                        );
-                        let actual = result
-                            .as_ref()
-                            .map(|(answer, _)| {
-                                prompt_cost.saturating_add(qa::estimate_tokens(answer))
-                            })
-                            .unwrap_or(prompt_cost);
-                        reservation.settle(actual)?;
-                        result
-                            .map(|(answer, model)| (answer, qa::PROVIDER_CODEX.to_string(), model))
+    let worker_context = context;
+    let fallback_context = worker_context.clone();
+    let worker_settings = settings.clone();
+    let worker_budget = budget_guard.clone();
+    let worker_model = effective_codex_model.clone();
+    let worker_effort = effective_codex_effort.clone();
+    let worker_cancel = cancel_flag.clone();
+    let stream_channel = on_event.clone();
+    let stream_request_id = request_id.clone();
+    let generated_task = tauri::async_runtime::spawn_blocking(move || {
+        let mut context = worker_context;
+        let generated = qa::run_production_qa_generation(
+            &mut context,
+            &worker_settings,
+            &worker_budget,
+            codex_ready,
+            &worker_model,
+            &worker_effort,
+            &worker_cancel,
+            |content| {
+                stream_channel
+                    .send(qa::AnswerStreamEvent::Token {
+                        request_id: stream_request_id.clone(),
+                        content: content.to_string(),
                     })
-                    .await
-                    .map_err(|error| format!("CODEX_TASK_ERROR: {error}"))?
-                }
-            }
-        }
-        qa::PROVIDER_CODEX => Err("CODEX_NOT_READY: 请在设置中登录 ChatGPT".to_string()),
-        qa::PROVIDER_API if settings.endpoint.is_empty() || !settings.api_key_configured => {
-            Err("LUNA_NOT_CONFIGURED: endpoint 或 API Key 环境变量尚未配置".to_string())
-        }
-        qa::PROVIDER_API => {
-            let prompt_cost = qa::estimate_tokens(&qa::build_codex_prompt(&context));
-            let reserved = prompt_cost.saturating_add(settings.max_output_tokens);
-            match budget_guard.reserve("generator", reserved) {
-                Err(error) => Err(error),
-                Ok(reservation) => {
-                    let remote_settings = settings.clone();
-                    let remote_context = context.clone();
-                    let stream_channel = on_event.clone();
-                    let stream_request_id = request_id.clone();
-                    let stream_cancel_flag = cancel_flag.clone();
-                    tauri::async_runtime::spawn_blocking(move || {
-                        let result = qa::stream_luna(
-                            &remote_settings,
-                            &remote_context,
-                            &stream_cancel_flag,
-                            |content| {
-                                stream_channel
-                                    .send(qa::AnswerStreamEvent::Token {
-                                        request_id: stream_request_id.clone(),
-                                        content: content.to_string(),
-                                    })
-                                    .map_err(|error| format!("LUNA_CHANNEL_ERROR: {error}"))
-                            },
-                        );
-                        let actual = result
-                            .as_ref()
-                            .map(|(answer, _)| {
-                                prompt_cost.saturating_add(qa::estimate_tokens(answer))
-                            })
-                            .unwrap_or(prompt_cost);
-                        reservation.settle(actual)?;
-                        result.map(|(answer, resolved_model)| {
-                            (answer, qa::PROVIDER_API.to_string(), resolved_model)
-                        })
-                    })
-                    .await
-                    .map_err(|error| format!("LUNA_TASK_ERROR: {error}"))?
-                }
-            }
-        }
-        qa::PROVIDER_OFFLINE => Ok((
-            qa::offline_answer(&context),
-            qa::PROVIDER_OFFLINE.to_string(),
-            "deterministic".to_string(),
-        )),
-        _ => Err("PROVIDER_INVALID: 不支持的回答引擎".to_string()),
+                    .map_err(|error| format!("ANSWER_CHANNEL_ERROR: {error}"))
+            },
+        );
+        (context, generated)
+    })
+    .await;
+    let (context, generated) = match generated_task {
+        Ok(value) => value,
+        Err(error) => (
+            fallback_context,
+            Err(format!("PRODUCTION_QA_TASK_ERROR: {error}")),
+        ),
     };
 
     if cancel_flag.load(Ordering::SeqCst) {
@@ -3726,18 +3552,9 @@ async fn ask_luna(
         return Err("问答已取消".to_string());
     }
 
-    let (answer, provider, model, offline) = match generated {
-        Ok((answer, provider, model)) => {
-            let offline = provider == qa::PROVIDER_OFFLINE;
-            let answer = if zero_evidence {
-                qa::normalize_unverified_answer(&answer)
-            } else {
-                answer
-            };
-            (answer, provider, model, offline)
-        }
+    let generated = match generated {
+        Ok(generated) => generated,
         Err(error) => {
-            qa::record_llm_budget_usage(&mut context, budget_guard.usage());
             let (code, message) = answer_error_parts(&error);
             let model_requested = match settings.answer_provider.as_str() {
                 qa::PROVIDER_CODEX => effective_codex_model.clone(),
@@ -3780,49 +3597,14 @@ async fn ask_luna(
             return Err(error);
         }
     };
-
-    let semantic_verification = {
-        let verifier_settings = settings.clone();
-        let verifier_model = model.clone();
-        let verifier_effort = effective_codex_effort.clone();
-        let verifier_answer = answer.clone();
-        let verifier_evidence = context.evidence.clone();
-        let verifier_budget = budget_guard.clone();
-        let verifier_cancel = cancel_flag.clone();
-        match tauri::async_runtime::spawn_blocking(move || {
-            qa::run_semantic_verification(
-                &verifier_settings,
-                &verifier_model,
-                &verifier_effort,
-                &verifier_answer,
-                &verifier_evidence,
-                &verifier_budget,
-                &verifier_cancel,
-            )
-        })
-        .await
-        {
-            Ok(Ok(batch)) => batch,
-            Ok(Err(error))
-                if cancel_flag.load(Ordering::SeqCst)
-                    || error.starts_with("QUESTION_CANCELLED") =>
-            {
-                let _ = on_event.send(qa::AnswerStreamEvent::Cancelled {
-                    request_id: request_id.clone(),
-                });
-                finish_answer_request(&state, &request_id);
-                return Err("问答已取消".to_string());
-            }
-            Ok(Err(_)) | Err(_) => qa::SemanticVerificationBatch {
-                provider: provider.clone(),
-                model: model.clone(),
-                status: "unavailable".to_string(),
-                fallback_reason: "semantic_verifier_task_error".to_string(),
-                ..qa::SemanticVerificationBatch::default()
-            },
-        }
-    };
-    qa::record_llm_budget_usage(&mut context, budget_guard.usage());
+    let qa::ProductionQaGenerated {
+        answer,
+        provider,
+        model,
+        offline,
+        semantic_verification,
+        audit: generated_audit,
+    } = generated;
 
     if !current_repository_matches(&state, &authoritative_repository_id) {
         finish_answer_request(&state, &request_id);
@@ -3893,12 +3675,6 @@ async fn ask_luna(
             enforce_answer_schema: !qa::natural_answer_v2_enabled()
                 && provider != qa::PROVIDER_OFFLINE,
         };
-        let audit = qa::audit_generated_answer_with_semantic(
-            &context,
-            &answer,
-            &metadata,
-            Some(&semantic_verification),
-        );
         let persisted = qa::persist_exchange_with_metadata_and_semantic(
             connection,
             &root,
@@ -3908,7 +3684,7 @@ async fn ask_luna(
             metadata,
             Some(&semantic_verification),
         );
-        (persisted, audit)
+        (persisted, generated_audit)
     };
 
     let (persist_result, failed_audit) = persisted;

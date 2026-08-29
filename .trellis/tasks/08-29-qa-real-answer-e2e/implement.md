@@ -2,10 +2,10 @@
 
 ## Phase 1 — Shared Core
 
-- [ ] 用 CodeGraph 固化 `ask_luna` prepare/generator/verifier/audit/persist 调用路径。
-- [ ] 先添加 deterministic wiring regression，证明 Runner 与 UI 调用同一 generator core。
-- [ ] 最小抽取 Tauri-independent production QA core；UI adapter 保持 Channel/AppState/persistence 行为。
-- [ ] 运行 targeted Rust tests 与 `qa::` suite，Git 提交。
+- [x] 用 CodeGraph 固化 `ask_luna` prepare/generator/verifier/audit/persist 调用路径。
+- [x] 先添加 deterministic wiring regression，证明 Runner 与 UI 调用同一 generator core。
+- [x] 最小抽取 Tauri-independent production QA core；UI adapter 保持 Channel/AppState/persistence 行为。
+- [x] 运行 targeted Rust tests 与 `qa::` suite，Git 提交。
 
 ## Phase 2 — Runner and Cases
 
