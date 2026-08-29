@@ -231,3 +231,22 @@ pub fn write_report(report: &ConversationReport, output: &Path) -> Result<(), St
     fs::write(&part, bytes).map_err(|error| format!("CONVERSATION_EVAL_WRITE_FAILED: {error}"))?;
     fs::rename(&part, output).map_err(|error| format!("CONVERSATION_EVAL_WRITE_FAILED: {error}"))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    #[test]
+    fn bundled_production_conversation_suite_preserves_all_frozen_state() {
+        let repository = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..");
+        let suite = load_suite(&repository.join("evals/production_conversation_cases.json"))
+            .expect("bundled production conversation suite must remain valid");
+        let report = evaluate(&suite).expect("bundled conversation suite must evaluate");
+
+        assert_eq!(report.case_count, 50);
+        assert_eq!(report.reference_resolution, 1.0);
+        assert_eq!(report.constraint_preservation, 1.0);
+        assert_eq!(report.objective_preservation, 1.0);
+    }
+}

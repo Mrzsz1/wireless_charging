@@ -213,7 +213,15 @@ fn canonical_mentions(value: &str, field: StateField) -> Vec<String> {
             ),
             (&["障碍物", "obstacle"], "obstacle_avoidance"),
             (
-                &["多车协同", "多辆车", "多充电车", "multi vehicle"],
+                &[
+                    "多车协同",
+                    "多辆车",
+                    "多充电车",
+                    "多个移动充电车",
+                    "多辆移动充电车",
+                    "multiple mobile chargers",
+                    "multi vehicle",
+                ],
                 "multi_vehicle_coordination",
             ),
             (
@@ -890,6 +898,23 @@ mod tests {
         assert!(patch.operations.iter().any(|operation| {
             operation.action == StateAction::Keep
                 && operation.value.as_ref().and_then(StateValue::as_text) == Some("deadlines")
+        }));
+    }
+
+    #[test]
+    fn multiple_mobile_chargers_are_a_coordination_constraint() {
+        let patch = extract_deterministic_patch(
+            "无线传感器网络使用多个移动充电车和节点 deadline。",
+            &[],
+            &ResearchStateSummary::default(),
+            Some("u1".into()),
+        );
+
+        assert!(patch.operations.iter().any(|operation| {
+            operation.field == StateField::Constraint
+                && operation.action == StateAction::Add
+                && operation.value.as_ref().and_then(StateValue::as_text)
+                    == Some("multi_vehicle_coordination")
         }));
     }
 
