@@ -15,9 +15,9 @@ pub struct PreparedProductionQa {
 pub struct ProductionQaGenerated {
     pub answer: String,
     pub provider: String,
-    pub model: String,
     pub offline: bool,
     pub semantic_verification: SemanticVerificationBatch,
+    pub metadata: ProviderRunMetadata,
     pub audit: AnswerAudit,
 }
 
@@ -270,9 +270,9 @@ where
     Ok(ProductionQaGenerated {
         answer,
         provider,
-        model,
         offline,
         semantic_verification,
+        metadata,
         audit,
     })
 }

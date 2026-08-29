@@ -19,6 +19,7 @@ mod problem_understanding;
 mod production_core;
 mod provider_capabilities;
 mod query_plan;
+pub(crate) mod real_e2e;
 mod reranker;
 mod research_memory;
 mod research_query_context;

@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "qa-real-generator-e2e-cases-v1",
+  "datasetRole": "development_regression_synthetic",
+  "version": "qa-real-generator-e2e-2026-08-29-v1",
+  "caseCount": 5,
+  "casesSha256": "859061e9d33e08aad2362c91f7ae0308273eb22b19eb1866100fce2e86fb59e9",
+  "cases": [
+    {
+      "id": "real-direct-rose",
+      "category": "direct",
+      "source": "regression",
+      "turns": [
+        {
+          "question": "《ROSE: Robustly Safe Charging for Wireless Power Transfer》如何建模多径传播造成的建设性和破坏性干涉？"
+        }
+      ],
+      "expectedExecutionMode": "direct",
+      "zeroEvidenceExpected": false,
+      "expectedResearchState": {
+        "objectives": [],
+        "constraints": [],
+        "excludedMethods": [],
+        "integerParameters": {}
+      }
+    },
+    {
+      "id": "real-research-improvement",
+      "category": "research",
+      "source": "development",
+      "turns": [
+        {
+          "question": "ROSE 方法有哪些可以由当前知识库证据支持的改进方向？"
+        }
+      ],
+      "expectedExecutionMode": "research",
+      "zeroEvidenceExpected": false,
+      "expectedResearchState": {
+        "objectives": [],
+        "constraints": [],
+        "excludedMethods": [],
+        "integerParameters": {}
+      }
+    },
+    {
+      "id": "real-exploratory-multi-charger",
+      "category": "exploratory",
+      "source": "synthetic",
+      "turns": [
+        {
+          "question": "探索一个新问题：如果无线传感器网络加入多个移动充电器和 deadline，有哪些不同类型的方法可能解决它？"
+        }
+      ],
+      "expectedExecutionMode": "exploratory",
+      "zeroEvidenceExpected": false,
+      "expectedResearchState": {
+        "objectives": [],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines"
+        ],
+        "excludedMethods": [],
+        "integerParameters": {}
+      }
+    },
+    {
+      "id": "real-multi-turn-state",
+      "category": "multi_turn",
+      "source": "regression",
+      "turns": [
+        {
+          "question": "研究目标是最小化延迟，约束是多个移动充电车和 deadline，移动充电车数量设为 2，先考虑 PSO。请先概括这个研究模型。"
+        },
+        {
+          "question": "这个方法有什么局限？"
+        },
+        {
+          "question": "不要 PSO，改用 MILP，并说明还有什么替代方案。"
+        }
+      ],
+      "expectedExecutionMode": "",
+      "zeroEvidenceExpected": false,
+      "expectedResearchState": {
+        "objectives": [
+          "minimize_delay"
+        ],
+        "constraints": [
+          "multi_vehicle_coordination",
+          "deadlines"
+        ],
+        "excludedMethods": [
+          "particle_swarm_optimization"
+        ],
+        "integerParameters": {
+          "mobile_charger_count": 2
+        }
+      }
+    },
+    {
+      "id": "real-zero-evidence",
+      "category": "zero_evidence",
+      "source": "synthetic",
+      "turns": [
+        {
+          "question": "当前知识库中的《QTC-9 量子拓扑结晶协议》如何利用潮汐引力完成无线充电调度？"
+        }
+      ],
+      "expectedExecutionMode": "",
+      "zeroEvidenceExpected": true,
+      "expectedResearchState": {
+        "objectives": [],
+        "constraints": [],
+        "excludedMethods": [],
+        "integerParameters": {}
+      }
+    }
+  ]
+}

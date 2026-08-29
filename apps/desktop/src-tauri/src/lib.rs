@@ -3600,9 +3600,9 @@ async fn ask_luna(
     let qa::ProductionQaGenerated {
         answer,
         provider,
-        model,
         offline,
         semantic_verification,
+        metadata: generated_metadata,
         audit: generated_audit,
     } = generated;
 
@@ -3659,29 +3659,13 @@ async fn ask_luna(
             .db
             .as_mut()
             .ok_or_else(|| "知识库在问答过程中已关闭".to_string())?;
-        let model_requested = match provider.as_str() {
-            qa::PROVIDER_CODEX => effective_codex_model.clone(),
-            qa::PROVIDER_API => settings.model.clone(),
-            _ => "deterministic".to_string(),
-        };
-        let temperature = (provider == qa::PROVIDER_API).then_some(settings.temperature);
-        let metadata = qa::ProviderRunMetadata {
-            provider: provider.clone(),
-            model_requested,
-            model_resolved: model.clone(),
-            temperature,
-            max_output_tokens: settings.max_output_tokens,
-            context_window_tokens: settings.context_window_tokens,
-            enforce_answer_schema: !qa::natural_answer_v2_enabled()
-                && provider != qa::PROVIDER_OFFLINE,
-        };
         let persisted = qa::persist_exchange_with_metadata_and_semantic(
             connection,
             &root,
             Some(&session_id),
             &context,
             answer,
-            metadata,
+            generated_metadata,
             Some(&semantic_verification),
         );
         (persisted, generated_audit)
@@ -4315,6 +4299,18 @@ pub fn run_conversation_state_benchmark_files(
     let passed = report.passed;
     qa::conversation_state_benchmark::write_report(&report, output)?;
     Ok(passed)
+}
+
+pub fn run_real_qa_e2e_files(
+    repository: &Path,
+    cases: &Path,
+    output: &Path,
+    model: &str,
+    effort: &str,
+) -> Result<bool, String> {
+    validate_repository(repository)?;
+    let report = qa::real_e2e::run_files(repository, cases, output, model, effort)?;
+    Ok(report.passed)
 }
 
 pub fn run_independent_heldout(options: HeldoutRunOptions) -> Result<PathBuf, String> {

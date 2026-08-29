@@ -9,11 +9,11 @@
 
 ## Phase 2 — Runner and Cases
 
-- [ ] 新增 5-case development/regression/synthetic schema，禁止 answer gold 与 heldout 来源。
-- [ ] 新增临时 SQLite/index/session 生命周期和 multi-turn production persistence。
-- [ ] 新增 metadata-only validator/report writer，使用 `.part → atomic rename`。
-- [ ] 新增 `qa-real-e2e` binary 与 `npm run eval:qa-real-e2e`。
-- [ ] 添加 schema、脱敏、unknown citation、budget、temporary DB cleanup 和 exit-code regression tests，Git 提交。
+- [x] 新增 5-case development/regression/synthetic schema，禁止 answer gold 与 heldout 来源。
+- [x] 新增临时 SQLite/index/session 生命周期和 multi-turn production persistence。
+- [x] 新增 metadata-only validator/report writer，使用 `.part → atomic rename`。
+- [x] 新增 `qa-real-e2e` binary 与 `npm run eval:qa-real-e2e`。
+- [x] 添加 schema、脱敏、unknown citation、budget、temporary DB cleanup 和 exit-code regression tests，Git 提交。
 
 ## Phase 3 — Real Execution
 
