@@ -17,17 +17,17 @@
 
 ## Phase 3 — Real Execution
 
-- [ ] 检查 Codex subscription 与 E 盘 semantic/reranker 部署。
-- [ ] 运行 `npm run eval:qa-real-e2e`，对每个不明失败最多一次有依据重试。
-- [ ] 检查报告不含 answer/prompt/path/secret，并记录真实 provider/model/stage/budget/citation/semantic 结果。
-- [ ] 若真实 Provider 不可用，报告环境阻塞，不修改生产 fallback。
+- [x] 检查 Codex subscription 与 E 盘 semantic/reranker 部署。
+- [x] 运行 `npm run eval:qa-real-e2e`，对每个不明失败最多一次有依据重试。
+- [x] 检查报告不含 answer/prompt/path/secret，并记录真实 provider/model/stage/budget/citation/semantic 结果。
+- [x] 若真实 Provider 不可用，报告环境阻塞，不修改生产 fallback（本次 Provider 可用，本项按非触发分支核验）。
 
 ## Phase 4 — Final Quality
 
-- [ ] `cargo fmt --check`。
-- [ ] `cargo clippy --lib --bins -- -D warnings`。
-- [ ] Rust QA/runner tests。
-- [ ] `npm run build` 与 script wiring 检查。
+- [x] `cargo fmt --check`。
+- [x] `cargo clippy --lib --bins -- -D warnings`。
+- [x] Rust QA/runner tests。
+- [x] `npm run build` 与 script wiring 检查。
 - [ ] 更新任务 AC、提交报告、归档 Trellis 并记录 journal。
 
 ## Guardrails
@@ -35,4 +35,3 @@
 - 不运行任何 heldout 命令或读取 heldout 数据。
 - 不增加 timeout/token ceilings，不降低 assertion/threshold，不保存完整模型回答。
 - 不在正式 App DB 创建、删除或迁移测试 session。
-

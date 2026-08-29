@@ -446,3 +446,65 @@ Claim splitting and same-claim citation attachment are part of the `natural-mark
 - `tools/qa_production_eval.py` is the single production collector. It executes or imports the real RAG, canonical 50-case conversation, semantic, performance, and reliability reports, binds them to one full Git SHA, and writes `evals/releases/<git-sha>/` (or an explicit non-system-drive output root) atomically. Reusing `*-latest.json` never changes the measured fields or manufactures missing external artifacts.
 - `tools/qa_heldout_workflow.py` owns the independent production workflow: 50 empty curator slots, canonical method/constraint IDs, canonical cases SHA-256, freeze seal, blind reviewer export, two distinct independent primary reviews, and third-party adjudication of exactly the disagreements. One sealed dataset/run pair derives `heldout.json`, `grounding.json`, and `open_research.json`; all three must have the same `sourceRun`.
 - `evals/qa_target_machine.json` is sealed before performance measurement and names the exact model revision, machine class, warmup/measured counts, minimum per-mode samples, cold-load limit, and Direct/Research/Exploratory P95 SLOs. `reranker-performance-eval` reports cold model load plus warm nearest-rank P50/P95/P99 per mode. Request telemetry separately records `modelLoadMs`, `inputPrepareMs`, `inferenceMs`, candidate/batch/max-length counts, and average input tokens. Warm session reuse must produce zero additional model-load time; stable dedup precedes the ExecutionMode candidate cap and batched rerank, while parent expansion follows rerank.
+
+## 14. Real Answer Generator Development E2E
+
+### 1. Scope / Trigger
+
+- Use this contract when proving that the desktop production QA path reaches a real final-answer Provider, semantic verification, audit, and persistence gate. It is a small Development/Regression/Synthetic diagnostic and never substitutes for Independent Held-out evaluation.
+
+### 2. Signatures
+
+- Shared production core: `prepare_production_qa(connection, root, request, request_id, cancelled) -> PreparedProductionQa` followed by `run_production_qa_generation(context, settings, budget_guard, codex_ready, model, effort, cancelled, on_token) -> ProductionQaGenerated`.
+- CLI bridge: `run_real_qa_e2e_files(repository, cases, output, model, effort) -> Result<bool, String>`.
+- Repository command: `npm run eval:qa-real-e2e`; the binary exits `0` for a passing complete suite, `2` for a measured suite with failed assertions, and `1` for setup/provider/runner failure.
+
+### 3. Contracts
+
+- UI `ask_luna` and the runner call the same two core functions. Only the UI adapter owns Tauri channels, active-request registration, repository identity checks, and the formal App database; the runner owns a UUID-named temporary SQLite workspace and production persistence for its isolated multi-turn history.
+- The generator call remains `budget_guard.reserve("generator") -> codex_subscription::stream_answer -> settle(actual)`. After every generation attempt the wrapper records final budget usage into `QuestionContext` and rebuilds `AnswerAudit`, so the returned audit contains the settled generator/verifier stages and rejections rather than a pre-settlement snapshot.
+- `evals/qa_real_generator_e2e_cases.json` contains exactly Direct, Research, Exploratory, Multi-turn, and Zero-evidence cases whose source is `development | regression | synthetic`, plus a canonical cases SHA-256. It contains no expected answer and no held-out material.
+- `qa-real-generator-e2e-report-v1` is metadata-only: case IDs/categories, pass state, execution/provider/model identities, aggregate evidence/citation/claim/semantic/budget/planner/reranker/state telemetry, and aggregate counts. It excludes questions, answers, prompts, content, credentials, provider payloads, absolute paths, and temporary paths.
+- A measured product gate failure is a valid E2E result and must be written to the report before exit `2`; it must not be converted to runner success. `QA_REAL_E2E_CASE_ID` may select one public case for diagnosis, but a selected-case report is always aggregate `passed=false` and cannot replace the default complete five-case run.
+- Semantic verification requires `succeeded`, or `unavailable` with a non-empty reason. A confirmed zero-evidence turn may instead record an empty/`not_requested` semantic status because there is no EvidenceItem to verify. Multi-turn final-state expectations are evaluated only after the final turn; an earlier persistence failure is reported through turn count and its product error, not mislabeled as a final-state mismatch.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required result |
+|---|---|
+| Codex subscription is not ready or a real model cannot be resolved | Stable `QA_REAL_E2E_PROVIDER_BLOCKED`; no fabricated report PASS |
+| Provider/model is not real, generator stage is absent, or generator reservation is rejected | Case FAIL with a bounded metadata error code |
+| A structured cited/appendix evidence ID is unknown | Case FAIL even when answer text is non-empty |
+| Semantic verification is unavailable for an evidence-backed turn | Accept only with explicit non-empty fallback reason and preserve the unavailable count |
+| A zero-evidence turn has no semantic batch | Accept empty/`not_requested` semantic status; completeness and zero-evidence answer gates still apply independently |
+| Production persistence rejects citation/completeness | Preserve the pre-persistence audit telemetry, stop that case, and report FAIL without saving answer text |
+| Temporary database scope ends | Remove SQLite, WAL, SHM, journal, and the UUID workspace; never touch the App database |
+
+### 5. Good / Base / Bad Cases
+
+- Good: all five public cases call the shared production core with real Codex and reranker metadata, produce a metadata-only report, and either pass or expose exact product gate failures.
+- Base: semantic verification returns an explicit budget/unavailable reason; the case remains auditable and fails only the independent production assertions that actually failed.
+- Bad: invoke `codex exec` from the runner, use a mock answer, copy QA logic, read Independent Held-out data, persist into the App database, serialize full answers, or mark a partial/single-case run as passing.
+
+### 6. Tests Required
+
+- Deterministic tests assert the exact five-category/source/hash fixture contract, shared UI/runner core entrypoints, temporary workspace cleanup, metadata redaction, unknown-citation rejection, generator-budget rejection, and zero-evidence semantic-not-run handling.
+- Final quality requires Rust format, clippy for library/binaries, the QA test subset, frontend production build/script wiring, and one default real five-case run. Do not repeatedly call the real model after a conclusive report.
+- Inspect the emitted JSON independently for forbidden content/path keys and assert `caseCount=5`, `generatorInvocationCount>=5`, real provider/model identities, and `realProviderMeasured=true`.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```text
+runner -> separate codex command/mock -> custom answer checks -> PASS
+```
+
+#### Correct
+
+```text
+UI adapter -----+
+                +-> shared prepare/generate/verify/audit core -> production persistence gate
+temp E2E adapter+
+                +-> metadata-only report -> explicit PASS or measured FAIL
+```

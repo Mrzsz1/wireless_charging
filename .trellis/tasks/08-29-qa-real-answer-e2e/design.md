@@ -32,9 +32,8 @@ Runner 在系统临时目录创建 SQLite，调用生产 schema/index builder �
 - Evidence citation validity 使用 current evidence ID set 和 production `CitationValidation`，不扫描或保存回答全文。
 - Natural Markdown v2 的结构化 provenance 以 run manifest/citation validation 为准，不要求最终正文保留 `[E#]`。
 - Zero-evidence 接受 `unverified` 与明确无证据 notice 契约，但禁止 unknown IDs/伪造 evidence。
-- Semantic status 只有 `succeeded` 或带非空 fallback reason 的 `unavailable` 可解释；最终报告分别计数。
+- 有证据轮的 Semantic status 只有 `succeeded` 或带非空 fallback reason 的 `unavailable` 可解释；确认零证据轮可为空/`not_requested`，因为没有 EvidenceItem 可验证。
 
 ## Compatibility and Rollback
 
 UI 对外 Tauri signature、event 顺序、persistence schema 和用户可见 answer 不变。共享函数抽取前后使用 deterministic wiring tests 对比关键 metadata。每个逻辑变更独立 Git commit，可普通 revert。
-

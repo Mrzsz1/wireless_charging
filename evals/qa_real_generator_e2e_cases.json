@@ -3,7 +3,7 @@
   "datasetRole": "development_regression_synthetic",
   "version": "qa-real-generator-e2e-2026-08-29-v1",
   "caseCount": 5,
-  "casesSha256": "859061e9d33e08aad2362c91f7ae0308273eb22b19eb1866100fce2e86fb59e9",
+  "casesSha256": "31ba30cae3a081cb818f6e3f76ba0f3bba11147134591877cd699779c84e4eb9",
   "cases": [
     {
       "id": "real-direct-rose",
@@ -11,7 +11,7 @@
       "source": "regression",
       "turns": [
         {
-          "question": "《ROSE: Robustly Safe Charging for Wireless Power Transfer》如何建模多径传播造成的建设性和破坏性干涉？"
+          "question": "根据《ROSE: Robustly Safe Charging for Wireless Power Transfer》，ROSE 主要解决什么问题？"
         }
       ],
       "expectedExecutionMode": "direct",
@@ -29,7 +29,7 @@
       "source": "development",
       "turns": [
         {
-          "question": "ROSE 方法有哪些可以由当前知识库证据支持的改进方向？"
+          "question": "有哪些相关论文研究 ROSE 无线充电安全调度？请基于当前知识库证据归纳。"
         }
       ],
       "expectedExecutionMode": "research",
@@ -47,7 +47,7 @@
       "source": "synthetic",
       "turns": [
         {
-          "question": "探索一个新问题：如果无线传感器网络加入多个移动充电器和 deadline，有哪些不同类型的方法可能解决它？"
+          "question": "可以从哪些方向研究多个移动充电器与 deadline 约束下的无线充电调度？"
         }
       ],
       "expectedExecutionMode": "exploratory",

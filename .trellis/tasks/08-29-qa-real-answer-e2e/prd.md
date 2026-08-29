@@ -54,15 +54,22 @@
 
 ## Acceptance Criteria
 
-- [ ] AC1：`eval:qa-real-e2e` 使用 UI 同源 QA Core 和真实 `codex-subscription`。
-- [ ] AC2：Direct/Research/Exploratory/Multi-turn/Zero-evidence 五类 case 全部执行。
-- [ ] AC3：正式 App 数据库无测试会话污染，临时数据库运行后删除。
-- [ ] AC4：报告不含完整答案或敏感数据，且以稳定 schema 输出。
-- [ ] AC5：provider/model/generator stage/budget/citation/semantic/manifest 契约全部自动验证。
-- [ ] AC6：针对 runner schema、报告脱敏、临时数据库隔离和 UI/core 同源接线增加 deterministic regression tests。
-- [ ] AC7：Rust QA tests、fmt、clippy、frontend script wiring/build 通过。
-- [ ] AC8：真实 5-case E2E 给出明确 PASS/FAIL；provider 环境问题不得伪装为代码 PASS。
-- [ ] AC9：未使用 Independent Held-out，未修改 Frozen Threshold、Token Ceiling、Prompt 或 QA 算法。
+- [x] AC1：`eval:qa-real-e2e` 使用 UI 同源 QA Core 和真实 `codex-subscription`。
+- [x] AC2：Direct/Research/Exploratory/Multi-turn/Zero-evidence 五类 case 全部执行。
+- [x] AC3：正式 App 数据库无测试会话污染，临时数据库运行后删除。
+- [x] AC4：报告不含完整答案或敏感数据，且以稳定 schema 输出。
+- [x] AC5：provider/model/generator stage/budget/citation/semantic/manifest 契约全部自动验证。
+- [x] AC6：针对 runner schema、报告脱敏、临时数据库隔离和 UI/core 同源接线增加 deterministic regression tests。
+- [x] AC7：Rust QA tests、fmt、clippy、frontend script wiring/build 通过。
+- [x] AC8：真实 5-case E2E 给出明确 PASS/FAIL；provider 环境问题不得伪装为代码 PASS。
+- [x] AC9：未使用 Independent Held-out，未修改 Frozen Threshold、Token Ceiling、Prompt 或 QA 算法。
+
+## Measured Result
+
+- 2026-08-29 完整执行 5 个公开 case，真实 Provider 为 `codex-subscription`，模型为 `gpt-5.6-luna`，真实 generator 调用 5 次。
+- 结果为明确 `FAIL`（0/5）；该结果是 QA 生产门禁失败，不是 Provider 未运行或 Runner 伪 PASS。
+- 结构化引用 ID 无 unknown，generator fallback=0，generator budget rejection=0，真实 reranker 无 fallback。
+- 已确认的后续产品缺口是 grounding/claim verification 失败、Direct/Multi-turn 语义验证预算不足、Exploratory 完整性/状态保留失败、Zero-evidence 完整性失败。这些修复超出本 Runner 任务的不可变范围。
 
 ## Out of Scope
 
