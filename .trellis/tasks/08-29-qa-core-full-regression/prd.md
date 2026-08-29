@@ -49,16 +49,16 @@
 
 ## Acceptance Criteria
 
-- [ ] AC1：环境、branch、baseline commit、toolchain、provider 和本地模型状态已记录。
-- [ ] AC2：QaRunManifest v21、Conversation/Research/Parameter、Semantic v2、Natural Answer v2、Evaluation v4 与 Rust/TS 字段静态契约无 drift。
-- [ ] AC3：A–J 十组矩阵均有来自实际测试的 PASS/FAIL/BLOCKED 数量和证据。
-- [ ] AC4：所有可执行 deterministic QA suites 通过，或存在可复现且明确记录的未修复阻塞。
-- [ ] AC5：公开 Development/Regression 生产路径通过，或真实环境/provider 阻塞被单独列出。
-- [ ] AC6：`parameterStateCorruptionCount = 0`，zero-evidence、unknown citation、Semantic Unknown/Contradicted、provider failure session safety、budget ledger 与真实超限契约均已验证。
-- [ ] AC7：`cargo fmt --check`、`cargo clippy --lib -- -D warnings`、QA Rust tests、Python regression、frontend QA tests、TypeScript build/type check 均有实际结果。
-- [ ] AC8：未使用 Independent Held-out，未修改 Frozen Threshold，未做性能优化。
-- [ ] AC9：最终报告回答任务书要求的 25 个问题，最终状态仅为 PASS、PARTIAL-BLOCKED 或 FAIL。
-- [ ] AC10：桌面应用完成 release 编译并执行本机安装验证。
+- [x] AC1：环境、branch、baseline commit、toolchain、provider 和本地模型状态已记录。
+- [x] AC2：QaRunManifest v21、Conversation/Research/Parameter、Semantic v2、Natural Answer v2、Evaluation v4 与 Rust/TS 字段静态契约无 drift。
+- [x] AC3：A–J 十组矩阵均有来自实际测试的 PASS/FAIL/BLOCKED 数量和证据。
+- [x] AC4：所有可执行 deterministic QA suites 通过，或存在可复现且明确记录的未修复阻塞。
+- [x] AC5：公开 Development/Regression 生产路径通过，或真实环境/provider 阻塞被单独列出。
+- [x] AC6：`parameterStateCorruptionCount = 0`，zero-evidence、unknown citation、Semantic Unknown/Contradicted、provider failure session safety、budget ledger 与真实超限契约均已验证。
+- [x] AC7：`cargo fmt --check`、`cargo clippy --lib -- -D warnings`、QA Rust tests、Python regression、frontend QA tests、TypeScript build/type check 均有实际结果。
+- [x] AC8：未使用 Independent Held-out，未修改 Frozen Threshold，未做性能优化。
+- [x] AC9：最终报告回答任务书要求的 25 个问题，最终状态仅为 PASS、PARTIAL-BLOCKED 或 FAIL。
+- [x] AC10：桌面应用完成 release 编译并执行本机安装验证。
 
 ## Out of Scope
 

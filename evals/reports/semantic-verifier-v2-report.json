@@ -855,7 +855,7 @@
   "invalidJsonRate": 0.0,
   "fallbackRate": 0.0,
   "invalidVerifiedStateCount": 0,
-  "totalLatencyMs": 64507,
+  "totalLatencyMs": 380046,
   "results": [
     {
       "id": "SV2-001",
@@ -864,7 +864,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1115,
+      "latencyMs": 6101,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -876,7 +876,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1115,
+      "latencyMs": 6101,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -888,7 +888,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1115,
+      "latencyMs": 6101,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -900,7 +900,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1115,
+      "latencyMs": 6101,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -912,7 +912,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1115,
+      "latencyMs": 6101,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -924,7 +924,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1115,
+      "latencyMs": 6101,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -936,7 +936,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1115,
+      "latencyMs": 6101,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -948,7 +948,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1115,
+      "latencyMs": 6101,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -960,7 +960,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1115,
+      "latencyMs": 6101,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -972,7 +972,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1114,
+      "latencyMs": 6101,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -984,7 +984,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1114,
+      "latencyMs": 6101,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -996,7 +996,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1114,
+      "latencyMs": 6100,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1008,7 +1008,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1114,
+      "latencyMs": 6100,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1020,7 +1020,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1114,
+      "latencyMs": 6100,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1032,7 +1032,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1114,
+      "latencyMs": 6100,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1044,7 +1044,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1114,
+      "latencyMs": 6100,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1056,7 +1056,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1114,
+      "latencyMs": 6100,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1068,7 +1068,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1114,
+      "latencyMs": 6100,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1080,7 +1080,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1114,
+      "latencyMs": 6100,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1092,7 +1092,7 @@
       "predicted": "entailed",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1114,
+      "latencyMs": 6100,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1104,7 +1104,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 994,
+      "latencyMs": 6441,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1116,7 +1116,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 994,
+      "latencyMs": 6441,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1128,7 +1128,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 994,
+      "latencyMs": 6441,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1140,7 +1140,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 994,
+      "latencyMs": 6441,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1152,7 +1152,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 994,
+      "latencyMs": 6441,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1164,7 +1164,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 994,
+      "latencyMs": 6440,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1176,7 +1176,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 994,
+      "latencyMs": 6440,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1188,7 +1188,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 993,
+      "latencyMs": 6440,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1200,7 +1200,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 993,
+      "latencyMs": 6440,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1212,7 +1212,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 993,
+      "latencyMs": 6440,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1224,7 +1224,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 993,
+      "latencyMs": 6440,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1236,7 +1236,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 993,
+      "latencyMs": 6440,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1248,7 +1248,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 993,
+      "latencyMs": 6440,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1260,7 +1260,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 993,
+      "latencyMs": 6440,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1272,7 +1272,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 993,
+      "latencyMs": 6440,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1284,7 +1284,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 993,
+      "latencyMs": 6440,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1296,7 +1296,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 993,
+      "latencyMs": 6440,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1308,7 +1308,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 993,
+      "latencyMs": 6440,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1320,7 +1320,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 993,
+      "latencyMs": 6440,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1332,7 +1332,7 @@
       "predicted": "contradicted",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 993,
+      "latencyMs": 6440,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1344,7 +1344,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1118,
+      "latencyMs": 6462,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1356,7 +1356,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1118,
+      "latencyMs": 6462,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1368,7 +1368,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1118,
+      "latencyMs": 6462,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1380,7 +1380,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1118,
+      "latencyMs": 6462,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1392,7 +1392,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1118,
+      "latencyMs": 6462,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1404,7 +1404,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1118,
+      "latencyMs": 6462,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1416,7 +1416,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1118,
+      "latencyMs": 6462,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1428,7 +1428,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1118,
+      "latencyMs": 6462,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1440,7 +1440,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1118,
+      "latencyMs": 6462,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1452,7 +1452,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1118,
+      "latencyMs": 6462,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1464,7 +1464,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1118,
+      "latencyMs": 6461,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1476,7 +1476,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1117,
+      "latencyMs": 6461,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1488,7 +1488,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1117,
+      "latencyMs": 6461,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1500,7 +1500,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1117,
+      "latencyMs": 6461,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1512,7 +1512,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1117,
+      "latencyMs": 6461,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1524,7 +1524,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1117,
+      "latencyMs": 6461,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1536,7 +1536,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1117,
+      "latencyMs": 6461,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1548,7 +1548,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1117,
+      "latencyMs": 6461,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1560,7 +1560,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1117,
+      "latencyMs": 6461,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
@@ -1572,7 +1572,7 @@
       "predicted": "unknown",
       "correct": true,
       "status": "succeeded",
-      "latencyMs": 1117,
+      "latencyMs": 6461,
       "provider": "codex-subscription",
       "fallback": false,
       "fallbackReason": ""
