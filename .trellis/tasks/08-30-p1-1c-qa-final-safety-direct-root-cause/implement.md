@@ -16,10 +16,10 @@
 
 ## Phase 2 — Trusted history
 
-- [ ] Replace whole-answer trust projection with ordered Final Supported claim projection.
-- [ ] Exclude suggestions, notices, supplements, appendix, and non-supported statuses.
-- [ ] Add five trusted-context/multi-turn pollution regressions and logging assertions.
-- [ ] Commit `fix(qa): build trusted history from final supported claims`.
+- [x] Replace whole-answer trust projection with ordered Final Supported claim projection.
+- [x] Exclude suggestions, notices, supplements, appendix, and non-supported statuses.
+- [x] Add five trusted-context/multi-turn pollution regressions and logging assertions.
+- [x] Commit `fix(qa): build trusted history from final supported claims`.
 
 ## Phase 3 — Final-only UI delivery
 

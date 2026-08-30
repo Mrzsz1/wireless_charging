@@ -750,41 +750,6 @@ pub fn validate_citations(answer: &str, evidence: &[EvidenceItem]) -> CitationVa
     }
 }
 
-pub fn trusted_context(answer: &str, grounding_status: &str) -> String {
-    if !matches!(
-        grounding_status,
-        "supported" | "mixed" | "partially_supported"
-    ) {
-        return String::new();
-    }
-    let boundary = [
-        answer.find(MODEL_SUPPLEMENT_HEADING),
-        answer.find(super::natural_answer::APPENDIX_HEADING),
-    ]
-    .into_iter()
-    .flatten()
-    .min();
-    let verified = boundary.map(|start| &answer[..start]).unwrap_or(answer);
-    let mut trusted = remove_citation_tokens(verified);
-    for notice in [
-        INSUFFICIENT_SUPPORT_NOTICE,
-        UNVERIFIABLE_NOTICE,
-        CONTRADICTED_NOTICE,
-        PARTIAL_SUPPORT_NOTICE,
-        NO_SUPPORTED_CLAIMS_NOTICE,
-    ] {
-        trusted = trusted.replace(notice, "");
-    }
-    trusted
-        .lines()
-        .map(str::trim_end)
-        .filter(|line| !line.trim().is_empty() && !matches!(line.trim(), "-" | "*" | "+"))
-        .collect::<Vec<_>>()
-        .join("\n")
-        .trim()
-        .to_string()
-}
-
 pub fn normalize_unverified_answer(answer: &str) -> String {
     let mut body = answer.trim().to_string();
     let mut search_from = 0;
@@ -996,11 +961,6 @@ mod tests {
         assert_eq!(validation.cited_claim_count, 1);
         assert_eq!(validation.model_supplement_claim_count, 1);
         assert!(validation.unsupported_claims.is_empty());
-        let trusted = trusted_context(&answer, &validation.grounding_status);
-        assert!(trusted.contains("当前库支持这个结论"));
-        assert!(!trusted.contains("[E1]"));
-        assert!(!trusted.contains("自适应算法"));
-        assert!(!trusted.contains(MODEL_SUPPLEMENT_HEADING));
     }
 
     #[test]

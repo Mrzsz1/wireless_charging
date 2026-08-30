@@ -114,6 +114,46 @@ pub struct FinalGroundingAudit {
     pub claims: Vec<VerifiedClaim>,
 }
 
+pub fn trusted_context_from_final_audit(audit: &FinalGroundingAudit) -> String {
+    if audit.audit_status != "succeeded"
+        || audit.grounding_status != "supported"
+        || audit.supported_count == 0
+        || audit.supported_count != audit.factual_claim_count
+        || audit.unsupported_count != 0
+        || !audit.unknown_evidence_ids.is_empty()
+    {
+        return String::new();
+    }
+    let mut seen = HashSet::new();
+    let mut trusted = Vec::new();
+    let mut eligible_count = 0usize;
+    for claim in &audit.claims {
+        if claim.verification_status != VerificationStatus::Supported {
+            continue;
+        }
+        eligible_count += 1;
+        if claim.claim_type == ClaimType::ResearchSuggestion || claim.evidence_ids.is_empty() {
+            return String::new();
+        }
+        let visible = natural_answer::project_visible_text(&claim.text)
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ")
+            .trim()
+            .to_string();
+        if visible.is_empty() || is_grounding_system_notice(&visible) {
+            return String::new();
+        }
+        if seen.insert(visible.clone()) {
+            trusted.push(visible);
+        }
+    }
+    if eligible_count != audit.supported_count {
+        return String::new();
+    }
+    trusted.join("\n")
+}
+
 fn normalized_claim_text(value: &str) -> String {
     value
         .split_whitespace()
@@ -1358,6 +1398,73 @@ mod tests {
         let first = audit_repaired_answer(&repaired, std::slice::from_ref(&source), &draft);
         let second = audit_repaired_answer(&repaired, &[source], &draft);
         assert_eq!(first, second);
+    }
+
+    #[test]
+    fn trusted_context_uses_only_ordered_final_supported_facts() {
+        let source =
+            evidence("ROSE uses particle swarm optimization for mobile charger scheduling.");
+        let answer = concat!(
+            "ROSE uses particle swarm optimization for mobile charger scheduling [E1]. ",
+            "建议后续考虑方法 B。",
+        );
+        let (repaired, draft) = verify_and_repair(answer, std::slice::from_ref(&source));
+        let mut audit = audit_repaired_answer(&repaired, &[source], &draft);
+        assert_eq!(audit.grounding_status, "supported");
+        assert_eq!(audit.supported_count, 1);
+        assert_eq!(audit.not_applicable_count, 1);
+
+        let trusted = trusted_context_from_final_audit(&audit);
+        assert_eq!(
+            trusted,
+            "ROSE uses particle swarm optimization for mobile charger scheduling ."
+        );
+        assert!(!trusted.contains("方法 B"));
+
+        let mut suggestion = audit
+            .claims
+            .iter()
+            .find(|claim| claim.verification_status == VerificationStatus::NotApplicable)
+            .unwrap()
+            .clone();
+        suggestion.text = format!("## 模型补充（可能不准确）\n{}", PARTIAL_SUPPORT_NOTICE);
+        audit.claims.push(suggestion);
+        assert_eq!(trusted_context_from_final_audit(&audit), trusted);
+    }
+
+    #[test]
+    fn trusted_context_fails_closed_for_invalid_or_notice_claims_and_deduplicates() {
+        let source = evidence("ROSE schedules a charger.");
+        let answer = "ROSE schedules a charger [E1].";
+        let (repaired, draft) = verify_and_repair(answer, std::slice::from_ref(&source));
+        let audit = audit_repaired_answer(&repaired, &[source], &draft);
+        let expected = trusted_context_from_final_audit(&audit);
+        assert!(!expected.is_empty());
+
+        let mut invalid = audit.clone();
+        invalid.grounding_status = "invalid".to_string();
+        assert!(trusted_context_from_final_audit(&invalid).is_empty());
+
+        let mut notice = audit.clone();
+        notice.claims[0].text = INSUFFICIENT_SUPPORT_NOTICE.to_string();
+        assert!(trusted_context_from_final_audit(&notice).is_empty());
+
+        let mut duplicate = audit.clone();
+        let mut repeated = duplicate.claims[0].clone();
+        repeated.id = "C2".to_string();
+        duplicate.claims.push(repeated);
+        duplicate.factual_claim_count = 2;
+        duplicate.supported_count = 2;
+        duplicate.cited_claim_count = 2;
+        assert_eq!(trusted_context_from_final_audit(&duplicate), expected);
+
+        let mut none = audit;
+        none.factual_claim_count = 0;
+        none.supported_count = 0;
+        none.cited_claim_count = 0;
+        none.grounding_status = "insufficient_supported_claims".to_string();
+        none.claims.clear();
+        assert!(trusted_context_from_final_audit(&none).is_empty());
     }
 
     #[test]

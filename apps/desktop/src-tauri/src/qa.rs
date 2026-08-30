@@ -41,7 +41,9 @@ pub use adaptive_routing::{policy as routing_policy, LlmBudgetGuard, LlmBudgetUs
 pub(crate) use claim_verification::extract_atomic_claims;
 pub(crate) use claim_verification::VerificationStatus;
 pub use claim_verification::VerifiedClaim;
-pub use claim_verification::{FinalGroundingAudit, SemanticVerificationBatch};
+pub use claim_verification::{
+    trusted_context_from_final_audit, FinalGroundingAudit, SemanticVerificationBatch,
+};
 pub use context::{
     estimate_tokens, CitationRepair, ContextBudget, ContextPlan, ProviderRunMetadata,
     QaRunManifest, DEFAULT_CONTEXT_WINDOW_TOKENS,
@@ -49,9 +51,7 @@ pub use context::{
 #[cfg(test)]
 pub use context::{AnswerCompletenessValidation, EvidenceChecksum};
 use grounding::{claim_segments, extract_citation_ids};
-pub use grounding::{
-    normalize_unverified_answer, repair_unknown_citations, trusted_context, validate_citations,
-};
+pub use grounding::{normalize_unverified_answer, repair_unknown_citations, validate_citations};
 pub use metrics::RetrievalDiagnostics;
 use metrics::RetrievalDiagnosticsBuilder;
 #[cfg(test)]
@@ -3697,7 +3697,24 @@ fn persist_exchange_with_metadata_and_semantic_inner(
         "mixed" | "partially_supported" => "mixed",
         _ => "completed",
     };
-    let assistant_trusted_context = trusted_context(&answer, &citation_validation.grounding_status);
+    let assistant_trusted_context =
+        trusted_context_from_final_audit(&run_manifest.final_grounding_audit);
+    let mut trusted_context_event = trace::QaTraceEvent::new(
+        "qa_trusted_context_projection_completed",
+        "trusted_context_projection",
+        if assistant_trusted_context.is_empty() {
+            "empty"
+        } else {
+            "succeeded"
+        },
+        &context.request_id,
+    );
+    trusted_context_event.execution_mode = context.retrieval_query.execution_mode.clone();
+    trusted_context_event.claim_count =
+        Some(run_manifest.final_grounding_audit.factual_claim_count);
+    trusted_context_event.supported_claim_count =
+        Some(run_manifest.final_grounding_audit.supported_count);
+    trace::emit(&trusted_context_event);
     let user_message = make_message(
         &session,
         "user",
@@ -5741,7 +5758,7 @@ mod tests {
             root.path(),
             Some("final-audit-persisted"),
             &context,
-            "ROSE schedules a mobile charger with particle swarm optimization [E1]. The moon is made of cheese [E1].".to_string(),
+            "ROSE schedules a mobile charger with particle swarm optimization [E1]. The moon is made of cheese [E1]. 建议后续考虑方法 B。".to_string(),
             metadata,
             Some(&semantic),
         )
@@ -5761,24 +5778,17 @@ mod tests {
         assert!(result.citation_validation.supported);
         assert_eq!(result.citation_validation.citation_coverage, 1.0);
         assert!(!result.assistant_message.content.contains("made of cheese"));
-    }
-
-    #[test]
-    fn grounding_system_notices_never_enter_trusted_history() {
-        let answer = format!(
-            "Verified claim [E1]. {}\n{}",
-            grounding::INSUFFICIENT_SUPPORT_NOTICE,
-            grounding::PARTIAL_SUPPORT_NOTICE
-        );
-        let trusted = trusted_context(&answer, "supported");
-        assert_eq!(trusted, "Verified claim .");
-        assert!(!trusted.contains("证据不足"));
-        assert!(!trusted.contains("部分支持"));
-        assert!(trusted_context(
-            grounding::NO_SUPPORTED_CLAIMS_NOTICE,
-            "insufficient_supported_claims"
-        )
-        .is_empty());
+        assert!(result.assistant_message.content.contains("方法 B"));
+        let stored_trusted: String = connection
+            .query_row(
+                "SELECT trusted_context FROM chat_messages WHERE id=?1",
+                [&result.assistant_message.id],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert!(stored_trusted.contains("ROSE schedules a mobile charger"));
+        assert!(!stored_trusted.contains("made of cheese"));
+        assert!(!stored_trusted.contains("方法 B"));
     }
 
     #[test]
