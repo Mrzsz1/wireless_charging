@@ -844,7 +844,15 @@ fn classify_codex_terminal_message(message: &str) -> &'static str {
         ],
     ) {
         "server_overloaded"
-    } else if contains_any(&lower, &["websocket", "transport"]) {
+    } else if contains_any(
+        &lower,
+        &[
+            "websocket",
+            "transport",
+            "request timed out",
+            "stream disconnected",
+        ],
+    ) {
         "transport"
     } else if contains_any(
         &lower,
@@ -1746,6 +1754,7 @@ mod tests {
             ("rate limit exceeded private-detail", "rate_limit"),
             ("service unavailable private-detail", "server_overloaded"),
             ("websocket transport failed private-detail", "transport"),
+            ("provider request timed out private-detail", "transport"),
             ("connection reset private-detail", "connection"),
             ("protocol error private-detail", "protocol"),
             ("model unavailable private-detail", "model_unavailable"),
