@@ -40,3 +40,41 @@ Added Report v5 Planner diagnostics, strict Research/Exploratory gates, stable f
 ### Next Steps
 
 - None - task complete
+
+
+## Session 60: P1-3F Codex Planner provider exit diagnosis
+
+**Date**: 2026-08-30
+**Task**: P1-3F Codex Planner provider exit diagnosis
+**Branch**: `master`
+
+### Summary
+
+Preserved and classified Codex JSONL terminal failures, added repository-external raw diagnostics and isolated A/B/C probes, and proved Probe A is blocked by an external transport failure. B/C and final Research were correctly not run; Planner Schema/input/timeout/budgets and answer safety behavior remain unchanged.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `c7d6bd6` | (see git log) |
+| `f3c918a` | (see git log) |
+| `324704f` | (see git log) |
+| `4c8c3c0` | (see git log) |
+| `d2a946e` | (see git log) |
+| `1d3d46f` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
