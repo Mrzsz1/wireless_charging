@@ -1769,6 +1769,20 @@ mod tests {
 
     struct FixtureSemanticProvider {
         response: Result<String, String>,
+        calls: std::sync::atomic::AtomicUsize,
+    }
+
+    impl FixtureSemanticProvider {
+        fn new(response: Result<String, String>) -> Self {
+            Self {
+                response,
+                calls: std::sync::atomic::AtomicUsize::new(0),
+            }
+        }
+
+        fn calls(&self) -> usize {
+            self.calls.load(std::sync::atomic::Ordering::SeqCst)
+        }
     }
 
     impl VerificationProvider for FixtureSemanticProvider {
@@ -1782,18 +1796,17 @@ mod tests {
             _: &Value,
             _: &AtomicBool,
         ) -> Result<String, String> {
+            self.calls.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
             self.response.clone()
         }
     }
 
     #[test]
     fn semantic_provider_is_real_checked_and_overrides_lexical_partial_with_entailment() {
-        let provider = FixtureSemanticProvider {
-            response: Ok(
+        let provider = FixtureSemanticProvider::new(Ok(
                 r#"{"results":[{"claimId":"C1","status":"entailed","confidence":0.94,"reason":"The evidence directly states the claim."}]}"#
                     .to_string(),
-            ),
-        };
+            ));
         let source = evidence("ROSE schedules a mobile charger using PSO.");
         let guard = LlmBudgetGuard::new(super::super::adaptive_routing::policy("direct"));
         let batch = run_semantic_verification(
@@ -1821,6 +1834,135 @@ mod tests {
         );
         assert_eq!(report.claims[0].verification_method, "semantic_nli");
         assert_eq!(report.claims[0].confidence, Some(0.94));
+    }
+
+    #[test]
+    fn reserved_semantic_call_succeeds_after_direct_understanding_and_generator() {
+        let provider = FixtureSemanticProvider::new(Ok(
+            r#"{"results":[{"claimId":"C1","status":"entailed","confidence":0.96,"reason":"Mapped evidence entails the claim."}]}"#
+                .to_string(),
+        ));
+        let source = evidence("ROSE schedules a mobile charger using PSO.");
+        let guard = LlmBudgetGuard::new(super::super::adaptive_routing::policy("direct"));
+        for stage in ["understanding", "generator"] {
+            guard.reserve(stage, 2_000).unwrap().settle(500).unwrap();
+        }
+
+        let batch = run_semantic_verification(
+            &provider,
+            "fixture-nli",
+            "ROSE uses PSO for charger scheduling [E1].",
+            std::slice::from_ref(&source),
+            &guard,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+
+        assert_eq!(batch.status, "succeeded");
+        assert_eq!(batch.results.len(), 1);
+        assert_eq!(provider.calls(), 1);
+        let usage = guard.usage();
+        assert_eq!(usage.calls_used, 3);
+        assert!(usage.rejections.is_empty());
+        assert!(usage
+            .stages
+            .contains(&super::super::adaptive_routing::SEMANTIC_VERIFIER_STAGE.to_string()));
+        assert!(usage
+            .stages
+            .contains(&"semantic_verifier:settled".to_string()));
+    }
+
+    #[test]
+    fn real_semantic_token_overrun_remains_unavailable() {
+        let provider = FixtureSemanticProvider::new(Ok(
+            r#"{"results":[{"claimId":"C1","status":"entailed","confidence":0.96,"reason":"Mapped evidence entails the claim."}]}"#
+                .to_string(),
+        ));
+        let source = evidence("ROSE schedules a mobile charger using PSO.");
+        let guard = LlmBudgetGuard::new(super::super::adaptive_routing::policy("direct"));
+        guard
+            .reserve("understanding", 7_000)
+            .unwrap()
+            .settle(7_000)
+            .unwrap();
+
+        let batch = run_semantic_verification(
+            &provider,
+            "fixture-nli",
+            "ROSE uses PSO for charger scheduling [E1].",
+            std::slice::from_ref(&source),
+            &guard,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+
+        assert_eq!(batch.status, "unavailable");
+        assert_eq!(batch.fallback_reason, "llm_budget_exceeded");
+        assert_eq!(provider.calls(), 0);
+        assert_eq!(
+            guard.usage().rejections,
+            vec!["semantic_verifier:token_budget"]
+        );
+    }
+
+    #[test]
+    fn no_eligible_claim_does_not_consume_semantic_reserve() {
+        let provider = FixtureSemanticProvider::new(Err("SHOULD_NOT_RUN".to_string()));
+        let source = evidence("ROSE schedules a mobile charger using PSO.");
+        let guard = LlmBudgetGuard::new(super::super::adaptive_routing::policy("direct"));
+
+        let batch = run_semantic_verification(
+            &provider,
+            "fixture-nli",
+            "This sentence has no evidence mapping.",
+            &[source],
+            &guard,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+
+        assert_eq!(batch.status, "not_requested");
+        assert_eq!(provider.calls(), 0);
+        assert_eq!(guard.usage().calls_used, 0);
+        let semantic = guard
+            .reserve(
+                super::super::adaptive_routing::SEMANTIC_VERIFIER_STAGE,
+                1_000,
+            )
+            .unwrap();
+        semantic.release().unwrap();
+    }
+
+    #[test]
+    fn fixture_semantic_unknown_remains_not_verifiable() {
+        let provider = FixtureSemanticProvider::new(Ok(
+            r#"{"results":[{"claimId":"C1","status":"unknown","confidence":0.87,"reason":"The evidence covers only one tested size."}]}"#
+                .to_string(),
+        ));
+        let source = evidence("The experiment reports a measured improvement at 50 nodes.");
+        let answer = "The method improves every network size [E1].";
+        let guard = LlmBudgetGuard::new(super::super::adaptive_routing::policy("direct"));
+        let batch = run_semantic_verification(
+            &provider,
+            "fixture-nli",
+            answer,
+            std::slice::from_ref(&source),
+            &guard,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        let (_, report) =
+            verify_and_repair_with_semantic(answer, std::slice::from_ref(&source), Some(&batch));
+
+        assert_eq!(batch.status, "succeeded");
+        assert_eq!(
+            report.claims[0].verification_status,
+            VerificationStatus::NotVerifiable
+        );
+        assert_ne!(
+            report.claims[0].verification_status,
+            VerificationStatus::Supported
+        );
     }
 
     #[test]
@@ -1872,9 +2014,7 @@ mod tests {
     #[test]
     fn invalid_semantic_json_and_budget_rejection_are_audited_as_fallback() {
         let source = evidence("ROSE schedules a charger.");
-        let invalid = FixtureSemanticProvider {
-            response: Ok("not-json".to_string()),
-        };
+        let invalid = FixtureSemanticProvider::new(Ok("not-json".to_string()));
         let guard = LlmBudgetGuard::new(super::super::adaptive_routing::policy("direct"));
         let batch = run_semantic_verification(
             &invalid,
@@ -1888,9 +2028,7 @@ mod tests {
         assert_eq!(batch.status, "unavailable");
         assert_eq!(batch.fallback_reason, "semantic_verifier_invalid");
 
-        let timeout = FixtureSemanticProvider {
-            response: Err("PROVIDER_TIMEOUT: fixture".to_string()),
-        };
+        let timeout = FixtureSemanticProvider::new(Err("PROVIDER_TIMEOUT: fixture".to_string()));
         let timeout_guard = LlmBudgetGuard::new(super::super::adaptive_routing::policy("direct"));
         let timed_out = run_semantic_verification(
             &timeout,
@@ -1906,12 +2044,10 @@ mod tests {
 
         let exhausted = LlmBudgetGuard::new(super::super::adaptive_routing::policy("direct"));
         exhausted
-            .reserve("generator", 1_000)
-            .unwrap()
-            .release()
-            .unwrap();
-        exhausted
-            .reserve("other", 1_000)
+            .reserve(
+                super::super::adaptive_routing::SEMANTIC_VERIFIER_STAGE,
+                1_000,
+            )
             .unwrap()
             .release()
             .unwrap();

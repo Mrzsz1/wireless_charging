@@ -23,11 +23,11 @@
 
 ## Phase 3 — Semantic integration
 
-- [ ] Add S1 succeeded-after-prior-calls fixture test.
-- [ ] Add S2 genuine token-budget unavailable test.
-- [ ] Add S3 no-eligible-claim/no-consumption test.
-- [ ] Add S4 unknown-remains-NotVerifiable test.
-- [ ] Commit `test(qa): cover reserved semantic verification calls`.
+- [x] Add S1 succeeded-after-prior-calls fixture test.
+- [x] Add S2 genuine token-budget unavailable test.
+- [x] Add S3 no-eligible-claim/no-consumption test.
+- [x] Add S4 unknown-remains-NotVerifiable test.
+- [x] Run all 28 claim-verification tests and commit `test(qa): cover reserved semantic verification calls`.
 
 ## Phase 4 — Production Core synthetic regression
 
