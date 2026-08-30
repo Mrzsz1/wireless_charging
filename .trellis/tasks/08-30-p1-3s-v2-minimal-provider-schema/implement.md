@@ -51,10 +51,10 @@
 
 ## Phase 6 — Final validation without Shell proxy
 
-- [ ] Clear uppercase/lowercase HTTP/HTTPS/ALL proxy variables in the verification process.
-- [ ] Run Probe A, B, and C exactly once each, in order, to unique safe reports.
-- [ ] Run only `real-research-improvement` exactly once after all probes pass.
-- [ ] Validate every taskbook field and commit safe verification evidence.
+- [x] Clear uppercase/lowercase HTTP/HTTPS/ALL proxy variables in the verification process.
+- [x] Run Probe A, B, and C exactly once each, in order, to unique safe reports; all passed.
+- [x] Run only `real-research-improvement` exactly once after all probes passed.
+- [x] Validate every taskbook field and record the final `citation_validation_failed` gate without a live rerun or out-of-scope production change.
 
 ## Phase 7 — Quality and delivery
 
