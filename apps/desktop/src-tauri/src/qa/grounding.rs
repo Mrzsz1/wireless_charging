@@ -414,6 +414,35 @@ fn adjacent_citation_suffix_end(value: &str, start: usize) -> Option<usize> {
     Some(cursor)
 }
 
+pub const INSUFFICIENT_SUPPORT_NOTICE: &str = "当前证据不足以支持这一结论。";
+pub const UNVERIFIABLE_NOTICE: &str = "当前证据不足以核验该陈述。";
+pub const CONTRADICTED_NOTICE: &str = "当前证据与该陈述存在冲突，本轮不采纳该结论。";
+pub const PARTIAL_SUPPORT_NOTICE: &str = "现有证据仅部分支持该陈述，未支持部分已省略。";
+pub const NO_SUPPORTED_CLAIMS_NOTICE: &str =
+    "当前检索到了相关资料，但本轮生成内容没有形成可被证据可靠支持的结论。";
+
+pub fn is_grounding_system_notice(value: &str) -> bool {
+    let normalized = value
+        .trim()
+        .trim_start_matches(|character: char| {
+            character.is_ascii_digit()
+                || matches!(
+                    character,
+                    '#' | '-' | '*' | '+' | '.' | ')' | '（' | '）' | ' '
+                )
+        })
+        .trim();
+    [
+        INSUFFICIENT_SUPPORT_NOTICE,
+        UNVERIFIABLE_NOTICE,
+        CONTRADICTED_NOTICE,
+        PARTIAL_SUPPORT_NOTICE,
+        NO_SUPPORTED_CLAIMS_NOTICE,
+    ]
+    .iter()
+    .any(|notice| normalized.trim_end_matches(['。', '.', ' ']) == notice.trim_end_matches('。'))
+}
+
 pub(super) fn is_factual_claim(segment: &str) -> bool {
     let trimmed = segment
         .trim()
@@ -426,6 +455,7 @@ pub(super) fn is_factual_claim(segment: &str) -> bool {
         })
         .trim();
     if trimmed.is_empty()
+        || is_grounding_system_notice(trimmed)
         || trimmed.starts_with(NO_EVIDENCE_NOTICE)
         || [
             "库水位",
@@ -435,8 +465,6 @@ pub(super) fn is_factual_claim(segment: &str) -> bool {
             "已召回以下",
             "当前处于离线证据模式",
             "当前处于证据浏览模式",
-            "当前证据不足以核验该陈述",
-            "当前证据与该陈述存在冲突",
         ]
         .iter()
         .any(|prefix| trimmed.starts_with(prefix))

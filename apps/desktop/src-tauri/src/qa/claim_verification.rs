@@ -1,5 +1,10 @@
 use super::{
-    claim_segments, compact, context, extract_citation_ids, grounding::is_factual_claim,
+    claim_segments, compact, context, extract_citation_ids,
+    grounding::{
+        is_factual_claim, is_grounding_system_notice, CONTRADICTED_NOTICE,
+        INSUFFICIENT_SUPPORT_NOTICE, NO_SUPPORTED_CLAIMS_NOTICE, PARTIAL_SUPPORT_NOTICE,
+        UNVERIFIABLE_NOTICE,
+    },
     natural_answer, EvidenceItem, LlmBudgetGuard, PlanningProvider,
 };
 use serde::{Deserialize, Serialize};
@@ -50,21 +55,15 @@ pub struct AtomicClaim {
 
 pub type VerifiedClaim = AtomicClaim;
 
-const CONTRADICTED_REPLACEMENT: &str = "当前证据与该陈述存在冲突，本轮不采纳该结论。";
-const NOT_VERIFIABLE_REPLACEMENT: &str = "当前证据不足以支持这一结论。";
-const PARTIALLY_SUPPORTED_PREFIX: &str = "现有证据仅部分支持：";
-
 pub(crate) fn project_claim_after_repair(claim: &VerifiedClaim) -> String {
     match claim.verification_status {
-        VerificationStatus::Contradicted => CONTRADICTED_REPLACEMENT.to_string(),
-        VerificationStatus::NotVerifiable => NOT_VERIFIABLE_REPLACEMENT.to_string(),
-        VerificationStatus::PartiallySupported => {
-            format!("{PARTIALLY_SUPPORTED_PREFIX}{}", claim.text)
+        VerificationStatus::Contradicted => CONTRADICTED_NOTICE.to_string(),
+        VerificationStatus::NotVerifiable => INSUFFICIENT_SUPPORT_NOTICE.to_string(),
+        VerificationStatus::PartiallySupported => PARTIAL_SUPPORT_NOTICE.to_string(),
+        VerificationStatus::Unverified | VerificationStatus::Unavailable => {
+            UNVERIFIABLE_NOTICE.to_string()
         }
-        VerificationStatus::Unverified
-        | VerificationStatus::Unavailable
-        | VerificationStatus::Supported
-        | VerificationStatus::NotApplicable => claim.text.clone(),
+        VerificationStatus::Supported | VerificationStatus::NotApplicable => claim.text.clone(),
     }
 }
 
@@ -95,6 +94,137 @@ pub struct ClaimVerificationReport {
     pub research_suggestion_count: usize,
     pub repaired_count: usize,
     pub claims: Vec<VerifiedClaim>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct FinalGroundingAudit {
+    pub schema_version: String,
+    pub audit_status: String,
+    pub grounding_status: String,
+    pub factual_claim_count: usize,
+    pub supported_count: usize,
+    pub unsupported_count: usize,
+    pub not_applicable_count: usize,
+    pub cited_claim_count: usize,
+    pub cited_evidence_ids: Vec<String>,
+    pub unknown_evidence_ids: Vec<String>,
+    pub citation_precision: f64,
+    pub citation_coverage: f64,
+    pub claims: Vec<VerifiedClaim>,
+}
+
+fn normalized_claim_text(value: &str) -> String {
+    value.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+pub fn audit_repaired_answer(
+    answer: &str,
+    evidence: &[EvidenceItem],
+    draft: &ClaimVerificationReport,
+) -> FinalGroundingAudit {
+    let known = evidence
+        .iter()
+        .map(|item| (item.id.as_str(), item.kind.as_str()))
+        .collect::<HashMap<_, _>>();
+    let supported_draft = draft
+        .claims
+        .iter()
+        .filter(|claim| claim.verification_status == VerificationStatus::Supported)
+        .map(|claim| (normalized_claim_text(&claim.text), claim))
+        .collect::<HashMap<_, _>>();
+    let mut audit = FinalGroundingAudit {
+        schema_version: "final-grounding-audit-v1".to_string(),
+        audit_status: "succeeded".to_string(),
+        grounding_status: "invalid".to_string(),
+        ..FinalGroundingAudit::default()
+    };
+
+    for mut claim in extract_atomic_claims(answer) {
+        if is_grounding_system_notice(&claim.text) {
+            continue;
+        }
+        if claim.claim_type == ClaimType::ResearchSuggestion {
+            claim.verification_status = VerificationStatus::NotApplicable;
+            claim.verification_method = "final_claim_type_rule".to_string();
+            claim.reason = "research_suggestion_not_evidence_claim".to_string();
+            audit.not_applicable_count += 1;
+            audit.claims.push(claim);
+            continue;
+        }
+
+        audit.factual_claim_count += 1;
+        let claim_ids = claim.evidence_ids.clone();
+        let all_ids_known =
+            !claim_ids.is_empty() && claim_ids.iter().all(|id| known.contains_key(id.as_str()));
+        let has_non_graph = claim_ids
+            .iter()
+            .filter_map(|id| known.get(id.as_str()))
+            .any(|kind| *kind != "graph");
+        if all_ids_known && has_non_graph {
+            audit.cited_claim_count += 1;
+        }
+        for id in &claim_ids {
+            if known.contains_key(id.as_str()) {
+                audit.cited_evidence_ids.push(id.clone());
+            } else {
+                audit.unknown_evidence_ids.push(id.clone());
+            }
+        }
+
+        let mapped = supported_draft
+            .get(&normalized_claim_text(&claim.text))
+            .is_some_and(|draft_claim| {
+                draft_claim.evidence_ids == claim.evidence_ids && all_ids_known && has_non_graph
+            });
+        if mapped {
+            claim.verification_status = VerificationStatus::Supported;
+            claim.verification_method = "final_exact_supported_draft_mapping".to_string();
+            claim.reason = "exact_supported_draft_claim".to_string();
+            audit.supported_count += 1;
+        } else {
+            claim.verification_status = VerificationStatus::NotVerifiable;
+            claim.verification_method = "final_mapping_gate".to_string();
+            claim.reason = if !all_ids_known {
+                "unknown_or_missing_evidence_id".to_string()
+            } else if !has_non_graph {
+                "graph_only_evidence_is_not_claim_support".to_string()
+            } else {
+                "no_exact_supported_draft_claim".to_string()
+            };
+            audit.unsupported_count += 1;
+        }
+        audit.claims.push(claim);
+    }
+
+    audit.cited_evidence_ids.sort();
+    audit.cited_evidence_ids.dedup();
+    audit.unknown_evidence_ids.sort();
+    audit.unknown_evidence_ids.dedup();
+    let explicit_id_count = audit.cited_evidence_ids.len() + audit.unknown_evidence_ids.len();
+    audit.citation_precision = if explicit_id_count == 0 {
+        0.0
+    } else {
+        audit.cited_evidence_ids.len() as f64 / explicit_id_count as f64
+    };
+    audit.citation_coverage = if audit.factual_claim_count == 0 {
+        0.0
+    } else {
+        audit.cited_claim_count as f64 / audit.factual_claim_count as f64
+    };
+    audit.grounding_status = if audit.factual_claim_count == 0 {
+        "insufficient_supported_claims"
+    } else if audit.supported_count == audit.factual_claim_count
+        && audit.unsupported_count == 0
+        && audit.unknown_evidence_ids.is_empty()
+        && audit.cited_claim_count == audit.factual_claim_count
+    {
+        "supported"
+    } else {
+        "invalid"
+    }
+    .to_string();
+    audit
 }
 
 pub fn extract_atomic_claims(answer: &str) -> Vec<AtomicClaim> {
@@ -711,15 +841,13 @@ pub fn verify_and_repair_with_semantic(
         if projected == claim.text {
             continue;
         }
-        if claim.verification_status == VerificationStatus::PartiallySupported {
-            if let Some(index) = repaired.find(&claim.text) {
-                repaired.insert_str(index, PARTIALLY_SUPPORTED_PREFIX);
-                report.repaired_count += 1;
-            }
-        } else if repaired.contains(&claim.text) {
+        if repaired.contains(&claim.text) {
             repaired = repaired.replacen(&claim.text, &projected, 1);
             report.repaired_count += 1;
         }
+    }
+    if report.supported_count == 0 && !report.claims.is_empty() {
+        repaired = NO_SUPPORTED_CLAIMS_NOTICE.to_string();
     }
     (repaired, report)
 }
@@ -1137,7 +1265,103 @@ mod tests {
             verify_and_repair(answer, &[evidence("ROSE schedules a charger.")]);
         assert_eq!(report.not_verifiable_count, 1);
         assert_eq!(report.repaired_count, 1);
-        assert_eq!(repaired, "当前证据不足以支持这一结论。");
+        assert_eq!(repaired, NO_SUPPORTED_CLAIMS_NOTICE);
+    }
+
+    #[test]
+    fn draft_failure_can_be_repaired_into_a_fully_supported_final_answer() {
+        let source =
+            evidence("ROSE uses particle swarm optimization for mobile charger scheduling.");
+        let draft_answer = "ROSE uses particle swarm optimization for mobile charger scheduling [E1]. The moon is made of cheese [E1].";
+        let (repaired, draft) = verify_and_repair(draft_answer, std::slice::from_ref(&source));
+        assert_eq!(draft.supported_count, 1);
+        assert_eq!(draft.not_verifiable_count, 1);
+        assert!(repaired.contains(INSUFFICIENT_SUPPORT_NOTICE));
+
+        let final_audit = audit_repaired_answer(&repaired, &[source], &draft);
+        assert_eq!(final_audit.grounding_status, "supported");
+        assert_eq!(final_audit.factual_claim_count, 1);
+        assert_eq!(final_audit.supported_count, 1);
+        assert_eq!(final_audit.unsupported_count, 0);
+        assert!(final_audit.unknown_evidence_ids.is_empty());
+        assert_eq!(final_audit.citation_coverage, 1.0);
+    }
+
+    #[test]
+    fn final_audit_rejects_a_new_fact_not_present_in_supported_draft_claims() {
+        let source =
+            evidence("ROSE uses particle swarm optimization for mobile charger scheduling.");
+        let supported = "ROSE uses particle swarm optimization for mobile charger scheduling [E1].";
+        let (_, draft) = verify_and_repair(supported, std::slice::from_ref(&source));
+        let final_answer = format!("{supported} A new factual assertion appears [E1].");
+
+        let audit = audit_repaired_answer(&final_answer, &[source], &draft);
+        assert_eq!(audit.grounding_status, "invalid");
+        assert_eq!(audit.factual_claim_count, 2);
+        assert_eq!(audit.supported_count, 1);
+        assert_eq!(audit.unsupported_count, 1);
+        assert!(audit
+            .claims
+            .iter()
+            .any(|claim| claim.reason == "no_exact_supported_draft_claim"));
+    }
+
+    #[test]
+    fn grounding_notices_are_not_factual_and_need_no_citation() {
+        for notice in [
+            INSUFFICIENT_SUPPORT_NOTICE,
+            UNVERIFIABLE_NOTICE,
+            CONTRADICTED_NOTICE,
+            PARTIAL_SUPPORT_NOTICE,
+            NO_SUPPORTED_CLAIMS_NOTICE,
+        ] {
+            assert!(is_grounding_system_notice(notice));
+            assert!(extract_atomic_claims(notice).is_empty(), "{notice}");
+        }
+    }
+
+    #[test]
+    fn final_audit_is_idempotent() {
+        let source =
+            evidence("ROSE uses particle swarm optimization for mobile charger scheduling.");
+        let answer = "ROSE uses particle swarm optimization for mobile charger scheduling [E1].";
+        let (repaired, draft) = verify_and_repair(answer, std::slice::from_ref(&source));
+        let first = audit_repaired_answer(&repaired, std::slice::from_ref(&source), &draft);
+        let second = audit_repaired_answer(&repaired, &[source], &draft);
+        assert_eq!(first, second);
+    }
+
+    #[test]
+    fn partially_supported_repair_never_keeps_the_full_original_claim() {
+        let source =
+            evidence("ROSE uses particle swarm optimization for mobile charger scheduling.");
+        let original = "ROSE uses particle swarm optimization and proves optimality [E1].";
+        let (repaired, report) = verify_and_repair(original, &[source]);
+        assert_eq!(report.partially_supported_count, 1);
+        assert_eq!(repaired, NO_SUPPORTED_CLAIMS_NOTICE);
+        assert!(!repaired.contains(original));
+        assert!(!project_claim_after_repair(&report.claims[0]).contains(original));
+        assert_eq!(
+            project_claim_after_repair(&report.claims[0]),
+            PARTIAL_SUPPORT_NOTICE
+        );
+    }
+
+    #[test]
+    fn no_supported_claim_returns_explicit_insufficiency_without_grounded_status() {
+        let source = evidence("ROSE schedules a charger.");
+        let (repaired, draft) = verify_and_repair(
+            "Unsupported lunar claim [E1].",
+            std::slice::from_ref(&source),
+        );
+        assert_eq!(repaired, NO_SUPPORTED_CLAIMS_NOTICE);
+        let final_audit = audit_repaired_answer(&repaired, &[source], &draft);
+        assert_eq!(
+            final_audit.grounding_status,
+            "insufficient_supported_claims"
+        );
+        assert_eq!(final_audit.factual_claim_count, 0);
+        assert_eq!(final_audit.supported_count, 0);
     }
 
     #[test]
