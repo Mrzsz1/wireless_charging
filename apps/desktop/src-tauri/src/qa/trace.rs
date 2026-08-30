@@ -32,6 +32,16 @@ pub struct QaTraceEvent {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub evidence_count: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub baseline_candidate_count: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub facet_count: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub query_count: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub requested_kind_count: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub duration_ms: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub claim_count: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub supported_claim_count: Option<usize>,
@@ -157,6 +167,11 @@ mod tests {
         event.provider = "codex-subscription".to_string();
         event.model = "gpt-fixture".to_string();
         event.evidence_count = Some(2);
+        event.baseline_candidate_count = Some(8);
+        event.facet_count = Some(2);
+        event.query_count = Some(3);
+        event.requested_kind_count = Some(2);
+        event.duration_ms = Some(42);
         let serialized = serde_json::to_string(&event).unwrap();
         assert!(!serialized.contains(request_id));
         for forbidden in [
@@ -173,6 +188,8 @@ mod tests {
         ] {
             assert!(!serialized.contains(forbidden), "forbidden={forbidden}");
         }
+        assert!(serialized.contains("\"baselineCandidateCount\":8"));
+        assert!(serialized.contains("\"durationMs\":42"));
     }
 
     #[test]

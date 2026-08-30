@@ -287,6 +287,12 @@ pub struct RetrievalQuery {
     #[serde(default)]
     pub planner_fallback_reason: String,
     #[serde(default)]
+    pub planned_required_facet_count: usize,
+    #[serde(default)]
+    pub planned_search_query_count: usize,
+    #[serde(default)]
+    pub must_attempt_kind_count: usize,
+    #[serde(default)]
     pub planning_provider: String,
     #[serde(default)]
     pub provider_capabilities: Vec<String>,
@@ -1211,6 +1217,9 @@ fn build_retrieval_query_with_understanding<'a>(
         planner_latency_ms: 0,
         planner_fallback: false,
         planner_fallback_reason: String::new(),
+        planned_required_facet_count: 0,
+        planned_search_query_count: 0,
+        must_attempt_kind_count: 0,
         planning_provider: String::new(),
         provider_capabilities: Vec::new(),
         reranker_version: "legacy-ranking-v1".to_string(),
@@ -2570,6 +2579,12 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
     if routing_policy.planner_enabled {
         if let Some(planner) = planner.as_mut() {
             check_cancelled(cancelled)?;
+            let mut planner_started_event =
+                trace::QaTraceEvent::new("qa_planner_started", "planner", "started", request_id);
+            planner_started_event.execution_mode = retrieval_query.execution_mode.clone();
+            planner_started_event.provider = retrieval_query.planning_provider.clone();
+            planner_started_event.baseline_candidate_count = Some(candidates.len());
+            trace::emit(&planner_started_event);
             let planner_started = Instant::now();
             match planner(&planning_input(
                 &retrieval_query.resolved_question,
@@ -2589,13 +2604,37 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
                     retrieval_query.planner_status = "failed_fallback".to_string();
                     retrieval_query.planner_fallback = true;
                     retrieval_query.planner_fallback_reason =
-                        provider_capabilities::stable_provider_failure_kind(&error).to_string();
+                        provider_capabilities::stable_planner_failure_kind(&error).to_string();
                 }
             }
             retrieval_query.planner_latency_ms = planner_started
                 .elapsed()
                 .as_millis()
                 .min(u128::from(u64::MAX)) as u64;
+            let planned_query_count = plan
+                .facets
+                .iter()
+                .map(|facet| facet.search_queries.len())
+                .sum();
+            let mut planner_finished_event = trace::QaTraceEvent::new(
+                if planner_used {
+                    "qa_planner_completed"
+                } else {
+                    "qa_planner_failed"
+                },
+                "planner",
+                if planner_used { "succeeded" } else { "failed" },
+                request_id,
+            );
+            planner_finished_event.execution_mode = retrieval_query.execution_mode.clone();
+            planner_finished_event.provider = retrieval_query.planning_provider.clone();
+            planner_finished_event.baseline_candidate_count = Some(candidates.len());
+            planner_finished_event.duration_ms = Some(retrieval_query.planner_latency_ms);
+            planner_finished_event.facet_count = Some(plan.facets.len());
+            planner_finished_event.query_count = Some(planned_query_count);
+            planner_finished_event.requested_kind_count = Some(plan.requested_kinds.len());
+            planner_finished_event.error_code = retrieval_query.planner_fallback_reason.clone();
+            trace::emit(&planner_finished_event);
         }
     } else if planner.is_some() {
         retrieval_query.planner_status = "policy_disabled".to_string();
@@ -2623,6 +2662,14 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
         .min(routing_policy.max_candidates)
         .max(4);
     retrieval_query.facet_ids = plan.facets.iter().map(|facet| facet.id.clone()).collect();
+    retrieval_query.planned_required_facet_count =
+        plan.facets.iter().filter(|facet| facet.required).count();
+    retrieval_query.planned_search_query_count = plan
+        .facets
+        .iter()
+        .map(|facet| facet.search_queries.len())
+        .sum();
+    retrieval_query.must_attempt_kind_count = plan.must_attempt_kinds.len();
     retrieval_query.planner_used = planner_used;
     let effective_retrieval_rounds = plan.budget.max_rounds.min(3);
 
@@ -5227,7 +5274,7 @@ mod tests {
     fn query_planner_timeout_is_auditable_and_falls_back() {
         let (root, connection) = test_db();
         let mut planner =
-            |_input: &QueryPlanningInput| Err("PROVIDER_TIMEOUT: secret endpoint".to_string());
+            |_input: &QueryPlanningInput| Err("CODEX_IDLE_TIMEOUT: secret endpoint".to_string());
         let context = prepare_question_with_history_budget_and_planner(
             &connection,
             root.path(),
@@ -5244,7 +5291,10 @@ mod tests {
         assert!(!context.retrieval_query.planner_used);
         assert_eq!(context.retrieval_query.planner_status, "failed_fallback");
         assert!(context.retrieval_query.planner_fallback);
-        assert_eq!(context.retrieval_query.planner_fallback_reason, "timeout");
+        assert_eq!(
+            context.retrieval_query.planner_fallback_reason,
+            "idle_timeout"
+        );
     }
 
     #[test]

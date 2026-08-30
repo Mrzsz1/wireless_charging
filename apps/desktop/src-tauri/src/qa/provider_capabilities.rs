@@ -80,6 +80,66 @@ pub fn stable_provider_failure_kind(error: &str) -> &'static str {
     }
 }
 
+/// Classify Query Planner failures without retaining Provider or parser payloads.
+pub fn stable_planner_failure_kind(error: &str) -> &'static str {
+    let upper = error.to_ascii_uppercase();
+    if upper.starts_with("QUESTION_CANCELLED") || upper.contains("_CANCELLED") {
+        "cancelled"
+    } else if upper.starts_with("LLM_BUDGET_EXCEEDED: PLANNER:CALL_BUDGET") {
+        "call_budget"
+    } else if upper.starts_with("LLM_BUDGET_EXCEEDED: PLANNER:TOKEN_BUDGET") {
+        "token_budget"
+    } else if upper.starts_with("CODEX_OUTPUT_SCHEMA_REJECTED") {
+        "output_schema_rejected"
+    } else if upper.starts_with("CODEX_IDLE_TIMEOUT") {
+        "idle_timeout"
+    } else if upper.starts_with("CODEX_TOTAL_TIMEOUT") {
+        "total_timeout"
+    } else if upper.contains("RATE_LIMIT")
+        || upper.contains("RATE LIMIT")
+        || upper.contains("HTTP 429")
+    {
+        "provider_rate_limit"
+    } else if upper.starts_with("CODEX_EXIT_ERROR") {
+        "provider_exit"
+    } else if upper.starts_with("CODEX_PROTOCOL")
+        || upper.starts_with("LUNA_STREAM_PROTOCOL")
+        || upper.starts_with("LUNA_STRUCTURED_RESPONSE_ERROR")
+    {
+        "provider_protocol"
+    } else if upper.starts_with("RETRIEVAL_CONTRACT_INVALID") {
+        if upper.contains("JSON") {
+            "contract_json_invalid"
+        } else if upper.contains("SCHEMAVERSION") {
+            "contract_schema_version"
+        } else if upper.contains("SCOPE") {
+            "contract_scope_invalid"
+        } else if upper.contains("MUSTATTEMPTKINDS") && upper.contains("REQUESTEDKINDS") {
+            "contract_validation_invalid"
+        } else if upper.contains("KIND") || upper.contains("REQUESTEDKINDS") {
+            "contract_kind_invalid"
+        } else if upper.contains("FACET") || upper.contains("查询总数") {
+            "contract_facet_invalid"
+        } else if upper.contains("BUDGET") {
+            "contract_budget_invalid"
+        } else {
+            "contract_validation_invalid"
+        }
+    } else if upper.starts_with("CODEX_NOT_FOUND")
+        || upper.starts_with("CODEX_NOT_READY")
+        || upper.starts_with("CODEX_START_FAILED")
+        || upper.starts_with("PLANNING_PROVIDER_UNAVAILABLE")
+        || upper.starts_with("PROVIDER_UNAVAILABLE")
+        || upper.starts_with("LUNA_NOT_CONFIGURED")
+        || upper.starts_with("LUNA_KEY_MISSING")
+        || upper.starts_with("LUNA_NETWORK_ERROR")
+    {
+        "provider_unavailable"
+    } else {
+        "unknown"
+    }
+}
+
 pub trait PlanningProvider: Send + Sync {
     fn descriptor(&self) -> ProviderDescriptor;
     fn complete_structured(
@@ -230,6 +290,59 @@ mod tests {
                 stable_provider_failure_kind(failure["error"].as_str().expect("error")),
                 failure["expectedKind"].as_str().expect("expected kind")
             );
+        }
+    }
+
+    #[test]
+    fn planner_failure_classifier_covers_every_stable_category_without_raw_suffixes() {
+        for (error, expected) in [
+            ("LLM_BUDGET_EXCEEDED: planner:call_budget", "call_budget"),
+            ("LLM_BUDGET_EXCEEDED: planner:token_budget", "token_budget"),
+            (
+                "CODEX_OUTPUT_SCHEMA_REJECTED: private schema detail",
+                "output_schema_rejected",
+            ),
+            ("CODEX_IDLE_TIMEOUT: private timing", "idle_timeout"),
+            ("CODEX_TOTAL_TIMEOUT: private timing", "total_timeout"),
+            ("HTTP 429 rate limit: private body", "provider_rate_limit"),
+            ("CODEX_EXIT_ERROR: private stderr", "provider_exit"),
+            ("CODEX_PROTOCOL_ERROR: private frame", "provider_protocol"),
+            (
+                "RETRIEVAL_CONTRACT_INVALID: JSON 解析失败：private output",
+                "contract_json_invalid",
+            ),
+            (
+                "RETRIEVAL_CONTRACT_INVALID: schemaVersion 不受支持",
+                "contract_schema_version",
+            ),
+            (
+                "RETRIEVAL_CONTRACT_INVALID: scope.mode 不受支持",
+                "contract_scope_invalid",
+            ),
+            (
+                "RETRIEVAL_CONTRACT_INVALID: evidence kind 不受支持",
+                "contract_kind_invalid",
+            ),
+            (
+                "RETRIEVAL_CONTRACT_INVALID: facet id 非法或重复",
+                "contract_facet_invalid",
+            ),
+            (
+                "RETRIEVAL_CONTRACT_INVALID: budget 超出允许范围",
+                "contract_budget_invalid",
+            ),
+            (
+                "RETRIEVAL_CONTRACT_INVALID: mustAttemptKinds 必须属于 requestedKinds",
+                "contract_validation_invalid",
+            ),
+            ("QUESTION_CANCELLED: private question", "cancelled"),
+            ("CODEX_NOT_READY: private account", "provider_unavailable"),
+            ("UNCLASSIFIED_PRIVATE_ERROR: secret", "unknown"),
+        ] {
+            let classified = stable_planner_failure_kind(error);
+            assert_eq!(classified, expected, "error={error}");
+            assert!(!classified.contains("private"));
+            assert!(!classified.contains("secret"));
         }
     }
 }

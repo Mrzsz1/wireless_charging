@@ -9,13 +9,13 @@
 
 ## Phase 1 — Report v5 and exact diagnostics only
 
-- [ ] Add all safe Planner observation fields and bump only the E2E report to v5.
-- [ ] Add strict Research/Exploratory gates while preserving Direct `policy_disabled`.
-- [ ] Add stable Planner failure classifier and use it at fallback projection.
-- [ ] Add redacted Planner lifecycle events through `qa::trace`.
-- [ ] Add D1–D5 and logging/field-count tests; prove no Planner behavior changed.
-- [ ] Run focused fmt/Clippy/real-E2E deterministic tests.
-- [ ] Commit `test(qa): expose and gate real planner execution`.
+- [x] Add all safe Planner observation fields and bump only the E2E report to v5.
+- [x] Add strict Research/Exploratory gates while preserving Direct `policy_disabled`.
+- [x] Add stable Planner failure classifier and use it at fallback projection.
+- [x] Add redacted Planner lifecycle events through `qa::trace`.
+- [x] Add D1–D5 and logging/field-count tests; prove no Planner behavior changed.
+- [x] Run focused fmt/Clippy/real-E2E deterministic tests.
+- [x] Commit `test(qa): expose and gate real planner execution`.
 
 ## Phase 2 — One real Research diagnosis
 

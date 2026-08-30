@@ -11,7 +11,7 @@ use std::sync::atomic::AtomicBool;
 use uuid::Uuid;
 
 const CASE_SCHEMA_VERSION: &str = "qa-real-generator-e2e-cases-v1";
-const REPORT_SCHEMA_VERSION: &str = "qa-real-generator-e2e-report-v4";
+const REPORT_SCHEMA_VERSION: &str = "qa-real-generator-e2e-report-v5";
 const CORE_VERSION: &str = "qa-production-core-v1";
 const LOCAL_DIAGNOSTIC_ENV: &str = "QA_REAL_E2E_GROUNDING_DIAGNOSTIC_DIR";
 const EXPECTED_CATEGORIES: [&str; 5] = [
@@ -106,7 +106,9 @@ pub struct GroundingObservation {
     pub execution_mode: String,
     pub generator_stage_observed: bool,
     pub generator_budget_rejected: bool,
+    pub routing_llm_call_budget: usize,
     pub routing_budget_rejection_count: usize,
+    pub routing_budget_rejections: Vec<String>,
     pub routing_llm_calls_used: usize,
     pub routing_token_cost_used: u32,
     pub routing_token_cost_ceiling: u32,
@@ -135,8 +137,22 @@ pub struct GroundingObservation {
     pub final_visible_projection_valid: bool,
     pub semantic_status: String,
     pub semantic_fallback_reason: String,
+    pub planner_attempted: bool,
+    pub planner_used: bool,
     pub planner_status: String,
+    pub planner_fallback: bool,
+    pub planner_fallback_reason: String,
+    pub planner_latency_ms: u64,
+    pub planner_stage_observed: bool,
+    pub planner_budget_rejected: bool,
+    pub query_plan_version: String,
+    pub planned_facet_count: usize,
+    pub planned_required_facet_count: usize,
+    pub planned_search_query_count: usize,
+    pub requested_kind_count: usize,
+    pub must_attempt_kind_count: usize,
     pub retrieval_round_count: usize,
+    pub retrieval_stop_reason: String,
     pub reranker_provider: String,
     pub reranker_fallback: bool,
     pub draft_claims: Vec<ClaimDiagnostic>,
@@ -486,6 +502,7 @@ fn observation_from_parts(
     validation: &CitationValidation,
     evidence_ids: &HashSet<&str>,
     evidence_count: usize,
+    retrieval_query: &RetrievalQuery,
 ) -> GroundingObservation {
     let draft_claims = claim_diagnostics(&manifest.claim_verifications);
     let final_claims = claim_diagnostics(&manifest.final_grounding_audit.claims);
@@ -515,7 +532,9 @@ fn observation_from_parts(
             .routing_budget_rejections
             .iter()
             .any(|rejection| rejection.starts_with("generator:")),
+        routing_llm_call_budget: manifest.routing_llm_call_budget,
         routing_budget_rejection_count: manifest.routing_budget_rejections.len(),
+        routing_budget_rejections: manifest.routing_budget_rejections.clone(),
         routing_llm_calls_used: manifest.routing_llm_calls_used,
         routing_token_cost_used: manifest.routing_token_cost_used,
         routing_token_cost_ceiling: manifest.routing_token_cost_ceiling,
@@ -544,8 +563,31 @@ fn observation_from_parts(
         final_visible_projection_valid: manifest.final_grounding_audit.visible_projection_valid,
         semantic_status: manifest.semantic_verification_status.clone(),
         semantic_fallback_reason: manifest.semantic_verification_fallback_reason.clone(),
+        planner_attempted: matches!(
+            manifest.planner_status.as_str(),
+            "succeeded" | "failed_fallback"
+        ),
+        planner_used: retrieval_query.planner_used,
         planner_status: manifest.planner_status.clone(),
+        planner_fallback: manifest.planner_fallback,
+        planner_fallback_reason: manifest.planner_fallback_reason.clone(),
+        planner_latency_ms: manifest.planner_latency_ms,
+        planner_stage_observed: manifest
+            .routing_llm_stages
+            .iter()
+            .any(|stage| stage == "planner"),
+        planner_budget_rejected: manifest
+            .routing_budget_rejections
+            .iter()
+            .any(|rejection| rejection.starts_with("planner:")),
+        query_plan_version: manifest.query_plan_version.clone(),
+        planned_facet_count: manifest.planned_facet_ids.len(),
+        planned_required_facet_count: retrieval_query.planned_required_facet_count,
+        planned_search_query_count: retrieval_query.planned_search_query_count,
+        requested_kind_count: retrieval_query.requested_kinds.len(),
+        must_attempt_kind_count: retrieval_query.must_attempt_kind_count,
         retrieval_round_count: manifest.retrieval_round_count,
+        retrieval_stop_reason: manifest.retrieval_stop_reason.clone(),
         reranker_provider: manifest.reranker_provider.clone(),
         reranker_fallback: manifest.reranker_fallback,
         draft_claims,
@@ -553,7 +595,7 @@ fn observation_from_parts(
     }
 }
 
-fn observation(result: &AskResult) -> GroundingObservation {
+fn observation(result: &AskResult, context: &QuestionContext) -> GroundingObservation {
     let evidence_ids = result
         .evidence
         .iter()
@@ -565,6 +607,7 @@ fn observation(result: &AskResult) -> GroundingObservation {
         &result.citation_validation,
         &evidence_ids,
         result.evidence.len(),
+        &context.retrieval_query,
     )
 }
 
@@ -580,6 +623,7 @@ fn observation_from_audit(context: &QuestionContext, audit: &AnswerAudit) -> Gro
         &audit.citation_validation,
         &evidence_ids,
         context.evidence.len(),
+        &context.retrieval_query,
     )
 }
 
@@ -631,10 +675,33 @@ fn validate_observation(case: &RealE2eCase, observed: &GroundingObservation) -> 
         );
     }
     if matches!(case.category.as_str(), "research" | "exploratory") {
+        if observed.planner_status == "failed_fallback" {
+            require(false, "planner_failed_fallback");
+        }
+        if observed.planner_status == "succeeded" && !observed.planner_used {
+            require(false, "planner_success_without_plan");
+        }
+        require(observed.planner_attempted, "planner_not_attempted");
+        require(observed.planner_used, "planner_not_used");
         require(
-            !observed.planner_status.trim().is_empty()
-                && observed.planner_status != "not_requested",
-            "planner_not_executed",
+            observed.planner_status == "succeeded",
+            "planner_status_not_succeeded",
+        );
+        require(!observed.planner_fallback, "planner_fallback_present");
+        require(
+            observed.planner_fallback_reason.is_empty(),
+            "planner_fallback_reason_present",
+        );
+        require(observed.planner_stage_observed, "planner_stage_missing");
+        require(!observed.planner_budget_rejected, "planner_budget_rejected");
+        require(
+            observed.query_plan_version == "qa-retrieval-contract-v2",
+            "planner_contract_version_invalid",
+        );
+        require(observed.planned_facet_count >= 1, "planner_facets_empty");
+        require(
+            observed.planned_search_query_count >= 1,
+            "planner_queries_empty",
         );
         require(
             observed.evidence_selected_count > 0,
@@ -978,7 +1045,7 @@ pub fn run_files(
                     break;
                 }
             };
-            let final_observation = observation(&persisted);
+            let final_observation = observation(&persisted, &context);
             result.persisted_turn_count += 1;
             if turn_index + 1 == case.turns.len() {
                 let state_valid = validate_state(case, &context);
@@ -1094,6 +1161,98 @@ mod tests {
             zero_evidence_expected: category == "zero_evidence",
             expected_research_state: ExpectedResearchState::default(),
         }
+    }
+
+    fn valid_observation(category: &str) -> GroundingObservation {
+        let planner_required = matches!(category, "research" | "exploratory");
+        GroundingObservation {
+            answer_non_empty: true,
+            provider: PROVIDER_CODEX.to_string(),
+            model: "gpt-fixture".to_string(),
+            answer_format: "natural-markdown-v2".to_string(),
+            manifest_schema: "qa-run-v22".to_string(),
+            execution_mode: if planner_required {
+                category.to_string()
+            } else {
+                "direct".to_string()
+            },
+            generator_stage_observed: true,
+            routing_llm_call_budget: if planner_required { 4 } else { 3 },
+            routing_llm_calls_used: if planner_required { 4 } else { 3 },
+            routing_token_cost_ceiling: if planner_required { 18_000 } else { 8_000 },
+            evidence_count: 1,
+            evidence_selected_count: 1,
+            citation_valid: true,
+            grounding_status: "supported".to_string(),
+            verification_status: "succeeded".to_string(),
+            answer_complete: true,
+            draft_claim_count: 1,
+            draft_supported_claim_count: 1,
+            final_factual_claim_count: 1,
+            final_supported_claim_count: 1,
+            final_cited_claim_count: 1,
+            final_citation_coverage: 1.0,
+            final_visible_projection_valid: true,
+            semantic_status: "succeeded".to_string(),
+            planner_attempted: planner_required,
+            planner_used: planner_required,
+            planner_status: if planner_required {
+                "succeeded".to_string()
+            } else {
+                "policy_disabled".to_string()
+            },
+            planner_stage_observed: planner_required,
+            query_plan_version: "qa-retrieval-contract-v2".to_string(),
+            planned_facet_count: usize::from(planner_required),
+            planned_required_facet_count: usize::from(planner_required),
+            planned_search_query_count: usize::from(planner_required),
+            requested_kind_count: 2,
+            must_attempt_kind_count: 1,
+            retrieval_round_count: 1,
+            retrieval_stop_reason: "facet_sufficient".to_string(),
+            reranker_provider: "cross-encoder-research-v1".to_string(),
+            ..GroundingObservation::default()
+        }
+    }
+
+    #[test]
+    fn research_failed_fallback_fails_the_executed_scope() {
+        let case = case("research");
+        let observed = GroundingObservation {
+            planner_attempted: true,
+            planner_used: false,
+            planner_status: "failed_fallback".to_string(),
+            planner_fallback: true,
+            planner_fallback_reason: "output_schema_rejected".to_string(),
+            ..valid_observation("research")
+        };
+
+        let errors = validate_observation(&case, &observed);
+
+        assert!(errors.contains(&"planner_failed_fallback".to_string()));
+        assert!(!execution_scope_outcome(Some("fixture"), 5, 1, 0).1);
+    }
+
+    #[test]
+    fn research_succeeded_requires_a_real_usable_plan() {
+        let case = case("research");
+        let observed = valid_observation("research");
+
+        let errors = validate_observation(&case, &observed);
+
+        assert!(errors.is_empty(), "{errors:?}");
+        let no_plan = GroundingObservation {
+            planner_used: false,
+            ..observed
+        };
+        assert!(validate_observation(&case, &no_plan)
+            .contains(&"planner_success_without_plan".to_string()));
+    }
+
+    #[test]
+    fn direct_policy_disabled_remains_a_legal_planner_state() {
+        let errors = validate_observation(&case("direct"), &valid_observation("direct"));
+        assert!(errors.is_empty(), "{errors:?}");
     }
 
     #[test]
@@ -1221,18 +1380,28 @@ mod tests {
             passed: true,
             results: vec![RealE2eCaseResult {
                 id: "fixture".to_string(),
-                category: "direct".to_string(),
+                category: "research".to_string(),
                 passed: true,
+                final_result: Some(valid_observation("research")),
                 ..RealE2eCaseResult::default()
             }],
         };
         let serialized = serde_json::to_string(&report).unwrap().to_ascii_lowercase();
+        assert!(serialized.contains("qa-real-generator-e2e-report-v5"));
+        assert!(serialized.contains("plannerfallbackreason"));
+        assert!(serialized.contains("plannedsearchquerycount"));
         for forbidden in [
             "question",
             "prompt",
             "assistantmessage",
             "content",
             "temppath",
+            "rawoutput",
+            "searchqueries",
+            "snippet",
+            "stderr",
+            "path",
+            "repositorypath",
         ] {
             assert!(!serialized.contains(forbidden), "forbidden={forbidden}");
         }
@@ -1424,5 +1593,19 @@ mod tests {
         }
         let forbidden = ["let result = ", "codex_subscription::", "stream_answer("].concat();
         assert!(!runner.contains(&forbidden));
+    }
+
+    #[test]
+    fn planner_lifecycle_events_are_wired_at_the_orchestration_boundary() {
+        let qa = include_str!("../qa.rs");
+        for event in [
+            "qa_planner_started",
+            "qa_planner_completed",
+            "qa_planner_failed",
+        ] {
+            assert!(qa.contains(event), "missing={event}");
+        }
+        assert!(qa.contains("stable_planner_failure_kind"));
+        assert!(!qa.contains("planner_finished_event.error_code = error"));
     }
 }
