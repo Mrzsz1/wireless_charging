@@ -44,22 +44,22 @@
 
 ## Phase 6 — Deterministic regression
 
-- [ ] Run retrieval-contract, query-plan, adaptive-routing, production-core, real-E2E, and claim-verification Rust tests.
-- [ ] Add and pass the Exploratory Stub Planner success test without real Exploratory execution.
-- [ ] Run Python evaluator, relevant frontend QA, build, fmt, and Clippy gates.
-- [ ] Record only documented unrelated all-targets/baseline frontend issues.
+- [x] Run retrieval-contract, query-plan, adaptive-routing, production-core, real-E2E, and claim-verification Rust tests.
+- [x] Add and pass the Exploratory Stub Planner success test without real Exploratory execution.
+- [x] Run Python evaluator, relevant frontend QA, build, fmt, and Clippy gates.
+- [x] Record only documented unrelated all-targets/baseline frontend issues.
 
 ## Phase 7 — One real Research verification
 
-- [ ] Rerun `real-research-improvement` exactly once using a separate verification report.
-- [ ] Record Planner, plan, budget, Semantic, Final Grounding, persistence, scope, and exit aggregates.
-- [ ] Classify PASS/PARTIAL-BLOCKED/FAIL exactly as required; never rerun.
-- [ ] Commit `test(qa): verify real research planner path`.
+- [x] Rerun `real-research-improvement` exactly once using a separate verification report.
+- [x] Record Planner, plan, budget, Semantic, Final Grounding, persistence, scope, and exit aggregates.
+- [x] Classify final status as FAIL because Planner remained `failed_fallback`; never rerun.
+- [x] Commit `test(qa): verify real research planner path`.
 
 ## Phase 8 — Spec, archive, journal, delivery
 
-- [ ] Update QA code-specs with Report v5, stable Planner diagnostics, strict gates, and the proven branch contract.
-- [ ] Write the 21-item `result.md`.
+- [x] Update QA code-specs with Report v5, stable Planner diagnostics, strict gates, and the proven branch contract.
+- [x] Write the 21-item `result.md`.
 - [ ] Archive task, record journal, normally push `master`, and verify remote SHA.
 
 ## Guardrails
