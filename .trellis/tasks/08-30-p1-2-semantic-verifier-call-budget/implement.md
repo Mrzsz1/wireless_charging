@@ -9,17 +9,17 @@
 
 ## Phase 1 — Deterministic red tests first
 
-- [ ] Add B1 Direct and B2 worst-case Research legal-chain tests without changing production policy/guard logic.
-- [ ] Add B3 reserve protection, B4 one-shot Semantic, B5 token ceiling, B6 reconfigure, and B7 failure/non-refund tests.
-- [ ] Run `cargo test --lib adaptive_routing` against baseline logic and record the expected failures.
-- [ ] Only after the red result is recorded, proceed to production implementation.
+- [x] Add B1 Direct and B2 worst-case Research legal-chain tests without changing production policy/guard logic.
+- [x] Add B3 reserve protection, B4 one-shot Semantic, B5 token ceiling, B6 reconfigure, and B7 failure/non-refund tests.
+- [x] Run `cargo test --lib adaptive_routing` against baseline logic and record the expected failures.
+- [x] Only after the red result is recorded, proceed to production implementation.
 
 ## Phase 2 — Reserve implementation
 
-- [ ] Add `adaptive-routing-v2`, budgets 3/4/5, reserve field=1, shared stage constant, and guard reserve algorithm.
-- [ ] Use the shared stage constant from claim verification without changing Semantic prompt/decision behavior.
-- [ ] Run adaptive-routing tests, fmt check, and Clippy lib gate.
-- [ ] Commit `fix(qa): reserve semantic verifier call capacity`.
+- [x] Add `adaptive-routing-v2`, budgets 3/4/5, reserve field=1, shared stage constant, and guard reserve algorithm.
+- [x] Use the shared stage constant from claim verification and Semantic telemetry without changing Semantic prompt/decision behavior.
+- [x] Run 18 adaptive-routing tests, fmt check, and Clippy lib gate successfully.
+- [x] Commit `fix(qa): reserve semantic verifier call capacity` after the green gate.
 
 ## Phase 3 — Semantic integration
 

@@ -3,7 +3,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
-pub const ROUTING_POLICY_VERSION: &str = "adaptive-routing-v1";
+pub const ROUTING_POLICY_VERSION: &str = "adaptive-routing-v2";
+pub const SEMANTIC_VERIFIER_STAGE: &str = "semantic_verifier";
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
@@ -15,6 +16,7 @@ pub struct RoutingPolicy {
     pub max_queries: usize,
     pub max_candidates: usize,
     pub llm_call_budget: usize,
+    pub semantic_verifier_call_reserve: usize,
     pub token_cost_ceiling: u32,
 }
 
@@ -39,6 +41,7 @@ struct ActiveReservation {
 struct LlmBudgetState {
     policy: RoutingPolicy,
     usage: LlmBudgetUsage,
+    semantic_verifier_calls_used: usize,
     next_reservation_id: u64,
     active_reservations: HashMap<u64, ActiveReservation>,
 }
@@ -86,6 +89,7 @@ impl LlmBudgetGuard {
             state: Arc::new(Mutex::new(LlmBudgetState {
                 policy,
                 usage: LlmBudgetUsage::default(),
+                semantic_verifier_calls_used: 0,
                 next_reservation_id: 1,
                 active_reservations: HashMap::new(),
             })),
@@ -103,13 +107,33 @@ impl LlmBudgetGuard {
             .state
             .lock()
             .map_err(|_| "LLM_BUDGET_STATE_ERROR: budget_lock".to_string())?;
+        let is_semantic = stage == SEMANTIC_VERIFIER_STAGE;
+        if is_semantic
+            && state.semantic_verifier_calls_used >= state.policy.semantic_verifier_call_reserve
+        {
+            state.usage.rejections.push(format!("{stage}:call_budget"));
+            return Err(format!("LLM_BUDGET_EXCEEDED: {stage}:call_budget"));
+        }
         let next_calls = state.usage.calls_used.saturating_add(1);
+        let remaining_semantic_reserve = if is_semantic {
+            state
+                .policy
+                .semantic_verifier_call_reserve
+                .saturating_sub(state.semantic_verifier_calls_used.saturating_add(1))
+        } else {
+            state
+                .policy
+                .semantic_verifier_call_reserve
+                .saturating_sub(state.semantic_verifier_calls_used)
+        };
         let next_tokens = state
             .usage
             .token_cost_used
             .saturating_add(state.usage.token_cost_in_flight)
             .saturating_add(token_ceiling);
-        let reason = if next_calls > state.policy.llm_call_budget {
+        let reason = if next_calls.saturating_add(remaining_semantic_reserve)
+            > state.policy.llm_call_budget
+        {
             Some("call_budget")
         } else if next_tokens > state.policy.token_cost_ceiling {
             Some("token_budget")
@@ -126,6 +150,10 @@ impl LlmBudgetGuard {
             .checked_add(1)
             .ok_or_else(|| "LLM_BUDGET_STATE_ERROR: reservation_id_exhausted".to_string())?;
         state.usage.calls_used = next_calls;
+        if is_semantic {
+            state.semantic_verifier_calls_used =
+                state.semantic_verifier_calls_used.saturating_add(1);
+        }
         state.usage.token_cost_in_flight = state
             .usage
             .token_cost_in_flight
@@ -204,8 +232,8 @@ pub fn policy(mode: &str) -> RoutingPolicy {
         _ => ExecutionMode::Direct,
     };
     let (planner_enabled, rounds, queries, candidates, calls, tokens) = match mode {
-        ExecutionMode::Direct => (false, 1, 4, 30, 2, 8_000),
-        ExecutionMode::Research => (true, 2, 12, 50, 3, 18_000),
+        ExecutionMode::Direct => (false, 1, 4, 30, 3, 8_000),
+        ExecutionMode::Research => (true, 2, 12, 50, 4, 18_000),
         ExecutionMode::Exploratory => (true, 3, 20, 60, 5, 32_000),
     };
     RoutingPolicy {
@@ -216,6 +244,7 @@ pub fn policy(mode: &str) -> RoutingPolicy {
         max_queries: queries,
         max_candidates: candidates,
         llm_call_budget: calls,
+        semantic_verifier_call_reserve: 1,
         token_cost_ceiling: tokens,
     }
 }
@@ -230,6 +259,149 @@ mod tests {
             llm_call_budget,
             ..policy("direct")
         }
+    }
+
+    #[test]
+    fn direct_legal_chain_reaches_reserved_semantic_verifier_call() {
+        let guard = LlmBudgetGuard::new(policy("direct"));
+        guard
+            .reserve("understanding", 2_000)
+            .unwrap()
+            .settle(600)
+            .unwrap();
+        guard
+            .reserve("generator", 4_000)
+            .unwrap()
+            .settle(1_200)
+            .unwrap();
+        guard
+            .reserve(SEMANTIC_VERIFIER_STAGE, 1_000)
+            .unwrap()
+            .settle(400)
+            .unwrap();
+
+        let usage = guard.usage();
+        assert_eq!(usage.calls_used, 3);
+        assert!(usage.rejections.is_empty());
+    }
+
+    #[test]
+    fn research_worst_case_legal_chain_reaches_reserved_semantic_verifier_call() {
+        let guard = LlmBudgetGuard::new(policy("research"));
+        for (stage, ceiling, actual) in [
+            ("understanding", 2_000, 500),
+            ("planner", 3_000, 700),
+            ("generator", 6_000, 1_500),
+            (SEMANTIC_VERIFIER_STAGE, 2_000, 600),
+        ] {
+            guard
+                .reserve(stage, ceiling)
+                .unwrap()
+                .settle(actual)
+                .unwrap();
+        }
+
+        let usage = guard.usage();
+        assert_eq!(usage.calls_used, 4);
+        assert!(usage.rejections.is_empty());
+    }
+
+    #[test]
+    fn extra_non_semantic_call_cannot_consume_direct_semantic_reserve() {
+        let guard = LlmBudgetGuard::new(policy("direct"));
+        guard
+            .reserve("understanding", 2_000)
+            .unwrap()
+            .settle(500)
+            .unwrap();
+        guard
+            .reserve("generator", 4_000)
+            .unwrap()
+            .settle(1_000)
+            .unwrap();
+
+        assert_eq!(
+            guard.reserve("planner_retry", 500).unwrap_err(),
+            "LLM_BUDGET_EXCEEDED: planner_retry:call_budget"
+        );
+        assert_eq!(guard.usage().calls_used, 2);
+        guard
+            .reserve(SEMANTIC_VERIFIER_STAGE, 1_000)
+            .unwrap()
+            .settle(300)
+            .unwrap();
+
+        assert_eq!(guard.usage().calls_used, 3);
+    }
+
+    #[test]
+    fn semantic_verifier_can_consume_its_reserve_only_once() {
+        let guard = LlmBudgetGuard::new(policy("direct"));
+        guard
+            .reserve(SEMANTIC_VERIFIER_STAGE, 1_000)
+            .unwrap()
+            .settle(200)
+            .unwrap();
+
+        assert_eq!(
+            guard.reserve(SEMANTIC_VERIFIER_STAGE, 1_000).unwrap_err(),
+            "LLM_BUDGET_EXCEEDED: semantic_verifier:call_budget"
+        );
+        assert_eq!(guard.usage().calls_used, 1);
+    }
+
+    #[test]
+    fn semantic_reserve_does_not_bypass_token_ceiling() {
+        let guard = LlmBudgetGuard::new(test_policy(1_000, 3));
+        guard
+            .reserve("understanding", 600)
+            .unwrap()
+            .settle(600)
+            .unwrap();
+
+        assert_eq!(
+            guard.reserve(SEMANTIC_VERIFIER_STAGE, 401).unwrap_err(),
+            "LLM_BUDGET_EXCEEDED: semantic_verifier:token_budget"
+        );
+        assert_eq!(guard.usage().calls_used, 1);
+    }
+
+    #[test]
+    fn reconfigure_preserves_calls_and_allows_research_legal_chain() {
+        let guard = LlmBudgetGuard::new(policy("direct"));
+        guard
+            .reserve("understanding", 2_000)
+            .unwrap()
+            .settle(500)
+            .unwrap();
+        guard.reconfigure(policy("research"));
+        for stage in ["planner", "generator", SEMANTIC_VERIFIER_STAGE] {
+            guard.reserve(stage, 2_000).unwrap().settle(500).unwrap();
+        }
+
+        let usage = guard.usage();
+        assert_eq!(usage.calls_used, 4);
+        assert!(usage.rejections.is_empty());
+    }
+
+    #[test]
+    fn failed_semantic_provider_attempt_does_not_refund_reserved_call() {
+        let guard = LlmBudgetGuard::new(policy("direct"));
+        guard
+            .reserve(SEMANTIC_VERIFIER_STAGE, 1_000)
+            .unwrap()
+            .release()
+            .unwrap();
+
+        assert_eq!(
+            guard.reserve(SEMANTIC_VERIFIER_STAGE, 1_000).unwrap_err(),
+            "LLM_BUDGET_EXCEEDED: semantic_verifier:call_budget"
+        );
+        let usage = guard.usage();
+        assert_eq!(usage.calls_used, 1);
+        assert!(usage
+            .stages
+            .contains(&"semantic_verifier:released".to_string()));
     }
 
     #[test]
@@ -260,6 +432,25 @@ mod tests {
         assert!(research.max_retrieval_rounds < exploratory.max_retrieval_rounds);
         assert!(direct.llm_call_budget < research.llm_call_budget);
         assert!(research.llm_call_budget < exploratory.llm_call_budget);
+        assert_eq!(
+            (
+                direct.llm_call_budget,
+                research.llm_call_budget,
+                exploratory.llm_call_budget,
+            ),
+            (3, 4, 5)
+        );
+        assert_eq!(
+            (
+                direct.semantic_verifier_call_reserve,
+                research.semantic_verifier_call_reserve,
+                exploratory.semantic_verifier_call_reserve,
+            ),
+            (1, 1, 1)
+        );
+        assert_eq!(direct.version, "adaptive-routing-v2");
+        assert_eq!(research.version, "adaptive-routing-v2");
+        assert_eq!(exploratory.version, "adaptive-routing-v2");
         assert!(direct.token_cost_ceiling < research.token_cost_ceiling);
         assert!(research.token_cost_ceiling < exploratory.token_cost_ceiling);
         assert_eq!(
@@ -432,7 +623,7 @@ mod tests {
             .settle(8_000)
             .unwrap();
         guard
-            .reserve("semantic_verifier", 1_000)
+            .reserve(SEMANTIC_VERIFIER_STAGE, 1_000)
             .unwrap()
             .settle(500)
             .unwrap();

@@ -752,19 +752,20 @@ pub fn run_semantic_verification(
     };
     let prompt_cost = context::estimate_tokens(&prompt);
     let reserved = prompt_cost.saturating_add(1_024);
-    let reservation = match budget_guard.reserve("semantic_verifier", reserved) {
-        Ok(reservation) => reservation,
-        Err(error) => {
-            return Ok(SemanticVerificationBatch {
-                version: SEMANTIC_VERIFIER_VERSION.to_string(),
-                provider: provider_id,
-                model: model.to_string(),
-                status: "unavailable".to_string(),
-                fallback_reason: stable_provider_error(&error),
-                ..SemanticVerificationBatch::default()
-            });
-        }
-    };
+    let reservation =
+        match budget_guard.reserve(super::adaptive_routing::SEMANTIC_VERIFIER_STAGE, reserved) {
+            Ok(reservation) => reservation,
+            Err(error) => {
+                return Ok(SemanticVerificationBatch {
+                    version: SEMANTIC_VERIFIER_VERSION.to_string(),
+                    provider: provider_id,
+                    model: model.to_string(),
+                    status: "unavailable".to_string(),
+                    fallback_reason: stable_provider_error(&error),
+                    ..SemanticVerificationBatch::default()
+                });
+            }
+        };
     let started = Instant::now();
     let raw = provider.complete_verification(&prompt, &schema, cancelled);
     let actual = raw

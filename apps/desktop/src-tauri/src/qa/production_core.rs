@@ -406,7 +406,7 @@ where
             let manifest = &generated.audit.run_manifest;
             let mut semantic = trace::QaTraceEvent::new(
                 "qa_semantic_completed",
-                "semantic_verifier",
+                adaptive_routing::SEMANTIC_VERIFIER_STAGE,
                 &generated.semantic_verification.status,
                 &context.request_id,
             );
