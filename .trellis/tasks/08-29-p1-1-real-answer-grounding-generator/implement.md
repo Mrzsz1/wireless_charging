@@ -25,12 +25,14 @@
 
 ## Phase D — Quality and Finish
 
-- [ ] `cargo fmt --check`。
-- [ ] `cargo clippy --lib --bins -- -D warnings`。
-- [ ] Rust QA/Runner/trace tests。
-- [ ] `npm run build`。
-- [ ] 检查日志与报告不含 question/answer/prompt/claim/path/secret。
+- [x] `cargo fmt --check`。
+- [x] `cargo clippy --lib --bins -- -D warnings`。
+- [x] Rust QA/Runner/trace tests。
+- [x] `npm run build`。
+- [x] 检查日志与报告不含 question/answer/prompt/claim/path/secret。
 - [ ] 更新 QA/logging spec、验收项、Git 提交、归档并记录 journal。
+
+> 不归档：P1-1 真实 Grounding 仍为 FAIL，保留任务以继续追踪。
 
 ## Guardrails
 

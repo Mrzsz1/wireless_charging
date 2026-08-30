@@ -44,15 +44,24 @@
 
 ## Acceptance Criteria
 
-- [ ] AC1：Runner v2 报告明确区分 prePersist/final/persisted，最终错误不混入旧中间态。
-- [ ] AC2：聚合与 claim-hash 诊断完整，不序列化原文或敏感路径。
-- [ ] AC3：Natural v2 Prompt 明确覆盖原子事实、紧邻引用、范围/因果/数字限制、Supplement 隔离和 Suggestion 标记。
-- [ ] AC4：确定性 tests 覆盖 Prompt 契约以及 supported/scope expansion/numeric hallucination/unsupported clause/supplement isolation。
-- [ ] AC5：新增功能阶段有可追踪结构化日志，正式日志位于 AppLogDir，E2E 日志位于软件目录且不被 Git 追踪。
-- [ ] AC6：Direct 真实重测给出 persisted/grounding/supported/contradicted/notVerifiable/repaired 数据。
-- [ ] AC7：Direct 改善后再单独重测 Research，仅评估 Grounding，不处理 Planner fallback。
-- [ ] AC8：fmt/clippy/QA tests/build 通过；每个阶段由 Git commit 保存。
-- [ ] AC9：未触及 R5 列出的任何禁止项。
+- [x] AC1：Runner v2 报告明确区分 prePersist/final/persisted，最终错误不混入旧中间态。
+- [x] AC2：聚合与 claim-hash 诊断完整，不序列化原文或敏感路径。
+- [x] AC3：Natural v2 Prompt 明确覆盖原子事实、紧邻引用、范围/因果/数字限制、Supplement 隔离和 Suggestion 标记。
+- [x] AC4：确定性 tests 覆盖 Prompt 契约以及 supported/scope expansion/numeric hallucination/unsupported clause/supplement isolation。
+- [x] AC5：新增功能阶段有可追踪结构化日志，正式日志位于 AppLogDir，E2E 日志位于软件目录且不被 Git 追踪。
+- [x] AC6：Direct 真实重测给出 persisted/grounding/supported/contradicted/notVerifiable/repaired 数据。
+- [x] AC7：Direct 改善后再单独重测 Research，仅评估 Grounding，不处理 Planner fallback。
+- [x] AC8：fmt/clippy/QA tests/build 通过；每个阶段由 Git commit 保存。
+- [x] AC9：未触及 R5 列出的任何禁止项。
+
+## Measured Result
+
+- Runner 已消除报告自相矛盾：持久化失败时明确输出 `persisted=false`、`final=null`，`errors` 只包含稳定持久化错误码。
+- Direct 首次 v2 诊断：8 claims，0 supported，0 contradicted，8 notVerifiable，8 repaired，2 uncited knowledge facts，未持久化。
+- Direct 一次有依据 Prompt 修正后：3 claims，0 supported，0 contradicted，3 notVerifiable，3 repaired，2 uncited knowledge facts，未持久化。claim/notVerifiable 数降低 62.5%，但 Grounding 仍为 invalid。
+- Research：8 claims，3 supported，0 contradicted，5 notVerifiable，5 repaired，4 uncited knowledge facts，Semantic succeeded，Planner 保持 `failed_fallback`，未持久化。
+- P1-1 实测决策仍为 `FAIL`：Generator 已明显减少扩写并消除 Research contradicted claims，但 Direct 在 Semantic `llm_budget_exceeded` 后仍无 supported claim，Research 仍有无引用/不可验证 claim。任务保持 in-progress，不冒充完成。
+- 本轮未修改 Semantic call budget、Planner、Research State、Zero-evidence completeness、Frozen Threshold，未使用 Independent Heldout。
 
 ## Out of Scope
 
