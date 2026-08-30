@@ -24,10 +24,10 @@
 
 ## Phase 2 — Temporary-proxy Probe B
 
-- [ ] Build the current `qa-planner-probe` binary.
-- [ ] Explicitly set uppercase and lowercase HTTP/HTTPS/ALL proxy variables to `http://127.0.0.1:7890` for the child command only.
-- [ ] Run Probe B exactly once to a new safe report; do not run A.
-- [ ] If it passes, commit the safe aggregate report/evidence. If it remains `schema_rejected`, stop, collect one repository-external diagnostic, add one RED and one-key transform, then repeat only B as permitted by the taskbook.
+- [x] Build the current `qa-planner-probe` binary.
+- [x] Explicitly set uppercase and lowercase HTTP/HTTPS/ALL proxy variables to `http://127.0.0.1:7890` for the child command only.
+- [x] Run Probe B exactly once to a new safe report; do not run A.
+- [x] Probe B passed; commit the safe aggregate report/evidence without broadening the compatibility transform.
 
 ## Phase 3 — Temporary-proxy Probe C
 
