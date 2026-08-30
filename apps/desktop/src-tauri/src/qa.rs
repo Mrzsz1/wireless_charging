@@ -38,8 +38,8 @@ pub(crate) mod vector_store;
 pub(crate) mod vector_sync;
 
 pub use adaptive_routing::{policy as routing_policy, LlmBudgetGuard, LlmBudgetUsage};
-pub(crate) use claim_verification::project_claim_after_repair;
-use claim_verification::VerificationStatus;
+pub(crate) use claim_verification::extract_atomic_claims;
+pub(crate) use claim_verification::VerificationStatus;
 pub use claim_verification::VerifiedClaim;
 pub use claim_verification::{FinalGroundingAudit, SemanticVerificationBatch};
 pub use context::{

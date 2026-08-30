@@ -52,18 +52,30 @@ def evidence() -> dict[str, object]:
 
 def run_fixture() -> dict[str, object]:
     item = evidence()
+    final_claim = {
+        "id": "C1",
+        "text": "fixture claim [E1].",
+        "evidenceIds": ["E1"],
+        "claimType": "knowledge_fact",
+        "verificationStatus": "supported",
+        "confidence": 1.0,
+        "verificationMethod": "fixture",
+        "alignmentScore": 1.0,
+        "reason": "synthetic",
+    }
     return {
         "question": "fixture question",
-        "answer": "fixture claim [E1].",
+        "answer": "fixture claim.",
         "answerClaims": [
             {
                 "claimId": "C1",
-                "text": "fixture claim [E1].",
+                "text": "fixture claim.",
                 "citedEvidenceIds": ["E1"],
             }
         ],
         "evidence": [item],
         "runManifest": {
+            "schemaVersion": "qa-run-v22",
             "evidenceChecksums": [
                 {
                     "evidenceId": "E1",
@@ -72,6 +84,21 @@ def run_fixture() -> dict[str, object]:
                 }
             ],
             "answerCompleteness": {"claimCount": 1, "complete": True},
+            "finalGroundingAudit": {
+                "schemaVersion": "final-grounding-audit-v1",
+                "auditStatus": "succeeded",
+                "groundingStatus": "supported",
+                "factualClaimCount": 1,
+                "supportedCount": 1,
+                "unsupportedCount": 0,
+                "notApplicableCount": 0,
+                "citedClaimCount": 1,
+                "citedEvidenceIds": ["E1"],
+                "unknownEvidenceIds": [],
+                "citationPrecision": 1.0,
+                "citationCoverage": 1.0,
+                "claims": [final_claim],
+            },
         },
     }
 
@@ -84,7 +111,7 @@ def primary_review(reviewer: str, verdict: str = "supported") -> dict[str, objec
         "claims": [
             {
                 "claim_id": "C1",
-                "claim": "fixture claim [E1].",
+                "claim": "fixture claim.",
                 "verdict": verdict,
             }
         ],
@@ -177,6 +204,34 @@ class QaAccuracyEvalTests(unittest.TestCase):
         with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
             qa_accuracy_eval.review_totals(run, review_fixture(), CASE)
 
+    def test_python_evaluator_requires_successful_final_grounding_audit_for_v22(self) -> None:
+        missing = run_fixture()
+        del missing["runManifest"]["finalGroundingAudit"]
+        with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
+            qa_accuracy_eval.review_totals(missing, review_fixture(), CASE)
+
+        unsupported = run_fixture()
+        unsupported["runManifest"]["finalGroundingAudit"]["unsupportedCount"] = 1
+        with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
+            qa_accuracy_eval.review_totals(unsupported, review_fixture(), CASE)
+
+    def test_python_evaluator_rejects_final_audit_unknown_evidence_and_count_tampering(self) -> None:
+        unknown = run_fixture()
+        final_claim = unknown["runManifest"]["finalGroundingAudit"]["claims"][0]
+        final_claim["evidenceIds"] = ["E99"]
+        unknown["runManifest"]["finalGroundingAudit"]["citedEvidenceIds"] = ["E99"]
+        with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
+            qa_accuracy_eval.review_totals(unknown, review_fixture(), CASE)
+
+        extra = run_fixture()
+        extra["answer"] = "fixture claim. tampered extra claim."
+        extra["answerClaims"].append(
+            {"claimId": "C2", "text": "tampered extra claim.", "citedEvidenceIds": ["E1"]}
+        )
+        extra["runManifest"]["answerCompleteness"]["claimCount"] = 2
+        with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
+            qa_accuracy_eval.review_totals(extra, review_fixture(), CASE)
+
     def test_single_reviewer_fails_closed(self) -> None:
         review = review_fixture()
         review["primary_reviews"] = review["primary_reviews"][:1]
@@ -221,7 +276,7 @@ class QaAccuracyEvalTests(unittest.TestCase):
             "claims": [
                 {
                     "claim_id": "C1",
-                    "claim": "fixture claim [E1].",
+                    "claim": "fixture claim.",
                     "verdict": "not_verifiable",
                 }
             ],

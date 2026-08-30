@@ -1,6 +1,6 @@
 use crate::qa::{
-    natural_visible_body_source, project_claim_after_repair, project_natural_visible_text,
-    EvidenceItem, QaRunManifest,
+    extract_atomic_claims, natural_visible_body_source, project_natural_visible_text, EvidenceItem,
+    QaRunManifest, VerificationStatus,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -13,7 +13,7 @@ use std::process::Command;
 use uuid::Uuid;
 
 pub const CONTRACT_SCHEMA_VERSION: &str = "qa-heldout-contract-v1";
-pub const RUN_SCHEMA_VERSION: &str = "qa-heldout-run-v2";
+pub const RUN_SCHEMA_VERSION: &str = "qa-heldout-run-v3";
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -369,15 +369,100 @@ fn build_bundle(
     audit: QaCaseAudit,
     metadata: HeldoutCaseRunMetadata,
 ) -> Result<HeldoutCaseBundle, String> {
+    let runtime_id = metadata.runtime_id.clone();
+    let mut started = crate::qa::trace::QaTraceEvent::new(
+        "qa_heldout_bundle_started",
+        "heldout_bundle",
+        "started",
+        &runtime_id,
+    );
+    started.case_id = case.id.clone();
+    started.evidence_count = Some(audit.evidence.len());
+    crate::qa::trace::emit(&started);
+    let result = build_bundle_inner(case, audit, metadata);
+    let mut event = crate::qa::trace::QaTraceEvent::new(
+        if result.is_ok() {
+            "qa_heldout_bundle_completed"
+        } else {
+            "qa_heldout_bundle_failed"
+        },
+        result
+            .as_ref()
+            .err()
+            .map_or("heldout_bundle", |error| heldout_failure_stage(error)),
+        if result.is_ok() {
+            "succeeded"
+        } else {
+            "failed"
+        },
+        &runtime_id,
+    );
+    event.case_id = case.id.clone();
+    match &result {
+        Ok(bundle) => {
+            event.evidence_count = Some(bundle.evidence.len());
+            event.claim_count = Some(bundle.answer_claims.len());
+            event.supported_claim_count = Some(bundle.answer_claims.len());
+        }
+        Err(error) => event.error_code = crate::qa::trace::error_code(error),
+    }
+    crate::qa::trace::emit(&event);
+    result
+}
+
+fn build_bundle_inner(
+    case: &HeldoutCase,
+    audit: QaCaseAudit,
+    metadata: HeldoutCaseRunMetadata,
+) -> Result<HeldoutCaseBundle, String> {
     let evidence_ids = evidence_integrity(&audit)?;
-    let claims = &audit.run_manifest.claim_verifications;
-    if claims.is_empty() || audit.run_manifest.answer_completeness.claim_count != claims.len() {
-        return Err("HELDOUT_AUDIT_INVALID: claim_count".to_string());
+    let final_audit = &audit.run_manifest.final_grounding_audit;
+    if final_audit.audit_status != "succeeded"
+        || final_audit.grounding_status != "supported"
+        || final_audit.unsupported_count != 0
+        || !final_audit.unknown_evidence_ids.is_empty()
+        || final_audit.factual_claim_count == 0
+        || final_audit.supported_count != final_audit.factual_claim_count
+        || final_audit.cited_claim_count != final_audit.factual_claim_count
+        || final_audit.citation_coverage != 1.0
+        || audit.run_manifest.answer_completeness.claim_count != final_audit.factual_claim_count
+    {
+        return Err("HELDOUT_AUDIT_INVALID: final_grounding_contract".to_string());
+    }
+    let supported_claims = final_audit
+        .claims
+        .iter()
+        .filter(|claim| claim.verification_status == VerificationStatus::Supported)
+        .collect::<Vec<_>>();
+    if supported_claims.len() != final_audit.supported_count {
+        return Err("HELDOUT_AUDIT_INVALID: final_supported_claim_count".to_string());
+    }
+    if final_audit.claims.iter().any(|claim| {
+        !matches!(
+            claim.verification_status,
+            VerificationStatus::Supported | VerificationStatus::NotApplicable
+        )
+    }) {
+        return Err("HELDOUT_AUDIT_INVALID: final_claim_status".to_string());
+    }
+    let expected_visible_claims = final_audit
+        .claims
+        .iter()
+        .map(|claim| normalize_visible_claim(&claim.text))
+        .collect::<Vec<_>>();
+    let visible_answer_body = natural_visible_body_source(&audit.answer);
+    let actual_visible_claims = extract_atomic_claims(visible_answer_body)
+        .iter()
+        .map(|claim| normalize_visible_claim(&claim.text))
+        .collect::<Vec<_>>();
+    if expected_visible_claims.iter().any(String::is_empty)
+        || actual_visible_claims != expected_visible_claims
+    {
+        return Err("HELDOUT_AUDIT_INVALID: final_visible_claim_set".to_string());
     }
     let mut claim_ids = HashSet::new();
     let mut answer_cursor = 0;
-    let visible_answer_body = natural_visible_body_source(&audit.answer);
-    let answer_claims = claims
+    let answer_claims = supported_claims
         .iter()
         .map(|claim| {
             if claim.id.trim().is_empty() {
@@ -389,8 +474,7 @@ fn build_bundle(
                     claim.id
                 ));
             }
-            let repaired_text = project_claim_after_repair(claim);
-            let canonical_text = project_natural_visible_text(&repaired_text);
+            let canonical_text = project_natural_visible_text(&claim.text);
             let visible_text = resolve_visible_claim_source(
                 visible_answer_body,
                 &canonical_text,
@@ -425,6 +509,19 @@ fn build_bundle(
                     claim.id
                 ));
             }
+            let has_non_graph = claim.evidence_ids.iter().any(|id| {
+                audit
+                    .evidence
+                    .iter()
+                    .find(|item| item.id == *id)
+                    .is_some_and(|item| item.kind != "graph")
+            });
+            if claim.evidence_ids.is_empty() || !has_non_graph {
+                return Err(format!(
+                    "HELDOUT_AUDIT_INVALID: claim_projection:missing_non_graph_support:claim={}",
+                    claim.id
+                ));
+            }
             Ok(HeldoutAnswerClaim {
                 claim_id: claim.id.clone(),
                 text: visible_text,
@@ -440,6 +537,27 @@ fn build_bundle(
         run_manifest: audit.run_manifest,
         heldout_run: metadata,
     })
+}
+
+fn heldout_failure_stage(error: &str) -> &'static str {
+    if error.contains("evidence_checksum") || error.contains("empty_answer_or_evidence") {
+        "evidence_integrity"
+    } else if error.contains("final_grounding") || error.contains("final_supported_claim") {
+        "final_grounding_contract"
+    } else if error.contains("final_visible") {
+        "visible_projection"
+    } else if error.contains("claim_projection") {
+        "claim_projection"
+    } else {
+        "heldout_bundle"
+    }
+}
+
+fn normalize_visible_claim(value: &str) -> String {
+    project_natural_visible_text(value)
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 fn resolve_visible_claim_source(
@@ -632,7 +750,9 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::qa::{AnswerCompletenessValidation, EvidenceChecksum, VerifiedClaim};
+    use crate::qa::{
+        AnswerCompletenessValidation, EvidenceChecksum, FinalGroundingAudit, VerifiedClaim,
+    };
     use serde_json::json;
     use tempfile::TempDir;
 
@@ -684,13 +804,9 @@ mod tests {
             ..EvidenceItem::default()
         };
         let digest = sha256_hex(serde_json::to_vec(&evidence).unwrap());
-        let claim = serde_json::from_value::<VerifiedClaim>(json!({
-            "id":"C1","text":"Synthetic claim [E1]","evidenceIds":["E1"],
-            "claimType":"knowledge_fact","verificationStatus":"supported","confidence":1.0,
-            "verificationMethod":"fixture","alignmentScore":1.0,"reason":"synthetic"
-        }))
-        .unwrap();
+        let claim = fixture_claim("C1", "Synthetic claim [E1]", "supported");
         let mut manifest = QaRunManifest {
+            schema_version: "qa-run-v22".to_string(),
             provider: provider.to_string(),
             model_resolved: model.to_string(),
             index_snapshot_id: "snapshot-fixture".to_string(),
@@ -704,7 +820,22 @@ mod tests {
                 claim_count: 1,
                 ..AnswerCompletenessValidation::default()
             },
-            claim_verifications: vec![claim],
+            claim_verifications: vec![claim.clone()],
+            final_grounding_audit: FinalGroundingAudit {
+                schema_version: "final-grounding-audit-v1".to_string(),
+                audit_status: "succeeded".to_string(),
+                grounding_status: "supported".to_string(),
+                factual_claim_count: 1,
+                supported_count: 1,
+                unsupported_count: 0,
+                not_applicable_count: 0,
+                cited_claim_count: 1,
+                cited_evidence_ids: vec!["E1".to_string()],
+                unknown_evidence_ids: Vec::new(),
+                citation_precision: 1.0,
+                citation_coverage: 1.0,
+                claims: vec![claim],
+            },
             ..QaRunManifest::default()
         };
         manifest.verification_provider = provider.to_string();
@@ -716,6 +847,15 @@ mod tests {
             evidence: vec![evidence],
             run_manifest: manifest,
         }
+    }
+
+    fn fixture_claim(id: &str, text: &str, status: &str) -> VerifiedClaim {
+        serde_json::from_value::<VerifiedClaim>(json!({
+            "id":id,"text":text,"evidenceIds":["E1"],
+            "claimType":"knowledge_fact","verificationStatus":status,"confidence":1.0,
+            "verificationMethod":"fixture","alignmentScore":1.0,"reason":"synthetic"
+        }))
+        .unwrap()
     }
 
     fn fixture_metadata() -> HeldoutCaseRunMetadata {
@@ -839,7 +979,7 @@ mod tests {
             bundle
                 .pointer("/heldoutRun/schemaVersion")
                 .and_then(Value::as_str),
-            Some("qa-heldout-run-v2")
+            Some("qa-heldout-run-v3")
         );
         assert_eq!(
             bundle
@@ -932,29 +1072,51 @@ mod tests {
         claim_bad.answer = "different answer".to_string();
         assert!(build_bundle(&case, claim_bad, fixture_metadata())
             .unwrap_err()
-            .contains("claim_projection:first_visible_chunk_not_found:claim=C1"));
+            .contains("final_visible_claim_set"));
 
         let mut unknown_citation = fixture_audit("fixture-provider", "fixture-model");
-        unknown_citation.run_manifest.claim_verifications[0].evidence_ids = vec!["E99".to_string()];
+        unknown_citation.run_manifest.final_grounding_audit.claims[0].evidence_ids =
+            vec!["E99".to_string()];
         assert!(build_bundle(&case, unknown_citation, fixture_metadata())
             .unwrap_err()
             .contains("claim_projection:unknown_citation_id:claim=C1"));
 
         let mut duplicate_claim = fixture_audit("fixture-provider", "fixture-model");
+        duplicate_claim.answer = "Synthetic claim
+Synthetic claim
+
+## 参考证据
+
+- [知识库 · Synthetic evidence](evidence:E1)
+"
+        .to_string();
         duplicate_claim
             .run_manifest
-            .claim_verifications
-            .push(duplicate_claim.run_manifest.claim_verifications[0].clone());
+            .final_grounding_audit
+            .claims
+            .push(duplicate_claim.run_manifest.final_grounding_audit.claims[0].clone());
+        duplicate_claim
+            .run_manifest
+            .final_grounding_audit
+            .factual_claim_count = 2;
+        duplicate_claim
+            .run_manifest
+            .final_grounding_audit
+            .supported_count = 2;
+        duplicate_claim
+            .run_manifest
+            .final_grounding_audit
+            .cited_claim_count = 2;
         duplicate_claim.run_manifest.answer_completeness.claim_count = 2;
         assert!(build_bundle(&case, duplicate_claim, fixture_metadata())
             .unwrap_err()
             .contains("claim_projection:duplicate_claim_id:claim=C1"));
 
         let mut empty_projection = fixture_audit("fixture-provider", "fixture-model");
-        empty_projection.run_manifest.claim_verifications[0].text = "[E1]".to_string();
+        empty_projection.run_manifest.final_grounding_audit.claims[0].text = "[E1]".to_string();
         assert!(build_bundle(&case, empty_projection, fixture_metadata())
             .unwrap_err()
-            .contains("claim_projection:empty_visible_projection:claim=C1"));
+            .contains("final_visible_claim_set"));
 
         let mut checksum_bad = fixture_audit("fixture-provider", "fixture-model");
         checksum_bad.run_manifest.evidence_checksums[0].sha256 = "0".repeat(64);
@@ -965,23 +1127,69 @@ mod tests {
     }
 
     #[test]
-    fn runner_projects_the_claim_text_that_answer_repair_left_visible() {
+    fn runner_exports_only_final_supported_claims_from_draft_five_final_three() {
         let case: HeldoutCase = serde_json::from_value(cases()[0].clone()).unwrap();
         let mut audit = fixture_audit("fixture-provider", "fixture-model");
-        audit.run_manifest.claim_verifications[0] =
-            serde_json::from_value::<VerifiedClaim>(json!({
-                "id":"C1","text":"Synthetic claim [E1]","evidenceIds":["E1"],
-                "claimType":"knowledge_fact","verificationStatus":"not_verifiable","confidence":0.0,
-                "verificationMethod":"fixture","alignmentScore":0.0,"reason":"synthetic"
-            }))
-            .unwrap();
-        audit.answer = "当前证据不足以支持这一结论。\n\n## 参考证据\n\n- [知识库 · Synthetic evidence](evidence:E1)\n"
-            .to_string();
+        let final_claims = vec![
+            fixture_claim("C1", "First synthetic claim [E1]", "supported"),
+            fixture_claim("C2", "Second synthetic claim [E1]", "supported"),
+            fixture_claim("C3", "Third synthetic claim [E1]", "supported"),
+        ];
+        audit.run_manifest.claim_verifications = vec![
+            final_claims[0].clone(),
+            final_claims[1].clone(),
+            final_claims[2].clone(),
+            fixture_claim("C4", "Removed draft claim [E1]", "not_verifiable"),
+            fixture_claim("C5", "Another removed draft claim [E1]", "not_verifiable"),
+        ];
+        audit.run_manifest.final_grounding_audit.claims = final_claims;
+        audit.run_manifest.final_grounding_audit.factual_claim_count = 3;
+        audit.run_manifest.final_grounding_audit.supported_count = 3;
+        audit.run_manifest.final_grounding_audit.cited_claim_count = 3;
+        audit.run_manifest.answer_completeness.claim_count = 3;
+        audit.answer = concat!(
+            "First synthetic claim\n",
+            "Second synthetic claim\n",
+            "Third synthetic claim\n\n",
+            "## 参考证据\n\n",
+            "- [知识库 · Synthetic evidence](evidence:E1)\n",
+        )
+        .to_string();
 
         let bundle = build_bundle(&case, audit, fixture_metadata()).unwrap();
 
-        assert_eq!(bundle.answer_claims[0].text, "当前证据不足以支持这一结论。");
-        assert_eq!(bundle.answer_claims[0].cited_evidence_ids, vec!["E1"]);
+        assert_eq!(bundle.answer_claims.len(), 3);
+        assert_eq!(bundle.answer_claims[0].text, "First synthetic claim");
+        assert!(bundle
+            .answer_claims
+            .iter()
+            .all(|claim| claim.cited_evidence_ids == ["E1"]));
+        assert!(!bundle.answer.contains("Removed draft claim"));
+    }
+
+    #[test]
+    fn runner_rejects_unaudited_visible_fact_and_unsupported_final_audit() {
+        let case: HeldoutCase = serde_json::from_value(cases()[0].clone()).unwrap();
+        let mut new_fact = fixture_audit("fixture-provider", "fixture-model");
+        new_fact.answer = concat!(
+            "Synthetic claim\n",
+            "The final renderer added another factual statement.\n\n",
+            "## 参考证据\n\n",
+            "- [知识库 · Synthetic evidence](evidence:E1)\n",
+        )
+        .to_string();
+        assert!(build_bundle(&case, new_fact, fixture_metadata())
+            .unwrap_err()
+            .contains("final_visible_claim_set"));
+
+        let mut unsupported = fixture_audit("fixture-provider", "fixture-model");
+        unsupported
+            .run_manifest
+            .final_grounding_audit
+            .unsupported_count = 1;
+        assert!(build_bundle(&case, unsupported, fixture_metadata())
+            .unwrap_err()
+            .contains("final_grounding_contract"));
     }
 
     #[test]

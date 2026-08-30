@@ -365,6 +365,14 @@ def _validate_answer_claims(
             f"{case_id}: manifest claimCount={claim_count} 与 answerClaims={len(claims)} 不一致"
         )
 
+    final_supported = _validate_final_grounding_audit(
+        run, manifest, known_evidence_ids, case_id
+    )
+    if final_supported is not None and claim_count != len(final_supported):
+        raise AccuracyEvalError(
+            f"{case_id}: answerCompleteness.claimCount 与 Final Supported Claims 不一致"
+        )
+
     claim_text_by_id: dict[str, str] = {}
     claim_dimension_by_id: dict[str, str] = {}
     citations_by_claim: dict[str, list[str]] = {}
@@ -410,7 +418,162 @@ def _validate_answer_claims(
             raise AccuracyEvalError(f"{case_id}: claim {claim_id} dimension 非法")
         claim_dimension_by_id[claim_id] = dimension
         citations_by_claim[claim_id] = citations
+    if final_supported is not None:
+        final_ids = [claim["id"] for claim in final_supported]
+        answer_ids = list(claim_text_by_id)
+        if answer_ids != final_ids:
+            raise AccuracyEvalError(
+                f"{case_id}: answerClaims 顺序/ID 与 Final Supported Claims 不一致"
+            )
+        for claim in final_supported:
+            if citations_by_claim[claim["id"]] != claim["evidenceIds"]:
+                raise AccuracyEvalError(
+                    f"{case_id}: claim {claim['id']} provenance 与 Final Audit 不一致"
+                )
     return claim_text_by_id, claim_dimension_by_id, citations_by_claim
+
+
+def _validate_final_grounding_audit(
+    run: dict[str, Any],
+    manifest: dict[str, Any],
+    known_evidence_ids: set[str],
+    case_id: str,
+) -> list[dict[str, Any]] | None:
+    """Independently enforce Final-only claim export for current qa-run manifests."""
+
+    if manifest.get("schemaVersion") not in {"qa-run-v22", "qa-run-v23"}:
+        return None
+    audit = manifest.get("finalGroundingAudit")
+    if not isinstance(audit, dict):
+        raise AccuracyEvalError(f"{case_id}: qa-run-v22 缺少 finalGroundingAudit")
+    required = {
+        "schemaVersion",
+        "auditStatus",
+        "groundingStatus",
+        "factualClaimCount",
+        "supportedCount",
+        "unsupportedCount",
+        "notApplicableCount",
+        "citedClaimCount",
+        "citedEvidenceIds",
+        "unknownEvidenceIds",
+        "citationPrecision",
+        "citationCoverage",
+        "claims",
+    }
+    missing = sorted(required - set(audit))
+    if missing:
+        raise AccuracyEvalError(
+            f"{case_id}: finalGroundingAudit 缺少字段: {missing}"
+        )
+    if audit["schemaVersion"] not in {
+        "final-grounding-audit-v1",
+        "final-grounding-audit-v2",
+    }:
+        raise AccuracyEvalError(f"{case_id}: finalGroundingAudit schemaVersion 非法")
+    if audit["auditStatus"] != "succeeded" or audit["groundingStatus"] != "supported":
+        raise AccuracyEvalError(f"{case_id}: finalGroundingAudit 未成功支持")
+
+    count_fields = (
+        "factualClaimCount",
+        "supportedCount",
+        "unsupportedCount",
+        "notApplicableCount",
+        "citedClaimCount",
+    )
+    for field in count_fields:
+        value = audit[field]
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            raise AccuracyEvalError(f"{case_id}: finalGroundingAudit.{field} 非法")
+    for field in ("citationPrecision", "citationCoverage"):
+        value = audit[field]
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+            raise AccuracyEvalError(f"{case_id}: finalGroundingAudit.{field} 非法")
+    if not math.isclose(float(audit["citationCoverage"]), 1.0, abs_tol=1e-12):
+        raise AccuracyEvalError(f"{case_id}: finalGroundingAudit.citationCoverage 必须为 1.0")
+    if not math.isclose(float(audit["citationPrecision"]), 1.0, abs_tol=1e-12):
+        raise AccuracyEvalError(f"{case_id}: finalGroundingAudit.citationPrecision 必须为 1.0")
+    if audit["unsupportedCount"] != 0 or audit["unknownEvidenceIds"] != []:
+        raise AccuracyEvalError(f"{case_id}: Final Audit 包含 unsupported/unknown evidence")
+    if not isinstance(audit["claims"], list) or not audit["claims"]:
+        raise AccuracyEvalError(f"{case_id}: finalGroundingAudit.claims 必须是非空数组")
+
+    evidence_kind_by_id = {
+        item["id"]: item["kind"]
+        for item in run.get("evidence", [])
+        if isinstance(item, dict) and isinstance(item.get("id"), str)
+    }
+    supported: list[dict[str, Any]] = []
+    seen_claim_ids: set[str] = set()
+    factual_count = 0
+    not_applicable_count = 0
+    cited_union: set[str] = set()
+    required_claim_fields = {
+        "id",
+        "text",
+        "evidenceIds",
+        "claimType",
+        "verificationStatus",
+        "verificationMethod",
+        "alignmentScore",
+        "reason",
+    }
+    for claim in audit["claims"]:
+        if not isinstance(claim, dict) or not required_claim_fields.issubset(claim):
+            raise AccuracyEvalError(f"{case_id}: Final Audit claim schema 不匹配")
+        claim_id = claim.get("id")
+        text = claim.get("text")
+        evidence_ids = claim.get("evidenceIds")
+        claim_type = claim.get("claimType")
+        status = claim.get("verificationStatus")
+        if not isinstance(claim_id, str) or not claim_id.strip() or claim_id in seen_claim_ids:
+            raise AccuracyEvalError(f"{case_id}: Final Audit claim ID 为空或重复")
+        seen_claim_ids.add(claim_id)
+        if not isinstance(text, str) or not text.strip():
+            raise AccuracyEvalError(f"{case_id}: Final Audit claim {claim_id} text 为空")
+        if not isinstance(evidence_ids, list) or any(
+            not isinstance(value, str) or not value for value in evidence_ids
+        ):
+            raise AccuracyEvalError(f"{case_id}: Final Audit claim {claim_id} evidenceIds 非法")
+        if len(evidence_ids) != len(set(evidence_ids)):
+            raise AccuracyEvalError(f"{case_id}: Final Audit claim {claim_id} evidenceIds 重复")
+        if claim_type == "research_suggestion":
+            if status != "not_applicable":
+                raise AccuracyEvalError(f"{case_id}: Research Suggestion 状态必须为 not_applicable")
+            not_applicable_count += 1
+            continue
+        factual_count += 1
+        if status != "supported":
+            raise AccuracyEvalError(f"{case_id}: Final factual claim {claim_id} 不是 supported")
+        unknown = sorted(set(evidence_ids) - known_evidence_ids)
+        if unknown:
+            raise AccuracyEvalError(
+                f"{case_id}: Final Audit claim {claim_id} 包含未知 evidenceIds: {unknown}"
+            )
+        if not evidence_ids or not any(
+            evidence_kind_by_id.get(evidence_id) != "graph" for evidence_id in evidence_ids
+        ):
+            raise AccuracyEvalError(f"{case_id}: Final Audit claim {claim_id} 缺少非 Graph 证据")
+        cited_union.update(evidence_ids)
+        supported.append(claim)
+
+    if (
+        factual_count != audit["factualClaimCount"]
+        or len(supported) != audit["supportedCount"]
+        or audit["supportedCount"] != audit["factualClaimCount"]
+        or audit["citedClaimCount"] != audit["factualClaimCount"]
+        or not_applicable_count != audit["notApplicableCount"]
+    ):
+        raise AccuracyEvalError(f"{case_id}: Final Audit claim 数量契约不一致")
+    cited_ids = audit["citedEvidenceIds"]
+    if (
+        not isinstance(cited_ids, list)
+        or any(not isinstance(value, str) or not value for value in cited_ids)
+        or len(cited_ids) != len(set(cited_ids))
+        or set(cited_ids) != cited_union
+    ):
+        raise AccuracyEvalError(f"{case_id}: Final Audit citedEvidenceIds 聚合不一致")
+    return supported
 
 
 def _validate_reviewer_identity(reviewer: Any, case_id: str, label: str) -> str:

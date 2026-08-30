@@ -4,15 +4,15 @@
 
 - [x] Record clean pre-task baseline `abd5e02`, branch, Rust, Node/npm, and Python versions.
 - [x] Create this child Trellis task under `08-29-p1-1-real-answer-grounding-generator`.
-- [ ] Commit planning artifacts and parent child-link metadata.
+- [x] Commit planning artifacts and parent child-link metadata.
 
 ## Phase 1 — Heldout runner Final claims
 
-- [ ] Inspect `heldout_runner.rs`, bundle schema/tests, and `qa_accuracy_eval.py` without opening formal heldout questions or run answers.
-- [ ] Make v22 bundle creation require Final Supported claims and canonical visible projection.
-- [ ] Add Draft 5 / Final 3, missing final audit, unsupported claim, unknown evidence, duplicate/empty/projection-failure fixtures.
-- [ ] Add independent Python final-audit/evidence validation and focused tests.
-- [ ] Run focused Rust/Python tests and commit `fix(eval): export final grounded claims to heldout bundles`.
+- [x] Inspect `heldout_runner.rs`, bundle schema/tests, and `qa_accuracy_eval.py` without opening formal heldout questions or run answers.
+- [x] Make v22 bundle creation require Final Supported claims and canonical visible projection.
+- [x] Add Draft 5 / Final 3, missing final audit, unsupported claim, unknown evidence, duplicate/empty/projection-failure fixtures.
+- [x] Add independent Python final-audit/evidence validation and focused tests.
+- [x] Run focused Rust/Python tests and commit `fix(eval): export final grounded claims to heldout bundles`.
 
 ## Phase 2 — Trusted history
 
