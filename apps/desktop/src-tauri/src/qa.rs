@@ -46,7 +46,7 @@ pub(crate) use claim_verification::VerificationStatus;
 pub use claim_verification::VerifiedClaim;
 pub use claim_verification::{
     trusted_context_from_final_audit, FinalGroundingAudit, RepairProjectionAudit,
-    SemanticVerificationBatch,
+    RepairProjectionOperation, SemanticVerificationBatch,
 };
 pub use context::{
     estimate_tokens, CitationRepair, ContextBudget, ContextPlan, ProviderRunMetadata,
