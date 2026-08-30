@@ -58,8 +58,8 @@
 
 ## Phase 7 — Quality and delivery
 
-- [ ] Run focused Rust tests, `cargo fmt --check`, relevant Clippy, and `git diff --check`; avoid full/heldout regression.
-- [ ] Update `.trellis/spec/backend/qa-contract.md` with the domain/provider schema boundary and proven proxy contract.
+- [x] Run focused Rust tests, `cargo fmt --check`, relevant Clippy, and `git diff --check`; avoid full/heldout regression.
+- [x] Update `.trellis/spec/backend/qa-contract.md` with the domain/provider schema boundary and proven proxy contract.
 - [ ] Write the final 16-item result report.
 - [ ] Commit verified work, archive the Trellis task, record journal, and normally push `master` to `origin` without force.
 

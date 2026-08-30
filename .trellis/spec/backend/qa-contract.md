@@ -590,3 +590,79 @@ valid JSON line -> refresh idle timeout -> ignore event -> non-zero exit -> prov
 JSONL line -> typed observation -> fixed fatal category + hash -> terminate/join -> safe report
 item warning -> continue -> final agent message + exit 0 -> success
 ```
+
+## 16. RetrievalContract Provider Schema and Codex Child Proxy
+
+### 1. Scope / Trigger
+
+- Apply this contract whenever the full Query Planner domain schema is projected into a Codex `--output-schema`, or when any Codex subscription child process is spawned for version/login/exec work.
+- The domain schema and Provider schema are distinct contracts. A caller that crosses the Provider boundary must never pass the full schema by convenience or naming ambiguity.
+
+### 2. Signatures
+
+- `retrieval_contract_schema() -> serde_json::Value` returns the complete domain schema.
+- `retrieval_contract_provider_schema() -> serde_json::Value` clones the complete schema and applies the evidence-driven Provider compatibility transform.
+- `query_plan_schema() -> serde_json::Value` exposes the complete domain schema; `query_plan_provider_schema() -> serde_json::Value` is the only legal schema for Planner Provider calls and Probe B/C.
+- `WIRELESS_CODEX_PROXY_URL` is the optional child-process override. `off`, `direct`, and `none` are case-insensitive direct-mode values.
+- The default Codex child proxy is `http://127.0.0.1:7890`.
+
+### 3. Contracts
+
+- The first compatibility transform recursively removes only `uniqueItems`. The full domain schema retains it at `requestedKinds`, `mustAttemptKinds`, and `facets[].preferredKinds`.
+- Compatibility changes are evidence-driven: a new removed keyword requires a real `schema_rejected` observation plus one deterministic RED fixture. Never bulk-strip constraints merely because Structured Outputs supports only a subset.
+- Rust remains the final acceptance boundary. `deny_unknown_fields` and `RetrievalContract::normalize()` continue to enforce kind legality/deduplication, subset relations, facet ID uniqueness/format, facet/query counts, budget ranges, schema version, and scope.
+- Planner Provider wiring in production, heldout runtime consistency code, and Probe B/C uses only `query_plan_provider_schema()`. This wiring change does not authorize reading or running heldout data.
+- Proxy resolution priority is `WIRELESS_CODEX_PROXY_URL` > any existing non-empty uppercase/lowercase HTTP/HTTPS/ALL proxy variable > the localhost:7890 default.
+- Explicit proxy URLs are copied to the Codex child environment. Existing standard proxy variables are inherited unchanged. Direct mode removes child proxy variables and sets child-only `NO_PROXY=*`. The implementation never calls `std::env::set_var` and never changes the parent process.
+- Proxy URLs/credentials are never logged. Existing Codex/Planner/Probe lifecycle events remain authoritative and record only safe mode-independent stage/status/category metadata.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+|---|---|
+| Full domain schema is requested | Return all domain constraints, including all three `uniqueItems` occurrences |
+| Provider schema is requested | Return the same tree with only `uniqueItems` absent |
+| Duplicate kind values are returned | Deterministically deduplicate while preserving first occurrence order |
+| Duplicate facet ID, invalid facet ID, invalid budget, or unknown field is returned | Fail locally with `RETRIEVAL_CONTRACT_INVALID` |
+| Probe B still returns `schema_rejected` | Stop Probe C/Research; capture one external diagnostic and change only the next proven keyword |
+| `WIRELESS_CODEX_PROXY_URL` contains a URL | Override inherited standard proxy values for the Codex child only |
+| Override is `off`, `direct`, or `none` | Remove child proxy variables and force child `NO_PROXY=*` |
+| Override is absent and a standard proxy exists | Preserve inherited proxy configuration without overwrite |
+| No override or standard proxy exists | Inject `http://127.0.0.1:7890` into the Codex child only |
+| Probes/Planner succeed but final Research fails citation/grounding | Classify as the downstream QA gate; do not blame proxy/schema, rerun live traffic, or modify forbidden layers |
+
+### 5. Good / Base / Bad Cases
+
+- **Good**: the full schema is cloned, one proven incompatible keyword is removed recursively, Probe B/C pass, and Rust rejects an invalid facet or budget after generation.
+- **Base**: a user already has `HTTPS_PROXY`; the Codex child inherits it and the application adds no default override.
+- **Bad**: delete every validation keyword after one schema rejection; pass `query_plan_schema()` to production Provider calls; mutate global environment; log a proxy URL; rerun a failed real Research until it happens to pass.
+
+### 6. Tests Required
+
+- S1–S3 recursively prove Provider absence, full-schema retention, and structural equality except `uniqueItems`.
+- S4–S8 prove kind deduplication, duplicate facet rejection, budget rejection, facet-pattern rejection, and unknown-field rejection.
+- Proxy unit tests cover explicit override precedence, inherited standard proxy, localhost:7890 default, and all three direct tokens without parent environment mutation.
+- Codex adapter regression, fmt, and focused Clippy must pass. Live verification is ordered and one-shot: temporary-proxy B -> C -> selected Research, then after default integration and cleared Shell proxy A -> B -> C -> selected Research.
+- A live report must distinguish Planner/Provider status from downstream Semantic/Grounding/citation/persistence status; no Independent Heldout run is permitted for this contract.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```text
+full domain schema -> Codex --output-schema
+schema_rejected -> remove every unfamiliar keyword -> retry until green
+global set_var(HTTP_PROXY, localhost:7890)
+```
+
+#### Correct
+
+```text
+full domain schema
+  -> clone
+  -> remove only proven uniqueItems incompatibility
+  -> Provider schema
+  -> Codex child with override > inherited > localhost:7890 policy
+  -> local strict parse/normalize
+  -> one-shot staged verification with independent downstream gates
+```
