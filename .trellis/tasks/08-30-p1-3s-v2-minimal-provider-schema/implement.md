@@ -44,10 +44,10 @@
 
 ## Phase 5 — Conditional default proxy integration
 
-- [ ] Only after Phase 4 passes, add pure proxy resolution and child `Command::env(...)` injection in `codex_subscription.rs`.
-- [ ] Cover explicit URL, `off/direct/none`, inherited standard proxy, and default localhost:7890 behavior without parent `set_var`.
-- [ ] Preserve existing structured lifecycle diagnostics and ensure no URL/credential is logged.
-- [ ] Run focused Codex adapter tests, fmt, and Clippy; commit.
+- [x] Only after Phase 4 passes, add pure proxy resolution and child `Command::env(...)` injection in `codex_subscription.rs`.
+- [x] Cover explicit URL, `off/direct/none`, inherited standard proxy, and default localhost:7890 behavior without parent `set_var`.
+- [x] Preserve existing structured lifecycle diagnostics and ensure no URL/credential is logged.
+- [x] Run focused Codex adapter tests, fmt, and Clippy; commit.
 
 ## Phase 6 — Final validation without Shell proxy
 

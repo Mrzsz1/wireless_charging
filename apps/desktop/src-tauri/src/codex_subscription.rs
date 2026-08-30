@@ -17,6 +17,91 @@ use uuid::Uuid;
 
 const STATUS_TIMEOUT: Duration = Duration::from_secs(8);
 const POLL_INTERVAL: Duration = Duration::from_millis(60);
+const CODEX_PROXY_OVERRIDE_ENV: &str = "WIRELESS_CODEX_PROXY_URL";
+const DEFAULT_CODEX_PROXY_URL: &str = "http://127.0.0.1:7890";
+const CODEX_PROXY_ENV_NAMES: [&str; 6] = [
+    "HTTP_PROXY",
+    "HTTPS_PROXY",
+    "ALL_PROXY",
+    "http_proxy",
+    "https_proxy",
+    "all_proxy",
+];
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum CodexProxyPolicy {
+    Direct,
+    Inherited,
+    Explicit(OsString),
+    Default(OsString),
+}
+
+fn non_empty_environment_value<F>(read: &mut F, name: &str) -> Option<OsString>
+where
+    F: FnMut(&str) -> Option<OsString>,
+{
+    read(name)
+        .map(|value| value.to_string_lossy().trim().to_string())
+        .filter(|value| !value.is_empty())
+        .map(OsString::from)
+}
+
+fn resolve_codex_proxy_with<F>(mut read: F) -> CodexProxyPolicy
+where
+    F: FnMut(&str) -> Option<OsString>,
+{
+    if let Some(value) = non_empty_environment_value(&mut read, CODEX_PROXY_OVERRIDE_ENV) {
+        if matches!(
+            value.to_string_lossy().trim().to_ascii_lowercase().as_str(),
+            "off" | "direct" | "none"
+        ) {
+            return CodexProxyPolicy::Direct;
+        }
+        return CodexProxyPolicy::Explicit(value);
+    }
+    if CODEX_PROXY_ENV_NAMES
+        .iter()
+        .any(|name| non_empty_environment_value(&mut read, name).is_some())
+    {
+        return CodexProxyPolicy::Inherited;
+    }
+    CodexProxyPolicy::Default(OsString::from(DEFAULT_CODEX_PROXY_URL))
+}
+
+fn configure_codex_proxy_with<F>(command: &mut Command, read: F) -> &'static str
+where
+    F: FnMut(&str) -> Option<OsString>,
+{
+    command.env_remove(CODEX_PROXY_OVERRIDE_ENV);
+    match resolve_codex_proxy_with(read) {
+        CodexProxyPolicy::Direct => {
+            for name in CODEX_PROXY_ENV_NAMES {
+                command.env_remove(name);
+            }
+            command.env("NO_PROXY", "*").env("no_proxy", "*");
+            "direct"
+        }
+        CodexProxyPolicy::Inherited => "inherited",
+        CodexProxyPolicy::Explicit(url) => {
+            for name in CODEX_PROXY_ENV_NAMES {
+                command.env(name, &url);
+            }
+            command.env_remove("NO_PROXY").env_remove("no_proxy");
+            "explicit"
+        }
+        CodexProxyPolicy::Default(url) => {
+            for name in CODEX_PROXY_ENV_NAMES {
+                command.env(name, &url);
+            }
+            command.env_remove("NO_PROXY").env_remove("no_proxy");
+            "default"
+        }
+    }
+}
+
+fn configure_codex_proxy(command: &mut Command) {
+    let _ = configure_codex_proxy_with(command, |name| env::var_os(name));
+}
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -510,6 +595,7 @@ fn run_fixed_with(
 ) -> Result<(bool, String, String), String> {
     let mut command = Command::new(executable);
     configure_background_command(&mut command);
+    configure_codex_proxy(&mut command);
     let mut child = command
         .args(args)
         .stdin(Stdio::null())
@@ -632,6 +718,7 @@ pub fn get_status() -> CodexSubscriptionStatus {
 fn start_login_with(executable: &str) -> Result<String, String> {
     let mut command = Command::new(executable);
     configure_background_command(&mut command);
+    configure_codex_proxy(&mut command);
     command
         .arg("login")
         .stdin(Stdio::null())
@@ -1225,6 +1312,7 @@ where
         .transpose()?;
     let mut command = Command::new(executable);
     configure_background_command(&mut command);
+    configure_codex_proxy(&mut command);
     command
         .args(build_exec_args(
             &workspace.0,
@@ -1573,6 +1661,125 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::HashMap;
+
+    fn fixture_environment(
+        entries: &[(&str, &str)],
+    ) -> impl FnMut(&str) -> Option<OsString> + use<> {
+        let values = entries
+            .iter()
+            .map(|(name, value)| ((*name).to_string(), OsString::from(value)))
+            .collect::<HashMap<_, _>>();
+        move |name| values.get(name).cloned()
+    }
+
+    fn configured_environment(command: &Command) -> HashMap<String, Option<String>> {
+        command
+            .get_envs()
+            .map(|(name, value)| {
+                (
+                    name.to_string_lossy().into_owned(),
+                    value.map(|value| value.to_string_lossy().into_owned()),
+                )
+            })
+            .collect()
+    }
+
+    fn configured_environment_value<'a>(
+        configured: &'a HashMap<String, Option<String>>,
+        name: &str,
+    ) -> Option<&'a Option<String>> {
+        configured
+            .iter()
+            .find(|(key, _)| key.eq_ignore_ascii_case(name))
+            .map(|(_, value)| value)
+    }
+
+    #[test]
+    fn explicit_codex_proxy_override_wins_over_inherited_proxy() {
+        let mut command = Command::new("codex");
+        let mode = configure_codex_proxy_with(
+            &mut command,
+            fixture_environment(&[
+                (CODEX_PROXY_OVERRIDE_ENV, "http://127.0.0.1:9000"),
+                ("HTTPS_PROXY", "http://inherited.invalid:8080"),
+            ]),
+        );
+        let configured = configured_environment(&command);
+
+        assert_eq!(mode, "explicit");
+        for name in CODEX_PROXY_ENV_NAMES {
+            assert_eq!(
+                configured_environment_value(&configured, name),
+                Some(&Some("http://127.0.0.1:9000".to_string()))
+            );
+        }
+        assert_eq!(
+            configured_environment_value(&configured, CODEX_PROXY_OVERRIDE_ENV),
+            Some(&None)
+        );
+    }
+
+    #[test]
+    fn existing_standard_proxy_is_inherited_without_override() {
+        let mut command = Command::new("codex");
+        let mode = configure_codex_proxy_with(
+            &mut command,
+            fixture_environment(&[("https_proxy", "http://127.0.0.1:8123")]),
+        );
+        let configured = configured_environment(&command);
+
+        assert_eq!(mode, "inherited");
+        assert!(CODEX_PROXY_ENV_NAMES
+            .iter()
+            .all(|name| configured_environment_value(&configured, name).is_none()));
+    }
+
+    #[test]
+    fn missing_proxy_configuration_injects_localhost_7890_by_default() {
+        let mut command = Command::new("codex");
+        let mode = configure_codex_proxy_with(&mut command, fixture_environment(&[]));
+        let configured = configured_environment(&command);
+
+        assert_eq!(mode, "default");
+        for name in CODEX_PROXY_ENV_NAMES {
+            assert_eq!(
+                configured_environment_value(&configured, name),
+                Some(&Some(DEFAULT_CODEX_PROXY_URL.to_string()))
+            );
+        }
+    }
+
+    #[test]
+    fn direct_proxy_override_removes_proxy_environment_for_child_only() {
+        for value in ["off", "DIRECT", "None"] {
+            assert_eq!(
+                resolve_codex_proxy_with(fixture_environment(&[
+                    (CODEX_PROXY_OVERRIDE_ENV, value,)
+                ])),
+                CodexProxyPolicy::Direct
+            );
+        }
+
+        let mut command = Command::new("codex");
+        let mode = configure_codex_proxy_with(
+            &mut command,
+            fixture_environment(&[
+                (CODEX_PROXY_OVERRIDE_ENV, "direct"),
+                ("HTTP_PROXY", "http://inherited.invalid:8080"),
+            ]),
+        );
+        let configured = configured_environment(&command);
+
+        assert_eq!(mode, "direct");
+        for name in CODEX_PROXY_ENV_NAMES {
+            assert_eq!(configured_environment_value(&configured, name), Some(&None));
+        }
+        assert_eq!(
+            configured_environment_value(&configured, "NO_PROXY"),
+            Some(&Some("*".to_string()))
+        );
+    }
 
     #[cfg(windows)]
     fn write_windows_fixture(name: &str, body: &str) -> (TempWorkspace, std::path::PathBuf) {
