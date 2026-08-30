@@ -23,6 +23,7 @@ These guides help you **ask the right questions before coding**.
 |-------|---------|-------------|
 | [Code Reuse Thinking Guide](./code-reuse-thinking-guide.md) | Identify patterns and reduce duplication | When you notice repeated patterns |
 | [Cross-Layer Thinking Guide](./cross-layer-thinking-guide.md) | Think through data flow across layers | Features spanning multiple layers |
+| [Feature Delivery Checklist](./feature-delivery-checklist.md) | Require stage-level diagnostics and GitHub delivery after a green quality gate | Every feature or behavior-changing fix |
 
 ---
 
@@ -50,6 +51,14 @@ These guides help you **ask the right questions before coding**.
 - [ ] Multiple branches update the same derived state from `kind` / `action`
 
 → Read [Code Reuse Thinking Guide](./code-reuse-thinking-guide.md)
+
+### When Delivering a Feature or Fix
+
+- [ ] The feature has material stages that can fail independently
+- [ ] A future maintainer must locate failure from logs without reproducing locally
+- [ ] The change is ready to commit, archive, journal, and push
+
+→ Read [Feature Delivery Checklist](./feature-delivery-checklist.md)
 
 ### When Verifying AI Cross-Review Results
 

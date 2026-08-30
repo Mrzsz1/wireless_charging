@@ -50,6 +50,14 @@ Questions to answer:
 
 (To be filled by the team)
 
+## Feature diagnostics contract
+
+- Every new or modified frontend feature must be traceable through the shared application log sink. For cross-layer flows, the backend orchestration log is authoritative; frontend-only flows must use or add a shared bridge and must not rely on browser-console-only output.
+- Record feature start, each independently failing stage start/completion/failure, and feature completion/failure with one operation ID. Use stable event names and error codes; never record component props, free-form user content, credentials, local absolute paths, or raw backend payloads.
+- A UI error state and a log event serve different purposes: keep the existing user-facing message while emitting the diagnostic stage/error code. Logging must not change retry, cancellation, or rendering behavior.
+- Frontend tests for a changed feature must assert the emitted stage sequence and representative failure event, or assert that the frontend correctly propagates the operation ID to an authoritative backend workflow.
+- The complete field, storage, redaction, and failure matrix is defined by [`../backend/logging-guidelines.md`](../backend/logging-guidelines.md).
+
 ## GUI E2E environment contract
 
 ### 1. Scope / Trigger

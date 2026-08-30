@@ -121,7 +121,7 @@ python ./.trellis/scripts/get_context.py --mode phase --step <X.Y>  # detailed g
     [workflow-state:no_task]      → no active task; before Phase 1
     [workflow-state:planning]     → all of Phase 1 (status='planning')
     [workflow-state:planning-inline] → Codex inline variant of Phase 1
-    [workflow-state:in_progress]  → Phase 2 + Phase 3.2-3.4
+    [workflow-state:in_progress]  → Phase 2 + Phase 3.2-3.6
                                     (status stays 'in_progress' from
                                     task.py start until task.py archive)
     [workflow-state:in_progress-inline] → Codex inline variant of Phase 2/3
@@ -146,7 +146,7 @@ python ./.trellis/scripts/get_context.py --mode phase --step <X.Y>  # detailed g
 ```
 Phase 1: Plan    → classify, get task-creation consent, then write planning artifacts
 Phase 2: Execute → implement only after task status is in_progress
-Phase 3: Finish  → verify, update spec, commit, and wrap up
+Phase 3: Finish  → verify, update spec, commit, archive/journal, and push GitHub
 ```
 
 ### Request Triage
@@ -215,16 +215,17 @@ Inline mode: skip jsonl curation; Phase 2 reads artifacts/specs via `trellis-bef
 - 2.3 Rollback `[on demand]`
 
 <!-- Per-turn breadcrumb: shown while status='in_progress'.
-     Scope: all of Phase 2 + Phase 3.2-3.4 (status stays 'in_progress' from
+     Scope: all of Phase 2 + Phase 3.2-3.6 (status stays 'in_progress' from
      task.py start until task.py archive; only archive flips it). The body
      therefore must cover every required step from implementation through
-     commit, including Phase 3.3 spec update and Phase 3.4 commit. -->
+     GitHub delivery, including Phase 3.3 spec update, Phase 3.4 commit,
+     Phase 3.5 archive/journal, and Phase 3.6 push. -->
 
 Sub-agent dispatch protocol applies to all platforms and all sub-agents, including class-2 Codex/Gemini/Qoder/Copilot/ZCode/Reasonix/Trae and `trellis-research`: every dispatch prompt starts with `Active task: <task path from task.py current>` before role-specific instructions.
 
 [workflow-state:in_progress]
 Tools: `trellis-implement` / `trellis-research` are sub-agent types only (Task/Agent tool, NOT Skill; there is no skill by these names). `trellis-update-spec` is a skill. `trellis-check` exists as both; prefer the Agent form when verifying after code changes.
-Flow: `trellis-implement` -> `trellis-check` -> `trellis-update-spec` -> commit (Phase 3.4) -> `/trellis:finish-work`.
+Flow: `trellis-implement` -> `trellis-check` -> `trellis-update-spec` -> commit (Phase 3.4) -> `/trellis:finish-work` (archive + journal) -> normal GitHub push (Phase 3.6).
 Main-session default: dispatch implement/check sub-agents. Sub-agent self-exemption: if already running as `trellis-implement`, do NOT spawn another `trellis-implement` or `trellis-check`; if already running as `trellis-check`, do NOT spawn another `trellis-check` or `trellis-implement`. Dispatch is main session only.
 Dispatch prompt starts with `Active task: <task path from task.py current>`. Read context: jsonl entries -> `prd.md` -> `design.md if present` -> `implement.md if present`.
 [/workflow-state:in_progress]
@@ -235,7 +236,7 @@ Dispatch prompt starts with `Active task: <task path from task.py current>`. Rea
      instead of dispatching sub-agents. -->
 
 [workflow-state:in_progress-inline]
-Flow: `trellis-before-dev` -> edit -> `trellis-check` -> validation -> `trellis-update-spec` -> commit (Phase 3.4) -> `/trellis:finish-work`.
+Flow: `trellis-before-dev` -> edit -> `trellis-check` -> validation -> `trellis-update-spec` -> commit (Phase 3.4) -> `/trellis:finish-work` (archive + journal) -> normal GitHub push (Phase 3.6).
 Do not dispatch implement/check sub-agents in inline mode.
 Read context: `prd.md` -> `design.md if present` -> `implement.md if present`, plus relevant spec/research loaded by skills.
 [/workflow-state:in_progress-inline]
@@ -244,7 +245,8 @@ Read context: `prd.md` -> `design.md if present` -> `implement.md if present`, p
 - 3.2 Debug retrospective `[on demand]`
 - 3.3 Spec update `[required · once]`
 - 3.4 Commit changes `[required · once]`
-- 3.5 Wrap-up reminder
+- 3.5 Archive task and record journal `[required · once when a Trellis task exists]`
+- 3.6 Push successful delivery to GitHub `[required · once unless the user explicitly requests local-only]`
 
 > Note: step 3.1 was folded into 2.2 (last-iteration full-scope check) and 3.4 (commit preamble). Numbering kept stable to avoid breaking external references.
 
@@ -257,7 +259,7 @@ Read context: `prd.md` -> `design.md if present` -> `implement.md if present`, p
      channel as the live blocks. -->
 
 [workflow-state:completed]
-Code committed. Run `/trellis:finish-work`; if dirty, return to Phase 3.4 first.
+Work commits are complete. Run `/trellis:finish-work` for archive/journal bookkeeping, then normally push the current branch to GitHub `origin`; if code is dirty, return to Phase 3.4 first.
 [/workflow-state:completed]
 
 ### Rules
@@ -627,19 +629,44 @@ The AI drives a batched commit of this task's code changes so `/finish-work` can
    Reply 'ok' / '行' to execute. Reply with edits, or '我自己来' / 'manual' to abort.
    ```
 
-6. **On confirmation**: run `git add <files>` + `git commit -m "<msg>"` for each batch in order. Do not amend. Do not push.
+6. **On confirmation**: run `git add <files>` + `git commit -m "<msg>"` for each batch in order. Do not amend. Defer the remote push until Phase 3.6, after archive/journal bookkeeping.
 
 7. **On rejection** (user replies "不行" / "我自己来" / "manual" / any pushback on the plan): stop. Do not attempt a second plan. The user will commit by hand; you skip ahead to 3.5 once they confirm.
 
 **Rules**:
 - No `git commit --amend` anywhere — three-stage three-commit flow (work commits → archive commit → journal commit).
-- Never push to remote in this step.
+- Never push to remote in this step; the required normal push occurs in Phase 3.6.
 - If the user wants different message wording but accepts the file grouping, edit the message and re-confirm once — but if they reject the grouping, exit to manual mode.
 - The batched plan is one prompt; do not prompt per commit.
 
-#### 3.5 Wrap-up reminder
+#### 3.5 Archive task and record journal `[required · once when a Trellis task exists]`
 
-After the above, remind the user they can run `/finish-work` to wrap up (archive the task, record the session).
+After the work commits are complete, run `/trellis:finish-work` to archive the active task and record the session journal. This must produce the final bookkeeping commits before remote delivery. If the current turn has no Trellis task, confirm the worktree is clean and continue directly to Phase 3.6.
+
+#### 3.6 Push successful delivery to GitHub `[required · once unless local-only]`
+
+This project treats remote delivery as part of successful feature completion. After the relevant quality gate is green and all work/archive/journal commits exist:
+
+1. Confirm the current branch, final commit, clean task-owned working tree, and `origin` URL:
+   ```bash
+   git branch --show-current
+   git rev-parse HEAD
+   git status --porcelain
+   git remote get-url origin
+   ```
+2. Unless the user explicitly requested local-only work, perform a normal push of the current branch to GitHub `origin`. Set upstream only when the branch has none:
+   ```bash
+   git push origin <current-branch>
+   # or, for a new branch without upstream:
+   git push -u origin <current-branch>
+   ```
+3. Verify that `refs/heads/<current-branch>` on `origin` resolves to the final local commit, then report the branch and commit SHA.
+
+**Rules**:
+- Never use `--force`, `--force-with-lease`, history rewriting, or an amend to make a push succeed.
+- Do not push a red quality gate or an incomplete feature and call it successful.
+- On network/auth/non-fast-forward failure, retain the verified local commits unchanged, report the exact branch/SHA and Git error, then retry only a normal push after the blocking condition is resolved.
+- Explicit user instructions to keep work local override this default for that task only.
 
 ---
 
@@ -652,7 +679,7 @@ This section is for developers who want to modify the Trellis workflow itself. A
 Edit the corresponding step's walkthrough body in the Phase 1 / 2 / 3 sections above. Critical invariants:
 - No active task must triage first and ask for task-creation consent before creating a Trellis task.
 - Planning must distinguish lightweight PRD-only tasks from complex tasks that require `prd.md`, `design.md`, and `implement.md` before start.
-- Every required execution path must keep the Phase 3.4 commit reminder reachable before `/trellis:finish-work`.
+- Every required execution path must keep the Phase 3.4 commit reminder reachable before `/trellis:finish-work`, then keep the Phase 3.6 normal GitHub push reachable after archive/journal bookkeeping.
 
 All tag blocks live in the `## Phase Index` section above, immediately after each phase summary:
 
@@ -661,8 +688,8 @@ All tag blocks live in the `## Phase Index` section above, immediately after eac
 | No active task (before Phase 1) | `[workflow-state:no_task]` (after the Phase Index ASCII art) |
 | All of Phase 1 (task created → ready for implementation) | `[workflow-state:planning]` (after Phase 1 summary) |
 | Codex inline Phase 1 | `[workflow-state:planning-inline]` |
-| Phase 2 + Phase 3.2–3.4 (implementation + check + wrap-up) | `[workflow-state:in_progress]` (after Phase 2 summary) |
-| Codex inline Phase 2 + Phase 3.2–3.4 | `[workflow-state:in_progress-inline]` |
+| Phase 2 + Phase 3.2–3.6 (implementation + check + commit + archive/journal + push) | `[workflow-state:in_progress]` (after Phase 2 summary) |
+| Codex inline Phase 2 + Phase 3.2–3.6 | `[workflow-state:in_progress-inline]` |
 | After Phase 3.5 (archived) | `[workflow-state:completed]` (after Phase 3 summary; **currently DEAD**) |
 
 ### Changing the per-turn prompt text
