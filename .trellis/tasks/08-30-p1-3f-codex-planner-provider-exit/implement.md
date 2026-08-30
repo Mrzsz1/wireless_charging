@@ -59,7 +59,7 @@
 
 - [x] Update QA spec with terminal-event and proven branch contracts.
 - [x] Write the 25-item result report.
-- [ ] Archive task, record journal, push successful delivery to GitHub without force, and verify remote SHA.
+- [x] Archive task, record journal, push delivery to GitHub without force, and verify remote SHA.
 
 ## Rollback points
 
