@@ -1953,3 +1953,42 @@ Separated Draft and Final grounding audits, gated persistence/trusted history on
 ### Next Steps
 
 - None - task complete
+
+
+## Session 58: P1-2 Semantic Verifier call reserve
+
+**Date**: 2026-08-30
+**Task**: P1-2 Semantic Verifier call reserve
+**Branch**: `master`
+
+### Summary
+
+Test-first 修复 Semantic Verifier 调用位：adaptive-routing-v2 为 Direct/Research/Exploratory 配置 3/4/5 次总调用并保留 1 个不可被其他阶段消耗的 Semantic 位；确定性测试和唯一一次真实 Direct 均通过，Final 1/1 Supported 并成功持久化。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `4ec548a` | (see git log) |
+| `988943d` | (see git log) |
+| `18cc723` | (see git log) |
+| `cb8ae0f` | (see git log) |
+| `3e3e7b4` | (see git log) |
+| `b9276e5` | (see git log) |
+| `b6290af` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
