@@ -128,6 +128,9 @@ pub struct GroundingObservation {
     pub draft_repaired_claim_count: usize,
     pub draft_uncited_knowledge_fact_count: usize,
     pub draft_unverified_claim_count: usize,
+    pub repair_projection_status: String,
+    pub repair_projection_error_code: String,
+    pub repair_projection_operation_count: usize,
     pub final_factual_claim_count: usize,
     pub final_supported_claim_count: usize,
     pub final_unsupported_claim_count: usize,
@@ -554,6 +557,9 @@ fn observation_from_parts(
         draft_repaired_claim_count: manifest.repaired_claim_count,
         draft_uncited_knowledge_fact_count: uncited_knowledge_fact_count,
         draft_unverified_claim_count: manifest.unverified_claim_count,
+        repair_projection_status: manifest.repair_projection_audit.status.clone(),
+        repair_projection_error_code: manifest.repair_projection_audit.error_code.clone(),
+        repair_projection_operation_count: manifest.repair_projection_audit.operation_count,
         final_factual_claim_count: manifest.final_grounding_audit.factual_claim_count,
         final_supported_claim_count: manifest.final_grounding_audit.supported_count,
         final_unsupported_claim_count: manifest.final_grounding_audit.unsupported_count,
@@ -712,6 +718,14 @@ fn validate_observation(case: &RealE2eCase, observed: &GroundingObservation) -> 
         require(observed.evidence_count == 0, "zero_evidence_false_positive");
     } else {
         require(observed.evidence_count > 0, "evidence_empty");
+        require(
+            observed.repair_projection_status == "succeeded",
+            "repair_projection_failed",
+        );
+        require(
+            observed.repair_projection_error_code.is_empty(),
+            "repair_projection_error_present",
+        );
         require(
             observed.final_factual_claim_count > 0,
             "final_factual_claims_empty",
@@ -1188,6 +1202,7 @@ mod tests {
             answer_complete: true,
             draft_claim_count: 1,
             draft_supported_claim_count: 1,
+            repair_projection_status: "succeeded".to_string(),
             final_factual_claim_count: 1,
             final_supported_claim_count: 1,
             final_cited_claim_count: 1,
@@ -1303,6 +1318,21 @@ mod tests {
         assert!(errors.contains(&"generator_budget_rejected".to_string()));
         assert!(errors.contains(&"unknown_citation_id".to_string()));
         assert!(errors.contains(&"citation_validation_failed".to_string()));
+    }
+
+    #[test]
+    fn observation_rejects_failed_repair_projection_independently() {
+        let case = case("direct");
+        let observed = GroundingObservation {
+            repair_projection_status: "failed".to_string(),
+            repair_projection_error_code: "introduced_factual_claim".to_string(),
+            ..valid_observation("direct")
+        };
+
+        let errors = validate_observation(&case, &observed);
+
+        assert!(errors.contains(&"repair_projection_failed".to_string()));
+        assert!(errors.contains(&"repair_projection_error_present".to_string()));
     }
 
     #[test]
@@ -1504,6 +1534,7 @@ mod tests {
             final_citation_coverage: 1.0,
             final_visible_projection_valid: true,
             verification_status: "succeeded".to_string(),
+            repair_projection_status: "succeeded".to_string(),
             answer_complete: true,
             semantic_status: "succeeded".to_string(),
             planner_status: "policy_disabled".to_string(),

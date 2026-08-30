@@ -1,6 +1,6 @@
 use super::{
     compact, research_memory, research_memory::ResearchSessionState, ConversationTurn,
-    EvidenceItem, FinalGroundingAudit, QuestionContext, VerifiedClaim,
+    EvidenceItem, FinalGroundingAudit, QuestionContext, RepairProjectionAudit, VerifiedClaim,
 };
 use rusqlite::{types::ValueRef, Connection};
 use serde::{Deserialize, Serialize};
@@ -246,6 +246,8 @@ pub struct QaRunManifest {
     pub unavailable_claim_count: usize,
     #[serde(default)]
     pub repaired_claim_count: usize,
+    #[serde(default)]
+    pub repair_projection_audit: RepairProjectionAudit,
     #[serde(default)]
     pub claim_verifications: Vec<VerifiedClaim>,
     #[serde(default)]
@@ -1455,6 +1457,7 @@ pub fn build_run_manifest(
         unverified_claim_count: 0,
         unavailable_claim_count: 0,
         repaired_claim_count: 0,
+        repair_projection_audit: RepairProjectionAudit::default(),
         claim_verifications: Vec::new(),
         final_grounding_audit: FinalGroundingAudit::default(),
         problem_parser_version: context.retrieval_query.problem_parser_version.clone(),

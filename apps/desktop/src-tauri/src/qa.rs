@@ -45,7 +45,8 @@ pub use claim_verification::FinalClaimSource;
 pub(crate) use claim_verification::VerificationStatus;
 pub use claim_verification::VerifiedClaim;
 pub use claim_verification::{
-    trusted_context_from_final_audit, FinalGroundingAudit, SemanticVerificationBatch,
+    trusted_context_from_final_audit, FinalGroundingAudit, RepairProjectionAudit,
+    SemanticVerificationBatch,
 };
 pub use context::{
     estimate_tokens, CitationRepair, ContextBudget, ContextPlan, ProviderRunMetadata,
@@ -3954,6 +3955,70 @@ fn apply_final_grounding_audit(
     validation
 }
 
+fn repair_projection_started_event(request_id: &str, execution_mode: &str) -> trace::QaTraceEvent {
+    let mut event = trace::QaTraceEvent::new(
+        "qa_repair_projection_started",
+        "repair_projection",
+        "started",
+        request_id,
+    );
+    event.execution_mode = execution_mode.to_string();
+    event
+}
+
+fn repair_projection_terminal_event(
+    request_id: &str,
+    execution_mode: &str,
+    report: &claim_verification::ClaimVerificationReport,
+) -> trace::QaTraceEvent {
+    let failed = report.repair_projection_audit.status == "failed";
+    let mut event = trace::QaTraceEvent::new(
+        if failed {
+            "qa_repair_projection_failed"
+        } else {
+            "qa_repair_projection_completed"
+        },
+        "repair_projection",
+        if failed { "failed" } else { "succeeded" },
+        request_id,
+    );
+    event.execution_mode = execution_mode.to_string();
+    event.claim_count = Some(report.claim_count);
+    event.repaired_claim_count = Some(report.repaired_count);
+    if failed {
+        event.error_code = format!(
+            "repair_projection_invalid_{}",
+            report.repair_projection_audit.error_code
+        );
+    }
+    event
+}
+
+fn verify_repair_and_audit(
+    context: &QuestionContext,
+    answer: &str,
+    semantic: Option<&claim_verification::SemanticVerificationBatch>,
+) -> (
+    String,
+    claim_verification::ClaimVerificationReport,
+    FinalGroundingAudit,
+) {
+    trace::emit(&repair_projection_started_event(
+        &context.request_id,
+        &context.retrieval_query.execution_mode,
+    ));
+    let (repaired, report) =
+        claim_verification::verify_and_repair_with_semantic(answer, &context.evidence, semantic);
+    trace::emit(&repair_projection_terminal_event(
+        &context.request_id,
+        &context.retrieval_query.execution_mode,
+        &report,
+    ));
+    let final_audit =
+        claim_verification::audit_repaired_answer(&repaired, &context.evidence, &report);
+    (repaired, report, final_audit)
+}
+
 pub fn audit_generated_answer(
     context: &QuestionContext,
     answer: &str,
@@ -3987,16 +4052,9 @@ pub fn audit_generated_answer_with_semantic(
             let verified_answer = if context.evidence.is_empty() {
                 canonical_answer
             } else {
-                let (repaired, report) = claim_verification::verify_and_repair_with_semantic(
-                    &canonical_answer,
-                    &context.evidence,
-                    semantic,
-                );
-                final_grounding_audit = claim_verification::audit_repaired_answer(
-                    &repaired,
-                    &context.evidence,
-                    &report,
-                );
+                let (repaired, report, audit) =
+                    verify_repair_and_audit(context, &canonical_answer, semantic);
+                final_grounding_audit = audit;
                 verification_report = report;
                 repaired
             };
@@ -4041,16 +4099,9 @@ pub fn audit_generated_answer_with_semantic(
                 &context.evidence,
             ) {
                 Ok(result) => {
-                    let (repaired, report) = claim_verification::verify_and_repair_with_semantic(
-                        &result.markdown,
-                        &context.evidence,
-                        semantic,
-                    );
-                    final_grounding_audit = claim_verification::audit_repaired_answer(
-                        &repaired,
-                        &context.evidence,
-                        &report,
-                    );
+                    let (repaired, report, audit) =
+                        verify_repair_and_audit(context, &result.markdown, semantic);
+                    final_grounding_audit = audit;
                     verification_report = report;
                     let mut validation = if repaired == result.markdown {
                         result.validation
@@ -4089,16 +4140,9 @@ pub fn audit_generated_answer_with_semantic(
             let final_answer = if context.evidence.is_empty() {
                 canonical_answer
             } else {
-                let (repaired, report) = claim_verification::verify_and_repair_with_semantic(
-                    &canonical_answer,
-                    &context.evidence,
-                    semantic,
-                );
-                final_grounding_audit = claim_verification::audit_repaired_answer(
-                    &repaired,
-                    &context.evidence,
-                    &report,
-                );
+                let (repaired, report, audit) =
+                    verify_repair_and_audit(context, &canonical_answer, semantic);
+                final_grounding_audit = audit;
                 verification_report = report;
                 if repaired != canonical_answer {
                     validation = validate_citations(&repaired, &context.evidence);
@@ -4164,6 +4208,7 @@ pub fn audit_generated_answer_with_semantic(
     run_manifest.unverified_claim_count = verification_report.unverified_count;
     run_manifest.unavailable_claim_count = verification_report.unavailable_count;
     run_manifest.repaired_claim_count = verification_report.repaired_count;
+    run_manifest.repair_projection_audit = verification_report.repair_projection_audit;
     run_manifest.claim_verifications = verification_report.claims;
     run_manifest.final_grounding_audit = final_grounding_audit.clone();
     if final_grounding_audit.schema_version == "final-grounding-audit-v2" {
@@ -6415,5 +6460,61 @@ mod tests {
         )
         .unwrap();
         assert_eq!(saved.context_window_tokens, 8_192);
+    }
+
+    #[test]
+    fn repair_projection_trace_events_identify_success_and_failure_without_content() {
+        let request_id = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+        let started = repair_projection_started_event(request_id, "research");
+        let succeeded = claim_verification::ClaimVerificationReport {
+            claim_count: 4,
+            repaired_count: 3,
+            repair_projection_audit: RepairProjectionAudit {
+                schema_version: claim_verification::REPAIR_PROJECTION_SCHEMA_VERSION.to_string(),
+                status: "succeeded".to_string(),
+                operation_count: 4,
+                ..RepairProjectionAudit::default()
+            },
+            ..claim_verification::ClaimVerificationReport::default()
+        };
+        let completed = repair_projection_terminal_event(request_id, "research", &succeeded);
+        let failed = claim_verification::ClaimVerificationReport {
+            repair_projection_audit: RepairProjectionAudit {
+                schema_version: claim_verification::REPAIR_PROJECTION_SCHEMA_VERSION.to_string(),
+                status: "failed".to_string(),
+                error_code: "claim_span_not_found".to_string(),
+                ..RepairProjectionAudit::default()
+            },
+            ..claim_verification::ClaimVerificationReport::default()
+        };
+        let failed_event = repair_projection_terminal_event(request_id, "research", &failed);
+
+        assert_eq!(
+            [started.event.as_str(), completed.event.as_str()],
+            [
+                "qa_repair_projection_started",
+                "qa_repair_projection_completed"
+            ]
+        );
+        assert_eq!(started.request_id_hash, completed.request_id_hash);
+        assert_eq!(completed.claim_count, Some(4));
+        assert_eq!(completed.repaired_claim_count, Some(3));
+        assert_eq!(failed_event.event, "qa_repair_projection_failed");
+        assert_eq!(failed_event.status, "failed");
+        assert_eq!(
+            failed_event.error_code,
+            "repair_projection_invalid_claim_span_not_found"
+        );
+        let serialized = serde_json::to_string(&[started, completed, failed_event]).unwrap();
+        assert!(!serialized.contains(request_id));
+        for forbidden in [
+            "question",
+            "answer",
+            "claimText",
+            "snippet",
+            "repositoryPath",
+        ] {
+            assert!(!serialized.contains(forbidden));
+        }
     }
 }

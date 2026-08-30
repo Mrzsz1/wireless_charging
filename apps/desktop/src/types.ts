@@ -636,6 +636,24 @@ export type AtomicClaim = {
 
 export type VerifiedClaim = AtomicClaim
 
+export type RepairProjectionOperation = {
+  claimId: string
+  sourceStart: number
+  sourceEnd: number
+  originalTextSha256: string
+  replacementKind: string
+}
+
+export type RepairProjectionAudit = {
+  schemaVersion: string
+  status: 'not_run' | 'succeeded' | 'failed' | string
+  errorCode: string
+  sourceBodySha256: string
+  repairedBodySha256: string
+  operationCount: number
+  operations: RepairProjectionOperation[]
+}
+
 export type QaRunManifest = {
   schemaVersion: string
   promptVersion: string
@@ -725,6 +743,7 @@ export type QaRunManifest = {
   unverifiedClaimCount?: number
   unavailableClaimCount?: number
   repairedClaimCount?: number
+  repairProjectionAudit?: RepairProjectionAudit
   claimVerifications?: VerifiedClaim[]
   finalGroundingAudit?: FinalGroundingAudit
   problemParserVersion?: string

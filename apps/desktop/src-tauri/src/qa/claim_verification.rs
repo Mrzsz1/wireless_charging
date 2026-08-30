@@ -17,6 +17,7 @@ use std::time::Instant;
 pub const CLAIM_VERIFIER_VERSION: &str = "deterministic-claim-verifier-v2";
 pub const ATOMIC_CLAIM_EXTRACTOR_VERSION: &str = "atomic-claim-extractor-v1";
 pub const SEMANTIC_VERIFIER_VERSION: &str = "semantic-claim-verifier-v2";
+pub const REPAIR_PROJECTION_SCHEMA_VERSION: &str = "qa-repair-projection-v1";
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -55,6 +56,59 @@ pub struct AtomicClaim {
 }
 
 pub type VerifiedClaim = AtomicClaim;
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct RepairProjectionOperation {
+    pub claim_id: String,
+    pub source_start: usize,
+    pub source_end: usize,
+    pub original_text_sha256: String,
+    pub replacement_kind: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct RepairProjectionAudit {
+    pub schema_version: String,
+    pub status: String,
+    pub error_code: String,
+    pub source_body_sha256: String,
+    pub repaired_body_sha256: String,
+    pub operation_count: usize,
+    pub operations: Vec<RepairProjectionOperation>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct LocatedDraftClaim {
+    claim_id: String,
+    start: usize,
+    end: usize,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum RepairProjectionError {
+    ClaimSpanNotFound,
+    ClaimSpanInvalid,
+    IntroducedFactualClaim,
+    SupportedClaimLost,
+}
+
+impl RepairProjectionError {
+    fn code(self) -> &'static str {
+        match self {
+            Self::ClaimSpanNotFound => "claim_span_not_found",
+            Self::ClaimSpanInvalid => "claim_span_invalid",
+            Self::IntroducedFactualClaim => "introduced_factual_claim",
+            Self::SupportedClaimLost => "supported_claim_lost",
+        }
+    }
+
+    #[cfg(test)]
+    fn message(self) -> String {
+        format!("REPAIR_PROJECTION_INVALID: {}", self.code())
+    }
+}
 
 pub(crate) fn project_claim_after_repair(claim: &VerifiedClaim) -> String {
     match claim.verification_status {
@@ -95,6 +149,8 @@ pub struct ClaimVerificationReport {
     pub research_suggestion_count: usize,
     pub repaired_count: usize,
     pub claims: Vec<VerifiedClaim>,
+    #[serde(default)]
+    pub repair_projection_audit: RepairProjectionAudit,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
@@ -160,6 +216,195 @@ fn sha256_text(value: &str) -> String {
     format!("{:x}", Sha256::digest(value.as_bytes()))
 }
 
+fn replacement_kind(status: VerificationStatus) -> &'static str {
+    match status {
+        VerificationStatus::Supported => "preserve_supported",
+        VerificationStatus::NotApplicable => "preserve_not_applicable",
+        VerificationStatus::Contradicted => "replace_contradicted",
+        VerificationStatus::NotVerifiable => "replace_not_verifiable",
+        VerificationStatus::PartiallySupported => "replace_partially_supported",
+        VerificationStatus::Unverified => "replace_unverified",
+        VerificationStatus::Unavailable => "replace_unavailable",
+    }
+}
+
+fn locate_draft_claims(
+    answer: &str,
+    claims: &[VerifiedClaim],
+) -> Result<Vec<LocatedDraftClaim>, RepairProjectionError> {
+    let mut cursor = 0usize;
+    let mut located = Vec::with_capacity(claims.len());
+    for claim in claims {
+        if claim.text.is_empty() || !answer.is_char_boundary(cursor) {
+            return Err(RepairProjectionError::ClaimSpanInvalid);
+        }
+        let tail = answer
+            .get(cursor..)
+            .ok_or(RepairProjectionError::ClaimSpanInvalid)?;
+        let relative_start = tail
+            .find(&claim.text)
+            .ok_or(RepairProjectionError::ClaimSpanNotFound)?;
+        let start = cursor
+            .checked_add(relative_start)
+            .ok_or(RepairProjectionError::ClaimSpanInvalid)?;
+        let end = start
+            .checked_add(claim.text.len())
+            .ok_or(RepairProjectionError::ClaimSpanInvalid)?;
+        if start < cursor
+            || start >= end
+            || !answer.is_char_boundary(start)
+            || !answer.is_char_boundary(end)
+            || answer.get(start..end) != Some(claim.text.as_str())
+        {
+            return Err(RepairProjectionError::ClaimSpanInvalid);
+        }
+        located.push(LocatedDraftClaim {
+            claim_id: claim.id.clone(),
+            start,
+            end,
+        });
+        cursor = end;
+    }
+    Ok(located)
+}
+
+fn rebuild_answer_from_spans(
+    answer: &str,
+    claims: &[VerifiedClaim],
+    spans: &[LocatedDraftClaim],
+) -> Result<(String, Vec<RepairProjectionOperation>, usize), RepairProjectionError> {
+    if claims.len() != spans.len() {
+        return Err(RepairProjectionError::ClaimSpanInvalid);
+    }
+    let mut repaired = String::with_capacity(answer.len());
+    let mut operations = Vec::with_capacity(claims.len());
+    let mut cursor = 0usize;
+    let mut repaired_count = 0usize;
+    for (claim, span) in claims.iter().zip(spans) {
+        if span.claim_id != claim.id
+            || span.start < cursor
+            || span.start >= span.end
+            || !answer.is_char_boundary(span.start)
+            || !answer.is_char_boundary(span.end)
+            || answer.get(span.start..span.end) != Some(claim.text.as_str())
+        {
+            return Err(RepairProjectionError::ClaimSpanInvalid);
+        }
+        repaired.push_str(
+            answer
+                .get(cursor..span.start)
+                .ok_or(RepairProjectionError::ClaimSpanInvalid)?,
+        );
+        let projected = project_claim_after_repair(claim);
+        if projected == claim.text {
+            repaired.push_str(
+                answer
+                    .get(span.start..span.end)
+                    .ok_or(RepairProjectionError::ClaimSpanInvalid)?,
+            );
+        } else {
+            repaired.push_str(&projected);
+            repaired_count += 1;
+        }
+        operations.push(RepairProjectionOperation {
+            claim_id: claim.id.clone(),
+            source_start: span.start,
+            source_end: span.end,
+            original_text_sha256: sha256_text(&claim.text),
+            replacement_kind: replacement_kind(claim.verification_status).to_string(),
+        });
+        cursor = span.end;
+    }
+    repaired.push_str(
+        answer
+            .get(cursor..)
+            .ok_or(RepairProjectionError::ClaimSpanInvalid)?,
+    );
+    Ok((repaired, operations, repaired_count))
+}
+
+fn validate_repair_projection_invariants(
+    repaired: &str,
+    claims: &[VerifiedClaim],
+) -> Result<(), RepairProjectionError> {
+    let mut supported = HashMap::<FinalClaimKey, usize>::new();
+    for claim in claims
+        .iter()
+        .filter(|claim| claim.verification_status == VerificationStatus::Supported)
+    {
+        *supported
+            .entry(final_claim_key(&claim.text, &claim.evidence_ids))
+            .or_default() += 1;
+    }
+    let expected_supported_count = supported.values().sum::<usize>();
+    let mut mapped_supported_count = 0usize;
+    for claim in extract_atomic_claims(repaired) {
+        if is_grounding_system_notice(&claim.text)
+            || claim.claim_type == ClaimType::ResearchSuggestion
+        {
+            continue;
+        }
+        let key = final_claim_key(&claim.text, &claim.evidence_ids);
+        let Some(remaining) = supported.get_mut(&key) else {
+            return Err(RepairProjectionError::IntroducedFactualClaim);
+        };
+        if *remaining == 0 {
+            return Err(RepairProjectionError::IntroducedFactualClaim);
+        }
+        *remaining -= 1;
+        mapped_supported_count += 1;
+    }
+    if mapped_supported_count != expected_supported_count
+        || supported.values().any(|remaining| *remaining != 0)
+    {
+        return Err(RepairProjectionError::SupportedClaimLost);
+    }
+    Ok(())
+}
+
+fn repair_verified_claims_by_source_span(
+    answer: &str,
+    claims: &[VerifiedClaim],
+) -> Result<(String, RepairProjectionAudit, usize), RepairProjectionError> {
+    let spans = locate_draft_claims(answer, claims)?;
+    let (mut repaired, operations, repaired_count) =
+        rebuild_answer_from_spans(answer, claims, &spans)?;
+    if !claims.is_empty()
+        && !claims
+            .iter()
+            .any(|claim| claim.verification_status == VerificationStatus::Supported)
+    {
+        repaired = NO_SUPPORTED_CLAIMS_NOTICE.to_string();
+    }
+    validate_repair_projection_invariants(&repaired, claims)?;
+    let audit = RepairProjectionAudit {
+        schema_version: REPAIR_PROJECTION_SCHEMA_VERSION.to_string(),
+        status: "succeeded".to_string(),
+        error_code: String::new(),
+        source_body_sha256: sha256_text(answer),
+        repaired_body_sha256: sha256_text(&repaired),
+        operation_count: operations.len(),
+        operations,
+    };
+    Ok((repaired, audit, repaired_count))
+}
+
+fn failed_repair_projection_audit(
+    answer: &str,
+    repaired: &str,
+    error: RepairProjectionError,
+) -> RepairProjectionAudit {
+    RepairProjectionAudit {
+        schema_version: REPAIR_PROJECTION_SCHEMA_VERSION.to_string(),
+        status: "failed".to_string(),
+        error_code: error.code().to_string(),
+        source_body_sha256: sha256_text(answer),
+        repaired_body_sha256: sha256_text(repaired),
+        operation_count: 0,
+        operations: Vec::new(),
+    }
+}
+
 pub fn trusted_context_from_final_audit(audit: &FinalGroundingAudit) -> String {
     if audit.audit_status != "succeeded"
         || audit.grounding_status != "supported"
@@ -218,6 +463,14 @@ pub fn audit_repaired_answer(
     evidence: &[EvidenceItem],
     draft: &ClaimVerificationReport,
 ) -> FinalGroundingAudit {
+    if draft.repair_projection_audit.status == "failed" {
+        return FinalGroundingAudit {
+            schema_version: "final-grounding-audit-v2".to_string(),
+            audit_status: "failed".to_string(),
+            grounding_status: "invalid".to_string(),
+            ..FinalGroundingAudit::default()
+        };
+    }
     let known = evidence
         .iter()
         .map(|item| (item.id.as_str(), item.kind.as_str()))
@@ -997,20 +1250,20 @@ pub fn verify_and_repair_with_semantic(
         report.fallback = true;
     }
 
-    let mut repaired = answer.to_string();
-    for claim in &report.claims {
-        let projected = project_claim_after_repair(claim);
-        if projected == claim.text {
-            continue;
+    let repaired = match repair_verified_claims_by_source_span(answer, &report.claims) {
+        Ok((repaired, audit, repaired_count)) => {
+            report.repair_projection_audit = audit;
+            report.repaired_count = repaired_count;
+            repaired
         }
-        if repaired.contains(&claim.text) {
-            repaired = repaired.replacen(&claim.text, &projected, 1);
-            report.repaired_count += 1;
+        Err(error) => {
+            let fail_closed = NO_SUPPORTED_CLAIMS_NOTICE.to_string();
+            report.verification_status = "failed".to_string();
+            report.repair_projection_audit =
+                failed_repair_projection_audit(answer, &fail_closed, error);
+            fail_closed
         }
-    }
-    if report.supported_count == 0 && !report.claims.is_empty() {
-        repaired = NO_SUPPORTED_CLAIMS_NOTICE.to_string();
-    }
+    };
     (repaired, report)
 }
 
@@ -1233,12 +1486,21 @@ mod tests {
     }
 
     fn supported_claim(id: &str, text: &str, evidence_ids: &[&str]) -> VerifiedClaim {
+        claim_with_status(id, text, evidence_ids, VerificationStatus::Supported)
+    }
+
+    fn claim_with_status(
+        id: &str,
+        text: &str,
+        evidence_ids: &[&str],
+        status: VerificationStatus,
+    ) -> VerifiedClaim {
         VerifiedClaim {
             id: id.to_string(),
             text: text.to_string(),
             evidence_ids: evidence_ids.iter().map(|value| value.to_string()).collect(),
             claim_type: ClaimType::KnowledgeFact,
-            verification_status: VerificationStatus::Supported,
+            verification_status: status,
             confidence: Some(0.9),
             verification_method: "fixture-supported".to_string(),
             alignment_score: 0.95,
@@ -1446,6 +1708,15 @@ mod tests {
         assert_eq!(report.not_verifiable_count, 1);
         assert_eq!(report.repaired_count, 1);
         assert_eq!(repaired, NO_SUPPORTED_CLAIMS_NOTICE);
+        assert_eq!(report.repair_projection_audit.status, "succeeded");
+        assert_eq!(report.repair_projection_audit.operation_count, 1);
+        let final_audit =
+            audit_repaired_answer(&repaired, &[evidence("ROSE schedules a charger.")], &report);
+        assert_eq!(final_audit.factual_claim_count, 0);
+        assert_eq!(
+            final_audit.grounding_status,
+            "insufficient_supported_claims"
+        );
     }
 
     #[test]
@@ -1522,6 +1793,251 @@ mod tests {
         assert_eq!(final_audit.factual_claim_count, 1);
         assert_eq!(final_audit.supported_count, 1);
         assert_eq!(final_audit.unsupported_count, 0);
+    }
+
+    #[test]
+    fn duplicate_claim_text_uses_ordered_source_occurrences() {
+        let repeated = "Repeated scheduling fact [E1].";
+        let answer = format!("{repeated} {repeated}");
+        let claims = vec![
+            supported_claim("C1", repeated, &["E1"]),
+            claim_with_status("C2", repeated, &["E1"], VerificationStatus::NotVerifiable),
+        ];
+
+        let (repaired, audit, repaired_count) =
+            repair_verified_claims_by_source_span(&answer, &claims).unwrap();
+
+        assert_eq!(
+            repaired,
+            format!("{repeated} {INSUFFICIENT_SUPPORT_NOTICE}")
+        );
+        assert_eq!(repaired_count, 1);
+        assert_eq!(audit.status, "succeeded");
+        assert_eq!(audit.operation_count, 2);
+        assert_eq!(audit.operations[0].source_start, 0);
+        assert!(audit.operations[1].source_start >= repeated.len());
+        let serialized = serde_json::to_string(&audit).unwrap();
+        assert!(!serialized.contains(repeated));
+        assert_eq!(audit.operations[0].original_text_sha256.len(), 64);
+    }
+
+    #[test]
+    fn same_prefix_with_different_evidence_repairs_only_the_longer_claim() {
+        let supported = "方法可以降低能耗 [E1]。";
+        let unsupported = "方法可以降低能耗并保证全局最优 [E2]。";
+        let answer = format!("{supported}\n{unsupported}");
+        let claims = vec![
+            supported_claim("C1", supported, &["E1"]),
+            claim_with_status(
+                "C2",
+                unsupported,
+                &["E2"],
+                VerificationStatus::NotVerifiable,
+            ),
+        ];
+
+        let (repaired, audit, repaired_count) =
+            repair_verified_claims_by_source_span(&answer, &claims).unwrap();
+
+        assert_eq!(
+            repaired,
+            format!("{supported}\n{INSUFFICIENT_SUPPORT_NOTICE}")
+        );
+        assert_eq!(repaired_count, 1);
+        assert_eq!(audit.operations[0].replacement_kind, "preserve_supported");
+        assert_eq!(
+            audit.operations[1].replacement_kind,
+            "replace_not_verifiable"
+        );
+    }
+
+    #[test]
+    fn markdown_heading_and_list_spans_preserve_structure_occurrences() {
+        let heading = "# 方法可以降低能耗";
+        let supported = "- 方法可以降低能耗 [E1]。";
+        let unsupported = "- 方法保证全局最优 [E2]。";
+        let answer = format!("{heading}\n\n{supported}\n{unsupported}");
+        let claims = vec![
+            supported_claim("C1", heading, &[]),
+            supported_claim("C2", supported, &["E1"]),
+            claim_with_status(
+                "C3",
+                unsupported,
+                &["E2"],
+                VerificationStatus::NotVerifiable,
+            ),
+        ];
+
+        let (repaired, audit, _) = repair_verified_claims_by_source_span(&answer, &claims).unwrap();
+
+        assert_eq!(
+            repaired,
+            format!("{heading}\n\n{supported}\n{INSUFFICIENT_SUPPORT_NOTICE}")
+        );
+        assert_eq!(
+            &answer[audit.operations[0].source_start..audit.operations[0].source_end],
+            heading
+        );
+        assert_eq!(
+            &answer[audit.operations[1].source_start..audit.operations[1].source_end],
+            supported
+        );
+        assert_eq!(
+            &answer[audit.operations[2].source_start..audit.operations[2].source_end],
+            unsupported
+        );
+    }
+
+    #[test]
+    fn research_repair_does_not_introduce_unmapped_factual_claim() {
+        let supported = "Supported scheduling fact [E1].";
+        let partial = "Partially supported optimization claim [E1].";
+        let unsupported_a = "Unsupported global optimum claim [E1].";
+        let unsupported_b = "Unsupported deployment guarantee [E1].";
+        let answer = format!("{supported} {partial} {unsupported_a} {unsupported_b}");
+        let claims = vec![
+            supported_claim("C1", supported, &["E1"]),
+            claim_with_status(
+                "C2",
+                partial,
+                &["E1"],
+                VerificationStatus::PartiallySupported,
+            ),
+            claim_with_status(
+                "C3",
+                unsupported_a,
+                &["E1"],
+                VerificationStatus::NotVerifiable,
+            ),
+            claim_with_status(
+                "C4",
+                unsupported_b,
+                &["E1"],
+                VerificationStatus::NotVerifiable,
+            ),
+        ];
+        let (repaired, projection, repaired_count) =
+            repair_verified_claims_by_source_span(&answer, &claims).unwrap();
+        let draft = ClaimVerificationReport {
+            verification_status: "succeeded".to_string(),
+            claim_count: 4,
+            supported_count: 1,
+            partially_supported_count: 1,
+            not_verifiable_count: 2,
+            repaired_count,
+            claims,
+            repair_projection_audit: projection,
+            ..ClaimVerificationReport::default()
+        };
+        let source = evidence("Supported scheduling fact.");
+
+        let final_audit = audit_repaired_answer(&repaired, &[source], &draft);
+
+        assert_eq!(draft.repaired_count, 3);
+        assert_eq!(final_audit.factual_claim_count, 1);
+        assert_eq!(final_audit.supported_count, 1);
+        assert_eq!(final_audit.unsupported_count, 0);
+        assert_eq!(final_audit.citation_coverage, 1.0);
+    }
+
+    #[test]
+    fn missing_claim_span_fails_closed_with_stable_safe_audit() {
+        let answer = "Present scheduling fact [E1].";
+        let claims = vec![supported_claim(
+            "C1",
+            "Missing scheduling fact [E1].",
+            &["E1"],
+        )];
+
+        let error = repair_verified_claims_by_source_span(answer, &claims).unwrap_err();
+        assert_eq!(
+            error.message(),
+            "REPAIR_PROJECTION_INVALID: claim_span_not_found"
+        );
+        let fail_closed = NO_SUPPORTED_CLAIMS_NOTICE;
+        let audit = failed_repair_projection_audit(answer, fail_closed, error);
+        assert_eq!(audit.status, "failed");
+        assert_eq!(audit.error_code, "claim_span_not_found");
+        assert_eq!(audit.source_body_sha256.len(), 64);
+        assert_eq!(audit.repaired_body_sha256.len(), 64);
+        let serialized = serde_json::to_string(&audit).unwrap();
+        assert!(!serialized.contains(answer));
+        assert!(!serialized.contains(fail_closed));
+    }
+
+    #[test]
+    fn overlapping_and_invalid_utf8_spans_fail_closed() {
+        let repeated = "Repeated fact [E1].";
+        let answer = format!("{repeated} {repeated}");
+        let claims = vec![
+            supported_claim("C1", repeated, &["E1"]),
+            supported_claim("C2", repeated, &["E1"]),
+        ];
+        let overlapping = vec![
+            LocatedDraftClaim {
+                claim_id: "C1".to_string(),
+                start: 0,
+                end: repeated.len(),
+            },
+            LocatedDraftClaim {
+                claim_id: "C2".to_string(),
+                start: 0,
+                end: repeated.len(),
+            },
+        ];
+        assert_eq!(
+            rebuild_answer_from_spans(&answer, &claims, &overlapping).unwrap_err(),
+            RepairProjectionError::ClaimSpanInvalid
+        );
+
+        let unicode_answer = "方法事实 [E1]。";
+        let unicode_claim = supported_claim("C1", unicode_answer, &["E1"]);
+        let invalid_utf8 = vec![LocatedDraftClaim {
+            claim_id: "C1".to_string(),
+            start: 1,
+            end: unicode_answer.len(),
+        }];
+        assert_eq!(
+            rebuild_answer_from_spans(unicode_answer, &[unicode_claim], &invalid_utf8).unwrap_err(),
+            RepairProjectionError::ClaimSpanInvalid
+        );
+    }
+
+    #[test]
+    fn repair_projection_rejects_an_untracked_factual_gap() {
+        let supported = "Supported fact [E1].";
+        let answer = format!("{supported} Untracked factual gap [E1].");
+        let claims = vec![supported_claim("C1", supported, &["E1"])];
+
+        let error = repair_verified_claims_by_source_span(&answer, &claims).unwrap_err();
+
+        assert_eq!(error, RepairProjectionError::IntroducedFactualClaim);
+        assert_eq!(
+            error.message(),
+            "REPAIR_PROJECTION_INVALID: introduced_factual_claim"
+        );
+    }
+
+    #[test]
+    fn final_audit_still_rejects_unknown_evidence_after_projection_passes() {
+        let answer = "Supported-looking fact [E99].";
+        let claims = vec![supported_claim("C1", answer, &["E99"])];
+        let (repaired, projection, _) =
+            repair_verified_claims_by_source_span(answer, &claims).unwrap();
+        let draft = ClaimVerificationReport {
+            verification_status: "succeeded".to_string(),
+            claim_count: 1,
+            supported_count: 1,
+            claims,
+            repair_projection_audit: projection,
+            ..ClaimVerificationReport::default()
+        };
+
+        let audit = audit_repaired_answer(&repaired, &[evidence("Different E1 source")], &draft);
+
+        assert_eq!(audit.grounding_status, "invalid");
+        assert_eq!(audit.unsupported_count, 1);
+        assert_eq!(audit.unknown_evidence_ids, ["E99"]);
     }
 
     #[test]
