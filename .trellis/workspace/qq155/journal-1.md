@@ -1912,3 +1912,44 @@ Separated Draft and Final grounding audits, gated persistence/trusted history on
 ### Next Steps
 
 - None - task complete
+
+
+## Session 57: P1-1C QA final safety and Direct diagnosis
+
+**Date**: 2026-08-30
+**Task**: P1-1C QA final safety and Direct diagnosis
+**Branch**: `master`
+
+### Summary
+
+完成 Final Supported heldout 导出、可信历史、最终答案 UI 边界、E2E scope 语义、Final provenance/visible projection 与 Direct 结构化证据绑定；真实 Direct 复跑确认后续阻塞为 semantic_verifier call budget，状态 PARTIAL-BLOCKED。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `c53fad8` | (see git log) |
+| `2f6ab60` | (see git log) |
+| `3f697d8` | (see git log) |
+| `0725997` | (see git log) |
+| `9115ba0` | (see git log) |
+| `5dbf098` | (see git log) |
+| `cbbd110` | (see git log) |
+| `6f2a7e7` | (see git log) |
+| `d85cec9` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
