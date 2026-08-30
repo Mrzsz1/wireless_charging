@@ -27,3 +27,11 @@
 - Planner fallback projection recognizes the new safe JSONL/stderr codes instead of collapsing them to `unknown`.
 - J1–J7, the full `codex_subscription` module (18 tests), Provider Capabilities (4 tests), fmt, and library/binary Clippy pass.
 - No real Provider call was made in this phase.
+
+## Probe infrastructure
+
+- Added `qa-planner-probe` with one probe per invocation and non-overwritable atomic safe reports.
+- Probe A uses the tiny Boolean schema; Probe B uses the current RetrievalContract schema and one bounded candidate; Probe C deterministically captures the real public Research Planner input without a Provider call before invoking the shared adapter.
+- `QA_CODEX_EXEC_DIAGNOSTIC_DIR` is default-off, absolute-only, and rejected inside the repository. Raw stdout/stderr live only under the explicit external probe directory; committed reports contain hashes/counts/enums only.
+- Probe lifecycle uses `qa_planner_probe_started/completed/failed` with one hashed operation ID and safe aggregate fields.
+- Probe infrastructure tests (3), Codex Subscription tests (19), binary compilation, fmt, and library/binary Clippy pass without a real Provider call.

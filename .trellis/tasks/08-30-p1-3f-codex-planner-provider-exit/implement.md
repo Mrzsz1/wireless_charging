@@ -19,14 +19,14 @@
 
 ## Phase 3 — Repository-external diagnostic support
 
-- [ ] Add guarded `QA_CODEX_EXEC_DIAGNOSTIC_DIR` support for Development E2E/probes only.
-- [ ] Validate absolute outside-repository destination and default-off behavior.
-- [ ] Add redaction/path/cleanup tests; never commit raw artifacts.
+- [x] Add guarded `QA_CODEX_EXEC_DIAGNOSTIC_DIR` support for Development E2E/probes only.
+- [x] Validate absolute outside-repository destination and default-off behavior.
+- [x] Add redaction/path/cleanup tests; never commit raw artifacts.
 
 ## Phase 4 — Probe A/B/C matrix
 
-- [ ] Add the development-only probe entry point and safe report schema.
-- [ ] Run deterministic probe wiring tests and commit `test(qa): add isolated planner provider probes`.
+- [x] Add the development-only probe entry point and safe report schema.
+- [x] Run deterministic probe wiring tests and commit `test(qa): add isolated planner provider probes`.
 - [ ] Run Probe A exactly once.
 - [ ] Run Probe B exactly once only if A passes.
 - [ ] Run Probe C exactly once only if B passes.

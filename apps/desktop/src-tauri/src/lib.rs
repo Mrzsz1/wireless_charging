@@ -17,6 +17,7 @@ mod codex_subscription;
 mod compile_center;
 mod heldout_runner;
 mod literature_ingest;
+mod planner_probe;
 mod process_support;
 mod production_heldout;
 mod qa;
@@ -25,6 +26,7 @@ mod research_trail;
 mod search_credentials;
 
 pub use heldout_runner::HeldoutRunOptions;
+pub use planner_probe::run_planner_probe_files;
 
 #[derive(Default)]
 struct RepositoryState {

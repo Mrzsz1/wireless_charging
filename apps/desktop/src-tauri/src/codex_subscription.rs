@@ -972,6 +972,95 @@ struct CodexJsonlState {
     item_warning_count: usize,
 }
 
+#[derive(Debug, Clone, Default, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct CodexExecDiagnostics {
+    pub status: String,
+    pub terminal_event_type: String,
+    pub failure_category: String,
+    pub message_sha256: String,
+    pub exit_code: i32,
+    pub last_jsonl_event_type: String,
+    pub turn_completed_seen: bool,
+    pub agent_message_seen: bool,
+    pub jsonl_event_count: usize,
+    pub item_warning_count: usize,
+    pub stderr_non_empty: bool,
+}
+
+fn sync_jsonl_diagnostics(diagnostics: &mut CodexExecDiagnostics, state: &CodexJsonlState) {
+    diagnostics.last_jsonl_event_type = state.last_jsonl_event_type.clone();
+    diagnostics.turn_completed_seen = state.turn_completed_seen;
+    diagnostics.agent_message_seen = state.agent_message_seen;
+    diagnostics.jsonl_event_count = state.jsonl_event_count;
+    diagnostics.item_warning_count = state.item_warning_count;
+}
+
+fn record_terminal_failure(diagnostics: &mut CodexExecDiagnostics, failure: &CodexTerminalFailure) {
+    diagnostics.status = "failed".to_string();
+    diagnostics.terminal_event_type = failure.event_type.clone();
+    diagnostics.failure_category = failure.category.clone();
+    diagnostics.message_sha256 = failure.message_sha256.clone();
+}
+
+struct CodexRawDiagnosticCapture {
+    directory: PathBuf,
+    stdout_lines: Vec<String>,
+    stderr: String,
+    prompt_sha256: String,
+    schema_sha256: String,
+    cli_version: String,
+}
+
+impl CodexRawDiagnosticCapture {
+    fn new(directory: PathBuf, prompt: &str, schema: &Value, cli_version: &str) -> Self {
+        Self {
+            directory,
+            stdout_lines: Vec::new(),
+            stderr: String::new(),
+            prompt_sha256: format!("{:x}", Sha256::digest(prompt.as_bytes())),
+            schema_sha256: format!(
+                "{:x}",
+                Sha256::digest(serde_json::to_vec(schema).unwrap_or_default())
+            ),
+            cli_version: cli_version.to_string(),
+        }
+    }
+
+    fn record_stdout(&mut self, line: &str) {
+        self.stdout_lines.push(line.to_string());
+    }
+
+    fn record_stderr(&mut self, stderr: String) {
+        self.stderr = stderr;
+    }
+
+    fn write(&self, diagnostics: &CodexExecDiagnostics) -> Result<(), String> {
+        fs::create_dir_all(&self.directory)
+            .map_err(|_| "CODEX_DIAGNOSTIC_DIRECTORY_CREATE_FAILED".to_string())?;
+        fs::write(
+            self.directory.join("stdout.jsonl"),
+            self.stdout_lines.join("\n"),
+        )
+        .map_err(|_| "CODEX_DIAGNOSTIC_STDOUT_WRITE_FAILED".to_string())?;
+        fs::write(self.directory.join("stderr.txt"), &self.stderr)
+            .map_err(|_| "CODEX_DIAGNOSTIC_STDERR_WRITE_FAILED".to_string())?;
+        let metadata = serde_json::json!({
+            "schemaVersion": "qa-codex-exec-raw-diagnostic-v1",
+            "cliVersion": self.cli_version,
+            "promptSha256": self.prompt_sha256,
+            "schemaSha256": self.schema_sha256,
+            "diagnostics": diagnostics,
+        });
+        fs::write(
+            self.directory.join("metadata.json"),
+            serde_json::to_vec_pretty(&metadata)
+                .map_err(|_| "CODEX_DIAGNOSTIC_METADATA_SERIALIZE_FAILED".to_string())?,
+        )
+        .map_err(|_| "CODEX_DIAGNOSTIC_METADATA_WRITE_FAILED".to_string())
+    }
+}
+
 fn apply_codex_jsonl_line<F>(
     line: &str,
     state: &mut CodexJsonlState,
@@ -1099,9 +1188,11 @@ struct StreamAnswerRequest<'a> {
     cancelled: &'a AtomicBool,
 }
 
-fn stream_answer_with<F>(
+fn stream_answer_with_diagnostics<F>(
     request: StreamAnswerRequest<'_>,
     mut on_token: F,
+    diagnostics: &mut CodexExecDiagnostics,
+    mut raw_capture: Option<&mut CodexRawDiagnosticCapture>,
 ) -> Result<(String, String), String>
 where
     F: FnMut(&str) -> Result<(), String>,
@@ -1115,6 +1206,11 @@ where
         timeout,
         cancelled,
     } = request;
+    *diagnostics = CodexExecDiagnostics {
+        status: "failed".to_string(),
+        exit_code: -1,
+        ..CodexExecDiagnostics::default()
+    };
     let workspace = TempWorkspace::create()?;
     let output_schema_path = output_schema
         .map(|schema| workspace.write_output_schema(schema))
@@ -1202,30 +1298,55 @@ where
     };
     let status = loop {
         if cancelled.load(Ordering::SeqCst) {
-            stop_stream_process(&mut child, &mut stdout_reader, &mut stderr_reader);
+            let stderr = stop_stream_process(&mut child, &mut stdout_reader, &mut stderr_reader);
+            if let Some(capture) = raw_capture.as_deref_mut() {
+                capture.record_stderr(stderr);
+            }
+            diagnostics.failure_category = "cancelled".to_string();
             return Err("CODEX_CANCELLED: 用户停止了生成".to_string());
         }
         if started.elapsed() >= hard_timeout {
-            stop_stream_process(&mut child, &mut stdout_reader, &mut stderr_reader);
+            let stderr = stop_stream_process(&mut child, &mut stdout_reader, &mut stderr_reader);
+            if let Some(capture) = raw_capture.as_deref_mut() {
+                capture.record_stderr(stderr);
+            }
+            diagnostics.failure_category = "total_timeout".to_string();
             return Err("CODEX_TOTAL_TIMEOUT: 订阅回答超过总时限".to_string());
         }
         if last_activity.elapsed() >= idle_timeout {
-            stop_stream_process(&mut child, &mut stdout_reader, &mut stderr_reader);
+            let stderr = stop_stream_process(&mut child, &mut stdout_reader, &mut stderr_reader);
+            if let Some(capture) = raw_capture.as_deref_mut() {
+                capture.record_stderr(stderr);
+            }
+            diagnostics.failure_category = "idle_timeout".to_string();
             return Err("CODEX_IDLE_TIMEOUT: 订阅回答长时间无活动".to_string());
         }
         match receiver.recv_timeout(POLL_INTERVAL) {
             Ok(OutputLine::Line(line)) => {
+                if let Some(capture) = raw_capture.as_deref_mut() {
+                    capture.record_stdout(&line);
+                }
                 let applied = match apply_codex_jsonl_line(&line, &mut jsonl_state, &mut on_token) {
                     Ok(applied) => applied,
                     Err(error) => {
-                        stop_stream_process(&mut child, &mut stdout_reader, &mut stderr_reader);
+                        let stderr =
+                            stop_stream_process(&mut child, &mut stdout_reader, &mut stderr_reader);
+                        if let Some(capture) = raw_capture.as_deref_mut() {
+                            capture.record_stderr(stderr);
+                        }
                         return Err(error);
                     }
                 };
                 match applied {
                     AppliedJsonlLine::Activity => last_activity = Instant::now(),
                     AppliedJsonlLine::Fatal(failure) => {
-                        stop_stream_process(&mut child, &mut stdout_reader, &mut stderr_reader);
+                        sync_jsonl_diagnostics(diagnostics, &jsonl_state);
+                        record_terminal_failure(diagnostics, &failure);
+                        let stderr =
+                            stop_stream_process(&mut child, &mut stdout_reader, &mut stderr_reader);
+                        if let Some(capture) = raw_capture.as_deref_mut() {
+                            capture.record_stderr(stderr);
+                        }
                         return Err(failure.stable_error());
                     }
                     AppliedJsonlLine::Ignored => {}
@@ -1238,20 +1359,28 @@ where
             .try_wait()
             .map_err(|_| "CODEX_WAIT_FAILED".to_string())?
         {
+            diagnostics.exit_code = status.code().unwrap_or(-1);
             if let Some(reader) = stdout_reader.take() {
                 let _ = reader.join();
             }
             let mut terminal_failure = None;
             for output in receiver.try_iter() {
                 if let OutputLine::Line(line) = output {
+                    if let Some(capture) = raw_capture.as_deref_mut() {
+                        capture.record_stdout(&line);
+                    }
                     match apply_codex_jsonl_line(&line, &mut jsonl_state, &mut on_token) {
                         Ok(AppliedJsonlLine::Fatal(failure)) => {
                             terminal_failure.get_or_insert(failure);
                         }
                         Ok(AppliedJsonlLine::Activity) | Ok(AppliedJsonlLine::Ignored) => {}
                         Err(error) => {
-                            if let Some(reader) = stderr_reader.take() {
-                                let _ = reader.join();
+                            let stderr = stderr_reader
+                                .take()
+                                .and_then(|reader| reader.join().ok())
+                                .unwrap_or_default();
+                            if let Some(capture) = raw_capture.as_deref_mut() {
+                                capture.record_stderr(stderr);
                             }
                             return Err(error);
                         }
@@ -1259,8 +1388,14 @@ where
                 }
             }
             if let Some(failure) = terminal_failure {
-                if let Some(reader) = stderr_reader.take() {
-                    let _ = reader.join();
+                sync_jsonl_diagnostics(diagnostics, &jsonl_state);
+                record_terminal_failure(diagnostics, &failure);
+                let stderr = stderr_reader
+                    .take()
+                    .and_then(|reader| reader.join().ok())
+                    .unwrap_or_default();
+                if let Some(capture) = raw_capture.as_deref_mut() {
+                    capture.record_stderr(stderr);
                 }
                 return Err(failure.stable_error());
             }
@@ -1271,26 +1406,37 @@ where
         .take()
         .and_then(|reader| reader.join().ok())
         .unwrap_or_default();
+    if let Some(capture) = raw_capture {
+        capture.record_stderr(stderr_output.clone());
+    }
+    diagnostics.stderr_non_empty = !stderr_output.trim().is_empty();
+    sync_jsonl_diagnostics(diagnostics, &jsonl_state);
     let answer = jsonl_state.answer.trim().to_string();
     if !status.success() {
         let stderr_category = classify_codex_terminal_message(&stderr_output);
         if output_schema.is_some() && stderr_category == "schema_rejected" {
+            diagnostics.failure_category = "schema_rejected".to_string();
             return Err(format!(
                 "CODEX_OUTPUT_SCHEMA_REJECTED: Codex CLI 未接受回答结构约束（退出码 {}）",
                 status.code().unwrap_or(-1)
             ));
         }
         if stderr_category != "unknown" {
+            diagnostics.failure_category = stderr_category.to_string();
             return Err(format!("CODEX_STDERR_FAILURE: {stderr_category}"));
         }
+        diagnostics.failure_category = "provider_exit".to_string();
         return Err(format!(
             "CODEX_EXIT_ERROR: Codex CLI 退出码 {}",
             status.code().unwrap_or(-1)
         ));
     }
     if answer.is_empty() || !jsonl_state.agent_message_seen {
+        diagnostics.failure_category = "empty_response".to_string();
         return Err("CODEX_RESPONSE_ERROR: 未收到回答文本".to_string());
     }
+    diagnostics.status = "succeeded".to_string();
+    diagnostics.failure_category.clear();
     Ok((
         answer,
         if jsonl_state.resolved_model.is_empty() {
@@ -1299,6 +1445,94 @@ where
             jsonl_state.resolved_model
         },
     ))
+}
+
+fn stream_answer_with<F>(
+    request: StreamAnswerRequest<'_>,
+    on_token: F,
+) -> Result<(String, String), String>
+where
+    F: FnMut(&str) -> Result<(), String>,
+{
+    let mut diagnostics = CodexExecDiagnostics::default();
+    stream_answer_with_diagnostics(request, on_token, &mut diagnostics, None)
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct CodexStructuredProbeOutcome {
+    pub output: Option<String>,
+    pub error: String,
+    pub diagnostics: CodexExecDiagnostics,
+    pub latency_ms: u64,
+    pub executable_source_type: String,
+    pub executable_version: String,
+}
+
+fn executable_source_type(executable: &str) -> String {
+    let normalized = executable.replace('\\', "/").to_ascii_lowercase();
+    let extension = Path::new(executable)
+        .extension()
+        .and_then(OsStr::to_str)
+        .unwrap_or_default()
+        .to_ascii_lowercase();
+    if extension == "exe" && normalized.contains("/openai/codex/bin/") {
+        "desktop".to_string()
+    } else if matches!(extension.as_str(), "cmd" | "bat" | "ps1") {
+        "npm-wrapper".to_string()
+    } else {
+        "native".to_string()
+    }
+}
+
+pub(crate) fn run_codex_structured_probe(
+    prompt: &str,
+    schema: &Value,
+    model: &str,
+    reasoning_effort: &str,
+    timeout: Duration,
+    raw_diagnostic_directory: Option<&Path>,
+) -> Result<CodexStructuredProbeOutcome, String> {
+    let executable = executable();
+    let status = get_status_with(&executable);
+    if !status.ready {
+        return Err("CODEX_PROBE_PROVIDER_NOT_READY".to_string());
+    }
+    let executable_version = status.version;
+    let mut diagnostics = CodexExecDiagnostics::default();
+    let mut raw_capture = raw_diagnostic_directory.map(|directory| {
+        CodexRawDiagnosticCapture::new(directory.to_path_buf(), prompt, schema, &executable_version)
+    });
+    let started = Instant::now();
+    let result = stream_answer_with_diagnostics(
+        StreamAnswerRequest {
+            executable: &executable,
+            prompt,
+            output_schema: Some(schema),
+            model,
+            reasoning_effort,
+            timeout,
+            cancelled: &AtomicBool::new(false),
+        },
+        |_| Ok(()),
+        &mut diagnostics,
+        raw_capture.as_mut(),
+    );
+    let latency_ms = started.elapsed().as_millis().min(u128::from(u64::MAX)) as u64;
+    if let Some(capture) = raw_capture.as_ref() {
+        capture.write(&diagnostics)?;
+    }
+    let (output, error) = match result {
+        Ok((output, _)) => (Some(output), String::new()),
+        Err(error) => (None, error),
+    };
+    Ok(CodexStructuredProbeOutcome {
+        output,
+        error,
+        diagnostics,
+        latency_ms,
+        executable_source_type: executable_source_type(&executable),
+        executable_version,
+    })
 }
 
 pub fn stream_answer<F>(
@@ -1361,7 +1595,6 @@ mod tests {
         )
     }
 
-    #[cfg(windows)]
     fn tiny_output_schema() -> Value {
         serde_json::json!({
             "type": "object",
@@ -1536,6 +1769,40 @@ mod tests {
         assert_eq!(failure.category, "auth_required");
         assert_eq!(failure.message_sha256.len(), 64);
         assert!(!failure.stable_error().contains("private-detail"));
+    }
+
+    #[test]
+    fn repository_external_raw_capture_writes_payload_only_to_explicit_artifacts() {
+        let root = tempfile::tempdir().unwrap();
+        let schema = tiny_output_schema();
+        let mut capture = CodexRawDiagnosticCapture::new(
+            root.path().join("probe-a"),
+            "private prompt",
+            &schema,
+            "codex-cli fixture",
+        );
+        capture.record_stdout(r#"{"type":"turn.failed","error":{"message":"private"}}"#);
+        capture.record_stderr("private stderr".to_string());
+        let diagnostics = CodexExecDiagnostics {
+            status: "failed".to_string(),
+            terminal_event_type: "turn.failed".to_string(),
+            failure_category: "schema_rejected".to_string(),
+            message_sha256: "a".repeat(64),
+            exit_code: 1,
+            ..CodexExecDiagnostics::default()
+        };
+
+        capture.write(&diagnostics).unwrap();
+
+        let directory = root.path().join("probe-a");
+        assert!(directory.join("stdout.jsonl").is_file());
+        assert!(directory.join("stderr.txt").is_file());
+        let metadata = fs::read_to_string(directory.join("metadata.json")).unwrap();
+        assert!(metadata.contains("promptSha256"));
+        assert!(metadata.contains("schemaSha256"));
+        assert!(metadata.contains("schema_rejected"));
+        assert!(!metadata.contains("private prompt"));
+        assert!(!metadata.contains(root.path().to_string_lossy().as_ref()));
     }
 
     #[test]
