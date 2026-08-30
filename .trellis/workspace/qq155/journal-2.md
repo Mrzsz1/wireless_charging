@@ -35,11 +35,11 @@ Added Report v5 Planner diagnostics, strict Research/Exploratory gates, stable f
 
 ### Status
 
-[OK] **Completed**
+[WARN] **PARTIAL-BLOCKED**
 
 ### Next Steps
 
-- None - task complete
+- P1-1D Research final grounding repair reliability
 
 
 ## Session 60: P1-3F Codex Planner provider exit diagnosis
