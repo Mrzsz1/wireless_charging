@@ -1019,6 +1019,150 @@ mod tests {
         (workspace, path)
     }
 
+    #[cfg(windows)]
+    fn run_windows_answer_fixture(
+        name: &str,
+        body: &str,
+        output_schema: Option<&Value>,
+    ) -> Result<(String, String), String> {
+        let (_workspace, fixture) = write_windows_fixture(name, body);
+        stream_answer_with(
+            StreamAnswerRequest {
+                executable: &fixture.to_string_lossy(),
+                prompt: "fixture prompt",
+                output_schema,
+                model: "",
+                reasoning_effort: "",
+                timeout: Duration::from_secs(10),
+                cancelled: &AtomicBool::new(false),
+            },
+            |_| Ok(()),
+        )
+    }
+
+    #[cfg(windows)]
+    fn tiny_output_schema() -> Value {
+        serde_json::json!({
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["ok"],
+            "properties": {"ok": {"type": "boolean"}}
+        })
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn j1_turn_failed_schema_event_is_preserved_and_redacted() {
+        let schema = tiny_output_schema();
+        let error = run_windows_answer_fixture(
+            "fake-codex-j1-turn-failed",
+            "echo {\"type\":\"thread.started\",\"thread_id\":\"x\"}\r\n\
+             echo {\"type\":\"turn.started\"}\r\n\
+             echo {\"type\":\"turn.failed\",\"error\":{\"message\":\"Invalid response schema private-detail\"}}\r\n\
+             exit /b 1",
+            Some(&schema),
+        )
+        .unwrap_err();
+
+        assert_eq!(error, "CODEX_JSONL_TURN_FAILED: schema_rejected");
+        assert!(!error.contains("private-detail"));
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn j2_top_level_error_event_classifies_rate_limit() {
+        let error = run_windows_answer_fixture(
+            "fake-codex-j2-rate-limit",
+            "echo {\"type\":\"error\",\"message\":\"rate limit exceeded private-detail\"}\r\n\
+             exit /b 1",
+            None,
+        )
+        .unwrap_err();
+
+        assert_eq!(error, "CODEX_JSONL_ERROR: rate_limit");
+        assert!(!error.contains("private-detail"));
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn j3_turn_failed_event_classifies_auth_required() {
+        let error = run_windows_answer_fixture(
+            "fake-codex-j3-auth",
+            "echo {\"type\":\"turn.failed\",\"error\":{\"message\":\"login required private-detail\"}}\r\n\
+             exit /b 1",
+            None,
+        )
+        .unwrap_err();
+
+        assert_eq!(error, "CODEX_JSONL_TURN_FAILED: auth_required");
+        assert!(!error.contains("private-detail"));
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn j4_top_level_error_event_classifies_context_too_large() {
+        let error = run_windows_answer_fixture(
+            "fake-codex-j4-context",
+            "echo {\"type\":\"error\",\"message\":\"maximum context length exceeded private-detail\"}\r\n\
+             exit /b 1",
+            None,
+        )
+        .unwrap_err();
+
+        assert_eq!(error, "CODEX_JSONL_ERROR: context_too_large");
+        assert!(!error.contains("private-detail"));
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn j5_nonzero_exit_without_terminal_event_remains_generic() {
+        let error = run_windows_answer_fixture(
+            "fake-codex-j5-generic-exit",
+            "echo {\"type\":\"thread.started\",\"thread_id\":\"x\"}\r\nexit /b 9",
+            None,
+        )
+        .unwrap_err();
+
+        assert!(error.starts_with("CODEX_EXIT_ERROR"));
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn j6_item_error_warning_does_not_override_completed_turn() {
+        let result = run_windows_answer_fixture(
+            "fake-codex-j6-item-warning",
+            "echo {\"type\":\"item.completed\",\"item\":{\"type\":\"error\",\"message\":\"nonfatal warning\"}}\r\n\
+             echo {\"type\":\"item.completed\",\"item\":{\"type\":\"agent_message\",\"text\":\"{\\\"ok\\\":true}\"}}\r\n\
+             echo {\"type\":\"turn.completed\"}\r\n\
+             exit /b 0",
+            None,
+        )
+        .unwrap();
+
+        assert_eq!(result.0, r#"{\"ok\":true}"#);
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn j7_fatal_event_terminates_process_without_waiting_for_child_exit() {
+        let started = Instant::now();
+        let error = run_windows_answer_fixture(
+            "fake-codex-j7-fast-fatal",
+            "echo {\"type\":\"turn.failed\",\"error\":{\"message\":\"service unavailable\"}}\r\n\
+             ping 127.0.0.1 -n 5 >nul\r\n\
+             exit /b 1",
+            None,
+        )
+        .unwrap_err();
+
+        assert_eq!(error, "CODEX_JSONL_TURN_FAILED: server_overloaded");
+        assert!(
+            started.elapsed() < Duration::from_secs(2),
+            "fatal JSONL must terminate promptly, elapsed={:?}",
+            started.elapsed()
+        );
+    }
+
     #[test]
     fn status_dto_contains_no_authentication_secret_fields() {
         let status = CodexSubscriptionStatus {

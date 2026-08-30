@@ -9,9 +9,9 @@
 
 ## Phase 1/2 — RED fixtures and terminal-event adapter
 
-- [ ] Add J1–J7 deterministic fixtures before changing terminal-event behavior.
-- [ ] Run at least J1 on the old implementation and record exact RED output/root function.
-- [ ] Commit `test(qa): reproduce codex jsonl terminal failures`.
+- [x] Add J1–J7 deterministic fixtures before changing terminal-event behavior.
+- [x] Run at least J1 on the old implementation and record exact RED output/root function.
+- [x] Commit `test(qa): reproduce codex jsonl terminal failures`.
 - [ ] Implement typed JSONL observations, fixed classification, redacted failure state, and precedence in `codex_subscription.rs` only.
 - [ ] Make Fatal terminate promptly; keep item error non-fatal; require non-empty final agent message for success.
 - [ ] Pass J1–J7 plus existing Codex/Generator/Direct/Semantic tests.
