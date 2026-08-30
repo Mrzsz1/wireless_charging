@@ -271,6 +271,31 @@ pub fn retrieval_contract_schema() -> Value {
     })
 }
 
+fn remove_provider_unsupported_keywords(value: &mut Value) {
+    match value {
+        Value::Object(object) => {
+            // Provider compatibility is evidence-driven. Do not broaden this
+            // transform without a real schema_rejected fixture for the keyword.
+            object.remove("uniqueItems");
+            for child in object.values_mut() {
+                remove_provider_unsupported_keywords(child);
+            }
+        }
+        Value::Array(items) => {
+            for item in items {
+                remove_provider_unsupported_keywords(item);
+            }
+        }
+        _ => {}
+    }
+}
+
+pub fn retrieval_contract_provider_schema() -> Value {
+    let mut schema = retrieval_contract_schema();
+    remove_provider_unsupported_keywords(&mut schema);
+    schema
+}
+
 pub fn retrieval_contract_example() -> Value {
     json!({
         "schemaVersion":RETRIEVAL_CONTRACT_VERSION,
@@ -299,6 +324,59 @@ pub fn retrieval_contract_prompt(input: &RetrievalPlanningInput) -> String {
 mod tests {
     use super::*;
 
+    fn count_key(value: &Value, target: &str) -> usize {
+        match value {
+            Value::Object(object) => {
+                usize::from(object.contains_key(target))
+                    + object
+                        .values()
+                        .map(|child| count_key(child, target))
+                        .sum::<usize>()
+            }
+            Value::Array(items) => items.iter().map(|item| count_key(item, target)).sum(),
+            _ => 0,
+        }
+    }
+
+    fn assert_equal_except_unique_items(domain: &Value, provider: &Value, path: &str) {
+        match (domain, provider) {
+            (Value::Object(domain), Value::Object(provider)) => {
+                let expected_provider_keys = domain
+                    .keys()
+                    .filter(|key| key.as_str() != "uniqueItems")
+                    .count();
+                assert_eq!(provider.len(), expected_provider_keys, "path={path}");
+                for (key, domain_value) in domain {
+                    if key == "uniqueItems" {
+                        assert!(!provider.contains_key(key), "path={path}/{key}");
+                        continue;
+                    }
+                    let provider_value = provider
+                        .get(key)
+                        .unwrap_or_else(|| panic!("missing provider key at {path}/{key}"));
+                    assert_equal_except_unique_items(
+                        domain_value,
+                        provider_value,
+                        &format!("{path}/{key}"),
+                    );
+                }
+            }
+            (Value::Array(domain), Value::Array(provider)) => {
+                assert_eq!(provider.len(), domain.len(), "path={path}");
+                for (index, (domain_value, provider_value)) in
+                    domain.iter().zip(provider).enumerate()
+                {
+                    assert_equal_except_unique_items(
+                        domain_value,
+                        provider_value,
+                        &format!("{path}/{index}"),
+                    );
+                }
+            }
+            _ => assert_eq!(provider, domain, "path={path}"),
+        }
+    }
+
     #[test]
     fn schema_has_native_contract_without_answer_profile_or_minimum_evidence() {
         let schema = retrieval_contract_schema();
@@ -308,6 +386,16 @@ mod tests {
         assert_eq!(schema["additionalProperties"], false);
         assert_eq!(schema["properties"]["scope"]["additionalProperties"], false);
         assert!(rendered.contains("examples"));
+    }
+
+    #[test]
+    fn provider_schema_removes_only_unique_items_from_domain_schema() {
+        let domain = retrieval_contract_schema();
+        let provider = retrieval_contract_provider_schema();
+
+        assert_eq!(count_key(&domain, "uniqueItems"), 3);
+        assert_eq!(count_key(&provider, "uniqueItems"), 0);
+        assert_equal_except_unique_items(&domain, &provider, "$");
     }
 
     #[test]

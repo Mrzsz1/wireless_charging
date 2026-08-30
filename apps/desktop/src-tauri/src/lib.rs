@@ -27,6 +27,7 @@ mod search_credentials;
 
 pub use heldout_runner::HeldoutRunOptions;
 pub use planner_probe::run_planner_probe_files;
+pub use qa::query_plan_schema;
 
 #[derive(Default)]
 struct RepositoryState {

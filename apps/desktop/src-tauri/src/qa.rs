@@ -66,8 +66,8 @@ pub use production_core::{
 };
 pub use provider_capabilities::{planning_provider, provider_descriptor, PlanningProvider};
 pub use query_plan::{
-    parse_query_plan, query_plan_prompt, query_plan_schema, QueryFacet, QueryPlan,
-    QueryPlanningCandidate, QueryPlanningInput,
+    parse_query_plan, query_plan_prompt, query_plan_provider_schema, query_plan_schema, QueryFacet,
+    QueryPlan, QueryPlanningCandidate, QueryPlanningInput,
 };
 pub use research_query_context::ResearchQueryContext;
 pub type QueryPlanner<'a> = dyn FnMut(&QueryPlanningInput) -> Result<QueryPlan, String> + 'a;

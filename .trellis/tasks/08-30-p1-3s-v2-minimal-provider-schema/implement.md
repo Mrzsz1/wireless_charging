@@ -8,10 +8,10 @@
 
 ## Phase 1 — Minimal schema split
 
-- [ ] Add the recursive one-key `uniqueItems` removal helper and `retrieval_contract_provider_schema()`.
-- [ ] Export `query_plan_provider_schema()` while retaining `query_plan_schema()` as the full contract.
-- [ ] Wire production Planner, `production_heldout` consistency path, and Probe B/C to the Provider schema only.
-- [ ] Add S1–S3 and the evidence-driven compatibility comment; run focused schema tests and commit.
+- [x] Add the recursive one-key `uniqueItems` removal helper and `retrieval_contract_provider_schema()`.
+- [x] Export `query_plan_provider_schema()` while retaining `query_plan_schema()` as the full contract.
+- [x] Wire production Planner, `production_heldout` consistency path, and Probe B/C to the Provider schema only.
+- [x] Add S1–S3 and the evidence-driven compatibility comment; run focused schema tests and commit.
 
 ## Phase 1b — Strict local validation
 

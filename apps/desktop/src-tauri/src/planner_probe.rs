@@ -1,6 +1,6 @@
 use crate::codex_subscription::{run_codex_structured_probe, CodexStructuredProbeOutcome};
 use crate::qa::{
-    self, parse_query_plan, query_plan_prompt, query_plan_schema, QueryPlan,
+    self, parse_query_plan, query_plan_prompt, query_plan_provider_schema, QueryPlan,
     QueryPlanningCandidate, QueryPlanningInput, ResearchQueryContext,
     DEFAULT_CONTEXT_WINDOW_TOKENS,
 };
@@ -203,7 +203,7 @@ fn probe_definition(repository: &Path, probe_id: &str) -> Result<ProbeDefinition
             Ok(ProbeDefinition {
                 probe_id: probe_id.to_string(),
                 prompt: query_plan_prompt(&input),
-                schema: query_plan_schema(),
+                schema: query_plan_provider_schema(),
                 resolved_question: input.resolved_question,
                 baseline_candidate_count: count,
                 baseline_excerpt_chars: excerpt_chars,
@@ -220,7 +220,7 @@ fn probe_definition(repository: &Path, probe_id: &str) -> Result<ProbeDefinition
             Ok(ProbeDefinition {
                 probe_id: probe_id.to_string(),
                 prompt: query_plan_prompt(&input),
-                schema: query_plan_schema(),
+                schema: query_plan_provider_schema(),
                 resolved_question: input.resolved_question,
                 baseline_candidate_count: count,
                 baseline_excerpt_chars: excerpt_chars,
@@ -471,7 +471,7 @@ mod tests {
     }
 
     #[test]
-    fn current_provider_schema_contains_unique_items_before_fix() {
+    fn provider_probe_schema_excludes_unique_items_after_projection() {
         let definition = probe_definition(Path::new("."), "b").unwrap();
 
         for pointer in [
@@ -479,7 +479,7 @@ mod tests {
             "/properties/mustAttemptKinds/uniqueItems",
             "/properties/facets/items/properties/preferredKinds/uniqueItems",
         ] {
-            assert_eq!(definition.schema.pointer(pointer), Some(&Value::Bool(true)));
+            assert_eq!(definition.schema.pointer(pointer), None);
         }
     }
 

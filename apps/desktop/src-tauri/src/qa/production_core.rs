@@ -81,7 +81,7 @@ pub fn prepare_production_qa(
         let query_planning_provider = planning_provider.as_deref();
         let mut query_planner = |input: &QueryPlanningInput| {
             let prompt = query_plan_prompt(input);
-            let schema = query_plan_schema();
+            let schema = query_plan_provider_schema();
             let reserved = estimate_tokens(&prompt).saturating_add(1_536);
             let reservation = planner_budget.reserve("planner", reserved)?;
             let Some(provider) = query_planning_provider else {
