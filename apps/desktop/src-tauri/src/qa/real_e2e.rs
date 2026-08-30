@@ -11,8 +11,9 @@ use std::sync::atomic::AtomicBool;
 use uuid::Uuid;
 
 const CASE_SCHEMA_VERSION: &str = "qa-real-generator-e2e-cases-v1";
-const REPORT_SCHEMA_VERSION: &str = "qa-real-generator-e2e-report-v2";
+const REPORT_SCHEMA_VERSION: &str = "qa-real-generator-e2e-report-v3";
 const CORE_VERSION: &str = "qa-production-core-v1";
+const LOCAL_DIAGNOSTIC_ENV: &str = "QA_REAL_E2E_GROUNDING_DIAGNOSTIC_DIR";
 const EXPECTED_CATEGORIES: [&str; 5] = [
     "direct",
     "research",
@@ -116,22 +117,29 @@ pub struct GroundingObservation {
     pub grounding_status: String,
     pub verification_status: String,
     pub answer_complete: bool,
-    pub claim_count: usize,
-    pub supported_claim_count: usize,
-    pub partially_supported_claim_count: usize,
-    pub contradicted_claim_count: usize,
-    pub not_verifiable_claim_count: usize,
-    pub research_suggestion_count: usize,
-    pub repaired_claim_count: usize,
-    pub uncited_knowledge_fact_count: usize,
-    pub unverified_claim_count: usize,
+    pub draft_claim_count: usize,
+    pub draft_supported_claim_count: usize,
+    pub draft_partially_supported_claim_count: usize,
+    pub draft_contradicted_claim_count: usize,
+    pub draft_not_verifiable_claim_count: usize,
+    pub draft_research_suggestion_count: usize,
+    pub draft_repaired_claim_count: usize,
+    pub draft_uncited_knowledge_fact_count: usize,
+    pub draft_unverified_claim_count: usize,
+    pub final_factual_claim_count: usize,
+    pub final_supported_claim_count: usize,
+    pub final_unsupported_claim_count: usize,
+    pub final_cited_claim_count: usize,
+    pub final_unknown_citation_count: usize,
+    pub final_citation_coverage: f64,
     pub semantic_status: String,
     pub semantic_fallback_reason: String,
     pub planner_status: String,
     pub retrieval_round_count: usize,
     pub reranker_provider: String,
     pub reranker_fallback: bool,
-    pub claims: Vec<ClaimDiagnostic>,
+    pub draft_claims: Vec<ClaimDiagnostic>,
+    pub final_claims: Vec<ClaimDiagnostic>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -155,6 +163,35 @@ pub struct RealE2eReport {
     pub semantic_unavailable_count: usize,
     pub passed: bool,
     pub results: Vec<RealE2eCaseResult>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct LocalEvidenceDiagnostic {
+    evidence_id: String,
+    title: String,
+    snippet: String,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct LocalClaimGroundingDiagnostic {
+    claim_id: String,
+    text: String,
+    verification_status: String,
+    reason: String,
+    alignment_score: f64,
+    cited_evidence: Vec<LocalEvidenceDiagnostic>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct LocalGroundingDiagnostic {
+    schema_version: String,
+    case_id: String,
+    request_id_hash: String,
+    draft_claims: Vec<LocalClaimGroundingDiagnostic>,
+    final_claims: Vec<LocalClaimGroundingDiagnostic>,
 }
 
 struct TemporaryWorkspace {
@@ -305,6 +342,100 @@ fn claim_diagnostics(claims: &[VerifiedClaim]) -> Vec<ClaimDiagnostic> {
         .collect()
 }
 
+fn local_claim_diagnostics(
+    claims: &[VerifiedClaim],
+    evidence: &[EvidenceItem],
+) -> Vec<LocalClaimGroundingDiagnostic> {
+    let by_id = evidence
+        .iter()
+        .map(|item| (item.id.as_str(), item))
+        .collect::<BTreeMap<_, _>>();
+    claims
+        .iter()
+        .map(|claim| LocalClaimGroundingDiagnostic {
+            claim_id: claim.id.clone(),
+            text: project_natural_visible_text(&claim.text),
+            verification_status: enum_label(&claim.verification_status),
+            reason: project_natural_visible_text(&compact(&claim.reason, 240)),
+            alignment_score: claim.alignment_score,
+            cited_evidence: claim
+                .evidence_ids
+                .iter()
+                .filter_map(|id| by_id.get(id.as_str()))
+                .map(|item| LocalEvidenceDiagnostic {
+                    evidence_id: item.id.clone(),
+                    title: project_natural_visible_text(&compact(&item.title, 240)),
+                    snippet: project_natural_visible_text(&compact(&item.snippet, 1_600)),
+                })
+                .collect(),
+        })
+        .collect()
+}
+
+fn write_local_grounding_diagnostic_to_dir(
+    directory: &Path,
+    repository: &Path,
+    case_id: &str,
+    request_id: &str,
+    context: &QuestionContext,
+    manifest: &QaRunManifest,
+) -> Result<(), String> {
+    if !directory.is_absolute() {
+        return Err("QA_REAL_E2E_DIAGNOSTIC_DIR_INVALID".to_string());
+    }
+    fs::create_dir_all(directory)
+        .map_err(|_| "QA_REAL_E2E_DIAGNOSTIC_DIR_CREATE_FAILED".to_string())?;
+    let directory = directory
+        .canonicalize()
+        .map_err(|_| "QA_REAL_E2E_DIAGNOSTIC_DIR_INVALID".to_string())?;
+    let repository = repository
+        .canonicalize()
+        .map_err(|_| "QA_REAL_E2E_REPOSITORY_INVALID".to_string())?;
+    if directory.starts_with(&repository) {
+        return Err("QA_REAL_E2E_DIAGNOSTIC_DIR_MUST_BE_OUTSIDE_REPOSITORY".to_string());
+    }
+    let request_id_hash = trace::request_id_hash(request_id);
+    let payload = LocalGroundingDiagnostic {
+        schema_version: "qa-local-grounding-diagnostic-v1".to_string(),
+        case_id: case_id.to_string(),
+        request_id_hash: request_id_hash.clone(),
+        draft_claims: local_claim_diagnostics(&manifest.claim_verifications, &context.evidence),
+        final_claims: local_claim_diagnostics(
+            &manifest.final_grounding_audit.claims,
+            &context.evidence,
+        ),
+    };
+    let file_name = format!("{case_id}-{request_id_hash}.json");
+    let output = directory.join(file_name);
+    let part = output.with_extension("json.part");
+    let mut bytes = serde_json::to_vec_pretty(&payload)
+        .map_err(|_| "QA_REAL_E2E_DIAGNOSTIC_INVALID".to_string())?;
+    bytes.push(b'\n');
+    fs::write(&part, bytes).map_err(|_| "QA_REAL_E2E_DIAGNOSTIC_WRITE_FAILED".to_string())?;
+    fs::rename(&part, output).map_err(|_| "QA_REAL_E2E_DIAGNOSTIC_RENAME_FAILED".to_string())
+}
+
+fn maybe_write_local_grounding_diagnostic(
+    repository: &Path,
+    case_id: &str,
+    request_id: &str,
+    context: &QuestionContext,
+    manifest: &QaRunManifest,
+) -> Result<(), String> {
+    let Some(directory) = env::var_os(LOCAL_DIAGNOSTIC_ENV).filter(|value| !value.is_empty())
+    else {
+        return Ok(());
+    };
+    write_local_grounding_diagnostic_to_dir(
+        &PathBuf::from(directory),
+        repository,
+        case_id,
+        request_id,
+        context,
+        manifest,
+    )
+}
+
 fn citation_contract_valid(validation: &CitationValidation, evidence_ids: &HashSet<&str>) -> bool {
     let ids_known = validation
         .appendix_evidence_ids
@@ -329,8 +460,9 @@ fn observation_from_parts(
     evidence_ids: &HashSet<&str>,
     evidence_count: usize,
 ) -> GroundingObservation {
-    let claims = claim_diagnostics(&manifest.claim_verifications);
-    let research_suggestion_count = claims
+    let draft_claims = claim_diagnostics(&manifest.claim_verifications);
+    let final_claims = claim_diagnostics(&manifest.final_grounding_audit.claims);
+    let research_suggestion_count = draft_claims
         .iter()
         .filter(|claim| claim.claim_type == "research_suggestion")
         .count();
@@ -367,22 +499,29 @@ fn observation_from_parts(
         grounding_status: validation.grounding_status.clone(),
         verification_status: manifest.verification_status.clone(),
         answer_complete: manifest.answer_completeness.complete,
-        claim_count: claims.len(),
-        supported_claim_count: manifest.verified_claim_count,
-        partially_supported_claim_count: manifest.partially_supported_claim_count,
-        contradicted_claim_count: manifest.contradicted_claim_count,
-        not_verifiable_claim_count: manifest.not_verifiable_claim_count,
-        research_suggestion_count,
-        repaired_claim_count: manifest.repaired_claim_count,
-        uncited_knowledge_fact_count,
-        unverified_claim_count: manifest.unverified_claim_count,
+        draft_claim_count: draft_claims.len(),
+        draft_supported_claim_count: manifest.verified_claim_count,
+        draft_partially_supported_claim_count: manifest.partially_supported_claim_count,
+        draft_contradicted_claim_count: manifest.contradicted_claim_count,
+        draft_not_verifiable_claim_count: manifest.not_verifiable_claim_count,
+        draft_research_suggestion_count: research_suggestion_count,
+        draft_repaired_claim_count: manifest.repaired_claim_count,
+        draft_uncited_knowledge_fact_count: uncited_knowledge_fact_count,
+        draft_unverified_claim_count: manifest.unverified_claim_count,
+        final_factual_claim_count: manifest.final_grounding_audit.factual_claim_count,
+        final_supported_claim_count: manifest.final_grounding_audit.supported_count,
+        final_unsupported_claim_count: manifest.final_grounding_audit.unsupported_count,
+        final_cited_claim_count: manifest.final_grounding_audit.cited_claim_count,
+        final_unknown_citation_count: manifest.final_grounding_audit.unknown_evidence_ids.len(),
+        final_citation_coverage: manifest.final_grounding_audit.citation_coverage,
         semantic_status: manifest.semantic_verification_status.clone(),
         semantic_fallback_reason: manifest.semantic_verification_fallback_reason.clone(),
         planner_status: manifest.planner_status.clone(),
         retrieval_round_count: manifest.retrieval_round_count,
         reranker_provider: manifest.reranker_provider.clone(),
         reranker_fallback: manifest.reranker_fallback,
-        claims,
+        draft_claims,
+        final_claims,
     }
 }
 
@@ -437,7 +576,7 @@ fn validate_observation(case: &RealE2eCase, observed: &GroundingObservation) -> 
         "natural_output_missing",
     );
     require(
-        observed.manifest_schema == "qa-run-v21",
+        observed.manifest_schema == "qa-run-v22",
         "manifest_schema_invalid",
     );
     require(observed.generator_stage_observed, "generator_stage_missing");
@@ -478,6 +617,26 @@ fn validate_observation(case: &RealE2eCase, observed: &GroundingObservation) -> 
         require(observed.evidence_count == 0, "zero_evidence_false_positive");
     } else {
         require(observed.evidence_count > 0, "evidence_empty");
+        require(
+            observed.final_factual_claim_count > 0,
+            "final_factual_claims_empty",
+        );
+        require(
+            observed.final_supported_claim_count == observed.final_factual_claim_count,
+            "final_supported_claim_mismatch",
+        );
+        require(
+            observed.final_unsupported_claim_count == 0,
+            "final_unsupported_claim",
+        );
+        require(
+            observed.final_unknown_citation_count == 0,
+            "final_unknown_citation_id",
+        );
+        require(
+            observed.final_citation_coverage == 1.0,
+            "final_citation_coverage_incomplete",
+        );
         require(
             !observed.reranker_provider.trim().is_empty() && !observed.reranker_fallback,
             "real_reranker_not_measured",
@@ -554,11 +713,11 @@ fn trace_observation(
     trace.provider = observed.provider.clone();
     trace.model = observed.model.clone();
     trace.evidence_count = Some(observed.evidence_count);
-    trace.claim_count = Some(observed.claim_count);
-    trace.supported_claim_count = Some(observed.supported_claim_count);
-    trace.contradicted_claim_count = Some(observed.contradicted_claim_count);
-    trace.not_verifiable_claim_count = Some(observed.not_verifiable_claim_count);
-    trace.repaired_claim_count = Some(observed.repaired_claim_count);
+    trace.claim_count = Some(observed.final_factual_claim_count);
+    trace.supported_claim_count = Some(observed.final_supported_claim_count);
+    trace.contradicted_claim_count = Some(observed.draft_contradicted_claim_count);
+    trace.not_verifiable_claim_count = Some(observed.final_unsupported_claim_count);
+    trace.repaired_claim_count = Some(observed.draft_repaired_claim_count);
     trace.persisted = persisted;
     trace.error_code = error_code.to_string();
     trace::emit(&trace);
@@ -742,6 +901,26 @@ pub fn run_files(
                 semantic_unavailable_count += 1;
             }
             result.pre_persist = Some(pre_persist.clone());
+            if let Err(error) = maybe_write_local_grounding_diagnostic(
+                &repository_root,
+                &case.id,
+                &request_id,
+                &context,
+                &generated.audit.run_manifest,
+            ) {
+                let code = safe_error_code(&error);
+                result.errors.push(code.clone());
+                trace_observation(
+                    "qa_local_grounding_diagnostic_failed",
+                    "failed",
+                    &request_id,
+                    &case.id,
+                    &pre_persist,
+                    Some(false),
+                    &code,
+                );
+                break;
+            }
             let semantic = generated.semantic_verification.clone();
             let persisted = match persist_exchange_with_metadata_and_semantic(
                 &mut connection,
@@ -889,7 +1068,7 @@ mod tests {
             provider: PROVIDER_CODEX.to_string(),
             model: "gpt-fixture".to_string(),
             answer_format: "natural-markdown-v2".to_string(),
-            manifest_schema: "qa-run-v21".to_string(),
+            manifest_schema: "qa-run-v22".to_string(),
             execution_mode: "direct".to_string(),
             generator_stage_observed: true,
             generator_budget_rejected: true,
@@ -904,9 +1083,9 @@ mod tests {
             grounding_status: "invalid".to_string(),
             verification_status: "succeeded".to_string(),
             answer_complete: true,
-            contradicted_claim_count: 0,
-            not_verifiable_claim_count: 0,
-            unverified_claim_count: 0,
+            draft_contradicted_claim_count: 0,
+            draft_not_verifiable_claim_count: 0,
+            draft_unverified_claim_count: 0,
             semantic_status: "succeeded".to_string(),
             semantic_fallback_reason: String::new(),
             planner_status: "not_requested".to_string(),
@@ -929,7 +1108,7 @@ mod tests {
             provider: PROVIDER_CODEX.to_string(),
             model: "gpt-fixture".to_string(),
             answer_format: "natural-markdown-v2".to_string(),
-            manifest_schema: "qa-run-v21".to_string(),
+            manifest_schema: "qa-run-v22".to_string(),
             execution_mode: "exploratory".to_string(),
             generator_stage_observed: true,
             citation_valid: true,
@@ -1003,6 +1182,32 @@ mod tests {
     }
 
     #[test]
+    fn local_grounding_diagnostic_contains_alignment_but_redacts_absolute_paths() {
+        let claim = VerifiedClaim {
+            id: "C1".to_string(),
+            text: "Supported fixture at C:\\private\\claim.md [E1].".to_string(),
+            evidence_ids: vec!["E1".to_string()],
+            claim_type: crate::qa::claim_verification::ClaimType::KnowledgeFact,
+            verification_status: crate::qa::claim_verification::VerificationStatus::Supported,
+            confidence: Some(0.9),
+            verification_method: "semantic_nli".to_string(),
+            alignment_score: 0.91,
+            reason: "direct support".to_string(),
+        };
+        let mut source = EvidenceItem::default();
+        source.id = "E1".to_string();
+        source.title = "Fixture C:\\private\\title.md".to_string();
+        source.snippet = "Fixture snippet C:\\private\\snippet.md".to_string();
+
+        let diagnostics = local_claim_diagnostics(&[claim], &[source]);
+        let serialized = serde_json::to_string(&diagnostics).unwrap();
+        assert!(serialized.contains("alignmentScore"));
+        assert!(serialized.contains("citedEvidence"));
+        assert!(serialized.contains("本地路径已隐藏"));
+        assert!(!serialized.contains("C:\\\\private"));
+    }
+
+    #[test]
     fn evidence_backed_citation_contract_requires_supported_grounding() {
         let ids = HashSet::from(["E1"]);
         let invalid = CitationValidation {
@@ -1036,13 +1241,17 @@ mod tests {
             provider: PROVIDER_CODEX.to_string(),
             model: "gpt-fixture".to_string(),
             answer_format: "natural-markdown-v2".to_string(),
-            manifest_schema: "qa-run-v21".to_string(),
+            manifest_schema: "qa-run-v22".to_string(),
             execution_mode: "direct".to_string(),
             generator_stage_observed: true,
             evidence_count: 1,
             evidence_selected_count: 1,
             citation_valid: true,
             grounding_status: "supported".to_string(),
+            final_factual_claim_count: 1,
+            final_supported_claim_count: 1,
+            final_cited_claim_count: 1,
+            final_citation_coverage: 1.0,
             verification_status: "succeeded".to_string(),
             answer_complete: true,
             semantic_status: "succeeded".to_string(),

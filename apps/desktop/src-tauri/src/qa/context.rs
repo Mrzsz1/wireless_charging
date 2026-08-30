@@ -1,6 +1,6 @@
 use super::{
     compact, research_memory, research_memory::ResearchSessionState, ConversationTurn,
-    EvidenceItem, QuestionContext, VerifiedClaim,
+    EvidenceItem, FinalGroundingAudit, QuestionContext, VerifiedClaim,
 };
 use rusqlite::{types::ValueRef, Connection};
 use serde::{Deserialize, Serialize};
@@ -14,7 +14,7 @@ pub const ANSWER_SCHEMA_VERSION: &str = "qa-natural-markdown-v2";
 pub const LEGACY_ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v4";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v21";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v22";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -248,6 +248,8 @@ pub struct QaRunManifest {
     pub repaired_claim_count: usize,
     #[serde(default)]
     pub claim_verifications: Vec<VerifiedClaim>,
+    #[serde(default)]
+    pub final_grounding_audit: FinalGroundingAudit,
     #[serde(default)]
     pub problem_parser_version: String,
     #[serde(default)]
@@ -1402,6 +1404,7 @@ pub fn build_run_manifest(
         unavailable_claim_count: 0,
         repaired_claim_count: 0,
         claim_verifications: Vec::new(),
+        final_grounding_audit: FinalGroundingAudit::default(),
         problem_parser_version: context.retrieval_query.problem_parser_version.clone(),
         method_matcher_version: context.retrieval_query.method_matcher_version.clone(),
         problem_understanding_status: context.retrieval_query.problem_understanding_status.clone(),

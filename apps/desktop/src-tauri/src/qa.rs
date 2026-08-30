@@ -39,9 +39,9 @@ pub(crate) mod vector_sync;
 
 pub use adaptive_routing::{policy as routing_policy, LlmBudgetGuard, LlmBudgetUsage};
 pub(crate) use claim_verification::project_claim_after_repair;
-pub use claim_verification::SemanticVerificationBatch;
 use claim_verification::VerificationStatus;
 pub use claim_verification::VerifiedClaim;
+pub use claim_verification::{FinalGroundingAudit, SemanticVerificationBatch};
 pub use context::{
     estimate_tokens, CitationRepair, ContextBudget, ContextPlan, ProviderRunMetadata,
     QaRunManifest, DEFAULT_CONTEXT_WINDOW_TOKENS,
@@ -3813,110 +3813,46 @@ fn merge_citation_repairs(left: CitationRepair, right: CitationRepair) -> Citati
     }
 }
 
-fn apply_claim_verification(
+fn apply_final_grounding_audit(
     mut validation: CitationValidation,
-    report: &claim_verification::ClaimVerificationReport,
-    evidence: &[EvidenceItem],
+    draft: &claim_verification::ClaimVerificationReport,
+    final_audit: &FinalGroundingAudit,
     answer: &str,
 ) -> CitationValidation {
-    validation.entailment_checked = report.semantic_verification_checked;
-    validation.heuristic_verification_checked = report.heuristic_verification_checked;
-    if report.verification_status != "succeeded" {
+    validation.entailment_checked = draft.semantic_verification_checked;
+    validation.heuristic_verification_checked = draft.heuristic_verification_checked;
+    if final_audit.audit_status != "succeeded" {
         validation.supported = false;
         validation.grounding_status = "unverified".to_string();
         validation.coverage_valid = false;
         return validation;
     }
-
-    let known_ids = evidence
-        .iter()
-        .map(|item| item.id.as_str())
-        .collect::<HashSet<_>>();
-    let mut cited_ids = Vec::new();
-    let mut unknown_ids = validation.unknown_ids;
-    let mut cited_claim_count = 0;
-    let mut unsupported_claims = Vec::new();
-    for claim in &report.claims {
-        let known_claim_ids = claim
-            .evidence_ids
-            .iter()
-            .filter(|id| known_ids.contains(id.as_str()))
-            .count();
-        if claim.verification_status != VerificationStatus::NotApplicable
-            && known_claim_ids == claim.evidence_ids.len()
-            && known_claim_ids > 0
-        {
-            cited_claim_count += 1;
-        }
-        for id in &claim.evidence_ids {
-            if known_ids.contains(id.as_str()) {
-                cited_ids.push(id.clone());
-            } else {
-                unknown_ids.push(id.clone());
-            }
-        }
-        if matches!(
-            claim.verification_status,
-            VerificationStatus::Unverified
-                | VerificationStatus::Unavailable
-                | VerificationStatus::Contradicted
-                | VerificationStatus::NotVerifiable
-        ) {
-            unsupported_claims.push(compact(&claim.text, 180));
-        }
-    }
-    cited_ids.sort();
-    cited_ids.dedup();
-    unknown_ids.sort();
-    unknown_ids.dedup();
-    let factual_claim_count = report
-        .claim_count
-        .saturating_sub(report.not_applicable_count);
-    let explicit_id_count = cited_ids.len() + unknown_ids.len();
-    validation.cited_ids = cited_ids;
-    validation.unknown_ids = unknown_ids;
-    validation.citation_precision = if explicit_id_count == 0 {
-        0.0
-    } else {
-        validation.cited_ids.len() as f64 / explicit_id_count as f64
-    };
+    validation.cited_ids = final_audit.cited_evidence_ids.clone();
+    validation.unknown_ids = final_audit.unknown_evidence_ids.clone();
+    validation.citation_precision = final_audit.citation_precision;
     validation.has_citations = !validation.cited_ids.is_empty();
-    validation.claim_count = report.claim_count;
-    validation.cited_claim_count = cited_claim_count;
-    validation.citation_coverage = if factual_claim_count == 0 {
-        0.0
-    } else {
-        cited_claim_count as f64 / factual_claim_count as f64
-    };
-    validation.unsupported_claims = unsupported_claims;
+    validation.claim_count = final_audit.factual_claim_count;
+    validation.cited_claim_count = final_audit.cited_claim_count;
+    validation.citation_coverage = final_audit.citation_coverage;
+    validation.unsupported_claims = final_audit
+        .claims
+        .iter()
+        .filter(|claim| claim.verification_status == VerificationStatus::NotVerifiable)
+        .map(|claim| compact(&claim.text, 180))
+        .collect();
     validation.syntax_valid = validation.unknown_ids.is_empty();
-    let invalid_verification_state = report.claims.iter().any(|claim| {
-        matches!(
-            claim.verification_status,
-            VerificationStatus::Unverified | VerificationStatus::Unavailable
-        )
-    });
-    validation.coverage_valid = factual_claim_count > 0
-        && cited_claim_count == factual_claim_count
-        && report.contradicted_count == 0
-        && report.not_verifiable_count == 0
-        && !invalid_verification_state;
-    validation.supported = validation.coverage_valid
-        && report.partially_supported_count == 0
-        && report.supported_count == factual_claim_count;
+    validation.coverage_valid = final_audit.factual_claim_count > 0
+        && final_audit.supported_count == final_audit.factual_claim_count
+        && final_audit.unsupported_count == 0
+        && final_audit.unknown_evidence_ids.is_empty()
+        && final_audit.cited_claim_count == final_audit.factual_claim_count;
+    validation.supported = validation.coverage_valid;
     validation.grounding_status =
-        if report.contradicted_count > 0 || report.not_verifiable_count > 0 {
-            "invalid"
-        } else if report.partially_supported_count > 0 {
-            "partially_supported"
-        } else if validation.supported && answer.contains(MODEL_SUPPLEMENT_HEADING) {
-            "mixed"
-        } else if validation.supported {
-            "supported"
+        if validation.supported && answer.contains(MODEL_SUPPLEMENT_HEADING) {
+            "mixed".to_string()
         } else {
-            "unverified"
-        }
-        .to_string();
+            final_audit.grounding_status.clone()
+        };
     validation
 }
 
@@ -3941,6 +3877,11 @@ pub fn audit_generated_answer_with_semantic(
         verification_status: "not_run".to_string(),
         ..claim_verification::ClaimVerificationReport::default()
     };
+    let mut final_grounding_audit = FinalGroundingAudit {
+        audit_status: "not_run".to_string(),
+        grounding_status: "unverified".to_string(),
+        ..FinalGroundingAudit::default()
+    };
     let (answer, citation_repair, citation_validation, structured_answer_error, structured_roles) =
         if natural_answer_v2_enabled() && !structured {
             let (canonical_answer, initial_repair) =
@@ -3953,15 +3894,20 @@ pub fn audit_generated_answer_with_semantic(
                     &context.evidence,
                     semantic,
                 );
+                final_grounding_audit = claim_verification::audit_repaired_answer(
+                    &repaired,
+                    &context.evidence,
+                    &report,
+                );
                 verification_report = report;
                 repaired
             };
             match natural_answer::render(&verified_answer, &context.evidence) {
                 Ok(result) => {
-                    let validation = apply_claim_verification(
+                    let validation = apply_final_grounding_audit(
                         result.validation,
                         &verification_report,
-                        &context.evidence,
+                        &final_grounding_audit,
                         &verified_answer,
                     );
                     (
@@ -3995,16 +3941,21 @@ pub fn audit_generated_answer_with_semantic(
                         &context.evidence,
                         semantic,
                     );
+                    final_grounding_audit = claim_verification::audit_repaired_answer(
+                        &repaired,
+                        &context.evidence,
+                        &report,
+                    );
                     verification_report = report;
                     let mut validation = if repaired == result.markdown {
                         result.validation
                     } else {
                         validate_citations(&repaired, &context.evidence)
                     };
-                    validation = apply_claim_verification(
+                    validation = apply_final_grounding_audit(
                         validation,
                         &verification_report,
-                        &context.evidence,
+                        &final_grounding_audit,
                         &repaired,
                     );
                     (
@@ -4038,14 +3989,19 @@ pub fn audit_generated_answer_with_semantic(
                     &context.evidence,
                     semantic,
                 );
+                final_grounding_audit = claim_verification::audit_repaired_answer(
+                    &repaired,
+                    &context.evidence,
+                    &report,
+                );
                 verification_report = report;
                 if repaired != canonical_answer {
                     validation = validate_citations(&repaired, &context.evidence);
                 }
-                validation = apply_claim_verification(
+                validation = apply_final_grounding_audit(
                     validation,
                     &verification_report,
-                    &context.evidence,
+                    &final_grounding_audit,
                     &repaired,
                 );
                 repaired
@@ -4101,6 +4057,19 @@ pub fn audit_generated_answer_with_semantic(
     run_manifest.unavailable_claim_count = verification_report.unavailable_count;
     run_manifest.repaired_claim_count = verification_report.repaired_count;
     run_manifest.claim_verifications = verification_report.claims;
+    run_manifest.final_grounding_audit = final_grounding_audit.clone();
+    let mut final_audit_event = trace::QaTraceEvent::new(
+        "qa_final_grounding_audit_completed",
+        "final_grounding_audit",
+        &final_grounding_audit.grounding_status,
+        &context.request_id,
+    );
+    final_audit_event.execution_mode = context.retrieval_query.execution_mode.clone();
+    final_audit_event.evidence_count = Some(context.evidence.len());
+    final_audit_event.claim_count = Some(final_grounding_audit.factual_claim_count);
+    final_audit_event.supported_claim_count = Some(final_grounding_audit.supported_count);
+    final_audit_event.not_verifiable_claim_count = Some(final_grounding_audit.unsupported_count);
+    trace::emit(&final_audit_event);
     AnswerAudit {
         answer,
         evidence: context.evidence.clone(),
@@ -5597,7 +5566,7 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v21");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v22");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.resolver_status, "succeeded");
@@ -5627,6 +5596,17 @@ mod tests {
         assert!(result.citation_validation.heuristic_verification_checked);
         assert!(!result.citation_validation.entailment_checked);
         assert_eq!(result.run_manifest.claim_verifications.len(), 1);
+        assert_eq!(
+            result.run_manifest.final_grounding_audit.grounding_status,
+            "supported"
+        );
+        assert_eq!(
+            result
+                .run_manifest
+                .final_grounding_audit
+                .factual_claim_count,
+            1
+        );
         assert_eq!(result.run_manifest.prompt_sha256.len(), 64);
         assert_eq!(result.run_manifest.evidence_checksums.len(), 1);
         assert_eq!(
@@ -5702,7 +5682,100 @@ mod tests {
         assert_eq!(audit.run_manifest.not_verifiable_claim_count, 1);
         assert_eq!(audit.run_manifest.repaired_claim_count, 1);
         assert!(!audit.citation_validation.supported);
+        assert_eq!(
+            audit.citation_validation.grounding_status,
+            "insufficient_supported_claims"
+        );
+        assert_eq!(
+            audit.run_manifest.final_grounding_audit.grounding_status,
+            "insufficient_supported_claims"
+        );
         assert!(!audit.answer.contains("made of cheese"));
+    }
+
+    #[test]
+    fn persistence_uses_final_audit_after_draft_repair() {
+        let (root, mut connection) = test_db();
+        let mut context =
+            prepare_question(&connection, root.path(), "fixture scheduling", 4).unwrap();
+        let mut source = evidence("E1");
+        source.snippet =
+            "ROSE schedules a mobile charger with particle swarm optimization.".to_string();
+        context.evidence = vec![source];
+        let metadata = ProviderRunMetadata {
+            provider: PROVIDER_API.to_string(),
+            model_requested: "fixture".to_string(),
+            model_resolved: "fixture".to_string(),
+            temperature: Some(0.1),
+            max_output_tokens: 1_800,
+            context_window_tokens: 32_768,
+            enforce_answer_schema: false,
+        };
+        let semantic = SemanticVerificationBatch {
+            version: claim_verification::SEMANTIC_VERIFIER_VERSION.to_string(),
+            provider: PROVIDER_API.to_string(),
+            model: "fixture-nli".to_string(),
+            status: "succeeded".to_string(),
+            results: vec![
+                claim_verification::SemanticVerificationResult {
+                    claim_id: "C1".to_string(),
+                    status: claim_verification::SemanticEntailment::Entailed,
+                    confidence: Some(0.99),
+                    reason: Some("supported fixture".to_string()),
+                },
+                claim_verification::SemanticVerificationResult {
+                    claim_id: "C2".to_string(),
+                    status: claim_verification::SemanticEntailment::Unknown,
+                    confidence: Some(0.99),
+                    reason: Some("unsupported fixture".to_string()),
+                },
+            ],
+            ..SemanticVerificationBatch::default()
+        };
+
+        let result = persist_exchange_with_metadata_and_semantic(
+            &mut connection,
+            root.path(),
+            Some("final-audit-persisted"),
+            &context,
+            "ROSE schedules a mobile charger with particle swarm optimization [E1]. The moon is made of cheese [E1].".to_string(),
+            metadata,
+            Some(&semantic),
+        )
+        .unwrap();
+
+        assert_eq!(result.run_manifest.not_verifiable_claim_count, 1);
+        assert_eq!(result.run_manifest.repaired_claim_count, 1);
+        assert_eq!(
+            result.run_manifest.final_grounding_audit.grounding_status,
+            "supported"
+        );
+        assert_eq!(result.run_manifest.final_grounding_audit.supported_count, 1);
+        assert_eq!(
+            result.run_manifest.final_grounding_audit.unsupported_count,
+            0
+        );
+        assert!(result.citation_validation.supported);
+        assert_eq!(result.citation_validation.citation_coverage, 1.0);
+        assert!(!result.assistant_message.content.contains("made of cheese"));
+    }
+
+    #[test]
+    fn grounding_system_notices_never_enter_trusted_history() {
+        let answer = format!(
+            "Verified claim [E1]. {}\n{}",
+            grounding::INSUFFICIENT_SUPPORT_NOTICE,
+            grounding::PARTIAL_SUPPORT_NOTICE
+        );
+        let trusted = trusted_context(&answer, "supported");
+        assert_eq!(trusted, "Verified claim .");
+        assert!(!trusted.contains("证据不足"));
+        assert!(!trusted.contains("部分支持"));
+        assert!(trusted_context(
+            grounding::NO_SUPPORTED_CLAIMS_NOTICE,
+            "insufficient_supported_claims"
+        )
+        .is_empty());
     }
 
     #[test]
@@ -5752,7 +5825,7 @@ mod tests {
         );
         assert_eq!(audit.run_manifest.verification_model, "fixture-nli");
         assert_eq!(audit.run_manifest.semantic_verification_latency_ms, 17);
-        assert_eq!(audit.run_manifest.schema_version, "qa-run-v21");
+        assert_eq!(audit.run_manifest.schema_version, "qa-run-v22");
     }
 
     #[test]

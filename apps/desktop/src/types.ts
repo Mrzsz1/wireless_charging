@@ -726,6 +726,7 @@ export type QaRunManifest = {
   unavailableClaimCount?: number
   repairedClaimCount?: number
   claimVerifications?: VerifiedClaim[]
+  finalGroundingAudit?: FinalGroundingAudit
   problemParserVersion?: string
   methodMatcherVersion?: string
   problemUnderstandingStatus?: string
@@ -776,6 +777,22 @@ export type QaRunManifest = {
   retrievalChannelStatuses?: string[]
   retrievalRoundFingerprints?: string[]
   generatedAt: string
+}
+
+export type FinalGroundingAudit = {
+  schemaVersion: string
+  auditStatus: 'not_run' | 'succeeded' | string
+  groundingStatus: 'supported' | 'insufficient_supported_claims' | 'invalid' | 'unverified' | string
+  factualClaimCount: number
+  supportedCount: number
+  unsupportedCount: number
+  notApplicableCount: number
+  citedClaimCount: number
+  citedEvidenceIds: string[]
+  unknownEvidenceIds: string[]
+  citationPrecision: number
+  citationCoverage: number
+  claims: VerifiedClaim[]
 }
 
 export type EvidenceItem = {
@@ -938,7 +955,7 @@ export type CitationValidation = {
   citationPrecision: number
   hasCitations: boolean
   supported: boolean
-  groundingStatus: 'supported' | 'partially_supported' | 'mixed' | 'unverified' | 'invalid'
+  groundingStatus: 'supported' | 'partially_supported' | 'mixed' | 'unverified' | 'invalid' | 'insufficient_supported_claims'
   zeroEvidence: boolean
   claimCount: number
   citedClaimCount: number

@@ -759,7 +759,24 @@ pub fn trusted_context(answer: &str, grounding_status: &str) -> String {
     .flatten()
     .min();
     let verified = boundary.map(|start| &answer[..start]).unwrap_or(answer);
-    remove_citation_tokens(verified).trim().to_string()
+    let mut trusted = remove_citation_tokens(verified);
+    for notice in [
+        INSUFFICIENT_SUPPORT_NOTICE,
+        UNVERIFIABLE_NOTICE,
+        CONTRADICTED_NOTICE,
+        PARTIAL_SUPPORT_NOTICE,
+        NO_SUPPORTED_CLAIMS_NOTICE,
+    ] {
+        trusted = trusted.replace(notice, "");
+    }
+    trusted
+        .lines()
+        .map(str::trim_end)
+        .filter(|line| !line.trim().is_empty() && !matches!(line.trim(), "-" | "*" | "+"))
+        .collect::<Vec<_>>()
+        .join("\n")
+        .trim()
+        .to_string()
 }
 
 pub fn normalize_unverified_answer(answer: &str) -> String {
