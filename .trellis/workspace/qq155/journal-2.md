@@ -160,3 +160,39 @@ Reproduced the legacy global replacen collision, replaced claim repair with fail
 ### Next Steps
 
 - None - task complete
+
+
+## Session 63: P1-1D2 Post-Fix Real Research Close Gate
+
+**Date**: 2026-08-31
+**Task**: P1-1D2 Post-Fix Real Research Close Gate
+**Branch**: `master`
+
+### Summary
+
+Revalidated every deterministic P1-1D gate and ran exactly one post-fix real-research-improvement case. Planner and Semantic succeeded, repair projection completed 6 source-span operations with 3 safe repairs, Final Grounding was 3/3/0 with coverage 1.0 and valid visible projection, and persistence succeeded. The selected Research close gate is PASS; no production code or forbidden subsystem changed.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `86545e2` | (see git log) |
+| `60e92ae` | (see git log) |
+| `4dc3db5` | (see git log) |
+| `98c4e70` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
