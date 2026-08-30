@@ -41,7 +41,7 @@ test('natural answer and Markdown locator contracts are wired across backend and
   const app = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8')
   const ask = readFileSync(new URL('../src/features/qa/AskView.tsx', import.meta.url), 'utf8')
   assert.match(context, /qa-natural-markdown-v2/)
-  assert.match(context, /每条库内事实陈述必须.*\[E#\]/)
+  assert.match(context, /每条库内事实必须.*\[E#\]/)
   assert.match(qa, /natural_answer::render/)
   assert.match(qa, /LUNAWIKI_RAG_ANSWER_V2/)
   assert.match(app, /readSourceLocator/)
@@ -52,6 +52,15 @@ test('natural answer and Markdown locator contracts are wired across backend and
   assert.match(ask, /逐条证据审计/)
   assert.match(ask, /claimVerifications/)
   assert.doesNotMatch(ask, /正在接收并组织结构化回答/)
+})
+
+test('production UI never renders unverified token content', () => {
+  const ask = readFileSync(new URL('../src/features/qa/AskView.tsx', import.meta.url), 'utf8')
+  const backend = readFileSync(new URL('../src-tauri/src/lib.rs', import.meta.url), 'utf8')
+  assert.doesNotMatch(ask, /event\.type === 'token'|setStreamingText|qa-natural-stream/)
+  assert.doesNotMatch(backend, /AnswerStreamEvent::Token/)
+  assert.match(backend, /\|_\| Ok\(\(\)\)/)
+  assert.ok(backend.indexOf('persist_exchange_with_metadata_and_semantic') < backend.indexOf('AnswerStreamEvent::Completed'))
 })
 
 test('never labels empty or settled evidence as previous retrieval state', () => {

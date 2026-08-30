@@ -575,10 +575,6 @@ pub enum AnswerStreamEvent {
         context_budget: ContextBudget,
         waterline: WaterlineSnapshot,
     },
-    Token {
-        request_id: String,
-        content: String,
-    },
     ValidationStarted {
         request_id: String,
     },

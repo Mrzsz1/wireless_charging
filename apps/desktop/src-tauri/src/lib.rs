@@ -3288,6 +3288,29 @@ fn answer_error_parts(error: &str) -> (String, String) {
     (code, message)
 }
 
+#[allow(clippy::too_many_arguments)]
+fn emit_ui_answer_boundary(
+    event_name: &str,
+    stage: &str,
+    status: &str,
+    request_id: &str,
+    provider: &str,
+    evidence_count: usize,
+    claim_count: Option<usize>,
+    persisted: Option<bool>,
+    error: Option<&str>,
+) {
+    let mut event = qa::trace::QaTraceEvent::new(event_name, stage, status, request_id);
+    event.provider = provider.to_string();
+    event.evidence_count = Some(evidence_count);
+    event.claim_count = claim_count;
+    event.persisted = persisted;
+    if let Some(error) = error {
+        event.error_code = qa::trace::error_code(error);
+    }
+    qa::trace::emit(&event);
+}
+
 #[tauri::command]
 async fn ask_luna(
     request: qa::AskRequest,
@@ -3497,14 +3520,17 @@ async fn ask_luna(
         return Err("问答已取消".to_string());
     }
 
-    let zero_evidence = context.evidence.is_empty();
-    if zero_evidence {
-        let _ = on_event.send(qa::AnswerStreamEvent::Token {
-            request_id: request_id.clone(),
-            content: format!("{}\n\n", qa::NO_EVIDENCE_NOTICE),
-        });
-    }
-
+    emit_ui_answer_boundary(
+        "qa_ui_answer_buffering_started",
+        "ui_answer_buffer",
+        "started",
+        &request_id,
+        &settings.answer_provider,
+        context.evidence.len(),
+        None,
+        Some(false),
+        None,
+    );
     let worker_context = context;
     let fallback_context = worker_context.clone();
     let worker_settings = settings.clone();
@@ -3512,8 +3538,6 @@ async fn ask_luna(
     let worker_model = effective_codex_model.clone();
     let worker_effort = effective_codex_effort.clone();
     let worker_cancel = cancel_flag.clone();
-    let stream_channel = on_event.clone();
-    let stream_request_id = request_id.clone();
     let generated_task = tauri::async_runtime::spawn_blocking(move || {
         let mut context = worker_context;
         let generated = qa::run_production_qa_generation(
@@ -3524,14 +3548,7 @@ async fn ask_luna(
             &worker_model,
             &worker_effort,
             &worker_cancel,
-            |content| {
-                stream_channel
-                    .send(qa::AnswerStreamEvent::Token {
-                        request_id: stream_request_id.clone(),
-                        content: content.to_string(),
-                    })
-                    .map_err(|error| format!("ANSWER_CHANNEL_ERROR: {error}"))
-            },
+            |_| Ok(()),
         );
         (context, generated)
     })
@@ -3545,6 +3562,17 @@ async fn ask_luna(
     };
 
     if cancel_flag.load(Ordering::SeqCst) {
+        emit_ui_answer_boundary(
+            "qa_ui_answer_buffering_cancelled",
+            "ui_answer_buffer",
+            "cancelled",
+            &request_id,
+            &settings.answer_provider,
+            context.evidence.len(),
+            None,
+            Some(false),
+            Some("QUESTION_CANCELLED"),
+        );
         let _ = on_event.send(qa::AnswerStreamEvent::Cancelled {
             request_id: request_id.clone(),
         });
@@ -3555,6 +3583,17 @@ async fn ask_luna(
     let generated = match generated {
         Ok(generated) => generated,
         Err(error) => {
+            emit_ui_answer_boundary(
+                "qa_ui_answer_buffering_failed",
+                "ui_answer_buffer",
+                "failed",
+                &request_id,
+                &settings.answer_provider,
+                context.evidence.len(),
+                None,
+                Some(false),
+                Some(&error),
+            );
             let (code, message) = answer_error_parts(&error);
             let model_requested = match settings.answer_provider.as_str() {
                 qa::PROVIDER_CODEX => effective_codex_model.clone(),
@@ -3611,23 +3650,6 @@ async fn ask_luna(
         return Err("REPOSITORY_CHANGED: 当前知识库已切换，旧回答已丢弃".to_string());
     }
 
-    if offline && !zero_evidence {
-        let characters = answer.chars().collect::<Vec<_>>();
-        for chunk in characters.chunks(48) {
-            if cancel_flag.load(Ordering::SeqCst) {
-                let _ = on_event.send(qa::AnswerStreamEvent::Cancelled {
-                    request_id: request_id.clone(),
-                });
-                finish_answer_request(&state, &request_id);
-                return Err("问答已取消".to_string());
-            }
-            let _ = on_event.send(qa::AnswerStreamEvent::Token {
-                request_id: request_id.clone(),
-                content: chunk.iter().collect(),
-            });
-        }
-    }
-
     let _ = on_event.send(qa::AnswerStreamEvent::ValidationStarted {
         request_id: request_id.clone(),
     });
@@ -3648,6 +3670,22 @@ async fn ask_luna(
             return Err("REPOSITORY_CHANGED: 当前知识库已切换，旧回答未保存".to_string());
         }
         if cancel_flag.load(Ordering::SeqCst) {
+            emit_ui_answer_boundary(
+                "qa_ui_final_answer_cancelled",
+                "ui_final_answer",
+                "cancelled",
+                &request_id,
+                &provider,
+                context.evidence.len(),
+                Some(
+                    generated_audit
+                        .run_manifest
+                        .final_grounding_audit
+                        .factual_claim_count,
+                ),
+                Some(false),
+                Some("QUESTION_CANCELLED"),
+            );
             drop(repository);
             let _ = on_event.send(qa::AnswerStreamEvent::Cancelled {
                 request_id: request_id.clone(),
@@ -3675,6 +3713,22 @@ async fn ask_luna(
     let result = match persist_result {
         Ok(result) => result,
         Err(error) => {
+            emit_ui_answer_boundary(
+                "qa_ui_final_answer_failed",
+                "ui_final_answer",
+                "failed",
+                &request_id,
+                &provider,
+                context.evidence.len(),
+                Some(
+                    failed_audit
+                        .run_manifest
+                        .final_grounding_audit
+                        .factual_claim_count,
+                ),
+                Some(false),
+                Some(&error),
+            );
             let (code, message) = answer_error_parts(&error);
             let exchange = persist_answer_failure(
                 &state,
@@ -3701,6 +3755,22 @@ async fn ask_luna(
         }
     };
     debug_assert_eq!(result.offline, offline);
+    emit_ui_answer_boundary(
+        "qa_ui_final_answer_completed",
+        "ui_final_answer",
+        "succeeded",
+        &request_id,
+        &provider,
+        result.evidence.len(),
+        Some(
+            result
+                .run_manifest
+                .final_grounding_audit
+                .factual_claim_count,
+        ),
+        Some(true),
+        None,
+    );
     let _ = on_event.send(qa::AnswerStreamEvent::Completed {
         request_id: request_id.clone(),
         result: result.clone(),
@@ -4505,6 +4575,24 @@ mod tests {
         assert!(register_answer_request(&mut cancellations, &request_id)
             .unwrap_err()
             .starts_with("REQUEST_ID_ACTIVE"));
+    }
+
+    #[test]
+    fn production_ui_adapter_exposes_only_persisted_final_answers() {
+        let source = include_str!("lib.rs");
+        let forbidden_token_variant = ["AnswerStreamEvent", "Token"].join("::");
+        assert!(!source.contains(&forbidden_token_variant));
+        assert!(source.contains("|_| Ok(())"));
+        let persistence = source
+            .find("persist_exchange_with_metadata_and_semantic(")
+            .expect("production persistence call");
+        let completed = source
+            .find("AnswerStreamEvent::Completed")
+            .expect("terminal completed event");
+        assert!(persistence < completed);
+        assert!(source.contains("qa_ui_answer_buffering_failed"));
+        assert!(source.contains("qa_ui_final_answer_failed"));
+        assert!(source.contains("qa_ui_final_answer_completed"));
     }
 
     #[test]

@@ -21,6 +21,7 @@ Use this contract when changing desktop QA request identity, retrieval, provider
 4. SQLite/FTS and Graphify parsing run in `spawn_blocking` with an independent SQLite connection. The repository mutex only snapshots root/database path and owns the final write transaction.
 5. Cancellation and repository identity are checked between retrieval channels, around Codex probing/provider generation, and before persistence.
 6. Every terminal path removes its active cancellation entry. Cancelled or repository-changed requests are never persisted.
+7. Provider deltas are internal generation-buffer input only. The production `AnswerStreamEvent` contract has no raw `token` variant: the UI receives progress boundaries, then exactly one `completed` event carrying the persisted Final Answer, or `failed` / `cancelled` without draft text. Zero-evidence and offline paths follow the same final-only boundary.
 
 ## 4. Retrieval and History
 
@@ -330,7 +331,7 @@ Claim splitting and same-claim citation attachment are part of the `natural-mark
 - Settings-page status refresh bypasses the TTL and refreshes the cache.
 - Offline and compatible API requests never probe Codex.
 - Codex token/cookie and API key values are never returned, persisted, or added to ordinary logs/errors.
-- Compatible API SSE accepts `[DONE]` or `finish_reason=stop` as a complete stream. If the terminal `stop` frame also contains a final content delta, that token is emitted and appended before termination. `length`, other non-empty finish reasons, malformed JSON, and EOF before a legal terminator are failed exchanges; partial text is never persisted as `completed`.
+- Compatible API SSE accepts `[DONE]` or `finish_reason=stop` as a complete stream. If the terminal `stop` frame also contains a final content delta, that token is appended to the internal answer buffer before termination. The production UI adapter never forwards the callback as an answer event. `length`, other non-empty finish reasons, malformed JSON, and EOF before a legal terminator are failed exchanges; partial text is neither displayed nor persisted as `completed`.
 
 ## 9. Answer Rendering and Source Navigation Contract
 

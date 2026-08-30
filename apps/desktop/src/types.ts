@@ -1092,7 +1092,6 @@ export type AnswerStreamEvent =
   | { type: 'started'; payload: { requestId: string; sessionId: string } }
   | { type: 'retrieval_started'; payload: { requestId: string } }
   | { type: 'retrieval_completed'; payload: { requestId: string; evidence: EvidenceItem[]; retrievalDiagnostics: RetrievalDiagnostics; contextBudget: ContextBudget; waterline: WaterlineSnapshot } }
-  | { type: 'token'; payload: { requestId: string; content: string } }
   | { type: 'validation_started'; payload: { requestId: string } }
   | { type: 'completed'; payload: { requestId: string; result: AskResult } }
   | { type: 'failed'; payload: { requestId: string; code: string; message: string; retryable: boolean; exchange?: { sessionId: string; userMessage: ChatMessage; assistantMessage: ChatMessage } | null } }

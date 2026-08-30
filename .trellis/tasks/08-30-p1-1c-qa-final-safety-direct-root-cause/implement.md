@@ -23,11 +23,11 @@
 
 ## Phase 3 — Final-only UI delivery
 
-- [ ] Stop production adapter, zero-evidence path, and offline path from emitting raw Token content.
-- [ ] Keep progress phases and deliver final content only through `Completed` after persistence.
-- [ ] Make frontend ignore compatibility Token payloads and avoid draft copy/display state.
-- [ ] Add success/failure/cancel backend event tests, frontend state tests, and log-sequence assertions.
-- [ ] Commit `fix(qa): expose only finalized answers to the ui`.
+- [x] Stop production adapter, zero-evidence path, and offline path from emitting raw Token content.
+- [x] Keep progress phases and deliver final content only through `Completed` after persistence.
+- [x] Remove the frontend Token payload contract and all draft copy/display state.
+- [x] Add success/failure/cancel backend event tests, frontend state tests, and log-sequence assertions.
+- [x] Commit `fix(qa): expose only finalized answers to the ui`.
 
 ## Phase 4 — E2E scope semantics
 

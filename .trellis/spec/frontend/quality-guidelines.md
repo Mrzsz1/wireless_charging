@@ -58,6 +58,12 @@ Questions to answer:
 - Frontend tests for a changed feature must assert the emitted stage sequence and representative failure event, or assert that the frontend correctly propagates the operation ID to an authoritative backend workflow.
 - The complete field, storage, redaction, and failure matrix is defined by [`../backend/logging-guidelines.md`](../backend/logging-guidelines.md).
 
+## QA final-only answer boundary
+
+- The QA view never renders Provider token deltas. During generation it shows phase/status UI only; the assistant answer enters the message list only from the terminal `completed.result` returned after final audit and persistence.
+- `failed` and `cancelled` clear transient state and may show only the persisted safe failure exchange or rollback the optimistic user message. They must not retain a copyable draft-answer surface.
+- Tests reject `streamingText`, `qa-natural-stream`, a frontend `token` event branch, or backend `AnswerStreamEvent::Token`, and assert persistence appears before `Completed` in the production adapter.
+
 ## GUI E2E environment contract
 
 ### 1. Scope / Trigger

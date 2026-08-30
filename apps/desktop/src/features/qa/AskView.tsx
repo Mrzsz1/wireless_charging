@@ -111,10 +111,8 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
   const [question, setQuestion] = useState('')
   const [phase, setPhase] = useState<'idle' | 'retrieving' | 'generating' | 'validating'>('idle')
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
-  const [hasFirstToken, setHasFirstToken] = useState(false)
   const generationStartedAt = useRef(0)
   const composerRef = useRef<HTMLTextAreaElement>(null)
-  const [streamingText, setStreamingText] = useState('')
   const [requestId, setRequestId] = useState('')
   const [evidence, setEvidence] = useState<EvidenceItem[]>([])
   const [evidenceRequestId, setEvidenceRequestId] = useState('')
@@ -162,7 +160,6 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
   const resetGenerationState = () => {
     generationStartedAt.current = 0
     setElapsedSeconds(0)
-    setHasFirstToken(false)
     setPhase('idle')
   }
 
@@ -205,7 +202,6 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     if (staleRequest && isDesktopRuntime()) void cancelAnswer(staleRequest).catch(() => undefined)
     generationStartedAt.current = 0
     setElapsedSeconds(0)
-    setHasFirstToken(false)
     setPhase('idle')
     completionLedger.current = createCompletionLedger(repositoryPath ?? '')
     setActiveSessionId('')
@@ -262,7 +258,7 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
       return
     }
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
-  }, [messages, streamingText, phase])
+  }, [messages, phase])
 
   const openSession = async (sessionId: string) => {
     if (phase !== 'idle') return
@@ -339,7 +335,6 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     setRunManifest(result.runManifest)
     setSelectedEvidence(result.evidence[0] ?? null)
     setWaterline(result.waterline)
-    setStreamingText('')
     setRequestId('')
     activeRequestId.current = ''
     resetGenerationState()
@@ -362,9 +357,6 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
       setSelectedEvidence(event.payload.evidence[0] ?? null)
       setWaterline(event.payload.waterline)
       setPhase('generating')
-    } else if (event.type === 'token') {
-      setHasFirstToken(true)
-      setStreamingText((current) => current + event.payload.content)
     } else if (event.type === 'validation_started') {
       setPhase('validating')
     } else if (event.type === 'completed') {
@@ -381,7 +373,6 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
       setContextBudget(null)
       setRunManifest(null)
       resetGenerationState()
-      setStreamingText('')
       setRequestId('')
       activeRequestId.current = ''
       void refreshSessions()
@@ -391,7 +382,6 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
       setContextBudget(null)
       setRunManifest(null)
       resetGenerationState()
-      setStreamingText('')
       setRequestId('')
       activeRequestId.current = ''
       setActiveSessionId(originalSessionId)
@@ -405,10 +395,8 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
     if (!repositoryPath) { setError('请先选择知识库并建立索引。'); return }
     setQuestion('')
     setError('')
-    setStreamingText('')
     generationStartedAt.current = performance.now()
     setElapsedSeconds(0)
-    setHasFirstToken(false)
     setPhase('retrieving')
     const generation = repositoryGeneration.current
     const originalSessionId = activeSessionId
@@ -430,7 +418,6 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
       if (terminalEventHandled) return
       if (!terminalEventHandled && !String(cause).includes('已取消')) setError(`问答执行失败：${String(cause)}`)
       setMessages((current) => rollbackOptimisticMessages(current, optimistic.id))
-      setStreamingText('')
       resetGenerationState()
       setRequestId('')
       activeRequestId.current = ''
@@ -472,10 +459,8 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
   const evidenceOwnership = evidencePanelOwnership(phase, evidenceRequestId, requestId, evidence.length)
   const activeThinkingStep = phase === 'retrieving'
     ? 1
-    : phase === 'generating' && !hasFirstToken
-      ? 3
-      : phase === 'generating'
-        ? 4
+    : phase === 'generating'
+      ? 4
         : phase === 'validating'
           ? 5
           : -1
@@ -492,10 +477,8 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
   }))
   const thinkingStage = phase === 'retrieving'
     ? { title: '正在检索知识库', detail: '正在匹配 Wiki、论文原文、专著与知识图谱。' }
-    : phase === 'generating' && !hasFirstToken
-      ? { title: '模型正在组织回答', detail: '正在基于本轮证据组织自然科研回答。' }
-      : phase === 'generating'
-        ? { title: '正在生成回答', detail: '正在接收自然 Markdown 回答。' }
+    : phase === 'generating'
+      ? { title: '模型正在生成并核验回答', detail: '原始内容仅在内部缓冲，核验完成后显示最终回答。' }
         : { title: '正在检查回答与证据', detail: '正在清理不受信链接并追加真实证据。' }
 
   return <section className="qa-view">
@@ -552,9 +535,6 @@ export function AskView({ repositoryPath, onOpenSettings, onResearchContextChang
                   </div>
                 ))}
               </div>
-              {streamingText && (
-                <div className="qa-natural-stream"><MessageContent content={streamingText} evidence={evidence} onCitation={openEvidence} /><span className="qa-stream-cursor" aria-hidden="true" /></div>
-              )}
             </div>
           </article>
         )}
