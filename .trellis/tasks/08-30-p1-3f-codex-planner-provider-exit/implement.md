@@ -27,19 +27,19 @@
 
 - [x] Add the development-only probe entry point and safe report schema.
 - [x] Run deterministic probe wiring tests and commit `test(qa): add isolated planner provider probes`.
-- [ ] Run Probe A exactly once.
-- [ ] Run Probe B exactly once only if A passes.
-- [ ] Run Probe C exactly once only if B passes.
-- [ ] Delete the repository-external raw diagnostic directory.
-- [ ] Commit safe aggregate report with `test(qa): record exact planner provider failure`.
+- [x] Run Probe A exactly once; it failed with precise category `transport`.
+- [x] Do not run Probe B because Probe A did not pass.
+- [x] Do not run Probe C because Probe B was not eligible.
+- [x] Delete the repository-external raw diagnostic directory.
+- [x] Commit safe aggregate report with `test(qa): record exact planner provider failure`.
 
 ## Phase 5/6/7 — Unique branch, RED, minimal fix
 
-- [ ] Select exactly one branch from safe probe results and exclude all others in writing.
-- [ ] Add the smallest branch-specific old-code RED and record error/root function.
-- [ ] Do not modify Planner Schema/input/timeout/budget/integration without RED.
-- [ ] Apply a minimal single-layer patch or record a precise external blocker.
-- [ ] Commit only the selected branch's exact fix when a production patch is justified.
+- [x] Select only Provider external `transport` and exclude Schema/Input/Generic-exit/Integration branches.
+- [x] Add a synthetic timeout-classification RED: old `unknown`, new `transport`.
+- [x] Do not modify Planner Schema/input/timeout/budget/integration.
+- [x] Record the precise external Provider blocker.
+- [x] Do not create a Planner production-fix commit because the external branch forbids one.
 
 ## Phase 8 — Deterministic regression
 

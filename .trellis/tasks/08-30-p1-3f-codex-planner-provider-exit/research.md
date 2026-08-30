@@ -35,3 +35,15 @@
 - `QA_CODEX_EXEC_DIAGNOSTIC_DIR` is default-off, absolute-only, and rejected inside the repository. Raw stdout/stderr live only under the explicit external probe directory; committed reports contain hashes/counts/enums only.
 - Probe lifecycle uses `qa_planner_probe_started/completed/failed` with one hashed operation ID and safe aggregate fields.
 - Probe infrastructure tests (3), Codex Subscription tests (19), binary compilation, fmt, and library/binary Clippy pass without a real Provider call.
+
+## Probe A result and branch decision
+
+- Probe A was invoked exactly once with the tiny Boolean schema and minimal prompt.
+- Safe report: `evals/reports/qa-codex-planner-probe-a.json`; SHA-256 `3cf339db28802d9b9bd02b3f27be37a2d150f0a3f22b341fa4779d5702397eab`.
+- Measured status: failed; terminal event type `error`; exit code `-1` because the adapter terminated immediately after the fatal event; latency 47,830 ms; three JSONL events; no agent message or completed turn; stderr was empty at the fatal boundary.
+- The initial classifier returned `unknown`. The repository-external raw artifact was inspected once, reduced to the stable category `transport`, and then deleted. No raw message, JSONL, stderr, prompt, or external path is retained in Git.
+- Old-code RED: a synthetic request-timeout terminal message classified as `unknown`; after the adapter-only classifier patch it is `transport`.
+- Probe A failure means the base CLI/model/Provider structured-output control path is externally blocked. Probe B and Probe C were not run, as required by the prerequisite matrix. Total real probe calls: one.
+- Unique branch: Provider external `transport` (taskbook branch C). Schema, Planner input, timeout, budget, parser, Retrieval, and integration branches are excluded because Probe A did not pass.
+- Codex CLI selected by the application probe was the desktop binary, version `0.151.0-alpha.7.1`; this differs from the shell npm wrapper `0.146.0` recorded at baseline.
+- Status: `PARTIAL-BLOCKED-BY-PROVIDER`. No Planner production patch or final Research E2E is permitted after the failed prerequisite.

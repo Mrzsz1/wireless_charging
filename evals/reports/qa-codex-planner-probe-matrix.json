@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "qa-codex-planner-probe-matrix-v1",
+  "model": "gpt-5.6-luna",
+  "reasoningEffort": "low",
+  "realProviderCallCount": 1,
+  "probeA": {
+    "status": "failed",
+    "terminalEventType": "error",
+    "failureCategory": "transport",
+    "messageSha256": "61cbbf0ae9181725d0cf3779e1e940b5e4bf65475d3c2cc3a59c1964ad8f7723",
+    "exitCode": -1,
+    "latencyMs": 47830,
+    "safeReportSha256": "3cf339db28802d9b9bd02b3f27be37a2d150f0a3f22b341fa4779d5702397eab",
+    "classificationSource": "deterministic-terminal-classifier"
+  },
+  "probeB": {
+    "status": "not_run",
+    "reason": "probe_a_failed"
+  },
+  "probeC": {
+    "status": "not_run",
+    "reason": "probe_b_not_run"
+  },
+  "selectedBranch": "provider_external_transport",
+  "plannerProductionPatch": false,
+  "status": "PARTIAL-BLOCKED-BY-PROVIDER"
+}
