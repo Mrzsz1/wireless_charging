@@ -2057,6 +2057,45 @@ mod tests {
     }
 
     #[test]
+    fn supported_left_clause_survives_a_repaired_right_clause() {
+        let supported = "ROSE reduces scheduling latency [E1]";
+        let unsupported = "并且 ROSE guarantees a global optimum [E1]。";
+        let answer = format!("{supported}，{unsupported}");
+        let claims = vec![
+            supported_claim("C1", supported, &["E1"]),
+            claim_with_status(
+                "C2",
+                unsupported,
+                &["E1"],
+                VerificationStatus::NotVerifiable,
+            ),
+        ];
+
+        let (repaired, projection, repaired_count) =
+            repair_verified_claims_by_source_span(&answer, &claims).unwrap();
+        let draft = ClaimVerificationReport {
+            verification_status: "succeeded".to_string(),
+            claim_count: 2,
+            supported_count: 1,
+            not_verifiable_count: 1,
+            repaired_count,
+            claims,
+            repair_projection_audit: projection,
+            ..ClaimVerificationReport::default()
+        };
+        let final_audit = audit_repaired_answer(
+            &repaired,
+            &[evidence("ROSE reduces scheduling latency.")],
+            &draft,
+        );
+
+        assert_eq!(repaired_count, 1);
+        assert_eq!(final_audit.factual_claim_count, 1);
+        assert_eq!(final_audit.supported_count, 1);
+        assert_eq!(final_audit.unsupported_count, 0);
+    }
+
+    #[test]
     fn final_audit_rejects_a_new_fact_not_present_in_supported_draft_claims() {
         let source =
             evidence("ROSE uses particle swarm optimization for mobile charger scheduling.");
