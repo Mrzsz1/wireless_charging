@@ -44,10 +44,10 @@
 
 ## Phase 6 — One real Direct E2E
 
-- [ ] After all deterministic gates pass, run only `real-direct-rose` exactly once.
-- [ ] Record budget, Semantic, Draft/Final, citation, persistence, scope, and exit aggregates.
-- [ ] Classify PASS/PARTIAL-BLOCKED/FAIL exactly as specified; do not rerun or widen budgets.
-- [ ] Commit `test(qa): verify direct semantic production path`.
+- [x] After all deterministic gates pass, run only `real-direct-rose` exactly once.
+- [x] Record budget, Semantic, Draft/Final, citation, persistence, scope, and exit aggregates.
+- [x] Classify **PASS**: Semantic succeeded and the complete Direct result persisted; no rerun or budget widening occurred.
+- [x] Commit `test(qa): verify direct semantic production path` with the aggregate report.
 
 ## Phase 7 — Full deterministic quality and delivery
 
