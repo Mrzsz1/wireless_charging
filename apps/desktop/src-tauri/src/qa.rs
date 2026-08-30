@@ -4426,6 +4426,26 @@ mod tests {
         }
     }
 
+    struct EntailedSemanticProvider;
+
+    impl claim_verification::VerificationProvider for EntailedSemanticProvider {
+        fn provider_id(&self) -> String {
+            "fixture-semantic".to_string()
+        }
+
+        fn complete_verification(
+            &self,
+            _: &str,
+            _: &Value,
+            _: &AtomicBool,
+        ) -> Result<String, String> {
+            Ok(
+                r#"{"results":[{"claimId":"C1","status":"entailed","confidence":0.98,"reason":"The mapped evidence states the claim."}]}"#
+                    .to_string(),
+            )
+        }
+    }
+
     fn structured_fixture_answer(intent: &str, evidence_id: &str, complete: bool) -> String {
         let required_roles = context::required_answer_role_contract(intent);
         let sections = context::required_answer_section_contract(intent)
@@ -5768,6 +5788,129 @@ mod tests {
         assert_eq!(
             codex_audit.run_manifest.answer_format,
             "natural-markdown-v2"
+        );
+    }
+
+    #[test]
+    fn production_core_direct_reserved_semantic_path_persists_supported_claim() {
+        let (root, mut connection) = test_db();
+        let mut context =
+            prepare_question(&connection, root.path(), "fixture scheduling", 4).unwrap();
+        let mut source = evidence("E1");
+        source.snippet = "ROSE schedules a mobile charger using PSO.".to_string();
+        let (conversation, evidence, context_plan) =
+            context::build_context_plan(&[], &context.question, vec![source], 32_768, 1_800);
+        context.conversation = conversation;
+        context.evidence = evidence;
+        context.context_plan = context_plan;
+
+        let raw = json!({
+            "schemaVersion": direct_answer::SCHEMA_VERSION,
+            "claims": [{
+                "text": "ROSE schedules a mobile charger using PSO.",
+                "evidenceIds": ["E1"]
+            }],
+            "insufficientEvidence": false
+        })
+        .to_string();
+        let answer = direct_answer::parse_validate_render(&raw, &context.evidence).unwrap();
+        let guard = LlmBudgetGuard::new(routing_policy("direct"));
+        guard
+            .reserve("understanding", 2_000)
+            .unwrap()
+            .settle(400)
+            .unwrap();
+        guard
+            .reserve("generator", 4_000)
+            .unwrap()
+            .settle(1_000)
+            .unwrap();
+        let semantic = claim_verification::run_semantic_verification(
+            &EntailedSemanticProvider,
+            "fixture-nli",
+            &answer,
+            &context.evidence,
+            &guard,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        record_llm_budget_usage(&mut context, guard.usage());
+
+        let result = persist_exchange_with_metadata_and_semantic(
+            &mut connection,
+            root.path(),
+            Some("p1-2-direct-fixture"),
+            &context,
+            answer,
+            ProviderRunMetadata {
+                provider: PROVIDER_CODEX.to_string(),
+                model_requested: "fixture-nli".to_string(),
+                model_resolved: "fixture-nli".to_string(),
+                temperature: None,
+                max_output_tokens: 1_800,
+                context_window_tokens: 32_768,
+                enforce_answer_schema: false,
+            },
+            Some(&semantic),
+        )
+        .unwrap();
+
+        assert_eq!(
+            result.run_manifest.routing_policy_version,
+            "adaptive-routing-v2"
+        );
+        assert_eq!(result.run_manifest.routing_llm_call_budget, 3);
+        assert_eq!(result.run_manifest.routing_llm_calls_used, 3);
+        assert!(result.run_manifest.routing_budget_rejections.is_empty());
+        assert_eq!(
+            result.run_manifest.semantic_verification_status,
+            "succeeded"
+        );
+        assert!(result.run_manifest.semantic_verification_checked);
+        assert_eq!(result.run_manifest.final_grounding_audit.supported_count, 1);
+        assert_eq!(
+            result
+                .run_manifest
+                .final_grounding_audit
+                .factual_claim_count,
+            1
+        );
+        assert_eq!(result.citation_validation.citation_coverage, 1.0);
+        assert_eq!(result.assistant_message.status, "completed");
+    }
+
+    #[test]
+    fn contextual_research_four_stage_chain_preserves_semantic_capacity() {
+        let research_policy = routing_policy("research");
+        assert_eq!(research_policy.llm_call_budget, 4);
+        assert_eq!(research_policy.semantic_verifier_call_reserve, 1);
+
+        let guard = LlmBudgetGuard::new(routing_policy("direct"));
+        guard
+            .reserve("understanding", 2_000)
+            .unwrap()
+            .settle(400)
+            .unwrap();
+        guard.reconfigure(research_policy);
+        for stage in [
+            "planner",
+            "generator",
+            adaptive_routing::SEMANTIC_VERIFIER_STAGE,
+        ] {
+            guard.reserve(stage, 2_000).unwrap().settle(400).unwrap();
+        }
+
+        let usage = guard.usage();
+        assert_eq!(usage.calls_used, 4);
+        assert!(usage.rejections.is_empty());
+        assert_eq!(
+            usage
+                .stages
+                .iter()
+                .filter(|stage| !stage.ends_with(":settled"))
+                .cloned()
+                .collect::<Vec<_>>(),
+            ["understanding", "planner", "generator", "semantic_verifier"]
         );
     }
 

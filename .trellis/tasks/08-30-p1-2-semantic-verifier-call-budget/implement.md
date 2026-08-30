@@ -31,15 +31,16 @@
 
 ## Phase 4 — Production Core synthetic regression
 
-- [ ] Exercise Direct structured binding through Semantic entailed, Final Supported=1, and persistence with the real guard.
-- [ ] Assert policy version/budget/usage/rejections/Semantic/Final telemetry.
-- [ ] Commit deterministic production-path coverage with the taskbook test commit phase.
+- [x] Exercise Direct structured binding through Semantic entailed, Final Supported=1, and persistence with the real guard.
+- [x] Assert policy version/budget/usage/rejections/Semantic/Final telemetry.
+- [x] Add synthetic `qa-run-v22` + `adaptive-routing-v2` heldout contract coverage without formal heldout content.
+- [x] Commit deterministic production-path coverage after focused tests, fmt, and Clippy pass.
 
 ## Phase 5 — Contextual Research protection
 
-- [ ] Use stubs only to force Understanding + Planner + Generator + Semantic.
-- [ ] Assert Research budget=4 and all four calls are admitted.
-- [ ] Confirm no business logic outside the budget contract changed.
+- [x] Use stubs only to force Understanding + Planner + Generator + Semantic.
+- [x] Assert Research budget=4 and all four calls are admitted.
+- [x] Confirm no business logic outside the budget contract changed.
 
 ## Phase 6 — One real Direct E2E
 

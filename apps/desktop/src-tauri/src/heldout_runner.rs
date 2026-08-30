@@ -835,6 +835,7 @@ mod tests {
         let claim = fixture_claim("C1", "Synthetic claim [E1]", "supported");
         let mut manifest = QaRunManifest {
             schema_version: "qa-run-v22".to_string(),
+            routing_policy_version: "adaptive-routing-v2".to_string(),
             provider: provider.to_string(),
             model_resolved: model.to_string(),
             index_snapshot_id: "snapshot-fixture".to_string(),
@@ -1229,6 +1230,11 @@ Synthetic claim
             .iter()
             .all(|claim| claim.cited_evidence_ids == ["E1"]));
         assert!(!bundle.answer.contains("Removed draft claim"));
+        assert_eq!(bundle.run_manifest.schema_version, "qa-run-v22");
+        assert_eq!(
+            bundle.run_manifest.routing_policy_version,
+            "adaptive-routing-v2"
+        );
     }
 
     #[test]
