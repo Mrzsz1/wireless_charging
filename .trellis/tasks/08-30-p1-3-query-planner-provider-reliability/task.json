@@ -1,0 +1,32 @@
+{
+  "id": "p1-3-query-planner-provider-reliability",
+  "name": "p1-3-query-planner-provider-reliability",
+  "title": "P1-3 Query Planner Provider Reliability",
+  "description": "Diagnose real Query Planner failed_fallback through Report v5, select one evidence-backed failure branch, reproduce it deterministically, and apply only that minimal fix.",
+  "status": "planning",
+  "dev_type": "bugfix",
+  "scope": "QA Planner diagnostics, E2E report/gates, one diagnosed Planner/Provider layer, deterministic tests, specs, and task records",
+  "package": null,
+  "priority": "P1",
+  "creator": "qq155",
+  "assignee": "qq155",
+  "createdAt": "2026-08-30",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "apps/desktop/src-tauri/src/qa/real_e2e.rs",
+    "apps/desktop/src-tauri/src/qa.rs",
+    "apps/desktop/src-tauri/src/qa/query_plan.rs",
+    "apps/desktop/src-tauri/src/qa/provider_capabilities.rs",
+    ".trellis/spec/backend/qa-contract.md"
+  ],
+  "notes": "Taskbook: C:/Users/qq155/Downloads/p1_3_query_planner_provider_reliability_taskbook.md. No production Planner change before Report v5, one real diagnosis, branch selection, and a RED fixture.",
+  "meta": {}
+}
