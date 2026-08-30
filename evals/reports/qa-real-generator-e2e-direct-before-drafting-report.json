@@ -1,0 +1,146 @@
+{
+  "schemaVersion": "qa-real-generator-e2e-report-v2",
+  "coreVersion": "qa-production-core-v1",
+  "datasetVersion": "qa-real-generator-e2e-2026-08-29-v1",
+  "datasetSha256": "31ba30cae3a081cb818f6e3f76ba0f3bba11147134591877cd699779c84e4eb9",
+  "caseCount": 1,
+  "passedCount": 0,
+  "generatorInvocationCount": 1,
+  "provider": "codex-subscription",
+  "models": [
+    "gpt-5.6-luna"
+  ],
+  "realProviderMeasured": true,
+  "generatorFallbackCount": 0,
+  "generatorBudgetRejectionCount": 0,
+  "prePersistInvalidCitationCount": 1,
+  "finalInvalidCitationCount": 0,
+  "semanticSucceededCount": 0,
+  "semanticUnavailableCount": 1,
+  "passed": false,
+  "results": [
+    {
+      "id": "real-direct-rose",
+      "category": "direct",
+      "passed": false,
+      "turnCount": 1,
+      "persistedTurnCount": 0,
+      "persisted": false,
+      "prePersist": {
+        "answerNonEmpty": true,
+        "provider": "codex-subscription",
+        "model": "gpt-5.6-luna",
+        "answerFormat": "natural-markdown-v2",
+        "manifestSchema": "qa-run-v21",
+        "executionMode": "direct",
+        "generatorStageObserved": true,
+        "generatorBudgetRejected": false,
+        "routingBudgetRejectionCount": 1,
+        "routingLlmCallsUsed": 2,
+        "routingTokenCostUsed": 3046,
+        "routingTokenCostCeiling": 8000,
+        "evidenceCount": 2,
+        "evidenceSelectedCount": 2,
+        "citationValid": false,
+        "unknownCitationCount": 0,
+        "groundingStatus": "invalid",
+        "verificationStatus": "succeeded",
+        "answerComplete": true,
+        "claimCount": 8,
+        "supportedClaimCount": 0,
+        "partiallySupportedClaimCount": 0,
+        "contradictedClaimCount": 0,
+        "notVerifiableClaimCount": 8,
+        "researchSuggestionCount": 0,
+        "repairedClaimCount": 8,
+        "uncitedKnowledgeFactCount": 2,
+        "unverifiedClaimCount": 0,
+        "semanticStatus": "unavailable",
+        "semanticFallbackReason": "llm_budget_exceeded",
+        "plannerStatus": "policy_disabled",
+        "retrievalRoundCount": 1,
+        "rerankerProvider": "cross-encoder-research-v1",
+        "rerankerFallback": false,
+        "claims": [
+          {
+            "claimId": "C1",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 1,
+            "reasonCode": "deterministic_lexical_heuristic_not_verifiable",
+            "alignmentScore": 0.043478260869565216,
+            "claimTextSha256": "1500fc09beb5557212be452b0964017c099865581714fe5f619237f50dfee467"
+          },
+          {
+            "claimId": "C2",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 1,
+            "reasonCode": "deterministic_lexical_heuristic_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "6befb330284626dd1885117b0adea11ce8a2300883bec620978fc84e4f299c02"
+          },
+          {
+            "claimId": "C3",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 1,
+            "reasonCode": "deterministic_lexical_heuristic_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "67b20e90c633b653f3dc6eb790831457d875f2ef2a487a8b9b398bcd7e4665a8"
+          },
+          {
+            "claimId": "C4",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 0,
+            "reasonCode": "mapping_gate_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "7eab3d5f6a9e08e555c355d499e43ab786a17442d15fc4698c4d6869eaf84de5"
+          },
+          {
+            "claimId": "C5",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 1,
+            "reasonCode": "deterministic_lexical_heuristic_not_verifiable",
+            "alignmentScore": 0.05,
+            "claimTextSha256": "96188014335af728b3ef00ed52c18d0e7846f66bc7b4224ff2a31289dcc7b51a"
+          },
+          {
+            "claimId": "C6",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 1,
+            "reasonCode": "deterministic_lexical_heuristic_not_verifiable",
+            "alignmentScore": 0.025,
+            "claimTextSha256": "837a15f0607c673ec5936f718abcc12dc8d8a8aaa40a41cfc82df4b924d2965f"
+          },
+          {
+            "claimId": "C7",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 1,
+            "reasonCode": "deterministic_lexical_heuristic_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "b3b8e46483a66cf81934ab4958e9f609229cddd52c43f72658ce9f4587b449a5"
+          },
+          {
+            "claimId": "C8",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 0,
+            "reasonCode": "mapping_gate_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "5335c89c9ac93c8b9f3afa0969e2d779608d0a1eac2e392545372901ec589f33"
+          }
+        ]
+      },
+      "final": null,
+      "stateValid": true,
+      "errors": [
+        "citation_validation_failed"
+      ]
+    }
+  ]
+}
