@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 55
-- **Last Active**: 2026-08-29
+- **Total Sessions**: 56
+- **Last Active**: 2026-08-30
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~1878 | Active |
+| `journal-1.md` | ~1914 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 56 | 2026-08-30 | P1-1B Final Grounding Gate | `44b3eab`, `db4c957`, `440db88`, `9417912` | `master` |
 | 55 | 2026-08-29 | 真实回答生成 E2E Runner | `c61e2f0`, `3331644`, `c8f6705`, `5e7547b`, `80ec825` | `master` |
 | 54 | 2026-08-29 | QA Core Functional Regression | `9f85851`, `202d8f0`, `175c80e` | `master` |
 | 53 | 2026-08-28 | Generator Budget Ledger Reliability | `79cc680`, `67950c0` | `master` |
