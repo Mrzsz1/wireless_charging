@@ -121,3 +121,42 @@ Preserved and classified Codex JSONL terminal failures, added repository-externa
 ### Next Steps
 
 - None - task complete
+
+
+## Session 62: P1-1D Research Grounding Repair Reliability
+
+**Date**: 2026-08-31
+**Task**: P1-1D Research Grounding Repair Reliability
+**Branch**: `master`
+
+### Summary
+
+Reproduced the legacy global replacen collision, replaced claim repair with fail-closed ordered UTF-8 source-span reconstruction, added repair projection invariants/audits/logging and R1-R12 regressions, then fixed a second inline notice-boundary drift found by the single permitted real Research run. Deterministic quality is green; status remains PARTIAL-BLOCKED because the post-fix real close gate was not rerun.
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `d519909` | (see git log) |
+| `ed5575e` | (see git log) |
+| `9f6b038` | (see git log) |
+| `5f4eee9` | (see git log) |
+| `bbce464` | (see git log) |
+| `7d9377f` | (see git log) |
+| `69582f3` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-2.md`
-- **Total Sessions**: 61
+- **Total Sessions**: 62
 - **Last Active**: 2026-08-31
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-2.md` | ~123 | Active |
+| `journal-2.md` | ~162 | Active |
 | `journal-1.md` | ~1994 | Archived |
 <!-- @@@/auto:active-documents -->
 
@@ -30,6 +30,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 62 | 2026-08-31 | P1-1D Research Grounding Repair Reliability | `d519909`, `ed5575e`, `9f6b038`, `5f4eee9`, `bbce464`, `7d9377f`, `69582f3` | `master` |
 | 61 | 2026-08-31 | P1-3S v2 Provider Schema 与 Codex 代理修复 | `601f23a`, `9e8c20c`, `24537a0`, `44cf680`, `5bfd9b9`, `d4fc743`, `5fdb861`, `74e58e8`, `794ac42`, `331e731`, `dc45a40` | `master` |
 | 60 | 2026-08-30 | P1-3F Codex Planner provider exit diagnosis | `c7d6bd6`, `f3c918a`, `324704f`, `4c8c3c0`, `d2a946e`, `1d3d46f` | `master` |
 | 59 | 2026-08-30 | P1-3 Query Planner Provider reliability diagnosis | `17c1c37`, `0bcccbb`, `8ce5b3f` | `master` |
