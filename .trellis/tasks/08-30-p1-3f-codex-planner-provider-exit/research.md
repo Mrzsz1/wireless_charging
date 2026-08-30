@@ -18,3 +18,12 @@
 - Root function/condition: `codex_subscription::stream_answer_with` refreshed activity for any valid JSON, ignored `turn.failed`, and classified the final non-zero status only from stderr schema text or exit code.
 - No real Provider call was made.
 
+## JSONL adapter result
+
+- `turn.failed` and top-level `error` are fatal typed observations.
+- `item.completed` with `item.type=error` is a non-fatal warning and does not override a completed successful turn.
+- Fatal events terminate the child process tree immediately and do not refresh idle timeout.
+- Stable terminal categories and message SHA-256 are computed without returning raw messages.
+- Planner fallback projection recognizes the new safe JSONL/stderr codes instead of collapsing them to `unknown`.
+- J1–J7, the full `codex_subscription` module (18 tests), Provider Capabilities (4 tests), fmt, and library/binary Clippy pass.
+- No real Provider call was made in this phase.

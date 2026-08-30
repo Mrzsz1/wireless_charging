@@ -1,6 +1,7 @@
 use crate::process_support::{configure_background_command, terminate_process_tree};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use sha2::{Digest, Sha256};
 use std::collections::HashSet;
 use std::env;
 use std::ffi::{OsStr, OsString};
@@ -696,8 +697,7 @@ fn event_delta(value: &Value) -> Option<&str> {
         .and_then(Value::as_str)
 }
 
-fn event_model(line: &str) -> Option<String> {
-    let value = serde_json::from_str::<Value>(line).ok()?;
+fn event_model(value: &Value) -> Option<String> {
     [
         "/model",
         "/model_slug",
@@ -712,28 +712,236 @@ fn event_model(line: &str) -> Option<String> {
     .map(str::to_string)
 }
 
-fn apply_jsonl_line(line: &str, answer: &mut String) -> Option<String> {
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct CodexTerminalFailure {
+    event_type: String,
+    category: String,
+    message_sha256: String,
+}
+
+impl CodexTerminalFailure {
+    fn stable_error(&self) -> String {
+        let prefix = if self.event_type == "turn.failed" {
+            "CODEX_JSONL_TURN_FAILED"
+        } else {
+            "CODEX_JSONL_ERROR"
+        };
+        format!("{prefix}: {}", self.category)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum CodexJsonlObservation {
+    Activity {
+        event_type: String,
+        model: Option<String>,
+    },
+    AgentDelta {
+        event_type: String,
+        text: String,
+        model: Option<String>,
+    },
+    AgentCompleted {
+        event_type: String,
+        text: String,
+        model: Option<String>,
+    },
+    TurnCompleted {
+        model: Option<String>,
+    },
+    Fatal(CodexTerminalFailure),
+    NonFatalItemWarning(CodexTerminalFailure),
+}
+
+fn contains_any(value: &str, markers: &[&str]) -> bool {
+    markers.iter().any(|marker| value.contains(marker))
+}
+
+fn classify_codex_terminal_message(message: &str) -> &'static str {
+    let lower = message.to_ascii_lowercase();
+    if contains_any(&lower, &["cancelled", "canceled", "user aborted"]) {
+        "cancelled"
+    } else if contains_any(
+        &lower,
+        &[
+            "context length",
+            "too many tokens",
+            "maximum context",
+            "input too large",
+            "context window",
+        ],
+    ) {
+        "context_too_large"
+    } else if contains_any(
+        &lower,
+        &[
+            "json schema",
+            "response_format",
+            "response format",
+            "response schema",
+            "invalid response schema",
+            "unsupported keyword",
+            "additionalproperties",
+            "additional properties",
+        ],
+    ) {
+        "schema_rejected"
+    } else if contains_any(
+        &lower,
+        &[
+            "unsupported model",
+            "model is not supported",
+            "model not supported",
+        ],
+    ) {
+        "unsupported_model"
+    } else if contains_any(
+        &lower,
+        &[
+            "model unavailable",
+            "model is unavailable",
+            "model not available",
+        ],
+    ) {
+        "model_unavailable"
+    } else if contains_any(
+        &lower,
+        &[
+            "unauthorized",
+            "authentication",
+            "login required",
+            "token expired",
+            "http 401",
+            "status 401",
+        ],
+    ) {
+        "auth_required"
+    } else if contains_any(
+        &lower,
+        &[
+            "usage limit",
+            "quota",
+            "insufficient_quota",
+            "credit balance",
+        ],
+    ) {
+        "usage_limit"
+    } else if contains_any(
+        &lower,
+        &["rate limit", "rate_limit", "http 429", "status 429"],
+    ) {
+        "rate_limit"
+    } else if contains_any(
+        &lower,
+        &[
+            "overloaded",
+            "server error",
+            "service unavailable",
+            "http 502",
+            "http 503",
+            "status 502",
+            "status 503",
+        ],
+    ) {
+        "server_overloaded"
+    } else if contains_any(&lower, &["websocket", "transport"]) {
+        "transport"
+    } else if contains_any(
+        &lower,
+        &["connection", "network error", "dns error", "tls error"],
+    ) {
+        "connection"
+    } else if contains_any(
+        &lower,
+        &["protocol error", "invalid frame", "malformed event"],
+    ) {
+        "protocol"
+    } else if contains_any(
+        &lower,
+        &[
+            "invalid_request",
+            "invalid request",
+            "bad request",
+            "http 400",
+            "status 400",
+        ],
+    ) {
+        "bad_request"
+    } else if lower.contains("schema") {
+        "schema_rejected"
+    } else {
+        "unknown"
+    }
+}
+
+fn terminal_message(value: &Value, item_warning: bool) -> &str {
+    let pointers: &[&str] = if item_warning {
+        &["/item/error/message", "/item/message", "/item/error"]
+    } else {
+        &["/error/message", "/message", "/error"]
+    };
+    pointers
+        .iter()
+        .find_map(|pointer| value.pointer(pointer).and_then(Value::as_str))
+        .unwrap_or_default()
+}
+
+fn terminal_failure(value: &Value, event_type: &str, item_warning: bool) -> CodexTerminalFailure {
+    let message = terminal_message(value, item_warning);
+    CodexTerminalFailure {
+        event_type: event_type.to_string(),
+        category: classify_codex_terminal_message(message).to_string(),
+        message_sha256: format!("{:x}", Sha256::digest(message.as_bytes())),
+    }
+}
+
+fn parse_codex_jsonl_line(line: &str) -> Option<CodexJsonlObservation> {
     let value = serde_json::from_str::<Value>(line).ok()?;
-    let kind = value
+    let event_type = value
         .get("type")
         .and_then(Value::as_str)
-        .unwrap_or_default();
-    if let Some(delta) = event_delta(&value).filter(|_| kind.contains("delta")) {
-        answer.push_str(delta);
-        return Some(delta.to_string());
+        .unwrap_or("unknown")
+        .to_string();
+    if matches!(event_type.as_str(), "turn.failed" | "error") {
+        return Some(CodexJsonlObservation::Fatal(terminal_failure(
+            &value,
+            &event_type,
+            false,
+        )));
     }
-    let item_is_agent = value
-        .pointer("/item/type")
-        .and_then(Value::as_str)
-        .map(|value| value == "agent_message")
-        .unwrap_or(false);
-    if !item_is_agent && !kind.contains("message") {
-        return None;
+    let model = event_model(&value);
+    if event_type == "turn.completed" {
+        return Some(CodexJsonlObservation::TurnCompleted { model });
     }
-    let text = event_text(&value)?;
-    if text.is_empty() {
-        return None;
+    if event_type == "item.completed"
+        && value.pointer("/item/type").and_then(Value::as_str) == Some("error")
+    {
+        return Some(CodexJsonlObservation::NonFatalItemWarning(
+            terminal_failure(&value, "item.error", true),
+        ));
     }
+    if let Some(delta) = event_delta(&value).filter(|_| event_type.contains("delta")) {
+        return Some(CodexJsonlObservation::AgentDelta {
+            event_type,
+            text: delta.to_string(),
+            model,
+        });
+    }
+    let item_is_agent =
+        value.pointer("/item/type").and_then(Value::as_str) == Some("agent_message");
+    if item_is_agent || event_type.contains("message") {
+        if let Some(text) = event_text(&value).filter(|text| !text.is_empty()) {
+            return Some(CodexJsonlObservation::AgentCompleted {
+                event_type,
+                text: text.to_string(),
+                model,
+            });
+        }
+    }
+    Some(CodexJsonlObservation::Activity { event_type, model })
+}
+
+fn apply_completed_text(text: &str, answer: &mut String) -> Option<String> {
     if text.starts_with(answer.as_str()) {
         let suffix = &text[answer.len()..];
         answer.clear();
@@ -745,6 +953,98 @@ fn apply_jsonl_line(line: &str, answer: &mut String) -> Option<String> {
     } else {
         None
     }
+}
+
+enum AppliedJsonlLine {
+    Ignored,
+    Activity,
+    Fatal(CodexTerminalFailure),
+}
+
+#[derive(Debug, Default)]
+struct CodexJsonlState {
+    answer: String,
+    resolved_model: String,
+    turn_completed_seen: bool,
+    agent_message_seen: bool,
+    last_jsonl_event_type: String,
+    jsonl_event_count: usize,
+    item_warning_count: usize,
+}
+
+fn apply_codex_jsonl_line<F>(
+    line: &str,
+    state: &mut CodexJsonlState,
+    on_token: &mut F,
+) -> Result<AppliedJsonlLine, String>
+where
+    F: FnMut(&str) -> Result<(), String>,
+{
+    let Some(observation) = parse_codex_jsonl_line(line) else {
+        return Ok(AppliedJsonlLine::Ignored);
+    };
+    state.jsonl_event_count += 1;
+    state.last_jsonl_event_type = match &observation {
+        CodexJsonlObservation::Activity { event_type, .. }
+        | CodexJsonlObservation::AgentDelta { event_type, .. }
+        | CodexJsonlObservation::AgentCompleted { event_type, .. } => event_type.clone(),
+        CodexJsonlObservation::TurnCompleted { .. } => "turn.completed".to_string(),
+        CodexJsonlObservation::Fatal(failure) => failure.event_type.clone(),
+        CodexJsonlObservation::NonFatalItemWarning(_) => "item.completed".to_string(),
+    };
+    let model = match &observation {
+        CodexJsonlObservation::Activity { model, .. }
+        | CodexJsonlObservation::AgentDelta { model, .. }
+        | CodexJsonlObservation::AgentCompleted { model, .. }
+        | CodexJsonlObservation::TurnCompleted { model } => model.as_ref(),
+        CodexJsonlObservation::Fatal(_) | CodexJsonlObservation::NonFatalItemWarning(_) => None,
+    };
+    if let Some(model) = model {
+        state.resolved_model = model.clone();
+    }
+    match observation {
+        CodexJsonlObservation::AgentDelta { text, .. } => {
+            state.answer.push_str(&text);
+            on_token(&text)?;
+            Ok(AppliedJsonlLine::Activity)
+        }
+        CodexJsonlObservation::AgentCompleted { text, .. } => {
+            state.agent_message_seen = true;
+            if let Some(delta) = apply_completed_text(&text, &mut state.answer) {
+                on_token(&delta)?;
+            }
+            Ok(AppliedJsonlLine::Activity)
+        }
+        CodexJsonlObservation::Fatal(failure) => Ok(AppliedJsonlLine::Fatal(failure)),
+        CodexJsonlObservation::Activity { event_type, .. } => {
+            let _ = event_type;
+            Ok(AppliedJsonlLine::Activity)
+        }
+        CodexJsonlObservation::TurnCompleted { .. } => {
+            state.turn_completed_seen = true;
+            Ok(AppliedJsonlLine::Activity)
+        }
+        CodexJsonlObservation::NonFatalItemWarning(warning) => {
+            let _ = warning;
+            state.item_warning_count += 1;
+            Ok(AppliedJsonlLine::Activity)
+        }
+    }
+}
+
+fn stop_stream_process(
+    child: &mut std::process::Child,
+    stdout_reader: &mut Option<thread::JoinHandle<()>>,
+    stderr_reader: &mut Option<thread::JoinHandle<String>>,
+) -> String {
+    terminate_process_tree(child);
+    if let Some(reader) = stdout_reader.take() {
+        let _ = reader.join();
+    }
+    stderr_reader
+        .take()
+        .and_then(|reader| reader.join().ok())
+        .unwrap_or_default()
 }
 
 fn build_exec_args(
@@ -868,7 +1168,7 @@ where
         }
     };
     let (sender, receiver) = mpsc::channel();
-    thread::spawn(move || {
+    let mut stdout_reader = Some(thread::spawn(move || {
         for line in BufReader::new(stdout).lines() {
             match line {
                 Ok(line) => {
@@ -880,14 +1180,14 @@ where
             }
         }
         let _ = sender.send(OutputLine::Closed);
-    });
-    let stderr_reader = thread::spawn(move || {
+    }));
+    let mut stderr_reader = Some(thread::spawn(move || {
         let mut text = String::new();
         let _ = BufReader::new(stderr)
             .take(16 * 1024)
             .read_to_string(&mut text);
         text
-    });
+    }));
 
     let started = Instant::now();
     let mut last_activity = started;
@@ -896,38 +1196,39 @@ where
         .saturating_mul(4)
         .max(Duration::from_secs(600))
         .min(Duration::from_secs(1800));
-    let mut answer = String::new();
-    let mut resolved_model = model.trim().to_string();
+    let mut jsonl_state = CodexJsonlState {
+        resolved_model: model.trim().to_string(),
+        ..CodexJsonlState::default()
+    };
     let status = loop {
         if cancelled.load(Ordering::SeqCst) {
-            terminate_process_tree(&mut child);
-            let _ = stderr_reader.join();
+            stop_stream_process(&mut child, &mut stdout_reader, &mut stderr_reader);
             return Err("CODEX_CANCELLED: 用户停止了生成".to_string());
         }
         if started.elapsed() >= hard_timeout {
-            terminate_process_tree(&mut child);
-            let _ = stderr_reader.join();
+            stop_stream_process(&mut child, &mut stdout_reader, &mut stderr_reader);
             return Err("CODEX_TOTAL_TIMEOUT: 订阅回答超过总时限".to_string());
         }
         if last_activity.elapsed() >= idle_timeout {
-            terminate_process_tree(&mut child);
-            let _ = stderr_reader.join();
+            stop_stream_process(&mut child, &mut stdout_reader, &mut stderr_reader);
             return Err("CODEX_IDLE_TIMEOUT: 订阅回答长时间无活动".to_string());
         }
         match receiver.recv_timeout(POLL_INTERVAL) {
             Ok(OutputLine::Line(line)) => {
-                if serde_json::from_str::<Value>(&line).is_ok() {
-                    last_activity = Instant::now();
-                }
-                if let Some(observed) = event_model(&line) {
-                    resolved_model = observed;
-                }
-                if let Some(delta) = apply_jsonl_line(&line, &mut answer) {
-                    if let Err(error) = on_token(&delta) {
-                        terminate_process_tree(&mut child);
-                        let _ = stderr_reader.join();
+                let applied = match apply_codex_jsonl_line(&line, &mut jsonl_state, &mut on_token) {
+                    Ok(applied) => applied,
+                    Err(error) => {
+                        stop_stream_process(&mut child, &mut stdout_reader, &mut stderr_reader);
                         return Err(error);
                     }
+                };
+                match applied {
+                    AppliedJsonlLine::Activity => last_activity = Instant::now(),
+                    AppliedJsonlLine::Fatal(failure) => {
+                        stop_stream_process(&mut child, &mut stdout_reader, &mut stderr_reader);
+                        return Err(failure.stable_error());
+                    }
+                    AppliedJsonlLine::Ignored => {}
                 }
             }
             Ok(OutputLine::Closed) | Err(mpsc::RecvTimeoutError::Disconnected) => {}
@@ -937,45 +1238,65 @@ where
             .try_wait()
             .map_err(|_| "CODEX_WAIT_FAILED".to_string())?
         {
+            if let Some(reader) = stdout_reader.take() {
+                let _ = reader.join();
+            }
+            let mut terminal_failure = None;
             for output in receiver.try_iter() {
                 if let OutputLine::Line(line) = output {
-                    if let Some(observed) = event_model(&line) {
-                        resolved_model = observed;
-                    }
-                    if let Some(delta) = apply_jsonl_line(&line, &mut answer) {
-                        if let Err(error) = on_token(&delta) {
-                            let _ = stderr_reader.join();
+                    match apply_codex_jsonl_line(&line, &mut jsonl_state, &mut on_token) {
+                        Ok(AppliedJsonlLine::Fatal(failure)) => {
+                            terminal_failure.get_or_insert(failure);
+                        }
+                        Ok(AppliedJsonlLine::Activity) | Ok(AppliedJsonlLine::Ignored) => {}
+                        Err(error) => {
+                            if let Some(reader) = stderr_reader.take() {
+                                let _ = reader.join();
+                            }
                             return Err(error);
                         }
                     }
                 }
             }
+            if let Some(failure) = terminal_failure {
+                if let Some(reader) = stderr_reader.take() {
+                    let _ = reader.join();
+                }
+                return Err(failure.stable_error());
+            }
             break status;
         }
     };
-    let stderr_output = stderr_reader.join().unwrap_or_default();
-    let answer = answer.trim().to_string();
+    let stderr_output = stderr_reader
+        .take()
+        .and_then(|reader| reader.join().ok())
+        .unwrap_or_default();
+    let answer = jsonl_state.answer.trim().to_string();
     if !status.success() {
-        if output_schema.is_some() && stderr_output.to_ascii_lowercase().contains("schema") {
+        let stderr_category = classify_codex_terminal_message(&stderr_output);
+        if output_schema.is_some() && stderr_category == "schema_rejected" {
             return Err(format!(
                 "CODEX_OUTPUT_SCHEMA_REJECTED: Codex CLI 未接受回答结构约束（退出码 {}）",
                 status.code().unwrap_or(-1)
             ));
+        }
+        if stderr_category != "unknown" {
+            return Err(format!("CODEX_STDERR_FAILURE: {stderr_category}"));
         }
         return Err(format!(
             "CODEX_EXIT_ERROR: Codex CLI 退出码 {}",
             status.code().unwrap_or(-1)
         ));
     }
-    if answer.is_empty() {
+    if answer.is_empty() || !jsonl_state.agent_message_seen {
         return Err("CODEX_RESPONSE_ERROR: 未收到回答文本".to_string());
     }
     Ok((
         answer,
-        if resolved_model.is_empty() {
+        if jsonl_state.resolved_model.is_empty() {
             "provider-default-unreported".to_string()
         } else {
-            resolved_model
+            jsonl_state.resolved_model
         },
     ))
 }
@@ -1048,6 +1369,21 @@ mod tests {
             "required": ["ok"],
             "properties": {"ok": {"type": "boolean"}}
         })
+    }
+
+    fn apply_jsonl_line(line: &str, answer: &mut String) -> Option<String> {
+        let mut emitted = String::new();
+        let mut state = CodexJsonlState {
+            answer: std::mem::take(answer),
+            ..CodexJsonlState::default()
+        };
+        let mut on_token = |token: &str| {
+            emitted.push_str(token);
+            Ok(())
+        };
+        let _ = apply_codex_jsonl_line(line, &mut state, &mut on_token).ok()?;
+        *answer = state.answer;
+        (!emitted.is_empty()).then_some(emitted)
     }
 
     #[cfg(windows)]
@@ -1139,7 +1475,7 @@ mod tests {
         )
         .unwrap();
 
-        assert_eq!(result.0, r#"{\"ok\":true}"#);
+        assert_eq!(result.0, r#"{"ok":true}"#);
     }
 
     #[cfg(windows)]
@@ -1161,6 +1497,45 @@ mod tests {
             "fatal JSONL must terminate promptly, elapsed={:?}",
             started.elapsed()
         );
+    }
+
+    #[test]
+    fn terminal_failure_classifier_covers_fixed_categories_without_payload_leakage() {
+        for (message, expected) in [
+            ("Invalid response schema private-detail", "schema_rejected"),
+            ("invalid_request private-detail", "bad_request"),
+            (
+                "maximum context length exceeded private-detail",
+                "context_too_large",
+            ),
+            ("login required private-detail", "auth_required"),
+            ("usage limit reached private-detail", "usage_limit"),
+            ("rate limit exceeded private-detail", "rate_limit"),
+            ("service unavailable private-detail", "server_overloaded"),
+            ("websocket transport failed private-detail", "transport"),
+            ("connection reset private-detail", "connection"),
+            ("protocol error private-detail", "protocol"),
+            ("model unavailable private-detail", "model_unavailable"),
+            ("unsupported model private-detail", "unsupported_model"),
+            ("request cancelled private-detail", "cancelled"),
+            ("unrecognized private-detail", "unknown"),
+        ] {
+            let category = classify_codex_terminal_message(message);
+            assert_eq!(category, expected, "message={message}");
+            assert!(!category.contains("private-detail"));
+        }
+
+        let observation = parse_codex_jsonl_line(
+            r#"{"type":"turn.failed","error":{"message":"login required private-detail"}}"#,
+        )
+        .unwrap();
+        let CodexJsonlObservation::Fatal(failure) = observation else {
+            panic!("expected fatal observation");
+        };
+        assert_eq!(failure.event_type, "turn.failed");
+        assert_eq!(failure.category, "auth_required");
+        assert_eq!(failure.message_sha256.len(), 64);
+        assert!(!failure.stable_error().contains("private-detail"));
     }
 
     #[test]
@@ -1216,12 +1591,18 @@ mod tests {
 
     #[test]
     fn jsonl_model_observation_is_explicit_and_secret_free() {
+        let observed = |line: &str| {
+            serde_json::from_str::<Value>(line)
+                .ok()
+                .as_ref()
+                .and_then(event_model)
+        };
         assert_eq!(
-            event_model(r#"{"type":"turn.started","turn":{"model":"gpt-fixture"}}"#),
+            observed(r#"{"type":"turn.started","turn":{"model":"gpt-fixture"}}"#),
             Some("gpt-fixture".to_string())
         );
-        assert_eq!(event_model(r#"{"type":"turn.started"}"#), None);
-        assert_eq!(event_model("not-json"), None);
+        assert_eq!(observed(r#"{"type":"turn.started"}"#), None);
+        assert_eq!(observed("not-json"), None);
     }
 
     #[test]

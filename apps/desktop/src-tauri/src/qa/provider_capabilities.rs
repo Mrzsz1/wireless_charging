@@ -85,6 +85,39 @@ pub fn stable_planner_failure_kind(error: &str) -> &'static str {
     let upper = error.to_ascii_uppercase();
     if upper.starts_with("QUESTION_CANCELLED") || upper.contains("_CANCELLED") {
         "cancelled"
+    } else if upper.starts_with("CODEX_JSONL_TURN_FAILED")
+        || upper.starts_with("CODEX_JSONL_ERROR")
+        || upper.starts_with("CODEX_STDERR_FAILURE")
+    {
+        if upper.contains("SCHEMA_REJECTED") {
+            "output_schema_rejected"
+        } else if upper.contains("CONTEXT_TOO_LARGE") {
+            "context_too_large"
+        } else if upper.contains("AUTH_REQUIRED") {
+            "provider_auth_required"
+        } else if upper.contains("USAGE_LIMIT") {
+            "provider_usage_limit"
+        } else if upper.contains("RATE_LIMIT") {
+            "provider_rate_limit"
+        } else if upper.contains("SERVER_OVERLOADED") {
+            "provider_overloaded"
+        } else if upper.contains("TRANSPORT") {
+            "provider_transport"
+        } else if upper.contains("CONNECTION") {
+            "provider_connection"
+        } else if upper.contains("PROTOCOL") {
+            "provider_protocol"
+        } else if upper.contains("MODEL_UNAVAILABLE") {
+            "provider_model_unavailable"
+        } else if upper.contains("UNSUPPORTED_MODEL") {
+            "provider_unsupported_model"
+        } else if upper.contains("BAD_REQUEST") {
+            "provider_bad_request"
+        } else if upper.contains("CANCELLED") {
+            "cancelled"
+        } else {
+            "unknown"
+        }
     } else if upper.starts_with("LLM_BUDGET_EXCEEDED: PLANNER:CALL_BUDGET") {
         "call_budget"
     } else if upper.starts_with("LLM_BUDGET_EXCEEDED: PLANNER:TOKEN_BUDGET") {
@@ -307,6 +340,25 @@ mod tests {
             ("HTTP 429 rate limit: private body", "provider_rate_limit"),
             ("CODEX_EXIT_ERROR: private stderr", "provider_exit"),
             ("CODEX_PROTOCOL_ERROR: private frame", "provider_protocol"),
+            (
+                "CODEX_JSONL_TURN_FAILED: schema_rejected",
+                "output_schema_rejected",
+            ),
+            ("CODEX_JSONL_ERROR: context_too_large", "context_too_large"),
+            (
+                "CODEX_JSONL_TURN_FAILED: auth_required",
+                "provider_auth_required",
+            ),
+            (
+                "CODEX_JSONL_TURN_FAILED: usage_limit",
+                "provider_usage_limit",
+            ),
+            (
+                "CODEX_JSONL_ERROR: server_overloaded",
+                "provider_overloaded",
+            ),
+            ("CODEX_JSONL_ERROR: transport", "provider_transport"),
+            ("CODEX_STDERR_FAILURE: connection", "provider_connection"),
             (
                 "RETRIEVAL_CONTRACT_INVALID: JSON 解析失败：private output",
                 "contract_json_invalid",
