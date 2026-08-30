@@ -11,7 +11,7 @@ use std::sync::atomic::AtomicBool;
 use uuid::Uuid;
 
 const CASE_SCHEMA_VERSION: &str = "qa-real-generator-e2e-cases-v1";
-const REPORT_SCHEMA_VERSION: &str = "qa-real-generator-e2e-report-v3";
+const REPORT_SCHEMA_VERSION: &str = "qa-real-generator-e2e-report-v4";
 const CORE_VERSION: &str = "qa-production-core-v1";
 const LOCAL_DIAGNOSTIC_ENV: &str = "QA_REAL_E2E_GROUNDING_DIAGNOSTIC_DIR";
 const EXPECTED_CATEGORIES: [&str; 5] = [
@@ -161,8 +161,34 @@ pub struct RealE2eReport {
     pub final_invalid_citation_count: usize,
     pub semantic_succeeded_count: usize,
     pub semantic_unavailable_count: usize,
+    pub scope: String,
+    pub executed_scope_passed: bool,
+    pub full_suite_evaluated: bool,
+    pub release_eligible: bool,
     pub passed: bool,
     pub results: Vec<RealE2eCaseResult>,
+}
+
+fn execution_scope_outcome(
+    selected_case: Option<&str>,
+    suite_case_count: usize,
+    executed_case_count: usize,
+    passed_count: usize,
+) -> (String, bool, bool, bool) {
+    let full_suite_evaluated = selected_case.is_none() && executed_case_count == suite_case_count;
+    let executed_scope_passed = executed_case_count > 0 && passed_count == executed_case_count;
+    let release_eligible = full_suite_evaluated && executed_scope_passed;
+    (
+        if full_suite_evaluated {
+            "full_suite"
+        } else {
+            "single_case"
+        }
+        .to_string(),
+        executed_scope_passed,
+        full_suite_evaluated,
+        release_eligible,
+    )
 }
 
 #[derive(Debug, Serialize)]
@@ -996,6 +1022,13 @@ pub fn run_files(
         .count();
     let mut models = models.into_iter().collect::<Vec<_>>();
     models.sort();
+    let (scope, executed_scope_passed, full_suite_evaluated, release_eligible) =
+        execution_scope_outcome(
+            selected_case.as_deref(),
+            suite.case_count,
+            results.len(),
+            passed_count,
+        );
     let report = RealE2eReport {
         schema_version: REPORT_SCHEMA_VERSION.to_string(),
         core_version: CORE_VERSION.to_string(),
@@ -1017,7 +1050,11 @@ pub fn run_files(
         final_invalid_citation_count,
         semantic_succeeded_count,
         semantic_unavailable_count,
-        passed: selected_case.is_none() && passed_count == results.len(),
+        scope,
+        executed_scope_passed,
+        full_suite_evaluated,
+        release_eligible,
+        passed: executed_scope_passed,
         results,
     };
     write_report(&report, output)?;
@@ -1027,6 +1064,9 @@ pub fn run_files(
         if report.passed { "passed" } else { "failed" },
         "",
     );
+    completed.case_id = selected_case.unwrap_or_default();
+    completed.claim_count = Some(report.case_count);
+    completed.supported_claim_count = Some(report.passed_count);
     completed.persisted = Some(report.results.iter().all(|result| result.persisted));
     trace::emit(&completed);
     Ok(report)
@@ -1121,6 +1161,35 @@ mod tests {
     }
 
     #[test]
+    fn executed_scope_pass_and_release_eligibility_are_independent() {
+        assert_eq!(
+            execution_scope_outcome(Some("real-direct-rose"), 5, 1, 1),
+            ("single_case".to_string(), true, false, false)
+        );
+        assert_eq!(
+            execution_scope_outcome(Some("real-direct-rose"), 5, 1, 0),
+            ("single_case".to_string(), false, false, false)
+        );
+        assert_eq!(
+            execution_scope_outcome(None, 5, 5, 5),
+            ("full_suite".to_string(), true, true, true)
+        );
+        assert_eq!(
+            execution_scope_outcome(None, 5, 5, 4),
+            ("full_suite".to_string(), false, true, false)
+        );
+    }
+
+    #[test]
+    fn cli_maps_executed_scope_failure_to_two_and_infrastructure_error_to_one() {
+        let cli = include_str!("../bin/qa-real-e2e.rs");
+        assert!(cli.contains("Ok(false)"));
+        assert!(cli.contains("std::process::exit(2)"));
+        assert!(cli.contains("Err(error)"));
+        assert!(cli.contains("std::process::exit(1)"));
+    }
+
+    #[test]
     fn metadata_report_never_serializes_questions_or_outputs() {
         let report = RealE2eReport {
             schema_version: REPORT_SCHEMA_VERSION.to_string(),
@@ -1139,6 +1208,10 @@ mod tests {
             final_invalid_citation_count: 0,
             semantic_succeeded_count: 1,
             semantic_unavailable_count: 0,
+            scope: "single_case".to_string(),
+            executed_scope_passed: true,
+            full_suite_evaluated: false,
+            release_eligible: false,
             passed: true,
             results: vec![RealE2eCaseResult {
                 id: "fixture".to_string(),

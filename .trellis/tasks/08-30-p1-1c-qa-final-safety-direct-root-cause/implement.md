@@ -31,9 +31,9 @@
 
 ## Phase 4 — E2E scope semantics
 
-- [ ] Add scope/executed/full-suite/release fields and exact exit semantics.
-- [ ] Test single pass/fail and full-suite pass/fail without real Provider calls.
-- [ ] Commit `fix(eval): separate executed scope pass from full-suite eligibility`.
+- [x] Add scope/executed/full-suite/release fields and exact exit semantics.
+- [x] Test single pass/fail and full-suite pass/fail without real Provider calls.
+- [x] Commit `fix(eval): separate executed scope pass from full-suite eligibility`.
 
 ## Phase 5 — Final provenance and visible integrity
 
