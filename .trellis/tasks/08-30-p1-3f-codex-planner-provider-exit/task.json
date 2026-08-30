@@ -1,0 +1,32 @@
+{
+  "id": "p1-3f-codex-planner-provider-exit",
+  "name": "p1-3f-codex-planner-provider-exit",
+  "title": "P1-3F Codex Planner Provider Exit Diagnosis",
+  "description": "Preserve and classify Codex JSONL terminal failures, isolate provider_exit with Probe A/B/C, and fix only the evidence-proven Planner layer.",
+  "status": "planning",
+  "dev_type": "bugfix",
+  "scope": "Codex JSONL adapter, development-only diagnostics/probes, one evidence-selected Planner provider layer, tests/spec/task records",
+  "package": null,
+  "priority": "P1",
+  "creator": "qq155",
+  "assignee": "qq155",
+  "createdAt": "2026-08-30",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "apps/desktop/src-tauri/src/codex_subscription.rs",
+    "apps/desktop/src-tauri/src/qa/provider_capabilities.rs",
+    "apps/desktop/src-tauri/src/qa/production_core.rs",
+    "apps/desktop/src-tauri/src/qa/real_e2e.rs",
+    ".trellis/spec/backend/qa-contract.md"
+  ],
+  "notes": "Continuation of P1-3. Do not enter P1-4. No Planner Schema/input/timeout/budget change before exact classification, Probe A/B/C evidence, and a deterministic old-code RED.",
+  "meta": {}
+}
