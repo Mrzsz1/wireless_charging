@@ -56,10 +56,10 @@
 
 ## Phase 8 — One Direct verification rerun
 
-- [ ] Run `real-direct-rose` exactly once.
-- [ ] Record evidence/Draft/Final/citation/semantic/persistence/scope/exit aggregates.
-- [ ] Stop as `PARTIAL-BLOCKED` if the independent semantic call-budget blocker appears; do not alter budgets.
-- [ ] Commit `test(qa): verify p1-1c direct production path`.
+- [x] Run `real-direct-rose` exactly once.
+- [x] Record evidence/Draft/Final/citation/semantic/persistence/scope/exit aggregates without retaining raw answer text.
+- [x] Stop as `PARTIAL-BLOCKED`: structured evidence binding succeeded, then the independent `semantic_verifier:call_budget` blocker appeared; no budget was altered.
+- [x] Commit `test(qa): verify p1-1c direct production path` after recording the report.
 
 ## Phase 9 — Full deterministic quality and delivery
 
