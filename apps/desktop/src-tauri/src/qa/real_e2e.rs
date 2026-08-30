@@ -536,13 +536,7 @@ fn validate_state(case: &RealE2eCase, context: &QuestionContext) -> bool {
 }
 
 fn safe_error_code(error: &str) -> String {
-    let raw = error.split(':').next().unwrap_or("runner_failure").trim();
-    let normalized = stable_code(raw);
-    if normalized == "unknown" {
-        "runner_failure".to_string()
-    } else {
-        normalized
-    }
+    trace::error_code(error)
 }
 
 fn trace_observation(

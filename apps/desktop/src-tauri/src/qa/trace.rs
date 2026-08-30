@@ -71,6 +71,21 @@ pub fn request_id_hash(request_id: &str) -> String {
     format!("{:x}", Sha256::digest(request_id.as_bytes()))[..16].to_string()
 }
 
+pub fn error_code(error: &str) -> String {
+    let raw = error.split(':').next().unwrap_or("qa_failure").trim();
+    let code = raw
+        .chars()
+        .filter(|character| character.is_ascii_alphanumeric() || *character == '_')
+        .take(96)
+        .collect::<String>()
+        .to_ascii_lowercase();
+    if code.is_empty() {
+        "qa_failure".to_string()
+    } else {
+        code
+    }
+}
+
 pub fn configure_cli_file(path: PathBuf) -> Result<(), String> {
     if !path.is_absolute() || path.file_name().is_none() {
         return Err("QA_TRACE_CONFIGURATION_INVALID".to_string());
@@ -170,5 +185,13 @@ mod tests {
         let content = fs::read_to_string(path).unwrap();
         assert_eq!(content.lines().count(), 1);
         assert!(content.contains("qa_e2e_started"));
+    }
+
+    #[test]
+    fn error_code_drops_message_details() {
+        assert_eq!(
+            error_code("CITATION_VALIDATION_FAILED: sensitive details"),
+            "citation_validation_failed"
+        );
     }
 }

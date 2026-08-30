@@ -1049,11 +1049,13 @@ pub fn required_answer_elements(intent: &str) -> Vec<String> {
         .collect()
 }
 
+const NATURAL_GROUNDING_RULES: &str = "Grounded Body 只能写当前 evidence_bundle 直接支持的库内事实。一条短句只表达一个可核验事实；每个事实的显式 [E#] 必须紧邻对应事实，且被引 evidence 必须完整支持该事实的全部含义，不得用段尾引用笼统支撑整段。禁止证据范围扩张：不得将局部实验扩张为所有场景、相关性扩张为因果、平均表现扩张为最坏情况保证、仿真结果扩张为现实世界保证、特定参数扩张为任意参数、一种方法扩张为唯一或最优方法、论文提出扩张为已工业验证。任何百分比、节点数、时间、距离、能耗、准确率、复杂度数字或参数值必须逐字出现在被引 evidence 中；证据只说“有改善”时不得编造改善幅度。证据不足时直接写“当前知识库证据不足以确认该结论”，不得补全。一般知识、推测和延伸只能放入独立的“## 模型补充（可能不准确）”区域，明确未由当前知识库核验，且不得附 [E#]。研究建议必须用“建议”、“后续可考虑”或“研究方向”等建议性措辞，不得伪装成 evidence 已证明的事实。";
+
 fn answer_contract(intent: &str, has_evidence: bool) -> String {
     if super::natural_answer_v2_enabled() {
         if has_evidence {
             return format!(
-                "直接输出自然 Markdown 正文。优先给出问题的直接结论，再根据问题本身自然组织内容；不要求固定标题、固定段数或固定 claim 数。本回答 profile 必须覆盖这些信息要素，证据不足的要素明确写未覆盖：{}。每条库内事实陈述必须在同一句末尾附上本轮 evidence_bundle 中的显式 [E#]，多个来源分别写为 [E1] [E5]；该标记仅供后端逐条核验，展示时会移除。不要输出 JSON、evidenceIds、本地路径、参考证据标题或自造链接，也不要使用未知编号。若补充 evidence_bundle 之外的一般知识，必须放在独立的“## 模型补充（可能不准确）”区域并明确其未由当前知识库核验，且不得附 [E#]。",
+                "直接输出自然 Markdown 正文。优先给出问题的直接结论，再根据问题本身自然组织内容；不要求固定标题、固定段数或固定 claim 数。本回答 profile 必须覆盖这些信息要素，证据不足的要素明确写未覆盖：{}。{NATURAL_GROUNDING_RULES}不要输出 JSON、evidenceIds、本地路径、参考证据标题或自造链接，也不要使用未知编号；[E#] 仅供后端逐条核验，展示时会移除。",
                 required_answer_elements(intent).join("、")
             );
         }
@@ -1664,6 +1666,18 @@ mod tests {
         assert!(!contract.contains("topic_methods"));
         assert!(contract.contains("不要输出 JSON、evidenceIds"));
         assert!(contract.contains("显式 [E#]"));
+        for required in [
+            "一条短句只表达一个可核验事实",
+            "显式 [E#] 必须紧邻对应事实",
+            "完整支持该事实的全部含义",
+            "禁止证据范围扩张",
+            "数字或参数值必须逐字出现在被引 evidence 中",
+            "当前知识库证据不足以确认该结论",
+            "## 模型补充（可能不准确）",
+            "研究建议必须用",
+        ] {
+            assert!(contract.contains(required), "missing={required}");
+        }
         assert!(!contract.contains("qa-structured-answer-v1"));
     }
 

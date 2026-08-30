@@ -3557,6 +3557,69 @@ pub fn persist_exchange_with_metadata_and_semantic(
     metadata: ProviderRunMetadata,
     semantic: Option<&SemanticVerificationBatch>,
 ) -> Result<AskResult, String> {
+    let mut started = trace::QaTraceEvent::new(
+        "qa_persist_started",
+        "persistence",
+        "started",
+        &context.request_id,
+    );
+    started.execution_mode = context.retrieval_query.execution_mode.clone();
+    started.provider = metadata.provider.clone();
+    started.model = metadata.model_resolved.clone();
+    started.evidence_count = Some(context.evidence.len());
+    started.persisted = Some(false);
+    trace::emit(&started);
+    let result = persist_exchange_with_metadata_and_semantic_inner(
+        connection, root, session_id, context, answer, metadata, semantic,
+    );
+    match &result {
+        Ok(persisted) => {
+            let mut completed = trace::QaTraceEvent::new(
+                "qa_persist_completed",
+                "persistence",
+                "succeeded",
+                &context.request_id,
+            );
+            completed.execution_mode = persisted.run_manifest.execution_mode.clone();
+            completed.provider = persisted.run_manifest.provider.clone();
+            completed.model = persisted.run_manifest.model_resolved.clone();
+            completed.evidence_count = Some(persisted.evidence.len());
+            completed.claim_count = Some(persisted.run_manifest.claim_verifications.len());
+            completed.supported_claim_count = Some(persisted.run_manifest.verified_claim_count);
+            completed.contradicted_claim_count =
+                Some(persisted.run_manifest.contradicted_claim_count);
+            completed.not_verifiable_claim_count =
+                Some(persisted.run_manifest.not_verifiable_claim_count);
+            completed.repaired_claim_count = Some(persisted.run_manifest.repaired_claim_count);
+            completed.persisted = Some(true);
+            trace::emit(&completed);
+        }
+        Err(error) => {
+            let mut failed = trace::QaTraceEvent::new(
+                "qa_persist_failed",
+                "persistence",
+                "failed",
+                &context.request_id,
+            );
+            failed.execution_mode = context.retrieval_query.execution_mode.clone();
+            failed.evidence_count = Some(context.evidence.len());
+            failed.persisted = Some(false);
+            failed.error_code = trace::error_code(error);
+            trace::emit(&failed);
+        }
+    }
+    result
+}
+
+fn persist_exchange_with_metadata_and_semantic_inner(
+    connection: &mut Connection,
+    root: &Path,
+    session_id: Option<&str>,
+    context: &QuestionContext,
+    answer: String,
+    metadata: ProviderRunMetadata,
+    semantic: Option<&SemanticVerificationBatch>,
+) -> Result<AskResult, String> {
     let audit = audit_generated_answer_with_semantic(context, &answer, &metadata, semantic);
     let AnswerAudit {
         answer,

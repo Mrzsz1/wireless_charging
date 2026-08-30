@@ -28,117 +28,151 @@ pub fn prepare_production_qa(
     request_id: &str,
     cancelled: &AtomicBool,
 ) -> Result<PreparedProductionQa, String> {
-    if let Some(existing_session) = request.session_id.as_deref() {
-        get_session(connection, root, existing_session)?;
-    }
-    let conversation = conversation_history(connection, root, request.session_id.as_deref())?;
-    if cancelled.load(Ordering::SeqCst) {
-        return Err("QUESTION_CANCELLED: 用户停止了问答".to_string());
-    }
-    let settings = get_luna_settings(connection, root, false)?;
-    let initial_route = build_retrieval_query(connection, &request.question, &conversation);
-    let budget_guard = LlmBudgetGuard::new(routing_policy(&initial_route.execution_mode));
-    let planner_model = request
-        .codex_model
-        .as_deref()
-        .unwrap_or(settings.codex_model.as_str())
-        .to_string();
-    let planner_effort = request
-        .codex_reasoning_effort
-        .as_deref()
-        .unwrap_or(settings.codex_reasoning_effort.as_str())
-        .to_string();
-    let planning_provider = planning_provider(&settings, &planner_model, &planner_effort);
-    let planning_capabilities = provider_descriptor(&settings.answer_provider).capabilities;
-    let understanding_budget = budget_guard.clone();
-    let understanding_provider = planning_provider.as_deref();
-    let mut understanding_planner = |input: &UnderstandingPlanningInput| {
-        let prompt = understanding_prompt(input);
-        let schema = understanding_schema();
-        let reserved = estimate_tokens(&prompt).saturating_add(1_024);
-        let reservation = understanding_budget.reserve("understanding", reserved)?;
-        let Some(provider) = understanding_provider else {
-            reservation.release()?;
-            return Err("PLANNING_PROVIDER_UNAVAILABLE: understanding".to_string());
-        };
-        let result = provider.complete_structured(&prompt, &schema, cancelled);
-        let actual = result
-            .as_ref()
-            .map(|raw| estimate_tokens(&prompt).saturating_add(estimate_tokens(raw)))
-            .unwrap_or_else(|_| estimate_tokens(&prompt));
-        reservation.settle(actual)?;
-        let raw = result?;
-        parse_understanding_plan(&raw, input)
-    };
-    let planner_budget = budget_guard.clone();
-    let query_planning_provider = planning_provider.as_deref();
-    let mut query_planner = |input: &QueryPlanningInput| {
-        let prompt = query_plan_prompt(input);
-        let schema = query_plan_schema();
-        let reserved = estimate_tokens(&prompt).saturating_add(1_536);
-        let reservation = planner_budget.reserve("planner", reserved)?;
-        let Some(provider) = query_planning_provider else {
-            reservation.release()?;
-            return Err("PLANNING_PROVIDER_UNAVAILABLE: query_plan".to_string());
-        };
-        let result = provider.complete_structured(&prompt, &schema, cancelled);
-        let actual = result
-            .as_ref()
-            .map(|raw| estimate_tokens(&prompt).saturating_add(estimate_tokens(raw)))
-            .unwrap_or_else(|_| estimate_tokens(&prompt));
-        reservation.settle(actual)?;
-        let raw = result?;
-        parse_query_plan(&raw, &input.resolved_question)
-    };
-    let planner = (planning_provider.is_some() && planning_capabilities.query_planning).then_some(
-        &mut query_planner as &mut dyn FnMut(&QueryPlanningInput) -> Result<QueryPlan, String>,
-    );
-    let understanding = (planning_provider.is_some() && planning_capabilities.understanding)
-        .then_some(
-            &mut understanding_planner
-                as &mut dyn FnMut(&UnderstandingPlanningInput) -> Result<UnderstandingPlan, String>,
-        );
-    let mut context = prepare_question_with_history_budget_and_planners(
-        connection,
-        root,
-        &request.question,
-        request.evidence_limit.unwrap_or(14),
+    trace::emit(&trace::QaTraceEvent::new(
+        "qa_prepare_started",
+        "prepare",
+        "started",
         request_id,
-        conversation,
-        Some(cancelled),
-        settings.context_window_tokens,
-        settings.max_output_tokens,
-        planner,
-        understanding,
-        Some(&budget_guard),
-    )?;
-    context.retrieval_query.planning_provider = planning_provider
-        .as_ref()
-        .map(|provider| provider.descriptor().id)
-        .unwrap_or_else(|| PROVIDER_OFFLINE.to_string());
-    context.retrieval_query.provider_capabilities = [
-        (planning_capabilities.understanding, "understanding"),
-        (planning_capabilities.query_planning, "query_planning"),
-        (
-            planning_capabilities.semantic_verification,
-            "semantic_verification",
-        ),
-        (planning_capabilities.structured_output, "structured_output"),
-        (
-            planning_capabilities.natural_generation,
-            "natural_generation",
-        ),
-    ]
-    .into_iter()
-    .filter(|(enabled, _)| *enabled)
-    .map(|(_, capability)| capability.to_string())
-    .collect();
+    ));
+    let result = (|| {
+        if let Some(existing_session) = request.session_id.as_deref() {
+            get_session(connection, root, existing_session)?;
+        }
+        let conversation = conversation_history(connection, root, request.session_id.as_deref())?;
+        if cancelled.load(Ordering::SeqCst) {
+            return Err("QUESTION_CANCELLED: 用户停止了问答".to_string());
+        }
+        let settings = get_luna_settings(connection, root, false)?;
+        let initial_route = build_retrieval_query(connection, &request.question, &conversation);
+        let budget_guard = LlmBudgetGuard::new(routing_policy(&initial_route.execution_mode));
+        let planner_model = request
+            .codex_model
+            .as_deref()
+            .unwrap_or(settings.codex_model.as_str())
+            .to_string();
+        let planner_effort = request
+            .codex_reasoning_effort
+            .as_deref()
+            .unwrap_or(settings.codex_reasoning_effort.as_str())
+            .to_string();
+        let planning_provider = planning_provider(&settings, &planner_model, &planner_effort);
+        let planning_capabilities = provider_descriptor(&settings.answer_provider).capabilities;
+        let understanding_budget = budget_guard.clone();
+        let understanding_provider = planning_provider.as_deref();
+        let mut understanding_planner = |input: &UnderstandingPlanningInput| {
+            let prompt = understanding_prompt(input);
+            let schema = understanding_schema();
+            let reserved = estimate_tokens(&prompt).saturating_add(1_024);
+            let reservation = understanding_budget.reserve("understanding", reserved)?;
+            let Some(provider) = understanding_provider else {
+                reservation.release()?;
+                return Err("PLANNING_PROVIDER_UNAVAILABLE: understanding".to_string());
+            };
+            let result = provider.complete_structured(&prompt, &schema, cancelled);
+            let actual = result
+                .as_ref()
+                .map(|raw| estimate_tokens(&prompt).saturating_add(estimate_tokens(raw)))
+                .unwrap_or_else(|_| estimate_tokens(&prompt));
+            reservation.settle(actual)?;
+            let raw = result?;
+            parse_understanding_plan(&raw, input)
+        };
+        let planner_budget = budget_guard.clone();
+        let query_planning_provider = planning_provider.as_deref();
+        let mut query_planner = |input: &QueryPlanningInput| {
+            let prompt = query_plan_prompt(input);
+            let schema = query_plan_schema();
+            let reserved = estimate_tokens(&prompt).saturating_add(1_536);
+            let reservation = planner_budget.reserve("planner", reserved)?;
+            let Some(provider) = query_planning_provider else {
+                reservation.release()?;
+                return Err("PLANNING_PROVIDER_UNAVAILABLE: query_plan".to_string());
+            };
+            let result = provider.complete_structured(&prompt, &schema, cancelled);
+            let actual = result
+                .as_ref()
+                .map(|raw| estimate_tokens(&prompt).saturating_add(estimate_tokens(raw)))
+                .unwrap_or_else(|_| estimate_tokens(&prompt));
+            reservation.settle(actual)?;
+            let raw = result?;
+            parse_query_plan(&raw, &input.resolved_question)
+        };
+        let planner = (planning_provider.is_some() && planning_capabilities.query_planning)
+            .then_some(
+                &mut query_planner
+                    as &mut dyn FnMut(&QueryPlanningInput) -> Result<QueryPlan, String>,
+            );
+        let understanding = (planning_provider.is_some() && planning_capabilities.understanding)
+            .then_some(
+                &mut understanding_planner
+                    as &mut dyn FnMut(
+                        &UnderstandingPlanningInput,
+                    ) -> Result<UnderstandingPlan, String>,
+            );
+        let mut context = prepare_question_with_history_budget_and_planners(
+            connection,
+            root,
+            &request.question,
+            request.evidence_limit.unwrap_or(14),
+            request_id,
+            conversation,
+            Some(cancelled),
+            settings.context_window_tokens,
+            settings.max_output_tokens,
+            planner,
+            understanding,
+            Some(&budget_guard),
+        )?;
+        context.retrieval_query.planning_provider = planning_provider
+            .as_ref()
+            .map(|provider| provider.descriptor().id)
+            .unwrap_or_else(|| PROVIDER_OFFLINE.to_string());
+        context.retrieval_query.provider_capabilities = [
+            (planning_capabilities.understanding, "understanding"),
+            (planning_capabilities.query_planning, "query_planning"),
+            (
+                planning_capabilities.semantic_verification,
+                "semantic_verification",
+            ),
+            (planning_capabilities.structured_output, "structured_output"),
+            (
+                planning_capabilities.natural_generation,
+                "natural_generation",
+            ),
+        ]
+        .into_iter()
+        .filter(|(enabled, _)| *enabled)
+        .map(|(_, capability)| capability.to_string())
+        .collect();
 
-    Ok(PreparedProductionQa {
-        context,
-        settings,
-        budget_guard,
-    })
+        Ok(PreparedProductionQa {
+            context,
+            settings,
+            budget_guard,
+        })
+    })();
+    match &result {
+        Ok(prepared) => {
+            let mut event = trace::QaTraceEvent::new(
+                "qa_prepare_completed",
+                "prepare",
+                "succeeded",
+                request_id,
+            );
+            event.execution_mode = prepared.context.retrieval_query.execution_mode.clone();
+            event.provider = prepared.settings.answer_provider.clone();
+            event.model = prepared.settings.codex_model.clone();
+            event.evidence_count = Some(prepared.context.evidence.len());
+            trace::emit(&event);
+        }
+        Err(error) => {
+            let mut event =
+                trace::QaTraceEvent::new("qa_prepare_failed", "prepare", "failed", request_id);
+            event.error_code = trace::error_code(error);
+            trace::emit(&event);
+        }
+    }
+    result
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -291,6 +325,17 @@ pub fn run_production_qa_generation<F>(
 where
     F: FnMut(&str) -> Result<(), String>,
 {
+    let mut started = trace::QaTraceEvent::new(
+        "qa_generate_started",
+        "generator",
+        "started",
+        &context.request_id,
+    );
+    started.execution_mode = context.retrieval_query.execution_mode.clone();
+    started.provider = settings.answer_provider.clone();
+    started.model = effective_codex_model.to_string();
+    started.evidence_count = Some(context.evidence.len());
+    trace::emit(&started);
     let result = run_production_qa_generation_inner(
         context,
         settings,
@@ -302,7 +347,7 @@ where
         on_token,
     );
     record_llm_budget_usage(context, budget_guard.usage());
-    result.map(|mut generated| {
+    let result = result.map(|mut generated| {
         generated.audit = audit_generated_answer_with_semantic(
             context,
             &generated.answer,
@@ -310,7 +355,78 @@ where
             Some(&generated.semantic_verification),
         );
         generated
-    })
+    });
+    match &result {
+        Ok(generated) => {
+            let manifest = &generated.audit.run_manifest;
+            let mut semantic = trace::QaTraceEvent::new(
+                "qa_semantic_completed",
+                "semantic_verifier",
+                &generated.semantic_verification.status,
+                &context.request_id,
+            );
+            semantic.execution_mode = context.retrieval_query.execution_mode.clone();
+            semantic.provider = generated.semantic_verification.provider.clone();
+            semantic.model = generated.semantic_verification.model.clone();
+            semantic.evidence_count = Some(context.evidence.len());
+            semantic.claim_count = Some(manifest.claim_verifications.len());
+            if !generated
+                .semantic_verification
+                .fallback_reason
+                .trim()
+                .is_empty()
+            {
+                semantic.error_code =
+                    trace::error_code(&generated.semantic_verification.fallback_reason);
+            }
+            trace::emit(&semantic);
+
+            let mut audit = trace::QaTraceEvent::new(
+                "qa_audit_completed",
+                "audit",
+                &generated.audit.citation_validation.grounding_status,
+                &context.request_id,
+            );
+            audit.execution_mode = context.retrieval_query.execution_mode.clone();
+            audit.provider = generated.provider.clone();
+            audit.model = generated.metadata.model_resolved.clone();
+            audit.evidence_count = Some(context.evidence.len());
+            audit.claim_count = Some(manifest.claim_verifications.len());
+            audit.supported_claim_count = Some(manifest.verified_claim_count);
+            audit.contradicted_claim_count = Some(manifest.contradicted_claim_count);
+            audit.not_verifiable_claim_count = Some(manifest.not_verifiable_claim_count);
+            audit.repaired_claim_count = Some(manifest.repaired_claim_count);
+            trace::emit(&audit);
+
+            let mut completed = trace::QaTraceEvent::new(
+                "qa_generate_completed",
+                "generator",
+                "succeeded",
+                &context.request_id,
+            );
+            completed.execution_mode = context.retrieval_query.execution_mode.clone();
+            completed.provider = generated.provider.clone();
+            completed.model = generated.metadata.model_resolved.clone();
+            completed.evidence_count = Some(context.evidence.len());
+            completed.claim_count = Some(manifest.claim_verifications.len());
+            trace::emit(&completed);
+        }
+        Err(error) => {
+            let mut failed = trace::QaTraceEvent::new(
+                "qa_generate_failed",
+                "generator",
+                "failed",
+                &context.request_id,
+            );
+            failed.execution_mode = context.retrieval_query.execution_mode.clone();
+            failed.provider = settings.answer_provider.clone();
+            failed.model = effective_codex_model.to_string();
+            failed.evidence_count = Some(context.evidence.len());
+            failed.error_code = trace::error_code(error);
+            trace::emit(&failed);
+        }
+    }
+    result
 }
 
 #[cfg(test)]
@@ -322,5 +438,14 @@ mod tests {
         assert!(ui_source.contains("run_production_qa_generation("));
         assert!(!ui_source.contains("codex_subscription::stream_answer("));
         assert!(core_source.contains("let result = codex_subscription::stream_answer("));
+    }
+
+    #[test]
+    fn desktop_logging_is_enabled_for_debug_and_release_with_bounded_rotation() {
+        let ui_source = include_str!("../lib.rs");
+        assert!(ui_source.contains("tauri_plugin_log::Builder::default()"));
+        assert!(ui_source.contains("RotationStrategy::KeepSome(5)"));
+        assert!(ui_source.contains(".max_file_size(10 * 1024 * 1024)"));
+        assert!(!ui_source.contains("if cfg!(debug_assertions)"));
     }
 }

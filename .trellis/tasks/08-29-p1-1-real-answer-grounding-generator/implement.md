@@ -10,11 +10,11 @@
 
 ## Phase B — Generator Prompt Grounding
 
-- [ ] 先扩展 Prompt contract test，不做整段 snapshot。
-- [ ] 收紧 provider-neutral natural v2 `answer_contract`，覆盖原子事实、紧邻引用、范围/因果/数字扩张、证据不足、Supplement 隔离、Suggestion 标记。
-- [ ] 新增 5 类 deterministic grounding fixture tests，不改 verifier threshold。
-- [ ] 在 prepare/generate/verify/audit/persist 关键边界接入 safe structured trace。
-- [ ] 执行 targeted tests，Git 提交 Phase B。
+- [x] 先扩展 Prompt contract test，不做整段 snapshot。
+- [x] 收紧 provider-neutral natural v2 `answer_contract`，覆盖原子事实、紧邻引用、范围/因果/数字扩张、证据不足、Supplement 隔离、Suggestion 标记。
+- [x] 新增 5 类 deterministic grounding fixture tests，不改 verifier threshold。
+- [x] 在 prepare/generate/verify/audit/persist 关键边界接入 safe structured trace。
+- [x] 执行 targeted tests，Git 提交 Phase B。
 
 ## Phase C — 真实重测
 

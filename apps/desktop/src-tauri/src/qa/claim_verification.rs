@@ -981,6 +981,56 @@ mod tests {
     }
 
     #[test]
+    fn grounding_fixtures_reject_scope_numbers_and_unsupported_clauses() {
+        let source = evidence(
+            "ROSE uses particle swarm optimization for mobile charger scheduling in a 50-node simulation.",
+        );
+
+        let (_, supported) = verify_and_repair(
+            "ROSE uses particle swarm optimization for mobile charger scheduling [E1].",
+            std::slice::from_ref(&source),
+        );
+        assert_eq!(supported.supported_count, 1);
+        assert_eq!(supported.contradicted_count, 0);
+        assert_eq!(supported.not_verifiable_count, 0);
+
+        let (_, expanded) = verify_and_repair(
+            "ROSE is optimal in every deployment and at every scale [E1].",
+            std::slice::from_ref(&source),
+        );
+        assert_eq!(expanded.supported_count, 0);
+
+        let (_, numeric) = verify_and_repair(
+            "The ROSE simulation contains 100 nodes [E1].",
+            std::slice::from_ref(&source),
+        );
+        assert_eq!(numeric.supported_count, 0);
+
+        let (_, mixed) = verify_and_repair(
+            "ROSE uses particle swarm optimization for mobile charger scheduling [E1]，并且 ROSE guarantees a global optimum [E1]。",
+            std::slice::from_ref(&source),
+        );
+        assert!(mixed.claims.len() >= 2);
+        assert!(mixed
+            .claims
+            .iter()
+            .any(|claim| claim.verification_status == VerificationStatus::Supported));
+        assert!(mixed
+            .claims
+            .iter()
+            .any(|claim| claim.verification_status != VerificationStatus::Supported));
+
+        let answer = format!(
+            "ROSE uses particle swarm optimization for mobile charger scheduling [E1].\n\n{}\n{}\nThe method is optimal in every deployment.",
+            super::super::MODEL_SUPPLEMENT_HEADING,
+            super::super::MODEL_SUPPLEMENT_NOTICE,
+        );
+        let claims = extract_atomic_claims(&answer);
+        assert_eq!(claims.len(), 1);
+        assert!(!claims[0].text.contains("every deployment"));
+    }
+
+    #[test]
     fn claim_type_never_bypasses_evidence_mapping() {
         let answer = "一般而言，PSO guarantees a global optimum.";
         let (_, report) = verify_and_repair(answer, &[evidence("PSO is a heuristic method.")]);
