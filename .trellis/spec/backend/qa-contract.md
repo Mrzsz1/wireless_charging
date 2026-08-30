@@ -525,3 +525,68 @@ UI adapter -----+
 temp E2E adapter+
                 +-> v5 draft/final metadata-only report -> explicit PASS or measured FAIL
 ```
+
+## 15. Codex JSONL Terminal Failures and Planner Provider Probes
+
+### 1. Scope / Trigger
+
+- Apply this contract whenever `codex_subscription::stream_answer` parses `codex exec --json`, classifies a Codex subprocess failure, or a Development probe isolates Query Planner Provider failures.
+- The shared adapter owns these semantics for Planner, Generator, Semantic, and every other Codex caller. A Planner module must never reimplement subprocess or JSONL parsing.
+
+### 2. Signatures
+
+- `parse_codex_jsonl_line(line) -> Option<CodexJsonlObservation>` distinguishes activity, model metadata, agent delta/completion, `turn.completed`, fatal `turn.failed`, fatal top-level `error`, and non-fatal item warning.
+- `classify_codex_terminal_message(message) -> &'static str` returns only a fixed safe category.
+- `run_planner_probe_files(repository, probe_id, output, model, effort) -> Result<bool, String>` runs exactly one `a | b | c` Development probe and writes one non-overwritable atomic safe report.
+- Optional raw diagnostic environment key: `QA_CODEX_EXEC_DIAGNOSTIC_DIR`.
+
+### 3. Contracts
+
+- `CodexTerminalFailure` stores only event type, fixed category, and SHA-256 of the message. Ordinary errors/logs/reports never retain the raw message.
+- Fatal-event precedence is cancellation, local idle timeout, local total timeout, stdout `turn.failed`/top-level `error`, classified stderr, then generic exit code. A fatal stdout event terminates and joins the child process immediately and never refreshes idle timeout.
+- `item.completed` with `item.type=error` is a warning only. It cannot override a later non-empty agent message, `turn.completed`, and exit code 0.
+- A successful JSONL run requires exit code 0, no fatal observation, and a non-empty final agent message. `turn.completed` and item-warning counts remain safe telemetry.
+- Stable categories cover schema rejection, bad request, context too large, authentication, usage/rate limits, overload, transport/connection/protocol, unavailable/unsupported model, cancellation, and unknown. Request-timeout/stream-disconnect failures classify as `transport`; Planner fallback projects this as `provider_transport`.
+- `QA_CODEX_EXEC_DIAGNOSTIC_DIR` defaults off, must be absolute and outside the repository, and is consumed only by the Development probe path. It may temporarily contain stdout JSONL and stderr plus prompt/schema hashes; it is deleted after inspection and never committed.
+- Probe A uses a tiny Boolean schema. Probe B is eligible only after A passes and uses the current RetrievalContract schema with minimal input. Probe C is eligible only after B passes and uses the unchanged public Research Planner input. A failed prerequisite stops downstream probes and forbids speculative Schema/input/timeout/budget changes.
+- Probe lifecycle events are `qa_planner_probe_started`, `qa_planner_probe_completed`, and `qa_planner_probe_failed` with one hashed operation ID and safe counts/enums only.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+|---|---|
+| `turn.failed` carries a schema-class message | Return `CODEX_JSONL_TURN_FAILED: schema_rejected`; never fall through to `CODEX_EXIT_ERROR` |
+| Top-level `error` carries rate/auth/context/transport information | Preserve its fixed category and message hash, terminate promptly, and omit raw text |
+| Item error then agent message + completed turn + exit 0 | Succeed; record an item-warning count only |
+| Non-zero exit without fatal JSONL or classifiable stderr | Keep generic `CODEX_EXIT_ERROR` / `provider_exit` |
+| Diagnostic path is relative or inside the repository | `QA_CODEX_EXEC_DIAGNOSTIC_DIR_INVALID`; do not call the Provider |
+| Probe output path or `.part` already exists | Fail closed; never overwrite a previous real probe identity |
+| Probe A fails with auth/usage/rate/overload/transport/connection | Stop B/C, record external Provider block, and do not modify Planner behavior |
+
+### 5. Good / Base / Bad Cases
+
+- **Good**: a fatal JSONL event becomes a fixed category and hash within milliseconds; the safe report identifies the event type and failed stage without payload text.
+- **Base**: an item warning occurs, then a valid final agent message and completed turn succeed normally.
+- **Bad**: refresh idle timeout for a fatal line, ignore its message until process exit, log raw stdout/stderr, rerun probes until an accidental success, or change RetrievalContract/timeout/budget after Probe A failed.
+
+### 6. Tests Required
+
+- J1–J7 cover schema `turn.failed`, top-level rate limit, auth, context too large, generic exit, non-fatal item warning plus successful completion, and bounded prompt termination.
+- The fixed-category matrix includes request timeout/stream disconnect plus every stable class and proves raw suffixes do not propagate.
+- Probe tests cover absolute outside-repository diagnostics, safe report redaction, bounded A/B definitions, atomic non-overwrite behavior, and start/completion/failure event identity.
+- Before real probes, run Codex Subscription/Provider Capabilities tests, fmt, and library/binary Clippy. After classification, run the taskbook's focused Rust, Python, frontend QA, and build gates without Independent Heldout execution.
+
+### 7. Wrong vs Correct
+
+#### Wrong
+
+```text
+valid JSON line -> refresh idle timeout -> ignore event -> non-zero exit -> provider_exit
+```
+
+#### Correct
+
+```text
+JSONL line -> typed observation -> fixed fatal category + hash -> terminate/join -> safe report
+item warning -> continue -> final agent message + exit 0 -> success
+```

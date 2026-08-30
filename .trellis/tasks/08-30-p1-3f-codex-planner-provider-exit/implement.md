@@ -43,22 +43,22 @@
 
 ## Phase 8 — Deterministic regression
 
-- [ ] Run fmt and library/binary Clippy.
-- [ ] Run Codex Subscription, Provider Capabilities, Retrieval Contract, QueryPlan, Production Core, Real E2E, Adaptive Routing, Claim Verification, and Heldout Runner test subsets without opening heldout data.
-- [ ] Run Python QA evaluator, `test:qa-evidence`, and frontend build.
-- [ ] Record actual QA script mapping and pre-existing issues only.
+- [x] Run fmt and library/binary Clippy.
+- [x] Run Codex Subscription, Provider Capabilities, Retrieval Contract, QueryPlan, Production Core, Real E2E, Adaptive Routing, Claim Verification, and Heldout Runner synthetic test subsets without opening Independent Heldout data.
+- [x] Run Python QA evaluator, `test:qa-evidence`, and frontend build.
+- [x] Record actual QA script mapping; `test:qa-evidence` is the existing relevant script.
 
 ## Phase 9 — One final real Research
 
-- [ ] Run `real-research-improvement` exactly once after deterministic gates.
-- [ ] Record Planner, budget, QueryPlan, Semantic, Final Grounding, persistence, scope, and exit aggregates.
-- [ ] Classify PASS/PARTIAL-BLOCKED/FAIL without rerun.
-- [ ] Commit `test(qa): verify real query planner path`.
+- [x] Do not run final `real-research-improvement` because failed Probe A forbids later real stages.
+- [x] Record final Research as not run due `probe_a_failed` rather than fabricate aggregates.
+- [x] Classify `PARTIAL-BLOCKED` from the precise external `transport` category without rerun.
+- [x] Omit `test(qa): verify real query planner path` because no final Research call was eligible.
 
 ## Phase 10 — Delivery
 
-- [ ] Update QA spec with terminal-event and proven branch contracts.
-- [ ] Write the 25-item result report.
+- [x] Update QA spec with terminal-event and proven branch contracts.
+- [x] Write the 25-item result report.
 - [ ] Archive task, record journal, push successful delivery to GitHub without force, and verify remote SHA.
 
 ## Rollback points
