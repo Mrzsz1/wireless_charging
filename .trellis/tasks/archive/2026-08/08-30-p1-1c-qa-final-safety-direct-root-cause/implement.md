@@ -63,12 +63,12 @@
 
 ## Phase 9 — Full deterministic quality and delivery
 
-- [ ] Run `cargo fmt --check`.
-- [ ] Run `cargo clippy --lib --bins -- -D warnings` and `cargo clippy --all-targets -- -D warnings`.
-- [ ] Run focused heldout/final-grounding/trusted-context/real-E2E/claim-verification Rust tests.
-- [ ] Run `python -m unittest tests.test_qa_accuracy_eval`.
-- [ ] Run frontend QA tests and `npm run build`.
-- [ ] Update `.trellis/spec/backend/qa-contract.md` and related specs.
+- [x] Run `cargo fmt --check`.
+- [x] Run `cargo clippy --lib --bins -- -D warnings`; all-targets reaches only the taskbook-listed pre-existing `qa/evaluation.rs:1423 field_reassign_with_default` test warning.
+- [x] Run focused heldout/final-grounding/trusted-context/real-E2E/claim-verification Rust tests.
+- [x] Run `python -m unittest tests.test_qa_accuracy_eval`.
+- [x] Run frontend QA tests and `npm run build`.
+- [x] Update `.trellis/spec/backend/qa-contract.md` and related specs.
 - [ ] Write `result.md`, archive task, record journal, and normally push all commits to GitHub `origin/master`.
 
 ## Guardrails
