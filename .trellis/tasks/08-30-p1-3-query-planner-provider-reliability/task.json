@@ -3,7 +3,7 @@
   "name": "p1-3-query-planner-provider-reliability",
   "title": "P1-3 Query Planner Provider Reliability",
   "description": "Diagnose real Query Planner failed_fallback through Report v5, select one evidence-backed failure branch, reproduce it deterministically, and apply only that minimal fix.",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": "bugfix",
   "scope": "QA Planner diagnostics, E2E report/gates, one diagnosed Planner/Provider layer, deterministic tests, specs, and task records",
   "package": null,
