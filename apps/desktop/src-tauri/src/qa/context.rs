@@ -9,7 +9,7 @@ use sha2::{Digest, Sha256};
 use std::path::Path;
 use std::time::UNIX_EPOCH;
 
-pub const PROMPT_VERSION: &str = "qa-prompt-v14";
+pub const PROMPT_VERSION: &str = "qa-prompt-v15";
 pub const ANSWER_SCHEMA_VERSION: &str = "qa-natural-markdown-v2";
 pub const LEGACY_ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
@@ -1054,12 +1054,54 @@ pub fn required_answer_elements(intent: &str) -> Vec<String> {
 const NATURAL_GROUNDING_DRAFTING_RULES: &str = "写作前先从 evidence_bundle 中选出与问题直接相关的最少事实集。直接事实问题优先只回答 1–3 条最小充分事实，不为了显得完整而扩写。每条事实尽量直接复用 evidence snippet 的主语、谓语、核心术语和限定词；若 snippet 为英文，在中文句子中保留支撑结论的简短英文关键短语，避免自由改写导致语义漂移。不要将问题前提重复成无引用的陈述句。";
 const NATURAL_GROUNDING_RULES: &str = "Grounded Body 只能写当前 evidence_bundle 直接支持的库内事实。一条短句只表达一个可核验事实；每个事实的显式 [E#] 必须紧邻对应事实，且被引 evidence 必须完整支持该事实的全部含义，不得用段尾引用笼统支撑整段。禁止证据范围扩张：不得将局部实验扩张为所有场景、相关性扩张为因果、平均表现扩张为最坏情况保证、仿真结果扩张为现实世界保证、特定参数扩张为任意参数、一种方法扩张为唯一或最优方法、论文提出扩张为已工业验证。任何百分比、节点数、时间、距离、能耗、准确率、复杂度数字或参数值必须逐字出现在被引 evidence 中；证据只说“有改善”时不得编造改善幅度。证据不足时只写固定短句“当前证据不足以核验该陈述”，不得补全。一般知识、推测和延伸只能放入独立的“## 模型补充（可能不准确）”区域，明确未由当前知识库核验，且不得附 [E#]。研究建议必须用“建议”、“后续可考虑”或“研究方向”等建议性措辞，不得伪装成 evidence 已证明的事实。";
 
-fn answer_contract(intent: &str, has_evidence: bool) -> String {
+pub fn answer_evidence_coverage(context: &QuestionContext) -> Vec<String> {
+    let mut coverage = Vec::new();
+    for facet in &context.retrieval_query.covered_facet_ids {
+        if !facet.trim().is_empty() {
+            coverage.push(format!("检索维度:{facet}"));
+        }
+    }
+    for item in &context.evidence {
+        let kind = match item.kind.as_str() {
+            "paper" => "论文证据",
+            "book" => "理论证据",
+            "wiki" => "知识库证据",
+            "graph" => "图谱导航",
+            _ => "其他证据",
+        };
+        coverage.push(kind.to_string());
+        if !item.page_type.trim().is_empty() {
+            coverage.push(format!("页面类型:{}", item.page_type));
+        }
+        if item.locator.is_some() || !item.source_location.trim().is_empty() {
+            coverage.push("来源定位".to_string());
+        }
+    }
+    coverage.sort();
+    coverage.dedup();
+    coverage
+}
+
+fn answer_contract(
+    intent: &str,
+    execution_mode: &str,
+    evidence_coverage: &[String],
+    has_evidence: bool,
+) -> String {
     if super::natural_answer_v2_enabled() {
         if has_evidence {
+            if execution_mode == "direct" {
+                return format!(
+                    "直接输出自然 Markdown 正文。Direct 模式优先级高于任何完整研究 profile：只回答 1–3 条解决当前问题所需的最小充分事实，并在必要时补一句证据边界；不要为了覆盖完整研究对象、变量、目标、约束、方法、保证或失效边界而扩写。{NATURAL_GROUNDING_DRAFTING_RULES}{NATURAL_GROUNDING_RULES}不要输出 JSON、evidenceIds、本地路径、参考证据标题或自造链接，也不要使用未知编号；[E#] 仅供后端逐条核验，展示时会移除。"
+                );
+            }
+            let coverage = if evidence_coverage.is_empty() {
+                "未识别到可安全要求的扩展要素".to_string()
+            } else {
+                evidence_coverage.join("、")
+            };
             return format!(
-                "直接输出自然 Markdown 正文。优先给出问题的直接结论，再根据问题本身自然组织内容；不要求固定标题、固定段数或固定 claim 数。本回答 profile 必须覆盖这些信息要素，证据不足的要素明确写未覆盖：{}。{NATURAL_GROUNDING_DRAFTING_RULES}{NATURAL_GROUNDING_RULES}不要输出 JSON、evidenceIds、本地路径、参考证据标题或自造链接，也不要使用未知编号；[E#] 仅供后端逐条核验，展示时会移除。",
-                required_answer_elements(intent).join("、")
+                "直接输出自然 Markdown 正文。优先给出问题的直接结论，再根据问题本身自然组织内容；不要求固定标题、固定段数或固定 claim 数。本轮 evidence coverage 仅包括：{coverage}。Research/Exploratory 只写 evidence_bundle 实际明确覆盖的内容；未覆盖的研究 profile 要素必须省略或使用固定系统提示，不得为了凑齐完整 profile 自由补充事实。回答意图为 {intent}。{NATURAL_GROUNDING_DRAFTING_RULES}{NATURAL_GROUNDING_RULES}不要输出 JSON、evidenceIds、本地路径、参考证据标题或自造链接，也不要使用未知编号；[E#] 仅供后端逐条核验，展示时会移除。"
             );
         }
         return "直接输出自然 Markdown。首句明确当前知识库没有参考来源且回答未经本库证据核验；不得输出 [E#]、wikilink、论文行号、书籍页码、本地路径或参考证据列表。".to_string();
@@ -1127,7 +1169,13 @@ fn prompt_json_object_text(value: &str) -> String {
 pub fn build_prompt_envelope(context: &QuestionContext) -> PromptEnvelope {
     let has_evidence = !context.evidence.is_empty();
     let contract = research_contract(has_evidence);
-    let answer_contract = answer_contract(&context.intent, has_evidence);
+    let evidence_coverage = answer_evidence_coverage(context);
+    let answer_contract = answer_contract(
+        &context.intent,
+        &context.retrieval_query.execution_mode,
+        &evidence_coverage,
+        has_evidence,
+    );
     let answer_schema_version = if super::natural_answer_v2_enabled() {
         ANSWER_SCHEMA_VERSION
     } else {
@@ -1200,9 +1248,14 @@ pub fn validate_answer_completeness(
     claim_count: usize,
     applicable: bool,
     structured_roles: Option<&[String]>,
+    evidence_coverage: Option<&[String]>,
 ) -> AnswerCompletenessValidation {
     let required_sections = required_answer_sections(intent);
-    let required_elements = required_answer_elements(intent);
+    let required_elements = if structured_roles.is_some() {
+        required_answer_elements(intent)
+    } else {
+        evidence_coverage.unwrap_or_default().to_vec()
+    };
     if !applicable {
         return AnswerCompletenessValidation {
             applicable: false,
@@ -1231,11 +1284,7 @@ pub fn validate_answer_completeness(
             .map(|role| role.title.to_string())
             .collect::<Vec<_>>()
     } else {
-        required_answer_role_contract(intent)
-            .into_iter()
-            .filter(|role| !answer.contains(role.title))
-            .map(|role| role.title.to_string())
-            .collect::<Vec<_>>()
+        Vec::new()
     };
     let minimum_claim_count = if intent == "literature" { 2 } else { 3 };
     AnswerCompletenessValidation {
@@ -1622,12 +1671,21 @@ mod tests {
             .into_iter()
             .map(|role| role.id.to_string())
             .collect::<Vec<_>>();
-        assert!(validate_answer_completeness("solve", &answer, 6, true, Some(&roles)).complete);
         assert!(
-            !validate_answer_completeness("solve", "## 结论\n内容 [E1]。", 1, true, Some(&roles))
-                .complete
+            validate_answer_completeness("solve", &answer, 6, true, Some(&roles), None).complete
         );
-        assert!(validate_answer_completeness("solve", "", 0, false, None).complete);
+        assert!(
+            !validate_answer_completeness(
+                "solve",
+                "## 结论\n内容 [E1]。",
+                1,
+                true,
+                Some(&roles),
+                None,
+            )
+            .complete
+        );
+        assert!(validate_answer_completeness("solve", "", 0, false, None, None).complete);
     }
 
     #[test]
@@ -1653,14 +1711,20 @@ mod tests {
             .into_iter()
             .map(|role| role.id.to_string())
             .collect::<Vec<_>>();
-        let validation = validate_answer_completeness("literature", &answer, 2, true, Some(&roles));
+        let validation =
+            validate_answer_completeness("literature", &answer, 2, true, Some(&roles), None);
         assert!(validation.complete, "{validation:?}");
         assert_eq!(validation.minimum_claim_count, 2);
     }
 
     #[test]
     fn natural_answer_contract_has_no_fixed_sections_and_requires_internal_evidence_ids() {
-        let contract = answer_contract("literature", true);
+        let contract = answer_contract(
+            "literature",
+            "research",
+            &["论文证据".to_string(), "来源定位".to_string()],
+            true,
+        );
         assert!(contract.contains("自然 Markdown"));
         assert!(contract.contains("不要求固定标题"));
         assert!(
@@ -1686,6 +1750,23 @@ mod tests {
             assert!(contract.contains(required), "missing={required}");
         }
         assert!(!contract.contains("qa-structured-answer-v1"));
+    }
+
+    #[test]
+    fn direct_contract_prioritizes_minimal_answer_over_full_research_profile() {
+        let contract = answer_contract(
+            "problem_modeling",
+            "direct",
+            &["知识库证据".to_string()],
+            true,
+        );
+        assert!(contract.contains("Direct 模式优先级高于任何完整研究 profile"));
+        assert!(contract.contains("只回答 1–3 条"));
+        assert!(contract.contains("不要为了覆盖完整研究对象"));
+        assert!(!contract.contains("本回答 profile 必须覆盖"));
+        for element in required_answer_elements("problem_modeling") {
+            assert!(!contract.contains(&format!("：{element}")));
+        }
     }
 
     #[test]
@@ -1717,11 +1798,21 @@ mod tests {
                 .map(|role| format!("{}：已覆盖。", role.title))
                 .collect::<Vec<_>>()
                 .join("\n");
-            let complete = validate_answer_completeness(profile, &answer, 4, true, None);
+            let coverage = vec!["论文证据".to_string(), "方法证据".to_string()];
+            let complete =
+                validate_answer_completeness(profile, &answer, 4, true, None, Some(&coverage));
             assert!(complete.complete, "{profile}: {complete:?}");
-            let missing = validate_answer_completeness(profile, "只有直接结论。", 4, true, None);
-            assert!(!missing.complete, "{profile}");
-            assert!(!missing.missing_elements.is_empty(), "{profile}");
+            let concise = validate_answer_completeness(
+                profile,
+                "只有三条已支持的直接结论。",
+                3,
+                true,
+                None,
+                Some(&coverage),
+            );
+            assert!(concise.complete, "{profile}: {concise:?}");
+            assert!(concise.missing_elements.is_empty(), "{profile}");
+            assert_eq!(concise.required_elements, coverage);
         }
         assert_ne!(
             required_answer_elements("solution_search"),
@@ -1740,7 +1831,8 @@ mod tests {
             .map(|heading| format!("{heading}\n完全不含固定业务短语的内容。"))
             .collect::<Vec<_>>()
             .join("\n");
-        let complete = validate_answer_completeness("literature", &answer, 5, true, Some(&roles));
+        let complete =
+            validate_answer_completeness("literature", &answer, 5, true, Some(&roles), None);
         assert!(complete.complete, "{complete:?}");
         assert!(!answer.contains("模型或方法"));
         assert!(!answer.contains("证据边界"));
@@ -1751,6 +1843,7 @@ mod tests {
             5,
             true,
             Some(&roles[..roles.len() - 1]),
+            None,
         );
         assert!(!missing.complete);
         assert_eq!(missing.missing_elements, vec!["来源定位"]);

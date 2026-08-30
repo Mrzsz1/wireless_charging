@@ -4008,11 +4008,13 @@ pub fn audit_generated_answer_with_semantic(
             };
             (final_answer, citation_repair, validation, None, None)
         };
+    let evidence_coverage = context::answer_evidence_coverage(context);
     let completeness = context::validate_answer_completeness(
         &context.intent,
         &answer,
         citation_validation.claim_count,
         (natural_answer_v2_enabled()
+            && context.retrieval_query.execution_mode != "direct"
             && matches!(
                 context.intent.as_str(),
                 INTENT_METHOD_IMPROVEMENT
@@ -4025,6 +4027,7 @@ pub fn audit_generated_answer_with_semantic(
                 && !context.evidence.is_empty()
                 && metadata.provider != PROVIDER_OFFLINE),
         structured_roles.as_deref(),
+        Some(&evidence_coverage),
     );
     let envelope = context::build_prompt_envelope(context);
     let mut run_manifest = context::build_run_manifest(
