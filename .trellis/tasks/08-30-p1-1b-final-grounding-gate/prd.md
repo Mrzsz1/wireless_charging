@@ -22,17 +22,17 @@
 
 ## Acceptance Criteria
 
-- [ ] Draft invalid、repair 后 Final valid 时允许持久化。
-- [ ] Final 中新增事实 claim 时 Final Audit 失败。
-- [ ] Grounding system notice 不作为事实 claim 且不要求 citation。
-- [ ] Final Audit 重复执行结果一致。
-- [ ] `PartiallySupported` repair 后不保留完整原 claim。
-- [ ] 无 supported claim 时返回固定 insufficiency 答案、不 grounded、不进入 trusted history。
-- [ ] Direct contract 不再强制完整 5–7 项 Research profile。
-- [ ] Research 真实链路先复跑；目标为最终 supported 等于事实总数、unsupported=0、coverage=1、persisted=true。
-- [ ] Direct 真实链路后复跑并准确归因残余 semantic/cross-language 阻塞，不修改预算。
-- [ ] `cargo fmt --check`、目标 Rust 测试、clippy 与必要的前端构建通过；避免无关的全量过度测试。
-- [ ] 每个实施阶段均创建本地 Git commit；不在本任务中自动推送 GitHub。
+- [x] Draft invalid、repair 后 Final valid 时允许持久化。
+- [x] Final 中新增事实 claim 时 Final Audit 失败。
+- [x] Grounding system notice 不作为事实 claim 且不要求 citation。
+- [x] Final Audit 重复执行结果一致。
+- [x] `PartiallySupported` repair 后不保留完整原 claim。
+- [x] 无 supported claim 时返回固定 insufficiency 答案、不 grounded、不进入 trusted history。
+- [x] Direct contract 不再强制完整 5–7 项 Research profile。
+- [x] Research 真实链路先复跑；目标为最终 supported 等于事实总数、unsupported=0、coverage=1、persisted=true。
+- [x] Direct 真实链路后复跑并准确归因残余 semantic/cross-language 阻塞，不修改预算。
+- [x] `cargo fmt --check`、目标 Rust 测试、clippy 与必要的前端构建通过；避免无关的全量过度测试。
+- [x] 每个实施阶段均创建本地 Git commit；不在本任务中自动推送 GitHub。
 
 ## Notes
 

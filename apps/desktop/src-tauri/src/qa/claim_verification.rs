@@ -115,7 +115,14 @@ pub struct FinalGroundingAudit {
 }
 
 fn normalized_claim_text(value: &str) -> String {
-    value.split_whitespace().collect::<Vec<_>>().join(" ")
+    value
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+        .trim_start_matches(|character: char| {
+            matches!(character, '，' | ',' | '；' | ';' | '：' | ':' | ' ' | '\t')
+        })
+        .to_string()
 }
 
 pub fn audit_repaired_answer(
@@ -1288,6 +1295,22 @@ mod tests {
     }
 
     #[test]
+    fn repair_boundary_punctuation_does_not_break_supported_claim_mapping() {
+        let source =
+            evidence("ROSE uses particle swarm optimization for mobile charger scheduling.");
+        let draft_answer = "The moon is made of cheese，同时 ROSE uses particle swarm optimization for mobile charger scheduling [E1].";
+        let (repaired, draft) = verify_and_repair(draft_answer, std::slice::from_ref(&source));
+        assert_eq!(draft.supported_count, 1);
+        assert!(repaired.contains("，同时 ROSE"), "{repaired}");
+
+        let final_audit = audit_repaired_answer(&repaired, &[source], &draft);
+        assert_eq!(final_audit.grounding_status, "supported");
+        assert_eq!(final_audit.factual_claim_count, 1);
+        assert_eq!(final_audit.supported_count, 1);
+        assert_eq!(final_audit.unsupported_count, 0);
+    }
+
+    #[test]
     fn final_audit_rejects_a_new_fact_not_present_in_supported_draft_claims() {
         let source =
             evidence("ROSE uses particle swarm optimization for mobile charger scheduling.");
@@ -1317,6 +1340,12 @@ mod tests {
         ] {
             assert!(is_grounding_system_notice(notice));
             assert!(extract_atomic_claims(notice).is_empty(), "{notice}");
+            let punctuated = format!("，{notice}");
+            assert!(is_grounding_system_notice(&punctuated));
+            assert!(
+                extract_atomic_claims(&punctuated).is_empty(),
+                "{punctuated}"
+            );
         }
     }
 

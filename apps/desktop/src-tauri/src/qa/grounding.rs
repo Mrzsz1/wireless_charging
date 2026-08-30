@@ -431,6 +431,12 @@ pub fn is_grounding_system_notice(value: &str) -> bool {
                     '#' | '-' | '*' | '+' | '.' | ')' | '（' | '）' | ' '
                 )
         })
+        .trim_start_matches(|character: char| {
+            matches!(
+                character,
+                '，' | ',' | '；' | ';' | '：' | ':' | '。' | '.' | ' ' | '\t'
+            )
+        })
         .trim();
     [
         INSUFFICIENT_SUPPORT_NOTICE,

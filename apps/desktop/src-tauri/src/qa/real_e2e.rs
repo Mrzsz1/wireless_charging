@@ -1194,10 +1194,12 @@ mod tests {
             alignment_score: 0.91,
             reason: "direct support".to_string(),
         };
-        let mut source = EvidenceItem::default();
-        source.id = "E1".to_string();
-        source.title = "Fixture C:\\private\\title.md".to_string();
-        source.snippet = "Fixture snippet C:\\private\\snippet.md".to_string();
+        let source = EvidenceItem {
+            id: "E1".to_string(),
+            title: "Fixture C:\\private\\title.md".to_string(),
+            snippet: "Fixture snippet C:\\private\\snippet.md".to_string(),
+            ..EvidenceItem::default()
+        };
 
         let diagnostics = local_claim_diagnostics(&[claim], &[source]);
         let serialized = serde_json::to_string(&diagnostics).unwrap();
