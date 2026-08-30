@@ -31,9 +31,9 @@
 
 ## Phase 3 — Temporary-proxy Probe C
 
-- [ ] Only after B passes, run Probe C exactly once with the same executable/model/effort/proxy.
-- [ ] Validate success, contract validity, and positive baseline count; commit safe evidence.
-- [ ] On failure, stop and follow its actual non-schema classification.
+- [x] Only after B passes, run Probe C exactly once with the same executable/model/effort/proxy.
+- [x] Validate success, contract validity, and positive baseline count; commit safe evidence.
+- [x] Probe C passed, so the actual-failure stop branch was not entered.
 
 ## Phase 4 — Temporary-proxy real Research
 
