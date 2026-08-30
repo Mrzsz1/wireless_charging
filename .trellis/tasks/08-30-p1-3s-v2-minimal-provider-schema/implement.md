@@ -1,0 +1,72 @@
+# Implementation Plan — P1-3S v2 Minimal Provider Schema Compatibility
+
+## Phase 0 — Plan and RED
+
+- [ ] Record clean baseline `02df15c0f694f416f4af44a5daf4724114086b8a` and commit planning artifacts.
+- [ ] Add a deterministic pre-fix test proving the current Provider path receives a schema containing `uniqueItems` at all three kind-array positions.
+- [ ] Run the RED observation before any production change and commit it separately.
+
+## Phase 1 — Minimal schema split
+
+- [ ] Add the recursive one-key `uniqueItems` removal helper and `retrieval_contract_provider_schema()`.
+- [ ] Export `query_plan_provider_schema()` while retaining `query_plan_schema()` as the full contract.
+- [ ] Wire production Planner, `production_heldout` consistency path, and Probe B/C to the Provider schema only.
+- [ ] Add S1–S3 and the evidence-driven compatibility comment; run focused schema tests and commit.
+
+## Phase 1b — Strict local validation
+
+- [ ] Add/confirm S4 duplicate kind normalization.
+- [ ] Add/confirm S5 duplicate facet ID rejection.
+- [ ] Add/confirm S6 invalid budget rejection.
+- [ ] Add/confirm S7 invalid facet ID rejection.
+- [ ] Add/confirm S8 unknown-field rejection.
+- [ ] Run focused RetrievalContract/QueryPlan tests and commit.
+
+## Phase 2 — Temporary-proxy Probe B
+
+- [ ] Build the current `qa-planner-probe` binary.
+- [ ] Explicitly set uppercase and lowercase HTTP/HTTPS/ALL proxy variables to `http://127.0.0.1:7890` for the child command only.
+- [ ] Run Probe B exactly once to a new safe report; do not run A.
+- [ ] If it passes, commit the safe aggregate report/evidence. If it remains `schema_rejected`, stop, collect one repository-external diagnostic, add one RED and one-key transform, then repeat only B as permitted by the taskbook.
+
+## Phase 3 — Temporary-proxy Probe C
+
+- [ ] Only after B passes, run Probe C exactly once with the same executable/model/effort/proxy.
+- [ ] Validate success, contract validity, and positive baseline count; commit safe evidence.
+- [ ] On failure, stop and follow its actual non-schema classification.
+
+## Phase 4 — Temporary-proxy real Research
+
+- [ ] Only after C passes, build/use `qa-real-e2e` and select only `QA_REAL_E2E_CASE_ID=real-research-improvement`.
+- [ ] Run once with temporary proxy and a unique report.
+- [ ] Verify Planner, Semantic, final factual/support, citation, persistence, executed-scope, and exit-code gates; commit safe evidence.
+- [ ] Do not run Independent Heldout.
+
+## Phase 5 — Conditional default proxy integration
+
+- [ ] Only after Phase 4 passes, add pure proxy resolution and child `Command::env(...)` injection in `codex_subscription.rs`.
+- [ ] Cover explicit URL, `off/direct/none`, inherited standard proxy, and default localhost:7890 behavior without parent `set_var`.
+- [ ] Preserve existing structured lifecycle diagnostics and ensure no URL/credential is logged.
+- [ ] Run focused Codex adapter tests, fmt, and Clippy; commit.
+
+## Phase 6 — Final validation without Shell proxy
+
+- [ ] Clear uppercase/lowercase HTTP/HTTPS/ALL proxy variables in the verification process.
+- [ ] Run Probe A, B, and C exactly once each, in order, to unique safe reports.
+- [ ] Run only `real-research-improvement` exactly once after all probes pass.
+- [ ] Validate every taskbook field and commit safe verification evidence.
+
+## Phase 7 — Quality and delivery
+
+- [ ] Run focused Rust tests, `cargo fmt --check`, relevant Clippy, and `git diff --check`; avoid full/heldout regression.
+- [ ] Update `.trellis/spec/backend/qa-contract.md` with the domain/provider schema boundary and proven proxy contract.
+- [ ] Write the final 16-item result report.
+- [ ] Commit verified work, archive the Trellis task, record journal, and normally push `master` to `origin` without force.
+
+## Rollback and stop points
+
+- Before each live stage, verify the previous report passed; never bypass B/C/Research gates.
+- Never overwrite a prior probe/report path.
+- Never broaden the compatibility transform without a real `schema_rejected` observation.
+- Never integrate the default proxy before temporary-proxy Research passes.
+- If push fails, retain all local commits and retry only a normal push.
