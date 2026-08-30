@@ -26,18 +26,19 @@ Make final grounding repair deterministic: prove the current global `String::rep
 
 ## Acceptance Criteria
 
-- [ ] Legacy `replacen` is proven RED by a committed synthetic collision fixture.
-- [ ] Production claim repair contains no global `replacen` call.
-- [ ] Duplicate text, substring collision, same-prefix/different-evidence, and Markdown/list repetition replace only their bound source occurrences.
-- [ ] Four Draft claims (`1` supported, `3` non-supported) project to Final `1/1/0` with no introduced factual claim.
-- [ ] Missing or invalid spans return a stable `REPAIR_PROJECTION_INVALID` classification and fail closed.
-- [ ] No-supported output remains `NO_SUPPORTED_CLAIMS_NOTICE`; system notices stay outside the factual denominator.
-- [ ] Trusted history remains empty unless the final audit is fully supported and visible-projection valid.
-- [ ] Visible projection and unknown-evidence rejection remain enforced.
-- [ ] Repair lifecycle logging tests cover success and representative failure with no content/path leakage.
-- [ ] Required Rust, Python, npm, build, and diff checks pass; Independent Heldout is not run.
-- [ ] The single real Research run is reported exactly as observed; no retry is used to manufacture a pass.
-- [ ] Planner, Provider Schema, proxy, budgets, Semantic verdicts/prompts, citation thresholds, and final grounding gates are unchanged.
+- [x] Legacy `replacen` is proven RED by a committed synthetic collision fixture.
+- [x] Production claim repair contains no global `replacen` call.
+- [x] Duplicate text, substring collision, same-prefix/different-evidence, and Markdown/list repetition replace only their bound source occurrences.
+- [x] Four Draft claims (`1` supported, `3` non-supported) project to Final `1/1/0` with no introduced factual claim.
+- [x] Missing or invalid spans return a stable `REPAIR_PROJECTION_INVALID` classification and fail closed.
+- [x] No-supported output remains `NO_SUPPORTED_CLAIMS_NOTICE`; system notices stay outside the factual denominator.
+- [x] Trusted history remains empty unless the final audit is fully supported and visible-projection valid.
+- [x] Visible projection and unknown-evidence rejection remain enforced.
+- [x] Repair lifecycle logging tests cover success and representative failure with no content/path leakage.
+- [x] Required Rust, Python, npm, build, and diff checks pass; Independent Heldout is not run.
+- [x] The single real Research run is reported exactly as observed; no retry is used to manufacture a pass.
+- [x] Planner, Provider Schema, proxy, budgets, Semantic verdicts/prompts, citation thresholds, and final grounding gates are unchanged.
+- [ ] The post-notice-boundary-fix commit is proven by a new real Research PASS; the taskbook's one-run limit intentionally leaves this close gate unmeasured.
 
 ## Out of Scope
 
