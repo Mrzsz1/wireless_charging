@@ -2,9 +2,9 @@
 
 ## Phase 0 — Plan and RED
 
-- [ ] Record clean baseline `02df15c0f694f416f4af44a5daf4724114086b8a` and commit planning artifacts.
-- [ ] Add a deterministic pre-fix test proving the current Provider path receives a schema containing `uniqueItems` at all three kind-array positions.
-- [ ] Run the RED observation before any production change and commit it separately.
+- [x] Record clean baseline `02df15c0f694f416f4af44a5daf4724114086b8a` and commit planning artifacts.
+- [x] Add a deterministic pre-fix test proving the current Provider path receives a schema containing `uniqueItems` at all three kind-array positions.
+- [x] Run the RED observation before any production change and commit it separately.
 
 ## Phase 1 — Minimal schema split
 

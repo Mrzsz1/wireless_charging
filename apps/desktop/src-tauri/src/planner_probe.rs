@@ -471,6 +471,19 @@ mod tests {
     }
 
     #[test]
+    fn current_provider_schema_contains_unique_items_before_fix() {
+        let definition = probe_definition(Path::new("."), "b").unwrap();
+
+        for pointer in [
+            "/properties/requestedKinds/uniqueItems",
+            "/properties/mustAttemptKinds/uniqueItems",
+            "/properties/facets/items/properties/preferredKinds/uniqueItems",
+        ] {
+            assert_eq!(definition.schema.pointer(pointer), Some(&Value::Bool(true)));
+        }
+    }
+
+    #[test]
     fn probe_a_and_b_definitions_are_bounded_and_structured() {
         let repository = Path::new(".");
         let definition_a = probe_definition(repository, "a").unwrap();
