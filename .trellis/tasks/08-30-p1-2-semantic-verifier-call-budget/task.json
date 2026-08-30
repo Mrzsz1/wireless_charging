@@ -1,0 +1,31 @@
+{
+  "id": "p1-2-semantic-verifier-call-budget",
+  "name": "p1-2-semantic-verifier-call-budget",
+  "title": "P1-2 Semantic Verifier Call Budget",
+  "description": "Reserve one non-consumable Semantic Verifier LLM call in Direct, Research, and Exploratory routing while preserving finite total calls and existing token ceilings.",
+  "status": "planning",
+  "dev_type": "bugfix",
+  "scope": "backend QA call-budget policy, guard enforcement, deterministic integration tests, telemetry contracts, and task docs",
+  "package": null,
+  "priority": "P1",
+  "creator": "qq155",
+  "assignee": "qq155",
+  "createdAt": "2026-08-30",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "apps/desktop/src-tauri/src/qa/adaptive_routing.rs",
+    "apps/desktop/src-tauri/src/qa/claim_verification.rs",
+    "apps/desktop/src-tauri/src/qa/production_core.rs",
+    ".trellis/spec/backend/qa-contract.md"
+  ],
+  "notes": "Taskbook: C:/Users/qq155/Downloads/p1_2_semantic_verifier_call_budget_taskbook.md. Deterministic red tests must precede production logic changes.",
+  "meta": {}
+}
