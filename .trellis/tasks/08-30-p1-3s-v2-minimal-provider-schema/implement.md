@@ -37,10 +37,10 @@
 
 ## Phase 4 — Temporary-proxy real Research
 
-- [ ] Only after C passes, build/use `qa-real-e2e` and select only `QA_REAL_E2E_CASE_ID=real-research-improvement`.
-- [ ] Run once with temporary proxy and a unique report.
-- [ ] Verify Planner, Semantic, final factual/support, citation, persistence, executed-scope, and exit-code gates; commit safe evidence.
-- [ ] Do not run Independent Heldout.
+- [x] Only after C passes, build/use `qa-real-e2e` and select only `QA_REAL_E2E_CASE_ID=real-research-improvement`.
+- [x] Run once with temporary proxy and a unique report.
+- [x] Verify Planner, Semantic, final factual/support, citation, persistence, executed-scope, and exit-code gates; commit safe evidence.
+- [x] Do not run Independent Heldout.
 
 ## Phase 5 — Conditional default proxy integration
 
