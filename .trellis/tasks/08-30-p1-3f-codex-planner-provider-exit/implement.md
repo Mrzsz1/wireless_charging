@@ -5,7 +5,7 @@
 - [x] Confirm clean baseline `4c551e8e2d75425e33271248ffd4d71f16a673ae`.
 - [x] Record Codex executable safe metadata, version/login state, Windows, model, and effort.
 - [x] Create PRD/design/implementation artifacts.
-- [ ] Commit `chore(task): plan p1-3f codex planner exit diagnosis`.
+- [x] Commit `chore(task): plan p1-3f codex planner exit diagnosis`.
 
 ## Phase 1/2 — RED fixtures and terminal-event adapter
 
