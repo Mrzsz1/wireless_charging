@@ -9,7 +9,7 @@ use sha2::{Digest, Sha256};
 use std::path::Path;
 use std::time::UNIX_EPOCH;
 
-pub const PROMPT_VERSION: &str = "qa-prompt-v15";
+pub const PROMPT_VERSION: &str = "qa-prompt-v16";
 pub const ANSWER_SCHEMA_VERSION: &str = "qa-natural-markdown-v2";
 pub const LEGACY_ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
@@ -1053,6 +1053,7 @@ pub fn required_answer_elements(intent: &str) -> Vec<String> {
 
 const NATURAL_GROUNDING_DRAFTING_RULES: &str = "写作前先从 evidence_bundle 中选出与问题直接相关的最少事实集。直接事实问题优先只回答 1–3 条最小充分事实，不为了显得完整而扩写。每条事实尽量直接复用 evidence snippet 的主语、谓语、核心术语和限定词；若 snippet 为英文，在中文句子中保留支撑结论的简短英文关键短语，避免自由改写导致语义漂移。不要将问题前提重复成无引用的陈述句。";
 const NATURAL_GROUNDING_RULES: &str = "Grounded Body 只能写当前 evidence_bundle 直接支持的库内事实。一条短句只表达一个可核验事实；每个事实的显式 [E#] 必须紧邻对应事实，且被引 evidence 必须完整支持该事实的全部含义，不得用段尾引用笼统支撑整段。禁止证据范围扩张：不得将局部实验扩张为所有场景、相关性扩张为因果、平均表现扩张为最坏情况保证、仿真结果扩张为现实世界保证、特定参数扩张为任意参数、一种方法扩张为唯一或最优方法、论文提出扩张为已工业验证。任何百分比、节点数、时间、距离、能耗、准确率、复杂度数字或参数值必须逐字出现在被引 evidence 中；证据只说“有改善”时不得编造改善幅度。证据不足时只写固定短句“当前证据不足以核验该陈述”，不得补全。一般知识、推测和延伸只能放入独立的“## 模型补充（可能不准确）”区域，明确未由当前知识库核验，且不得附 [E#]。研究建议必须用“建议”、“后续可考虑”或“研究方向”等建议性措辞，不得伪装成 evidence 已证明的事实。";
+const DIRECT_STRUCTURED_GROUNDING_RULES: &str = "claims 只能写当前 evidence_bundle 直接支持的库内事实，每条 text 只表达一个可核验事实，被列入 evidenceIds 的证据必须完整支持该事实的全部含义。禁止证据范围扩张：不得将局部实验扩张为所有场景、相关性扩张为因果、平均表现扩张为最坏情况保证、仿真结果扩张为现实世界保证、特定参数扩张为任意参数、一种方法扩张为唯一或最优方法、论文提出扩张为已工业验证。任何百分比、节点数、时间、距离、能耗、准确率、复杂度数字或参数值必须逐字出现在对应 evidence 中；证据只说“有改善”时不得编造改善幅度。";
 
 pub fn answer_evidence_coverage(context: &QuestionContext) -> Vec<String> {
     let mut coverage = Vec::new();
@@ -1092,7 +1093,7 @@ fn answer_contract(
         if has_evidence {
             if execution_mode == "direct" {
                 return format!(
-                    "直接输出自然 Markdown 正文。Direct 模式优先级高于任何完整研究 profile：只回答 1–3 条解决当前问题所需的最小充分事实，并在必要时补一句证据边界；不要为了覆盖完整研究对象、变量、目标、约束、方法、保证或失效边界而扩写。{NATURAL_GROUNDING_DRAFTING_RULES}{NATURAL_GROUNDING_RULES}不要输出 JSON、evidenceIds、本地路径、参考证据标题或自造链接，也不要使用未知编号；[E#] 仅供后端逐条核验，展示时会移除。"
+                    "只输出符合 qa-direct-grounded-answer-v1 的 JSON object，不要输出 Markdown 代码围栏或 JSON 前后的解释文字。顶层字段必须且只能是 schemaVersion、claims、insufficientEvidence；schemaVersion 固定为 qa-direct-grounded-answer-v1。Direct 模式优先级高于任何完整研究 profile：claims 只写 1–3 条解决当前问题所需的最小充分事实，不要为了覆盖完整研究对象、变量、目标、约束、方法、保证或失效边界而扩写。每条 claim 必须且只能包含 text 和 evidenceIds；text 是不带 [E#]、标题或换行的一条原子事实，evidenceIds 必须列出本轮 evidence_bundle 中完整支持该事实的全部有效编号，且至少一个来源不是 graph。不得使用未知编号，不得添加建议、模型补充、参考证据 appendix、本地路径、自造链接或证据标题。只有本轮证据不足以形成任何可核验事实时，才输出 claims=[] 且 insufficientEvidence=true；其他情况必须为 false。{NATURAL_GROUNDING_DRAFTING_RULES}{DIRECT_STRUCTURED_GROUNDING_RULES}"
                 );
             }
             let coverage = if evidence_coverage.is_empty() {
@@ -1337,9 +1338,11 @@ pub fn build_run_manifest(
         retriever_version: RETRIEVER_VERSION.to_string(),
         context_schema_version: CONTEXT_SCHEMA_VERSION.to_string(),
         provider: metadata.provider.clone(),
-        structured_output_mode: if super::natural_answer_v2_enabled()
-            && !metadata.enforce_answer_schema
+        structured_output_mode: if super::direct_grounded_output(context)
+            && metadata.provider != super::PROVIDER_OFFLINE
         {
+            "direct-grounded-json"
+        } else if super::natural_answer_v2_enabled() && !metadata.enforce_answer_schema {
             "natural-markdown"
         } else if metadata.provider == super::PROVIDER_CODEX
             && metadata.enforce_answer_schema
@@ -1761,7 +1764,11 @@ mod tests {
             true,
         );
         assert!(contract.contains("Direct 模式优先级高于任何完整研究 profile"));
-        assert!(contract.contains("只回答 1–3 条"));
+        assert!(contract.contains("qa-direct-grounded-answer-v1"));
+        assert!(contract.contains("claims 只写 1–3 条"));
+        assert!(contract.contains("evidenceIds"));
+        assert!(contract.contains("insufficientEvidence"));
+        assert!(contract.contains("只输出符合"));
         assert!(contract.contains("不要为了覆盖完整研究对象"));
         assert!(!contract.contains("本回答 profile 必须覆盖"));
         for element in required_answer_elements("problem_modeling") {

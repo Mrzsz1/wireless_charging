@@ -248,15 +248,60 @@ where
             _ => Err("PROVIDER_INVALID: 不支持的回答引擎".to_string()),
         };
 
-    let (answer, provider, model) = generated?;
+    let (raw_answer, provider, model) = generated?;
     if cancelled.load(Ordering::SeqCst) {
         return Err("QUESTION_CANCELLED: 用户停止了问答".to_string());
     }
     let offline = provider == PROVIDER_OFFLINE;
     let answer = if zero_evidence {
-        normalize_unverified_answer(&answer)
+        normalize_unverified_answer(&raw_answer)
+    } else if direct_grounded_output(context) && provider != PROVIDER_OFFLINE {
+        let mut started = trace::QaTraceEvent::new(
+            "qa_direct_answer_parse_started",
+            "direct_answer_parser",
+            "started",
+            &context.request_id,
+        );
+        started.execution_mode = context.retrieval_query.execution_mode.clone();
+        started.provider = provider.clone();
+        started.model = model.clone();
+        started.evidence_count = Some(context.evidence.len());
+        trace::emit(&started);
+        match direct_answer::parse_validate_render(&raw_answer, &context.evidence) {
+            Ok(rendered) => {
+                let mut completed = trace::QaTraceEvent::new(
+                    "qa_direct_answer_parse_completed",
+                    "direct_answer_parser",
+                    "succeeded",
+                    &context.request_id,
+                );
+                completed.execution_mode = context.retrieval_query.execution_mode.clone();
+                completed.provider = provider.clone();
+                completed.model = model.clone();
+                completed.evidence_count = Some(context.evidence.len());
+                completed.claim_count =
+                    Some(claim_verification::extract_atomic_claims(&rendered).len());
+                trace::emit(&completed);
+                rendered
+            }
+            Err(error) => {
+                let mut failed = trace::QaTraceEvent::new(
+                    "qa_direct_answer_parse_failed",
+                    "direct_answer_parser",
+                    "failed",
+                    &context.request_id,
+                );
+                failed.execution_mode = context.retrieval_query.execution_mode.clone();
+                failed.provider = provider.clone();
+                failed.model = model.clone();
+                failed.evidence_count = Some(context.evidence.len());
+                failed.error_code = trace::error_code(&error);
+                trace::emit(&failed);
+                return Err(error);
+            }
+        }
     } else {
-        answer
+        raw_answer
     };
     let semantic_verification = match run_semantic_verification(
         settings,

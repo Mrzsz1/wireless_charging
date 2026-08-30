@@ -44,15 +44,15 @@
 
 ## Phase 6 — One Direct diagnosis
 
-- [ ] Configure `E:\qa-direct-diagnostic-p1-1c` and `real-direct-rose`.
-- [ ] Run real E2E exactly once.
-- [ ] Inspect local diagnostic only; record the four booleans and delete the local artifacts.
+- [x] Configure `E:\qa-direct-diagnostic-p1-1c` and `real-direct-rose`.
+- [x] Run real E2E exactly once.
+- [x] Inspect local diagnostic only; record the four booleans and delete the local artifacts.
 
 ## Phase 7 — One proven root-cause fix
 
-- [ ] Select exactly one A/B/C branch.
-- [ ] Add a public deterministic failing regression, apply the minimal single-layer fix, and run focused tests.
-- [ ] Commit the taskbook-defined branch-specific fix message.
+- [x] Select exactly one A/B/C branch: Branch B, because answerable evidence reached the Provider but the raw answer contained no Evidence ID.
+- [x] Add deterministic schema/parser/renderer/payload regressions, apply the Direct-only structured-binding fix, and run focused tests plus Clippy.
+- [x] Commit with the taskbook-defined Branch B message after the focused gate passes.
 
 ## Phase 8 — One Direct verification rerun
 

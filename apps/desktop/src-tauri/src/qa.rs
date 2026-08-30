@@ -5,6 +5,7 @@ pub(crate) mod conversation_benchmark;
 pub(crate) mod conversation_state_benchmark;
 pub(crate) mod corpus;
 mod coverage;
+mod direct_answer;
 pub(crate) mod evaluation;
 mod evidence_manager;
 mod fusion;
@@ -3186,8 +3187,18 @@ pub fn embedding_model_name() -> &'static str {
 }
 
 pub fn codex_output_schema(context: &QuestionContext) -> Option<Value> {
-    (!natural_answer_v2_enabled() && !context.evidence.is_empty())
-        .then(|| structured_answer::provider_output_schema(&context.intent, &context.evidence))
+    if direct_grounded_output(context) {
+        Some(direct_answer::provider_output_schema(&context.evidence))
+    } else {
+        (!natural_answer_v2_enabled() && !context.evidence.is_empty())
+            .then(|| structured_answer::provider_output_schema(&context.intent, &context.evidence))
+    }
+}
+
+pub(crate) fn direct_grounded_output(context: &QuestionContext) -> bool {
+    natural_answer_v2_enabled()
+        && context.retrieval_query.execution_mode == "direct"
+        && !context.evidence.is_empty()
 }
 
 #[derive(Default)]
@@ -3335,19 +3346,11 @@ where
         .build()
         .map_err(|error| format!("LUNA_CLIENT_ERROR: {error}"))?;
     let envelope = context::build_prompt_envelope(context);
+    let payload = luna_answer_payload(settings, context, &envelope);
     let response = client
         .post(&settings.endpoint)
         .bearer_auth(api_key)
-        .json(&json!({
-            "model": settings.model,
-            "messages": [
-                {"role": "system", "content": envelope.system_prompt},
-                {"role": "user", "content": envelope.user_prompt}
-            ],
-            "temperature": settings.temperature,
-            "max_tokens": settings.max_output_tokens,
-            "stream": true
-        }))
+        .json(&payload)
         .send()
         .map_err(|error| format!("LUNA_NETWORK_ERROR: {error}"))?;
     let status = response.status();
@@ -3372,6 +3375,34 @@ where
         state.resolved_model.clone()
     };
     finish_luna_stream(state).map(|answer| (answer, resolved_model))
+}
+
+fn luna_answer_payload(
+    settings: &LunaSettings,
+    context: &QuestionContext,
+    envelope: &context::PromptEnvelope,
+) -> Value {
+    let mut payload = json!({
+        "model": settings.model,
+        "messages": [
+            {"role": "system", "content": envelope.system_prompt},
+            {"role": "user", "content": envelope.user_prompt}
+        ],
+        "temperature": settings.temperature,
+        "max_tokens": settings.max_output_tokens,
+        "stream": true
+    });
+    if direct_grounded_output(context) {
+        payload["response_format"] = json!({
+            "type": "json_schema",
+            "json_schema": {
+                "name": "qa_direct_grounded_answer",
+                "strict": true,
+                "schema": direct_answer::provider_output_schema(&context.evidence)
+            }
+        });
+    }
+    payload
 }
 
 fn luna_structured_payload(settings: &LunaSettings, prompt: &str, schema: &Value) -> Value {
@@ -5598,7 +5629,35 @@ mod tests {
             .release()
             .unwrap();
         record_llm_budget_usage(&mut context, budget_guard.usage());
-        assert!(codex_output_schema(&context).is_none());
+        let direct_schema = codex_output_schema(&context).expect("Direct must bind evidence IDs");
+        assert_eq!(
+            direct_schema
+                .pointer("/properties/schemaVersion/enum/0")
+                .and_then(Value::as_str),
+            Some(direct_answer::SCHEMA_VERSION)
+        );
+        assert_eq!(
+            direct_schema
+                .pointer("/properties/claims/maxItems")
+                .and_then(Value::as_u64),
+            Some(3)
+        );
+        let settings = LunaSettings::default();
+        let envelope = context::build_prompt_envelope(&context);
+        let direct_payload = luna_answer_payload(&settings, &context, &envelope);
+        assert_eq!(
+            direct_payload
+                .pointer("/response_format/json_schema/name")
+                .and_then(Value::as_str),
+            Some("qa_direct_grounded_answer")
+        );
+        let mut research_context = context.clone();
+        research_context.retrieval_query.execution_mode = "research".to_string();
+        assert!(codex_output_schema(&research_context).is_none());
+        let research_envelope = context::build_prompt_envelope(&research_context);
+        let research_payload =
+            luna_answer_payload(&settings, &research_context, &research_envelope);
+        assert!(research_payload.get("response_format").is_none());
         let metadata = ProviderRunMetadata {
             provider: PROVIDER_API.to_string(),
             model_requested: "fixture-requested".to_string(),
@@ -5642,7 +5701,7 @@ mod tests {
         assert_eq!(result.run_manifest.model_resolved, "fixture-resolved");
         assert_eq!(
             result.run_manifest.structured_output_mode,
-            "natural-markdown"
+            "direct-grounded-json"
         );
         assert!(result.assistant_message.content.contains("## 参考证据"));
         assert!(result.assistant_message.content.contains("(evidence:E1)"));
@@ -5704,7 +5763,7 @@ mod tests {
         );
         assert_eq!(
             codex_audit.run_manifest.structured_output_mode,
-            "natural-markdown"
+            "direct-grounded-json"
         );
         assert_eq!(
             codex_audit.run_manifest.answer_format,
