@@ -63,22 +63,22 @@
 
 ## Acceptance Criteria
 
-- [ ] S1：Provider Schema 递归不含 `uniqueItems`。
-- [ ] S2：完整领域 Schema 仍包含 `uniqueItems`。
-- [ ] S3：两份 Schema 的 properties、required、嵌套对象结构和 enum 值一致，差异只允许为 `uniqueItems`。
-- [ ] S4：`["paper","paper","book"]` 归一化为 `["paper","book"]`。
-- [ ] S5：duplicate facet ID 返回 `RETRIEVAL_CONTRACT_INVALID`。
-- [ ] S6：`maxRounds=99` 返回 `RETRIEVAL_CONTRACT_INVALID`。
-- [ ] S7：facet ID `A bad id!` 返回 `RETRIEVAL_CONTRACT_INVALID`。
-- [ ] S8：unknown field 继续由 `deny_unknown_fields` 拒绝。
-- [ ] 临时 7890 下 Probe B：`status=succeeded`、空 `failureCategory`、`contractValid=true`、`exitCode=0`、`agentMessageSeen=true`。
-- [ ] Probe C：`status=succeeded`、空 `failureCategory`、`contractValid=true`、`baselineCandidateCount>0`。
-- [ ] 临时代理真实 Research：Planner、Semantic、Final Grounding、citation、persistence 和 executed scope 均满足任务书阈值，exit code 0。
-- [ ] 默认代理仅在上述 Research PASS 后接入，并通过覆盖/继承/default/direct 四类确定性测试。
+- [x] S1：Provider Schema 递归不含 `uniqueItems`。
+- [x] S2：完整领域 Schema 仍包含 `uniqueItems`。
+- [x] S3：两份 Schema 的 properties、required、嵌套对象结构和 enum 值一致，差异只允许为 `uniqueItems`。
+- [x] S4：`["paper","paper","book"]` 归一化为 `["paper","book"]`。
+- [x] S5：duplicate facet ID 返回 `RETRIEVAL_CONTRACT_INVALID`。
+- [x] S6：`maxRounds=99` 返回 `RETRIEVAL_CONTRACT_INVALID`。
+- [x] S7：facet ID `A bad id!` 返回 `RETRIEVAL_CONTRACT_INVALID`。
+- [x] S8：unknown field 继续由 `deny_unknown_fields` 拒绝。
+- [x] 临时 7890 下 Probe B：`status=succeeded`、空 `failureCategory`、`contractValid=true`、`exitCode=0`、`agentMessageSeen=true`。
+- [x] Probe C：`status=succeeded`、空 `failureCategory`、`contractValid=true`、`baselineCandidateCount>0`。
+- [x] 临时代理真实 Research：Planner、Semantic、Final Grounding、citation、persistence 和 executed scope 均满足任务书阈值，exit code 0。
+- [x] 默认代理仅在上述 Research PASS 后接入，并通过覆盖/继承/default/direct 四类确定性测试。
 - [ ] 清空 Shell proxy 后 Probe A/B/C 和真实 Research 全部通过。
-- [ ] 相关日志仍使用统一设施、共享 operation ID 和稳定错误分类；无正文、证据、密钥、代理凭据或绝对路径进入日志。
-- [ ] Budget / Semantic / Generator / Grounding 行为未修改，Independent Heldout 未运行。
-- [ ] `cargo fmt`、focused Rust tests、Clippy、`git diff --check` 通过，工作树无无关生成物。
+- [x] 相关日志仍使用统一设施、共享 operation ID 和稳定错误分类；无正文、证据、密钥、代理凭据或绝对路径进入日志。
+- [x] Budget / Semantic / Generator / Grounding 行为未修改，Independent Heldout 未运行。
+- [x] `cargo fmt`、focused Rust tests、Clippy、`git diff --check` 通过，工作树无无关生成物。
 - [ ] 完成提交、Trellis 归档、journal，并普通推送到 GitHub。
 
 ## Out of Scope
