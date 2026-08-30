@@ -22,15 +22,15 @@ Verify the committed source-span and notice-boundary repair with deterministic g
 
 ## Acceptance Criteria
 
-- [ ] Required deterministic Rust/Python/frontend/build checks pass.
-- [ ] Independent Heldout is not executed.
-- [ ] Exactly one post-fix real Research invocation is recorded.
-- [ ] Planner is attempted/used/succeeded with no fallback.
-- [ ] Semantic status is succeeded.
-- [ ] Repair Projection is succeeded with no error.
-- [ ] Final factual count is positive, supported equals factual, unsupported is zero, citation coverage is `1.0`, and visible projection is valid.
-- [ ] Persistence succeeds, executed scope passes, and process exit code is `0`.
-- [ ] All commits are archived/journaled and normally pushed to GitHub.
+- [x] Required deterministic Rust/Python/frontend/build checks pass.
+- [x] Independent Heldout is not executed.
+- [x] Exactly one post-fix real Research invocation is recorded.
+- [x] Planner is attempted/used/succeeded with no fallback.
+- [x] Semantic status is succeeded.
+- [x] Repair Projection is succeeded with no error.
+- [x] Final factual count is positive, supported equals factual, unsupported is zero, citation coverage is `1.0`, and visible projection is valid.
+- [x] Persistence succeeds, executed scope passes, and process exit code is `0`.
+- [x] All commits are archived/journaled and normally pushed to GitHub.
 
 ## Out of Scope
 
