@@ -1468,6 +1468,63 @@ mod tests {
     }
 
     #[test]
+    fn substring_collision_repairs_the_bound_occurrence_only() {
+        let source = evidence("Evidence confirms the method reduces latency.");
+        let draft_answer = concat!(
+            "Evidence confirms The method reduces latency [E1]. ",
+            "The method reduces latency [E1].",
+        );
+        let semantic = SemanticVerificationBatch {
+            version: SEMANTIC_VERIFIER_VERSION.to_string(),
+            provider: "fixture".to_string(),
+            model: "fixture".to_string(),
+            status: "succeeded".to_string(),
+            results: vec![
+                SemanticVerificationResult {
+                    claim_id: "C1".to_string(),
+                    status: SemanticEntailment::Entailed,
+                    confidence: Some(0.99),
+                    reason: Some("The complete first claim is supported.".to_string()),
+                },
+                SemanticVerificationResult {
+                    claim_id: "C2".to_string(),
+                    status: SemanticEntailment::Unknown,
+                    confidence: Some(0.99),
+                    reason: Some("The repeated shorter claim is not supported.".to_string()),
+                },
+            ],
+            ..SemanticVerificationBatch::default()
+        };
+
+        let (repaired, draft) = verify_and_repair_with_semantic(
+            draft_answer,
+            std::slice::from_ref(&source),
+            Some(&semantic),
+        );
+
+        assert_eq!(draft.claims.len(), 2);
+        assert_eq!(
+            draft.claims[0].verification_status,
+            VerificationStatus::Supported
+        );
+        assert_ne!(
+            draft.claims[1].verification_status,
+            VerificationStatus::Supported
+        );
+        assert_eq!(
+            repaired,
+            format!(
+                "Evidence confirms The method reduces latency [E1]. {INSUFFICIENT_SUPPORT_NOTICE}"
+            )
+        );
+
+        let final_audit = audit_repaired_answer(&repaired, &[source], &draft);
+        assert_eq!(final_audit.factual_claim_count, 1);
+        assert_eq!(final_audit.supported_count, 1);
+        assert_eq!(final_audit.unsupported_count, 0);
+    }
+
+    #[test]
     fn repair_boundary_punctuation_does_not_break_supported_claim_mapping() {
         let source =
             evidence("ROSE uses particle swarm optimization for mobile charger scheduling.");
