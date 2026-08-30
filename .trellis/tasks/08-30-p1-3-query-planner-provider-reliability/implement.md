@@ -19,28 +19,28 @@
 
 ## Phase 2 — One real Research diagnosis
 
-- [ ] Run public `real-research-improvement` exactly once with `gpt-5.6-luna` / `low`.
-- [ ] Write a dedicated Planner diagnostic report without overwriting the Direct PASS report.
-- [ ] Record every required Planner/budget/plan/retrieval aggregate.
-- [ ] Do not rerun and do not change production code in this phase.
+- [x] Run public `real-research-improvement` exactly once with `gpt-5.6-luna` / `low`.
+- [x] Write a dedicated Planner diagnostic report without overwriting the Direct PASS report.
+- [x] Record every required Planner/budget/plan/retrieval aggregate.
+- [x] Do not rerun and do not change production code in this phase.
 
 ## Phase 3 — Select exactly one branch
 
-- [ ] Select A/B/C/D/E/F only from the observed stable reason.
-- [ ] Document why other branches are excluded.
-- [ ] Define the single allowed production layer and exact regression target.
+- [x] Select A/B/C/D/E/F only from the observed stable reason (`provider_exit` -> F).
+- [x] Document why other branches are excluded.
+- [x] Limit any potential production change to the Provider Adapter; no defect is yet proven.
 
 ## Phase 4 — RED reproduction before fix
 
-- [ ] Add the smallest deterministic fixture for the chosen branch.
-- [ ] Run it against the diagnosed implementation and record failure name/error/root function.
-- [ ] Commit `test(qa): reproduce real planner failure category` while keeping production behavior unchanged.
+- [x] Add the smallest deterministic fixture for the chosen branch's observed failure path.
+- [x] Reproduce `CODEX_EXIT_ERROR` -> `provider_exit` at the Planner boundary and verify redaction.
+- [x] Commit `test(qa): reproduce real planner failure category` while keeping production behavior unchanged.
 
 ## Phase 5 — Minimal single-layer fix
 
-- [ ] Modify only the chosen branch's layer.
-- [ ] Preserve strict parser/normalization, budgets, retries, safety gates, and unrelated QA behavior.
-- [ ] Run focused branch tests and commit the exact taskbook branch message.
+- [x] Do not modify production behavior because no RED success expectation proves an Adapter defect.
+- [x] Preserve strict parser/normalization, budgets, retries, safety gates, and unrelated QA behavior.
+- [x] Record Branch F's evidence-based no-fix outcome instead of manufacturing a speculative patch.
 
 ## Phase 6 — Deterministic regression
 

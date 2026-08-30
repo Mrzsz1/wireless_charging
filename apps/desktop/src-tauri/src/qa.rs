@@ -5210,6 +5210,63 @@ mod tests {
     }
 
     #[test]
+    fn exploratory_stub_planner_produces_a_usable_contract_without_fallback() {
+        let (root, connection) = test_db();
+        let mut planner_calls = 0;
+        let mut planner = |input: &QueryPlanningInput| {
+            planner_calls += 1;
+            Ok(QueryPlan {
+                schema_version: query_plan::QUERY_PLAN_VERSION.to_string(),
+                scope: QueryScope {
+                    mode: "open".to_string(),
+                    explicit_sources: Vec::new(),
+                },
+                concepts: vec![input.resolved_question.clone()],
+                aliases: Vec::new(),
+                related_problems: Vec::new(),
+                facets: vec![QueryFacet {
+                    id: "future-work".to_string(),
+                    label: "未来研究方向".to_string(),
+                    required: true,
+                    search_queries: vec!["wireless charging scheduling future work".to_string()],
+                    preferred_kinds: vec!["wiki".to_string()],
+                }],
+                requested_kinds: vec!["wiki".to_string(), "paper".to_string()],
+                must_attempt_kinds: vec!["paper".to_string()],
+                budget: QueryBudget {
+                    max_rounds: 2,
+                    max_queries: 4,
+                    max_candidates: 30,
+                },
+                legacy_ranking_profile: "literature".to_string(),
+            })
+        };
+
+        let context = prepare_question_with_history_budget_and_planner(
+            &connection,
+            root.path(),
+            "可以从哪些方向研究无线充电调度？",
+            10,
+            "exploratory-stub-planner",
+            Vec::new(),
+            None,
+            DEFAULT_CONTEXT_WINDOW_TOKENS,
+            LunaSettings::default().max_output_tokens,
+            Some(&mut planner),
+        )
+        .unwrap();
+
+        assert_eq!(planner_calls, 1);
+        assert_eq!(context.retrieval_query.execution_mode, "exploratory");
+        assert!(context.retrieval_query.planner_used);
+        assert_eq!(context.retrieval_query.planner_status, "succeeded");
+        assert!(!context.retrieval_query.planner_fallback);
+        assert!(context.retrieval_query.planner_fallback_reason.is_empty());
+        assert!(!context.retrieval_query.facet_ids.is_empty());
+        assert!(context.retrieval_query.planned_search_query_count >= 1);
+    }
+
+    #[test]
     fn planner_and_fallback_receive_the_post_patch_research_state() {
         let (root, connection) = test_db();
         let history = vec![ConversationTurn {
@@ -5295,6 +5352,39 @@ mod tests {
             context.retrieval_query.planner_fallback_reason,
             "idle_timeout"
         );
+    }
+
+    #[test]
+    fn query_planner_provider_exit_is_auditable_and_redacted() {
+        let (root, connection) = test_db();
+        let mut planner = |_input: &QueryPlanningInput| {
+            Err("CODEX_EXIT_ERROR: private stderr and endpoint".to_string())
+        };
+        let context = prepare_question_with_history_budget_and_planner(
+            &connection,
+            root.path(),
+            "有哪些相关论文研究陌生问题表达",
+            10,
+            "planner-provider-exit",
+            Vec::new(),
+            None,
+            DEFAULT_CONTEXT_WINDOW_TOKENS,
+            LunaSettings::default().max_output_tokens,
+            Some(&mut planner),
+        )
+        .unwrap();
+
+        assert!(!context.retrieval_query.planner_used);
+        assert_eq!(context.retrieval_query.planner_status, "failed_fallback");
+        assert!(context.retrieval_query.planner_fallback);
+        assert_eq!(
+            context.retrieval_query.planner_fallback_reason,
+            "provider_exit"
+        );
+        assert!(!context
+            .retrieval_query
+            .planner_fallback_reason
+            .contains("private"));
     }
 
     #[test]
