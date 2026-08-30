@@ -18,10 +18,10 @@
 
 ## Phase C — 真实重测
 
-- [ ] 只运行 `QA_REAL_E2E_CASE_ID=real-direct-rose` 一次，审计 persisted/grounding/claim 计数与日志脱敏。
-- [ ] Direct 明显改善后，只运行 `real-research-improvement` 一次；保留 Planner fallback 现状。
-- [ ] 若 Direct 未改善，仅做一次有证据的 Prompt 修正后重试，不扩展到其他 P1 问题。
-- [ ] 提交 metadata-only v2 报告，Git 保存 Phase C。
+- [x] 只运行 `QA_REAL_E2E_CASE_ID=real-direct-rose` 一次，审计 persisted/grounding/claim 计数与日志脱敏。
+- [x] Direct 明显改善后，只运行 `real-research-improvement` 一次；保留 Planner fallback 现状。
+- [x] 若 Direct 未改善，仅做一次有证据的 Prompt 修正后重试，不扩展到其他 P1 问题。
+- [x] 提交 metadata-only v2 报告，Git 保存 Phase C。
 
 ## Phase D — Quality and Finish
 
