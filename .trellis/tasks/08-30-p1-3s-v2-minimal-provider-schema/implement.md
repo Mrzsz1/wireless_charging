@@ -15,12 +15,12 @@
 
 ## Phase 1b — Strict local validation
 
-- [ ] Add/confirm S4 duplicate kind normalization.
-- [ ] Add/confirm S5 duplicate facet ID rejection.
-- [ ] Add/confirm S6 invalid budget rejection.
-- [ ] Add/confirm S7 invalid facet ID rejection.
-- [ ] Add/confirm S8 unknown-field rejection.
-- [ ] Run focused RetrievalContract/QueryPlan tests and commit.
+- [x] Add/confirm S4 duplicate kind normalization.
+- [x] Add/confirm S5 duplicate facet ID rejection.
+- [x] Add/confirm S6 invalid budget rejection.
+- [x] Add/confirm S7 invalid facet ID rejection.
+- [x] Add/confirm S8 unknown-field rejection.
+- [x] Run focused RetrievalContract/QueryPlan tests and commit.
 
 ## Phase 2 — Temporary-proxy Probe B
 

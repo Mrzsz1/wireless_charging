@@ -408,12 +408,57 @@ mod tests {
     }
 
     #[test]
-    fn parser_rejects_unknown_fields_and_unbounded_budget() {
+    fn parser_deduplicates_kinds_at_every_local_kind_boundary() {
+        let mut value = retrieval_contract_example();
+        value["requestedKinds"] = json!(["paper", "paper", "book"]);
+        value["mustAttemptKinds"] = json!(["paper", "paper"]);
+        value["facets"][0]["preferredKinds"] = json!(["paper", "paper", "book"]);
+
+        let parsed = parse_retrieval_contract(&value.to_string(), "问题").unwrap();
+
+        assert_eq!(parsed.requested_kinds, ["paper", "book"]);
+        assert_eq!(parsed.must_attempt_kinds, ["paper"]);
+        assert_eq!(parsed.facets[0].preferred_kinds, ["paper", "book"]);
+    }
+
+    #[test]
+    fn parser_rejects_duplicate_facet_ids() {
+        let mut value = retrieval_contract_example();
+        let facet = value["facets"][0].clone();
+        value["facets"] = json!([facet.clone(), facet]);
+
+        let error = parse_retrieval_contract(&value.to_string(), "问题").unwrap_err();
+
+        assert!(error.starts_with("RETRIEVAL_CONTRACT_INVALID"));
+    }
+
+    #[test]
+    fn parser_rejects_budget_outside_local_contract() {
+        let mut value = retrieval_contract_example();
+        value["budget"]["maxRounds"] = json!(99);
+
+        let error = parse_retrieval_contract(&value.to_string(), "问题").unwrap_err();
+
+        assert!(error.starts_with("RETRIEVAL_CONTRACT_INVALID"));
+    }
+
+    #[test]
+    fn parser_rejects_invalid_facet_id_after_provider_projection() {
+        let mut value = retrieval_contract_example();
+        value["facets"][0]["id"] = json!("A bad id!");
+
+        let error = parse_retrieval_contract(&value.to_string(), "问题").unwrap_err();
+
+        assert!(error.starts_with("RETRIEVAL_CONTRACT_INVALID"));
+    }
+
+    #[test]
+    fn parser_rejects_unknown_fields_via_serde_contract() {
         let mut value = retrieval_contract_example();
         value["extra"] = json!(true);
-        assert!(parse_retrieval_contract(&value.to_string(), "问题").is_err());
-        let mut value = retrieval_contract_example();
-        value["budget"]["maxRounds"] = json!(4);
-        assert!(parse_retrieval_contract(&value.to_string(), "问题").is_err());
+
+        let error = parse_retrieval_contract(&value.to_string(), "问题").unwrap_err();
+
+        assert!(error.starts_with("RETRIEVAL_CONTRACT_INVALID"));
     }
 }
