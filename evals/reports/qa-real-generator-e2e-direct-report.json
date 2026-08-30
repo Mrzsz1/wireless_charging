@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "qa-real-generator-e2e-report-v2",
+  "coreVersion": "qa-production-core-v1",
+  "datasetVersion": "qa-real-generator-e2e-2026-08-29-v1",
+  "datasetSha256": "31ba30cae3a081cb818f6e3f76ba0f3bba11147134591877cd699779c84e4eb9",
+  "caseCount": 1,
+  "passedCount": 0,
+  "generatorInvocationCount": 1,
+  "provider": "codex-subscription",
+  "models": [
+    "gpt-5.6-luna"
+  ],
+  "realProviderMeasured": true,
+  "generatorFallbackCount": 0,
+  "generatorBudgetRejectionCount": 0,
+  "prePersistInvalidCitationCount": 1,
+  "finalInvalidCitationCount": 0,
+  "semanticSucceededCount": 0,
+  "semanticUnavailableCount": 1,
+  "passed": false,
+  "results": [
+    {
+      "id": "real-direct-rose",
+      "category": "direct",
+      "passed": false,
+      "turnCount": 1,
+      "persistedTurnCount": 0,
+      "persisted": false,
+      "prePersist": {
+        "answerNonEmpty": true,
+        "provider": "codex-subscription",
+        "model": "gpt-5.6-luna",
+        "answerFormat": "natural-markdown-v2",
+        "manifestSchema": "qa-run-v21",
+        "executionMode": "direct",
+        "generatorStageObserved": true,
+        "generatorBudgetRejected": false,
+        "routingBudgetRejectionCount": 1,
+        "routingLlmCallsUsed": 2,
+        "routingTokenCostUsed": 3034,
+        "routingTokenCostCeiling": 8000,
+        "evidenceCount": 2,
+        "evidenceSelectedCount": 2,
+        "citationValid": false,
+        "unknownCitationCount": 0,
+        "groundingStatus": "invalid",
+        "verificationStatus": "succeeded",
+        "answerComplete": true,
+        "claimCount": 3,
+        "supportedClaimCount": 0,
+        "partiallySupportedClaimCount": 0,
+        "contradictedClaimCount": 0,
+        "notVerifiableClaimCount": 3,
+        "researchSuggestionCount": 0,
+        "repairedClaimCount": 3,
+        "uncitedKnowledgeFactCount": 2,
+        "unverifiedClaimCount": 0,
+        "semanticStatus": "unavailable",
+        "semanticFallbackReason": "llm_budget_exceeded",
+        "plannerStatus": "policy_disabled",
+        "retrievalRoundCount": 1,
+        "rerankerProvider": "cross-encoder-research-v1",
+        "rerankerFallback": false,
+        "claims": [
+          {
+            "claimId": "C1",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 0,
+            "reasonCode": "mapping_gate_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "d7b6e6597cae7ffe0a4e2e0653f3c3a66958898eaf0468f58ab81a284de9ec69"
+          },
+          {
+            "claimId": "C2",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 1,
+            "reasonCode": "deterministic_lexical_heuristic_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "f19608f83b6fb8ea2edc245cc1fe25b26d35616cac3a7f3894b87f0e6835653d"
+          },
+          {
+            "claimId": "C3",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 0,
+            "reasonCode": "mapping_gate_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "e7482692d82cff646b5f9b2522f7cdbdaa4be88bcb77f043d5cd23c7a2366e40"
+          }
+        ]
+      },
+      "final": null,
+      "stateValid": true,
+      "errors": [
+        "citation_validation_failed"
+      ]
+    }
+  ]
+}
