@@ -51,9 +51,10 @@
 
 ## Phase 7 — Full deterministic quality and delivery
 
-- [ ] Run required focused Rust, Python evaluator, frontend QA, build, fmt, and Clippy commands.
-- [ ] Run all-targets Clippy and record only the documented pre-existing warning if unchanged.
-- [ ] Update QA code-specs with the v2 reserve contract.
+- [x] Run required focused Rust, Python evaluator, relevant frontend QA, build, fmt, and Clippy commands.
+- [x] Run all-targets Clippy and record only the documented pre-existing `qa/evaluation.rs:1423 field_reassign_with_default` warning.
+- [x] Record the extra pre-existing stale `test:qa-settings` UI wording assertion; baseline UI/test files are byte-identical and outside this task's permitted scope.
+- [x] Update QA code-specs with the v2 reserve contract.
 - [ ] Write `result.md`, archive the task, record journal, push `master` normally, and verify remote SHA.
 
 ## Guardrails
