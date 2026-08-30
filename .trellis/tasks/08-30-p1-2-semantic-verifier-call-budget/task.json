@@ -3,7 +3,7 @@
   "name": "p1-2-semantic-verifier-call-budget",
   "title": "P1-2 Semantic Verifier Call Budget",
   "description": "Reserve one non-consumable Semantic Verifier LLM call in Direct, Research, and Exploratory routing while preserving finite total calls and existing token ceilings.",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": "bugfix",
   "scope": "backend QA call-budget policy, guard enforcement, deterministic integration tests, telemetry contracts, and task docs",
   "package": null,
