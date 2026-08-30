@@ -78,3 +78,46 @@ Preserved and classified Codex JSONL terminal failures, added repository-externa
 ### Next Steps
 
 - None - task complete
+
+
+## Session 61: P1-3S v2 Provider Schema 与 Codex 代理修复
+
+**Date**: 2026-08-31
+**Task**: P1-3S v2 Provider Schema 与 Codex 代理修复
+**Branch**: `master`
+
+### Summary
+
+仅移除 Provider Schema 的 uniqueItems 并保留本地严格校验；临时 7890 下 Probe B/C 与真实 Research 通过后接入子进程默认代理。清空 Shell 代理后 A/B/C 通过，最终单次 Research 因独立 citation_validation_failed 门禁记录为 PARTIAL-BLOCKED，未重跑或修改被禁止层。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `601f23a` | (see git log) |
+| `9e8c20c` | (see git log) |
+| `24537a0` | (see git log) |
+| `44cf680` | (see git log) |
+| `5bfd9b9` | (see git log) |
+| `d4fc743` | (see git log) |
+| `5fdb861` | (see git log) |
+| `74e58e8` | (see git log) |
+| `794ac42` | (see git log) |
+| `331e731` | (see git log) |
+| `dc45a40` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
