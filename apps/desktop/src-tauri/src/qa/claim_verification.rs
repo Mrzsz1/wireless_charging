@@ -9,7 +9,8 @@ use super::{
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::collections::{HashMap, HashSet};
+use sha2::{Digest, Sha256};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::sync::atomic::AtomicBool;
 use std::time::Instant;
 
@@ -112,11 +113,58 @@ pub struct FinalGroundingAudit {
     pub citation_precision: f64,
     pub citation_coverage: f64,
     pub claims: Vec<VerifiedClaim>,
+    #[serde(default)]
+    pub claim_sources: Vec<FinalClaimSource>,
+    #[serde(default)]
+    pub visible_projection_valid: bool,
+    #[serde(default)]
+    pub audited_body_sha256: String,
+    #[serde(default)]
+    pub visible_body_sha256: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct FinalClaimSource {
+    pub final_claim_id: String,
+    pub source_draft_claim_id: String,
+    pub text_sha256: String,
+    pub evidence_ids: Vec<String>,
+    pub draft_verification_method: String,
+    pub draft_alignment_score: f64,
+    #[serde(default)]
+    pub draft_confidence: Option<f32>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+struct FinalClaimKey {
+    normalized_text: String,
+    sorted_unique_evidence_ids: Vec<String>,
+}
+
+fn canonical_evidence_ids(ids: &[String]) -> Vec<String> {
+    let mut ids = ids.to_vec();
+    ids.sort();
+    ids.dedup();
+    ids
+}
+
+fn final_claim_key(text: &str, evidence_ids: &[String]) -> FinalClaimKey {
+    FinalClaimKey {
+        normalized_text: normalized_claim_text(&natural_answer::project_visible_text(text)),
+        sorted_unique_evidence_ids: canonical_evidence_ids(evidence_ids),
+    }
+}
+
+fn sha256_text(value: &str) -> String {
+    format!("{:x}", Sha256::digest(value.as_bytes()))
 }
 
 pub fn trusted_context_from_final_audit(audit: &FinalGroundingAudit) -> String {
     if audit.audit_status != "succeeded"
         || audit.grounding_status != "supported"
+        || audit.schema_version != "final-grounding-audit-v2"
+        || !audit.visible_projection_valid
         || audit.supported_count == 0
         || audit.supported_count != audit.factual_claim_count
         || audit.unsupported_count != 0
@@ -174,14 +222,19 @@ pub fn audit_repaired_answer(
         .iter()
         .map(|item| (item.id.as_str(), item.kind.as_str()))
         .collect::<HashMap<_, _>>();
-    let supported_draft = draft
+    let mut supported_draft = HashMap::<FinalClaimKey, VecDeque<&VerifiedClaim>>::new();
+    for claim in draft
         .claims
         .iter()
         .filter(|claim| claim.verification_status == VerificationStatus::Supported)
-        .map(|claim| (normalized_claim_text(&claim.text), claim))
-        .collect::<HashMap<_, _>>();
+    {
+        supported_draft
+            .entry(final_claim_key(&claim.text, &claim.evidence_ids))
+            .or_default()
+            .push_back(claim);
+    }
     let mut audit = FinalGroundingAudit {
-        schema_version: "final-grounding-audit-v1".to_string(),
+        schema_version: "final-grounding-audit-v2".to_string(),
         audit_status: "succeeded".to_string(),
         grounding_status: "invalid".to_string(),
         ..FinalGroundingAudit::default()
@@ -219,16 +272,26 @@ pub fn audit_repaired_answer(
             }
         }
 
-        let mapped = supported_draft
-            .get(&normalized_claim_text(&claim.text))
-            .is_some_and(|draft_claim| {
-                draft_claim.evidence_ids == claim.evidence_ids && all_ids_known && has_non_graph
-            });
-        if mapped {
+        let key = final_claim_key(&claim.text, &claim.evidence_ids);
+        let mapped = if all_ids_known && has_non_graph {
+            supported_draft.get_mut(&key).and_then(VecDeque::pop_front)
+        } else {
+            None
+        };
+        if let Some(draft_claim) = mapped {
             claim.verification_status = VerificationStatus::Supported;
             claim.verification_method = "final_exact_supported_draft_mapping".to_string();
             claim.reason = "exact_supported_draft_claim".to_string();
             audit.supported_count += 1;
+            audit.claim_sources.push(FinalClaimSource {
+                final_claim_id: claim.id.clone(),
+                source_draft_claim_id: draft_claim.id.clone(),
+                text_sha256: sha256_text(&key.normalized_text),
+                evidence_ids: key.sorted_unique_evidence_ids,
+                draft_verification_method: draft_claim.verification_method.clone(),
+                draft_alignment_score: draft_claim.alignment_score,
+                draft_confidence: draft_claim.confidence,
+            });
         } else {
             claim.verification_status = VerificationStatus::NotVerifiable;
             claim.verification_method = "final_mapping_gate".to_string();
@@ -272,6 +335,57 @@ pub fn audit_repaired_answer(
     }
     .to_string();
     audit
+}
+
+fn canonical_visible_claim_sequence(answer: &str) -> Vec<String> {
+    extract_atomic_claims(answer)
+        .into_iter()
+        .map(|claim| natural_answer::project_visible_text(&claim.text))
+        .map(|claim| normalized_claim_text(&claim))
+        .filter(|claim| !claim.is_empty())
+        .collect()
+}
+
+pub fn audit_rendered_visible_answer(
+    audit: &mut FinalGroundingAudit,
+    audited_answer: &str,
+    rendered_answer: &str,
+) -> bool {
+    let audited_body = natural_answer::project_visible_text(audited_answer);
+    let visible_body = natural_answer::project_visible_text(rendered_answer);
+    audit.audited_body_sha256 = sha256_text(&audited_body);
+    audit.visible_body_sha256 = sha256_text(&visible_body);
+
+    let expected_claims = audit
+        .claims
+        .iter()
+        .map(|claim| natural_answer::project_visible_text(&claim.text))
+        .map(|claim| normalized_claim_text(&claim))
+        .filter(|claim| !claim.is_empty())
+        .collect::<Vec<_>>();
+    let visible_claims = canonical_visible_claim_sequence(rendered_answer);
+    let supported_ids = audit
+        .claims
+        .iter()
+        .filter(|claim| claim.verification_status == VerificationStatus::Supported)
+        .map(|claim| claim.id.as_str())
+        .collect::<Vec<_>>();
+    let source_ids = audit
+        .claim_sources
+        .iter()
+        .map(|source| source.final_claim_id.as_str())
+        .collect::<Vec<_>>();
+    let valid = audit.audit_status == "succeeded"
+        && audited_body == visible_body
+        && expected_claims == visible_claims
+        && supported_ids == source_ids
+        && audit.claim_sources.len() == audit.supported_count;
+    audit.visible_projection_valid = valid;
+    if !valid {
+        audit.audit_status = "failed".to_string();
+        audit.grounding_status = "invalid".to_string();
+    }
+    valid
 }
 
 pub fn extract_atomic_claims(answer: &str) -> Vec<AtomicClaim> {
@@ -1103,13 +1217,31 @@ mod tests {
     }
 
     fn evidence(snippet: &str) -> EvidenceItem {
+        evidence_with_id("E1", snippet)
+    }
+
+    fn evidence_with_id(id: &str, snippet: &str) -> EvidenceItem {
         EvidenceItem {
-            id: "E1".to_string(),
+            id: id.to_string(),
             kind: "paper".to_string(),
             tier: "primary_source".to_string(),
             title: "ROSE wireless charging".to_string(),
             snippet: snippet.to_string(),
             ..EvidenceItem::default()
+        }
+    }
+
+    fn supported_claim(id: &str, text: &str, evidence_ids: &[&str]) -> VerifiedClaim {
+        VerifiedClaim {
+            id: id.to_string(),
+            text: text.to_string(),
+            evidence_ids: evidence_ids.iter().map(|value| value.to_string()).collect(),
+            claim_type: ClaimType::KnowledgeFact,
+            verification_status: VerificationStatus::Supported,
+            confidence: Some(0.9),
+            verification_method: "fixture-supported".to_string(),
+            alignment_score: 0.95,
+            reason: "fixture".to_string(),
         }
     }
 
@@ -1401,6 +1533,99 @@ mod tests {
     }
 
     #[test]
+    fn final_claim_mapping_preserves_duplicates_and_canonicalizes_evidence_order() {
+        let evidence = vec![
+            evidence_with_id("E1", "Repeated fact and combined fact."),
+            evidence_with_id("E2", "Repeated fact and combined fact."),
+        ];
+        let draft = ClaimVerificationReport {
+            verification_status: "succeeded".to_string(),
+            supported_count: 3,
+            claim_count: 3,
+            claims: vec![
+                supported_claim("D1", "Repeated fact [E1].", &["E1"]),
+                supported_claim("D2", "Repeated fact [E2].", &["E2"]),
+                supported_claim("D3", "Combined fact [E1] [E2].", &["E1", "E2"]),
+            ],
+            ..ClaimVerificationReport::default()
+        };
+        let answer = concat!(
+            "Repeated fact [E2]. ",
+            "Repeated fact [E1]. ",
+            "Combined fact [E2] [E1].",
+        );
+
+        let audit = audit_repaired_answer(answer, &evidence, &draft);
+
+        assert_eq!(audit.schema_version, "final-grounding-audit-v2");
+        assert_eq!(audit.grounding_status, "supported");
+        assert_eq!(audit.supported_count, 3);
+        assert_eq!(
+            audit
+                .claim_sources
+                .iter()
+                .map(|source| source.source_draft_claim_id.as_str())
+                .collect::<Vec<_>>(),
+            ["D2", "D1", "D3"]
+        );
+        assert_eq!(audit.claim_sources[2].evidence_ids, ["E1", "E2"]);
+        assert_eq!(audit.claim_sources[2].text_sha256.len(), 64);
+        assert_eq!(
+            audit.claim_sources[2].draft_verification_method,
+            "fixture-supported"
+        );
+    }
+
+    #[test]
+    fn rendered_visible_projection_accepts_canonical_rendering_and_rejects_new_fact() {
+        let source = evidence("ROSE schedules a charger.");
+        let audited_answer = format!(
+            "ROSE schedules a charger [E1]. {}",
+            INSUFFICIENT_SUPPORT_NOTICE
+        );
+        let draft = ClaimVerificationReport {
+            verification_status: "succeeded".to_string(),
+            supported_count: 1,
+            claim_count: 1,
+            claims: vec![supported_claim(
+                "D1",
+                "ROSE schedules a charger [E1].",
+                &["E1"],
+            )],
+            ..ClaimVerificationReport::default()
+        };
+        let mut audit =
+            audit_repaired_answer(&audited_answer, std::slice::from_ref(&source), &draft);
+        let rendered = natural_answer::render(&audited_answer, std::slice::from_ref(&source))
+            .unwrap()
+            .markdown;
+        let rendered_with_appendix =
+            format!("{rendered}\n\n## 参考证据\n\n- [论文 · fixture](evidence:E1)");
+
+        assert!(audit_rendered_visible_answer(
+            &mut audit,
+            &audited_answer,
+            &rendered_with_appendix
+        ));
+        assert!(audit.visible_projection_valid);
+        assert_eq!(audit.audited_body_sha256, audit.visible_body_sha256);
+
+        let mut tampered =
+            audit_repaired_answer(&audited_answer, std::slice::from_ref(&source), &draft);
+        let renderer_added_fact = format!(
+            "ROSE schedules a charger. The renderer added a new factual claim. {}",
+            INSUFFICIENT_SUPPORT_NOTICE
+        );
+        assert!(!audit_rendered_visible_answer(
+            &mut tampered,
+            &audited_answer,
+            &renderer_added_fact
+        ));
+        assert_eq!(tampered.audit_status, "failed");
+        assert_eq!(tampered.grounding_status, "invalid");
+    }
+
+    #[test]
     fn trusted_context_uses_only_ordered_final_supported_facts() {
         let source =
             evidence("ROSE uses particle swarm optimization for mobile charger scheduling.");
@@ -1409,7 +1634,13 @@ mod tests {
             "建议后续考虑方法 B。",
         );
         let (repaired, draft) = verify_and_repair(answer, std::slice::from_ref(&source));
-        let mut audit = audit_repaired_answer(&repaired, &[source], &draft);
+        let mut audit = audit_repaired_answer(&repaired, std::slice::from_ref(&source), &draft);
+        let rendered = natural_answer::render(&repaired, std::slice::from_ref(&source))
+            .unwrap()
+            .markdown;
+        assert!(audit_rendered_visible_answer(
+            &mut audit, &repaired, &rendered
+        ));
         assert_eq!(audit.grounding_status, "supported");
         assert_eq!(audit.supported_count, 1);
         assert_eq!(audit.not_applicable_count, 1);
@@ -1437,7 +1668,13 @@ mod tests {
         let source = evidence("ROSE schedules a charger.");
         let answer = "ROSE schedules a charger [E1].";
         let (repaired, draft) = verify_and_repair(answer, std::slice::from_ref(&source));
-        let audit = audit_repaired_answer(&repaired, &[source], &draft);
+        let mut audit = audit_repaired_answer(&repaired, std::slice::from_ref(&source), &draft);
+        let rendered = natural_answer::render(&repaired, std::slice::from_ref(&source))
+            .unwrap()
+            .markdown;
+        assert!(audit_rendered_visible_answer(
+            &mut audit, &repaired, &rendered
+        ));
         let expected = trusted_context_from_final_audit(&audit);
         assert!(!expected.is_empty());
 

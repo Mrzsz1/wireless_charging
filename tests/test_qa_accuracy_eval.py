@@ -52,6 +52,8 @@ def evidence() -> dict[str, object]:
 
 def run_fixture() -> dict[str, object]:
     item = evidence()
+    visible_body = "fixture claim."
+    visible_body_sha256 = hashlib.sha256(visible_body.encode("utf-8")).hexdigest()
     final_claim = {
         "id": "C1",
         "text": "fixture claim [E1].",
@@ -85,7 +87,7 @@ def run_fixture() -> dict[str, object]:
             ],
             "answerCompleteness": {"claimCount": 1, "complete": True},
             "finalGroundingAudit": {
-                "schemaVersion": "final-grounding-audit-v1",
+                "schemaVersion": "final-grounding-audit-v2",
                 "auditStatus": "succeeded",
                 "groundingStatus": "supported",
                 "factualClaimCount": 1,
@@ -98,6 +100,20 @@ def run_fixture() -> dict[str, object]:
                 "citationPrecision": 1.0,
                 "citationCoverage": 1.0,
                 "claims": [final_claim],
+                "claimSources": [
+                    {
+                        "finalClaimId": "C1",
+                        "sourceDraftClaimId": "D1",
+                        "textSha256": hashlib.sha256(b"fixture claim.").hexdigest(),
+                        "evidenceIds": ["E1"],
+                        "draftVerificationMethod": "fixture",
+                        "draftAlignmentScore": 1.0,
+                        "draftConfidence": 1.0,
+                    }
+                ],
+                "visibleProjectionValid": True,
+                "auditedBodySha256": visible_body_sha256,
+                "visibleBodySha256": visible_body_sha256,
             },
         },
     }
@@ -231,6 +247,19 @@ class QaAccuracyEvalTests(unittest.TestCase):
         extra["runManifest"]["answerCompleteness"]["claimCount"] = 2
         with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
             qa_accuracy_eval.review_totals(extra, review_fixture(), CASE)
+
+    def test_python_evaluator_rejects_visible_hash_and_source_mapping_tampering(self) -> None:
+        bad_hash = run_fixture()
+        bad_hash["runManifest"]["finalGroundingAudit"]["visibleBodySha256"] = "0" * 64
+        with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
+            qa_accuracy_eval.review_totals(bad_hash, review_fixture(), CASE)
+
+        bad_source = run_fixture()
+        bad_source["runManifest"]["finalGroundingAudit"]["claimSources"][0][
+            "sourceDraftClaimId"
+        ] = ""
+        with self.assertRaises(qa_accuracy_eval.AccuracyEvalError):
+            qa_accuracy_eval.review_totals(bad_source, review_fixture(), CASE)
 
     def test_single_reviewer_fails_closed(self) -> None:
         review = review_fixture()

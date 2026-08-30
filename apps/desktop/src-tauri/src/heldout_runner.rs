@@ -437,6 +437,33 @@ fn build_bundle_inner(
     if supported_claims.len() != final_audit.supported_count {
         return Err("HELDOUT_AUDIT_INVALID: final_supported_claim_count".to_string());
     }
+    let visible_body_hash = sha256_hex(project_natural_visible_text(&audit.answer));
+    if final_audit.schema_version != "final-grounding-audit-v2"
+        || !final_audit.visible_projection_valid
+        || final_audit.audited_body_sha256.len() != 64
+        || final_audit.visible_body_sha256 != visible_body_hash
+        || final_audit.audited_body_sha256 != final_audit.visible_body_sha256
+        || final_audit.claim_sources.len() != supported_claims.len()
+    {
+        return Err("HELDOUT_AUDIT_INVALID: final_visible_provenance".to_string());
+    }
+    for (claim, source) in supported_claims.iter().zip(&final_audit.claim_sources) {
+        let mut claim_evidence_ids = claim.evidence_ids.clone();
+        claim_evidence_ids.sort();
+        claim_evidence_ids.dedup();
+        if source.final_claim_id != claim.id
+            || source.source_draft_claim_id.trim().is_empty()
+            || source.text_sha256 != sha256_hex(normalize_visible_claim(&claim.text))
+            || source.evidence_ids != claim_evidence_ids
+            || source.draft_verification_method.trim().is_empty()
+            || !source.draft_alignment_score.is_finite()
+            || source
+                .draft_confidence
+                .is_some_and(|value| !value.is_finite())
+        {
+            return Err("HELDOUT_AUDIT_INVALID: final_claim_provenance".to_string());
+        }
+    }
     if final_audit.claims.iter().any(|claim| {
         !matches!(
             claim.verification_status,
@@ -751,7 +778,8 @@ where
 mod tests {
     use super::*;
     use crate::qa::{
-        AnswerCompletenessValidation, EvidenceChecksum, FinalGroundingAudit, VerifiedClaim,
+        AnswerCompletenessValidation, EvidenceChecksum, FinalClaimSource, FinalGroundingAudit,
+        VerifiedClaim,
     };
     use serde_json::json;
     use tempfile::TempDir;
@@ -822,7 +850,7 @@ mod tests {
             },
             claim_verifications: vec![claim.clone()],
             final_grounding_audit: FinalGroundingAudit {
-                schema_version: "final-grounding-audit-v1".to_string(),
+                schema_version: "final-grounding-audit-v2".to_string(),
                 audit_status: "succeeded".to_string(),
                 grounding_status: "supported".to_string(),
                 factual_claim_count: 1,
@@ -835,18 +863,49 @@ mod tests {
                 citation_precision: 1.0,
                 citation_coverage: 1.0,
                 claims: vec![claim],
+                ..FinalGroundingAudit::default()
             },
             ..QaRunManifest::default()
         };
         manifest.verification_provider = provider.to_string();
         manifest.verification_model = model.to_string();
-        QaCaseAudit {
+        let mut audit = QaCaseAudit {
             answer:
                 "Synthetic claim\n\n## 参考证据\n\n- [知识库 · Synthetic evidence](evidence:E1)\n"
                     .to_string(),
             evidence: vec![evidence],
             run_manifest: manifest,
-        }
+        };
+        refresh_final_provenance(&mut audit);
+        audit
+    }
+
+    fn refresh_final_provenance(audit: &mut QaCaseAudit) {
+        let final_audit = &mut audit.run_manifest.final_grounding_audit;
+        final_audit.schema_version = "final-grounding-audit-v2".to_string();
+        final_audit.visible_projection_valid = true;
+        let visible_body = project_natural_visible_text(&audit.answer);
+        final_audit.audited_body_sha256 = sha256_hex(visible_body.as_bytes());
+        final_audit.visible_body_sha256 = final_audit.audited_body_sha256.clone();
+        final_audit.claim_sources = final_audit
+            .claims
+            .iter()
+            .filter(|claim| claim.verification_status == VerificationStatus::Supported)
+            .map(|claim| {
+                let mut evidence_ids = claim.evidence_ids.clone();
+                evidence_ids.sort();
+                evidence_ids.dedup();
+                FinalClaimSource {
+                    final_claim_id: claim.id.clone(),
+                    source_draft_claim_id: format!("draft-{}", claim.id),
+                    text_sha256: sha256_hex(normalize_visible_claim(&claim.text).as_bytes()),
+                    evidence_ids,
+                    draft_verification_method: "fixture".to_string(),
+                    draft_alignment_score: 1.0,
+                    draft_confidence: Some(1.0),
+                }
+            })
+            .collect();
     }
 
     fn fixture_claim(id: &str, text: &str, status: &str) -> VerifiedClaim {
@@ -1070,6 +1129,7 @@ mod tests {
 
         let mut claim_bad = fixture_audit("fixture-provider", "fixture-model");
         claim_bad.answer = "different answer".to_string();
+        refresh_final_provenance(&mut claim_bad);
         assert!(build_bundle(&case, claim_bad, fixture_metadata())
             .unwrap_err()
             .contains("final_visible_claim_set"));
@@ -1077,6 +1137,7 @@ mod tests {
         let mut unknown_citation = fixture_audit("fixture-provider", "fixture-model");
         unknown_citation.run_manifest.final_grounding_audit.claims[0].evidence_ids =
             vec!["E99".to_string()];
+        refresh_final_provenance(&mut unknown_citation);
         assert!(build_bundle(&case, unknown_citation, fixture_metadata())
             .unwrap_err()
             .contains("claim_projection:unknown_citation_id:claim=C1"));
@@ -1108,12 +1169,14 @@ Synthetic claim
             .final_grounding_audit
             .cited_claim_count = 2;
         duplicate_claim.run_manifest.answer_completeness.claim_count = 2;
+        refresh_final_provenance(&mut duplicate_claim);
         assert!(build_bundle(&case, duplicate_claim, fixture_metadata())
             .unwrap_err()
             .contains("claim_projection:duplicate_claim_id:claim=C1"));
 
         let mut empty_projection = fixture_audit("fixture-provider", "fixture-model");
         empty_projection.run_manifest.final_grounding_audit.claims[0].text = "[E1]".to_string();
+        refresh_final_provenance(&mut empty_projection);
         assert!(build_bundle(&case, empty_projection, fixture_metadata())
             .unwrap_err()
             .contains("final_visible_claim_set"));
@@ -1155,6 +1218,7 @@ Synthetic claim
             "- [知识库 · Synthetic evidence](evidence:E1)\n",
         )
         .to_string();
+        refresh_final_provenance(&mut audit);
 
         let bundle = build_bundle(&case, audit, fixture_metadata()).unwrap();
 
@@ -1178,6 +1242,7 @@ Synthetic claim
             "- [知识库 · Synthetic evidence](evidence:E1)\n",
         )
         .to_string();
+        refresh_final_provenance(&mut new_fact);
         assert!(build_bundle(&case, new_fact, fixture_metadata())
             .unwrap_err()
             .contains("final_visible_claim_set"));

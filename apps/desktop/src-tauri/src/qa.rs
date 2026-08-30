@@ -39,6 +39,8 @@ pub(crate) mod vector_sync;
 
 pub use adaptive_routing::{policy as routing_policy, LlmBudgetGuard, LlmBudgetUsage};
 pub(crate) use claim_verification::extract_atomic_claims;
+#[cfg(test)]
+pub use claim_verification::FinalClaimSource;
 pub(crate) use claim_verification::VerificationStatus;
 pub use claim_verification::VerifiedClaim;
 pub use claim_verification::{
@@ -3836,7 +3838,12 @@ fn apply_final_grounding_audit(
     validation.heuristic_verification_checked = draft.heuristic_verification_checked;
     if final_audit.audit_status != "succeeded" {
         validation.supported = false;
-        validation.grounding_status = "unverified".to_string();
+        validation.grounding_status = if final_audit.audit_status == "failed" {
+            "invalid"
+        } else {
+            "unverified"
+        }
+        .to_string();
         validation.coverage_valid = false;
         return validation;
     }
@@ -3917,6 +3924,13 @@ pub fn audit_generated_answer_with_semantic(
             };
             match natural_answer::render(&verified_answer, &context.evidence) {
                 Ok(result) => {
+                    if !context.evidence.is_empty() {
+                        claim_verification::audit_rendered_visible_answer(
+                            &mut final_grounding_audit,
+                            &verified_answer,
+                            &result.markdown,
+                        );
+                    }
                     let validation = apply_final_grounding_audit(
                         result.validation,
                         &verification_report,
@@ -4074,6 +4088,30 @@ pub fn audit_generated_answer_with_semantic(
     run_manifest.repaired_claim_count = verification_report.repaired_count;
     run_manifest.claim_verifications = verification_report.claims;
     run_manifest.final_grounding_audit = final_grounding_audit.clone();
+    if final_grounding_audit.schema_version == "final-grounding-audit-v2" {
+        let mut visible_projection_event = trace::QaTraceEvent::new(
+            if final_grounding_audit.visible_projection_valid {
+                "qa_final_visible_projection_completed"
+            } else {
+                "qa_final_visible_projection_failed"
+            },
+            "final_visible_projection",
+            if final_grounding_audit.visible_projection_valid {
+                "succeeded"
+            } else {
+                "failed"
+            },
+            &context.request_id,
+        );
+        visible_projection_event.execution_mode = context.retrieval_query.execution_mode.clone();
+        visible_projection_event.claim_count = Some(final_grounding_audit.factual_claim_count);
+        visible_projection_event.supported_claim_count =
+            Some(final_grounding_audit.supported_count);
+        if !final_grounding_audit.visible_projection_valid {
+            visible_projection_event.error_code = "final_visible_projection_mismatch".to_string();
+        }
+        trace::emit(&visible_projection_event);
+    }
     let mut final_audit_event = trace::QaTraceEvent::new(
         "qa_final_grounding_audit_completed",
         "final_grounding_audit",

@@ -132,6 +132,7 @@ pub struct GroundingObservation {
     pub final_cited_claim_count: usize,
     pub final_unknown_citation_count: usize,
     pub final_citation_coverage: f64,
+    pub final_visible_projection_valid: bool,
     pub semantic_status: String,
     pub semantic_fallback_reason: String,
     pub planner_status: String,
@@ -540,6 +541,7 @@ fn observation_from_parts(
         final_cited_claim_count: manifest.final_grounding_audit.cited_claim_count,
         final_unknown_citation_count: manifest.final_grounding_audit.unknown_evidence_ids.len(),
         final_citation_coverage: manifest.final_grounding_audit.citation_coverage,
+        final_visible_projection_valid: manifest.final_grounding_audit.visible_projection_valid,
         semantic_status: manifest.semantic_verification_status.clone(),
         semantic_fallback_reason: manifest.semantic_verification_fallback_reason.clone(),
         planner_status: manifest.planner_status.clone(),
@@ -662,6 +664,10 @@ fn validate_observation(case: &RealE2eCase, observed: &GroundingObservation) -> 
         require(
             observed.final_citation_coverage == 1.0,
             "final_citation_coverage_incomplete",
+        );
+        require(
+            observed.final_visible_projection_valid,
+            "final_visible_projection_invalid",
         );
         require(
             !observed.reranker_provider.trim().is_empty() && !observed.reranker_fallback,
@@ -1327,6 +1333,7 @@ mod tests {
             final_supported_claim_count: 1,
             final_cited_claim_count: 1,
             final_citation_coverage: 1.0,
+            final_visible_projection_valid: true,
             verification_status: "succeeded".to_string(),
             answer_complete: true,
             semantic_status: "succeeded".to_string(),

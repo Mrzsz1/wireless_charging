@@ -793,6 +793,20 @@ export type FinalGroundingAudit = {
   citationPrecision: number
   citationCoverage: number
   claims: VerifiedClaim[]
+  claimSources?: FinalClaimSource[]
+  visibleProjectionValid?: boolean
+  auditedBodySha256?: string
+  visibleBodySha256?: string
+}
+
+export type FinalClaimSource = {
+  finalClaimId: string
+  sourceDraftClaimId: string
+  textSha256: string
+  evidenceIds: string[]
+  draftVerificationMethod: string
+  draftAlignmentScore: number
+  draftConfidence?: number | null
 }
 
 export type EvidenceItem = {

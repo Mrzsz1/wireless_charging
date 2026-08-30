@@ -471,6 +471,36 @@ def _validate_final_grounding_audit(
         "final-grounding-audit-v2",
     }:
         raise AccuracyEvalError(f"{case_id}: finalGroundingAudit schemaVersion 非法")
+    audit_v2 = audit["schemaVersion"] == "final-grounding-audit-v2"
+    if audit_v2:
+        v2_fields = {
+            "claimSources",
+            "visibleProjectionValid",
+            "auditedBodySha256",
+            "visibleBodySha256",
+        }
+        missing_v2 = sorted(v2_fields - set(audit))
+        if missing_v2:
+            raise AccuracyEvalError(
+                f"{case_id}: finalGroundingAudit v2 缺少字段: {missing_v2}"
+            )
+        if audit["visibleProjectionValid"] is not True:
+            raise AccuracyEvalError(f"{case_id}: Final visible projection 未通过")
+        for field in ("auditedBodySha256", "visibleBodySha256"):
+            if not isinstance(audit[field], str) or not SHA256_RE.fullmatch(audit[field]):
+                raise AccuracyEvalError(f"{case_id}: finalGroundingAudit.{field} 非法")
+        answer = run.get("answer")
+        if not isinstance(answer, str):
+            raise AccuracyEvalError(f"{case_id}: run 缺少 answer")
+        visible_body = re.split(r"(?:^|\n)## 参考证据(?:\n|$)", answer, maxsplit=1)[0].strip()
+        visible_hash = hashlib.sha256(visible_body.encode("utf-8")).hexdigest()
+        if (
+            not hmac.compare_digest(audit["visibleBodySha256"], visible_hash)
+            or not hmac.compare_digest(
+                audit["auditedBodySha256"], audit["visibleBodySha256"]
+            )
+        ):
+            raise AccuracyEvalError(f"{case_id}: Final visible body hash 校验失败")
     if audit["auditStatus"] != "succeeded" or audit["groundingStatus"] != "supported":
         raise AccuracyEvalError(f"{case_id}: finalGroundingAudit 未成功支持")
 
@@ -573,6 +603,46 @@ def _validate_final_grounding_audit(
         or set(cited_ids) != cited_union
     ):
         raise AccuracyEvalError(f"{case_id}: Final Audit citedEvidenceIds 聚合不一致")
+    if audit_v2:
+        sources = audit["claimSources"]
+        if not isinstance(sources, list) or len(sources) != len(supported):
+            raise AccuracyEvalError(f"{case_id}: Final claimSources 数量不一致")
+        for claim, source in zip(supported, sources, strict=True):
+            required_source_fields = {
+                "finalClaimId",
+                "sourceDraftClaimId",
+                "textSha256",
+                "evidenceIds",
+                "draftVerificationMethod",
+                "draftAlignmentScore",
+                "draftConfidence",
+            }
+            if not isinstance(source, dict) or set(source) != required_source_fields:
+                raise AccuracyEvalError(f"{case_id}: Final claimSource schema 不匹配")
+            alignment = source["draftAlignmentScore"]
+            confidence = source["draftConfidence"]
+            if (
+                source["finalClaimId"] != claim["id"]
+                or not isinstance(source["sourceDraftClaimId"], str)
+                or not source["sourceDraftClaimId"].strip()
+                or not isinstance(source["textSha256"], str)
+                or not SHA256_RE.fullmatch(source["textSha256"])
+                or source["evidenceIds"] != sorted(set(claim["evidenceIds"]))
+                or not isinstance(source["draftVerificationMethod"], str)
+                or not source["draftVerificationMethod"].strip()
+                or isinstance(alignment, bool)
+                or not isinstance(alignment, (int, float))
+                or not math.isfinite(alignment)
+                or (
+                    confidence is not None
+                    and (
+                        isinstance(confidence, bool)
+                        or not isinstance(confidence, (int, float))
+                        or not math.isfinite(confidence)
+                    )
+                )
+            ):
+                raise AccuracyEvalError(f"{case_id}: Final claimSource provenance 非法")
     return supported
 
 

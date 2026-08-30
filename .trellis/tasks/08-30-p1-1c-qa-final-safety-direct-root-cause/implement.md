@@ -37,10 +37,10 @@
 
 ## Phase 5 — Final provenance and visible integrity
 
-- [ ] Replace text-only map with canonical key + FIFO queue and additive source mapping.
-- [ ] Add post-render body hashes/validity and fail-closed no-new-fact validation using shared canonical projection.
-- [ ] Add F1–F6 regressions plus stage logging assertions.
-- [ ] Commit `fix(qa): harden final claim provenance and visible projection`.
+- [x] Replace text-only map with canonical key + FIFO queue and additive source mapping.
+- [x] Add post-render body hashes/validity and fail-closed no-new-fact validation using shared canonical projection.
+- [x] Add F1–F6 regressions plus stage logging assertions.
+- [x] Commit `fix(qa): harden final claim provenance and visible projection`.
 
 ## Phase 6 — One Direct diagnosis
 
