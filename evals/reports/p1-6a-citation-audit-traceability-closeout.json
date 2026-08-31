@@ -1,0 +1,135 @@
+{
+  "schemaVersion": "p1-6a-citation-audit-traceability-closeout-v1",
+  "baselineSha": "4727e9f0c6a0f79d573fd4cf256762ca7a920714",
+  "testedCodeSha": "ed06f800fb0e028d94beb4493ffe4f2f9e3ef04f",
+  "traceability": {
+    "closeoutParentSha": "ed06f800fb0e028d94beb4493ffe4f2f9e3ef04f",
+    "closeoutCommitSemantics": "commit_containing_this_report",
+    "closeoutCommitResolver": "git log -1 --format=%H -- evals/reports/p1-6a-citation-audit-traceability-closeout.json",
+    "selfReferentialCommitShaEmbedded": false,
+    "implementationCommits": [
+      {
+        "sha": "72c7b722ca48011fe925ffed5d576865d0d7c395",
+        "scope": "citation_audit_lifecycle_and_strict_gate"
+      },
+      {
+        "sha": "ed06f800fb0e028d94beb4493ffe4f2f9e3ef04f",
+        "scope": "citation_audit_contract_documentation"
+      }
+    ]
+  },
+  "citationAuditContract": {
+    "runManifestVersion": "qa-run-v24",
+    "citationAuditTrailVersion": "qa-citation-audit-trail-v1",
+    "finalCitationValidationSemantics": "post_repair_visible_answer",
+    "preRepairAuditPersisted": true,
+    "structuredUnknownEvidenceHardFailure": true,
+    "rawProviderAnswerPersisted": false,
+    "rawClaimTextPersistedInTrail": false
+  },
+  "targetFailures": {
+    "structuredUnknownEvidence": {
+      "status": "PASS",
+      "preRepairUnknownIds": [
+        "E99"
+      ],
+      "repairRemovedUnknownIds": [
+        "E99"
+      ],
+      "finalUnknownIds": [],
+      "finalAnswerContainsUnknownCitationToken": false,
+      "strictRejectionRequired": true,
+      "persistenceRejected": true,
+      "errorCode": "CITATION_VALIDATION_FAILED",
+      "errorContainsUnknownId": true
+    },
+    "failedExchangeRoundTrip": {
+      "status": "PASS",
+      "assistantStatus": "failed",
+      "finalCitationUnknownIds": [],
+      "persistedPreRepairUnknownIds": [
+        "E99"
+      ],
+      "persistedRepairRemovedUnknownIds": [
+        "E99"
+      ],
+      "persistedFinalUnknownIds": [],
+      "persistedStrictRejectionRequired": true,
+      "persistedErrorCode": "CITATION_VALIDATION_FAILED",
+      "persistedErrorContainsUnknownId": true
+    }
+  },
+  "regression": {
+    "structuredKnownAndUnknown": "PASS",
+    "naturalSafeRepair": "PASS",
+    "naturalUnknownOnlyClaim": "PASS",
+    "structuredParseFailurePriority": "PASS",
+    "currentGraphOnlyZeroEvidenceContract": "PASS",
+    "unsupportedClaim": "PASS",
+    "zeroEvidence": "PASS",
+    "oldManifestCompatibility": "PASS",
+    "providerWikilinkVisibleProjection": "PASS"
+  },
+  "logging": {
+    "schemaVersion": "qa-trace-v1",
+    "startedEvent": "qa_citation_audit_trail_started",
+    "completedEvent": "qa_citation_audit_trail_completed",
+    "operationIdentityHashed": true,
+    "unknownEvidenceIdsLogged": false,
+    "metadataCountsOnly": true
+  },
+  "quality": {
+    "cargoFmt": "PASS",
+    "cargoClippyLibBinsDenyWarnings": "PASS",
+    "exactTargetTests": "2/2 PASS",
+    "rustFilteredTests": {
+      "citation": "21/21 PASS",
+      "grounding": "15/15 PASS",
+      "naturalAnswer": "9/9 PASS",
+      "claimVerification": "39/39 PASS",
+      "productionCore": "4/4 PASS",
+      "zeroEvidence": "28/28 PASS",
+      "realE2eUnit": "22/22 PASS",
+      "context": "28/28 PASS",
+      "heldoutRunnerUnit": "12/12 PASS"
+    },
+    "pythonAccuracyEvaluator": "25/25 PASS",
+    "typescriptNoEmit": "PASS",
+    "frozenConversationState": {
+      "reportSha256": "43868e912dd656d933bfa735b3079361cd73f00ee06b98ca6a97afff751d659f",
+      "datasetVersion": "conversation-state-v2.1.0",
+      "caseCount": 22,
+      "passedCount": 22,
+      "stateExactMatch": 1.0,
+      "objectiveExactMatch": 1.0,
+      "constraintExactMatch": 1.0,
+      "methodExactMatch": 1.0,
+      "parameterExactMatch": 1.0,
+      "mixedOperationExactMatch": 1.0,
+      "parameterOverwriteExactMatch": 1.0,
+      "unexpectedStateRate": 0.0,
+      "destructiveMutationErrorRate": 0.0,
+      "parameterStateCorruptionCount": 0
+    },
+    "frontendQaEvidence": "6/6 PASS",
+    "frontendBuild": "PASS",
+    "reportSafetyScan": "PASS"
+  },
+  "guards": {
+    "retrievalChanged": false,
+    "rerankerChanged": false,
+    "retrievalThresholdChanged": false,
+    "groundingThresholdChanged": false,
+    "semanticThresholdChanged": false,
+    "providerSchemaChanged": false,
+    "llmBudgetChanged": false,
+    "tokenCeilingChanged": false,
+    "frozenDatasetChanged": false,
+    "realProviderRunCount": 0,
+    "independentHeldoutRun": false,
+    "goldRetrievalRun": false
+  },
+  "githubCiStatus": "not_part_of_deterministic_local_gate",
+  "finalStatus": "PASS",
+  "nextTodoAllowed": true
+}
