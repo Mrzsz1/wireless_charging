@@ -475,6 +475,12 @@ impl StateVocabularyRegistry {
         self.fields.iter().find(|field| field.id == id)
     }
 
+    pub fn field_for_kind(&self, id: &str, kind: VocabularyKind) -> Option<&StateFieldDefinition> {
+        self.fields
+            .iter()
+            .find(|field| field.id == id && field.kind == kind)
+    }
+
     pub fn enabled_custom_count(&self) -> usize {
         self.fields
             .iter()
@@ -1103,7 +1109,11 @@ pub fn validate_patch_against_vocabulary(
             {
                 continue;
             }
-            let Some(definition) = registry.field(id) else {
+            let Some(definition) = registry.field_for_kind(id, expected_kind) else {
+                if registry.field(id).is_some() {
+                    stats.kind_mismatch_count += 1;
+                    return vocabulary_validation_failure(stats, "STATE_VOCABULARY_KIND_MISMATCH");
+                }
                 stats.unknown_id_count += 1;
                 return vocabulary_validation_failure(stats, "STATE_VOCABULARY_UNKNOWN_ID");
             };
@@ -1163,22 +1173,49 @@ fn vocabulary_validation_failure(
     Err(error_code.to_string())
 }
 
-pub fn active_ids_from_state(
+pub fn active_fields_from_state(
     objectives: &[String],
     constraints: &[String],
     assumptions: &[String],
     methods: &[String],
     parameters: &BTreeMap<String, super::state_mutation::ResearchParameter>,
-) -> Vec<String> {
-    let mut values = objectives
-        .iter()
-        .chain(constraints)
-        .chain(assumptions)
-        .chain(methods)
-        .cloned()
-        .collect::<Vec<_>>();
-    values.extend(parameters.keys().cloned());
-    values.sort();
+) -> Vec<(String, VocabularyKind)> {
+    let mut values = Vec::new();
+    values.extend(
+        objectives
+            .iter()
+            .cloned()
+            .map(|id| (id, VocabularyKind::Objective)),
+    );
+    values.extend(
+        constraints
+            .iter()
+            .cloned()
+            .map(|id| (id, VocabularyKind::Constraint)),
+    );
+    values.extend(
+        assumptions
+            .iter()
+            .cloned()
+            .map(|id| (id, VocabularyKind::Assumption)),
+    );
+    values.extend(
+        methods
+            .iter()
+            .cloned()
+            .map(|id| (id, VocabularyKind::Method)),
+    );
+    values.extend(
+        parameters
+            .keys()
+            .cloned()
+            .map(|id| (id, VocabularyKind::Parameter)),
+    );
+    values.sort_by(|left, right| {
+        left.0
+            .cmp(&right.0)
+            .then_with(|| left.1.as_str().cmp(right.1.as_str()))
+    });
     values.dedup();
     values
 }
@@ -1285,6 +1322,12 @@ mod tests {
             validate_patch_against_vocabulary(&wrong_kind, &registry),
             Err("STATE_VOCABULARY_VALUE_OUT_OF_RANGE".to_string())
         );
+
+        assert!(validate_patch_against_vocabulary(
+            &parameter_patch("battery_capacity", ParameterValue::Integer(50)),
+            &registry
+        )
+        .is_ok());
     }
 
     #[test]

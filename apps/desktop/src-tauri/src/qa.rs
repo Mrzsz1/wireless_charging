@@ -1531,7 +1531,10 @@ pub fn test_state_vocabulary_mapping<'a>(
             None => Vec::new(),
         };
         for id in ids {
-            let Some(definition) = registry.field(id) else {
+            let Some(definition) = registry.field_for_kind(
+                id,
+                state_vocabulary::VocabularyKind::from_state_field(operation.field),
+            ) else {
                 continue;
             };
             mapped_fields.push(StateVocabularyMappingItem {

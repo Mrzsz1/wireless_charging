@@ -796,10 +796,10 @@ pub fn state_patch_schema() -> Value {
         "properties":{"type":{"type":"string","const":"parameter"},"parameter":{"type":"object","additionalProperties":false,"required":["key","value","unit","sourceMessageId","updatedAtTurn"],"properties":{
             "key":{"type":"string","minLength":1,"maxLength":80},
             "value":{"oneOf":[
-                {"type":"object","additionalProperties":false,"required":["type","value"],"properties":{"type":{"const":"integer"},"value":{"type":"integer"}}},
-                {"type":"object","additionalProperties":false,"required":["type","value"],"properties":{"type":{"const":"float"},"value":{"type":"number"}}},
-                {"type":"object","additionalProperties":false,"required":["type","value"],"properties":{"type":{"const":"boolean"},"value":{"type":"boolean"}}},
-                {"type":"object","additionalProperties":false,"required":["type","value"],"properties":{"type":{"const":"text"},"value":{"type":"string","maxLength":120}}}
+                {"type":"object","additionalProperties":false,"required":["type","value"],"properties":{"type":{"type":"string","const":"integer"},"value":{"type":"integer"}}},
+                {"type":"object","additionalProperties":false,"required":["type","value"],"properties":{"type":{"type":"string","const":"float"},"value":{"type":"number"}}},
+                {"type":"object","additionalProperties":false,"required":["type","value"],"properties":{"type":{"type":"string","const":"boolean"},"value":{"type":"boolean"}}},
+                {"type":"object","additionalProperties":false,"required":["type","value"],"properties":{"type":{"type":"string","const":"text"},"value":{"type":"string","maxLength":120}}}
             ]},
             "unit":{"type":["string","null"],"maxLength":32},"sourceMessageId":{"type":["string","null"],"maxLength":160},"updatedAtTurn":{"type":"integer","minimum":0}
         }}}

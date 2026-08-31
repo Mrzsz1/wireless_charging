@@ -2,7 +2,7 @@ use super::research_memory::ResearchSessionState;
 use super::retrieval_contract::{RetrievalContract, RetrievalFacet};
 use super::state_mutation::ResearchParameter;
 use super::state_vocabulary::{
-    active_ids_from_state, StateFieldDefinition, StateVocabularyRegistry,
+    active_fields_from_state, StateFieldDefinition, StateVocabularyRegistry,
 };
 use super::understanding::ResearchIntent;
 use serde::{Deserialize, Serialize};
@@ -144,16 +144,16 @@ pub fn build_research_query_context_with_vocabulary(
         source_state_revision: state.revision,
         active_vocabulary_fields: Vec::new(),
     };
-    let active_ids = active_ids_from_state(
+    let active_fields = active_fields_from_state(
         &context.objectives,
         &context.constraints,
         &context.assumptions,
         &context.active_methods,
         &context.parameters,
     );
-    context.active_vocabulary_fields = active_ids
+    context.active_vocabulary_fields = active_fields
         .iter()
-        .filter_map(|id| registry.field(id))
+        .filter_map(|(id, kind)| registry.field_for_kind(id, *kind))
         .map(active_vocabulary_field)
         .take(24)
         .collect();

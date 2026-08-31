@@ -905,21 +905,24 @@ pub fn understanding_schema() -> Value {
     })
 }
 
-/// Codex Structured Output rejects `uniqueItems`. Keep the complete domain
-/// contract above for local validation and project only that proven-incompatible
-/// keyword at the provider boundary.
+/// Keep the complete domain contract above for local validation. At the Codex
+/// provider boundary, remove `uniqueItems` and express `oneOf` as the supported
+/// equivalent `anyOf`; both incompatibilities are covered by real provider probes.
 pub fn understanding_provider_schema() -> Value {
-    fn remove_unique_items(value: &mut Value) {
+    fn project_provider_keywords(value: &mut Value) {
         match value {
             Value::Object(object) => {
                 object.remove("uniqueItems");
+                if let Some(branches) = object.remove("oneOf") {
+                    object.insert("anyOf".to_string(), branches);
+                }
                 for child in object.values_mut() {
-                    remove_unique_items(child);
+                    project_provider_keywords(child);
                 }
             }
             Value::Array(values) => {
                 for child in values {
-                    remove_unique_items(child);
+                    project_provider_keywords(child);
                 }
             }
             _ => {}
@@ -927,7 +930,7 @@ pub fn understanding_provider_schema() -> Value {
     }
 
     let mut schema = understanding_schema();
-    remove_unique_items(&mut schema);
+    project_provider_keywords(&mut schema);
     schema
 }
 
@@ -1153,11 +1156,14 @@ mod tests {
     }
 
     #[test]
-    fn provider_schema_removes_only_proven_incompatible_unique_items() {
+    fn provider_schema_projects_proven_incompatible_keywords_only() {
         let domain = understanding_schema();
         let provider = understanding_provider_schema();
         assert!(domain.to_string().contains("uniqueItems"));
         assert!(!provider.to_string().contains("uniqueItems"));
+        assert!(domain.to_string().contains("oneOf"));
+        assert!(!provider.to_string().contains("oneOf"));
+        assert!(provider.to_string().contains("anyOf"));
         assert_eq!(domain["required"], provider["required"]);
         assert_eq!(
             domain["properties"]["statePatch"]["properties"]["operations"]["maxItems"],
