@@ -1361,8 +1361,14 @@ fn build_retrieval_query_with_understanding<'a>(
     problem_search_terms.sort();
     problem_search_terms.dedup();
     problem_search_terms.truncate(48);
+    let custom_vocabulary_expansion_term_count = research_context
+        .active_vocabulary_fields
+        .iter()
+        .filter(|field| field.id.starts_with("custom:"))
+        .flat_map(|field| field.search_terms.iter())
+        .count();
     log::info!(
-        "feature=canonical_state_mapping stage=complete operation_id={state_operation_id} deterministic_state_operation_count={deterministic_state_operation_count} state_semantic_mapping_needed={semantic_mapping_needed} semantic_mapping_attempted={semantic_mapping_attempted} semantic_mapping_used={} mapped_field_count={} rejected_field_count={semantic_rejected_field_count} loaded_snapshot={loaded_snapshot}",
+        "feature=canonical_state_mapping stage=complete operation_id={state_operation_id} deterministic_state_operation_count={deterministic_state_operation_count} state_semantic_mapping_needed={semantic_mapping_needed} semantic_mapping_attempted={semantic_mapping_attempted} semantic_mapping_used={} mapped_field_count={} rejected_field_count={semantic_rejected_field_count} custom_vocabulary_expansion_term_count={custom_vocabulary_expansion_term_count} loaded_snapshot={loaded_snapshot}",
         semantic_mapping_used && semantic_rejected_field_count == 0,
         if semantic_mapping_used && semantic_rejected_field_count == 0 { semantic_candidate_count } else { 0 }
     );

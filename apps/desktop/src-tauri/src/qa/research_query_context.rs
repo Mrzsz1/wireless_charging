@@ -193,15 +193,22 @@ pub fn retrieval_terms(context: &ResearchQueryContext) -> Vec<String> {
     values.extend(context.constraints.iter().cloned());
     values.extend(context.assumptions.iter().cloned());
     values.extend(context.active_methods.iter().cloned());
-    for field in &context.active_vocabulary_fields {
-        values.extend(field.search_terms.iter().cloned());
-    }
     for parameter in context.parameters.values() {
         values.push(parameter.key.clone());
         values.push(parameter.value.search_text());
         if let Some(unit) = &parameter.unit {
             values.push(unit.clone());
         }
+    }
+    // Built-in canonical IDs already participate through the core state above.
+    // Only repository custom fields need label/alias/description expansion; adding
+    // built-in synonyms as equal-weight FTS terms regresses the reviewed baseline.
+    for field in context
+        .active_vocabulary_fields
+        .iter()
+        .filter(|field| field.id.starts_with("custom:"))
+    {
+        values.extend(field.search_terms.iter().cloned());
     }
     let mut seen = HashSet::new();
     values
@@ -381,5 +388,27 @@ mod tests {
         assert!(terms.contains(&"高温环境约束".to_string()));
         assert!(terms.contains(&"温度过高".to_string()));
         assert!(terms.len() <= 32);
+    }
+
+    #[test]
+    fn builtin_state_keeps_canonical_term_without_equal_weight_synonym_expansion() {
+        let state = ResearchSessionState {
+            constraints: vec!["deadlines".to_string()],
+            revision: 1,
+            ..ResearchSessionState::default_v2()
+        };
+        let context = build_research_query_context_with_vocabulary(
+            "如何满足截止时间？",
+            ResearchIntent::SolutionSearch,
+            &state,
+            &[],
+            &StateVocabularyRegistry::default(),
+        );
+
+        assert_eq!(context.active_vocabulary_fields[0].id, "deadlines");
+        let terms = retrieval_terms(&context);
+        assert!(terms.contains(&"deadlines".to_string()));
+        assert!(!terms.contains(&"截止期限".to_string()));
+        assert!(!terms.contains(&"任务或充电服务必须在截止时间前完成".to_string()));
     }
 }
