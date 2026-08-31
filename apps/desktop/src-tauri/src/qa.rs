@@ -241,6 +241,13 @@ pub struct ConversationTurn {
     pub request_id: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ReferenceTurn {
+    pub message_id: String,
+    pub request_id: String,
+    pub user_content: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct RetrievalQuery {
@@ -249,6 +256,8 @@ pub struct RetrievalQuery {
     pub entities: Vec<String>,
     pub intent: String,
     pub used_history_message_ids: Vec<String>,
+    #[serde(default)]
+    pub used_reference_history_message_ids: Vec<String>,
     #[serde(default)]
     pub research_intent: String,
     #[serde(default)]
@@ -1069,6 +1078,101 @@ pub fn conversation_history(
         .map_err(|error| format!("解析多轮历史失败：{error}"))
 }
 
+pub fn conversation_reference_history(
+    connection: &Connection,
+    root: &Path,
+    session_id: Option<&str>,
+) -> Result<Vec<ReferenceTurn>, String> {
+    let operation_id = Uuid::new_v4().to_string();
+    let started_at = Instant::now();
+    let mut started = trace::QaTraceEvent::new(
+        "qa_reference_history_started",
+        "reference_history_load",
+        "started",
+        &operation_id,
+    );
+    started.feature = "conversation_reference_history".to_string();
+    trace::emit(&started);
+    let result = (|| {
+        let Some(session_id) = session_id.filter(|value| !value.trim().is_empty()) else {
+            return Ok(Vec::new());
+        };
+        let owned = connection
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM chat_sessions WHERE id=?1 AND repository_id=?2)",
+                params![session_id, repository_id(root)],
+                |row| row.get::<_, bool>(0),
+            )
+            .map_err(|error| {
+                format!("REFERENCE_HISTORY_SCOPE_CHECK_FAILED: 检查指代历史会话失败：{error}")
+            })?;
+        if !owned {
+            return Err(
+                "REFERENCE_HISTORY_SCOPE_INVALID: 会话不存在或不属于当前知识库".to_string(),
+            );
+        }
+        let mut statement = connection
+            .prepare(
+                "SELECT user_message.id,user_message.request_id,user_message.content
+                 FROM chat_messages user_message
+                 WHERE user_message.session_id=?1
+                   AND user_message.role='user'
+                   AND user_message.status IN ('completed','mixed','unverified')
+                   AND EXISTS(
+                     SELECT 1 FROM chat_messages assistant
+                     WHERE assistant.session_id=user_message.session_id
+                       AND assistant.request_id=user_message.request_id
+                       AND assistant.role='assistant'
+                       AND assistant.status IN ('completed','mixed','unverified')
+                   )
+                 ORDER BY user_message.created_at ASC,user_message.rowid ASC",
+            )
+            .map_err(|error| {
+                format!("REFERENCE_HISTORY_PREPARE_FAILED: 准备指代历史失败：{error}")
+            })?;
+        let rows = statement
+            .query_map([session_id], |row| {
+                Ok(ReferenceTurn {
+                    message_id: row.get(0)?,
+                    request_id: row.get(1)?,
+                    user_content: row.get(2)?,
+                })
+            })
+            .map_err(|error| format!("REFERENCE_HISTORY_READ_FAILED: 读取指代历史失败：{error}"))?;
+        rows.collect::<Result<Vec<_>, _>>()
+            .map_err(|error| format!("REFERENCE_HISTORY_PARSE_FAILED: 解析指代历史失败：{error}"))
+    })();
+    match &result {
+        Ok(history) => {
+            let mut completed = trace::QaTraceEvent::new(
+                "qa_reference_history_completed",
+                "reference_history_load",
+                "succeeded",
+                &operation_id,
+            );
+            completed.feature = "conversation_reference_history".to_string();
+            completed.reference_history_count = Some(history.len());
+            completed.duration_ms =
+                Some(u64::try_from(started_at.elapsed().as_millis()).unwrap_or(u64::MAX));
+            trace::emit(&completed);
+        }
+        Err(error) => {
+            let mut failed = trace::QaTraceEvent::new(
+                "qa_reference_history_failed",
+                "reference_history_load",
+                "failed",
+                &operation_id,
+            );
+            failed.feature = "conversation_reference_history".to_string();
+            failed.duration_ms =
+                Some(u64::try_from(started_at.elapsed().as_millis()).unwrap_or(u64::MAX));
+            failed.error_code = trace::error_code(error);
+            trace::emit(&failed);
+        }
+    }
+    result
+}
+
 fn contains_reference(question: &str) -> bool {
     understanding::contains_reference(question)
 }
@@ -1217,6 +1321,24 @@ fn extract_history_entities(
         .collect()
 }
 
+fn reference_history_as_conversation(history: &[ReferenceTurn]) -> Vec<ConversationTurn> {
+    history
+        .iter()
+        .map(|turn| ConversationTurn {
+            id: turn.message_id.clone(),
+            role: "user".to_string(),
+            content: turn.user_content.clone(),
+            request_id: turn.request_id.clone(),
+        })
+        .collect()
+}
+
+#[derive(Clone, Copy)]
+struct ResolutionHistory<'a> {
+    trusted: &'a [ConversationTurn],
+    reference: &'a [ReferenceTurn],
+}
+
 pub fn build_retrieval_query(
     connection: &Connection,
     question: &str,
@@ -1225,7 +1347,30 @@ pub fn build_retrieval_query(
     build_retrieval_query_with_understanding(
         connection,
         question,
-        history,
+        ResolutionHistory {
+            trusted: history,
+            reference: &[],
+        },
+        None,
+        &StateVocabularyRegistry::default(),
+        None,
+        None,
+    )
+}
+
+pub(crate) fn build_retrieval_query_with_reference_history(
+    connection: &Connection,
+    question: &str,
+    history: &[ConversationTurn],
+    reference_history: &[ReferenceTurn],
+) -> RetrievalQuery {
+    build_retrieval_query_with_understanding(
+        connection,
+        question,
+        ResolutionHistory {
+            trusted: history,
+            reference: reference_history,
+        },
         None,
         &StateVocabularyRegistry::default(),
         None,
@@ -1236,12 +1381,14 @@ pub fn build_retrieval_query(
 fn build_retrieval_query_with_understanding<'a>(
     connection: &Connection,
     question: &str,
-    history: &[ConversationTurn],
+    histories: ResolutionHistory<'_>,
     planner: Option<&'a mut QuestionUnderstandingPlanner<'a>>,
     registry: &StateVocabularyRegistry,
     repository: Option<&str>,
     session_id: Option<&str>,
 ) -> RetrievalQuery {
+    let history = histories.trusted;
+    let reference_history = histories.reference;
     let original_question = question.trim().to_string();
     let state_operation_id = Uuid::new_v4().to_string();
     log::info!(
@@ -1274,12 +1421,34 @@ fn build_retrieval_query_with_understanding<'a>(
         None => research_memory::derive_history(history),
     };
     let explicit_entities = extract_question_entities(connection, &original_question);
-    let history_entities = if contains_reference(&original_question) && explicit_entities.len() < 2
-    {
+    let needs_history_entities =
+        contains_reference(&original_question) && explicit_entities.len() < 2;
+    let history_entities = if needs_history_entities {
         extract_history_entities(connection, history)
     } else {
         Vec::new()
     };
+    let reference_conversation = if needs_history_entities {
+        reference_history_as_conversation(reference_history)
+    } else {
+        Vec::new()
+    };
+    let reference_history_entities = if needs_history_entities {
+        extract_history_entities(connection, &reference_conversation)
+    } else {
+        Vec::new()
+    };
+    let reference_resolution_started_at = Instant::now();
+    let mut reference_resolution_started = trace::QaTraceEvent::new(
+        "qa_reference_history_resolution_started",
+        "reference_history_resolution",
+        "started",
+        &state_operation_id,
+    );
+    reference_resolution_started.feature = "reference_history_resolution".to_string();
+    reference_resolution_started.trusted_history_count = Some(history.len());
+    reference_resolution_started.reference_history_count = Some(reference_history.len());
+    trace::emit(&reference_resolution_started);
     let deterministic_patch = state_mutation::extract_deterministic_patch_with_registry(
         &original_question,
         &explicit_entities,
@@ -1296,11 +1465,29 @@ fn build_retrieval_query_with_understanding<'a>(
         explicit_entities,
         history_entities,
     )
+    .with_reference_history(reference_history, reference_history_entities)
     .with_current_state(research_state.summary())
     .with_state_vocabulary(registry, semantic_mapping_needed);
     let understood = understanding::resolve_and_route(&input, planner);
     let routed = understood.routed;
     let diagnostics = understood.diagnostics;
+    let mut reference_resolution_completed = trace::QaTraceEvent::new(
+        "qa_reference_history_resolution_completed",
+        "reference_history_resolution",
+        "succeeded",
+        &state_operation_id,
+    );
+    reference_resolution_completed.feature = "reference_history_resolution".to_string();
+    reference_resolution_completed.trusted_history_count = Some(history.len());
+    reference_resolution_completed.reference_history_count = Some(reference_history.len());
+    reference_resolution_completed.used_trusted_history_count =
+        Some(routed.query.used_history_message_ids.len());
+    reference_resolution_completed.used_reference_history_count =
+        Some(routed.query.used_reference_history_message_ids.len());
+    reference_resolution_completed.duration_ms = Some(
+        u64::try_from(reference_resolution_started_at.elapsed().as_millis()).unwrap_or(u64::MAX),
+    );
+    trace::emit(&reference_resolution_completed);
     let semantic_mapping_attempted = diagnostics.resolver_escalated && semantic_mapping_needed;
     let semantic_candidate_count = understood.state_patch.operations.len();
     let semantic_mapping_used = semantic_mapping_attempted && semantic_candidate_count > 0;
@@ -1388,6 +1575,7 @@ fn build_retrieval_query_with_understanding<'a>(
         entities: routed.query.entities,
         intent: question_intent,
         used_history_message_ids: routed.query.used_history_message_ids,
+        used_reference_history_message_ids: routed.query.used_reference_history_message_ids,
         research_intent: routed.query.intent.as_str().to_string(),
         execution_mode: routed.execution_mode.as_str().to_string(),
         routing_reason: routed.routing_reason,
@@ -2790,6 +2978,7 @@ pub fn prepare_question_with_history_budget_and_planner(
         None,
         None,
         None,
+        &[],
     )
 }
 
@@ -2808,6 +2997,7 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
     understanding_planner: Option<&'a mut QuestionUnderstandingPlanner<'a>>,
     budget_guard: Option<&LlmBudgetGuard>,
     session_id: Option<&str>,
+    reference_history: &[ReferenceTurn],
 ) -> Result<QuestionContext, String> {
     let question = question.trim();
     if question.chars().count() < 2 {
@@ -2832,7 +3022,10 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
     let mut retrieval_query = build_retrieval_query_with_understanding(
         connection,
         question,
-        &conversation,
+        ResolutionHistory {
+            trusted: &conversation,
+            reference: reference_history,
+        },
         understanding_planner,
         &registry,
         Some(&repository),
@@ -5390,6 +5583,113 @@ mod tests {
     }
 
     #[test]
+    fn reference_history_reads_only_users_from_completed_mixed_or_unverified_exchanges() {
+        let (root, connection) = test_db();
+        let session = create_session(&connection, root.path(), "reference history").unwrap();
+        for (index, status) in ["completed", "mixed", "unverified", "failed", "cancelled"]
+            .into_iter()
+            .enumerate()
+        {
+            let request_id = format!("request-{status}");
+            connection
+                .execute(
+                    "INSERT INTO chat_messages(id,session_id,role,content,status,created_at,request_id)
+                     VALUES(?1,?2,'user',?3,?4,?5,?6)",
+                    params![
+                        format!("user-{status}"),
+                        session.id,
+                        format!("USER_REFERENCE_{status}"),
+                        status,
+                        format!("{index}0"),
+                        request_id,
+                    ],
+                )
+                .unwrap();
+            connection
+                .execute(
+                    "INSERT INTO chat_messages(id,session_id,role,content,status,created_at,request_id,trusted_context)
+                     VALUES(?1,?2,'assistant',?3,?4,?5,?6,?7)",
+                    params![
+                        format!("assistant-{status}"),
+                        session.id,
+                        format!("ASSISTANT_ONLY_{status}"),
+                        status,
+                        format!("{index}1"),
+                        request_id,
+                        if status == "mixed" {
+                            "TRUSTED_MIXED_FACT"
+                        } else {
+                            ""
+                        },
+                    ],
+                )
+                .unwrap();
+        }
+
+        let references =
+            conversation_reference_history(&connection, root.path(), Some(&session.id)).unwrap();
+        assert_eq!(
+            references
+                .iter()
+                .map(|turn| turn.message_id.as_str())
+                .collect::<Vec<_>>(),
+            vec!["user-completed", "user-mixed", "user-unverified"]
+        );
+        assert!(references
+            .iter()
+            .all(|turn| !turn.user_content.contains("ASSISTANT_ONLY")));
+
+        let trusted = conversation_history(&connection, root.path(), Some(&session.id)).unwrap();
+        assert_eq!(
+            trusted
+                .iter()
+                .map(|turn| turn.id.as_str())
+                .collect::<Vec<_>>(),
+            vec![
+                "user-completed",
+                "assistant-completed",
+                "user-mixed",
+                "assistant-mixed"
+            ]
+        );
+        assert!(trusted
+            .iter()
+            .all(|turn| !turn.content.contains("ASSISTANT_ONLY_unverified")));
+        assert!(trusted
+            .iter()
+            .any(|turn| turn.content == "TRUSTED_MIXED_FACT"));
+
+        let other = tempdir().unwrap();
+        assert!(
+            conversation_reference_history(&connection, other.path(), Some(&session.id)).is_err()
+        );
+    }
+
+    #[test]
+    fn reference_history_has_safe_structured_lifecycle_logging() {
+        let source = include_str!("qa.rs");
+        for marker in [
+            "qa_reference_history_started",
+            "qa_reference_history_completed",
+            "qa_reference_history_failed",
+            "qa_reference_history_resolution_started",
+            "qa_reference_history_resolution_completed",
+            "conversation_reference_history\".to_string()",
+            "reference_history_resolution\".to_string()",
+        ] {
+            assert!(source.contains(marker), "missing={marker}");
+        }
+        assert!(source.contains("failed.error_code = trace::error_code(error)"));
+        assert!(source.contains("used_reference_history_count ="));
+        for unsafe_marker in [
+            ["reference_history", "_question"].concat(),
+            ["reference_history", "_answer"].concat(),
+        ] {
+            assert!(!source.contains(&unsafe_marker), "unsafe={unsafe_marker}");
+        }
+    }
+
+    #[test]
     fn session_and_message_pages_use_stable_cursors_and_backend_search() {
         let (root, connection) = test_db();
         for (index, title) in [(1, "old searchable"), (2, "middle"), (3, "latest")] {
@@ -6435,25 +6735,67 @@ mod tests {
     #[test]
     fn zero_evidence_follow_up_never_inherits_general_knowledge_as_trusted_fact() {
         let (root, mut connection) = test_db();
-        let mut first = prepare_question(&connection, root.path(), "unknown protocol", 4).unwrap();
+        let mut first = prepare_question(
+            &connection,
+            root.path(),
+            "当前知识库中的 QTC-9 如何利用潮汐引力完成无线充电调度？",
+            4,
+        )
+        .unwrap();
         first.evidence.clear();
         let result = persist_exchange(
             &mut connection,
             root.path(),
             Some("zero-follow-up"),
             &first,
-            normalize_unverified_answer("如果把这个描述当作假设性研究设定，可以讨论周期外力调度。"),
+            normalize_unverified_answer("ASSISTANT_ONLY_FACT_X：可以讨论周期外力调度。"),
             PROVIDER_CODEX,
             "fixture",
         )
         .unwrap();
         let history =
             conversation_history(&connection, root.path(), Some("zero-follow-up")).unwrap();
-        let follow_up = build_retrieval_query(&connection, "那它为什么比传统方法更好？", &history);
+        let reference_history =
+            conversation_reference_history(&connection, root.path(), Some("zero-follow-up"))
+                .unwrap();
+        let request_id = Uuid::new_v4().to_string();
+        let prepared = prepare_production_qa(
+            &connection,
+            root.path(),
+            &AskRequest {
+                request_id: request_id.clone(),
+                question: "那它为什么比传统方法更好？".to_string(),
+                session_id: Some("zero-follow-up".to_string()),
+                evidence_limit: Some(4),
+                repository_id: repository_id(root.path()),
+                codex_model: None,
+                codex_reasoning_effort: None,
+            },
+            &request_id,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        assert!(prepared.context.conversation.is_empty());
+        let envelope = context::build_prompt_envelope(&prepared.context);
+        assert!(!envelope.user_prompt.contains("ASSISTANT_ONLY_FACT_X"));
+        let follow_up = prepared.context.retrieval_query;
 
         assert!(history.is_empty());
+        assert_eq!(reference_history.len(), 1);
+        assert_eq!(reference_history[0].message_id, result.user_message.id);
+        assert!(reference_history[0].user_content.contains("QTC-9"));
+        assert!(!reference_history[0]
+            .user_content
+            .contains("ASSISTANT_ONLY_FACT_X"));
         assert!(follow_up.used_history_message_ids.is_empty());
-        assert!(!follow_up.resolved_question.contains("周期外力调度"));
+        assert_eq!(
+            follow_up.used_reference_history_message_ids,
+            vec![result.user_message.id.clone()]
+        );
+        assert!(follow_up.resolved_question.contains("QTC-9"));
+        assert!(!follow_up
+            .resolved_question
+            .contains("ASSISTANT_ONLY_FACT_X"));
         let stored_trusted: String = connection
             .query_row(
                 "SELECT trusted_context FROM chat_messages WHERE id=?1",

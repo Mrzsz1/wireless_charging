@@ -5,7 +5,7 @@ use super::state_vocabulary::{
     validate_patch_against_vocabulary, AllowedStateField, StateFieldDefinition,
     StateVocabularyRegistry, VocabularyOrigin, STATE_VOCABULARY_VERSION,
 };
-use super::{compact, ConversationTurn};
+use super::{compact, ConversationTurn, ReferenceTurn};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::HashSet;
@@ -95,6 +95,8 @@ pub struct ResolvedQuestion {
     pub standalone_question: String,
     pub resolved_entities: Vec<String>,
     pub used_history_message_ids: Vec<String>,
+    #[serde(default)]
+    pub used_reference_history_message_ids: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
@@ -105,6 +107,8 @@ pub struct ResearchQuery {
     pub entities: Vec<String>,
     pub intent: ResearchIntent,
     pub used_history_message_ids: Vec<String>,
+    #[serde(default)]
+    pub used_reference_history_message_ids: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
@@ -131,6 +135,10 @@ pub struct UnderstandingPlanningInput {
     pub current_entities: Vec<String>,
     #[serde(skip)]
     pub history_entities: Vec<EntityCandidate>,
+    #[serde(skip)]
+    pub reference_history: Vec<UnderstandingTurn>,
+    #[serde(skip)]
+    pub reference_history_entities: Vec<EntityCandidate>,
     #[serde(default)]
     pub current_state: ResearchStateSummary,
     pub state_vocabulary_version: String,
@@ -165,6 +173,8 @@ impl UnderstandingPlanningInput {
             recent_history,
             current_entities,
             history_entities,
+            reference_history: Vec::new(),
+            reference_history_entities: Vec::new(),
             current_state: ResearchStateSummary::default(),
             state_vocabulary_version: STATE_VOCABULARY_VERSION.to_string(),
             state_vocabulary_revision: vocabulary.revision,
@@ -172,6 +182,27 @@ impl UnderstandingPlanningInput {
             allowed_state_fields: vocabulary.allowed_state_fields(),
             state_semantic_mapping_needed: false,
         }
+    }
+
+    pub fn with_reference_history(
+        mut self,
+        history: &[ReferenceTurn],
+        entities: Vec<EntityCandidate>,
+    ) -> Self {
+        let mut reference_history = history
+            .iter()
+            .rev()
+            .take(MAX_HISTORY_TURNS)
+            .map(|turn| UnderstandingTurn {
+                message_id: turn.message_id.clone(),
+                role: "user".to_string(),
+                content: bounded_history_content(&turn.user_content),
+            })
+            .collect::<Vec<_>>();
+        reference_history.reverse();
+        self.reference_history = reference_history;
+        self.reference_history_entities = entities;
+        self
     }
 
     pub fn with_current_state(mut self, current_state: ResearchStateSummary) -> Self {
@@ -316,6 +347,14 @@ impl<'a> HybridConversationResolver<'a> {
 impl ConversationResolver for HybridConversationResolver<'_> {
     fn resolve(&mut self, input: &UnderstandingPlanningInput) -> ResolverOutcome {
         let deterministic = self.fallback.resolve(input);
+        if !deterministic
+            .resolved
+            .used_reference_history_message_ids
+            .is_empty()
+            && input.recent_history.is_empty()
+        {
+            return deterministic;
+        }
         let (_, deterministic_mode, _) = deterministic_route(&deterministic.resolved);
         let contextual =
             contains_reference(&input.original_question) && !input.recent_history.is_empty();
@@ -335,6 +374,7 @@ impl ConversationResolver for HybridConversationResolver<'_> {
                     standalone_question: plan.standalone_question,
                     resolved_entities: plan.resolved_entities,
                     used_history_message_ids: plan.used_history_message_ids,
+                    used_reference_history_message_ids: Vec::new(),
                 },
                 intent_hint: Some(plan.intent),
                 execution_mode_hint: Some(plan.execution_mode),
@@ -408,6 +448,7 @@ impl IntentRouter for HybridIntentRouter {
             entities: resolved.resolved_entities,
             intent,
             used_history_message_ids: resolved.used_history_message_ids,
+            used_reference_history_message_ids: resolved.used_reference_history_message_ids,
         };
         RoutingOutcome {
             routed: RoutedResearchQuery {
@@ -543,28 +584,52 @@ fn deterministic_resolution(input: &UnderstandingPlanningInput) -> ResolvedQuest
     // and must not make the audit claim that history resolution was used.
     let mut entities = Vec::new();
     let mut used_history_message_ids = Vec::new();
+    let mut used_reference_history_message_ids = Vec::new();
     if contains_reference(&input.original_question) && input.current_entities.len() < 2 {
         let ordinal = requested_ordinal(&input.original_question);
-        if let Some((value, message_id)) =
-            ordinal.and_then(|index| ordinal_history_candidate(&input.recent_history, index))
-        {
-            entities.push(value);
-            used_history_message_ids.push(message_id);
+        if let Some(index) = ordinal {
+            if let Some((value, message_id)) =
+                ordinal_history_candidate(&input.recent_history, index)
+            {
+                entities.push(value);
+                used_history_message_ids.push(message_id);
+            } else if let Some((value, message_id)) =
+                ordinal_history_candidate(&input.reference_history, index)
+            {
+                entities.push(value);
+                used_reference_history_message_ids.push(message_id);
+            }
         }
         for candidate in &input.history_entities {
             if entities.len() >= 8 {
                 break;
             }
-            if !entities
+            let contributed = !entities
                 .iter()
-                .any(|value| value.eq_ignore_ascii_case(&candidate.value))
-            {
+                .any(|value| value.eq_ignore_ascii_case(&candidate.value));
+            if contributed {
                 entities.push(candidate.value.clone());
+                if !candidate.source_message_id.is_empty()
+                    && !used_history_message_ids.contains(&candidate.source_message_id)
+                {
+                    used_history_message_ids.push(candidate.source_message_id.clone());
+                }
             }
-            if !candidate.source_message_id.is_empty()
-                && !used_history_message_ids.contains(&candidate.source_message_id)
-            {
-                used_history_message_ids.push(candidate.source_message_id.clone());
+        }
+        for candidate in &input.reference_history_entities {
+            if entities.len() >= 8 {
+                break;
+            }
+            let contributed = !entities
+                .iter()
+                .any(|value| value.eq_ignore_ascii_case(&candidate.value));
+            if contributed {
+                entities.push(candidate.value.clone());
+                if !candidate.source_message_id.is_empty()
+                    && !used_reference_history_message_ids.contains(&candidate.source_message_id)
+                {
+                    used_reference_history_message_ids.push(candidate.source_message_id.clone());
+                }
             }
         }
     }
@@ -585,6 +650,7 @@ fn deterministic_resolution(input: &UnderstandingPlanningInput) -> ResolvedQuest
         standalone_question,
         resolved_entities: entities,
         used_history_message_ids,
+        used_reference_history_message_ids,
     }
 }
 
@@ -986,6 +1052,35 @@ mod tests {
             ResearchIntent::MethodImprovement
         );
         assert_eq!(result.routed.execution_mode, ExecutionMode::Exploratory);
+    }
+
+    #[test]
+    fn deterministic_resolver_uses_user_only_reference_history_without_trusting_it() {
+        let reference = vec![ReferenceTurn {
+            message_id: "reference-user".to_string(),
+            request_id: "reference-request".to_string(),
+            user_content: "上一轮用户询问 QTC-9。".to_string(),
+        }];
+        let input =
+            UnderstandingPlanningInput::new("那它为什么更好？", &[], Vec::new(), Vec::new())
+                .with_reference_history(
+                    &reference,
+                    vec![EntityCandidate {
+                        value: "QTC-9".to_string(),
+                        source_message_id: "reference-user".to_string(),
+                    }],
+                );
+
+        let result = resolve_and_route(&input, None);
+        assert!(result.routed.query.standalone_question.contains("QTC-9"));
+        assert!(result.routed.query.used_history_message_ids.is_empty());
+        assert_eq!(
+            result.routed.query.used_reference_history_message_ids,
+            vec!["reference-user"]
+        );
+        let provider_payload = serde_json::to_string(&input).unwrap();
+        assert!(!provider_payload.contains("QTC-9"));
+        assert!(!provider_payload.contains("reference-user"));
     }
 
     #[test]

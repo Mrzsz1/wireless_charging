@@ -39,11 +39,18 @@ pub fn prepare_production_qa(
             get_session(connection, root, existing_session)?;
         }
         let conversation = conversation_history(connection, root, request.session_id.as_deref())?;
+        let reference_history =
+            conversation_reference_history(connection, root, request.session_id.as_deref())?;
         if cancelled.load(Ordering::SeqCst) {
             return Err("QUESTION_CANCELLED: 用户停止了问答".to_string());
         }
         let settings = get_luna_settings(connection, root, false)?;
-        let initial_route = build_retrieval_query(connection, &request.question, &conversation);
+        let initial_route = build_retrieval_query_with_reference_history(
+            connection,
+            &request.question,
+            &conversation,
+            &reference_history,
+        );
         let budget_guard = LlmBudgetGuard::new(routing_policy(&initial_route.execution_mode));
         let planner_model = request
             .codex_model
@@ -123,6 +130,7 @@ pub fn prepare_production_qa(
             understanding,
             Some(&budget_guard),
             request.session_id.as_deref(),
+            &reference_history,
         )?;
         context.retrieval_query.planning_provider = planning_provider
             .as_ref()

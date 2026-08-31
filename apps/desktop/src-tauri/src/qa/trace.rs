@@ -17,6 +17,8 @@ pub struct QaTraceEvent {
     pub schema_version: String,
     pub timestamp_unix_ms: u128,
     pub event: String,
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub feature: String,
     pub stage: String,
     pub status: String,
     #[serde(skip_serializing_if = "String::is_empty")]
@@ -47,6 +49,14 @@ pub struct QaTraceEvent {
     pub query_count: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub requested_kind_count: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub trusted_history_count: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reference_history_count: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub used_trusted_history_count: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub used_reference_history_count: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub duration_ms: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -183,6 +193,11 @@ mod tests {
         event.facet_count = Some(2);
         event.query_count = Some(3);
         event.requested_kind_count = Some(2);
+        event.feature = "reference_history_resolution".to_string();
+        event.trusted_history_count = Some(0);
+        event.reference_history_count = Some(1);
+        event.used_trusted_history_count = Some(0);
+        event.used_reference_history_count = Some(1);
         event.duration_ms = Some(42);
         let serialized = serde_json::to_string(&event).unwrap();
         assert!(!serialized.contains(request_id));
@@ -206,6 +221,11 @@ mod tests {
         assert!(serialized.contains("\"supportEligibleEvidenceCount\":0"));
         assert!(serialized.contains("\"graphOnlyEvidenceCount\":2"));
         assert!(serialized.contains("\"zeroEvidenceReason\":\"graph_only\""));
+        assert!(serialized.contains("\"feature\":\"reference_history_resolution\""));
+        assert!(serialized.contains("\"trustedHistoryCount\":0"));
+        assert!(serialized.contains("\"referenceHistoryCount\":1"));
+        assert!(serialized.contains("\"usedTrustedHistoryCount\":0"));
+        assert!(serialized.contains("\"usedReferenceHistoryCount\":1"));
     }
 
     #[test]

@@ -979,6 +979,7 @@ export type QuestionContext = {
     entities: string[]
     intent: string
     usedHistoryMessageIds: string[]
+    usedReferenceHistoryMessageIds?: string[]
     researchIntent?: string
     executionMode?: 'direct' | 'research' | 'exploratory' | string
     routingReason?: string
