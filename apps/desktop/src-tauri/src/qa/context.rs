@@ -1346,8 +1346,8 @@ pub fn build_run_manifest(
 ) -> QaRunManifest {
     let evidence_availability = super::zero_evidence::classify_evidence_availability(
         &context.evidence,
-        context.retrieval_query.planned_required_facet_count,
-        context.retrieval_query.covered_facet_ids.len(),
+        &context.retrieval_query.planned_required_facet_ids,
+        &context.retrieval_query.covered_facet_ids,
     );
     QaRunManifest {
         schema_version: RUN_MANIFEST_SCHEMA_VERSION.to_string(),

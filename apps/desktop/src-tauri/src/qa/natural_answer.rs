@@ -197,7 +197,7 @@ fn appendix(evidence: &[EvidenceItem]) -> (String, Vec<String>) {
 
 pub fn render(answer: &str, evidence: &[EvidenceItem]) -> Result<NaturalAnswerResult, String> {
     let raw_body = visible_body_source(answer);
-    let availability = zero_evidence::classify_evidence_availability(evidence, 0, 0);
+    let availability = zero_evidence::classify_evidence_availability(evidence, &[], &[]);
     if raw_body.is_empty() && !availability.is_zero_usable() {
         return Err("回答正文为空".to_string());
     }

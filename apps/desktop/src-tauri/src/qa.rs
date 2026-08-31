@@ -282,6 +282,8 @@ pub struct RetrievalQuery {
     #[serde(default)]
     pub facet_ids: Vec<String>,
     #[serde(default)]
+    pub planned_required_facet_ids: Vec<String>,
+    #[serde(default)]
     pub covered_facet_ids: Vec<String>,
     #[serde(default)]
     pub planner_used: bool,
@@ -1402,6 +1404,7 @@ fn build_retrieval_query_with_understanding<'a>(
         router_fallback: diagnostics.router_fallback,
         query_plan_version: String::new(),
         facet_ids: Vec::new(),
+        planned_required_facet_ids: Vec::new(),
         covered_facet_ids: Vec::new(),
         planner_used: false,
         planner_status: "not_requested".to_string(),
@@ -2974,8 +2977,15 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
         .min(routing_policy.max_candidates)
         .max(4);
     retrieval_query.facet_ids = plan.facets.iter().map(|facet| facet.id.clone()).collect();
-    retrieval_query.planned_required_facet_count =
-        plan.facets.iter().filter(|facet| facet.required).count();
+    retrieval_query.planned_required_facet_ids = plan
+        .facets
+        .iter()
+        .filter(|facet| facet.required)
+        .map(|facet| facet.id.clone())
+        .collect();
+    retrieval_query.planned_required_facet_ids.sort();
+    retrieval_query.planned_required_facet_ids.dedup();
+    retrieval_query.planned_required_facet_count = retrieval_query.planned_required_facet_ids.len();
     retrieval_query.planned_search_query_count = plan
         .facets
         .iter()
@@ -3405,8 +3415,8 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
     );
     let evidence_availability = zero_evidence::classify_evidence_availability(
         &evidence,
-        retrieval_query.planned_required_facet_count,
-        retrieval_query.covered_facet_ids.len(),
+        &retrieval_query.planned_required_facet_ids,
+        &retrieval_query.covered_facet_ids,
     );
     retrieval_query.evidence_availability_mode = evidence_availability.mode.as_str().to_string();
     retrieval_query.support_eligible_evidence_count =
@@ -4428,8 +4438,8 @@ pub fn audit_generated_answer_with_semantic(
 ) -> AnswerAudit {
     let evidence_availability = zero_evidence::classify_evidence_availability(
         &context.evidence,
-        context.retrieval_query.planned_required_facet_count,
-        context.retrieval_query.covered_facet_ids.len(),
+        &context.retrieval_query.planned_required_facet_ids,
+        &context.retrieval_query.covered_facet_ids,
     );
     let zero_evidence = evidence_availability.is_zero_usable();
     let structured =
@@ -5786,6 +5796,11 @@ mod tests {
         assert!(context.retrieval_query.planner_used);
         assert_eq!(context.retrieval_query.facet_ids, vec!["scheduling"]);
         assert_eq!(
+            context.retrieval_query.planned_required_facet_ids,
+            vec!["scheduling"]
+        );
+        assert_eq!(context.retrieval_query.planned_required_facet_count, 1);
+        assert_eq!(
             context.retrieval_query.covered_facet_ids,
             vec!["scheduling"]
         );
@@ -6767,7 +6782,8 @@ mod tests {
         graph.locator = None;
         context.evidence = vec![graph];
 
-        let availability = zero_evidence::classify_evidence_availability(&context.evidence, 0, 0);
+        let availability =
+            zero_evidence::classify_evidence_availability(&context.evidence, &[], &[]);
         assert_eq!(
             availability.mode,
             zero_evidence::EvidenceAvailabilityMode::ZeroUsableEvidence

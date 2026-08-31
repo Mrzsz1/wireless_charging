@@ -995,6 +995,7 @@ export type QuestionContext = {
     routerFallback?: boolean
     queryPlanVersion?: string
     facetIds?: string[]
+    plannedRequiredFacetIds?: string[]
     coveredFacetIds?: string[]
     plannerUsed?: boolean
     plannerStatus?: string

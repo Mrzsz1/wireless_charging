@@ -1,5 +1,6 @@
 use super::{context::AnswerCompletenessValidation, grounding, natural_answer, EvidenceItem};
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 
 pub const ZERO_EVIDENCE_AUDIT_SCHEMA_VERSION: &str = "qa-zero-evidence-audit-v1";
 pub const NO_EVIDENCE_NOTICE: &str = "当前知识库没有检索到可用于核验这个问题的参考来源。下面如有分析，只能视为一般知识或假设性讨论，不能视为当前知识库结论。";
@@ -104,15 +105,26 @@ pub fn has_support_eligible_evidence(evidence: &[EvidenceItem]) -> bool {
 
 pub fn classify_evidence_availability(
     evidence: &[EvidenceItem],
-    required_facet_count: usize,
-    covered_required_facet_count: usize,
+    required_facet_ids: &[String],
+    covered_facet_ids: &[String],
 ) -> EvidenceAvailability {
     let support_eligible_evidence_count = evidence
         .iter()
         .filter(|item| support_eligible_evidence(item))
         .count();
     let graph_only_evidence_count = evidence.iter().filter(|item| item.kind == "graph").count();
-    let covered_required_facet_count = covered_required_facet_count.min(required_facet_count);
+    let required = required_facet_ids
+        .iter()
+        .map(String::as_str)
+        .filter(|id| !id.trim().is_empty())
+        .collect::<HashSet<_>>();
+    let covered_required = covered_facet_ids
+        .iter()
+        .map(String::as_str)
+        .filter(|id| required.contains(id))
+        .collect::<HashSet<_>>();
+    let required_facet_count = required.len();
+    let covered_required_facet_count = covered_required.len();
     let (mode, reason) = if support_eligible_evidence_count == 0 {
         (
             EvidenceAvailabilityMode::ZeroUsableEvidence,
@@ -365,7 +377,7 @@ mod tests {
     }
 
     fn zero_availability() -> EvidenceAvailability {
-        classify_evidence_availability(&[], 0, 0)
+        classify_evidence_availability(&[], &[], &[])
     }
 
     #[test]
@@ -406,7 +418,7 @@ mod tests {
 
     #[test]
     fn z9_and_z10_graph_only_is_zero_but_graph_plus_paper_is_grounded() {
-        let graph_only = classify_evidence_availability(&[evidence("graph")], 0, 0);
+        let graph_only = classify_evidence_availability(&[evidence("graph")], &[], &[]);
         assert_eq!(
             graph_only.mode,
             EvidenceAvailabilityMode::ZeroUsableEvidence
@@ -416,7 +428,7 @@ mod tests {
         assert_eq!(graph_only.reason, "graph_only");
 
         let grounded =
-            classify_evidence_availability(&[evidence("graph"), evidence("paper")], 0, 0);
+            classify_evidence_availability(&[evidence("graph"), evidence("paper")], &[], &[]);
         assert_eq!(grounded.mode, EvidenceAvailabilityMode::Grounded);
         assert_eq!(grounded.support_eligible_evidence_count, 1);
     }
@@ -439,11 +451,16 @@ mod tests {
 
     #[test]
     fn z14_partial_coverage_and_z15_no_supported_claims_remain_nonzero_modes() {
-        let partial = classify_evidence_availability(&[evidence("wiki")], 2, 1);
+        let partial = classify_evidence_availability(
+            &[evidence("wiki")],
+            &["A".to_string(), "B".to_string()],
+            &["A".to_string()],
+        );
         assert_eq!(partial.mode, EvidenceAvailabilityMode::PartialCoverage);
         assert_eq!(partial.reason, "required_facet_gap");
 
-        let grounded_without_claims = classify_evidence_availability(&[evidence("paper")], 0, 0);
+        let grounded_without_claims =
+            classify_evidence_availability(&[evidence("paper")], &[], &[]);
         assert_eq!(
             grounded_without_claims.mode,
             EvidenceAvailabilityMode::Grounded
@@ -457,6 +474,44 @@ mod tests {
         );
         assert!(!audit.applicable);
         assert_eq!(audit.status, "not_applicable");
+    }
+
+    #[test]
+    fn required_facet_identity_not_total_covered_count_drives_partial_coverage() {
+        let classify = |required: &[&str], covered: &[&str]| {
+            classify_evidence_availability(
+                &[evidence("paper")],
+                &required
+                    .iter()
+                    .map(|id| (*id).to_string())
+                    .collect::<Vec<_>>(),
+                &covered
+                    .iter()
+                    .map(|id| (*id).to_string())
+                    .collect::<Vec<_>>(),
+            )
+        };
+        let availability = classify(&["A", "B"], &["A", "C"]);
+
+        assert_eq!(availability.required_facet_count, 2);
+        assert_eq!(availability.covered_required_facet_count, 1);
+        assert_eq!(availability.mode, EvidenceAvailabilityMode::PartialCoverage);
+        assert_eq!(availability.reason, "required_facet_gap");
+
+        let all_required = classify(&["A", "B"], &["A", "B", "C"]);
+        assert_eq!(all_required.covered_required_facet_count, 2);
+        assert_eq!(all_required.mode, EvidenceAvailabilityMode::Grounded);
+
+        let optional_only = classify(&["A", "B"], &["C"]);
+        assert_eq!(optional_only.covered_required_facet_count, 0);
+        assert_eq!(
+            optional_only.mode,
+            EvidenceAvailabilityMode::PartialCoverage
+        );
+
+        let no_required = classify(&[], &["C"]);
+        assert_eq!(no_required.required_facet_count, 0);
+        assert_eq!(no_required.mode, EvidenceAvailabilityMode::Grounded);
     }
 
     #[test]

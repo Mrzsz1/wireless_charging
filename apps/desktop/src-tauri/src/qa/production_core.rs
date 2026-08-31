@@ -192,8 +192,8 @@ where
 {
     let evidence_availability = zero_evidence::classify_evidence_availability(
         &context.evidence,
-        context.retrieval_query.planned_required_facet_count,
-        context.retrieval_query.covered_facet_ids.len(),
+        &context.retrieval_query.planned_required_facet_ids,
+        &context.retrieval_query.covered_facet_ids,
     );
     let zero_evidence = evidence_availability.is_zero_usable();
     let generated: Result<(String, String, String), String> =
