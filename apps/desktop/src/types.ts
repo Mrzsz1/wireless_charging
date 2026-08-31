@@ -586,6 +586,15 @@ export type ResearchQueryContext = {
   excludedMethods: string[]
   resolvedReferences: string[]
   sourceStateRevision: number
+  activeVocabularyFields: ActiveVocabularyField[]
+}
+
+export type ActiveVocabularyField = {
+  id: string
+  kind: string
+  label: string
+  description: string
+  searchTerms: string[]
 }
 
 export type EvidenceChecksum = {

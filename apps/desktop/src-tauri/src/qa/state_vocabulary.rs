@@ -537,17 +537,6 @@ impl StateVocabularyRegistry {
         matches.dedup_by(|left, right| left.1.id == right.1.id);
         matches.into_iter().map(|(_, field)| field).collect()
     }
-
-    pub fn active_definitions<'a>(
-        &'a self,
-        active: impl IntoIterator<Item = &'a str>,
-    ) -> Vec<&'a StateFieldDefinition> {
-        let active = active.into_iter().collect::<HashSet<_>>();
-        self.fields
-            .iter()
-            .filter(|field| active.contains(field.id.as_str()))
-            .collect()
-    }
 }
 
 fn exact_term_position(text: &str, term: &str) -> Option<usize> {

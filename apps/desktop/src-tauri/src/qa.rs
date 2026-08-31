@@ -1280,11 +1280,12 @@ fn build_retrieval_query_with_understanding<'a>(
         Some(selected_patch),
         &routed.query.entities,
     );
-    let research_context = research_query_context::build_research_query_context(
+    let research_context = research_query_context::build_research_query_context_with_vocabulary(
         &routed.query.standalone_question,
         routed.query.intent,
         &research_state,
         &routed.query.entities,
+        registry,
     );
     let question_intent = routed.query.intent.answer_profile().to_string();
     let problem = problem_understanding::understand(&routed.query.standalone_question);
