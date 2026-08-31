@@ -82,7 +82,23 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 2
+        "sourceStateRevision": 2,
+        "activeVocabularyFields": [
+          {
+            "id": "battery_capacity",
+            "kind": "constraint",
+            "label": "电池容量约束",
+            "description": "节点或设备受有限电池容量约束。",
+            "searchTerms": [
+              "battery_capacity",
+              "电池容量约束",
+              "容量约束",
+              "电池容量",
+              "battery capacity",
+              "节点或设备受有限电池容量约束"
+            ]
+          }
+        ]
       }
     },
     {
@@ -146,7 +162,8 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 2
+        "sourceStateRevision": 2,
+        "activeVocabularyFields": []
       }
     },
     {
@@ -207,7 +224,22 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 2
+        "sourceStateRevision": 2,
+        "activeVocabularyFields": [
+          {
+            "id": "minimize_dead_nodes",
+            "kind": "objective",
+            "label": "最小化死亡节点",
+            "description": "减少能量耗尽的传感器节点数量。",
+            "searchTerms": [
+              "minimize_dead_nodes",
+              "最小化死亡节点",
+              "减少死亡节点",
+              "minimize dead nodes",
+              "减少能量耗尽的传感器节点数量"
+            ]
+          }
+        ]
       }
     },
     {
@@ -270,7 +302,37 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 2
+        "sourceStateRevision": 2,
+        "activeVocabularyFields": [
+          {
+            "id": "battery_capacity",
+            "kind": "constraint",
+            "label": "电池容量约束",
+            "description": "节点或设备受有限电池容量约束。",
+            "searchTerms": [
+              "battery_capacity",
+              "电池容量约束",
+              "容量约束",
+              "电池容量",
+              "battery capacity",
+              "节点或设备受有限电池容量约束"
+            ]
+          },
+          {
+            "id": "deadlines",
+            "kind": "constraint",
+            "label": "截止期限",
+            "description": "任务或充电服务必须在截止时间前完成。",
+            "searchTerms": [
+              "deadlines",
+              "截止期限",
+              "deadline",
+              "截止时间",
+              "最后期限",
+              "任务或充电服务必须在截止时间前完成"
+            ]
+          }
+        ]
       }
     },
     {
@@ -331,7 +393,23 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 2
+        "sourceStateRevision": 2,
+        "activeVocabularyFields": [
+          {
+            "id": "deadlines",
+            "kind": "constraint",
+            "label": "截止期限",
+            "description": "任务或充电服务必须在截止时间前完成。",
+            "searchTerms": [
+              "deadlines",
+              "截止期限",
+              "deadline",
+              "截止时间",
+              "最后期限",
+              "任务或充电服务必须在截止时间前完成"
+            ]
+          }
+        ]
       }
     },
     {
@@ -388,7 +466,8 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 2
+        "sourceStateRevision": 2,
+        "activeVocabularyFields": []
       }
     },
     {
@@ -458,7 +537,25 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 1
+        "sourceStateRevision": 1,
+        "activeVocabularyFields": [
+          {
+            "id": "multi_vehicle_coordination",
+            "kind": "constraint",
+            "label": "多移动充电设备协同",
+            "description": "存在多个移动充电车、移动充电器或移动供能设备，需要进行协同调度。",
+            "searchTerms": [
+              "multi_vehicle_coordination",
+              "多移动充电设备协同",
+              "多车协同",
+              "多辆车",
+              "多充电车",
+              "多个移动充电车",
+              "存在多个移动充电车、移动充电器或移动供能设备",
+              "需要进行协同调度"
+            ]
+          }
+        ]
       }
     },
     {
@@ -530,7 +627,25 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 2
+        "sourceStateRevision": 2,
+        "activeVocabularyFields": [
+          {
+            "id": "multi_vehicle_coordination",
+            "kind": "constraint",
+            "label": "多移动充电设备协同",
+            "description": "存在多个移动充电车、移动充电器或移动供能设备，需要进行协同调度。",
+            "searchTerms": [
+              "multi_vehicle_coordination",
+              "多移动充电设备协同",
+              "多车协同",
+              "多辆车",
+              "多充电车",
+              "多个移动充电车",
+              "存在多个移动充电车、移动充电器或移动供能设备",
+              "需要进行协同调度"
+            ]
+          }
+        ]
       }
     },
     {
@@ -600,7 +715,23 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 1
+        "sourceStateRevision": 1,
+        "activeVocabularyFields": [
+          {
+            "id": "deadlines",
+            "kind": "constraint",
+            "label": "截止期限",
+            "description": "任务或充电服务必须在截止时间前完成。",
+            "searchTerms": [
+              "deadlines",
+              "截止期限",
+              "deadline",
+              "截止时间",
+              "最后期限",
+              "任务或充电服务必须在截止时间前完成"
+            ]
+          }
+        ]
       }
     },
     {
@@ -693,7 +824,81 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 2
+        "sourceStateRevision": 2,
+        "activeVocabularyFields": [
+          {
+            "id": "deadlines",
+            "kind": "constraint",
+            "label": "截止期限",
+            "description": "任务或充电服务必须在截止时间前完成。",
+            "searchTerms": [
+              "deadlines",
+              "截止期限",
+              "deadline",
+              "截止时间",
+              "最后期限",
+              "任务或充电服务必须在截止时间前完成"
+            ]
+          },
+          {
+            "id": "minimize_dead_nodes",
+            "kind": "objective",
+            "label": "最小化死亡节点",
+            "description": "减少能量耗尽的传感器节点数量。",
+            "searchTerms": [
+              "minimize_dead_nodes",
+              "最小化死亡节点",
+              "减少死亡节点",
+              "minimize dead nodes",
+              "减少能量耗尽的传感器节点数量"
+            ]
+          },
+          {
+            "id": "mobile_charger_count",
+            "kind": "parameter",
+            "label": "移动充电设备数量",
+            "description": "参与调度的移动充电车、移动充电器或移动供能设备数量。",
+            "searchTerms": [
+              "mobile_charger_count",
+              "移动充电设备数量",
+              "移动充电车",
+              "充电车数量",
+              "移动充电器",
+              "移动充电器数量",
+              "参与调度的移动充电车、移动充电器或移动供能设备数量"
+            ]
+          },
+          {
+            "id": "multi_vehicle_coordination",
+            "kind": "constraint",
+            "label": "多移动充电设备协同",
+            "description": "存在多个移动充电车、移动充电器或移动供能设备，需要进行协同调度。",
+            "searchTerms": [
+              "multi_vehicle_coordination",
+              "多移动充电设备协同",
+              "多车协同",
+              "多辆车",
+              "多充电车",
+              "多个移动充电车",
+              "存在多个移动充电车、移动充电器或移动供能设备",
+              "需要进行协同调度"
+            ]
+          },
+          {
+            "id": "obstacle_avoidance",
+            "kind": "constraint",
+            "label": "障碍规避",
+            "description": "移动路径必须避开障碍物。",
+            "searchTerms": [
+              "obstacle_avoidance",
+              "障碍规避",
+              "障碍物",
+              "避障",
+              "obstacle",
+              "移动路径必须避开障碍物"
+            ]
+          }
+        ]
       }
     },
     {
@@ -786,7 +991,81 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 2
+        "sourceStateRevision": 2,
+        "activeVocabularyFields": [
+          {
+            "id": "deadlines",
+            "kind": "constraint",
+            "label": "截止期限",
+            "description": "任务或充电服务必须在截止时间前完成。",
+            "searchTerms": [
+              "deadlines",
+              "截止期限",
+              "deadline",
+              "截止时间",
+              "最后期限",
+              "任务或充电服务必须在截止时间前完成"
+            ]
+          },
+          {
+            "id": "minimize_dead_nodes",
+            "kind": "objective",
+            "label": "最小化死亡节点",
+            "description": "减少能量耗尽的传感器节点数量。",
+            "searchTerms": [
+              "minimize_dead_nodes",
+              "最小化死亡节点",
+              "减少死亡节点",
+              "minimize dead nodes",
+              "减少能量耗尽的传感器节点数量"
+            ]
+          },
+          {
+            "id": "mobile_charger_count",
+            "kind": "parameter",
+            "label": "移动充电设备数量",
+            "description": "参与调度的移动充电车、移动充电器或移动供能设备数量。",
+            "searchTerms": [
+              "mobile_charger_count",
+              "移动充电设备数量",
+              "移动充电车",
+              "充电车数量",
+              "移动充电器",
+              "移动充电器数量",
+              "参与调度的移动充电车、移动充电器或移动供能设备数量"
+            ]
+          },
+          {
+            "id": "multi_vehicle_coordination",
+            "kind": "constraint",
+            "label": "多移动充电设备协同",
+            "description": "存在多个移动充电车、移动充电器或移动供能设备，需要进行协同调度。",
+            "searchTerms": [
+              "multi_vehicle_coordination",
+              "多移动充电设备协同",
+              "多车协同",
+              "多辆车",
+              "多充电车",
+              "多个移动充电车",
+              "存在多个移动充电车、移动充电器或移动供能设备",
+              "需要进行协同调度"
+            ]
+          },
+          {
+            "id": "obstacle_avoidance",
+            "kind": "constraint",
+            "label": "障碍规避",
+            "description": "移动路径必须避开障碍物。",
+            "searchTerms": [
+              "obstacle_avoidance",
+              "障碍规避",
+              "障碍物",
+              "避障",
+              "obstacle",
+              "移动路径必须避开障碍物"
+            ]
+          }
+        ]
       }
     },
     {
@@ -879,7 +1158,81 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 2
+        "sourceStateRevision": 2,
+        "activeVocabularyFields": [
+          {
+            "id": "deadlines",
+            "kind": "constraint",
+            "label": "截止期限",
+            "description": "任务或充电服务必须在截止时间前完成。",
+            "searchTerms": [
+              "deadlines",
+              "截止期限",
+              "deadline",
+              "截止时间",
+              "最后期限",
+              "任务或充电服务必须在截止时间前完成"
+            ]
+          },
+          {
+            "id": "minimize_dead_nodes",
+            "kind": "objective",
+            "label": "最小化死亡节点",
+            "description": "减少能量耗尽的传感器节点数量。",
+            "searchTerms": [
+              "minimize_dead_nodes",
+              "最小化死亡节点",
+              "减少死亡节点",
+              "minimize dead nodes",
+              "减少能量耗尽的传感器节点数量"
+            ]
+          },
+          {
+            "id": "mobile_charger_count",
+            "kind": "parameter",
+            "label": "移动充电设备数量",
+            "description": "参与调度的移动充电车、移动充电器或移动供能设备数量。",
+            "searchTerms": [
+              "mobile_charger_count",
+              "移动充电设备数量",
+              "移动充电车",
+              "充电车数量",
+              "移动充电器",
+              "移动充电器数量",
+              "参与调度的移动充电车、移动充电器或移动供能设备数量"
+            ]
+          },
+          {
+            "id": "multi_vehicle_coordination",
+            "kind": "constraint",
+            "label": "多移动充电设备协同",
+            "description": "存在多个移动充电车、移动充电器或移动供能设备，需要进行协同调度。",
+            "searchTerms": [
+              "multi_vehicle_coordination",
+              "多移动充电设备协同",
+              "多车协同",
+              "多辆车",
+              "多充电车",
+              "多个移动充电车",
+              "存在多个移动充电车、移动充电器或移动供能设备",
+              "需要进行协同调度"
+            ]
+          },
+          {
+            "id": "obstacle_avoidance",
+            "kind": "constraint",
+            "label": "障碍规避",
+            "description": "移动路径必须避开障碍物。",
+            "searchTerms": [
+              "obstacle_avoidance",
+              "障碍规避",
+              "障碍物",
+              "避障",
+              "obstacle",
+              "移动路径必须避开障碍物"
+            ]
+          }
+        ]
       }
     },
     {
@@ -972,7 +1325,54 @@
           "particle_swarm_optimization"
         ],
         "resolvedReferences": [],
-        "sourceStateRevision": 2
+        "sourceStateRevision": 2,
+        "activeVocabularyFields": [
+          {
+            "id": "deadlines",
+            "kind": "constraint",
+            "label": "截止期限",
+            "description": "任务或充电服务必须在截止时间前完成。",
+            "searchTerms": [
+              "deadlines",
+              "截止期限",
+              "deadline",
+              "截止时间",
+              "最后期限",
+              "任务或充电服务必须在截止时间前完成"
+            ]
+          },
+          {
+            "id": "mobile_charger_count",
+            "kind": "parameter",
+            "label": "移动充电设备数量",
+            "description": "参与调度的移动充电车、移动充电器或移动供能设备数量。",
+            "searchTerms": [
+              "mobile_charger_count",
+              "移动充电设备数量",
+              "移动充电车",
+              "充电车数量",
+              "移动充电器",
+              "移动充电器数量",
+              "参与调度的移动充电车、移动充电器或移动供能设备数量"
+            ]
+          },
+          {
+            "id": "multi_vehicle_coordination",
+            "kind": "constraint",
+            "label": "多移动充电设备协同",
+            "description": "存在多个移动充电车、移动充电器或移动供能设备，需要进行协同调度。",
+            "searchTerms": [
+              "multi_vehicle_coordination",
+              "多移动充电设备协同",
+              "多车协同",
+              "多辆车",
+              "多充电车",
+              "多个移动充电车",
+              "存在多个移动充电车、移动充电器或移动供能设备",
+              "需要进行协同调度"
+            ]
+          }
+        ]
       }
     },
     {
@@ -1045,7 +1445,47 @@
           "ALNS",
           "MILP"
         ],
-        "sourceStateRevision": 2
+        "sourceStateRevision": 2,
+        "activeVocabularyFields": [
+          {
+            "id": "adaptive_large_neighborhood_search",
+            "kind": "method",
+            "label": "自适应大邻域搜索",
+            "description": "使用自适应大邻域搜索方法求解。",
+            "searchTerms": [
+              "adaptive_large_neighborhood_search",
+              "自适应大邻域搜索",
+              "alns",
+              "自适应大邻域",
+              "使用自适应大邻域搜索方法求解"
+            ]
+          },
+          {
+            "id": "mixed_integer_linear_programming",
+            "kind": "method",
+            "label": "混合整数线性规划",
+            "description": "使用混合整数线性规划建模或求解。",
+            "searchTerms": [
+              "mixed_integer_linear_programming",
+              "混合整数线性规划",
+              "milp",
+              "使用混合整数线性规划建模或求解"
+            ]
+          },
+          {
+            "id": "particle_swarm_optimization",
+            "kind": "method",
+            "label": "粒子群优化",
+            "description": "使用粒子群优化方法求解。",
+            "searchTerms": [
+              "particle_swarm_optimization",
+              "粒子群优化",
+              "pso",
+              "粒子群",
+              "使用粒子群优化方法求解"
+            ]
+          }
+        ]
       }
     },
     {
@@ -1138,7 +1578,81 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 2
+        "sourceStateRevision": 2,
+        "activeVocabularyFields": [
+          {
+            "id": "deadlines",
+            "kind": "constraint",
+            "label": "截止期限",
+            "description": "任务或充电服务必须在截止时间前完成。",
+            "searchTerms": [
+              "deadlines",
+              "截止期限",
+              "deadline",
+              "截止时间",
+              "最后期限",
+              "任务或充电服务必须在截止时间前完成"
+            ]
+          },
+          {
+            "id": "minimize_dead_nodes",
+            "kind": "objective",
+            "label": "最小化死亡节点",
+            "description": "减少能量耗尽的传感器节点数量。",
+            "searchTerms": [
+              "minimize_dead_nodes",
+              "最小化死亡节点",
+              "减少死亡节点",
+              "minimize dead nodes",
+              "减少能量耗尽的传感器节点数量"
+            ]
+          },
+          {
+            "id": "mobile_charger_count",
+            "kind": "parameter",
+            "label": "移动充电设备数量",
+            "description": "参与调度的移动充电车、移动充电器或移动供能设备数量。",
+            "searchTerms": [
+              "mobile_charger_count",
+              "移动充电设备数量",
+              "移动充电车",
+              "充电车数量",
+              "移动充电器",
+              "移动充电器数量",
+              "参与调度的移动充电车、移动充电器或移动供能设备数量"
+            ]
+          },
+          {
+            "id": "multi_vehicle_coordination",
+            "kind": "constraint",
+            "label": "多移动充电设备协同",
+            "description": "存在多个移动充电车、移动充电器或移动供能设备，需要进行协同调度。",
+            "searchTerms": [
+              "multi_vehicle_coordination",
+              "多移动充电设备协同",
+              "多车协同",
+              "多辆车",
+              "多充电车",
+              "多个移动充电车",
+              "存在多个移动充电车、移动充电器或移动供能设备",
+              "需要进行协同调度"
+            ]
+          },
+          {
+            "id": "obstacle_avoidance",
+            "kind": "constraint",
+            "label": "障碍规避",
+            "description": "移动路径必须避开障碍物。",
+            "searchTerms": [
+              "obstacle_avoidance",
+              "障碍规避",
+              "障碍物",
+              "避障",
+              "obstacle",
+              "移动路径必须避开障碍物"
+            ]
+          }
+        ]
       }
     },
     {
@@ -1231,7 +1745,81 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 2
+        "sourceStateRevision": 2,
+        "activeVocabularyFields": [
+          {
+            "id": "deadlines",
+            "kind": "constraint",
+            "label": "截止期限",
+            "description": "任务或充电服务必须在截止时间前完成。",
+            "searchTerms": [
+              "deadlines",
+              "截止期限",
+              "deadline",
+              "截止时间",
+              "最后期限",
+              "任务或充电服务必须在截止时间前完成"
+            ]
+          },
+          {
+            "id": "minimize_dead_nodes",
+            "kind": "objective",
+            "label": "最小化死亡节点",
+            "description": "减少能量耗尽的传感器节点数量。",
+            "searchTerms": [
+              "minimize_dead_nodes",
+              "最小化死亡节点",
+              "减少死亡节点",
+              "minimize dead nodes",
+              "减少能量耗尽的传感器节点数量"
+            ]
+          },
+          {
+            "id": "mobile_charger_count",
+            "kind": "parameter",
+            "label": "移动充电设备数量",
+            "description": "参与调度的移动充电车、移动充电器或移动供能设备数量。",
+            "searchTerms": [
+              "mobile_charger_count",
+              "移动充电设备数量",
+              "移动充电车",
+              "充电车数量",
+              "移动充电器",
+              "移动充电器数量",
+              "参与调度的移动充电车、移动充电器或移动供能设备数量"
+            ]
+          },
+          {
+            "id": "multi_vehicle_coordination",
+            "kind": "constraint",
+            "label": "多移动充电设备协同",
+            "description": "存在多个移动充电车、移动充电器或移动供能设备，需要进行协同调度。",
+            "searchTerms": [
+              "multi_vehicle_coordination",
+              "多移动充电设备协同",
+              "多车协同",
+              "多辆车",
+              "多充电车",
+              "多个移动充电车",
+              "存在多个移动充电车、移动充电器或移动供能设备",
+              "需要进行协同调度"
+            ]
+          },
+          {
+            "id": "obstacle_avoidance",
+            "kind": "constraint",
+            "label": "障碍规避",
+            "description": "移动路径必须避开障碍物。",
+            "searchTerms": [
+              "obstacle_avoidance",
+              "障碍规避",
+              "障碍物",
+              "避障",
+              "obstacle",
+              "移动路径必须避开障碍物"
+            ]
+          }
+        ]
       }
     },
     {
@@ -1324,7 +1912,81 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 2
+        "sourceStateRevision": 2,
+        "activeVocabularyFields": [
+          {
+            "id": "deadlines",
+            "kind": "constraint",
+            "label": "截止期限",
+            "description": "任务或充电服务必须在截止时间前完成。",
+            "searchTerms": [
+              "deadlines",
+              "截止期限",
+              "deadline",
+              "截止时间",
+              "最后期限",
+              "任务或充电服务必须在截止时间前完成"
+            ]
+          },
+          {
+            "id": "minimize_dead_nodes",
+            "kind": "objective",
+            "label": "最小化死亡节点",
+            "description": "减少能量耗尽的传感器节点数量。",
+            "searchTerms": [
+              "minimize_dead_nodes",
+              "最小化死亡节点",
+              "减少死亡节点",
+              "minimize dead nodes",
+              "减少能量耗尽的传感器节点数量"
+            ]
+          },
+          {
+            "id": "mobile_charger_count",
+            "kind": "parameter",
+            "label": "移动充电设备数量",
+            "description": "参与调度的移动充电车、移动充电器或移动供能设备数量。",
+            "searchTerms": [
+              "mobile_charger_count",
+              "移动充电设备数量",
+              "移动充电车",
+              "充电车数量",
+              "移动充电器",
+              "移动充电器数量",
+              "参与调度的移动充电车、移动充电器或移动供能设备数量"
+            ]
+          },
+          {
+            "id": "multi_vehicle_coordination",
+            "kind": "constraint",
+            "label": "多移动充电设备协同",
+            "description": "存在多个移动充电车、移动充电器或移动供能设备，需要进行协同调度。",
+            "searchTerms": [
+              "multi_vehicle_coordination",
+              "多移动充电设备协同",
+              "多车协同",
+              "多辆车",
+              "多充电车",
+              "多个移动充电车",
+              "存在多个移动充电车、移动充电器或移动供能设备",
+              "需要进行协同调度"
+            ]
+          },
+          {
+            "id": "obstacle_avoidance",
+            "kind": "constraint",
+            "label": "障碍规避",
+            "description": "移动路径必须避开障碍物。",
+            "searchTerms": [
+              "obstacle_avoidance",
+              "障碍规避",
+              "障碍物",
+              "避障",
+              "obstacle",
+              "移动路径必须避开障碍物"
+            ]
+          }
+        ]
       }
     },
     {
@@ -1398,7 +2060,25 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 1
+        "sourceStateRevision": 1,
+        "activeVocabularyFields": [
+          {
+            "id": "multi_vehicle_coordination",
+            "kind": "constraint",
+            "label": "多移动充电设备协同",
+            "description": "存在多个移动充电车、移动充电器或移动供能设备，需要进行协同调度。",
+            "searchTerms": [
+              "multi_vehicle_coordination",
+              "多移动充电设备协同",
+              "多车协同",
+              "多辆车",
+              "多充电车",
+              "多个移动充电车",
+              "存在多个移动充电车、移动充电器或移动供能设备",
+              "需要进行协同调度"
+            ]
+          }
+        ]
       }
     },
     {
@@ -1470,7 +2150,23 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 1
+        "sourceStateRevision": 1,
+        "activeVocabularyFields": [
+          {
+            "id": "deadlines",
+            "kind": "constraint",
+            "label": "截止期限",
+            "description": "任务或充电服务必须在截止时间前完成。",
+            "searchTerms": [
+              "deadlines",
+              "截止期限",
+              "deadline",
+              "截止时间",
+              "最后期限",
+              "任务或充电服务必须在截止时间前完成"
+            ]
+          }
+        ]
       }
     },
     {
@@ -1542,7 +2238,23 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 2
+        "sourceStateRevision": 2,
+        "activeVocabularyFields": [
+          {
+            "id": "deadlines",
+            "kind": "constraint",
+            "label": "截止期限",
+            "description": "任务或充电服务必须在截止时间前完成。",
+            "searchTerms": [
+              "deadlines",
+              "截止期限",
+              "deadline",
+              "截止时间",
+              "最后期限",
+              "任务或充电服务必须在截止时间前完成"
+            ]
+          }
+        ]
       }
     },
     {
@@ -1626,7 +2338,39 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 1
+        "sourceStateRevision": 1,
+        "activeVocabularyFields": [
+          {
+            "id": "deadlines",
+            "kind": "constraint",
+            "label": "截止期限",
+            "description": "任务或充电服务必须在截止时间前完成。",
+            "searchTerms": [
+              "deadlines",
+              "截止期限",
+              "deadline",
+              "截止时间",
+              "最后期限",
+              "任务或充电服务必须在截止时间前完成"
+            ]
+          },
+          {
+            "id": "multi_vehicle_coordination",
+            "kind": "constraint",
+            "label": "多移动充电设备协同",
+            "description": "存在多个移动充电车、移动充电器或移动供能设备，需要进行协同调度。",
+            "searchTerms": [
+              "multi_vehicle_coordination",
+              "多移动充电设备协同",
+              "多车协同",
+              "多辆车",
+              "多充电车",
+              "多个移动充电车",
+              "存在多个移动充电车、移动充电器或移动供能设备",
+              "需要进行协同调度"
+            ]
+          }
+        ]
       }
     },
     {
@@ -1710,7 +2454,39 @@
         "activeMethods": [],
         "excludedMethods": [],
         "resolvedReferences": [],
-        "sourceStateRevision": 2
+        "sourceStateRevision": 2,
+        "activeVocabularyFields": [
+          {
+            "id": "deadlines",
+            "kind": "constraint",
+            "label": "截止期限",
+            "description": "任务或充电服务必须在截止时间前完成。",
+            "searchTerms": [
+              "deadlines",
+              "截止期限",
+              "deadline",
+              "截止时间",
+              "最后期限",
+              "任务或充电服务必须在截止时间前完成"
+            ]
+          },
+          {
+            "id": "multi_vehicle_coordination",
+            "kind": "constraint",
+            "label": "多移动充电设备协同",
+            "description": "存在多个移动充电车、移动充电器或移动供能设备，需要进行协同调度。",
+            "searchTerms": [
+              "multi_vehicle_coordination",
+              "多移动充电设备协同",
+              "多车协同",
+              "多辆车",
+              "多充电车",
+              "多个移动充电车",
+              "存在多个移动充电车、移动充电器或移动供能设备",
+              "需要进行协同调度"
+            ]
+          }
+        ]
       }
     }
   ]

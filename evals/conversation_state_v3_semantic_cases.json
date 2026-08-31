@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "qa-conversation-state-semantic-cases-v3",
+  "datasetRole": "public_semantic_state_regression",
+  "status": "public",
+  "version": "3.0.0",
+  "cases": [
+    {
+      "id": "builtin-multiple-mobile-chargers",
+      "messages": ["模型需要考虑多个移动充电器。"],
+      "customFields": [],
+      "expectedObjectives": [],
+      "expectedConstraints": ["multi_vehicle_coordination"],
+      "expectedParameters": {},
+      "expectedActiveLabels": ["多移动充电设备协同"]
+    },
+    {
+      "id": "builtin-mobile-energy-supply-paraphrase",
+      "messages": ["多套移动供能设备共同调度。"],
+      "customFields": [],
+      "expectedObjectives": [],
+      "expectedConstraints": ["multi_vehicle_coordination"],
+      "expectedParameters": {},
+      "expectedActiveLabels": ["多移动充电设备协同"]
+    },
+    {
+      "id": "builtin-mobile-charger-count",
+      "messages": ["系统有 3 个移动充电器。"],
+      "customFields": [],
+      "expectedObjectives": [],
+      "expectedConstraints": ["multi_vehicle_coordination"],
+      "expectedParameters": {"mobile_charger_count": {"type": "integer", "value": 3}},
+      "expectedActiveLabels": ["移动充电设备数量", "多移动充电设备协同"]
+    },
+    {
+      "id": "builtin-charger-capacity-no-count-collision",
+      "messages": ["充电器容量=50。"],
+      "customFields": [],
+      "expectedObjectives": [],
+      "expectedConstraints": [],
+      "expectedParameters": {"charger_capacity": {"type": "integer", "value": 50}},
+      "expectedActiveLabels": ["充电器容量"]
+    },
+    {
+      "id": "custom-constraint-exact-alias",
+      "messages": ["模型还要考虑温度过高。"],
+      "customFields": [{
+        "id": "custom:constraint:10000000-0000-0000-0000-000000000001",
+        "kind": "constraint",
+        "label": "高温环境约束",
+        "description": "环境温度过高时必须考虑充电效率和电池安全。",
+        "aliases": ["温度过高", "高温环境"],
+        "examples": ["设备需要在极端高温环境工作"],
+        "parameterSpec": null,
+        "origin": "custom",
+        "enabled": true
+      }],
+      "expectedObjectives": [],
+      "expectedConstraints": ["custom:constraint:10000000-0000-0000-0000-000000000001"],
+      "expectedParameters": {},
+      "expectedActiveLabels": ["高温环境约束"]
+    },
+    {
+      "id": "custom-parameter-type-and-unit",
+      "messages": ["环境温度上限设置为 85。"],
+      "customFields": [{
+        "id": "custom:parameter:10000000-0000-0000-0000-000000000002",
+        "kind": "parameter",
+        "label": "环境温度上限",
+        "description": "调度模型允许的最高环境温度。",
+        "aliases": ["环境温度上限"],
+        "examples": ["环境温度上限设置为八十五摄氏度"],
+        "parameterSpec": {"valueKind": "float", "unit": "°C", "minimum": -50, "maximum": 150, "enumValues": []},
+        "origin": "custom",
+        "enabled": true
+      }],
+      "expectedObjectives": [],
+      "expectedConstraints": [],
+      "expectedParameters": {"custom:parameter:10000000-0000-0000-0000-000000000002": {"type": "integer", "value": 85}},
+      "expectedActiveLabels": ["环境温度上限"]
+    },
+    {
+      "id": "unknown-field-fails-closed",
+      "messages": ["再考虑一种没有注册的路径惩罚偏好。"],
+      "customFields": [],
+      "expectedObjectives": [],
+      "expectedConstraints": [],
+      "expectedParameters": {},
+      "expectedActiveLabels": []
+    },
+    {
+      "id": "builtin-objective-and-deadline",
+      "messages": ["目标是最小化死亡节点，并且考虑 deadline。"],
+      "customFields": [],
+      "expectedObjectives": ["minimize_dead_nodes"],
+      "expectedConstraints": ["deadlines"],
+      "expectedParameters": {},
+      "expectedActiveLabels": ["截止期限", "最小化死亡节点"]
+    }
+  ]
+}

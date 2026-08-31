@@ -1189,6 +1189,8 @@ mod tests {
     use crate::qa::state_mutation::{
         PatchConfidence, ResearchParameter, ResearchStateOperation, STATE_PATCH_VERSION,
     };
+    use crate::qa::{research_memory, research_query_context};
+    use std::path::PathBuf;
 
     fn parameter_patch(key: &str, value: ParameterValue) -> ResearchStatePatch {
         ResearchStatePatch {
@@ -1371,5 +1373,90 @@ mod tests {
             delete_custom_state_field(&connection, "repo-c", &created.id),
             Err("STATE_VOCABULARY_FIELD_REFERENCED".to_string())
         );
+    }
+
+    #[derive(Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    struct SemanticRegressionSuite {
+        schema_version: String,
+        dataset_role: String,
+        status: String,
+        version: String,
+        cases: Vec<SemanticRegressionCase>,
+    }
+
+    #[derive(Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    struct SemanticRegressionCase {
+        id: String,
+        messages: Vec<String>,
+        custom_fields: Vec<StateFieldDefinition>,
+        expected_objectives: Vec<String>,
+        expected_constraints: Vec<String>,
+        expected_parameters: BTreeMap<String, ParameterValue>,
+        expected_active_labels: Vec<String>,
+    }
+
+    #[test]
+    fn public_semantic_state_v3_regression_suite_is_exact() {
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../../../evals/conversation_state_v3_semantic_cases.json");
+        let raw = std::fs::read_to_string(path).unwrap();
+        let suite: SemanticRegressionSuite = serde_json::from_str(&raw).unwrap();
+        assert_eq!(
+            suite.schema_version,
+            "qa-conversation-state-semantic-cases-v3"
+        );
+        assert_eq!(suite.dataset_role, "public_semantic_state_regression");
+        assert_eq!(suite.status, "public");
+        assert_eq!(suite.version, "3.0.0");
+        assert!(suite.cases.len() >= 8);
+        let mut ids = HashSet::new();
+        for case in suite.cases {
+            assert!(
+                ids.insert(case.id.clone()),
+                "duplicate case id: {}",
+                case.id
+            );
+            let registry = StateVocabularyRegistry::merged(1, case.custom_fields);
+            let mut state = research_memory::ResearchSessionState::default_v2();
+            for message in &case.messages {
+                let patch = crate::qa::state_mutation::extract_deterministic_patch_with_registry(
+                    message,
+                    &[],
+                    &state.summary(),
+                    None,
+                    &registry,
+                );
+                let patch = crate::qa::state_mutation::validate_patch(patch).unwrap();
+                validate_patch_against_vocabulary(&patch, &registry).unwrap();
+                research_memory::apply_current_patch(&mut state, message, Some(patch), &[]);
+            }
+            assert_eq!(state.objectives, case.expected_objectives, "{}", case.id);
+            assert_eq!(state.constraints, case.expected_constraints, "{}", case.id);
+            assert_eq!(
+                state
+                    .parameters
+                    .iter()
+                    .map(|(key, parameter)| (key.clone(), parameter.value.clone()))
+                    .collect::<BTreeMap<_, _>>(),
+                case.expected_parameters,
+                "{}",
+                case.id
+            );
+            let context = research_query_context::build_research_query_context_with_vocabulary(
+                "有什么方法适合当前模型？",
+                crate::qa::understanding::ResearchIntent::SolutionSearch,
+                &state,
+                &[],
+                &registry,
+            );
+            let labels = context
+                .active_vocabulary_fields
+                .iter()
+                .map(|field| field.label.clone())
+                .collect::<Vec<_>>();
+            assert_eq!(labels, case.expected_active_labels, "{}", case.id);
+        }
     }
 }

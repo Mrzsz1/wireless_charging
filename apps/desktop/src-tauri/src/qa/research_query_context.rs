@@ -47,6 +47,7 @@ fn bounded(values: &[String], maximum: usize) -> Vec<String> {
         .collect()
 }
 
+#[allow(dead_code)]
 pub fn build_research_query_context(
     resolved_question: &str,
     intent: ResearchIntent,
