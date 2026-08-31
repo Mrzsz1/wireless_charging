@@ -1,0 +1,150 @@
+{
+  "schemaVersion": "p1-5r-zero-evidence-hardening-closeout-v1",
+  "baselineSha": "1fe09772b144c8c7fe443d1da59b90cd49847f62",
+  "traceability": {
+    "testedCodeSha": "95353b87779986a76c51d8ad49cc9124f497abc4",
+    "closeoutParentSha": "95353b87779986a76c51d8ad49cc9124f497abc4",
+    "finalHeadSemantics": "commit_containing_this_report",
+    "finalHeadEmbedded": false,
+    "finalHeadResolver": "git log -1 --format=%H -- evals/reports/p1-5r-zero-evidence-hardening-closeout.json",
+    "selfReferentialCommitShaAvoided": true,
+    "hardeningCommits": [
+      {
+        "sha": "d7a290c8187dcb9d727e3feef6fb822aef5fbc1d",
+        "scope": "support_eligible_evidence_predicate"
+      },
+      {
+        "sha": "6f7048001018e7ab54dfbb258dd7a5533e3e3d83",
+        "scope": "required_facet_identity_coverage"
+      },
+      {
+        "sha": "696dd369e239662aaf3cda95657fa5ef568a4dc5",
+        "scope": "reference_history_trusted_history_separation"
+      },
+      {
+        "sha": "95353b87779986a76c51d8ad49cc9124f497abc4",
+        "scope": "real_e2e_suite_contract_alignment"
+      }
+    ]
+  },
+  "inheritedRealProviderEvidence": {
+    "testedImplementationSha": "33d9818d4b3ff75c5c970510f37d7a99467be801",
+    "originalCloseoutCommitSha": "1fe09772b144c8c7fe443d1da59b90cd49847f62",
+    "realE2eReportSha256": "f1e9a387c6ee437728dfbd708d5111ccf01781fe5f72523e115e9eb23b951bb7",
+    "caseId": "real-zero-evidence",
+    "realProviderRunCount": 1,
+    "additionalProviderRuns": 0
+  },
+  "hardening": {
+    "supportEligibleEvidence": {
+      "status": "PASS",
+      "eligibleKinds": [
+        "paper",
+        "book",
+        "wiki"
+      ],
+      "graphEligible": false,
+      "soleProductionPredicate": "zero_evidence::has_support_eligible_evidence",
+      "graphOnly": {
+        "evidenceAvailabilityMode": "zero_usable_evidence",
+        "directGroundedOutput": false,
+        "codexOutputSchema": "disabled",
+        "compatibleApiResponseFormat": "disabled",
+        "semanticStatus": "not_requested"
+      },
+      "graphPlusPaper": {
+        "evidenceAvailabilityMode": "grounded",
+        "directGroundedOutput": true,
+        "codexOutputSchema": "enabled",
+        "compatibleApiResponseFormat": "enabled"
+      }
+    },
+    "requiredFacetIdentityCoverage": {
+      "status": "PASS",
+      "authoritativeField": "plannedRequiredFacetIds",
+      "requiredFacetCountDerivedFromIds": true,
+      "requiredFacetIds": [
+        "A",
+        "B"
+      ],
+      "coveredFacetIds": [
+        "A",
+        "C"
+      ],
+      "requiredFacetCount": 2,
+      "coveredRequiredFacetCount": 1,
+      "evidenceAvailabilityMode": "partial_coverage",
+      "optionalFacetCanMaskRequiredGap": false
+    },
+    "historyChannels": {
+      "status": "PASS",
+      "trustedHistoryRuleRelaxed": false,
+      "referenceHistoryAdded": true,
+      "referenceAcceptedAssistantStatuses": [
+        "completed",
+        "mixed",
+        "unverified"
+      ],
+      "referenceContainsUserContentOnly": true,
+      "unverifiedAssistantContentIncluded": false,
+      "unverifiedUserReferenceResolved": true,
+      "resolvedEntity": "QTC-9",
+      "assistantOnlyFactEnteredResolvedQuery": false,
+      "usedTrustedHistoryMessageIdCount": 0,
+      "usedReferenceHistoryMessageIdCount": 1,
+      "trustedContextBytes": 0,
+      "referenceHistoryInGeneratorPrompt": false,
+      "referenceHistoryInResearchState": false
+    }
+  },
+  "qualityGates": {
+    "cargoFmt": "PASS",
+    "cargoClippyLibBinsDenyWarnings": "PASS",
+    "rustFilteredTests": {
+      "zeroEvidence": "28/28 PASS",
+      "referenceHistory": "3/3 PASS",
+      "context": "27/27 PASS",
+      "productionCore": "4/4 PASS",
+      "realE2eUnit": "22/22 PASS",
+      "claimVerification": "39/39 PASS",
+      "stateMutation": "13/13 PASS",
+      "researchMemory": "5/5 PASS"
+    },
+    "frozenConversationState": {
+      "reportSha256": "43868e912dd656d933bfa735b3079361cd73f00ee06b98ca6a97afff751d659f",
+      "datasetVersion": "conversation-state-v2.1.0",
+      "caseCount": 22,
+      "passedCount": 22,
+      "stateExactMatch": 1.0,
+      "objectiveExactMatch": 1.0,
+      "constraintExactMatch": 1.0,
+      "methodExactMatch": 1.0,
+      "parameterExactMatch": 1.0,
+      "mixedOperationExactMatch": 1.0,
+      "parameterOverwriteExactMatch": 1.0,
+      "unexpectedStateRate": 0.0,
+      "destructiveMutationErrorRate": 0.0,
+      "parameterStateCorruptionCount": 0
+    },
+    "frontendQaEvidence": "6/6 PASS",
+    "frontendBuild": "PASS",
+    "reportSafetyScan": "PASS"
+  },
+  "changeGuards": {
+    "budgetChanged": false,
+    "tokenCeilingChanged": false,
+    "retrievalThresholdChanged": false,
+    "groundingThresholdChanged": false,
+    "retrievalDatasetChanged": false,
+    "realE2eDatasetChanged": false,
+    "answerGenerationBehaviorChangedBeyondSpecifiedGates": false,
+    "additionalLlmCallAdded": false
+  },
+  "independentHeldoutRun": false,
+  "fullRealE2eRun": false,
+  "additionalRealProviderRunCount": 0,
+  "githubCiStatus": "not_part_of_deterministic_local_gate",
+  "finalStatus": "PASS",
+  "p15Closed": true,
+  "nextTodoAllowed": true
+}
