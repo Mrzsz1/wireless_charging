@@ -1,3 +1,4 @@
+use super::state_vocabulary::{StateVocabularyRegistry, VocabularyKind};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
@@ -184,143 +185,32 @@ fn contains_any(value: &str, needles: &[&str]) -> bool {
     needles.iter().any(|needle| value.contains(needle))
 }
 
-fn canonical_mentions(value: &str, field: StateField) -> Vec<String> {
-    let mappings: &[(&[&str], &str)] = match field {
-        StateField::Objective => &[
-            (
-                &["最小化死亡节点", "减少死亡节点", "minimize dead nodes"],
-                "minimize_dead_nodes",
-            ),
-            (
-                &["最大化网络寿命", "maximize network lifetime"],
-                "maximize_network_lifetime",
-            ),
-            (
-                &["最小化延迟", "minimize delay", "降低延迟"],
-                "minimize_delay",
-            ),
-            (
-                &["最小化距离", "minimize distance"],
-                "minimize_travel_distance",
-            ),
-        ],
-        StateField::Constraint => &[
-            (&["时间窗", "time window"], "time_windows"),
-            (&["deadline", "截止时间", "最后期限"], "deadlines"),
-            (
-                &["容量约束", "电池容量", "battery capacity"],
-                "battery_capacity",
-            ),
-            (&["障碍物", "obstacle"], "obstacle_avoidance"),
-            (
-                &[
-                    "多车协同",
-                    "多辆车",
-                    "多充电车",
-                    "多个移动充电车",
-                    "多辆移动充电车",
-                    "multiple mobile chargers",
-                    "multi vehicle",
-                ],
-                "multi_vehicle_coordination",
-            ),
-            (
-                &["传输损耗", "packet loss", "transmission loss"],
-                "transmission_loss",
-            ),
-        ],
-        StateField::Assumption => &[
-            (
-                &["节点静态", "静态节点", "stationary nodes"],
-                "stationary_sensor_nodes",
-            ),
-            (&["单充电车", "single charger"], "single_mobile_charger"),
-            (&["连通图", "connected graph"], "connected_graph"),
-        ],
-        StateField::Method => &[
-            (&["pso", "粒子群"], "particle_swarm_optimization"),
-            (
-                &["alns", "自适应大邻域"],
-                "adaptive_large_neighborhood_search",
-            ),
-            (
-                &["milp", "混合整数线性规划"],
-                "mixed_integer_linear_programming",
-            ),
-            (
-                &["遗传算法", "genetic algorithm", " ga "],
-                "genetic_algorithm",
-            ),
-            (
-                &["强化学习", "reinforcement learning"],
-                "reinforcement_learning",
-            ),
-            (&["动态规划", "dynamic programming"], "dynamic_programming"),
-            (&["贪心", "greedy"], "greedy"),
-        ],
-        StateField::Parameter => &[],
-    };
-    let mut values = Vec::new();
-    for (needles, canonical) in mappings {
-        if needles.iter().any(|needle| value.contains(needle))
-            && !values.iter().any(|existing| existing == canonical)
-        {
-            values.push((*canonical).to_string());
-        }
-    }
-    values
+fn canonical_mentions(
+    value: &str,
+    field: StateField,
+    registry: &StateVocabularyRegistry,
+) -> Vec<String> {
+    registry
+        .exact_matches(value, VocabularyKind::from_state_field(field))
+        .into_iter()
+        .map(|definition| definition.id.clone())
+        .collect()
 }
 
-fn parameter_key(value: &str) -> Option<(&'static str, Option<&'static str>)> {
-    [
+fn parameter_key(
+    value: &str,
+    registry: &StateVocabularyRegistry,
+) -> Option<(String, Option<String>)> {
+    let matches = registry.exact_matches(value, VocabularyKind::Parameter);
+    (matches.len() == 1).then(|| {
+        let definition = matches[0];
         (
-            &["移动充电车", "充电车", "mobile charger"][..],
-            "mobile_charger_count",
-            None,
-        ),
-        (
-            &["节点数", "sensor nodes", "node count"][..],
-            "node_count",
-            None,
-        ),
-        (
-            &["电池容量", "battery capacity"][..],
-            "battery_capacity",
-            None,
-        ),
-        (
-            &["充电器容量", "charger capacity"][..],
-            "charger_capacity",
-            None,
-        ),
-        (&["deadline", "截止时间"][..], "deadline", Some("minute")),
-        (
-            &["时间范围", "time horizon"][..],
-            "time_horizon",
-            Some("minute"),
-        ),
-        (
-            &["充电车速度", "charger speed"][..],
-            "charger_speed",
-            Some("m/s"),
-        ),
-        (
-            &["传输损耗", "transmission loss"][..],
-            "transmission_loss",
-            None,
-        ),
-        (
-            &["能量阈值", "energy threshold"][..],
-            "energy_threshold",
-            None,
-        ),
-    ]
-    .into_iter()
-    .find_map(|(needles, key, unit)| {
-        needles
-            .iter()
-            .any(|needle| value.contains(needle))
-            .then_some((key, unit))
+            definition.id.clone(),
+            definition
+                .parameter_spec
+                .as_ref()
+                .and_then(|spec| spec.unit.clone()),
+        )
     })
 }
 
@@ -499,6 +389,22 @@ pub fn extract_deterministic_patch(
     current_state: &ResearchStateSummary,
     source_message_id: Option<String>,
 ) -> ResearchStatePatch {
+    extract_deterministic_patch_with_registry(
+        message,
+        resolved_references,
+        current_state,
+        source_message_id,
+        &StateVocabularyRegistry::default(),
+    )
+}
+
+pub fn extract_deterministic_patch_with_registry(
+    message: &str,
+    resolved_references: &[String],
+    current_state: &ResearchStateSummary,
+    source_message_id: Option<String>,
+    registry: &StateVocabularyRegistry,
+) -> ResearchStatePatch {
     let mut patch = ResearchStatePatch::empty(source_message_id.clone());
     let mut last_targets = Vec::<(StateField, String, StateAction)>::new();
     for clause in clauses(message) {
@@ -506,8 +412,7 @@ pub fn extract_deterministic_patch(
         let mut clause_operations = Vec::new();
 
         let numeric_value = first_number(&clause);
-        let known_parameter =
-            parameter_key(&clause).map(|(key, unit)| (key.to_string(), unit.map(str::to_string)));
+        let known_parameter = parameter_key(&clause, registry);
         let set_like = matches!(action, Some(StateAction::Set | StateAction::Add));
         let parameter_target = if known_parameter.is_some() {
             known_parameter
@@ -579,7 +484,7 @@ pub fn extract_deterministic_patch(
             StateField::Assumption,
             StateField::Method,
         ] {
-            let values = canonical_mentions(&clause, field);
+            let values = canonical_mentions(&clause, field, registry);
             if values.is_empty() {
                 continue;
             }
@@ -873,6 +778,7 @@ pub fn state_patch_schema() -> Value {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::qa::state_vocabulary::{StateFieldDefinition, VocabularyKind, VocabularyOrigin};
 
     #[test]
     fn deterministic_patch_is_clause_local_and_preserves_operation_order() {
@@ -916,6 +822,69 @@ mod tests {
                 && operation.value.as_ref().and_then(StateValue::as_text)
                     == Some("multi_vehicle_coordination")
         }));
+    }
+
+    #[test]
+    fn registry_parser_handles_builtin_paraphrases_count_and_capacity_without_collision() {
+        let state = ResearchStateSummary::default();
+        let paraphrase =
+            extract_deterministic_patch("模型需要多套移动供能设备共同调度。", &[], &state, None);
+        assert!(paraphrase.operations.iter().any(|operation| {
+            operation.field == StateField::Constraint
+                && operation.value.as_ref().and_then(StateValue::as_text)
+                    == Some("multi_vehicle_coordination")
+        }));
+
+        let count = extract_deterministic_patch("有 3 个移动充电器。", &[], &state, None);
+        assert!(matches!(
+            count.operations.first().and_then(|operation| operation.value.as_ref()),
+            Some(StateValue::Parameter { parameter })
+                if parameter.key == "mobile_charger_count"
+                    && parameter.value == ParameterValue::Integer(3)
+        ));
+
+        let capacity = extract_deterministic_patch("充电器容量=50。", &[], &state, None);
+        assert!(capacity.operations.iter().any(|operation| matches!(
+            operation.value,
+            Some(StateValue::Parameter { ref parameter })
+                if parameter.key == "charger_capacity"
+                    && parameter.value == ParameterValue::Integer(50)
+        )));
+        assert!(capacity.operations.iter().all(|operation| !matches!(
+            operation.value,
+            Some(StateValue::Parameter { ref parameter })
+                if parameter.key == "mobile_charger_count"
+        )));
+    }
+
+    #[test]
+    fn repository_custom_exact_alias_is_available_to_deterministic_fast_path() {
+        let custom = StateFieldDefinition {
+            id: "custom:constraint:fixture".to_string(),
+            kind: VocabularyKind::Constraint,
+            label: "高温环境约束".to_string(),
+            description: "环境温度过高时必须考虑充电效率和电池安全。".to_string(),
+            aliases: vec!["温度过高".to_string()],
+            examples: Vec::new(),
+            parameter_spec: None,
+            origin: VocabularyOrigin::Custom,
+            enabled: true,
+        };
+        let registry = StateVocabularyRegistry::merged(1, vec![custom]);
+        let patch = extract_deterministic_patch_with_registry(
+            "还要考虑温度过高。",
+            &[],
+            &ResearchStateSummary::default(),
+            None,
+            &registry,
+        );
+        assert_eq!(
+            patch.operations[0]
+                .value
+                .as_ref()
+                .and_then(StateValue::as_text),
+            Some("custom:constraint:fixture")
+        );
     }
 
     #[test]

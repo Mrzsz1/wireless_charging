@@ -366,6 +366,7 @@ pub fn built_in_fields() -> Vec<StateFieldDefinition> {
             &[
                 "移动充电车",
                 "充电车数量",
+                "移动充电器",
                 "移动充电器数量",
                 "mobile charger",
             ],
@@ -510,18 +511,22 @@ impl StateVocabularyRegistry {
             .fields
             .iter()
             .filter(|field| field.enabled && field.kind == kind)
-            .filter(|field| {
-                normalized.contains(&field.id.to_lowercase())
-                    || normalized.contains(&field.label.to_lowercase())
-                    || field.aliases.iter().any(|alias| {
-                        let alias = alias.trim().to_lowercase();
-                        !alias.is_empty() && normalized.contains(&alias)
-                    })
+            .filter_map(|field| {
+                std::iter::once(field.id.as_str())
+                    .chain(std::iter::once(field.label.as_str()))
+                    .chain(field.aliases.iter().map(String::as_str))
+                    .filter_map(|term| exact_term_position(&normalized, term))
+                    .min()
+                    .map(|position| (position, field))
             })
             .collect::<Vec<_>>();
-        matches.sort_by(|left, right| left.id.cmp(&right.id));
-        matches.dedup_by(|left, right| left.id == right.id);
-        matches
+        matches.sort_by(|left, right| {
+            left.0
+                .cmp(&right.0)
+                .then_with(|| left.1.id.cmp(&right.1.id))
+        });
+        matches.dedup_by(|left, right| left.1.id == right.1.id);
+        matches.into_iter().map(|(_, field)| field).collect()
     }
 
     pub fn active_definitions<'a>(
@@ -534,6 +539,24 @@ impl StateVocabularyRegistry {
             .filter(|field| active.contains(field.id.as_str()))
             .collect()
     }
+}
+
+fn exact_term_position(text: &str, term: &str) -> Option<usize> {
+    let term = term.to_lowercase();
+    let trimmed = term.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+    if trimmed.is_ascii() && trimmed.len() <= 3 {
+        return text.match_indices(trimmed).find_map(|(position, _)| {
+            let before = text[..position].chars().next_back();
+            let after = text[position + trimmed.len()..].chars().next();
+            (!before.is_some_and(char::is_alphanumeric)
+                && !after.is_some_and(char::is_alphanumeric))
+            .then_some(position)
+        });
+    }
+    text.find(trimmed)
 }
 
 fn vocabulary_kind_from_str(value: &str) -> Result<VocabularyKind, String> {
