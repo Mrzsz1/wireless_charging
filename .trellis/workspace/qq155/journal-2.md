@@ -196,3 +196,40 @@ Revalidated every deterministic P1-1D gate and ran exactly one post-fix real-res
 ### Next Steps
 
 - None - task complete
+
+
+## Session 64: 完成 P1-5R Zero-Evidence Closeout Hardening
+
+**Date**: 2026-08-31
+**Task**: 完成 P1-5R Zero-Evidence Closeout Hardening
+**Branch**: `master`
+
+### Summary
+
+统一 support-eligible evidence 判定；按 required facet ID 计算覆盖；拆分用户指代历史与可信事实历史；完成 Rust、Frozen 22/22、前端 6/6 与构建验证；记录 P1-5R closeout，未增加真实 Provider 或 Heldout 运行。
+
+### Main Changes
+
+(Add details)
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `d7a290c8187dcb9d727e3feef6fb822aef5fbc1d` | (see git log) |
+| `6f7048001018e7ab54dfbb258dd7a5533e3e3d83` | (see git log) |
+| `696dd369e239662aaf3cda95657fa5ef568a4dc5` | (see git log) |
+| `95353b87779986a76c51d8ad49cc9124f497abc4` | (see git log) |
+| `ce0e1aa255badc87958b7566ea2fc17d45128a6a` | (see git log) |
+
+### Testing
+
+- [OK] (Add test results)
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
