@@ -170,13 +170,13 @@ pub struct GroundingObservation {
     pub zero_evidence_audit_status: String,
     pub zero_evidence_notice_present: bool,
     pub zero_evidence_notice_count: usize,
-    pub zero_evidence_visible_body_non_empty: bool,
+    pub zero_evidence_body_non_empty: bool,
     pub zero_evidence_citation_token_count: usize,
     pub zero_evidence_reference_appendix_present: bool,
     pub zero_evidence_evidence_link_present: bool,
     pub zero_evidence_forbidden_kb_attribution_count: usize,
     pub persisted_message_status: String,
-    pub trusted_context_bytes: usize,
+    pub persisted_trusted_context_bytes: usize,
     pub planner_attempted: bool,
     pub planner_used: bool,
     pub planner_status: String,
@@ -543,8 +543,7 @@ fn observation_from_parts(
     evidence_ids: &HashSet<&str>,
     evidence_count: usize,
     retrieval_query: &RetrievalQuery,
-    persisted_message_status: &str,
-    trusted_context_bytes: usize,
+    persistence: (&str, usize),
 ) -> GroundingObservation {
     let draft_claims = claim_diagnostics(&manifest.claim_verifications);
     let final_claims = claim_diagnostics(&manifest.final_grounding_audit.claims);
@@ -594,10 +593,10 @@ fn observation_from_parts(
         routing_token_cost_ceiling: manifest.routing_token_cost_ceiling,
         evidence_count,
         evidence_selected_count: manifest.evidence_selected_count,
-        evidence_availability_mode: retrieval_query.evidence_availability_mode.clone(),
-        support_eligible_evidence_count: retrieval_query.support_eligible_evidence_count,
-        graph_only_evidence_count: retrieval_query.graph_only_evidence_count,
-        zero_evidence_reason: retrieval_query.zero_evidence_reason.clone(),
+        evidence_availability_mode: manifest.evidence_availability_mode.clone(),
+        support_eligible_evidence_count: manifest.support_eligible_evidence_count,
+        graph_only_evidence_count: manifest.graph_only_evidence_count,
+        zero_evidence_reason: manifest.zero_evidence_reason.clone(),
         citation_valid: citation_contract_valid(validation, evidence_ids),
         unknown_citation_count: validation.unknown_ids.len(),
         grounding_status: validation.grounding_status.clone(),
@@ -628,7 +627,7 @@ fn observation_from_parts(
         zero_evidence_audit_status: manifest.zero_evidence_audit.status.clone(),
         zero_evidence_notice_present: manifest.zero_evidence_audit.notice_present,
         zero_evidence_notice_count: manifest.zero_evidence_audit.notice_count,
-        zero_evidence_visible_body_non_empty: manifest.zero_evidence_audit.visible_body_non_empty,
+        zero_evidence_body_non_empty: manifest.zero_evidence_audit.visible_body_non_empty,
         zero_evidence_citation_token_count: manifest.zero_evidence_audit.citation_token_count,
         zero_evidence_reference_appendix_present: manifest
             .zero_evidence_audit
@@ -637,8 +636,8 @@ fn observation_from_parts(
         zero_evidence_forbidden_kb_attribution_count: manifest
             .zero_evidence_audit
             .forbidden_kb_attribution_count,
-        persisted_message_status: persisted_message_status.to_string(),
-        trusted_context_bytes,
+        persisted_message_status: persistence.0.to_string(),
+        persisted_trusted_context_bytes: persistence.1,
         planner_attempted: matches!(
             manifest.planner_status.as_str(),
             "succeeded" | "failed_fallback"
@@ -676,7 +675,7 @@ fn observation(
     result: &AskResult,
     context: &QuestionContext,
 ) -> Result<GroundingObservation, String> {
-    let (persisted_message_status, trusted_context_bytes) = connection
+    let (persisted_message_status, persisted_trusted_context_bytes) = connection
         .query_row(
             "SELECT status, length(CAST(trusted_context AS BLOB)) FROM chat_messages WHERE id=?1",
             [&result.assistant_message.id],
@@ -695,8 +694,10 @@ fn observation(
         &evidence_ids,
         result.evidence.len(),
         &context.retrieval_query,
-        &persisted_message_status,
-        usize::try_from(trusted_context_bytes).unwrap_or(usize::MAX),
+        (
+            &persisted_message_status,
+            usize::try_from(persisted_trusted_context_bytes).unwrap_or(usize::MAX),
+        ),
     ))
 }
 
@@ -713,8 +714,7 @@ fn observation_from_audit(context: &QuestionContext, audit: &AnswerAudit) -> Gro
         &evidence_ids,
         context.evidence.len(),
         &context.retrieval_query,
-        "",
-        0,
+        ("", 0),
     )
 }
 
@@ -900,7 +900,7 @@ fn validate_observation(case: &RealE2eCase, observed: &GroundingObservation) -> 
             "zero_evidence_notice_invalid",
         );
         require(
-            observed.zero_evidence_visible_body_non_empty,
+            observed.zero_evidence_body_non_empty,
             "zero_evidence_body_empty",
         );
         require(
@@ -924,7 +924,7 @@ fn validate_observation(case: &RealE2eCase, observed: &GroundingObservation) -> 
             "zero_evidence_persisted_status_invalid",
         );
         require(
-            observed.trusted_context_bytes == 0,
+            observed.persisted_trusted_context_bytes == 0,
             "zero_evidence_trusted_context_nonempty",
         );
     } else {
@@ -1693,13 +1693,13 @@ mod tests {
             zero_evidence_audit_status: "succeeded".to_string(),
             zero_evidence_notice_present: true,
             zero_evidence_notice_count: 1,
-            zero_evidence_visible_body_non_empty: true,
+            zero_evidence_body_non_empty: true,
             zero_evidence_citation_token_count: 0,
             zero_evidence_reference_appendix_present: false,
             zero_evidence_evidence_link_present: false,
             zero_evidence_forbidden_kb_attribution_count: 0,
             persisted_message_status: "unverified".to_string(),
-            trusted_context_bytes: 0,
+            persisted_trusted_context_bytes: 0,
             retrieval_round_count: 1,
             ..GroundingObservation::default()
         };
@@ -1731,7 +1731,7 @@ mod tests {
             zero_evidence_audit_status: "succeeded".to_string(),
             zero_evidence_notice_present: true,
             zero_evidence_notice_count: 1,
-            zero_evidence_visible_body_non_empty: true,
+            zero_evidence_body_non_empty: true,
             persisted_message_status: "unverified".to_string(),
             retrieval_round_count: 1,
             ..GroundingObservation::default()
@@ -1742,7 +1742,7 @@ mod tests {
             zero_evidence_audit_status: "failed".to_string(),
             zero_evidence_evidence_link_present: true,
             persisted_message_status: "completed".to_string(),
-            trusted_context_bytes: 8,
+            persisted_trusted_context_bytes: 8,
             ..base
         };
         let errors = validate_observation(&case, &contaminated);

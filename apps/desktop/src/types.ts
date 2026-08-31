@@ -673,6 +673,35 @@ export type AnswerCompletenessValidation = {
   complete: boolean
 }
 
+export type EvidenceAvailabilityMode = 'grounded' | 'partial_coverage' | 'zero_usable_evidence'
+
+export type ZeroEvidenceAudit = {
+  schemaVersion: string
+  applicable: boolean
+  status: 'not_applicable' | 'succeeded' | 'failed' | string
+  availabilityMode: EvidenceAvailabilityMode | string
+  reason: string
+  rawEvidenceCount: number
+  supportEligibleEvidenceCount: number
+  graphOnlyEvidenceCount: number
+  noticePresent: boolean
+  noticeCount: number
+  visibleBodyNonEmpty: boolean
+  epistemicBoundaryPresent: boolean
+  epistemicStatus: 'unverified_general_knowledge' | string
+  evidenceSupportApplicable: boolean
+  citationTokenCount: number
+  unknownCitationCount: number
+  referenceAppendixPresent: boolean
+  evidenceLinkPresent: boolean
+  forbiddenKbAttributionCount: number
+  trustedContextEmpty: boolean
+  fallbackApplied: boolean
+  fallbackReason: string
+  complete: boolean
+  errorCodes: string[]
+}
+
 export type ClaimType = 'knowledge_fact' | 'general_knowledge' | 'reasoned_inference' | 'research_suggestion'
 
 export type VerificationStatus =
@@ -739,6 +768,11 @@ export type QaRunManifest = {
   contextBudget: ContextBudget
   citationRepair: CitationRepair
   answerCompleteness: AnswerCompletenessValidation
+  evidenceAvailabilityMode?: EvidenceAvailabilityMode | string
+  supportEligibleEvidenceCount?: number
+  graphOnlyEvidenceCount?: number
+  zeroEvidenceReason?: string
+  zeroEvidenceAudit?: ZeroEvidenceAudit
   queryPlanVersion?: string
   plannerStatus?: string
   plannerLatencyMs?: number
@@ -989,6 +1023,10 @@ export type QuestionContext = {
     evidenceDocumentCount?: number
     evidenceParentExpansionCount?: number
     evidenceEstimatedTokens?: number
+    evidenceAvailabilityMode?: EvidenceAvailabilityMode | string
+    supportEligibleEvidenceCount?: number
+    graphOnlyEvidenceCount?: number
+    zeroEvidenceReason?: string
     problemParserVersion?: string
     methodMatcherVersion?: string
     problemUnderstandingStatus?: string

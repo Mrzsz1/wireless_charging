@@ -80,6 +80,8 @@ pub struct ZeroEvidenceAudit {
     pub notice_count: usize,
     pub visible_body_non_empty: bool,
     pub epistemic_boundary_present: bool,
+    pub epistemic_status: String,
+    pub evidence_support_applicable: bool,
     pub citation_token_count: usize,
     pub unknown_citation_count: usize,
     pub reference_appendix_present: bool,
@@ -245,6 +247,7 @@ pub fn audit_zero_evidence_answer(
             support_eligible_evidence_count: availability.support_eligible_evidence_count,
             graph_only_evidence_count: availability.graph_only_evidence_count,
             trusted_context_empty: trusted_context.is_empty(),
+            evidence_support_applicable: true,
             complete: true,
             ..ZeroEvidenceAudit::default()
         };
@@ -300,6 +303,8 @@ pub fn audit_zero_evidence_answer(
         notice_count,
         visible_body_non_empty,
         epistemic_boundary_present,
+        epistemic_status: "unverified_general_knowledge".to_string(),
+        evidence_support_applicable: false,
         citation_token_count,
         unknown_citation_count,
         reference_appendix_present,

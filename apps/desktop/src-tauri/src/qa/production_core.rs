@@ -277,7 +277,7 @@ where
         started.zero_evidence_reason = evidence_availability.reason.clone();
         trace::emit(&started);
 
-        let projection = zero_evidence::project_zero_evidence_answer(&raw_answer);
+        let mut projection = zero_evidence::project_zero_evidence_answer(&raw_answer);
         let projection_audit = zero_evidence::audit_zero_evidence_answer(
             &projection.markdown,
             &evidence_availability,
@@ -309,7 +309,12 @@ where
                 .unwrap_or_else(|| "ZERO_EVIDENCE_PROJECTION_INVALID".to_string())
                 .to_ascii_lowercase();
             trace::emit(&failed);
-            return Err("ZERO_EVIDENCE_PROJECTION_INVALID".to_string());
+            projection = zero_evidence::ZeroEvidenceProjection {
+                markdown: zero_evidence::deterministic_zero_evidence_fallback(),
+                removed_citation_ids: projection.removed_citation_ids,
+                fallback_applied: true,
+                fallback_reason: "projection_invalid".to_string(),
+            };
         }
         let mut completed = trace::QaTraceEvent::new(
             "qa_zero_evidence_projection_completed",
@@ -600,5 +605,13 @@ mod tests {
         assert!(core_source.contains("support_eligible_evidence_count"));
         assert!(core_source.contains("graph_only_evidence_count"));
         assert!(core_source.contains("zero_evidence_reason"));
+        let production_source = core_source.split("#[cfg(test)]").next().unwrap();
+        assert_eq!(
+            production_source
+                .matches("project_zero_evidence_answer(&raw_answer)")
+                .count(),
+            1,
+            "Codex、Compatible API 与 Offline 必须共用生成后的同一投影"
+        );
     }
 }

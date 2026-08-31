@@ -116,6 +116,14 @@ pub struct QaRunManifest {
     pub citation_repair: CitationRepair,
     pub answer_completeness: AnswerCompletenessValidation,
     #[serde(default)]
+    pub evidence_availability_mode: String,
+    #[serde(default)]
+    pub support_eligible_evidence_count: usize,
+    #[serde(default)]
+    pub graph_only_evidence_count: usize,
+    #[serde(default)]
+    pub zero_evidence_reason: String,
+    #[serde(default)]
     pub zero_evidence_audit: ZeroEvidenceAudit,
     #[serde(default)]
     pub query_plan_version: String,
@@ -1339,6 +1347,11 @@ pub fn build_run_manifest(
     answer_completeness: AnswerCompletenessValidation,
     generated_at: String,
 ) -> QaRunManifest {
+    let evidence_availability = super::zero_evidence::classify_evidence_availability(
+        &context.evidence,
+        context.retrieval_query.planned_required_facet_count,
+        context.retrieval_query.covered_facet_ids.len(),
+    );
     QaRunManifest {
         schema_version: RUN_MANIFEST_SCHEMA_VERSION.to_string(),
         prompt_version: PROMPT_VERSION.to_string(),
@@ -1396,6 +1409,14 @@ pub fn build_run_manifest(
         context_budget: context.context_plan.budget.clone(),
         citation_repair,
         answer_completeness,
+        evidence_availability_mode: evidence_availability.mode.as_str().to_string(),
+        support_eligible_evidence_count: evidence_availability.support_eligible_evidence_count,
+        graph_only_evidence_count: evidence_availability.graph_only_evidence_count,
+        zero_evidence_reason: if evidence_availability.is_zero_usable() {
+            evidence_availability.reason
+        } else {
+            String::new()
+        },
         zero_evidence_audit: ZeroEvidenceAudit::default(),
         query_plan_version: context.retrieval_query.query_plan_version.clone(),
         planner_status: context.retrieval_query.planner_status.clone(),
