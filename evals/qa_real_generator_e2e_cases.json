@@ -1,9 +1,9 @@
 {
   "schemaVersion": "qa-real-generator-e2e-cases-v1",
   "datasetRole": "development_regression_synthetic",
-  "version": "real-generator-e2e-v1.4.0",
+  "version": "real-generator-e2e-v1.5.0",
   "caseCount": 6,
-  "casesSha256": "d801d7152d711741cc2a25f102160e9e9e5e7323b37db47dc7ba07d746349e3e",
+  "casesSha256": "1bdb3e2cf31df623770ea5d701eff78150b887ef1be443fe737b8d29633a8653",
   "cases": [
     {
       "id": "real-direct-rose",
@@ -23,7 +23,9 @@
         "integerParameters": {}
       },
       "customStateFields": [],
-      "expectedActiveVocabularyLabels": []
+      "expectedActiveVocabularyLabels": [],
+      "requireSemanticMapping": false,
+      "expectedDeterministicStateOperationCount": null
     },
     {
       "id": "real-research-improvement",
@@ -43,7 +45,9 @@
         "integerParameters": {}
       },
       "customStateFields": [],
-      "expectedActiveVocabularyLabels": []
+      "expectedActiveVocabularyLabels": [],
+      "requireSemanticMapping": false,
+      "expectedDeterministicStateOperationCount": null
     },
     {
       "id": "real-exploratory-multi-charger",
@@ -66,7 +70,9 @@
         "integerParameters": {}
       },
       "customStateFields": [],
-      "expectedActiveVocabularyLabels": []
+      "expectedActiveVocabularyLabels": [],
+      "requireSemanticMapping": false,
+      "expectedDeterministicStateOperationCount": null
     },
     {
       "id": "real-multi-turn-state",
@@ -101,7 +107,9 @@
         }
       },
       "customStateFields": [],
-      "expectedActiveVocabularyLabels": []
+      "expectedActiveVocabularyLabels": [],
+      "requireSemanticMapping": false,
+      "expectedDeterministicStateOperationCount": null
     },
     {
       "id": "real-zero-evidence",
@@ -121,7 +129,9 @@
         "integerParameters": {}
       },
       "customStateFields": [],
-      "expectedActiveVocabularyLabels": []
+      "expectedActiveVocabularyLabels": [],
+      "requireSemanticMapping": false,
+      "expectedDeterministicStateOperationCount": null
     },
     {
       "id": "real-exploratory-custom-temperature",
@@ -129,7 +139,7 @@
       "source": "development-custom",
       "turns": [
         {
-          "question": "可以从哪些方向研究环境温度过高时的无线充电调度安全与效率？"
+          "question": "请在当前模型里加入酷热工况下的热安全限制，并说明可以从哪些方向研究它对无线充电调度效率的影响。"
         }
       ],
       "expectedExecutionMode": "exploratory",
@@ -157,7 +167,9 @@
       ],
       "expectedActiveVocabularyLabels": [
         "高温环境约束"
-      ]
+      ],
+      "requireSemanticMapping": true,
+      "expectedDeterministicStateOperationCount": 0
     }
   ]
 }

@@ -58,6 +58,10 @@ pub struct RealE2eCase {
     pub custom_state_fields: Vec<CustomStateFieldInput>,
     #[serde(default)]
     pub expected_active_vocabulary_labels: Vec<String>,
+    #[serde(default)]
+    pub require_semantic_mapping: bool,
+    #[serde(default)]
+    pub expected_deterministic_state_operation_count: Option<usize>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -112,6 +116,16 @@ pub struct GroundingObservation {
     pub execution_mode: String,
     pub resolver_status: String,
     pub resolver_fallback: bool,
+    pub deterministic_state_operation_count: usize,
+    pub state_semantic_mapping_needed: bool,
+    pub semantic_mapping_attempted: bool,
+    pub semantic_mapping_used: bool,
+    pub semantic_mapped_field_count: usize,
+    pub semantic_rejected_field_count: usize,
+    pub semantic_unknown_id_count: usize,
+    pub semantic_kind_mismatch_count: usize,
+    pub semantic_disabled_field_count: usize,
+    pub semantic_value_type_mismatch_count: usize,
     pub generator_stage_observed: bool,
     pub generator_budget_rejected: bool,
     pub routing_llm_call_budget: usize,
@@ -538,6 +552,16 @@ fn observation_from_parts(
         execution_mode: manifest.execution_mode.clone(),
         resolver_status: retrieval_query.resolver_status.clone(),
         resolver_fallback: retrieval_query.resolver_fallback,
+        deterministic_state_operation_count: retrieval_query.deterministic_state_operation_count,
+        state_semantic_mapping_needed: retrieval_query.state_semantic_mapping_needed,
+        semantic_mapping_attempted: retrieval_query.semantic_mapping_attempted,
+        semantic_mapping_used: retrieval_query.semantic_mapping_used,
+        semantic_mapped_field_count: retrieval_query.semantic_mapped_field_count,
+        semantic_rejected_field_count: retrieval_query.semantic_rejected_field_count,
+        semantic_unknown_id_count: retrieval_query.semantic_unknown_id_count,
+        semantic_kind_mismatch_count: retrieval_query.semantic_kind_mismatch_count,
+        semantic_disabled_field_count: retrieval_query.semantic_disabled_field_count,
+        semantic_value_type_mismatch_count: retrieval_query.semantic_value_type_mismatch_count,
         generator_stage_observed: manifest
             .routing_llm_stages
             .iter()
@@ -695,6 +719,67 @@ fn validate_observation(case: &RealE2eCase, observed: &GroundingObservation) -> 
         require(
             observed.execution_mode == case.expected_execution_mode,
             "execution_mode_mismatch",
+        );
+    }
+    if let Some(expected) = case.expected_deterministic_state_operation_count {
+        require(
+            observed.deterministic_state_operation_count == expected,
+            "deterministic_state_operation_count_mismatch",
+        );
+    }
+    if case.require_semantic_mapping {
+        require(
+            observed.deterministic_state_operation_count == 0,
+            "deterministic_state_operation_count_not_zero",
+        );
+        require(
+            observed.state_semantic_mapping_needed,
+            "state_semantic_mapping_not_needed",
+        );
+        require(
+            observed.semantic_mapping_attempted,
+            "semantic_mapping_not_attempted",
+        );
+        require(observed.semantic_mapping_used, "semantic_mapping_not_used");
+        require(
+            observed.semantic_mapped_field_count >= 1,
+            "semantic_mapped_field_empty",
+        );
+        require(
+            observed.semantic_rejected_field_count == 0,
+            "semantic_mapping_rejected",
+        );
+        require(
+            observed.semantic_unknown_id_count == 0,
+            "semantic_unknown_id",
+        );
+        require(
+            observed.semantic_kind_mismatch_count == 0,
+            "semantic_kind_mismatch",
+        );
+        require(
+            observed.semantic_disabled_field_count == 0,
+            "semantic_disabled_field",
+        );
+        require(
+            observed.semantic_value_type_mismatch_count == 0,
+            "semantic_value_type_mismatch",
+        );
+        require(
+            observed.routing_llm_call_budget == 5,
+            "semantic_mapping_call_budget_changed",
+        );
+        require(
+            observed.routing_llm_calls_used <= 5,
+            "semantic_mapping_call_budget_exceeded",
+        );
+        require(
+            observed.routing_budget_rejection_count == 0,
+            "semantic_mapping_budget_rejected",
+        );
+        require(
+            observed.routing_token_cost_ceiling == 32_000,
+            "semantic_mapping_token_ceiling_changed",
         );
     }
     if matches!(case.category.as_str(), "research" | "exploratory") {
@@ -1218,6 +1303,8 @@ mod tests {
             expected_research_state: ExpectedResearchState::default(),
             custom_state_fields: Vec::new(),
             expected_active_vocabulary_labels: Vec::new(),
+            require_semantic_mapping: false,
+            expected_deterministic_state_operation_count: None,
         }
     }
 
@@ -1236,6 +1323,7 @@ mod tests {
             },
             resolver_status: "succeeded".to_string(),
             resolver_fallback: false,
+            deterministic_state_operation_count: 0,
             generator_stage_observed: true,
             routing_llm_call_budget: if planner_required { 4 } else { 3 },
             routing_llm_calls_used: if planner_required { 4 } else { 3 },
@@ -1314,6 +1402,80 @@ mod tests {
     fn direct_policy_disabled_remains_a_legal_planner_state() {
         let errors = validate_observation(&case("direct"), &valid_observation("direct"));
         assert!(errors.is_empty(), "{errors:?}");
+    }
+
+    #[test]
+    fn required_semantic_mapping_accepts_only_llm_only_custom_field_mapping() {
+        let mut case = case("exploratory");
+        case.require_semantic_mapping = true;
+        case.expected_deterministic_state_operation_count = Some(0);
+        let observed = GroundingObservation {
+            deterministic_state_operation_count: 0,
+            state_semantic_mapping_needed: true,
+            semantic_mapping_attempted: true,
+            semantic_mapping_used: true,
+            semantic_mapped_field_count: 1,
+            semantic_rejected_field_count: 0,
+            semantic_unknown_id_count: 0,
+            semantic_kind_mismatch_count: 0,
+            semantic_disabled_field_count: 0,
+            semantic_value_type_mismatch_count: 0,
+            routing_llm_call_budget: 5,
+            routing_llm_calls_used: 5,
+            routing_budget_rejection_count: 0,
+            routing_token_cost_ceiling: 32_000,
+            ..valid_observation("exploratory")
+        };
+
+        assert!(validate_observation(&case, &observed).is_empty());
+    }
+
+    #[test]
+    fn required_semantic_mapping_rejects_fast_path_and_mapping_failures() {
+        let mut case = case("exploratory");
+        case.require_semantic_mapping = true;
+        case.expected_deterministic_state_operation_count = Some(0);
+        let observed = GroundingObservation {
+            deterministic_state_operation_count: 1,
+            state_semantic_mapping_needed: false,
+            semantic_mapping_attempted: false,
+            semantic_mapping_used: false,
+            semantic_mapped_field_count: 0,
+            semantic_rejected_field_count: 1,
+            semantic_unknown_id_count: 1,
+            semantic_kind_mismatch_count: 1,
+            semantic_disabled_field_count: 1,
+            semantic_value_type_mismatch_count: 1,
+            routing_llm_call_budget: 4,
+            routing_llm_calls_used: 6,
+            routing_budget_rejection_count: 1,
+            routing_token_cost_ceiling: 18_000,
+            ..valid_observation("exploratory")
+        };
+
+        let errors = validate_observation(&case, &observed);
+        for expected in [
+            "deterministic_state_operation_count_mismatch",
+            "deterministic_state_operation_count_not_zero",
+            "state_semantic_mapping_not_needed",
+            "semantic_mapping_not_attempted",
+            "semantic_mapping_not_used",
+            "semantic_mapped_field_empty",
+            "semantic_mapping_rejected",
+            "semantic_unknown_id",
+            "semantic_kind_mismatch",
+            "semantic_disabled_field",
+            "semantic_value_type_mismatch",
+            "semantic_mapping_call_budget_changed",
+            "semantic_mapping_call_budget_exceeded",
+            "semantic_mapping_budget_rejected",
+            "semantic_mapping_token_ceiling_changed",
+        ] {
+            assert!(
+                errors.contains(&expected.to_string()),
+                "missing {expected}: {errors:?}"
+            );
+        }
     }
 
     #[test]
@@ -1660,12 +1822,34 @@ mod tests {
             case.source.as_str(),
             "development" | "development-custom" | "regression" | "synthetic"
         )));
-        assert!(suite
+        let custom_case = suite
             .cases
             .iter()
-            .any(|case| case.id == "real-exploratory-custom-temperature"
-                && !case.custom_state_fields.is_empty()
-                && case.expected_active_vocabulary_labels == ["高温环境约束".to_string()]));
+            .find(|case| case.id == "real-exploratory-custom-temperature")
+            .expect("custom temperature case must remain present");
+        let custom_field = &custom_case.custom_state_fields[0];
+        assert_eq!(custom_field.label, "高温环境约束");
+        assert_eq!(
+            custom_field.description,
+            "环境温度过高时必须考虑充电效率和电池安全。"
+        );
+        assert_eq!(custom_field.aliases, ["高温环境", "温度过高"]);
+        assert_eq!(custom_field.examples, ["设备需要在极端高温环境工作"]);
+        assert_eq!(
+            custom_case.expected_active_vocabulary_labels,
+            ["高温环境约束".to_string()]
+        );
+        assert!(custom_case.require_semantic_mapping);
+        assert_eq!(
+            custom_case.expected_deterministic_state_operation_count,
+            Some(0)
+        );
+        let question = &custom_case.turns[0].question;
+        assert!(question.contains("加入") && question.contains("可以从哪些方向研究"));
+        assert!(!custom_field
+            .aliases
+            .iter()
+            .any(|alias| question.contains(alias)));
     }
 
     #[test]

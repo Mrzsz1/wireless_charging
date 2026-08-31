@@ -110,10 +110,11 @@ pub struct CustomStateFieldInput {
     pub parameter_spec: Option<ParameterSpec>,
 }
 
-static REGISTRY_CACHE: OnceLock<Mutex<HashMap<(String, u64), Arc<StateVocabularyRegistry>>>> =
-    OnceLock::new();
+type RegistryCache = Mutex<HashMap<(String, u64), Arc<StateVocabularyRegistry>>>;
 
-fn registry_cache() -> &'static Mutex<HashMap<(String, u64), Arc<StateVocabularyRegistry>>> {
+static REGISTRY_CACHE: OnceLock<RegistryCache> = OnceLock::new();
+
+fn registry_cache() -> &'static RegistryCache {
     REGISTRY_CACHE.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
@@ -651,7 +652,7 @@ fn current_revision(connection: &Connection, repository_id: &str) -> Result<u64,
         .map(|revision| revision.unwrap_or(0).max(0) as u64)
 }
 
-fn row_to_definition(
+struct CustomStateFieldRow {
     field_id: String,
     kind: String,
     label: String,
@@ -660,34 +661,36 @@ fn row_to_definition(
     examples_json: String,
     parameter_spec_json: String,
     enabled: bool,
-) -> Result<StateFieldDefinition, String> {
-    let kind = vocabulary_kind_from_str(&kind)?;
-    let aliases = serde_json::from_str::<Vec<String>>(&aliases_json)
+}
+
+fn row_to_definition(row: CustomStateFieldRow) -> Result<StateFieldDefinition, String> {
+    let kind = vocabulary_kind_from_str(&row.kind)?;
+    let aliases = serde_json::from_str::<Vec<String>>(&row.aliases_json)
         .map_err(|error| format!("STATE_VOCABULARY_STORAGE_INVALID_ALIASES: {error}"))?;
-    let examples = serde_json::from_str::<Vec<String>>(&examples_json)
+    let examples = serde_json::from_str::<Vec<String>>(&row.examples_json)
         .map_err(|error| format!("STATE_VOCABULARY_STORAGE_INVALID_EXAMPLES: {error}"))?;
-    let parameter_spec = if parameter_spec_json.trim().is_empty()
-        || parameter_spec_json.trim() == "{}"
-        || parameter_spec_json.trim() == "null"
+    let parameter_spec = if row.parameter_spec_json.trim().is_empty()
+        || row.parameter_spec_json.trim() == "{}"
+        || row.parameter_spec_json.trim() == "null"
     {
         None
     } else {
         Some(
-            serde_json::from_str::<ParameterSpec>(&parameter_spec_json).map_err(|error| {
+            serde_json::from_str::<ParameterSpec>(&row.parameter_spec_json).map_err(|error| {
                 format!("STATE_VOCABULARY_STORAGE_INVALID_PARAMETER_SPEC: {error}")
             })?,
         )
     };
     Ok(StateFieldDefinition {
-        id: field_id,
+        id: row.field_id,
         kind,
-        label,
-        description,
+        label: row.label,
+        description: row.description,
         aliases,
         examples,
         parameter_spec,
         origin: VocabularyOrigin::Custom,
-        enabled,
+        enabled: row.enabled,
     })
 }
 
@@ -703,24 +706,22 @@ fn load_custom_fields(
         .map_err(|error| format!("STATE_VOCABULARY_STORAGE_READ_FAILED: {error}"))?;
     let rows = statement
         .query_map(params![repository_id], |row| {
-            Ok((
-                row.get::<_, String>(0)?,
-                row.get::<_, String>(1)?,
-                row.get::<_, String>(2)?,
-                row.get::<_, String>(3)?,
-                row.get::<_, String>(4)?,
-                row.get::<_, String>(5)?,
-                row.get::<_, String>(6)?,
-                row.get::<_, bool>(7)?,
-            ))
+            Ok(CustomStateFieldRow {
+                field_id: row.get(0)?,
+                kind: row.get(1)?,
+                label: row.get(2)?,
+                description: row.get(3)?,
+                aliases_json: row.get(4)?,
+                examples_json: row.get(5)?,
+                parameter_spec_json: row.get(6)?,
+                enabled: row.get(7)?,
+            })
         })
         .map_err(|error| format!("STATE_VOCABULARY_STORAGE_READ_FAILED: {error}"))?;
     let mut fields = Vec::new();
     for row in rows {
         let row = row.map_err(|error| format!("STATE_VOCABULARY_STORAGE_READ_FAILED: {error}"))?;
-        fields.push(row_to_definition(
-            row.0, row.1, row.2, row.3, row.4, row.5, row.6, row.7,
-        )?);
+        fields.push(row_to_definition(row)?);
     }
     Ok(fields)
 }

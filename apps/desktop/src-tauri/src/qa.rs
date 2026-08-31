@@ -438,6 +438,10 @@ pub struct RetrievalQuery {
     #[serde(default)]
     pub custom_field_active_count: usize,
     #[serde(default)]
+    pub deterministic_state_operation_count: usize,
+    #[serde(default)]
+    pub state_semantic_mapping_needed: bool,
+    #[serde(default)]
     pub semantic_mapping_attempted: bool,
     #[serde(default)]
     pub semantic_mapping_used: bool,
@@ -1273,6 +1277,7 @@ fn build_retrieval_query_with_understanding<'a>(
         None,
         registry,
     );
+    let deterministic_state_operation_count = deterministic_patch.operations.len();
     let semantic_mapping_needed =
         state_mutation::state_semantic_mapping_needed(&original_question, &deterministic_patch);
     let input = understanding::UnderstandingPlanningInput::new(
@@ -1357,7 +1362,7 @@ fn build_retrieval_query_with_understanding<'a>(
     problem_search_terms.dedup();
     problem_search_terms.truncate(48);
     log::info!(
-        "feature=canonical_state_mapping stage=complete operation_id={state_operation_id} semantic_mapping_attempted={semantic_mapping_attempted} semantic_mapping_used={} mapped_field_count={} rejected_field_count={semantic_rejected_field_count} loaded_snapshot={loaded_snapshot}",
+        "feature=canonical_state_mapping stage=complete operation_id={state_operation_id} deterministic_state_operation_count={deterministic_state_operation_count} state_semantic_mapping_needed={semantic_mapping_needed} semantic_mapping_attempted={semantic_mapping_attempted} semantic_mapping_used={} mapped_field_count={} rejected_field_count={semantic_rejected_field_count} loaded_snapshot={loaded_snapshot}",
         semantic_mapping_used && semantic_rejected_field_count == 0,
         if semantic_mapping_used && semantic_rejected_field_count == 0 { semantic_candidate_count } else { 0 }
     );
@@ -1467,6 +1472,8 @@ fn build_retrieval_query_with_understanding<'a>(
         state_vocabulary_revision: registry.revision,
         state_vocabulary_hash: registry.hash(),
         custom_field_active_count: registry.enabled_custom_count(),
+        deterministic_state_operation_count,
+        state_semantic_mapping_needed: semantic_mapping_needed,
         semantic_mapping_attempted,
         semantic_mapping_used: semantic_mapping_used && semantic_rejected_field_count == 0,
         semantic_mapped_field_count: if semantic_mapping_used && semantic_rejected_field_count == 0

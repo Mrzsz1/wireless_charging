@@ -938,6 +938,35 @@ mod tests {
     }
 
     #[test]
+    fn custom_temperature_paraphrase_requires_semantic_mapping_without_fast_path_operations() {
+        let custom = StateFieldDefinition {
+            id: "custom:constraint:fixture".to_string(),
+            kind: VocabularyKind::Constraint,
+            label: "高温环境约束".to_string(),
+            description: "环境温度过高时必须考虑充电效率和电池安全。".to_string(),
+            aliases: vec!["高温环境".to_string(), "温度过高".to_string()],
+            examples: vec!["设备需要在极端高温环境工作".to_string()],
+            parameter_spec: None,
+            origin: VocabularyOrigin::Custom,
+            enabled: true,
+        };
+        let registry = StateVocabularyRegistry::merged(1, vec![custom]);
+        let question =
+            "请在当前模型里加入酷热工况下的热安全限制，并说明可以从哪些方向研究它对无线充电调度效率的影响。";
+
+        let patch = extract_deterministic_patch_with_registry(
+            question,
+            &[],
+            &ResearchStateSummary::default(),
+            None,
+            &registry,
+        );
+
+        assert_eq!(patch.operations.len(), 0);
+        assert!(state_semantic_mapping_needed(question, &patch));
+    }
+
+    #[test]
     fn ambiguous_destructive_reference_is_low_confidence() {
         let patch = extract_deterministic_patch(
             "那个方法不要了。",
