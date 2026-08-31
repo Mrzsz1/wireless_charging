@@ -431,6 +431,30 @@ pub struct RetrievalQuery {
     pub query_context_parameter_count: usize,
     #[serde(default)]
     pub query_context_excluded_method_count: usize,
+    #[serde(default)]
+    pub state_vocabulary_revision: u64,
+    #[serde(default)]
+    pub state_vocabulary_hash: String,
+    #[serde(default)]
+    pub custom_field_active_count: usize,
+    #[serde(default)]
+    pub semantic_mapping_attempted: bool,
+    #[serde(default)]
+    pub semantic_mapping_used: bool,
+    #[serde(default)]
+    pub semantic_mapped_field_count: usize,
+    #[serde(default)]
+    pub semantic_rejected_field_count: usize,
+    #[serde(default)]
+    pub semantic_unknown_id_count: usize,
+    #[serde(default)]
+    pub semantic_kind_mismatch_count: usize,
+    #[serde(default)]
+    pub semantic_disabled_field_count: usize,
+    #[serde(default)]
+    pub semantic_value_type_mismatch_count: usize,
+    #[serde(skip, default)]
+    pub canonical_state_patch: state_mutation::ResearchStatePatch,
     #[serde(skip, default = "research_memory::ResearchSessionState::default_v2")]
     pub canonical_research_state: research_memory::ResearchSessionState,
 }
@@ -1163,7 +1187,13 @@ pub fn build_retrieval_query(
     question: &str,
     history: &[ConversationTurn],
 ) -> RetrievalQuery {
-    build_retrieval_query_with_understanding(connection, question, history, None)
+    build_retrieval_query_with_understanding(
+        connection,
+        question,
+        history,
+        None,
+        &StateVocabularyRegistry::default(),
+    )
 }
 
 fn build_retrieval_query_with_understanding<'a>(
@@ -1171,8 +1201,14 @@ fn build_retrieval_query_with_understanding<'a>(
     question: &str,
     history: &[ConversationTurn],
     planner: Option<&'a mut QuestionUnderstandingPlanner<'a>>,
+    registry: &StateVocabularyRegistry,
 ) -> RetrievalQuery {
     let original_question = question.trim().to_string();
+    let state_operation_id = Uuid::new_v4().to_string();
+    log::info!(
+        "feature=canonical_state_mapping stage=start operation_id={state_operation_id} vocabulary_revision={}",
+        registry.revision
+    );
     let mut research_state = research_memory::derive_history(history);
     let explicit_entities = extract_question_entities(connection, &original_question);
     let history_entities = if contains_reference(&original_question) && explicit_entities.len() < 2
@@ -1181,29 +1217,62 @@ fn build_retrieval_query_with_understanding<'a>(
     } else {
         Vec::new()
     };
+    let deterministic_patch = state_mutation::extract_deterministic_patch_with_registry(
+        &original_question,
+        &explicit_entities,
+        &research_state.summary(),
+        None,
+        registry,
+    );
+    let semantic_mapping_needed =
+        state_mutation::state_semantic_mapping_needed(&original_question, &deterministic_patch);
     let input = understanding::UnderstandingPlanningInput::new(
         &original_question,
         history,
         explicit_entities,
         history_entities,
     )
-    .with_current_state(research_state.summary());
+    .with_current_state(research_state.summary())
+    .with_state_vocabulary(registry, semantic_mapping_needed);
     let understood = understanding::resolve_and_route(&input, planner);
     let routed = understood.routed;
     let diagnostics = understood.diagnostics;
-    let deterministic_patch = state_mutation::extract_deterministic_patch(
-        &original_question,
-        &routed.query.entities,
-        &research_state.summary(),
-        None,
-    );
+    let semantic_mapping_attempted = diagnostics.resolver_escalated && semantic_mapping_needed;
+    let semantic_candidate_count = understood.state_patch.operations.len();
+    let semantic_mapping_used = semantic_mapping_attempted && semantic_candidate_count > 0;
     let proposed_patch = if understood.state_patch.operations.is_empty() {
         deterministic_patch.clone()
     } else {
         understood.state_patch
     };
-    let mut selected_patch = state_mutation::validate_patch(proposed_patch)
-        .unwrap_or_else(|_| deterministic_patch.clone());
+    let mut semantic_unknown_id_count = 0;
+    let mut semantic_kind_mismatch_count = 0;
+    let mut semantic_disabled_field_count = 0;
+    let mut semantic_value_type_mismatch_count = 0;
+    let mut semantic_rejected_field_count = 0;
+    let selected = state_mutation::validate_patch(proposed_patch).and_then(|patch| {
+        state_vocabulary::validate_patch_against_vocabulary(&patch, registry).map(|_| patch)
+    });
+    let mut selected_patch = match selected {
+        Ok(patch) => patch,
+        Err(error) => {
+            semantic_rejected_field_count = semantic_candidate_count;
+            if error.contains("UNKNOWN_ID") {
+                semantic_unknown_id_count = semantic_candidate_count.max(1);
+            } else if error.contains("KIND_MISMATCH") {
+                semantic_kind_mismatch_count = semantic_candidate_count.max(1);
+            } else if error.contains("FIELD_DISABLED") {
+                semantic_disabled_field_count = semantic_candidate_count.max(1);
+            } else if error.contains("VALUE_TYPE") || error.contains("OUT_OF_RANGE") {
+                semantic_value_type_mismatch_count = semantic_candidate_count.max(1);
+            }
+            let error_code = error.split(':').next().unwrap_or("STATE_MAPPING_INVALID");
+            log::error!(
+                "feature=canonical_state_mapping stage=semantic_validation_failed operation_id={state_operation_id} error_code={error_code} rejected_field_count={semantic_rejected_field_count}"
+            );
+            deterministic_patch.clone()
+        }
+    };
     selected_patch.inherit_parameter_detection_telemetry(&deterministic_patch);
     let (state_patch, state_apply_report) = research_memory::apply_current_patch(
         &mut research_state,
@@ -1237,6 +1306,11 @@ fn build_retrieval_query_with_understanding<'a>(
     problem_search_terms.sort();
     problem_search_terms.dedup();
     problem_search_terms.truncate(48);
+    log::info!(
+        "feature=canonical_state_mapping stage=complete operation_id={state_operation_id} semantic_mapping_attempted={semantic_mapping_attempted} semantic_mapping_used={} mapped_field_count={} rejected_field_count={semantic_rejected_field_count}",
+        semantic_mapping_used && semantic_rejected_field_count == 0,
+        if semantic_mapping_used && semantic_rejected_field_count == 0 { semantic_candidate_count } else { 0 }
+    );
     RetrievalQuery {
         original_question: routed.query.original_question,
         resolved_question: routed.query.standalone_question,
@@ -1340,6 +1414,23 @@ fn build_retrieval_query_with_understanding<'a>(
         query_context_constraint_count: research_context.constraints.len(),
         query_context_parameter_count: research_context.parameters.len(),
         query_context_excluded_method_count: research_context.excluded_methods.len(),
+        state_vocabulary_revision: registry.revision,
+        state_vocabulary_hash: registry.hash(),
+        custom_field_active_count: registry.enabled_custom_count(),
+        semantic_mapping_attempted,
+        semantic_mapping_used: semantic_mapping_used && semantic_rejected_field_count == 0,
+        semantic_mapped_field_count: if semantic_mapping_used && semantic_rejected_field_count == 0
+        {
+            semantic_candidate_count
+        } else {
+            0
+        },
+        semantic_rejected_field_count,
+        semantic_unknown_id_count,
+        semantic_kind_mismatch_count,
+        semantic_disabled_field_count,
+        semantic_value_type_mismatch_count,
+        canonical_state_patch: state_patch,
         canonical_research_state: research_state,
     }
 }
@@ -2565,11 +2656,13 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
     }
     check_cancelled(cancelled)?;
     let mut diagnostics = RetrievalDiagnosticsBuilder::new();
+    let registry = state_vocabulary::load_state_vocabulary(connection, &repository_id(root))?;
     let mut retrieval_query = build_retrieval_query_with_understanding(
         connection,
         question,
         &conversation,
         understanding_planner,
+        &registry,
     );
     let routing_policy = adaptive_routing::policy(&retrieval_query.execution_mode);
     if let Some(guard) = budget_guard {

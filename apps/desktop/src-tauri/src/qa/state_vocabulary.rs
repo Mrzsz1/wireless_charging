@@ -117,7 +117,7 @@ fn registry_cache() -> &'static Mutex<HashMap<(String, u64), Arc<StateVocabulary
     REGISTRY_CACHE.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
-#[derive(Debug, Clone, Serialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct AllowedStateField {
     pub id: String,
@@ -506,11 +506,20 @@ impl StateVocabularyRegistry {
     /// Returns every field whose canonical ID, label, or alias appears verbatim in
     /// the normalized text. Callers must treat more than one result as ambiguous.
     pub fn exact_matches(&self, text: &str, kind: VocabularyKind) -> Vec<&StateFieldDefinition> {
+        self.exact_matches_with_disabled(text, kind, false)
+    }
+
+    pub fn exact_matches_with_disabled(
+        &self,
+        text: &str,
+        kind: VocabularyKind,
+        include_disabled: bool,
+    ) -> Vec<&StateFieldDefinition> {
         let normalized = text.trim().to_lowercase();
         let mut matches = self
             .fields
             .iter()
-            .filter(|field| field.enabled && field.kind == kind)
+            .filter(|field| (field.enabled || include_disabled) && field.kind == kind)
             .filter_map(|field| {
                 std::iter::once(field.id.as_str())
                     .chain(std::iter::once(field.label.as_str()))

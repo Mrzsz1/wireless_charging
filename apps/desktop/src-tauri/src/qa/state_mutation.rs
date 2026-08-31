@@ -189,9 +189,14 @@ fn canonical_mentions(
     value: &str,
     field: StateField,
     registry: &StateVocabularyRegistry,
+    include_disabled: bool,
 ) -> Vec<String> {
     registry
-        .exact_matches(value, VocabularyKind::from_state_field(field))
+        .exact_matches_with_disabled(
+            value,
+            VocabularyKind::from_state_field(field),
+            include_disabled,
+        )
         .into_iter()
         .map(|definition| definition.id.clone())
         .collect()
@@ -342,6 +347,35 @@ fn clauses(message: &str) -> Vec<String> {
         .collect()
 }
 
+pub fn state_semantic_mapping_needed(
+    message: &str,
+    deterministic_patch: &ResearchStatePatch,
+) -> bool {
+    let has_mutation_signal = clauses(message).iter().any(|clause| {
+        action_for_clause(clause).is_some()
+            || contains_any(
+                clause,
+                &[
+                    "目标",
+                    "约束",
+                    "假设",
+                    "参数",
+                    "objective",
+                    "constraint",
+                    "assumption",
+                    "parameter",
+                ],
+            )
+    });
+    has_mutation_signal
+        && (deterministic_patch.operations.is_empty()
+            || deterministic_patch.parameter_unknown_name_count > 0
+            || deterministic_patch
+                .operations
+                .iter()
+                .all(|operation| operation.confidence != PatchConfidence::High))
+}
+
 fn operation_for_text(
     action: StateAction,
     field: StateField,
@@ -484,7 +518,12 @@ pub fn extract_deterministic_patch_with_registry(
             StateField::Assumption,
             StateField::Method,
         ] {
-            let values = canonical_mentions(&clause, field, registry);
+            let values = canonical_mentions(
+                &clause,
+                field,
+                registry,
+                action == Some(StateAction::Remove),
+            );
             if values.is_empty() {
                 continue;
             }
@@ -690,13 +729,24 @@ fn normalize_text_value(value: &str) -> String {
         .trim()
         .to_lowercase()
         .chars()
-        .filter(|character| character.is_alphanumeric() || matches!(character, '_' | '-'))
+        .filter(|character| character.is_alphanumeric() || matches!(character, '_' | '-' | ':'))
         .take(120)
         .collect()
 }
 
 fn normalize_parameter_key(value: &str) -> String {
     let lowered = value.trim().to_lowercase();
+    if let Some(uuid) = lowered.strip_prefix("custom:parameter:") {
+        if !uuid.is_empty()
+            && uuid.len() <= 64
+            && uuid
+                .chars()
+                .all(|character| character.is_ascii_alphanumeric() || character == '-')
+        {
+            return format!("custom:parameter:{uuid}");
+        }
+        return String::new();
+    }
     let (explicit_custom, value) = lowered
         .strip_prefix("custom:")
         .map_or((false, lowered.as_str()), |suffix| (true, suffix));
