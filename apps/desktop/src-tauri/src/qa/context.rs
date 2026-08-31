@@ -1181,10 +1181,7 @@ fn prompt_json_object_text(value: &str) -> String {
 }
 
 pub fn build_prompt_envelope(context: &QuestionContext) -> PromptEnvelope {
-    let has_evidence = context
-        .evidence
-        .iter()
-        .any(super::zero_evidence::support_eligible_evidence);
+    let has_evidence = super::zero_evidence::has_support_eligible_evidence(&context.evidence);
     let contract = research_contract(has_evidence);
     let evidence_coverage = answer_evidence_coverage(context);
     let answer_contract = answer_contract(
@@ -1367,10 +1364,7 @@ pub fn build_run_manifest(
             "natural-markdown"
         } else if metadata.provider == super::PROVIDER_CODEX
             && metadata.enforce_answer_schema
-            && context
-                .evidence
-                .iter()
-                .any(super::zero_evidence::support_eligible_evidence)
+            && super::zero_evidence::has_support_eligible_evidence(&context.evidence)
         {
             "codex-output-schema"
         } else if metadata.provider == super::PROVIDER_OFFLINE {

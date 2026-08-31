@@ -3579,15 +3579,16 @@ pub fn codex_output_schema(context: &QuestionContext) -> Option<Value> {
     if direct_grounded_output(context) {
         Some(direct_answer::provider_output_schema(&context.evidence))
     } else {
-        (!natural_answer_v2_enabled() && !context.evidence.is_empty())
-            .then(|| structured_answer::provider_output_schema(&context.intent, &context.evidence))
+        (!natural_answer_v2_enabled()
+            && zero_evidence::has_support_eligible_evidence(&context.evidence))
+        .then(|| structured_answer::provider_output_schema(&context.intent, &context.evidence))
     }
 }
 
 pub(crate) fn direct_grounded_output(context: &QuestionContext) -> bool {
     natural_answer_v2_enabled()
         && context.retrieval_query.execution_mode == "direct"
-        && !context.evidence.is_empty()
+        && zero_evidence::has_support_eligible_evidence(&context.evidence)
 }
 
 #[derive(Default)]
@@ -4756,10 +4757,7 @@ pub fn run_semantic_verification(
     budget_guard: &LlmBudgetGuard,
     cancelled: &AtomicBool,
 ) -> Result<SemanticVerificationBatch, String> {
-    if !evidence
-        .iter()
-        .any(zero_evidence::support_eligible_evidence)
-    {
+    if !zero_evidence::has_support_eligible_evidence(evidence) {
         return Ok(SemanticVerificationBatch {
             version: claim_verification::SEMANTIC_VERIFIER_VERSION.to_string(),
             provider: provider_descriptor(&settings.answer_provider).id,
@@ -6756,6 +6754,107 @@ mod tests {
             codex_audit.run_manifest.answer_format,
             "natural-markdown-v2"
         );
+    }
+
+    #[test]
+    fn direct_graph_only_uses_one_zero_evidence_contract_across_all_provider_entrypoints() {
+        let (root, connection) = test_db();
+        let mut context =
+            prepare_question(&connection, root.path(), "graph only fixture", 4).unwrap();
+        context.retrieval_query.execution_mode = "direct".to_string();
+        let mut graph = evidence("E1");
+        graph.kind = "graph".to_string();
+        graph.locator = None;
+        context.evidence = vec![graph];
+
+        let availability = zero_evidence::classify_evidence_availability(&context.evidence, 0, 0);
+        assert_eq!(
+            availability.mode,
+            zero_evidence::EvidenceAvailabilityMode::ZeroUsableEvidence
+        );
+        assert!(!direct_grounded_output(&context));
+        assert!(codex_output_schema(&context).is_none());
+
+        let settings = LunaSettings {
+            answer_provider: PROVIDER_CODEX.to_string(),
+            ..LunaSettings::default()
+        };
+        let envelope = context::build_prompt_envelope(&context);
+        assert!(envelope
+            .user_prompt
+            .contains("当前知识库无法确认该对象、其定义或其工作机制"));
+        assert!(!envelope
+            .user_prompt
+            .contains("qa-direct-grounded-answer-v1"));
+        let compatible_payload = luna_answer_payload(&settings, &context, &envelope);
+        assert!(compatible_payload.get("response_format").is_none());
+
+        let guard = LlmBudgetGuard::new(routing_policy("direct"));
+        let semantic = run_semantic_verification(
+            &settings,
+            "fixture",
+            "low",
+            "一般知识参考。",
+            &context.evidence,
+            &guard,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+        assert_eq!(semantic.status, "not_requested");
+        assert!(semantic.fallback_reason.is_empty());
+        assert!(guard.usage().stages.is_empty());
+    }
+
+    #[test]
+    fn direct_grounded_schema_matches_the_support_eligible_evidence_matrix() {
+        let (root, connection) = test_db();
+        let mut context = prepare_question(&connection, root.path(), "evidence matrix", 4).unwrap();
+        context.retrieval_query.execution_mode = "direct".to_string();
+        let settings = LunaSettings::default();
+
+        for (kinds, expected_grounded) in [
+            (&[][..], false),
+            (&["graph"][..], false),
+            (&["paper"][..], true),
+            (&["wiki"][..], true),
+            (&["book"][..], true),
+            (&["graph", "paper"][..], true),
+        ] {
+            context.evidence = kinds
+                .iter()
+                .enumerate()
+                .map(|(index, kind)| {
+                    let mut item = evidence(&format!("E{}", index + 1));
+                    item.kind = (*kind).to_string();
+                    if *kind == "graph" {
+                        item.locator = None;
+                    }
+                    item
+                })
+                .collect();
+            assert_eq!(
+                zero_evidence::has_support_eligible_evidence(&context.evidence),
+                expected_grounded,
+                "kinds={kinds:?}"
+            );
+            assert_eq!(
+                direct_grounded_output(&context),
+                expected_grounded,
+                "kinds={kinds:?}"
+            );
+            assert_eq!(
+                codex_output_schema(&context).is_some(),
+                expected_grounded,
+                "kinds={kinds:?}"
+            );
+            let envelope = context::build_prompt_envelope(&context);
+            let payload = luna_answer_payload(&settings, &context, &envelope);
+            assert_eq!(
+                payload.get("response_format").is_some(),
+                expected_grounded,
+                "kinds={kinds:?}"
+            );
+        }
     }
 
     #[test]

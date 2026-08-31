@@ -98,6 +98,10 @@ pub fn support_eligible_evidence(item: &EvidenceItem) -> bool {
     matches!(item.kind.as_str(), "paper" | "book" | "wiki")
 }
 
+pub fn has_support_eligible_evidence(evidence: &[EvidenceItem]) -> bool {
+    evidence.iter().any(support_eligible_evidence)
+}
+
 pub fn classify_evidence_availability(
     evidence: &[EvidenceItem],
     required_facet_count: usize,
