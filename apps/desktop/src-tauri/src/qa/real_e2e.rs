@@ -744,7 +744,7 @@ fn validate_observation(case: &RealE2eCase, observed: &GroundingObservation) -> 
         "natural_output_missing",
     );
     require(
-        observed.manifest_schema == "qa-run-v23",
+        observed.manifest_schema == "qa-run-v24",
         "manifest_schema_invalid",
     );
     require(observed.generator_stage_observed, "generator_stage_missing");
@@ -1440,7 +1440,7 @@ mod tests {
             provider: PROVIDER_CODEX.to_string(),
             model: "gpt-fixture".to_string(),
             answer_format: "natural-markdown-v2".to_string(),
-            manifest_schema: "qa-run-v23".to_string(),
+            manifest_schema: "qa-run-v24".to_string(),
             execution_mode: if planner_required {
                 category.to_string()
             } else {
@@ -1621,7 +1621,7 @@ mod tests {
             provider: PROVIDER_CODEX.to_string(),
             model: "gpt-fixture".to_string(),
             answer_format: "natural-markdown-v2".to_string(),
-            manifest_schema: "qa-run-v23".to_string(),
+            manifest_schema: "qa-run-v24".to_string(),
             execution_mode: "direct".to_string(),
             generator_stage_observed: true,
             generator_budget_rejected: true,
@@ -1676,7 +1676,7 @@ mod tests {
             provider: PROVIDER_CODEX.to_string(),
             model: "gpt-fixture".to_string(),
             answer_format: "natural-markdown-v2".to_string(),
-            manifest_schema: "qa-run-v23".to_string(),
+            manifest_schema: "qa-run-v24".to_string(),
             execution_mode: "exploratory".to_string(),
             resolver_status: "succeeded".to_string(),
             generator_stage_observed: true,
@@ -1715,7 +1715,7 @@ mod tests {
             provider: PROVIDER_CODEX.to_string(),
             model: "gpt-fixture".to_string(),
             answer_format: "natural-markdown-v2".to_string(),
-            manifest_schema: "qa-run-v23".to_string(),
+            manifest_schema: "qa-run-v24".to_string(),
             execution_mode: "exploratory".to_string(),
             resolver_status: "succeeded".to_string(),
             generator_stage_observed: true,
@@ -1925,7 +1925,7 @@ mod tests {
             provider: PROVIDER_CODEX.to_string(),
             model: "gpt-fixture".to_string(),
             answer_format: "natural-markdown-v2".to_string(),
-            manifest_schema: "qa-run-v23".to_string(),
+            manifest_schema: "qa-run-v24".to_string(),
             execution_mode: "direct".to_string(),
             resolver_status: "succeeded".to_string(),
             generator_stage_observed: true,

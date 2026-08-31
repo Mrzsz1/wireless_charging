@@ -15,7 +15,8 @@ pub const ANSWER_SCHEMA_VERSION: &str = "qa-natural-markdown-v2";
 pub const LEGACY_ANSWER_SCHEMA_VERSION: &str = "qa-structured-answer-v1";
 pub const RETRIEVER_VERSION: &str = "hybrid-agentic-rrf-v6";
 pub const CONTEXT_SCHEMA_VERSION: &str = "qa-context-v4";
-pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v23";
+pub const RUN_MANIFEST_SCHEMA_VERSION: &str = "qa-run-v24";
+pub const CITATION_AUDIT_TRAIL_SCHEMA_VERSION: &str = "qa-citation-audit-trail-v1";
 pub const DEFAULT_CONTEXT_WINDOW_TOKENS: u32 = 32_768;
 
 const CONTEXT_SAFETY_MINIMUM: u32 = 512;
@@ -74,6 +75,29 @@ pub struct CitationRepair {
 
 #[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
+pub struct CitationStageAudit {
+    pub cited_ids: Vec<String>,
+    pub unknown_ids: Vec<String>,
+    pub syntax_valid: bool,
+    pub claim_count: usize,
+    pub cited_claim_count: usize,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct CitationAuditTrail {
+    pub schema_version: String,
+    pub applicable: bool,
+    pub source_mode: String,
+    pub pre_repair: CitationStageAudit,
+    pub repair_removed_unknown_ids: Vec<String>,
+    pub final_stage: CitationStageAudit,
+    pub strict_rejection_required: bool,
+    pub reason_codes: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub struct AnswerCompletenessValidation {
     pub applicable: bool,
     pub required_sections: Vec<String>,
@@ -114,6 +138,8 @@ pub struct QaRunManifest {
     pub evidence_checksums: Vec<EvidenceChecksum>,
     pub context_budget: ContextBudget,
     pub citation_repair: CitationRepair,
+    #[serde(default)]
+    pub citation_audit_trail: CitationAuditTrail,
     pub answer_completeness: AnswerCompletenessValidation,
     #[serde(default)]
     pub evidence_availability_mode: String,
@@ -1402,6 +1428,7 @@ pub fn build_run_manifest(
             .collect(),
         context_budget: context.context_plan.budget.clone(),
         citation_repair,
+        citation_audit_trail: CitationAuditTrail::default(),
         answer_completeness,
         evidence_availability_mode: evidence_availability.mode.as_str().to_string(),
         support_eligible_evidence_count: evidence_availability.support_eligible_evidence_count,
@@ -1657,6 +1684,22 @@ mod tests {
             content: content.to_string(),
             request_id: request.to_string(),
         }
+    }
+
+    #[test]
+    fn qa_run_v23_without_citation_audit_trail_remains_readable() {
+        let mut legacy = serde_json::to_value(QaRunManifest::default()).unwrap();
+        let object = legacy.as_object_mut().unwrap();
+        object.insert(
+            "schemaVersion".to_string(),
+            Value::String("qa-run-v23".to_string()),
+        );
+        object.remove("citationAuditTrail");
+
+        let decoded: QaRunManifest = serde_json::from_value(legacy).unwrap();
+
+        assert_eq!(decoded.schema_version, "qa-run-v23");
+        assert_eq!(decoded.citation_audit_trail, CitationAuditTrail::default());
     }
 
     #[test]

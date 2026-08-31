@@ -662,6 +662,25 @@ export type CitationRepair = {
   normalizedCitationGroups: number
 }
 
+export type CitationStageAudit = {
+  citedIds: string[]
+  unknownIds: string[]
+  syntaxValid: boolean
+  claimCount: number
+  citedClaimCount: number
+}
+
+export type CitationAuditTrail = {
+  schemaVersion: string
+  applicable: boolean
+  sourceMode: 'natural' | 'structured' | 'zero_evidence' | 'offline' | string
+  preRepair: CitationStageAudit
+  repairRemovedUnknownIds: string[]
+  finalStage: CitationStageAudit
+  strictRejectionRequired: boolean
+  reasonCodes: string[]
+}
+
 export type AnswerCompletenessValidation = {
   applicable: boolean
   requiredSections: string[]
@@ -767,6 +786,7 @@ export type QaRunManifest = {
   evidenceChecksums: EvidenceChecksum[]
   contextBudget: ContextBudget
   citationRepair: CitationRepair
+  citationAuditTrail?: CitationAuditTrail
   answerCompleteness: AnswerCompletenessValidation
   evidenceAvailabilityMode?: EvidenceAvailabilityMode | string
   supportEligibleEvidenceCount?: number

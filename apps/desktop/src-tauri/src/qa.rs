@@ -51,8 +51,8 @@ pub use claim_verification::{
     RepairProjectionOperation, SemanticVerificationBatch,
 };
 pub use context::{
-    estimate_tokens, CitationRepair, ContextBudget, ContextPlan, ProviderRunMetadata,
-    QaRunManifest, DEFAULT_CONTEXT_WINDOW_TOKENS,
+    estimate_tokens, CitationAuditTrail, CitationRepair, CitationStageAudit, ContextBudget,
+    ContextPlan, ProviderRunMetadata, QaRunManifest, DEFAULT_CONTEXT_WINDOW_TOKENS,
 };
 #[cfg(test)]
 pub use context::{AnswerCompletenessValidation, EvidenceChecksum};
@@ -4258,6 +4258,22 @@ fn persist_exchange_with_metadata_and_semantic_inner(
         };
         return Err(format!("{code}: {reason}"));
     }
+    if run_manifest.citation_audit_trail.strict_rejection_required
+        && !run_manifest
+            .citation_audit_trail
+            .pre_repair
+            .unknown_ids
+            .is_empty()
+    {
+        return Err(format!(
+            "CITATION_VALIDATION_FAILED: 原始结构化回答包含未知证据编号：{}",
+            run_manifest
+                .citation_audit_trail
+                .pre_repair
+                .unknown_ids
+                .join(", ")
+        ));
+    }
     if !citation_validation.supported
         && !matches!(
             citation_validation.grounding_status.as_str(),
@@ -4503,6 +4519,119 @@ fn merge_citation_repairs(left: CitationRepair, right: CitationRepair) -> Citati
     }
 }
 
+fn citation_stage_audit(validation: &CitationValidation) -> CitationStageAudit {
+    let mut cited_ids = validation.cited_ids.clone();
+    cited_ids.sort();
+    cited_ids.dedup();
+    let mut unknown_ids = validation.unknown_ids.clone();
+    unknown_ids.sort();
+    unknown_ids.dedup();
+    CitationStageAudit {
+        cited_ids,
+        unknown_ids,
+        syntax_valid: validation.syntax_valid,
+        claim_count: validation.claim_count,
+        cited_claim_count: validation.cited_claim_count,
+    }
+}
+
+fn removed_unknown_ids_between_stages(
+    pre_repair: &CitationStageAudit,
+    final_stage: &CitationStageAudit,
+) -> Vec<String> {
+    let final_ids = final_stage
+        .unknown_ids
+        .iter()
+        .map(String::as_str)
+        .collect::<HashSet<_>>();
+    pre_repair
+        .unknown_ids
+        .iter()
+        .filter(|id| !final_ids.contains(id.as_str()))
+        .cloned()
+        .collect()
+}
+
+fn build_citation_audit_trail(
+    source_mode: &str,
+    pre_repair_validation: &CitationValidation,
+    final_validation: &CitationValidation,
+    citation_repair: &mut CitationRepair,
+    structured_contract: bool,
+    applicable: bool,
+) -> CitationAuditTrail {
+    if !applicable {
+        return CitationAuditTrail {
+            schema_version: context::CITATION_AUDIT_TRAIL_SCHEMA_VERSION.to_string(),
+            source_mode: source_mode.to_string(),
+            ..CitationAuditTrail::default()
+        };
+    }
+    let pre_repair = citation_stage_audit(pre_repair_validation);
+    let final_stage = citation_stage_audit(final_validation);
+    let repair_removed_unknown_ids = removed_unknown_ids_between_stages(&pre_repair, &final_stage);
+    *citation_repair = merge_citation_repairs(
+        citation_repair.clone(),
+        CitationRepair {
+            applied: !repair_removed_unknown_ids.is_empty(),
+            removed_unknown_ids: repair_removed_unknown_ids.clone(),
+            normalized_citation_groups: 0,
+        },
+    );
+    let strict_rejection_required = structured_contract && !pre_repair.unknown_ids.is_empty();
+    let mut reason_codes = Vec::new();
+    if !pre_repair.unknown_ids.is_empty() {
+        reason_codes.push("unknown_evidence_id_pre_repair".to_string());
+    }
+    if !final_stage.unknown_ids.is_empty() {
+        reason_codes.push("unknown_evidence_id_final".to_string());
+    }
+    if !final_validation.graph_only_claims.is_empty() {
+        reason_codes.push("graph_only_claim_final".to_string());
+    }
+    if !final_validation.unsupported_claims.is_empty() {
+        reason_codes.push("unsupported_claim_final".to_string());
+    }
+    if final_stage.claim_count == 0 {
+        reason_codes.push("no_verifiable_claim_final".to_string());
+    }
+    if strict_rejection_required {
+        reason_codes.push("structured_contract_violation".to_string());
+    }
+    CitationAuditTrail {
+        schema_version: context::CITATION_AUDIT_TRAIL_SCHEMA_VERSION.to_string(),
+        applicable: true,
+        source_mode: source_mode.to_string(),
+        pre_repair,
+        repair_removed_unknown_ids,
+        final_stage,
+        strict_rejection_required,
+        reason_codes,
+    }
+}
+
+fn citation_audit_trace_event(
+    event: &str,
+    status: &str,
+    request_id: &str,
+    execution_mode: &str,
+    trail: Option<&CitationAuditTrail>,
+    duration_ms: Option<u64>,
+) -> trace::QaTraceEvent {
+    let mut result = trace::QaTraceEvent::new(event, "citation_audit_trail", status, request_id);
+    result.feature = "citation_audit_trail".to_string();
+    result.execution_mode = execution_mode.to_string();
+    result.duration_ms = duration_ms;
+    if let Some(trail) = trail {
+        result.citation_audit_source_mode = trail.source_mode.clone();
+        result.pre_repair_unknown_id_count = Some(trail.pre_repair.unknown_ids.len());
+        result.repair_removed_unknown_id_count = Some(trail.repair_removed_unknown_ids.len());
+        result.final_unknown_id_count = Some(trail.final_stage.unknown_ids.len());
+        result.strict_rejection_required = Some(trail.strict_rejection_required);
+    }
+    result
+}
+
 fn apply_final_grounding_audit(
     mut validation: CitationValidation,
     draft: &claim_verification::ClaimVerificationReport,
@@ -4637,6 +4766,24 @@ pub fn audit_generated_answer_with_semantic(
     let zero_evidence = evidence_availability.is_zero_usable();
     let structured =
         metadata.enforce_answer_schema && !zero_evidence && metadata.provider != PROVIDER_OFFLINE;
+    let citation_audit_source_mode = if zero_evidence {
+        "zero_evidence"
+    } else if structured {
+        "structured"
+    } else if metadata.provider == PROVIDER_OFFLINE {
+        "offline"
+    } else {
+        "natural"
+    };
+    let citation_audit_started_at = Instant::now();
+    trace::emit(&citation_audit_trace_event(
+        "qa_citation_audit_trail_started",
+        "started",
+        &context.request_id,
+        &context.retrieval_query.execution_mode,
+        None,
+        None,
+    ));
     let zero_projection =
         zero_evidence.then(|| zero_evidence::project_zero_evidence_answer(answer));
     let candidate_answer = zero_projection
@@ -4661,174 +4808,218 @@ pub fn audit_generated_answer_with_semantic(
         grounding_status: "unverified".to_string(),
         ..FinalGroundingAudit::default()
     };
-    let (answer, citation_repair, citation_validation, structured_answer_error, structured_roles) =
-        if natural_answer_v2_enabled() && !structured {
-            let (canonical_answer, initial_repair) = if let Some(projection) = &zero_projection {
-                let removed_unknown_ids = projection
-                    .removed_citation_ids
-                    .iter()
-                    .filter(|id| {
-                        !context
-                            .evidence
-                            .iter()
-                            .any(|item| item.id.as_str() == id.as_str())
-                    })
-                    .cloned()
-                    .collect::<Vec<_>>();
-                (
-                    candidate_answer.to_string(),
-                    CitationRepair {
-                        applied: !removed_unknown_ids.is_empty(),
-                        removed_unknown_ids,
-                        normalized_citation_groups: 0,
-                    },
-                )
-            } else {
-                repair_unknown_citations(candidate_answer, &context.evidence)
-            };
-            let verified_answer = if zero_evidence {
-                canonical_answer
-            } else {
-                let (repaired, report, audit) =
-                    verify_repair_and_audit(context, &canonical_answer, semantic);
-                final_grounding_audit = audit;
-                verification_report = report;
-                repaired
-            };
-            match natural_answer::render(&verified_answer, &context.evidence) {
-                Ok(result) => {
-                    if !zero_evidence {
-                        claim_verification::audit_rendered_visible_answer(
-                            &mut final_grounding_audit,
-                            &verified_answer,
-                            &result.markdown,
-                        );
-                    }
-                    let validation = if zero_evidence {
-                        result.validation
-                    } else {
-                        apply_final_grounding_audit(
-                            result.validation,
-                            &verification_report,
-                            &final_grounding_audit,
-                            &verified_answer,
-                        )
-                    };
-                    (
-                        result.markdown,
-                        merge_citation_repairs(initial_repair, result.repair),
-                        validation,
-                        None,
-                        None,
-                    )
+    let (
+        answer,
+        mut citation_repair,
+        citation_validation,
+        structured_answer_error,
+        structured_roles,
+        pre_repair_validation,
+    ) = if natural_answer_v2_enabled() && !structured {
+        let pre_repair_validation = if zero_evidence {
+            CitationValidation::default()
+        } else {
+            validate_citations(candidate_answer, &context.evidence)
+        };
+        let (canonical_answer, initial_repair) = if let Some(projection) = &zero_projection {
+            let removed_unknown_ids = projection
+                .removed_citation_ids
+                .iter()
+                .filter(|id| {
+                    !context
+                        .evidence
+                        .iter()
+                        .any(|item| item.id.as_str() == id.as_str())
+                })
+                .cloned()
+                .collect::<Vec<_>>();
+            (
+                candidate_answer.to_string(),
+                CitationRepair {
+                    applied: !removed_unknown_ids.is_empty(),
+                    removed_unknown_ids,
+                    normalized_citation_groups: 0,
+                },
+            )
+        } else {
+            repair_unknown_citations(candidate_answer, &context.evidence)
+        };
+        let verified_answer = if zero_evidence {
+            canonical_answer
+        } else {
+            let (repaired, report, audit) =
+                verify_repair_and_audit(context, &canonical_answer, semantic);
+            final_grounding_audit = audit;
+            verification_report = report;
+            repaired
+        };
+        match natural_answer::render(&verified_answer, &context.evidence) {
+            Ok(result) => {
+                if !zero_evidence {
+                    claim_verification::audit_rendered_visible_answer(
+                        &mut final_grounding_audit,
+                        &verified_answer,
+                        &result.markdown,
+                    );
                 }
-                Err(error) => (
-                    verified_answer,
-                    initial_repair,
-                    CitationValidation {
-                        grounding_status: "invalid".to_string(),
-                        ..CitationValidation::default()
-                    },
-                    Some(error),
-                    None,
-                ),
-            }
-        } else if structured {
-            match structured_answer::parse_validate_render(
-                candidate_answer,
-                &context.intent,
-                &context.evidence,
-            ) {
-                Ok(result) => {
-                    let (repaired, report, audit) =
-                        verify_repair_and_audit(context, &result.markdown, semantic);
-                    final_grounding_audit = audit;
-                    verification_report = report;
-                    let mut validation = if repaired == result.markdown {
-                        result.validation
-                    } else {
-                        validate_citations(&repaired, &context.evidence)
-                    };
-                    validation = apply_final_grounding_audit(
-                        validation,
+                let validation = if zero_evidence {
+                    result.validation
+                } else {
+                    apply_final_grounding_audit(
+                        result.validation,
                         &verification_report,
                         &final_grounding_audit,
-                        &repaired,
-                    );
-                    (
-                        repaired,
-                        CitationRepair::default(),
-                        validation,
-                        None,
-                        Some(result.roles),
+                        &verified_answer,
                     )
-                }
-                Err(error) => {
-                    let validation = structured_answer::invalid_validation(&error);
-                    (
-                        answer.to_string(),
-                        CitationRepair::default(),
-                        validation,
-                        Some(error),
-                        Some(Vec::new()),
-                    )
-                }
-            }
-        } else {
-            let (canonical_answer, citation_repair) = if let Some(projection) = &zero_projection {
-                let removed_unknown_ids = projection
-                    .removed_citation_ids
-                    .iter()
-                    .filter(|id| {
-                        !context
-                            .evidence
-                            .iter()
-                            .any(|item| item.id.as_str() == id.as_str())
-                    })
-                    .cloned()
-                    .collect::<Vec<_>>();
+                };
                 (
-                    candidate_answer.to_string(),
-                    CitationRepair {
-                        applied: !removed_unknown_ids.is_empty(),
-                        removed_unknown_ids,
-                        normalized_citation_groups: 0,
-                    },
+                    result.markdown,
+                    merge_citation_repairs(initial_repair, result.repair),
+                    validation,
+                    None,
+                    None,
+                    pre_repair_validation,
                 )
-            } else {
-                repair_unknown_citations(candidate_answer, &context.evidence)
-            };
-            let mut validation = if zero_evidence {
+            }
+            Err(error) => (
+                verified_answer,
+                initial_repair,
                 CitationValidation {
-                    grounding_status: "unverified".to_string(),
-                    zero_evidence: true,
-                    syntax_valid: true,
-                    coverage_valid: true,
+                    grounding_status: "invalid".to_string(),
                     ..CitationValidation::default()
-                }
-            } else {
-                validate_citations(&canonical_answer, &context.evidence)
-            };
-            let final_answer = if zero_evidence {
-                canonical_answer
-            } else {
+                },
+                Some(error),
+                None,
+                pre_repair_validation,
+            ),
+        }
+    } else if structured {
+        match structured_answer::parse_validate_render(
+            candidate_answer,
+            &context.intent,
+            &context.evidence,
+        ) {
+            Ok(result) => {
+                let pre_repair_validation = result.validation.clone();
                 let (repaired, report, audit) =
-                    verify_repair_and_audit(context, &canonical_answer, semantic);
+                    verify_repair_and_audit(context, &result.markdown, semantic);
                 final_grounding_audit = audit;
                 verification_report = report;
-                if repaired != canonical_answer {
-                    validation = validate_citations(&repaired, &context.evidence);
-                }
+                let mut validation = if repaired == result.markdown {
+                    result.validation
+                } else {
+                    validate_citations(&repaired, &context.evidence)
+                };
                 validation = apply_final_grounding_audit(
                     validation,
                     &verification_report,
                     &final_grounding_audit,
                     &repaired,
                 );
-                repaired
-            };
-            (final_answer, citation_repair, validation, None, None)
+                (
+                    repaired,
+                    CitationRepair::default(),
+                    validation,
+                    None,
+                    Some(result.roles),
+                    pre_repair_validation,
+                )
+            }
+            Err(error) => {
+                let validation = structured_answer::invalid_validation(&error);
+                (
+                    answer.to_string(),
+                    CitationRepair::default(),
+                    validation,
+                    Some(error),
+                    Some(Vec::new()),
+                    CitationValidation::default(),
+                )
+            }
+        }
+    } else {
+        let pre_repair_validation = if zero_evidence {
+            CitationValidation::default()
+        } else {
+            validate_citations(candidate_answer, &context.evidence)
         };
+        let (canonical_answer, citation_repair) = if let Some(projection) = &zero_projection {
+            let removed_unknown_ids = projection
+                .removed_citation_ids
+                .iter()
+                .filter(|id| {
+                    !context
+                        .evidence
+                        .iter()
+                        .any(|item| item.id.as_str() == id.as_str())
+                })
+                .cloned()
+                .collect::<Vec<_>>();
+            (
+                candidate_answer.to_string(),
+                CitationRepair {
+                    applied: !removed_unknown_ids.is_empty(),
+                    removed_unknown_ids,
+                    normalized_citation_groups: 0,
+                },
+            )
+        } else {
+            repair_unknown_citations(candidate_answer, &context.evidence)
+        };
+        let mut validation = if zero_evidence {
+            CitationValidation {
+                grounding_status: "unverified".to_string(),
+                zero_evidence: true,
+                syntax_valid: true,
+                coverage_valid: true,
+                ..CitationValidation::default()
+            }
+        } else {
+            validate_citations(&canonical_answer, &context.evidence)
+        };
+        let final_answer = if zero_evidence {
+            canonical_answer
+        } else {
+            let (repaired, report, audit) =
+                verify_repair_and_audit(context, &canonical_answer, semantic);
+            final_grounding_audit = audit;
+            verification_report = report;
+            if repaired != canonical_answer {
+                validation = validate_citations(&repaired, &context.evidence);
+            }
+            validation = apply_final_grounding_audit(
+                validation,
+                &verification_report,
+                &final_grounding_audit,
+                &repaired,
+            );
+            repaired
+        };
+        (
+            final_answer,
+            citation_repair,
+            validation,
+            None,
+            None,
+            pre_repair_validation,
+        )
+    };
+    let citation_audit_trail = build_citation_audit_trail(
+        citation_audit_source_mode,
+        &pre_repair_validation,
+        &citation_validation,
+        &mut citation_repair,
+        structured,
+        !zero_evidence && (!structured || structured_answer_error.is_none()),
+    );
+    trace::emit(&citation_audit_trace_event(
+        "qa_citation_audit_trail_completed",
+        "succeeded",
+        &context.request_id,
+        &context.retrieval_query.execution_mode,
+        Some(&citation_audit_trail),
+        Some(u64::try_from(citation_audit_started_at.elapsed().as_millis()).unwrap_or(u64::MAX)),
+    ));
     let trusted_context = trusted_context_from_final_audit(&final_grounding_audit);
     let zero_evidence_audit = zero_evidence::audit_zero_evidence_answer(
         &answer,
@@ -4895,6 +5086,7 @@ pub fn audit_generated_answer_with_semantic(
     run_manifest.claim_verifications = verification_report.claims;
     run_manifest.final_grounding_audit = final_grounding_audit.clone();
     run_manifest.zero_evidence_audit = zero_evidence_audit;
+    run_manifest.citation_audit_trail = citation_audit_trail;
     if final_grounding_audit.schema_version == "final-grounding-audit-v2" {
         let mut visible_projection_event = trace::QaTraceEvent::new(
             if final_grounding_audit.visible_projection_valid {
@@ -5232,7 +5424,7 @@ mod tests {
         }
     }
 
-    fn structured_fixture_answer(intent: &str, evidence_id: &str, complete: bool) -> String {
+    fn structured_fixture_answer(intent: &str, evidence_ids: &[&str], complete: bool) -> String {
         let required_roles = context::required_answer_role_contract(intent);
         let sections = context::required_answer_section_contract(intent)
             .into_iter()
@@ -5253,7 +5445,7 @@ mod tests {
                                 "role": role.id,
                                 "label": format!("natural-label-{role_index}"),
                                 "text": text,
-                                "evidenceIds": [evidence_id]
+                                "evidenceIds": evidence_ids
                             })
                         })
                         .collect::<Vec<_>>()
@@ -5262,7 +5454,7 @@ mod tests {
                         "role": required_roles[0].id,
                         "label": format!("claim-{index}"),
                         "text": text,
-                        "evidenceIds": [evidence_id]
+                        "evidenceIds": evidence_ids
                     })]
                 };
                 json!({
@@ -6618,7 +6810,7 @@ mod tests {
         assert_eq!(result.user_message.status, "unverified");
         assert_eq!(result.assistant_message.status, "unverified");
         assert_eq!(result.citation_validation.grounding_status, "unverified");
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v23");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v24");
         assert_eq!(result.run_manifest.prompt_version, "qa-prompt-v17");
         assert_eq!(
             result.run_manifest.evidence_availability_mode,
@@ -6628,6 +6820,17 @@ mod tests {
         assert!(!result.run_manifest.zero_evidence_reason.is_empty());
         assert!(result.run_manifest.zero_evidence_audit.applicable);
         assert_eq!(result.run_manifest.zero_evidence_audit.status, "succeeded");
+        assert!(!result.run_manifest.citation_audit_trail.applicable);
+        assert_eq!(
+            result.run_manifest.citation_audit_trail.source_mode,
+            "zero_evidence"
+        );
+        assert!(result
+            .run_manifest
+            .citation_audit_trail
+            .pre_repair
+            .unknown_ids
+            .is_empty());
         assert_eq!(result.run_manifest.zero_evidence_audit.notice_count, 1);
         assert_eq!(
             result.run_manifest.zero_evidence_audit.epistemic_status,
@@ -6700,6 +6903,11 @@ mod tests {
             1
         );
         assert!(audit.run_manifest.zero_evidence_audit.complete);
+        assert!(!audit.run_manifest.citation_audit_trail.applicable);
+        assert_eq!(
+            audit.run_manifest.citation_audit_trail.source_mode,
+            "zero_evidence"
+        );
         assert_eq!(audit.citation_validation.grounding_status, "unverified");
         assert!(!audit.answer.contains("[E1]"));
         assert!(!audit.answer.contains("evidence:E1"));
@@ -6850,6 +7058,22 @@ mod tests {
         );
         assert!(!audit.citation_validation.zero_evidence);
         assert!(audit.answer.contains(grounding::NO_SUPPORTED_CLAIMS_NOTICE));
+        assert!(audit.run_manifest.citation_audit_trail.applicable);
+        assert!(
+            !audit
+                .run_manifest
+                .citation_audit_trail
+                .strict_rejection_required
+        );
+        assert!(audit
+            .run_manifest
+            .citation_audit_trail
+            .reason_codes
+            .iter()
+            .any(|code| matches!(
+                code.as_str(),
+                "unsupported_claim_final" | "no_verifiable_claim_final"
+            )));
     }
 
     #[test]
@@ -7021,7 +7245,7 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v23");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v24");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.resolver_status, "succeeded");
@@ -7498,7 +7722,7 @@ mod tests {
         );
         assert_eq!(audit.run_manifest.verification_model, "fixture-nli");
         assert_eq!(audit.run_manifest.semantic_verification_latency_ms, 17);
-        assert_eq!(audit.run_manifest.schema_version, "qa-run-v23");
+        assert_eq!(audit.run_manifest.schema_version, "qa-run-v24");
     }
 
     #[test]
@@ -7517,12 +7741,28 @@ mod tests {
             enforce_answer_schema: true,
         };
 
+        let raw = "not-json E99";
+        let audit = audit_generated_answer(&context, raw, &metadata);
+        assert!(audit.structured_answer_error.is_some());
+        assert!(!audit.run_manifest.citation_audit_trail.applicable);
+        assert!(audit
+            .run_manifest
+            .citation_audit_trail
+            .pre_repair
+            .unknown_ids
+            .is_empty());
+        assert!(audit
+            .run_manifest
+            .citation_audit_trail
+            .repair_removed_unknown_ids
+            .is_empty());
+
         let error = persist_exchange_with_metadata(
             &mut connection,
             root.path(),
             Some("fixture-invalid-structure"),
             &context,
-            "not-json".to_string(),
+            raw.to_string(),
             metadata,
         )
         .unwrap_err();
@@ -7548,12 +7788,32 @@ mod tests {
             enforce_answer_schema: true,
         };
 
+        let rejected = structured_fixture_answer(INTENT_SOLVE, &["E99"], true);
+        let audit = audit_generated_answer(&context, &rejected, &metadata);
+        let trail = &audit.run_manifest.citation_audit_trail;
+        assert_eq!(audit.run_manifest.schema_version, "qa-run-v24");
+        assert_eq!(trail.schema_version, "qa-citation-audit-trail-v1");
+        assert_eq!(trail.source_mode, "structured");
+        assert_eq!(trail.pre_repair.unknown_ids, vec!["E99"]);
+        assert_eq!(trail.repair_removed_unknown_ids, vec!["E99"]);
+        assert!(trail.final_stage.unknown_ids.is_empty());
+        assert!(trail.strict_rejection_required);
+        assert!(trail
+            .reason_codes
+            .contains(&"structured_contract_violation".to_string()));
+        assert!(audit.citation_validation.unknown_ids.is_empty());
+        assert_eq!(
+            audit.run_manifest.citation_repair.removed_unknown_ids,
+            vec!["E99"]
+        );
+        assert!(!audit.answer.contains("[E99]"));
+
         let error = persist_exchange_with_metadata(
             &mut connection,
             root.path(),
             Some("fixture-invalid-citation"),
             &context,
-            structured_fixture_answer(INTENT_SOLVE, "E99", true),
+            rejected,
             metadata,
         )
         .unwrap_err();
@@ -7563,7 +7823,7 @@ mod tests {
     }
 
     #[test]
-    fn rejected_answer_audit_round_trips_with_failed_exchange() {
+    fn structured_known_and_unknown_evidence_remains_a_strict_contract_failure() {
         let (root, mut connection) = test_db();
         let mut context =
             prepare_question(&connection, root.path(), "fixture scheduling", 4).unwrap();
@@ -7577,10 +7837,204 @@ mod tests {
             context_window_tokens: 32_768,
             enforce_answer_schema: true,
         };
-        let rejected = structured_fixture_answer(INTENT_SOLVE, "E99", true);
+        let rejected = structured_fixture_answer(INTENT_SOLVE, &["E1", "E99"], true);
+        let audit = audit_generated_answer(&context, &rejected, &metadata);
+        let trail = &audit.run_manifest.citation_audit_trail;
+
+        assert_eq!(trail.pre_repair.cited_ids, vec!["E1"]);
+        assert_eq!(trail.pre_repair.unknown_ids, vec!["E99"]);
+        assert_eq!(trail.repair_removed_unknown_ids, vec!["E99"]);
+        assert!(trail.final_stage.unknown_ids.is_empty());
+        assert!(trail.strict_rejection_required);
+        assert!(audit.citation_validation.unknown_ids.is_empty());
+
+        let error = persist_exchange_with_metadata(
+            &mut connection,
+            root.path(),
+            Some("fixture-mixed-invalid-citation"),
+            &context,
+            rejected,
+            metadata,
+        )
+        .unwrap_err();
+        assert!(error.starts_with("CITATION_VALIDATION_FAILED:"));
+        assert!(error.contains("E99"));
+    }
+
+    #[test]
+    fn natural_known_and_unknown_citation_repairs_without_strict_rejection() {
+        let (root, mut connection) = test_db();
+        let mut context =
+            prepare_question(&connection, root.path(), "fixture scheduling", 4).unwrap();
+        context.evidence = vec![evidence("E1")];
+        let metadata = ProviderRunMetadata {
+            provider: PROVIDER_API.to_string(),
+            model_requested: "fixture-requested".to_string(),
+            model_resolved: "fixture-resolved".to_string(),
+            temperature: Some(0.1),
+            max_output_tokens: 1_800,
+            context_window_tokens: 32_768,
+            enforce_answer_schema: false,
+        };
+        let candidate = "Supported statement [E1] [E99].";
+        let audit = audit_generated_answer(&context, candidate, &metadata);
+        let trail = &audit.run_manifest.citation_audit_trail;
+
+        assert_eq!(trail.source_mode, "natural");
+        assert_eq!(trail.pre_repair.unknown_ids, vec!["E99"]);
+        assert_eq!(trail.repair_removed_unknown_ids, vec!["E99"]);
+        assert!(trail.final_stage.unknown_ids.is_empty());
+        assert!(!trail.strict_rejection_required);
+        assert!(audit.citation_validation.unknown_ids.is_empty());
+        assert!(!audit.answer.contains("E99"));
+
+        let persisted = persist_exchange_with_metadata(
+            &mut connection,
+            root.path(),
+            Some("fixture-natural-safe-repair"),
+            &context,
+            candidate.to_string(),
+            metadata,
+        )
+        .unwrap();
+        assert!(persisted.citation_validation.supported);
+        assert!(persisted
+            .run_manifest
+            .citation_audit_trail
+            .pre_repair
+            .unknown_ids
+            .contains(&"E99".to_string()));
+    }
+
+    #[test]
+    fn natural_unknown_only_claim_never_becomes_supported_after_citation_removal() {
+        let (root, connection) = test_db();
+        let mut context =
+            prepare_question(&connection, root.path(), "fixture scheduling", 4).unwrap();
+        context.evidence = vec![evidence("E1")];
+        let metadata = ProviderRunMetadata {
+            provider: PROVIDER_API.to_string(),
+            model_requested: "fixture-requested".to_string(),
+            model_resolved: "fixture-resolved".to_string(),
+            temperature: Some(0.1),
+            max_output_tokens: 1_800,
+            context_window_tokens: 32_768,
+            enforce_answer_schema: false,
+        };
+        let audit = audit_generated_answer(&context, "Unsupported statement [E99].", &metadata);
+        let trail = &audit.run_manifest.citation_audit_trail;
+
+        assert_eq!(trail.pre_repair.unknown_ids, vec!["E99"]);
+        assert_eq!(trail.repair_removed_unknown_ids, vec!["E99"]);
+        assert!(trail.final_stage.unknown_ids.is_empty());
+        assert!(!trail.strict_rejection_required);
+        assert!(!audit.citation_validation.supported);
+        assert_eq!(audit.run_manifest.final_grounding_audit.supported_count, 0);
+        assert!(!audit.answer.contains("E99"));
+    }
+
+    #[test]
+    fn citation_audit_trace_contains_counts_only_and_preserves_operation_identity() {
+        let trail = CitationAuditTrail {
+            schema_version: context::CITATION_AUDIT_TRAIL_SCHEMA_VERSION.to_string(),
+            applicable: true,
+            source_mode: "structured".to_string(),
+            pre_repair: CitationStageAudit {
+                unknown_ids: vec!["E99".to_string()],
+                ..CitationStageAudit::default()
+            },
+            repair_removed_unknown_ids: vec!["E99".to_string()],
+            final_stage: CitationStageAudit::default(),
+            strict_rejection_required: true,
+            reason_codes: vec!["structured_contract_violation".to_string()],
+        };
+        let started = citation_audit_trace_event(
+            "qa_citation_audit_trail_started",
+            "started",
+            "citation-operation",
+            "direct",
+            None,
+            None,
+        );
+        let completed = citation_audit_trace_event(
+            "qa_citation_audit_trail_completed",
+            "succeeded",
+            "citation-operation",
+            "direct",
+            Some(&trail),
+            Some(2),
+        );
+        let serialized = serde_json::to_string(&completed).unwrap();
+
+        assert_eq!(started.request_id_hash, completed.request_id_hash);
+        assert_eq!(completed.feature, "citation_audit_trail");
+        assert_eq!(completed.pre_repair_unknown_id_count, Some(1));
+        assert_eq!(completed.repair_removed_unknown_id_count, Some(1));
+        assert_eq!(completed.final_unknown_id_count, Some(0));
+        assert_eq!(completed.strict_rejection_required, Some(true));
+        assert!(!serialized.contains("E99"));
+        for forbidden in ["question", "answer", "prompt", "claimText", "snippet"] {
+            assert!(!serialized.contains(forbidden), "forbidden={forbidden}");
+        }
+    }
+
+    #[test]
+    fn rejected_answer_citation_lifecycle_round_trips_with_failed_exchange() {
+        let (root, mut connection) = test_db();
+        let mut context =
+            prepare_question(&connection, root.path(), "fixture scheduling", 4).unwrap();
+        context.evidence = vec![evidence("E1")];
+        let metadata = ProviderRunMetadata {
+            provider: PROVIDER_API.to_string(),
+            model_requested: "fixture-requested".to_string(),
+            model_resolved: "fixture-resolved".to_string(),
+            temperature: Some(0.1),
+            max_output_tokens: 1_800,
+            context_window_tokens: 32_768,
+            enforce_answer_schema: true,
+        };
+        let rejected = structured_fixture_answer(INTENT_SOLVE, &["E99"], true);
         let audit = audit_generated_answer(&context, &rejected, &metadata);
         assert!(!audit.citation_validation.supported);
+        assert!(audit.citation_validation.unknown_ids.is_empty());
+        assert_eq!(
+            audit
+                .run_manifest
+                .citation_audit_trail
+                .pre_repair
+                .unknown_ids,
+            vec!["E99"]
+        );
+        assert_eq!(
+            audit
+                .run_manifest
+                .citation_audit_trail
+                .repair_removed_unknown_ids,
+            vec!["E99"]
+        );
+        assert!(audit
+            .run_manifest
+            .citation_audit_trail
+            .final_stage
+            .unknown_ids
+            .is_empty());
         assert!(audit.run_manifest.answer_completeness.complete);
+
+        let persistence_error = persist_exchange_with_metadata(
+            &mut connection,
+            root.path(),
+            Some("failed-audit-session"),
+            &context,
+            rejected,
+            metadata,
+        )
+        .unwrap_err();
+        let (error_code, error_message) = persistence_error
+            .split_once(':')
+            .map(|(code, message)| (code.trim(), message.trim()))
+            .unwrap_or((persistence_error.as_str(), ""));
+        assert_eq!(error_code, "CITATION_VALIDATION_FAILED");
+        assert!(error_message.contains("E99"));
 
         persist_failure_exchange(
             &mut connection,
@@ -7589,8 +8043,8 @@ mod tests {
             "failed-audit-session",
             &context.question,
             &context.request_id,
-            "CITATION_VALIDATION_FAILED",
-            "unknown evidence",
+            error_code,
+            error_message,
             PROVIDER_API,
             Some(&audit),
         )
@@ -7602,10 +8056,30 @@ mod tests {
         assert_eq!(failed.content, audit.answer);
         assert_eq!(failed.evidence.len(), 1);
         assert_eq!(failed.model, "fixture-resolved");
+        assert_eq!(failed.error_code, "CITATION_VALIDATION_FAILED");
+        assert!(failed.error_message.contains("E99"));
+        assert!(failed
+            .citation_validation
+            .as_ref()
+            .unwrap()
+            .unknown_ids
+            .is_empty());
+        let manifest = failed.run_manifest.as_ref().unwrap();
         assert_eq!(
-            failed.citation_validation.as_ref().unwrap().unknown_ids,
+            manifest.citation_audit_trail.pre_repair.unknown_ids,
             vec!["E99"]
         );
+        assert_eq!(
+            manifest.citation_audit_trail.repair_removed_unknown_ids,
+            vec!["E99"]
+        );
+        assert!(manifest
+            .citation_audit_trail
+            .final_stage
+            .unknown_ids
+            .is_empty());
+        assert!(manifest.citation_audit_trail.strict_rejection_required);
+        assert_eq!(manifest.citation_repair.removed_unknown_ids, vec!["E99"]);
         assert_eq!(
             failed.run_manifest.as_ref().unwrap().prompt_sha256,
             audit.run_manifest.prompt_sha256

@@ -73,6 +73,31 @@ fn sanitize_markdown_link_targets(value: &str) -> String {
     result
 }
 
+fn sanitize_wikilinks(value: &str) -> String {
+    let mut result = String::with_capacity(value.len());
+    let mut cursor = 0;
+    while let Some(relative_start) = value[cursor..].find("[[") {
+        let start = cursor + relative_start;
+        result.push_str(&value[cursor..start]);
+        let content_start = start + 2;
+        let Some(relative_end) = value[content_start..].find("]]") else {
+            result.push_str("［［");
+            cursor = content_start;
+            continue;
+        };
+        let end = content_start + relative_end;
+        let content = value[content_start..end].trim();
+        let visible = content
+            .rsplit_once('|')
+            .map(|(_, alias)| alias.trim())
+            .unwrap_or(content);
+        result.push_str(visible);
+        cursor = end + 2;
+    }
+    result.push_str(&value[cursor..]);
+    result
+}
+
 fn redact_windows_absolute_paths(value: &str) -> String {
     let characters = value.char_indices().collect::<Vec<_>>();
     let mut result = String::with_capacity(value.len());
@@ -126,9 +151,11 @@ pub(crate) fn visible_body_source(value: &str) -> &str {
 pub(crate) fn project_visible_text_with_removed_ids(value: &str) -> (String, Vec<String>) {
     let raw_body = visible_body_source(value);
     let (body, removed_ids) = strip_evidence_tokens(raw_body);
-    let visible = redact_windows_absolute_paths(&sanitize_markdown_link_targets(body.trim()))
-        .trim()
-        .to_string();
+    let without_wikilinks = sanitize_wikilinks(body.trim());
+    let visible =
+        redact_windows_absolute_paths(&sanitize_markdown_link_targets(&without_wikilinks))
+            .trim()
+            .to_string();
     (visible, removed_ids)
 }
 
@@ -329,6 +356,17 @@ mod tests {
         assert!(rendered.markdown.contains("本地路径已隐藏"));
         assert!(rendered.markdown.contains("#blocked-link"));
         assert_eq!(rendered.repair.removed_unknown_ids, vec!["E99"]);
+    }
+
+    #[test]
+    fn provider_wikilinks_are_projected_to_visible_text_without_provenance_markup() {
+        let (visible, _) = project_visible_text_with_removed_ids(
+            "Alias [[sources/demo|Demo]] and malformed [[sources/other",
+        );
+
+        assert!(visible.contains("Alias Demo"));
+        assert!(visible.contains("［［sources/other"));
+        assert!(!visible.contains("[["));
     }
 
     #[test]

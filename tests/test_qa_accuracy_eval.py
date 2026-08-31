@@ -201,6 +201,15 @@ class QaAccuracyEvalTests(unittest.TestCase):
         self.assertEqual(totals.cited_ids, 1)
         self.assertEqual(totals.known_cited_ids, 1)
 
+    def test_qa_run_v24_keeps_final_grounding_validation_enabled(self) -> None:
+        run = run_fixture()
+        run["runManifest"]["schemaVersion"] = "qa-run-v24"
+
+        totals = qa_accuracy_eval.review_totals(run, review_fixture(), CASE)
+
+        self.assertEqual(totals.supported, 1)
+        self.assertEqual(totals.known_cited_ids, 1)
+
     def test_visible_claim_keeps_structured_citation_without_inline_token(self) -> None:
         run = run_fixture()
         run["answer"] = "fixture claim.\n\n## 参考证据\n\n- [知识库](evidence:E1)"

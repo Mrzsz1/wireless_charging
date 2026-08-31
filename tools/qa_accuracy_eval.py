@@ -441,11 +441,11 @@ def _validate_final_grounding_audit(
 ) -> list[dict[str, Any]] | None:
     """Independently enforce Final-only claim export for current qa-run manifests."""
 
-    if manifest.get("schemaVersion") not in {"qa-run-v22", "qa-run-v23"}:
+    if manifest.get("schemaVersion") not in {"qa-run-v22", "qa-run-v23", "qa-run-v24"}:
         return None
     audit = manifest.get("finalGroundingAudit")
     if not isinstance(audit, dict):
-        raise AccuracyEvalError(f"{case_id}: qa-run-v22 缺少 finalGroundingAudit")
+        raise AccuracyEvalError(f"{case_id}: 当前 qa-run manifest 缺少 finalGroundingAudit")
     required = {
         "schemaVersion",
         "auditStatus",

@@ -57,6 +57,16 @@ pub struct QaTraceEvent {
     pub used_trusted_history_count: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub used_reference_history_count: Option<usize>,
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub citation_audit_source_mode: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pre_repair_unknown_id_count: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub repair_removed_unknown_id_count: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub final_unknown_id_count: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub strict_rejection_required: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub duration_ms: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -198,6 +208,11 @@ mod tests {
         event.reference_history_count = Some(1);
         event.used_trusted_history_count = Some(0);
         event.used_reference_history_count = Some(1);
+        event.citation_audit_source_mode = "structured".to_string();
+        event.pre_repair_unknown_id_count = Some(1);
+        event.repair_removed_unknown_id_count = Some(1);
+        event.final_unknown_id_count = Some(0);
+        event.strict_rejection_required = Some(true);
         event.duration_ms = Some(42);
         let serialized = serde_json::to_string(&event).unwrap();
         assert!(!serialized.contains(request_id));
@@ -226,6 +241,11 @@ mod tests {
         assert!(serialized.contains("\"referenceHistoryCount\":1"));
         assert!(serialized.contains("\"usedTrustedHistoryCount\":0"));
         assert!(serialized.contains("\"usedReferenceHistoryCount\":1"));
+        assert!(serialized.contains("\"citationAuditSourceMode\":\"structured\""));
+        assert!(serialized.contains("\"preRepairUnknownIdCount\":1"));
+        assert!(serialized.contains("\"repairRemovedUnknownIdCount\":1"));
+        assert!(serialized.contains("\"finalUnknownIdCount\":0"));
+        assert!(serialized.contains("\"strictRejectionRequired\":true"));
     }
 
     #[test]
