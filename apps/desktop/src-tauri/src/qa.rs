@@ -79,8 +79,8 @@ pub use state_vocabulary::{
 };
 pub type QueryPlanner<'a> = dyn FnMut(&QueryPlanningInput) -> Result<QueryPlan, String> + 'a;
 pub use understanding::{
-    parse_understanding_plan, understanding_prompt, understanding_schema, UnderstandingPlan,
-    UnderstandingPlanningInput,
+    parse_understanding_plan, understanding_prompt, understanding_provider_schema,
+    UnderstandingPlan, UnderstandingPlanningInput,
 };
 pub type QuestionUnderstandingPlanner<'a> = understanding::UnderstandingPlanner<'a>;
 #[cfg(test)]

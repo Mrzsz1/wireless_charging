@@ -61,7 +61,7 @@ pub fn prepare_production_qa(
         let understanding_provider = planning_provider.as_deref();
         let mut understanding_planner = |input: &UnderstandingPlanningInput| {
             let prompt = understanding_prompt(input);
-            let schema = understanding_schema();
+            let schema = super::understanding_provider_schema();
             let reserved = estimate_tokens(&prompt).saturating_add(1_024);
             let reservation = understanding_budget.reserve("understanding", reserved)?;
             let Some(provider) = understanding_provider else {

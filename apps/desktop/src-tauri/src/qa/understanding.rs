@@ -849,6 +849,32 @@ pub fn understanding_schema() -> Value {
     })
 }
 
+/// Codex Structured Output rejects `uniqueItems`. Keep the complete domain
+/// contract above for local validation and project only that proven-incompatible
+/// keyword at the provider boundary.
+pub fn understanding_provider_schema() -> Value {
+    fn remove_unique_items(value: &mut Value) {
+        match value {
+            Value::Object(object) => {
+                object.remove("uniqueItems");
+                for child in object.values_mut() {
+                    remove_unique_items(child);
+                }
+            }
+            Value::Array(values) => {
+                for child in values {
+                    remove_unique_items(child);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    let mut schema = understanding_schema();
+    remove_unique_items(&mut schema);
+    schema
+}
+
 pub fn understanding_prompt(input: &UnderstandingPlanningInput) -> String {
     let payload = serde_json::to_string(input).unwrap_or_else(|_| "{}".to_string());
     format!(
@@ -985,6 +1011,19 @@ mod tests {
             "executionMode": "research"
         });
         assert!(parse_understanding_plan(&raw.to_string(), &input).is_err());
+    }
+
+    #[test]
+    fn provider_schema_removes_only_proven_incompatible_unique_items() {
+        let domain = understanding_schema();
+        let provider = understanding_provider_schema();
+        assert!(domain.to_string().contains("uniqueItems"));
+        assert!(!provider.to_string().contains("uniqueItems"));
+        assert_eq!(domain["required"], provider["required"]);
+        assert_eq!(
+            domain["properties"]["statePatch"]["properties"]["operations"]["maxItems"],
+            provider["properties"]["statePatch"]["properties"]["operations"]["maxItems"]
+        );
     }
 
     #[test]

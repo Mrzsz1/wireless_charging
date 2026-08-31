@@ -108,7 +108,7 @@ fn execute_case(
     let understanding_provider = planning_provider.as_deref();
     let mut understanding_planner = |input: &qa::UnderstandingPlanningInput| {
         let prompt = qa::understanding_prompt(input);
-        let schema = qa::understanding_schema();
+        let schema = qa::understanding_provider_schema();
         let reserved = qa::estimate_tokens(&prompt).saturating_add(1_024);
         let reservation = understanding_budget.reserve("understanding", reserved)?;
         let Some(provider) = understanding_provider else {
