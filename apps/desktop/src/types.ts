@@ -392,6 +392,59 @@ export type QaSettings = {
 
 export type LunaSettings = QaSettings
 
+export type VocabularyKind = 'objective' | 'constraint' | 'assumption' | 'method' | 'parameter'
+export type ParameterValueKind = 'integer' | 'float' | 'boolean' | 'text' | 'enum'
+
+export type StateParameterSpec = {
+  valueKind: ParameterValueKind
+  unit?: string | null
+  minimum?: number | null
+  maximum?: number | null
+  enumValues: string[]
+}
+
+export type StateFieldDefinition = {
+  id: string
+  kind: VocabularyKind
+  label: string
+  description: string
+  aliases: string[]
+  examples: string[]
+  parameterSpec?: StateParameterSpec | null
+  origin: 'built_in' | 'custom'
+  enabled: boolean
+}
+
+export type StateVocabularyRegistry = {
+  schemaVersion: string
+  revision: number
+  fields: StateFieldDefinition[]
+}
+
+export type CustomStateFieldInput = {
+  kind: VocabularyKind
+  label: string
+  description: string
+  aliases: string[]
+  examples: string[]
+  parameterSpec?: StateParameterSpec | null
+}
+
+export type StateVocabularyMappingDryRun = {
+  dryRun: boolean
+  vocabularyRevision: number
+  vocabularyHash: string
+  semanticMappingAttempted: boolean
+  semanticMappingUsed: boolean
+  mappedFields: Array<{
+    fieldId: string
+    label: string
+    kind: string
+    confidence: string
+    action: string
+  }>
+}
+
 export type SemanticModelSettings = {
   cacheDir: string
   effectiveCacheDir: string

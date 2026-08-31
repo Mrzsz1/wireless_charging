@@ -5,6 +5,7 @@ import type { CodexSubscriptionStatus, LiteratureIngestSettings, QaSettings, Rer
 import { DelayedHelp } from '../../components/DelayedHelp'
 import { formatBytes } from '../ingest/ingestState'
 import './SettingsView.css'
+import { ResearchStateVocabularySettings } from './ResearchStateVocabularySettings'
 
 type Theme = 'light' | 'dark' | 'system'
 
@@ -411,6 +412,7 @@ export function SettingsView({ repositoryPath, theme, fontSize, releaseInfo, upd
         </div>}
         {qaSettings.answerProvider === 'offline-evidence' && <div className="qa-provider-pane offline" data-testid="qa-provider-offline"><FolderOpen size={22} /><div><strong>本地证据浏览模式</strong><p>检索 Wiki、论文原文、两本核心专著与 Graphify，并展示可审计证据包；不调用在线回答模型。</p></div></div>}
       </section>
+      <ResearchStateVocabularySettings repositoryPath={repositoryPath} />
       <section id="semantic-model-settings" className="settings-card semantic-model-settings" data-testid="semantic-model-settings">
         <div className="settings-card-title"><HardDrive size={18} /><div className="settings-title-row"><h2>本地语义模型</h2><DelayedHelp testId="semantic-model-settings-help" label="为所有知识库共享的本机 embedding 模型。部署检查严格离线，只有下载/修复会访问网络。" /></div></div>
         <div className={`semantic-deployment-status ${semanticStatus.state}`}>

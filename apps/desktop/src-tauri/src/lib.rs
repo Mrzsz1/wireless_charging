@@ -3042,6 +3042,49 @@ fn delete_custom_state_field(field_id: String, state: State<'_, AppState>) -> Re
 }
 
 #[tauri::command]
+fn test_state_vocabulary_mapping(
+    text: String,
+    state: State<'_, AppState>,
+) -> Result<qa::StateVocabularyMappingDryRun, String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "请先建立本地索引".to_string())?;
+    let settings = qa::get_luna_settings(connection, root, false)?;
+    let provider = qa::planning_provider(
+        &settings,
+        &settings.codex_model,
+        &settings.codex_reasoning_effort,
+    );
+    let cancel = AtomicBool::new(false);
+    let provider_ref = provider.as_deref();
+    let mut planner = |input: &qa::UnderstandingPlanningInput| {
+        let Some(provider) = provider_ref else {
+            return Err("PLANNING_PROVIDER_UNAVAILABLE: understanding".to_string());
+        };
+        let prompt = qa::understanding_prompt(input);
+        let schema = qa::understanding_provider_schema();
+        let raw = provider.complete_structured(&prompt, &schema, &cancel)?;
+        qa::parse_understanding_plan(&raw, input)
+    };
+    let planner = provider_ref.is_some().then_some(
+        &mut planner
+            as &mut dyn FnMut(
+                &qa::UnderstandingPlanningInput,
+            ) -> Result<qa::UnderstandingPlan, String>,
+    );
+    qa::test_state_vocabulary_mapping(connection, root, &text, planner)
+}
+
+#[tauri::command]
 async fn get_codex_subscription_status(
     state: State<'_, AppState>,
 ) -> Result<codex_subscription::CodexSubscriptionStatus, String> {
@@ -4595,6 +4638,7 @@ pub fn run() {
             update_custom_state_field,
             set_custom_state_field_enabled,
             delete_custom_state_field,
+            test_state_vocabulary_mapping,
             get_semantic_model_settings,
             choose_semantic_model_cache_directory,
             save_semantic_model_settings,

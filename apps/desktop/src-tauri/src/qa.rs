@@ -459,6 +459,27 @@ pub struct RetrievalQuery {
     pub canonical_research_state: research_memory::ResearchSessionState,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct StateVocabularyMappingItem {
+    pub field_id: String,
+    pub label: String,
+    pub kind: String,
+    pub confidence: String,
+    pub action: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct StateVocabularyMappingDryRun {
+    pub dry_run: bool,
+    pub vocabulary_revision: u64,
+    pub vocabulary_hash: String,
+    pub semantic_mapping_attempted: bool,
+    pub semantic_mapping_used: bool,
+    pub mapped_fields: Vec<StateVocabularyMappingItem>,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct CitationValidation {
@@ -1462,6 +1483,94 @@ fn build_retrieval_query_with_understanding<'a>(
         canonical_state_patch: state_patch,
         canonical_research_state: research_state,
     }
+}
+
+pub fn test_state_vocabulary_mapping<'a>(
+    connection: &Connection,
+    root: &Path,
+    text: &str,
+    planner: Option<&'a mut QuestionUnderstandingPlanner<'a>>,
+) -> Result<StateVocabularyMappingDryRun, String> {
+    let text = text.trim();
+    if !(2..=2_000).contains(&text.chars().count()) {
+        return Err("STATE_VOCABULARY_DRY_RUN_INPUT_INVALID".to_string());
+    }
+    let operation_id = Uuid::new_v4().to_string();
+    log::info!("feature=state_vocabulary_dry_run stage=start operation_id={operation_id}");
+    let registry = state_vocabulary::load_state_vocabulary(connection, &repository_id(root))?;
+    let deterministic = state_mutation::extract_deterministic_patch_with_registry(
+        text,
+        &[],
+        &state_mutation::ResearchStateSummary::default(),
+        None,
+        &registry,
+    );
+    let semantic_needed = state_mutation::state_semantic_mapping_needed(text, &deterministic);
+    let input = UnderstandingPlanningInput::new(text, &[], Vec::new(), Vec::new())
+        .with_state_vocabulary(&registry, semantic_needed);
+    let understood = understanding::resolve_and_route(&input, planner);
+    let semantic_attempted = understood.diagnostics.resolver_escalated && semantic_needed;
+    let semantic_used = semantic_attempted && !understood.state_patch.operations.is_empty();
+    let proposed = if understood.state_patch.operations.is_empty() {
+        deterministic
+    } else {
+        understood.state_patch
+    };
+    let patch = state_mutation::validate_patch(proposed)?;
+    state_vocabulary::validate_patch_against_vocabulary(&patch, &registry)?;
+    let mut mapped_fields = Vec::new();
+    for operation in &patch.operations {
+        let ids = match &operation.value {
+            Some(state_mutation::StateValue::Text { value }) => vec![value.as_str()],
+            Some(state_mutation::StateValue::TextList { values }) => {
+                values.iter().map(String::as_str).collect()
+            }
+            Some(state_mutation::StateValue::Parameter { parameter }) => {
+                vec![parameter.key.as_str()]
+            }
+            None => Vec::new(),
+        };
+        for id in ids {
+            let Some(definition) = registry.field(id) else {
+                continue;
+            };
+            mapped_fields.push(StateVocabularyMappingItem {
+                field_id: id.to_string(),
+                label: definition.label.clone(),
+                kind: definition.kind.as_str().to_string(),
+                confidence: match operation.confidence {
+                    state_mutation::PatchConfidence::High => "high",
+                    state_mutation::PatchConfidence::Medium => "medium",
+                    state_mutation::PatchConfidence::Low => "low",
+                }
+                .to_string(),
+                action: match operation.action {
+                    state_mutation::StateAction::Add => "add",
+                    state_mutation::StateAction::Remove => "remove",
+                    state_mutation::StateAction::Keep => "keep",
+                    state_mutation::StateAction::Replace => "replace",
+                    state_mutation::StateAction::Set => "set",
+                    state_mutation::StateAction::SetAll => "set_all",
+                    state_mutation::StateAction::Clear => "clear",
+                }
+                .to_string(),
+            });
+        }
+    }
+    mapped_fields
+        .dedup_by(|left, right| left.field_id == right.field_id && left.action == right.action);
+    log::info!(
+        "feature=state_vocabulary_dry_run stage=complete operation_id={operation_id} semantic_mapping_attempted={semantic_attempted} semantic_mapping_used={semantic_used} mapped_field_count={}",
+        mapped_fields.len()
+    );
+    Ok(StateVocabularyMappingDryRun {
+        dry_run: true,
+        vocabulary_revision: registry.revision,
+        vocabulary_hash: registry.hash(),
+        semantic_mapping_attempted: semantic_attempted,
+        semantic_mapping_used: semantic_used,
+        mapped_fields,
+    })
 }
 
 fn retriever_v2_enabled() -> bool {
@@ -4818,6 +4927,53 @@ mod tests {
             )
             .unwrap();
         db_schema(connection).unwrap();
+    }
+
+    #[test]
+    fn vocabulary_mapping_dry_run_never_mutates_session_state() {
+        let connection = Connection::open_in_memory().unwrap();
+        initialize_test_db(&connection);
+        let root = tempdir().unwrap();
+        let repository = repository_id(root.path());
+        let created = create_custom_state_field(
+            &connection,
+            &repository,
+            CustomStateFieldInput {
+                kind: state_vocabulary::VocabularyKind::Constraint,
+                label: "高温环境约束".to_string(),
+                description: "环境温度过高时必须考虑充电效率和电池安全。".to_string(),
+                aliases: vec!["高温环境".to_string()],
+                examples: Vec::new(),
+                parameter_spec: None,
+            },
+        )
+        .unwrap();
+        let result = test_state_vocabulary_mapping(
+            &connection,
+            root.path(),
+            "这个模型还要考虑高温环境。",
+            None,
+        )
+        .unwrap();
+        assert!(result.dry_run);
+        assert_eq!(result.mapped_fields[0].field_id, created.id);
+        assert_eq!(
+            connection
+                .query_row("SELECT count(*) FROM chat_sessions", [], |row| row
+                    .get::<_, i64>(0))
+                .unwrap(),
+            0
+        );
+        assert_eq!(
+            connection
+                .query_row(
+                    "SELECT count(*) FROM qa_session_research_state",
+                    [],
+                    |row| row.get::<_, i64>(0)
+                )
+                .unwrap(),
+            0
+        );
     }
 
     fn test_db() -> (tempfile::TempDir, Connection) {

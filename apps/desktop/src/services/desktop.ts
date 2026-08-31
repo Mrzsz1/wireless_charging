@@ -1,5 +1,5 @@
 import { Channel, invoke } from '@tauri-apps/api/core'
-import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatMessagePage, ChatSessionDetail, ChatSessionPage, ChatSessionSummary, CodexSubscriptionStatus, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, GraphFilters, GraphOverview, IndexStats, LinkResolution, LiteratureCandidate, LiteratureCapability, LiteratureIngestSettings, LunaSettings, ManualImportSession, PageDetail, PageFilters, PageSummary, QaSettings, ResolvedSourceDocument, ResolvedSourceLocation, RerankerDeploymentStatus, SemanticDeploymentStatus, SemanticDownloadProgress, SemanticModelSettings, SemanticVectorStatus, SourceLocator, VectorSyncProgress, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchProviderStatus, SearchResult, StartCompileRequest, StartLiteratureRunRequest, StartupPromptState } from '../types'
+import type { AnswerStreamEvent, AskRequest, AskResult, Backlink, BookChapter, BookChapterDetail, BookSearchResult, BookSummary, ChatMessagePage, ChatSessionDetail, ChatSessionPage, ChatSessionSummary, CodexSubscriptionStatus, ComparisonMatrix, CompileCapability, CompileRunDetail, CompileRunSummary, CompileStreamEvent, CustomStateFieldInput, GraphFilters, GraphOverview, IndexStats, LinkResolution, LiteratureCandidate, LiteratureCapability, LiteratureIngestSettings, LunaSettings, ManualImportSession, PageDetail, PageFilters, PageSummary, QaSettings, ResolvedSourceDocument, ResolvedSourceLocation, RerankerDeploymentStatus, SemanticDeploymentStatus, SemanticDownloadProgress, SemanticModelSettings, SemanticVectorStatus, SourceLocator, StateFieldDefinition, StateVocabularyMappingDryRun, StateVocabularyRegistry, VectorSyncProgress, QuestionContext, RepositoryInfo, RepositoryWatchStatus, ResearchTrailRequest, ResearchTrailResponse, SearchProviderStatus, SearchResult, StartCompileRequest, StartLiteratureRunRequest, StartupPromptState } from '../types'
 
 type TauriWindow = Window & { __TAURI_INTERNALS__?: unknown }
 
@@ -99,6 +99,30 @@ export async function getQaSettings(): Promise<QaSettings> {
 
 export async function saveQaSettings(settings: QaSettings): Promise<QaSettings> {
   return invoke<QaSettings>('save_qa_settings', { settings })
+}
+
+export async function listStateVocabulary(): Promise<StateVocabularyRegistry> {
+  return invoke<StateVocabularyRegistry>('list_state_vocabulary')
+}
+
+export async function createCustomStateField(input: CustomStateFieldInput): Promise<StateFieldDefinition> {
+  return invoke<StateFieldDefinition>('create_custom_state_field', { input })
+}
+
+export async function updateCustomStateField(fieldId: string, input: CustomStateFieldInput): Promise<StateFieldDefinition> {
+  return invoke<StateFieldDefinition>('update_custom_state_field', { fieldId, input })
+}
+
+export async function setCustomStateFieldEnabled(fieldId: string, enabled: boolean): Promise<StateFieldDefinition> {
+  return invoke<StateFieldDefinition>('set_custom_state_field_enabled', { fieldId, enabled })
+}
+
+export async function deleteCustomStateField(fieldId: string): Promise<void> {
+  return invoke<void>('delete_custom_state_field', { fieldId })
+}
+
+export async function testStateVocabularyMapping(text: string): Promise<StateVocabularyMappingDryRun> {
+  return invoke<StateVocabularyMappingDryRun>('test_state_vocabulary_mapping', { text })
 }
 
 export async function getSemanticModelSettings(): Promise<SemanticModelSettings> {
