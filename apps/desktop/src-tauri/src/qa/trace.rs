@@ -31,6 +31,14 @@ pub struct QaTraceEvent {
     pub model: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub evidence_count: Option<usize>,
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub evidence_availability_mode: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub support_eligible_evidence_count: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub graph_only_evidence_count: Option<usize>,
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub zero_evidence_reason: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub baseline_candidate_count: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -167,6 +175,10 @@ mod tests {
         event.provider = "codex-subscription".to_string();
         event.model = "gpt-fixture".to_string();
         event.evidence_count = Some(2);
+        event.evidence_availability_mode = "zero_usable_evidence".to_string();
+        event.support_eligible_evidence_count = Some(0);
+        event.graph_only_evidence_count = Some(2);
+        event.zero_evidence_reason = "graph_only".to_string();
         event.baseline_candidate_count = Some(8);
         event.facet_count = Some(2);
         event.query_count = Some(3);
@@ -190,6 +202,10 @@ mod tests {
         }
         assert!(serialized.contains("\"baselineCandidateCount\":8"));
         assert!(serialized.contains("\"durationMs\":42"));
+        assert!(serialized.contains("\"evidenceAvailabilityMode\":\"zero_usable_evidence\""));
+        assert!(serialized.contains("\"supportEligibleEvidenceCount\":0"));
+        assert!(serialized.contains("\"graphOnlyEvidenceCount\":2"));
+        assert!(serialized.contains("\"zeroEvidenceReason\":\"graph_only\""));
     }
 
     #[test]

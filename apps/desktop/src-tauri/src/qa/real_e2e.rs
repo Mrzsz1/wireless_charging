@@ -11,7 +11,7 @@ use std::sync::atomic::AtomicBool;
 use uuid::Uuid;
 
 const CASE_SCHEMA_VERSION: &str = "qa-real-generator-e2e-cases-v1";
-const REPORT_SCHEMA_VERSION: &str = "qa-real-generator-e2e-report-v5";
+const REPORT_SCHEMA_VERSION: &str = "qa-real-generator-e2e-report-v6";
 const CORE_VERSION: &str = "qa-production-core-v1";
 const LOCAL_DIAGNOSTIC_ENV: &str = "QA_REAL_E2E_GROUNDING_DIAGNOSTIC_DIR";
 const EXPECTED_CATEGORIES: [&str; 5] = [
@@ -136,6 +136,10 @@ pub struct GroundingObservation {
     pub routing_token_cost_ceiling: u32,
     pub evidence_count: usize,
     pub evidence_selected_count: usize,
+    pub evidence_availability_mode: String,
+    pub support_eligible_evidence_count: usize,
+    pub graph_only_evidence_count: usize,
+    pub zero_evidence_reason: String,
     pub citation_valid: bool,
     pub unknown_citation_count: usize,
     pub grounding_status: String,
@@ -163,6 +167,16 @@ pub struct GroundingObservation {
     pub final_visible_projection_valid: bool,
     pub semantic_status: String,
     pub semantic_fallback_reason: String,
+    pub zero_evidence_audit_status: String,
+    pub zero_evidence_notice_present: bool,
+    pub zero_evidence_notice_count: usize,
+    pub zero_evidence_visible_body_non_empty: bool,
+    pub zero_evidence_citation_token_count: usize,
+    pub zero_evidence_reference_appendix_present: bool,
+    pub zero_evidence_evidence_link_present: bool,
+    pub zero_evidence_forbidden_kb_attribution_count: usize,
+    pub persisted_message_status: String,
+    pub trusted_context_bytes: usize,
     pub planner_attempted: bool,
     pub planner_used: bool,
     pub planner_status: String,
@@ -529,6 +543,8 @@ fn observation_from_parts(
     evidence_ids: &HashSet<&str>,
     evidence_count: usize,
     retrieval_query: &RetrievalQuery,
+    persisted_message_status: &str,
+    trusted_context_bytes: usize,
 ) -> GroundingObservation {
     let draft_claims = claim_diagnostics(&manifest.claim_verifications);
     let final_claims = claim_diagnostics(&manifest.final_grounding_audit.claims);
@@ -578,6 +594,10 @@ fn observation_from_parts(
         routing_token_cost_ceiling: manifest.routing_token_cost_ceiling,
         evidence_count,
         evidence_selected_count: manifest.evidence_selected_count,
+        evidence_availability_mode: retrieval_query.evidence_availability_mode.clone(),
+        support_eligible_evidence_count: retrieval_query.support_eligible_evidence_count,
+        graph_only_evidence_count: retrieval_query.graph_only_evidence_count,
+        zero_evidence_reason: retrieval_query.zero_evidence_reason.clone(),
         citation_valid: citation_contract_valid(validation, evidence_ids),
         unknown_citation_count: validation.unknown_ids.len(),
         grounding_status: validation.grounding_status.clone(),
@@ -605,6 +625,20 @@ fn observation_from_parts(
         final_visible_projection_valid: manifest.final_grounding_audit.visible_projection_valid,
         semantic_status: manifest.semantic_verification_status.clone(),
         semantic_fallback_reason: manifest.semantic_verification_fallback_reason.clone(),
+        zero_evidence_audit_status: manifest.zero_evidence_audit.status.clone(),
+        zero_evidence_notice_present: manifest.zero_evidence_audit.notice_present,
+        zero_evidence_notice_count: manifest.zero_evidence_audit.notice_count,
+        zero_evidence_visible_body_non_empty: manifest.zero_evidence_audit.visible_body_non_empty,
+        zero_evidence_citation_token_count: manifest.zero_evidence_audit.citation_token_count,
+        zero_evidence_reference_appendix_present: manifest
+            .zero_evidence_audit
+            .reference_appendix_present,
+        zero_evidence_evidence_link_present: manifest.zero_evidence_audit.evidence_link_present,
+        zero_evidence_forbidden_kb_attribution_count: manifest
+            .zero_evidence_audit
+            .forbidden_kb_attribution_count,
+        persisted_message_status: persisted_message_status.to_string(),
+        trusted_context_bytes,
         planner_attempted: matches!(
             manifest.planner_status.as_str(),
             "succeeded" | "failed_fallback"
@@ -637,20 +671,33 @@ fn observation_from_parts(
     }
 }
 
-fn observation(result: &AskResult, context: &QuestionContext) -> GroundingObservation {
+fn observation(
+    connection: &Connection,
+    result: &AskResult,
+    context: &QuestionContext,
+) -> Result<GroundingObservation, String> {
+    let (persisted_message_status, trusted_context_bytes) = connection
+        .query_row(
+            "SELECT status, length(CAST(trusted_context AS BLOB)) FROM chat_messages WHERE id=?1",
+            [&result.assistant_message.id],
+            |row| Ok((row.get::<_, String>(0)?, row.get::<_, i64>(1)?)),
+        )
+        .map_err(|error| format!("QA_REAL_E2E_PERSISTENCE_OBSERVATION_FAILED: {error}"))?;
     let evidence_ids = result
         .evidence
         .iter()
         .map(|item| item.id.as_str())
         .collect::<HashSet<_>>();
-    observation_from_parts(
+    Ok(observation_from_parts(
         !result.assistant_message.content.trim().is_empty(),
         &result.run_manifest,
         &result.citation_validation,
         &evidence_ids,
         result.evidence.len(),
         &context.retrieval_query,
-    )
+        &persisted_message_status,
+        usize::try_from(trusted_context_bytes).unwrap_or(usize::MAX),
+    ))
 }
 
 fn observation_from_audit(context: &QuestionContext, audit: &AnswerAudit) -> GroundingObservation {
@@ -666,6 +713,8 @@ fn observation_from_audit(context: &QuestionContext, audit: &AnswerAudit) -> Gro
         &evidence_ids,
         context.evidence.len(),
         &context.retrieval_query,
+        "",
+        0,
     )
 }
 
@@ -695,7 +744,7 @@ fn validate_observation(case: &RealE2eCase, observed: &GroundingObservation) -> 
         "natural_output_missing",
     );
     require(
-        observed.manifest_schema == "qa-run-v22",
+        observed.manifest_schema == "qa-run-v23",
         "manifest_schema_invalid",
     );
     require(observed.generator_stage_observed, "generator_stage_missing");
@@ -707,8 +756,8 @@ fn validate_observation(case: &RealE2eCase, observed: &GroundingObservation) -> 
     require(observed.unknown_citation_count == 0, "unknown_citation_id");
     require(observed.retrieval_round_count > 0, "retrieval_not_executed");
     require(observed.answer_complete, "answer_completeness_failed");
-    let semantic_status_valid = if case.zero_evidence_expected && observed.evidence_count == 0 {
-        observed.semantic_status.trim().is_empty() || observed.semantic_status == "not_requested"
+    let semantic_status_valid = if case.zero_evidence_expected {
+        observed.semantic_status == "not_requested" && observed.semantic_fallback_reason.is_empty()
     } else {
         observed.semantic_status == "succeeded"
             || (observed.semantic_status == "unavailable"
@@ -817,7 +866,67 @@ fn validate_observation(case: &RealE2eCase, observed: &GroundingObservation) -> 
         );
     }
     if case.zero_evidence_expected {
-        require(observed.evidence_count == 0, "zero_evidence_false_positive");
+        require(
+            observed.evidence_availability_mode == "zero_usable_evidence",
+            "zero_evidence_mode_invalid",
+        );
+        require(
+            observed.support_eligible_evidence_count == 0,
+            "zero_evidence_support_eligible_present",
+        );
+        require(
+            observed.evidence_count == 0
+                || observed.evidence_count == observed.graph_only_evidence_count,
+            "zero_evidence_raw_evidence_invalid",
+        );
+        require(
+            !observed.zero_evidence_reason.is_empty(),
+            "zero_evidence_reason_missing",
+        );
+        require(
+            observed.grounding_status == "unverified",
+            "zero_evidence_grounding_status_invalid",
+        );
+        require(
+            observed.verification_status == "not_requested",
+            "zero_evidence_verification_status_invalid",
+        );
+        require(
+            observed.zero_evidence_audit_status == "succeeded",
+            "zero_evidence_audit_failed",
+        );
+        require(
+            observed.zero_evidence_notice_present && observed.zero_evidence_notice_count == 1,
+            "zero_evidence_notice_invalid",
+        );
+        require(
+            observed.zero_evidence_visible_body_non_empty,
+            "zero_evidence_body_empty",
+        );
+        require(
+            observed.zero_evidence_citation_token_count == 0,
+            "zero_evidence_fake_citation",
+        );
+        require(
+            !observed.zero_evidence_reference_appendix_present,
+            "zero_evidence_reference_appendix_present",
+        );
+        require(
+            !observed.zero_evidence_evidence_link_present,
+            "zero_evidence_evidence_link_present",
+        );
+        require(
+            observed.zero_evidence_forbidden_kb_attribution_count == 0,
+            "zero_evidence_kb_attribution_present",
+        );
+        require(
+            observed.persisted_message_status == "unverified",
+            "zero_evidence_persisted_status_invalid",
+        );
+        require(
+            observed.trusted_context_bytes == 0,
+            "zero_evidence_trusted_context_nonempty",
+        );
     } else {
         require(observed.evidence_count > 0, "evidence_empty");
         require(
@@ -1177,7 +1286,23 @@ pub fn run_files(
                     break;
                 }
             };
-            let final_observation = observation(&persisted, &context);
+            let final_observation = match observation(&connection, &persisted, &context) {
+                Ok(observed) => observed,
+                Err(error) => {
+                    let code = safe_error_code(&error);
+                    result.errors.push(code.clone());
+                    trace_observation(
+                        "qa_persistence_observation_failed",
+                        "failed",
+                        &request_id,
+                        &case.id,
+                        &pre_persist,
+                        Some(true),
+                        &code,
+                    );
+                    break;
+                }
+            };
             result.persisted_turn_count += 1;
             if turn_index + 1 == case.turns.len() {
                 let state_valid = validate_state(case, &context);
@@ -1315,7 +1440,7 @@ mod tests {
             provider: PROVIDER_CODEX.to_string(),
             model: "gpt-fixture".to_string(),
             answer_format: "natural-markdown-v2".to_string(),
-            manifest_schema: "qa-run-v22".to_string(),
+            manifest_schema: "qa-run-v23".to_string(),
             execution_mode: if planner_required {
                 category.to_string()
             } else {
@@ -1496,7 +1621,7 @@ mod tests {
             provider: PROVIDER_CODEX.to_string(),
             model: "gpt-fixture".to_string(),
             answer_format: "natural-markdown-v2".to_string(),
-            manifest_schema: "qa-run-v22".to_string(),
+            manifest_schema: "qa-run-v23".to_string(),
             execution_mode: "direct".to_string(),
             generator_stage_observed: true,
             generator_budget_rejected: true,
@@ -1551,17 +1676,87 @@ mod tests {
             provider: PROVIDER_CODEX.to_string(),
             model: "gpt-fixture".to_string(),
             answer_format: "natural-markdown-v2".to_string(),
-            manifest_schema: "qa-run-v22".to_string(),
+            manifest_schema: "qa-run-v23".to_string(),
             execution_mode: "exploratory".to_string(),
             resolver_status: "succeeded".to_string(),
             generator_stage_observed: true,
+            evidence_availability_mode: "zero_usable_evidence".to_string(),
+            support_eligible_evidence_count: 0,
+            graph_only_evidence_count: 0,
+            zero_evidence_reason: "no_selected_evidence".to_string(),
             citation_valid: true,
+            grounding_status: "unverified".to_string(),
+            verification_status: "not_requested".to_string(),
             answer_complete: true,
+            semantic_status: "not_requested".to_string(),
+            semantic_fallback_reason: String::new(),
+            zero_evidence_audit_status: "succeeded".to_string(),
+            zero_evidence_notice_present: true,
+            zero_evidence_notice_count: 1,
+            zero_evidence_visible_body_non_empty: true,
+            zero_evidence_citation_token_count: 0,
+            zero_evidence_reference_appendix_present: false,
+            zero_evidence_evidence_link_present: false,
+            zero_evidence_forbidden_kb_attribution_count: 0,
+            persisted_message_status: "unverified".to_string(),
+            trusted_context_bytes: 0,
             retrieval_round_count: 1,
             ..GroundingObservation::default()
         };
 
         assert!(validate_observation(&case, &observed).is_empty());
+    }
+
+    #[test]
+    fn zero_evidence_gate_rejects_audit_or_persistence_contamination() {
+        let case = case("zero_evidence");
+        let base = GroundingObservation {
+            answer_non_empty: true,
+            provider: PROVIDER_CODEX.to_string(),
+            model: "gpt-fixture".to_string(),
+            answer_format: "natural-markdown-v2".to_string(),
+            manifest_schema: "qa-run-v23".to_string(),
+            execution_mode: "exploratory".to_string(),
+            resolver_status: "succeeded".to_string(),
+            generator_stage_observed: true,
+            evidence_availability_mode: "zero_usable_evidence".to_string(),
+            zero_evidence_reason: "graph_only".to_string(),
+            evidence_count: 1,
+            graph_only_evidence_count: 1,
+            citation_valid: true,
+            grounding_status: "unverified".to_string(),
+            verification_status: "not_requested".to_string(),
+            answer_complete: true,
+            semantic_status: "not_requested".to_string(),
+            zero_evidence_audit_status: "succeeded".to_string(),
+            zero_evidence_notice_present: true,
+            zero_evidence_notice_count: 1,
+            zero_evidence_visible_body_non_empty: true,
+            persisted_message_status: "unverified".to_string(),
+            retrieval_round_count: 1,
+            ..GroundingObservation::default()
+        };
+
+        assert!(validate_observation(&case, &base).is_empty());
+        let contaminated = GroundingObservation {
+            zero_evidence_audit_status: "failed".to_string(),
+            zero_evidence_evidence_link_present: true,
+            persisted_message_status: "completed".to_string(),
+            trusted_context_bytes: 8,
+            ..base
+        };
+        let errors = validate_observation(&case, &contaminated);
+        for code in [
+            "zero_evidence_audit_failed",
+            "zero_evidence_evidence_link_present",
+            "zero_evidence_persisted_status_invalid",
+            "zero_evidence_trusted_context_nonempty",
+        ] {
+            assert!(
+                errors.contains(&code.to_string()),
+                "missing={code}: {errors:?}"
+            );
+        }
     }
 
     #[test]
@@ -1626,7 +1821,7 @@ mod tests {
             }],
         };
         let serialized = serde_json::to_string(&report).unwrap().to_ascii_lowercase();
-        assert!(serialized.contains("qa-real-generator-e2e-report-v5"));
+        assert!(serialized.contains("qa-real-generator-e2e-report-v6"));
         assert!(serialized.contains("plannerfallbackreason"));
         assert!(serialized.contains("plannedsearchquerycount"));
         for forbidden in [
@@ -1730,7 +1925,7 @@ mod tests {
             provider: PROVIDER_CODEX.to_string(),
             model: "gpt-fixture".to_string(),
             answer_format: "natural-markdown-v2".to_string(),
-            manifest_schema: "qa-run-v22".to_string(),
+            manifest_schema: "qa-run-v23".to_string(),
             execution_mode: "direct".to_string(),
             resolver_status: "succeeded".to_string(),
             generator_stage_observed: true,

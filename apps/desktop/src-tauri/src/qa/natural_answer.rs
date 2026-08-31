@@ -1,6 +1,4 @@
-use super::{
-    compact, normalize_unverified_answer, CitationRepair, CitationValidation, EvidenceItem,
-};
+use super::{compact, zero_evidence, CitationRepair, CitationValidation, EvidenceItem};
 
 pub const ANSWER_FORMAT: &str = "natural-markdown-v2";
 pub const APPENDIX_HEADING: &str = "## 参考证据";
@@ -125,7 +123,7 @@ pub(crate) fn visible_body_source(value: &str) -> &str {
     strip_existing_appendix(value).trim()
 }
 
-fn visible_text_projection(value: &str) -> (String, Vec<String>) {
+pub(crate) fn project_visible_text_with_removed_ids(value: &str) -> (String, Vec<String>) {
     let raw_body = visible_body_source(value);
     let (body, removed_ids) = strip_evidence_tokens(raw_body);
     let visible = redact_windows_absolute_paths(&sanitize_markdown_link_targets(body.trim()))
@@ -135,7 +133,7 @@ fn visible_text_projection(value: &str) -> (String, Vec<String>) {
 }
 
 pub(crate) fn project_visible_text(value: &str) -> String {
-    visible_text_projection(value).0
+    project_visible_text_with_removed_ids(value).0
 }
 
 fn escaped_label(value: &str) -> String {
@@ -199,25 +197,22 @@ fn appendix(evidence: &[EvidenceItem]) -> (String, Vec<String>) {
 
 pub fn render(answer: &str, evidence: &[EvidenceItem]) -> Result<NaturalAnswerResult, String> {
     let raw_body = visible_body_source(answer);
-    if raw_body.is_empty() && !evidence.is_empty() {
+    let availability = zero_evidence::classify_evidence_availability(evidence, 0, 0);
+    if raw_body.is_empty() && !availability.is_zero_usable() {
         return Err("回答正文为空".to_string());
     }
     if raw_body.chars().count() > 200_000 {
         return Err("回答正文超过安全长度上限".to_string());
     }
-    let (body, removed_ids) = visible_text_projection(answer);
-    let known_ids = evidence
-        .iter()
-        .map(|item| item.id.as_str())
-        .collect::<std::collections::HashSet<_>>();
-    let removed_unknown_ids = removed_ids
-        .into_iter()
-        .filter(|id| !known_ids.contains(id.as_str()))
-        .collect::<Vec<_>>();
-    if evidence.is_empty() {
-        let markdown = normalize_unverified_answer(&body);
+    if availability.is_zero_usable() {
+        let projection = zero_evidence::project_zero_evidence_answer(answer);
+        let removed_unknown_ids = projection
+            .removed_citation_ids
+            .into_iter()
+            .filter(|id| !evidence.iter().any(|item| item.id == *id))
+            .collect::<Vec<_>>();
         return Ok(NaturalAnswerResult {
-            markdown,
+            markdown: projection.markdown,
             validation: CitationValidation {
                 grounding_status: "unverified".to_string(),
                 zero_evidence: true,
@@ -234,6 +229,15 @@ pub fn render(answer: &str, evidence: &[EvidenceItem]) -> Result<NaturalAnswerRe
             },
         });
     }
+    let (body, removed_ids) = project_visible_text_with_removed_ids(answer);
+    let known_ids = evidence
+        .iter()
+        .map(|item| item.id.as_str())
+        .collect::<std::collections::HashSet<_>>();
+    let removed_unknown_ids = removed_ids
+        .into_iter()
+        .filter(|id| !known_ids.contains(id.as_str()))
+        .collect::<Vec<_>>();
     let (appendix, appendix_evidence_ids) = appendix(evidence);
     let appendix_integrity = !appendix_evidence_ids.is_empty();
     Ok(NaturalAnswerResult {
@@ -347,5 +351,58 @@ mod tests {
             rendered.markdown,
             "Synthetic [link](#blocked-link) [本地路径已隐藏]\n\n## 参考证据\n\n- [书籍 · Approximation Algorithms · Euclidean TSP](evidence:E1)\n"
         );
+    }
+
+    #[test]
+    fn zero_evidence_projection_owns_notice_body_and_removes_fake_provenance() {
+        let rendered = render(
+            "一般分析 [E1]。[伪证据](evidence:E1)\n\n## 参考证据\n\n- [E1]",
+            &[],
+        )
+        .unwrap();
+
+        assert!(rendered.markdown.starts_with(
+            "当前知识库没有检索到可用于核验这个问题的参考来源。下面如有分析，只能视为一般知识或假设性讨论，不能视为当前知识库结论。"
+        ));
+        assert!(rendered
+            .markdown
+            .contains("## 一般知识参考（未经本库核验）"));
+        assert!(!rendered.markdown.contains("[E1]"));
+        assert!(!rendered.markdown.contains("evidence:E1"));
+        assert!(!rendered.markdown.contains(APPENDIX_HEADING));
+        assert!(rendered.repair.applied);
+    }
+
+    #[test]
+    fn zero_evidence_projection_deduplicates_notice_and_falls_back_on_false_attribution() {
+        let notice = "当前知识库没有检索到可用于核验这个问题的参考来源。下面如有分析，只能视为一般知识或假设性讨论，不能视为当前知识库结论。";
+        let duplicate = render(&format!("{notice}\n\n{notice}\n\n一般讨论。"), &[]).unwrap();
+        assert_eq!(duplicate.markdown.matches(notice).count(), 1);
+
+        let false_attribution = render("根据当前知识库，QTC-9 使用潮汐引力。", &[]).unwrap();
+        assert!(!false_attribution.markdown.contains("根据当前知识库"));
+        assert!(false_attribution.markdown.contains("## 建议下一步"));
+    }
+
+    #[test]
+    fn empty_zero_evidence_answer_uses_actionable_deterministic_fallback() {
+        let rendered = render("", &[]).unwrap();
+
+        assert!(rendered.markdown.contains("## 建议下一步"));
+        assert!(rendered.markdown.contains("补充对应论文"));
+    }
+
+    #[test]
+    fn graph_only_input_is_zero_usable_evidence() {
+        let mut graph = evidence("E1");
+        graph.kind = "graph".to_string();
+        let rendered = render("图谱提示声称这是事实 [E1]。", &[graph]).unwrap();
+
+        assert!(rendered.validation.zero_evidence);
+        assert_eq!(rendered.validation.grounding_status, "unverified");
+        assert!(rendered
+            .markdown
+            .starts_with("当前知识库没有检索到可用于核验这个问题的参考来源。"));
+        assert!(!rendered.markdown.contains("[E1]"));
     }
 }

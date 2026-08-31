@@ -190,7 +190,12 @@ fn run_production_qa_generation_inner<F>(
 where
     F: FnMut(&str) -> Result<(), String>,
 {
-    let zero_evidence = context.evidence.is_empty();
+    let evidence_availability = zero_evidence::classify_evidence_availability(
+        &context.evidence,
+        context.retrieval_query.planned_required_facet_count,
+        context.retrieval_query.covered_facet_ids.len(),
+    );
+    let zero_evidence = evidence_availability.is_zero_usable();
     let generated: Result<(String, String, String), String> =
         match settings.answer_provider.as_str() {
             PROVIDER_CODEX if codex_ready => {
@@ -255,7 +260,93 @@ where
     }
     let offline = provider == PROVIDER_OFFLINE;
     let answer = if zero_evidence {
-        normalize_unverified_answer(&raw_answer)
+        let mut started = trace::QaTraceEvent::new(
+            "qa_zero_evidence_projection_started",
+            "zero_evidence_projection",
+            "started",
+            &context.request_id,
+        );
+        started.execution_mode = context.retrieval_query.execution_mode.clone();
+        started.provider = provider.clone();
+        started.model = model.clone();
+        started.evidence_count = Some(evidence_availability.raw_evidence_count);
+        started.evidence_availability_mode = evidence_availability.mode.as_str().to_string();
+        started.support_eligible_evidence_count =
+            Some(evidence_availability.support_eligible_evidence_count);
+        started.graph_only_evidence_count = Some(evidence_availability.graph_only_evidence_count);
+        started.zero_evidence_reason = evidence_availability.reason.clone();
+        trace::emit(&started);
+
+        let projection = zero_evidence::project_zero_evidence_answer(&raw_answer);
+        let projection_audit = zero_evidence::audit_zero_evidence_answer(
+            &projection.markdown,
+            &evidence_availability,
+            0,
+            "",
+            Some(&projection),
+        );
+        if !projection_audit.complete {
+            let mut failed = trace::QaTraceEvent::new(
+                "qa_zero_evidence_projection_failed",
+                "zero_evidence_projection",
+                "failed",
+                &context.request_id,
+            );
+            failed.execution_mode = context.retrieval_query.execution_mode.clone();
+            failed.provider = provider.clone();
+            failed.model = model.clone();
+            failed.evidence_count = Some(evidence_availability.raw_evidence_count);
+            failed.evidence_availability_mode = evidence_availability.mode.as_str().to_string();
+            failed.support_eligible_evidence_count =
+                Some(evidence_availability.support_eligible_evidence_count);
+            failed.graph_only_evidence_count =
+                Some(evidence_availability.graph_only_evidence_count);
+            failed.zero_evidence_reason = evidence_availability.reason.clone();
+            failed.error_code = projection_audit
+                .error_codes
+                .first()
+                .cloned()
+                .unwrap_or_else(|| "ZERO_EVIDENCE_PROJECTION_INVALID".to_string())
+                .to_ascii_lowercase();
+            trace::emit(&failed);
+            return Err("ZERO_EVIDENCE_PROJECTION_INVALID".to_string());
+        }
+        let mut completed = trace::QaTraceEvent::new(
+            "qa_zero_evidence_projection_completed",
+            "zero_evidence_projection",
+            "succeeded",
+            &context.request_id,
+        );
+        completed.execution_mode = context.retrieval_query.execution_mode.clone();
+        completed.provider = provider.clone();
+        completed.model = model.clone();
+        completed.evidence_count = Some(evidence_availability.raw_evidence_count);
+        completed.evidence_availability_mode = evidence_availability.mode.as_str().to_string();
+        completed.support_eligible_evidence_count =
+            Some(evidence_availability.support_eligible_evidence_count);
+        completed.graph_only_evidence_count = Some(evidence_availability.graph_only_evidence_count);
+        completed.zero_evidence_reason = evidence_availability.reason.clone();
+        trace::emit(&completed);
+        if projection.fallback_applied {
+            let mut fallback = trace::QaTraceEvent::new(
+                "qa_zero_evidence_fallback_applied",
+                "zero_evidence_projection",
+                "succeeded",
+                &context.request_id,
+            );
+            fallback.execution_mode = context.retrieval_query.execution_mode.clone();
+            fallback.provider = provider.clone();
+            fallback.model = model.clone();
+            fallback.evidence_count = Some(evidence_availability.raw_evidence_count);
+            fallback.evidence_availability_mode = evidence_availability.mode.as_str().to_string();
+            fallback.support_eligible_evidence_count =
+                Some(evidence_availability.support_eligible_evidence_count);
+            fallback.graph_only_evidence_count =
+                Some(evidence_availability.graph_only_evidence_count);
+            fallback.zero_evidence_reason = projection.fallback_reason.clone();
+            trace::emit(&fallback);
+        }
+        projection.markdown
     } else if direct_grounded_output(context) && provider != PROVIDER_OFFLINE {
         let mut started = trace::QaTraceEvent::new(
             "qa_direct_answer_parse_started",
@@ -493,5 +584,21 @@ mod tests {
         assert!(ui_source.contains("RotationStrategy::KeepSome(5)"));
         assert!(ui_source.contains(".max_file_size(10 * 1024 * 1024)"));
         assert!(!ui_source.contains("if cfg!(debug_assertions)"));
+    }
+
+    #[test]
+    fn zero_evidence_projection_has_complete_structured_lifecycle_logging() {
+        let core_source = include_str!("production_core.rs");
+        for event in [
+            "qa_zero_evidence_projection_started",
+            "qa_zero_evidence_projection_completed",
+            "qa_zero_evidence_projection_failed",
+            "qa_zero_evidence_fallback_applied",
+        ] {
+            assert!(core_source.contains(event), "missing={event}");
+        }
+        assert!(core_source.contains("support_eligible_evidence_count"));
+        assert!(core_source.contains("graph_only_evidence_count"));
+        assert!(core_source.contains("zero_evidence_reason"));
     }
 }

@@ -38,6 +38,7 @@ pub(crate) mod trace;
 mod understanding;
 pub(crate) mod vector_store;
 pub(crate) mod vector_sync;
+mod zero_evidence;
 
 pub use adaptive_routing::{policy as routing_policy, LlmBudgetGuard, LlmBudgetUsage};
 pub(crate) use claim_verification::extract_atomic_claims;
@@ -77,6 +78,7 @@ pub use state_vocabulary::{
     set_custom_state_field_enabled, update_custom_state_field, CustomStateFieldInput,
     StateFieldDefinition, StateVocabularyRegistry,
 };
+pub use zero_evidence::{ZeroEvidenceAudit, NO_EVIDENCE_NOTICE};
 pub type QueryPlanner<'a> = dyn FnMut(&QueryPlanningInput) -> Result<QueryPlan, String> + 'a;
 pub use understanding::{
     parse_understanding_plan, understanding_prompt, understanding_provider_schema,
@@ -127,8 +129,6 @@ const INTENT_EXPLORATORY: &str = "exploratory";
 const QUERY_TERM_LIMIT: usize = 20;
 const RRF_K: f64 = 60.0;
 const REQUIRED_CHANNEL_MIN_SCORE: f64 = 0.18;
-pub const NO_EVIDENCE_NOTICE: &str =
-    "当前知识库没有检索到参考来源。以下内容来自模型的一般知识，未经本库证据核验。";
 pub const MODEL_SUPPLEMENT_HEADING: &str = "## 模型补充（可能不准确）";
 pub const MODEL_SUPPLEMENT_NOTICE: &str =
     "> 以下内容来自模型一般知识，未由当前知识库证据核验，可能不准确。";
@@ -343,6 +343,14 @@ pub struct RetrievalQuery {
     pub evidence_parent_expansion_count: usize,
     #[serde(default)]
     pub evidence_estimated_tokens: u32,
+    #[serde(default)]
+    pub evidence_availability_mode: String,
+    #[serde(default)]
+    pub support_eligible_evidence_count: usize,
+    #[serde(default)]
+    pub graph_only_evidence_count: usize,
+    #[serde(default)]
+    pub zero_evidence_reason: String,
     #[serde(default)]
     pub problem_parser_version: String,
     #[serde(default)]
@@ -1425,6 +1433,10 @@ fn build_retrieval_query_with_understanding<'a>(
         evidence_document_count: 0,
         evidence_parent_expansion_count: 0,
         evidence_estimated_tokens: 0,
+        evidence_availability_mode: String::new(),
+        support_eligible_evidence_count: 0,
+        graph_only_evidence_count: 0,
+        zero_evidence_reason: String::new(),
         problem_parser_version: problem.parser_version,
         method_matcher_version: problem.matcher_version,
         problem_understanding_status: problem.status,
@@ -3391,6 +3403,36 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
         max_output_tokens,
         retrieval_query.canonical_research_state.clone(),
     );
+    let evidence_availability = zero_evidence::classify_evidence_availability(
+        &evidence,
+        retrieval_query.planned_required_facet_count,
+        retrieval_query.covered_facet_ids.len(),
+    );
+    retrieval_query.evidence_availability_mode = evidence_availability.mode.as_str().to_string();
+    retrieval_query.support_eligible_evidence_count =
+        evidence_availability.support_eligible_evidence_count;
+    retrieval_query.graph_only_evidence_count = evidence_availability.graph_only_evidence_count;
+    retrieval_query.zero_evidence_reason = if evidence_availability.is_zero_usable() {
+        evidence_availability.reason.clone()
+    } else {
+        String::new()
+    };
+    if evidence_availability.is_zero_usable() {
+        let mut event = trace::QaTraceEvent::new(
+            "qa_zero_evidence_detected",
+            "evidence_availability",
+            "detected",
+            request_id,
+        );
+        event.execution_mode = retrieval_query.execution_mode.clone();
+        event.evidence_count = Some(evidence_availability.raw_evidence_count);
+        event.evidence_availability_mode = evidence_availability.mode.as_str().to_string();
+        event.support_eligible_evidence_count =
+            Some(evidence_availability.support_eligible_evidence_count);
+        event.graph_only_evidence_count = Some(evidence_availability.graph_only_evidence_count);
+        event.zero_evidence_reason = evidence_availability.reason.clone();
+        trace::emit(&event);
+    }
     let retrieval_diagnostics = diagnostics.finish(evidence.len());
     let mut context = QuestionContext {
         request_id: request_id.to_string(),
@@ -4068,6 +4110,17 @@ fn persist_exchange_with_metadata_and_semantic_inner(
             .map(str::to_string)
             .unwrap_or_else(|| Uuid::new_v4().to_string())
     });
+    if run_manifest.zero_evidence_audit.applicable && !run_manifest.zero_evidence_audit.complete {
+        return Err(format!(
+            "ZERO_EVIDENCE_PROJECTION_INVALID: {}",
+            run_manifest.zero_evidence_audit.error_codes.join(",")
+        ));
+    }
+    if run_manifest.zero_evidence_audit.applicable
+        && citation_validation.grounding_status != "unverified"
+    {
+        return Err("ZERO_EVIDENCE_GROUNDING_STATUS_INVALID".to_string());
+    }
     let message_status = match citation_validation.grounding_status.as_str() {
         "unverified" => "unverified",
         "mixed" | "partially_supported" => "mixed",
@@ -4075,6 +4128,9 @@ fn persist_exchange_with_metadata_and_semantic_inner(
     };
     let assistant_trusted_context =
         trusted_context_from_final_audit(&run_manifest.final_grounding_audit);
+    if run_manifest.zero_evidence_audit.applicable && !assistant_trusted_context.is_empty() {
+        return Err("ZERO_EVIDENCE_TRUSTED_CONTEXT_NONEMPTY".to_string());
+    }
     let mut trusted_context_event = trace::QaTraceEvent::new(
         "qa_trusted_context_projection_completed",
         "trusted_context_projection",
@@ -4369,12 +4425,32 @@ pub fn audit_generated_answer_with_semantic(
     metadata: &ProviderRunMetadata,
     semantic: Option<&claim_verification::SemanticVerificationBatch>,
 ) -> AnswerAudit {
-    let structured = metadata.enforce_answer_schema
-        && !context.evidence.is_empty()
-        && metadata.provider != PROVIDER_OFFLINE;
-    let mut verification_report = claim_verification::ClaimVerificationReport {
-        verification_status: "not_run".to_string(),
-        ..claim_verification::ClaimVerificationReport::default()
+    let evidence_availability = zero_evidence::classify_evidence_availability(
+        &context.evidence,
+        context.retrieval_query.planned_required_facet_count,
+        context.retrieval_query.covered_facet_ids.len(),
+    );
+    let zero_evidence = evidence_availability.is_zero_usable();
+    let structured =
+        metadata.enforce_answer_schema && !zero_evidence && metadata.provider != PROVIDER_OFFLINE;
+    let zero_projection =
+        zero_evidence.then(|| zero_evidence::project_zero_evidence_answer(answer));
+    let candidate_answer = zero_projection
+        .as_ref()
+        .map(|projection| projection.markdown.as_str())
+        .unwrap_or(answer);
+    let mut verification_report = if zero_evidence {
+        claim_verification::ClaimVerificationReport {
+            verification_status: "not_requested".to_string(),
+            semantic_status: "not_requested".to_string(),
+            semantic_fallback_reason: String::new(),
+            ..claim_verification::ClaimVerificationReport::default()
+        }
+    } else {
+        claim_verification::ClaimVerificationReport {
+            verification_status: "not_run".to_string(),
+            ..claim_verification::ClaimVerificationReport::default()
+        }
     };
     let mut final_grounding_audit = FinalGroundingAudit {
         audit_status: "not_run".to_string(),
@@ -4383,9 +4459,30 @@ pub fn audit_generated_answer_with_semantic(
     };
     let (answer, citation_repair, citation_validation, structured_answer_error, structured_roles) =
         if natural_answer_v2_enabled() && !structured {
-            let (canonical_answer, initial_repair) =
-                repair_unknown_citations(answer, &context.evidence);
-            let verified_answer = if context.evidence.is_empty() {
+            let (canonical_answer, initial_repair) = if let Some(projection) = &zero_projection {
+                let removed_unknown_ids = projection
+                    .removed_citation_ids
+                    .iter()
+                    .filter(|id| {
+                        !context
+                            .evidence
+                            .iter()
+                            .any(|item| item.id.as_str() == id.as_str())
+                    })
+                    .cloned()
+                    .collect::<Vec<_>>();
+                (
+                    candidate_answer.to_string(),
+                    CitationRepair {
+                        applied: !removed_unknown_ids.is_empty(),
+                        removed_unknown_ids,
+                        normalized_citation_groups: 0,
+                    },
+                )
+            } else {
+                repair_unknown_citations(candidate_answer, &context.evidence)
+            };
+            let verified_answer = if zero_evidence {
                 canonical_answer
             } else {
                 let (repaired, report, audit) =
@@ -4396,19 +4493,23 @@ pub fn audit_generated_answer_with_semantic(
             };
             match natural_answer::render(&verified_answer, &context.evidence) {
                 Ok(result) => {
-                    if !context.evidence.is_empty() {
+                    if !zero_evidence {
                         claim_verification::audit_rendered_visible_answer(
                             &mut final_grounding_audit,
                             &verified_answer,
                             &result.markdown,
                         );
                     }
-                    let validation = apply_final_grounding_audit(
-                        result.validation,
-                        &verification_report,
-                        &final_grounding_audit,
-                        &verified_answer,
-                    );
+                    let validation = if zero_evidence {
+                        result.validation
+                    } else {
+                        apply_final_grounding_audit(
+                            result.validation,
+                            &verification_report,
+                            &final_grounding_audit,
+                            &verified_answer,
+                        )
+                    };
                     (
                         result.markdown,
                         merge_citation_repairs(initial_repair, result.repair),
@@ -4430,7 +4531,7 @@ pub fn audit_generated_answer_with_semantic(
             }
         } else if structured {
             match structured_answer::parse_validate_render(
-                answer,
+                candidate_answer,
                 &context.intent,
                 &context.evidence,
             ) {
@@ -4470,10 +4571,41 @@ pub fn audit_generated_answer_with_semantic(
                 }
             }
         } else {
-            let (canonical_answer, citation_repair) =
-                repair_unknown_citations(answer, &context.evidence);
-            let mut validation = validate_citations(&canonical_answer, &context.evidence);
-            let final_answer = if context.evidence.is_empty() {
+            let (canonical_answer, citation_repair) = if let Some(projection) = &zero_projection {
+                let removed_unknown_ids = projection
+                    .removed_citation_ids
+                    .iter()
+                    .filter(|id| {
+                        !context
+                            .evidence
+                            .iter()
+                            .any(|item| item.id.as_str() == id.as_str())
+                    })
+                    .cloned()
+                    .collect::<Vec<_>>();
+                (
+                    candidate_answer.to_string(),
+                    CitationRepair {
+                        applied: !removed_unknown_ids.is_empty(),
+                        removed_unknown_ids,
+                        normalized_citation_groups: 0,
+                    },
+                )
+            } else {
+                repair_unknown_citations(candidate_answer, &context.evidence)
+            };
+            let mut validation = if zero_evidence {
+                CitationValidation {
+                    grounding_status: "unverified".to_string(),
+                    zero_evidence: true,
+                    syntax_valid: true,
+                    coverage_valid: true,
+                    ..CitationValidation::default()
+                }
+            } else {
+                validate_citations(&canonical_answer, &context.evidence)
+            };
+            let final_answer = if zero_evidence {
                 canonical_answer
             } else {
                 let (repaired, report, audit) =
@@ -4493,27 +4625,38 @@ pub fn audit_generated_answer_with_semantic(
             };
             (final_answer, citation_repair, validation, None, None)
         };
-    let evidence_coverage = context::answer_evidence_coverage(context);
-    let completeness = context::validate_answer_completeness(
-        &context.intent,
+    let trusted_context = trusted_context_from_final_audit(&final_grounding_audit);
+    let zero_evidence_audit = zero_evidence::audit_zero_evidence_answer(
         &answer,
-        citation_validation.claim_count,
-        (natural_answer_v2_enabled()
-            && context.retrieval_query.execution_mode != "direct"
-            && matches!(
-                context.intent.as_str(),
-                INTENT_METHOD_IMPROVEMENT
-                    | INTENT_SOLUTION_SEARCH
-                    | INTENT_PROBLEM_MODELING
-                    | INTENT_EXPLORATORY
-            ))
-            || (!natural_answer_v2_enabled()
-                && metadata.enforce_answer_schema
-                && !context.evidence.is_empty()
-                && metadata.provider != PROVIDER_OFFLINE),
-        structured_roles.as_deref(),
-        Some(&evidence_coverage),
+        &evidence_availability,
+        citation_validation.unknown_ids.len(),
+        &trusted_context,
+        zero_projection.as_ref(),
     );
+    let completeness = if zero_evidence {
+        zero_evidence::validate_zero_evidence_completeness(&zero_evidence_audit)
+    } else {
+        let evidence_coverage = context::answer_evidence_coverage(context);
+        context::validate_answer_completeness(
+            &context.intent,
+            &answer,
+            citation_validation.claim_count,
+            (natural_answer_v2_enabled()
+                && context.retrieval_query.execution_mode != "direct"
+                && matches!(
+                    context.intent.as_str(),
+                    INTENT_METHOD_IMPROVEMENT
+                        | INTENT_SOLUTION_SEARCH
+                        | INTENT_PROBLEM_MODELING
+                        | INTENT_EXPLORATORY
+                ))
+                || (!natural_answer_v2_enabled()
+                    && metadata.enforce_answer_schema
+                    && metadata.provider != PROVIDER_OFFLINE),
+            structured_roles.as_deref(),
+            Some(&evidence_coverage),
+        )
+    };
     let envelope = context::build_prompt_envelope(context);
     let mut run_manifest = context::build_run_manifest(
         context,
@@ -4547,6 +4690,7 @@ pub fn audit_generated_answer_with_semantic(
     run_manifest.repair_projection_audit = verification_report.repair_projection_audit;
     run_manifest.claim_verifications = verification_report.claims;
     run_manifest.final_grounding_audit = final_grounding_audit.clone();
+    run_manifest.zero_evidence_audit = zero_evidence_audit;
     if final_grounding_audit.schema_version == "final-grounding-audit-v2" {
         let mut visible_projection_event = trace::QaTraceEvent::new(
             if final_grounding_audit.visible_projection_valid {
@@ -4612,6 +4756,19 @@ pub fn run_semantic_verification(
     budget_guard: &LlmBudgetGuard,
     cancelled: &AtomicBool,
 ) -> Result<SemanticVerificationBatch, String> {
+    if !evidence
+        .iter()
+        .any(zero_evidence::support_eligible_evidence)
+    {
+        return Ok(SemanticVerificationBatch {
+            version: claim_verification::SEMANTIC_VERIFIER_VERSION.to_string(),
+            provider: provider_descriptor(&settings.answer_provider).id,
+            model: model.to_string(),
+            status: "not_requested".to_string(),
+            fallback_reason: String::new(),
+            ..SemanticVerificationBatch::default()
+        });
+    }
     let descriptor = provider_descriptor(&settings.answer_provider);
     if !descriptor.capabilities.semantic_verification {
         return Ok(SemanticVerificationBatch {
@@ -6148,11 +6305,102 @@ mod tests {
         assert_eq!(result.user_message.status, "unverified");
         assert_eq!(result.assistant_message.status, "unverified");
         assert_eq!(result.citation_validation.grounding_status, "unverified");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v23");
+        assert_eq!(result.run_manifest.prompt_version, "qa-prompt-v17");
+        assert!(result.run_manifest.zero_evidence_audit.applicable);
+        assert_eq!(result.run_manifest.zero_evidence_audit.status, "succeeded");
+        assert_eq!(result.run_manifest.zero_evidence_audit.notice_count, 1);
+        assert!(result.run_manifest.answer_completeness.complete);
+        assert_eq!(
+            result.run_manifest.answer_completeness.minimum_claim_count,
+            0
+        );
+        assert_eq!(
+            result.run_manifest.semantic_verification_status,
+            "not_requested"
+        );
+        assert!(result
+            .run_manifest
+            .semantic_verification_fallback_reason
+            .is_empty());
+        let (stored_status, stored_trusted_context): (String, String) = connection
+            .query_row(
+                "SELECT status, trusted_context FROM chat_messages WHERE id=?1",
+                [&result.assistant_message.id],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )
+            .unwrap();
+        assert_eq!(stored_status, "unverified");
+        assert!(stored_trusted_context.is_empty());
         assert!(
             conversation_history(&connection, root.path(), Some("unverified-session"))
                 .unwrap()
                 .is_empty()
         );
+    }
+
+    #[test]
+    fn graph_only_answer_uses_zero_evidence_audit_without_fake_provenance() {
+        let (root, connection) = test_db();
+        let mut context = prepare_question(&connection, root.path(), "unknown subject", 4).unwrap();
+        let mut graph = evidence("E1");
+        graph.kind = "graph".to_string();
+        graph.locator = None;
+        context.evidence = vec![graph];
+
+        let audit = audit_generated_answer(
+            &context,
+            "假设性分析 [E1]\n\n## 参考证据\n\n- [伪来源](evidence:E1)",
+            &ProviderRunMetadata {
+                provider: PROVIDER_CODEX.to_string(),
+                model_requested: "fixture".to_string(),
+                model_resolved: "fixture".to_string(),
+                ..ProviderRunMetadata::default()
+            },
+        );
+
+        assert_eq!(
+            audit.run_manifest.zero_evidence_audit.availability_mode,
+            "zero_usable_evidence"
+        );
+        assert_eq!(
+            audit
+                .run_manifest
+                .zero_evidence_audit
+                .graph_only_evidence_count,
+            1
+        );
+        assert!(audit.run_manifest.zero_evidence_audit.complete);
+        assert_eq!(audit.citation_validation.grounding_status, "unverified");
+        assert!(!audit.answer.contains("[E1]"));
+        assert!(!audit.answer.contains("evidence:E1"));
+        assert!(!audit.answer.contains("## 参考证据"));
+    }
+
+    #[test]
+    fn zero_usable_evidence_skips_semantic_reservation_and_fallback_reason() {
+        let settings = LunaSettings {
+            answer_provider: PROVIDER_CODEX.to_string(),
+            ..LunaSettings::default()
+        };
+        let guard = LlmBudgetGuard::new(routing_policy("direct"));
+        let batch = run_semantic_verification(
+            &settings,
+            "fixture",
+            "low",
+            "一般知识参考。",
+            &[],
+            &guard,
+            &AtomicBool::new(false),
+        )
+        .unwrap();
+
+        assert_eq!(batch.status, "not_requested");
+        assert!(batch.fallback_reason.is_empty());
+        let usage = guard.usage();
+        assert_eq!(usage.calls_used, 0);
+        assert_eq!(usage.token_cost_used, 0);
+        assert!(usage.stages.is_empty());
     }
 
     #[test]
@@ -6267,7 +6515,7 @@ mod tests {
         .unwrap();
         assert!(result.run_manifest.answer_completeness.complete);
         assert!(!result.run_manifest.answer_completeness.applicable);
-        assert_eq!(result.run_manifest.schema_version, "qa-run-v22");
+        assert_eq!(result.run_manifest.schema_version, "qa-run-v23");
         assert_eq!(result.run_manifest.answer_format, "natural-markdown-v2");
         assert_eq!(result.run_manifest.planner_status, "not_requested");
         assert_eq!(result.run_manifest.resolver_status, "succeeded");
@@ -6642,7 +6890,7 @@ mod tests {
         );
         assert_eq!(audit.run_manifest.verification_model, "fixture-nli");
         assert_eq!(audit.run_manifest.semantic_verification_latency_ms, 17);
-        assert_eq!(audit.run_manifest.schema_version, "qa-run-v22");
+        assert_eq!(audit.run_manifest.schema_version, "qa-run-v23");
     }
 
     #[test]

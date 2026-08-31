@@ -751,46 +751,7 @@ pub fn validate_citations(answer: &str, evidence: &[EvidenceItem]) -> CitationVa
 }
 
 pub fn normalize_unverified_answer(answer: &str) -> String {
-    let mut body = answer.trim().to_string();
-    let mut search_from = 0;
-    while let Some(relative_start) = body[search_from..].find("[E") {
-        let start = search_from + relative_start;
-        let suffix = &body[start + 2..];
-        let digits = suffix
-            .chars()
-            .take_while(|character| character.is_ascii_digit())
-            .count();
-        if digits == 0 || suffix.chars().nth(digits) != Some(']') {
-            search_from = start + 2;
-            continue;
-        }
-        body.replace_range(start..start + digits + 3, "[无来源]");
-        search_from = start + "[无来源]".len();
-    }
-    search_from = 0;
-    while let Some(relative_start) = body[search_from..].find("[[") {
-        let start = search_from + relative_start;
-        let Some(relative_end) = body[start + 2..].find("]]") else {
-            search_from = start + 2;
-            continue;
-        };
-        let end = start + 2 + relative_end;
-        let label = body[start + 2..end]
-            .split_once('|')
-            .map(|(_, label)| label)
-            .unwrap_or(&body[start + 2..end])
-            .to_string();
-        let replacement = format!("{label}（无来源）");
-        body.replace_range(start..end + 2, &replacement);
-        search_from = start + replacement.len();
-    }
-    if body.starts_with(NO_EVIDENCE_NOTICE) {
-        body
-    } else if body.is_empty() {
-        NO_EVIDENCE_NOTICE.to_string()
-    } else {
-        format!("{NO_EVIDENCE_NOTICE}\n\n{body}")
-    }
+    super::zero_evidence::project_zero_evidence_answer(answer).markdown
 }
 
 #[cfg(test)]
