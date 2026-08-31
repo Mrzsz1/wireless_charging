@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "p1-4r-regression-attribution-v1",
+  "baselineSha": "a863b5a7030aa9e53aad4e0aa7aa87d52bd47d2a",
+  "headSha": "14e5479ba47daa1cf1081f9e2f46785ec04db7ab",
+  "comparisonMethod": {
+    "exactTestSelection": true,
+    "requiredRunningTestCount": 1,
+    "baselineDetachedWorktree": true,
+    "fullSuiteRerun": false
+  },
+  "tests": [
+    {
+      "name": "qa::tests::structured_unknown_evidence_remains_a_citation_failure",
+      "baselineStatus": "fail",
+      "headStatus": "fail",
+      "baselineSignature": "assertion_failed_error_contains_E99",
+      "headSignature": "assertion_failed_error_contains_E99",
+      "baselineRunningTestCount": 1,
+      "headRunningTestCount": 1,
+      "classification": "pre_existing"
+    },
+    {
+      "name": "qa::tests::rejected_answer_audit_round_trips_with_failed_exchange",
+      "baselineStatus": "fail",
+      "headStatus": "fail",
+      "baselineSignature": "unknown_ids_actual_empty_expected_E99",
+      "headSignature": "unknown_ids_actual_empty_expected_E99",
+      "baselineRunningTestCount": 1,
+      "headRunningTestCount": 1,
+      "classification": "pre_existing"
+    },
+    {
+      "name": "tests::p3_gold_questions_recall_expected_wiki_evidence",
+      "baselineStatus": "fail",
+      "headStatus": "fail",
+      "baselineSignature": "solve-mobile-known-trajectory_missing_primary_paper_src-wu-charging-on-the-move",
+      "headSignature": "solve-mobile-known-trajectory_missing_primary_paper_src-wu-charging-on-the-move",
+      "baselineRunningTestCount": 1,
+      "headRunningTestCount": 1,
+      "baselineMetrics": {
+        "recallAt5": 0.503,
+        "recallAt10": 0.713,
+        "recallAt20": 0.733,
+        "mrrObservedRange": [0.603, 0.653],
+        "ndcgAt10ObservedRange": [0.563, 0.577],
+        "requiredKindCoverage": 1.0,
+        "pairCoverage": 0.9
+      },
+      "headMetrics": {
+        "recallAt5": 0.503,
+        "recallAt10": 0.713,
+        "recallAt20": 0.733,
+        "mrr": 0.603,
+        "ndcgAt10": 0.563,
+        "requiredKindCoverage": 1.0,
+        "pairCoverage": 0.9
+      },
+      "failureQueryId": "solve-mobile-known-trajectory",
+      "missingExpectedPaperSource": "sources/src-wu-charging-on-the-move",
+      "observedEvidenceIds": [
+        "sources/src-honma2026-infinite-drive-dwpt",
+        "syntheses/syn-mobility-online-service-scheduling",
+        "methods/mtd-tunable-power-mobile-traj"
+      ],
+      "metricProcessVarianceObserved": true,
+      "classification": "pre_existing"
+    }
+  ],
+  "intermediateRegressionRepair": {
+    "detectedAtSha": "97e5090",
+    "symptom": "builtin_vocabulary_equal_weight_expansion_reduced_recall_at_10_and_pair_coverage",
+    "intermediateRecallAt10": 0.688,
+    "intermediatePairCoverage": 0.8,
+    "resolvedAtSha": "14e5479ba47daa1cf1081f9e2f46785ec04db7ab",
+    "repairScope": "research_query_context_builtin_term_expansion_only",
+    "retrieverCoreChanged": false,
+    "rerankerChanged": false,
+    "thresholdChanged": false
+  },
+  "p14rRegressionFound": false
+}
