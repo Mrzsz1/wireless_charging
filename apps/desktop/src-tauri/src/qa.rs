@@ -32,6 +32,7 @@ mod session;
 mod source_resolver;
 mod state_mutation;
 mod state_reducer;
+mod state_vocabulary;
 mod structured_answer;
 pub(crate) mod trace;
 mod understanding;
