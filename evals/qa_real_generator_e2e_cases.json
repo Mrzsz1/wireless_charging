@@ -1,9 +1,9 @@
 {
   "schemaVersion": "qa-real-generator-e2e-cases-v1",
   "datasetRole": "development_regression_synthetic",
-  "version": "qa-real-generator-e2e-2026-08-29-v1",
-  "caseCount": 5,
-  "casesSha256": "31ba30cae3a081cb818f6e3f76ba0f3bba11147134591877cd699779c84e4eb9",
+  "version": "real-generator-e2e-v1.4.0",
+  "caseCount": 6,
+  "casesSha256": "d801d7152d711741cc2a25f102160e9e9e5e7323b37db47dc7ba07d746349e3e",
   "cases": [
     {
       "id": "real-direct-rose",
@@ -21,7 +21,9 @@
         "constraints": [],
         "excludedMethods": [],
         "integerParameters": {}
-      }
+      },
+      "customStateFields": [],
+      "expectedActiveVocabularyLabels": []
     },
     {
       "id": "real-research-improvement",
@@ -39,7 +41,9 @@
         "constraints": [],
         "excludedMethods": [],
         "integerParameters": {}
-      }
+      },
+      "customStateFields": [],
+      "expectedActiveVocabularyLabels": []
     },
     {
       "id": "real-exploratory-multi-charger",
@@ -60,7 +64,9 @@
         ],
         "excludedMethods": [],
         "integerParameters": {}
-      }
+      },
+      "customStateFields": [],
+      "expectedActiveVocabularyLabels": []
     },
     {
       "id": "real-multi-turn-state",
@@ -93,7 +99,9 @@
         "integerParameters": {
           "mobile_charger_count": 2
         }
-      }
+      },
+      "customStateFields": [],
+      "expectedActiveVocabularyLabels": []
     },
     {
       "id": "real-zero-evidence",
@@ -111,7 +119,45 @@
         "constraints": [],
         "excludedMethods": [],
         "integerParameters": {}
-      }
+      },
+      "customStateFields": [],
+      "expectedActiveVocabularyLabels": []
+    },
+    {
+      "id": "real-exploratory-custom-temperature",
+      "category": "exploratory",
+      "source": "development-custom",
+      "turns": [
+        {
+          "question": "可以从哪些方向研究环境温度过高时的无线充电调度安全与效率？"
+        }
+      ],
+      "expectedExecutionMode": "exploratory",
+      "zeroEvidenceExpected": false,
+      "expectedResearchState": {
+        "objectives": [],
+        "constraints": [],
+        "excludedMethods": [],
+        "integerParameters": {}
+      },
+      "customStateFields": [
+        {
+          "kind": "constraint",
+          "label": "高温环境约束",
+          "description": "环境温度过高时必须考虑充电效率和电池安全。",
+          "aliases": [
+            "高温环境",
+            "温度过高"
+          ],
+          "examples": [
+            "设备需要在极端高温环境工作"
+          ],
+          "parameterSpec": null
+        }
+      ],
+      "expectedActiveVocabularyLabels": [
+        "高温环境约束"
+      ]
     }
   ]
 }

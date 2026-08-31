@@ -54,6 +54,10 @@ pub struct RealE2eCase {
     pub zero_evidence_expected: bool,
     #[serde(default)]
     pub expected_research_state: ExpectedResearchState,
+    #[serde(default)]
+    pub custom_state_fields: Vec<CustomStateFieldInput>,
+    #[serde(default)]
+    pub expected_active_vocabulary_labels: Vec<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -80,6 +84,8 @@ pub struct RealE2eCaseResult {
     #[serde(rename = "final")]
     pub final_result: Option<GroundingObservation>,
     pub state_valid: bool,
+    pub state_vocabulary_revision: u64,
+    pub active_vocabulary_labels: Vec<String>,
     pub errors: Vec<String>,
 }
 
@@ -104,6 +110,8 @@ pub struct GroundingObservation {
     pub answer_format: String,
     pub manifest_schema: String,
     pub execution_mode: String,
+    pub resolver_status: String,
+    pub resolver_fallback: bool,
     pub generator_stage_observed: bool,
     pub generator_budget_rejected: bool,
     pub routing_llm_call_budget: usize,
@@ -285,8 +293,8 @@ pub fn load_suite(path: &Path) -> Result<RealE2eSuite, String> {
         .map_err(|error| format!("QA_REAL_E2E_CASES_INVALID: {error}"))?;
     if suite.schema_version != CASE_SCHEMA_VERSION
         || suite.dataset_role != "development_regression_synthetic"
-        || suite.case_count != 5
-        || suite.cases.len() != 5
+        || suite.case_count != suite.cases.len()
+        || suite.cases.len() < 5
         || cases_sha256(&suite.cases)? != suite.cases_sha256
     {
         return Err("QA_REAL_E2E_CASES_INVALID: schema_role_count_or_hash".to_string());
@@ -301,7 +309,7 @@ pub fn load_suite(path: &Path) -> Result<RealE2eSuite, String> {
             || !ids.insert(case.id.clone())
             || !matches!(
                 case.source.as_str(),
-                "development" | "regression" | "synthetic"
+                "development" | "development-custom" | "regression" | "synthetic"
             )
             || !(1..=3).contains(&case.turns.len())
             || case
@@ -528,6 +536,8 @@ fn observation_from_parts(
         answer_format: manifest.answer_format.clone(),
         manifest_schema: manifest.schema_version.clone(),
         execution_mode: manifest.execution_mode.clone(),
+        resolver_status: retrieval_query.resolver_status.clone(),
+        resolver_fallback: retrieval_query.resolver_fallback,
         generator_stage_observed: manifest
             .routing_llm_stages
             .iter()
@@ -643,6 +653,11 @@ fn validate_observation(case: &RealE2eCase, observed: &GroundingObservation) -> 
         }
     };
     require(observed.answer_non_empty, "empty_final_output");
+    require(
+        observed.resolver_status == "succeeded",
+        "resolver_status_not_succeeded",
+    );
+    require(!observed.resolver_fallback, "resolver_fallback_present");
     require(
         observed.provider == PROVIDER_CODEX,
         "generator_provider_not_codex",
@@ -781,6 +796,7 @@ fn validate_state(case: &RealE2eCase, context: &QuestionContext) -> bool {
         && expected.constraints.is_empty()
         && expected.excluded_methods.is_empty()
         && expected.integer_parameters.is_empty()
+        && case.expected_active_vocabulary_labels.is_empty()
     {
         return true;
     }
@@ -802,10 +818,22 @@ fn validate_state(case: &RealE2eCase, context: &QuestionContext) -> bool {
             matches!(parameter.value, state_mutation::ParameterValue::Integer(value) if value == *expected)
         })
     });
+    let vocabulary_labels = case
+        .expected_active_vocabulary_labels
+        .iter()
+        .all(|expected| {
+            context
+                .retrieval_query
+                .research_query_context
+                .active_vocabulary_fields
+                .iter()
+                .any(|field| &field.label == expected)
+        });
     objectives
         && constraints
         && excluded
         && parameters
+        && vocabulary_labels
         && context.retrieval_query.parameter_state_corruption_count == 0
 }
 
@@ -929,6 +957,9 @@ pub fn run_files(
     }
 
     for case in selected_cases {
+        for input in &case.custom_state_fields {
+            create_custom_state_field(&connection, &repository_id(repository), input.clone())?;
+        }
         let session_id = Uuid::new_v4().to_string();
         let mut result = RealE2eCaseResult {
             id: case.id.clone(),
@@ -1069,6 +1100,15 @@ pub fn run_files(
                     result.errors.push("research_state_mismatch".to_string());
                 }
                 result.state_valid &= state_valid;
+                result.state_vocabulary_revision =
+                    context.retrieval_query.state_vocabulary_revision;
+                result.active_vocabulary_labels = context
+                    .retrieval_query
+                    .research_query_context
+                    .active_vocabulary_fields
+                    .iter()
+                    .map(|field| field.label.clone())
+                    .collect();
             }
             trace_observation(
                 "qa_persist_completed",
@@ -1176,6 +1216,8 @@ mod tests {
             expected_execution_mode: String::new(),
             zero_evidence_expected: category == "zero_evidence",
             expected_research_state: ExpectedResearchState::default(),
+            custom_state_fields: Vec::new(),
+            expected_active_vocabulary_labels: Vec::new(),
         }
     }
 
@@ -1192,6 +1234,8 @@ mod tests {
             } else {
                 "direct".to_string()
             },
+            resolver_status: "succeeded".to_string(),
+            resolver_fallback: false,
             generator_stage_observed: true,
             routing_llm_call_budget: if planner_required { 4 } else { 3 },
             routing_llm_calls_used: if planner_required { 4 } else { 3 },
@@ -1347,6 +1391,7 @@ mod tests {
             answer_format: "natural-markdown-v2".to_string(),
             manifest_schema: "qa-run-v22".to_string(),
             execution_mode: "exploratory".to_string(),
+            resolver_status: "succeeded".to_string(),
             generator_stage_observed: true,
             citation_valid: true,
             answer_complete: true,
@@ -1525,6 +1570,7 @@ mod tests {
             answer_format: "natural-markdown-v2".to_string(),
             manifest_schema: "qa-run-v22".to_string(),
             execution_mode: "direct".to_string(),
+            resolver_status: "succeeded".to_string(),
             generator_stage_observed: true,
             evidence_count: 1,
             evidence_selected_count: 1,
@@ -1605,15 +1651,21 @@ mod tests {
     }
 
     #[test]
-    fn bundled_suite_is_public_five_case_contract() {
+    fn bundled_suite_includes_development_custom_vocabulary_case() {
         let repository = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..");
         let suite = load_suite(&repository.join("evals/qa_real_generator_e2e_cases.json"))
             .expect("bundled real-generator suite must remain valid");
-        assert_eq!(suite.case_count, 5);
+        assert_eq!(suite.case_count, 6);
         assert!(suite.cases.iter().all(|case| matches!(
             case.source.as_str(),
-            "development" | "regression" | "synthetic"
+            "development" | "development-custom" | "regression" | "synthetic"
         )));
+        assert!(suite
+            .cases
+            .iter()
+            .any(|case| case.id == "real-exploratory-custom-temperature"
+                && !case.custom_state_fields.is_empty()
+                && case.expected_active_vocabulary_labels == ["高温环境约束".to_string()]));
     }
 
     #[test]

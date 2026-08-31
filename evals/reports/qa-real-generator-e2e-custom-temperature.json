@@ -1,0 +1,523 @@
+{
+  "schemaVersion": "qa-real-generator-e2e-report-v5",
+  "coreVersion": "qa-production-core-v1",
+  "datasetVersion": "real-generator-e2e-v1.4.0",
+  "datasetSha256": "d801d7152d711741cc2a25f102160e9e9e5e7323b37db47dc7ba07d746349e3e",
+  "caseCount": 1,
+  "passedCount": 1,
+  "generatorInvocationCount": 1,
+  "provider": "codex-subscription",
+  "models": [
+    "gpt-5.6-luna"
+  ],
+  "realProviderMeasured": true,
+  "generatorFallbackCount": 0,
+  "generatorBudgetRejectionCount": 0,
+  "prePersistInvalidCitationCount": 0,
+  "finalInvalidCitationCount": 0,
+  "semanticSucceededCount": 1,
+  "semanticUnavailableCount": 0,
+  "scope": "single_case",
+  "executedScopePassed": true,
+  "fullSuiteEvaluated": false,
+  "releaseEligible": false,
+  "passed": true,
+  "results": [
+    {
+      "id": "real-exploratory-custom-temperature",
+      "category": "exploratory",
+      "passed": true,
+      "turnCount": 1,
+      "persistedTurnCount": 1,
+      "persisted": true,
+      "prePersist": {
+        "answerNonEmpty": true,
+        "provider": "codex-subscription",
+        "model": "gpt-5.6-luna",
+        "answerFormat": "natural-markdown-v2",
+        "manifestSchema": "qa-run-v22",
+        "executionMode": "exploratory",
+        "resolverStatus": "succeeded",
+        "resolverFallback": false,
+        "generatorStageObserved": true,
+        "generatorBudgetRejected": false,
+        "routingLlmCallBudget": 5,
+        "routingBudgetRejectionCount": 0,
+        "routingBudgetRejections": [],
+        "routingLlmCallsUsed": 4,
+        "routingTokenCostUsed": 12750,
+        "routingTokenCostCeiling": 32000,
+        "evidenceCount": 14,
+        "evidenceSelectedCount": 14,
+        "citationValid": true,
+        "unknownCitationCount": 0,
+        "groundingStatus": "mixed",
+        "verificationStatus": "succeeded",
+        "answerComplete": true,
+        "draftClaimCount": 9,
+        "draftSupportedClaimCount": 3,
+        "draftPartiallySupportedClaimCount": 0,
+        "draftContradictedClaimCount": 0,
+        "draftNotVerifiableClaimCount": 6,
+        "draftResearchSuggestionCount": 0,
+        "draftRepairedClaimCount": 6,
+        "draftUncitedKnowledgeFactCount": 4,
+        "draftUnverifiedClaimCount": 0,
+        "repairProjectionStatus": "succeeded",
+        "repairProjectionErrorCode": "",
+        "repairProjectionOperationCount": 9,
+        "repairProjectionOperations": [
+          {
+            "claimId": "C1",
+            "sourceStart": 32,
+            "sourceEnd": 236,
+            "originalTextSha256": "2cc28ebb7505680bfb9ae53276e21eac9a4617b5cf11e34a9cd48efbc77150a9",
+            "replacementKind": "replace_not_verifiable"
+          },
+          {
+            "claimId": "C2",
+            "sourceStart": 237,
+            "sourceEnd": 356,
+            "originalTextSha256": "7c74e2cbc17eedf0d946dc57163560f7a9c3200190b887fcd4fe60200fea61df",
+            "replacementKind": "replace_not_verifiable"
+          },
+          {
+            "claimId": "C3",
+            "sourceStart": 356,
+            "sourceEnd": 414,
+            "originalTextSha256": "111b9aaf27b2d61cf9fa142998a594e3133f2556872660da5cb1d321c6b17c9a",
+            "replacementKind": "preserve_supported"
+          },
+          {
+            "claimId": "C4",
+            "sourceStart": 415,
+            "sourceEnd": 562,
+            "originalTextSha256": "70b83114c21ef3e2c7518711e15760c3bbffdf00e00676169e245243b8075806",
+            "replacementKind": "replace_not_verifiable"
+          },
+          {
+            "claimId": "C5",
+            "sourceStart": 571,
+            "sourceEnd": 648,
+            "originalTextSha256": "243ad2e006bfa20677d22628033a4258afb6f6aa590bb8dbf656d8fc51f301cf",
+            "replacementKind": "replace_not_verifiable"
+          },
+          {
+            "claimId": "C6",
+            "sourceStart": 651,
+            "sourceEnd": 691,
+            "originalTextSha256": "05633c6ab62f3f7cf3fca7294f384f333c7cc022002b4c26c41a9579e0b764b9",
+            "replacementKind": "preserve_supported"
+          },
+          {
+            "claimId": "C7",
+            "sourceStart": 697,
+            "sourceEnd": 759,
+            "originalTextSha256": "2e6ffd952a973e7f05d2805a66a875dce7e53c57bd9f6fffe4c8df73db699d20",
+            "replacementKind": "replace_not_verifiable"
+          },
+          {
+            "claimId": "C8",
+            "sourceStart": 762,
+            "sourceEnd": 859,
+            "originalTextSha256": "8833f11d8350faf1be12a4eccde18a7b3dd03871e79b1442af424be98924a89c",
+            "replacementKind": "preserve_supported"
+          },
+          {
+            "claimId": "C9",
+            "sourceStart": 861,
+            "sourceEnd": 990,
+            "originalTextSha256": "45378a56c454451d0b8e0fcc1a2d86813b777fbcc811cbe144a783e72d5de3fd",
+            "replacementKind": "replace_not_verifiable"
+          }
+        ],
+        "finalFactualClaimCount": 3,
+        "finalSupportedClaimCount": 3,
+        "finalUnsupportedClaimCount": 0,
+        "finalCitedClaimCount": 3,
+        "finalUnknownCitationCount": 0,
+        "finalCitationCoverage": 1.0,
+        "finalVisibleProjectionValid": true,
+        "semanticStatus": "succeeded",
+        "semanticFallbackReason": "",
+        "plannerAttempted": true,
+        "plannerUsed": true,
+        "plannerStatus": "succeeded",
+        "plannerFallback": false,
+        "plannerFallbackReason": "",
+        "plannerLatencyMs": 22557,
+        "plannerStageObserved": true,
+        "plannerBudgetRejected": false,
+        "queryPlanVersion": "qa-retrieval-contract-v2",
+        "plannedFacetCount": 7,
+        "plannedRequiredFacetCount": 7,
+        "plannedSearchQueryCount": 13,
+        "requestedKindCount": 3,
+        "mustAttemptKindCount": 3,
+        "retrievalRoundCount": 1,
+        "retrievalStopReason": "query_budget_exhausted",
+        "rerankerProvider": "cross-encoder-research-v1",
+        "rerankerFallback": false,
+        "draftClaims": [
+          {
+            "claimId": "C1",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 1,
+            "reasonCode": "semantic_nli_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "2cc28ebb7505680bfb9ae53276e21eac9a4617b5cf11e34a9cd48efbc77150a9"
+          },
+          {
+            "claimId": "C2",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 0,
+            "reasonCode": "mapping_gate_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "7c74e2cbc17eedf0d946dc57163560f7a9c3200190b887fcd4fe60200fea61df"
+          },
+          {
+            "claimId": "C3",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "supported",
+            "evidenceIdCount": 1,
+            "reasonCode": "semantic_nli_supported",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "111b9aaf27b2d61cf9fa142998a594e3133f2556872660da5cb1d321c6b17c9a"
+          },
+          {
+            "claimId": "C4",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 1,
+            "reasonCode": "semantic_nli_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "70b83114c21ef3e2c7518711e15760c3bbffdf00e00676169e245243b8075806"
+          },
+          {
+            "claimId": "C5",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 0,
+            "reasonCode": "mapping_gate_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "243ad2e006bfa20677d22628033a4258afb6f6aa590bb8dbf656d8fc51f301cf"
+          },
+          {
+            "claimId": "C6",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "supported",
+            "evidenceIdCount": 1,
+            "reasonCode": "semantic_nli_supported",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "05633c6ab62f3f7cf3fca7294f384f333c7cc022002b4c26c41a9579e0b764b9"
+          },
+          {
+            "claimId": "C7",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 0,
+            "reasonCode": "mapping_gate_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "2e6ffd952a973e7f05d2805a66a875dce7e53c57bd9f6fffe4c8df73db699d20"
+          },
+          {
+            "claimId": "C8",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "supported",
+            "evidenceIdCount": 1,
+            "reasonCode": "semantic_nli_supported",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "8833f11d8350faf1be12a4eccde18a7b3dd03871e79b1442af424be98924a89c"
+          },
+          {
+            "claimId": "C9",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 0,
+            "reasonCode": "mapping_gate_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "45378a56c454451d0b8e0fcc1a2d86813b777fbcc811cbe144a783e72d5de3fd"
+          }
+        ],
+        "finalClaims": [
+          {
+            "claimId": "C1",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "supported",
+            "evidenceIdCount": 1,
+            "reasonCode": "final_exact_supported_draft_mapping_supported",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "111b9aaf27b2d61cf9fa142998a594e3133f2556872660da5cb1d321c6b17c9a"
+          },
+          {
+            "claimId": "C2",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "supported",
+            "evidenceIdCount": 1,
+            "reasonCode": "final_exact_supported_draft_mapping_supported",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "d85d3e3e312859482f48b09393ae0d601a73fceee4dc747b378c92da80395d4f"
+          },
+          {
+            "claimId": "C3",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "supported",
+            "evidenceIdCount": 1,
+            "reasonCode": "final_exact_supported_draft_mapping_supported",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "687b6c4e1b3a97306800af789ec382f36a4c33a7cd9b54e064a8280d6db46be3"
+          }
+        ]
+      },
+      "final": {
+        "answerNonEmpty": true,
+        "provider": "codex-subscription",
+        "model": "gpt-5.6-luna",
+        "answerFormat": "natural-markdown-v2",
+        "manifestSchema": "qa-run-v22",
+        "executionMode": "exploratory",
+        "resolverStatus": "succeeded",
+        "resolverFallback": false,
+        "generatorStageObserved": true,
+        "generatorBudgetRejected": false,
+        "routingLlmCallBudget": 5,
+        "routingBudgetRejectionCount": 0,
+        "routingBudgetRejections": [],
+        "routingLlmCallsUsed": 4,
+        "routingTokenCostUsed": 12750,
+        "routingTokenCostCeiling": 32000,
+        "evidenceCount": 14,
+        "evidenceSelectedCount": 14,
+        "citationValid": true,
+        "unknownCitationCount": 0,
+        "groundingStatus": "mixed",
+        "verificationStatus": "succeeded",
+        "answerComplete": true,
+        "draftClaimCount": 9,
+        "draftSupportedClaimCount": 3,
+        "draftPartiallySupportedClaimCount": 0,
+        "draftContradictedClaimCount": 0,
+        "draftNotVerifiableClaimCount": 6,
+        "draftResearchSuggestionCount": 0,
+        "draftRepairedClaimCount": 6,
+        "draftUncitedKnowledgeFactCount": 4,
+        "draftUnverifiedClaimCount": 0,
+        "repairProjectionStatus": "succeeded",
+        "repairProjectionErrorCode": "",
+        "repairProjectionOperationCount": 9,
+        "repairProjectionOperations": [
+          {
+            "claimId": "C1",
+            "sourceStart": 32,
+            "sourceEnd": 236,
+            "originalTextSha256": "2cc28ebb7505680bfb9ae53276e21eac9a4617b5cf11e34a9cd48efbc77150a9",
+            "replacementKind": "replace_not_verifiable"
+          },
+          {
+            "claimId": "C2",
+            "sourceStart": 237,
+            "sourceEnd": 356,
+            "originalTextSha256": "7c74e2cbc17eedf0d946dc57163560f7a9c3200190b887fcd4fe60200fea61df",
+            "replacementKind": "replace_not_verifiable"
+          },
+          {
+            "claimId": "C3",
+            "sourceStart": 356,
+            "sourceEnd": 414,
+            "originalTextSha256": "111b9aaf27b2d61cf9fa142998a594e3133f2556872660da5cb1d321c6b17c9a",
+            "replacementKind": "preserve_supported"
+          },
+          {
+            "claimId": "C4",
+            "sourceStart": 415,
+            "sourceEnd": 562,
+            "originalTextSha256": "70b83114c21ef3e2c7518711e15760c3bbffdf00e00676169e245243b8075806",
+            "replacementKind": "replace_not_verifiable"
+          },
+          {
+            "claimId": "C5",
+            "sourceStart": 571,
+            "sourceEnd": 648,
+            "originalTextSha256": "243ad2e006bfa20677d22628033a4258afb6f6aa590bb8dbf656d8fc51f301cf",
+            "replacementKind": "replace_not_verifiable"
+          },
+          {
+            "claimId": "C6",
+            "sourceStart": 651,
+            "sourceEnd": 691,
+            "originalTextSha256": "05633c6ab62f3f7cf3fca7294f384f333c7cc022002b4c26c41a9579e0b764b9",
+            "replacementKind": "preserve_supported"
+          },
+          {
+            "claimId": "C7",
+            "sourceStart": 697,
+            "sourceEnd": 759,
+            "originalTextSha256": "2e6ffd952a973e7f05d2805a66a875dce7e53c57bd9f6fffe4c8df73db699d20",
+            "replacementKind": "replace_not_verifiable"
+          },
+          {
+            "claimId": "C8",
+            "sourceStart": 762,
+            "sourceEnd": 859,
+            "originalTextSha256": "8833f11d8350faf1be12a4eccde18a7b3dd03871e79b1442af424be98924a89c",
+            "replacementKind": "preserve_supported"
+          },
+          {
+            "claimId": "C9",
+            "sourceStart": 861,
+            "sourceEnd": 990,
+            "originalTextSha256": "45378a56c454451d0b8e0fcc1a2d86813b777fbcc811cbe144a783e72d5de3fd",
+            "replacementKind": "replace_not_verifiable"
+          }
+        ],
+        "finalFactualClaimCount": 3,
+        "finalSupportedClaimCount": 3,
+        "finalUnsupportedClaimCount": 0,
+        "finalCitedClaimCount": 3,
+        "finalUnknownCitationCount": 0,
+        "finalCitationCoverage": 1.0,
+        "finalVisibleProjectionValid": true,
+        "semanticStatus": "succeeded",
+        "semanticFallbackReason": "",
+        "plannerAttempted": true,
+        "plannerUsed": true,
+        "plannerStatus": "succeeded",
+        "plannerFallback": false,
+        "plannerFallbackReason": "",
+        "plannerLatencyMs": 22557,
+        "plannerStageObserved": true,
+        "plannerBudgetRejected": false,
+        "queryPlanVersion": "qa-retrieval-contract-v2",
+        "plannedFacetCount": 7,
+        "plannedRequiredFacetCount": 7,
+        "plannedSearchQueryCount": 13,
+        "requestedKindCount": 3,
+        "mustAttemptKindCount": 3,
+        "retrievalRoundCount": 1,
+        "retrievalStopReason": "query_budget_exhausted",
+        "rerankerProvider": "cross-encoder-research-v1",
+        "rerankerFallback": false,
+        "draftClaims": [
+          {
+            "claimId": "C1",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 1,
+            "reasonCode": "semantic_nli_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "2cc28ebb7505680bfb9ae53276e21eac9a4617b5cf11e34a9cd48efbc77150a9"
+          },
+          {
+            "claimId": "C2",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 0,
+            "reasonCode": "mapping_gate_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "7c74e2cbc17eedf0d946dc57163560f7a9c3200190b887fcd4fe60200fea61df"
+          },
+          {
+            "claimId": "C3",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "supported",
+            "evidenceIdCount": 1,
+            "reasonCode": "semantic_nli_supported",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "111b9aaf27b2d61cf9fa142998a594e3133f2556872660da5cb1d321c6b17c9a"
+          },
+          {
+            "claimId": "C4",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 1,
+            "reasonCode": "semantic_nli_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "70b83114c21ef3e2c7518711e15760c3bbffdf00e00676169e245243b8075806"
+          },
+          {
+            "claimId": "C5",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 0,
+            "reasonCode": "mapping_gate_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "243ad2e006bfa20677d22628033a4258afb6f6aa590bb8dbf656d8fc51f301cf"
+          },
+          {
+            "claimId": "C6",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "supported",
+            "evidenceIdCount": 1,
+            "reasonCode": "semantic_nli_supported",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "05633c6ab62f3f7cf3fca7294f384f333c7cc022002b4c26c41a9579e0b764b9"
+          },
+          {
+            "claimId": "C7",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 0,
+            "reasonCode": "mapping_gate_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "2e6ffd952a973e7f05d2805a66a875dce7e53c57bd9f6fffe4c8df73db699d20"
+          },
+          {
+            "claimId": "C8",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "supported",
+            "evidenceIdCount": 1,
+            "reasonCode": "semantic_nli_supported",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "8833f11d8350faf1be12a4eccde18a7b3dd03871e79b1442af424be98924a89c"
+          },
+          {
+            "claimId": "C9",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "not_verifiable",
+            "evidenceIdCount": 0,
+            "reasonCode": "mapping_gate_not_verifiable",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "45378a56c454451d0b8e0fcc1a2d86813b777fbcc811cbe144a783e72d5de3fd"
+          }
+        ],
+        "finalClaims": [
+          {
+            "claimId": "C1",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "supported",
+            "evidenceIdCount": 1,
+            "reasonCode": "final_exact_supported_draft_mapping_supported",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "111b9aaf27b2d61cf9fa142998a594e3133f2556872660da5cb1d321c6b17c9a"
+          },
+          {
+            "claimId": "C2",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "supported",
+            "evidenceIdCount": 1,
+            "reasonCode": "final_exact_supported_draft_mapping_supported",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "d85d3e3e312859482f48b09393ae0d601a73fceee4dc747b378c92da80395d4f"
+          },
+          {
+            "claimId": "C3",
+            "claimType": "knowledge_fact",
+            "verificationStatus": "supported",
+            "evidenceIdCount": 1,
+            "reasonCode": "final_exact_supported_draft_mapping_supported",
+            "alignmentScore": 0.0,
+            "claimTextSha256": "687b6c4e1b3a97306800af789ec382f36a4c33a7cd9b54e064a8280d6db46be3"
+          }
+        ]
+      },
+      "stateValid": true,
+      "stateVocabularyRevision": 1,
+      "activeVocabularyLabels": [
+        "高温环境约束"
+      ],
+      "errors": []
+    }
+  ]
+}
