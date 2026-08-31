@@ -2944,6 +2944,104 @@ fn save_qa_settings(
 }
 
 #[tauri::command]
+fn list_state_vocabulary(
+    state: State<'_, AppState>,
+) -> Result<qa::StateVocabularyRegistry, String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "请先建立本地索引".to_string())?;
+    qa::list_state_vocabulary(connection, &qa::repository_id(root))
+}
+
+#[tauri::command]
+fn create_custom_state_field(
+    input: qa::CustomStateFieldInput,
+    state: State<'_, AppState>,
+) -> Result<qa::StateFieldDefinition, String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "请先建立本地索引".to_string())?;
+    qa::create_custom_state_field(connection, &qa::repository_id(root), input)
+}
+
+#[tauri::command]
+fn update_custom_state_field(
+    field_id: String,
+    input: qa::CustomStateFieldInput,
+    state: State<'_, AppState>,
+) -> Result<qa::StateFieldDefinition, String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "请先建立本地索引".to_string())?;
+    qa::update_custom_state_field(connection, &qa::repository_id(root), &field_id, input)
+}
+
+#[tauri::command]
+fn set_custom_state_field_enabled(
+    field_id: String,
+    enabled: bool,
+    state: State<'_, AppState>,
+) -> Result<qa::StateFieldDefinition, String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "请先建立本地索引".to_string())?;
+    qa::set_custom_state_field_enabled(connection, &qa::repository_id(root), &field_id, enabled)
+}
+
+#[tauri::command]
+fn delete_custom_state_field(field_id: String, state: State<'_, AppState>) -> Result<(), String> {
+    let repository = state
+        .repository
+        .lock()
+        .map_err(|_| "知识库状态锁定失败".to_string())?;
+    let root = repository
+        .root
+        .as_ref()
+        .ok_or_else(|| "请先选择知识库目录".to_string())?;
+    let connection = repository
+        .db
+        .as_ref()
+        .ok_or_else(|| "请先建立本地索引".to_string())?;
+    qa::delete_custom_state_field(connection, &qa::repository_id(root), &field_id)
+}
+
+#[tauri::command]
 async fn get_codex_subscription_status(
     state: State<'_, AppState>,
 ) -> Result<codex_subscription::CodexSubscriptionStatus, String> {
@@ -4492,6 +4590,11 @@ pub fn run() {
             save_luna_settings,
             get_qa_settings,
             save_qa_settings,
+            list_state_vocabulary,
+            create_custom_state_field,
+            update_custom_state_field,
+            set_custom_state_field_enabled,
+            delete_custom_state_field,
             get_semantic_model_settings,
             choose_semantic_model_cache_directory,
             save_semantic_model_settings,

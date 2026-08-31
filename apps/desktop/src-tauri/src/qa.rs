@@ -72,6 +72,11 @@ pub use query_plan::{
     QueryPlan, QueryPlanningCandidate, QueryPlanningInput,
 };
 pub use research_query_context::ResearchQueryContext;
+pub use state_vocabulary::{
+    create_custom_state_field, delete_custom_state_field, list_state_vocabulary,
+    set_custom_state_field_enabled, update_custom_state_field, CustomStateFieldInput,
+    StateFieldDefinition, StateVocabularyRegistry,
+};
 pub type QueryPlanner<'a> = dyn FnMut(&QueryPlanningInput) -> Result<QueryPlan, String> + 'a;
 pub use understanding::{
     parse_understanding_plan, understanding_prompt, understanding_schema, UnderstandingPlan,
@@ -673,12 +678,53 @@ pub fn db_schema(connection: &Connection) -> Result<(), String> {
               key TEXT PRIMARY KEY,
               value TEXT NOT NULL
             );
+            CREATE TABLE IF NOT EXISTS qa_state_vocabulary_fields (
+              repository_id TEXT NOT NULL,
+              field_id TEXT NOT NULL,
+              kind TEXT NOT NULL,
+              label TEXT NOT NULL,
+              description TEXT NOT NULL,
+              aliases_json TEXT NOT NULL DEFAULT '[]',
+              examples_json TEXT NOT NULL DEFAULT '[]',
+              parameter_spec_json TEXT NOT NULL DEFAULT '{}',
+              enabled INTEGER NOT NULL DEFAULT 1,
+              created_at TEXT NOT NULL,
+              updated_at TEXT NOT NULL,
+              PRIMARY KEY(repository_id, field_id)
+            );
+            CREATE TABLE IF NOT EXISTS qa_state_vocabulary_meta (
+              repository_id TEXT PRIMARY KEY,
+              revision INTEGER NOT NULL DEFAULT 0,
+              updated_at TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS qa_session_research_state (
+              session_id TEXT PRIMARY KEY,
+              repository_id TEXT NOT NULL,
+              state_schema_version TEXT NOT NULL,
+              vocabulary_revision INTEGER NOT NULL,
+              state_json TEXT NOT NULL,
+              last_source_message_id TEXT NOT NULL DEFAULT '',
+              updated_at TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS qa_message_state_patches (
+              message_id TEXT PRIMARY KEY,
+              session_id TEXT NOT NULL,
+              repository_id TEXT NOT NULL,
+              patch_schema_version TEXT NOT NULL,
+              vocabulary_revision INTEGER NOT NULL,
+              patch_json TEXT NOT NULL,
+              created_at TEXT NOT NULL
+            );
             CREATE INDEX IF NOT EXISTS idx_chat_sessions_repository_updated
               ON chat_sessions(repository_id, updated_at DESC);
             CREATE INDEX IF NOT EXISTS idx_chat_messages_session_created
               ON chat_messages(session_id, created_at ASC);
             CREATE INDEX IF NOT EXISTS idx_chat_evidence_message_rank
               ON chat_evidence(message_id, rank ASC);
+            CREATE INDEX IF NOT EXISTS idx_qa_state_vocabulary_repository
+              ON qa_state_vocabulary_fields(repository_id, enabled, kind);
+            CREATE INDEX IF NOT EXISTS idx_qa_message_state_patches_session
+              ON qa_message_state_patches(session_id, created_at ASC);
             ",
         )
         .map_err(|error| format!("初始化问答数据库失败：{error}"))?;
