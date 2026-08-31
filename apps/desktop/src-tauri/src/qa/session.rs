@@ -139,15 +139,37 @@ pub fn delete_session(
     root: &Path,
     session_id: &str,
 ) -> Result<(), String> {
-    let changed = connection
+    let operation_id = uuid::Uuid::new_v4().to_string();
+    log::info!("feature=chat_session_delete stage=start operation_id={operation_id}");
+    let transaction = connection
+        .unchecked_transaction()
+        .map_err(|error| format!("SESSION_DELETE_TRANSACTION_FAILED: {error}"))?;
+    transaction
+        .execute(
+            "DELETE FROM qa_message_state_patches WHERE session_id=?1 AND repository_id=?2",
+            params![session_id, repository_id(root)],
+        )
+        .map_err(|error| format!("SESSION_STATE_PATCH_DELETE_FAILED: {error}"))?;
+    transaction
+        .execute(
+            "DELETE FROM qa_session_research_state WHERE session_id=?1 AND repository_id=?2",
+            params![session_id, repository_id(root)],
+        )
+        .map_err(|error| format!("SESSION_STATE_DELETE_FAILED: {error}"))?;
+    let changed = transaction
         .execute(
             "DELETE FROM chat_sessions WHERE id=?1 AND repository_id=?2",
             params![session_id, repository_id(root)],
         )
         .map_err(|error| format!("删除会话失败：{error}"))?;
     if changed == 0 {
+        log::error!("feature=chat_session_delete stage=failed operation_id={operation_id} error_code=SESSION_NOT_FOUND");
         return Err("会话不存在或不属于当前知识库".to_string());
     }
+    transaction
+        .commit()
+        .map_err(|error| format!("SESSION_DELETE_COMMIT_FAILED: {error}"))?;
+    log::info!("feature=chat_session_delete stage=complete operation_id={operation_id}");
     Ok(())
 }
 

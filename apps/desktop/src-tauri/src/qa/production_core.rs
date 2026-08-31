@@ -122,6 +122,7 @@ pub fn prepare_production_qa(
             planner,
             understanding,
             Some(&budget_guard),
+            request.session_id.as_deref(),
         )?;
         context.retrieval_query.planning_provider = planning_provider
             .as_ref()

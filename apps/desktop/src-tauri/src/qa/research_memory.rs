@@ -3,6 +3,7 @@ use super::state_mutation::{
 };
 use super::state_reducer::{apply_patch, StateApplyReport};
 use super::{problem_understanding, ConversationTurn};
+use rusqlite::{params, Connection, OptionalExtension, Transaction};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -59,6 +60,95 @@ pub fn derive_history(history: &[ConversationTurn]) -> ResearchSessionState {
     }
     bound_state(&mut state);
     state
+}
+
+pub fn load_canonical_state(
+    connection: &Connection,
+    repository_id: &str,
+    session_id: &str,
+) -> Result<Option<ResearchSessionState>, String> {
+    let row = connection
+        .query_row(
+            "SELECT state_schema_version,state_json FROM qa_session_research_state
+             WHERE session_id=?1 AND repository_id=?2",
+            params![session_id, repository_id],
+            |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)),
+        )
+        .optional()
+        .map_err(|error| format!("CANONICAL_STATE_LOAD_FAILED: {error}"))?;
+    let Some((schema_version, state_json)) = row else {
+        return Ok(None);
+    };
+    if schema_version != RESEARCH_STATE_VERSION {
+        return Err("CANONICAL_STATE_SCHEMA_UNSUPPORTED".to_string());
+    }
+    let state = serde_json::from_str::<ResearchSessionState>(&state_json)
+        .map_err(|error| format!("CANONICAL_STATE_INVALID: {error}"))?;
+    if state.schema_version != RESEARCH_STATE_VERSION
+        || state.state_version != RESEARCH_STATE_VERSION
+    {
+        return Err("CANONICAL_STATE_SCHEMA_UNSUPPORTED".to_string());
+    }
+    Ok(Some(state))
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn persist_canonical_state(
+    transaction: &Transaction<'_>,
+    repository_id: &str,
+    session_id: &str,
+    user_message_id: &str,
+    vocabulary_revision: u64,
+    state: &ResearchSessionState,
+    patch: &ResearchStatePatch,
+    timestamp: &str,
+) -> Result<(), String> {
+    let state_json = serde_json::to_string(state)
+        .map_err(|error| format!("CANONICAL_STATE_SERIALIZE_FAILED: {error}"))?;
+    let patch_json = serde_json::to_string(patch)
+        .map_err(|error| format!("CANONICAL_PATCH_SERIALIZE_FAILED: {error}"))?;
+    transaction
+        .execute(
+            "INSERT INTO qa_message_state_patches(
+               message_id,session_id,repository_id,patch_schema_version,vocabulary_revision,
+               patch_json,created_at
+             ) VALUES(?1,?2,?3,?4,?5,?6,?7)",
+            params![
+                user_message_id,
+                session_id,
+                repository_id,
+                patch.schema_version,
+                vocabulary_revision as i64,
+                patch_json,
+                timestamp,
+            ],
+        )
+        .map_err(|error| format!("CANONICAL_PATCH_PERSIST_FAILED: {error}"))?;
+    transaction
+        .execute(
+            "INSERT INTO qa_session_research_state(
+               session_id,repository_id,state_schema_version,vocabulary_revision,state_json,
+               last_source_message_id,updated_at
+             ) VALUES(?1,?2,?3,?4,?5,?6,?7)
+             ON CONFLICT(session_id) DO UPDATE SET
+               repository_id=excluded.repository_id,
+               state_schema_version=excluded.state_schema_version,
+               vocabulary_revision=excluded.vocabulary_revision,
+               state_json=excluded.state_json,
+               last_source_message_id=excluded.last_source_message_id,
+               updated_at=excluded.updated_at",
+            params![
+                session_id,
+                repository_id,
+                RESEARCH_STATE_VERSION,
+                vocabulary_revision as i64,
+                state_json,
+                user_message_id,
+                timestamp,
+            ],
+        )
+        .map_err(|error| format!("CANONICAL_STATE_PERSIST_FAILED: {error}"))?;
+    Ok(())
 }
 
 pub fn derive(history: &[ConversationTurn], current_question: &str) -> ResearchSessionState {
@@ -167,7 +257,10 @@ fn push_latest(values: &mut Vec<String>, value: &str, maximum_chars: usize) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::qa::state_mutation::ParameterValue;
+    use crate::qa::state_mutation::{
+        ParameterValue, PatchConfidence, ResearchStateOperation, StateAction, StateField,
+        StateValue, STATE_PATCH_VERSION,
+    };
 
     fn turn(index: usize, role: &str, content: &str) -> ConversationTurn {
         ConversationTurn {
@@ -269,5 +362,87 @@ mod tests {
                 ParameterValue::Integer(2)
             );
         }
+    }
+
+    #[test]
+    fn semantic_custom_state_and_patch_survive_database_restart() {
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("qa.sqlite");
+        let custom_id = "custom:constraint:00000000-0000-0000-0000-000000000003";
+        {
+            let mut connection = Connection::open(&path).unwrap();
+            crate::qa::db_schema(&connection).unwrap();
+            let state = ResearchSessionState {
+                revision: 1,
+                constraints: vec![custom_id.to_string()],
+                last_patch_id: "patch:m1".to_string(),
+                ..ResearchSessionState::default_v2()
+            };
+            let patch = ResearchStatePatch {
+                schema_version: STATE_PATCH_VERSION.to_string(),
+                patch_id: "patch:m1".to_string(),
+                operations: vec![ResearchStateOperation {
+                    action: StateAction::Add,
+                    field: StateField::Constraint,
+                    value: Some(StateValue::text(custom_id)),
+                    previous_value: None,
+                    confidence: PatchConfidence::High,
+                }],
+                confidence: PatchConfidence::High,
+                source_message_id: Some("m1".to_string()),
+                parameter_implicit_reference_resolved_count: 0,
+                parameter_implicit_reference_rejected_count: 0,
+                parameter_unknown_name_count: 0,
+                parameter_state_corruption_count: 0,
+            };
+            let transaction = connection.transaction().unwrap();
+            persist_canonical_state(
+                &transaction,
+                "repo",
+                "session",
+                "m1",
+                4,
+                &state,
+                &patch,
+                "1",
+            )
+            .unwrap();
+            transaction.commit().unwrap();
+        }
+        let connection = Connection::open(&path).unwrap();
+        crate::qa::db_schema(&connection).unwrap();
+        let loaded = load_canonical_state(&connection, "repo", "session")
+            .unwrap()
+            .unwrap();
+        assert_eq!(loaded.constraints, [custom_id]);
+        let persisted_patch: String = connection
+            .query_row(
+                "SELECT patch_json FROM qa_message_state_patches WHERE message_id='m1'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert!(persisted_patch.contains(custom_id));
+    }
+
+    #[test]
+    fn legacy_session_has_no_snapshot_then_migrates_on_successful_save() {
+        let mut connection = Connection::open_in_memory().unwrap();
+        crate::qa::db_schema(&connection).unwrap();
+        assert!(load_canonical_state(&connection, "repo", "legacy")
+            .unwrap()
+            .is_none());
+        let history = vec![turn(0, "user", "加入 deadline 约束。")];
+        let state = derive_history(&history);
+        let patch = ResearchStatePatch::empty(Some("m2".to_string()));
+        let transaction = connection.transaction().unwrap();
+        persist_canonical_state(&transaction, "repo", "legacy", "m2", 0, &state, &patch, "2")
+            .unwrap();
+        transaction.commit().unwrap();
+        assert!(load_canonical_state(&connection, "repo", "legacy")
+            .unwrap()
+            .unwrap()
+            .constraints
+            .contains(&"deadlines".to_string()));
     }
 }

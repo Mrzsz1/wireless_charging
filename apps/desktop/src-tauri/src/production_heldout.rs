@@ -168,6 +168,7 @@ fn execute_case(
         planner,
         understanding,
         Some(&budget_guard),
+        None,
     )?;
     context.retrieval_query.planning_provider = planning_provider
         .as_ref()

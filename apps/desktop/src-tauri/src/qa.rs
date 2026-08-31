@@ -1193,6 +1193,8 @@ pub fn build_retrieval_query(
         history,
         None,
         &StateVocabularyRegistry::default(),
+        None,
+        None,
     )
 }
 
@@ -1202,6 +1204,8 @@ fn build_retrieval_query_with_understanding<'a>(
     history: &[ConversationTurn],
     planner: Option<&'a mut QuestionUnderstandingPlanner<'a>>,
     registry: &StateVocabularyRegistry,
+    repository: Option<&str>,
+    session_id: Option<&str>,
 ) -> RetrievalQuery {
     let original_question = question.trim().to_string();
     let state_operation_id = Uuid::new_v4().to_string();
@@ -1209,7 +1213,31 @@ fn build_retrieval_query_with_understanding<'a>(
         "feature=canonical_state_mapping stage=start operation_id={state_operation_id} vocabulary_revision={}",
         registry.revision
     );
-    let mut research_state = research_memory::derive_history(history);
+    let mut loaded_snapshot = false;
+    let mut research_state = match repository.zip(session_id) {
+        Some((repository, session_id)) => {
+            match research_memory::load_canonical_state(connection, repository, session_id) {
+                Ok(Some(state)) => {
+                    loaded_snapshot = true;
+                    log::info!("feature=canonical_state_persistence stage=load_success operation_id={state_operation_id} source=snapshot");
+                    state
+                }
+                Ok(None) => {
+                    log::info!("feature=canonical_state_persistence stage=load_success operation_id={state_operation_id} source=legacy_history");
+                    research_memory::derive_history(history)
+                }
+                Err(error) => {
+                    let error_code = error
+                        .split(':')
+                        .next()
+                        .unwrap_or("CANONICAL_STATE_LOAD_FAILED");
+                    log::error!("feature=canonical_state_persistence stage=load_failed operation_id={state_operation_id} error_code={error_code} fallback=legacy_history");
+                    research_memory::derive_history(history)
+                }
+            }
+        }
+        None => research_memory::derive_history(history),
+    };
     let explicit_entities = extract_question_entities(connection, &original_question);
     let history_entities = if contains_reference(&original_question) && explicit_entities.len() < 2
     {
@@ -1308,7 +1336,7 @@ fn build_retrieval_query_with_understanding<'a>(
     problem_search_terms.dedup();
     problem_search_terms.truncate(48);
     log::info!(
-        "feature=canonical_state_mapping stage=complete operation_id={state_operation_id} semantic_mapping_attempted={semantic_mapping_attempted} semantic_mapping_used={} mapped_field_count={} rejected_field_count={semantic_rejected_field_count}",
+        "feature=canonical_state_mapping stage=complete operation_id={state_operation_id} semantic_mapping_attempted={semantic_mapping_attempted} semantic_mapping_used={} mapped_field_count={} rejected_field_count={semantic_rejected_field_count} loaded_snapshot={loaded_snapshot}",
         semantic_mapping_used && semantic_rejected_field_count == 0,
         if semantic_mapping_used && semantic_rejected_field_count == 0 { semantic_candidate_count } else { 0 }
     );
@@ -2621,6 +2649,7 @@ pub fn prepare_question_with_history_budget_and_planner(
         planner,
         None,
         None,
+        None,
     )
 }
 
@@ -2638,6 +2667,7 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
     mut planner: Option<&mut QueryPlanner<'_>>,
     understanding_planner: Option<&'a mut QuestionUnderstandingPlanner<'a>>,
     budget_guard: Option<&LlmBudgetGuard>,
+    session_id: Option<&str>,
 ) -> Result<QuestionContext, String> {
     let question = question.trim();
     if question.chars().count() < 2 {
@@ -2657,13 +2687,16 @@ pub fn prepare_question_with_history_budget_and_planners<'a>(
     }
     check_cancelled(cancelled)?;
     let mut diagnostics = RetrievalDiagnosticsBuilder::new();
-    let registry = state_vocabulary::load_state_vocabulary(connection, &repository_id(root))?;
+    let repository = repository_id(root);
+    let registry = state_vocabulary::load_state_vocabulary(connection, &repository)?;
     let mut retrieval_query = build_retrieval_query_with_understanding(
         connection,
         question,
         &conversation,
         understanding_planner,
         &registry,
+        Some(&repository),
+        session_id,
     );
     let routing_policy = adaptive_routing::policy(&retrieval_query.execution_mode);
     if let Some(guard) = budget_guard {
@@ -4013,6 +4046,39 @@ fn persist_exchange_with_metadata_and_semantic_inner(
         )
         .map_err(|error| format!("保存回答证据失败：{error}"))?;
     }
+    log::info!(
+        "feature=canonical_state_persistence stage=save_start operation_id={} vocabulary_revision={}",
+        context.request_id,
+        context.retrieval_query.state_vocabulary_revision
+    );
+    let mut persisted_patch = context.retrieval_query.canonical_state_patch.clone();
+    persisted_patch.source_message_id = Some(user_message.id.clone());
+    persisted_patch.patch_id = format!("patch:{}", user_message.id);
+    let mut persisted_state = context.retrieval_query.canonical_research_state.clone();
+    persisted_state.last_patch_id = persisted_patch.patch_id.clone();
+    if context.retrieval_query.state_changed
+        && !persisted_state
+            .source_message_ids
+            .contains(&user_message.id)
+    {
+        persisted_state
+            .source_message_ids
+            .push(user_message.id.clone());
+    }
+    if persisted_state.source_message_ids.len() > 64 {
+        let excess = persisted_state.source_message_ids.len() - 64;
+        persisted_state.source_message_ids.drain(0..excess);
+    }
+    research_memory::persist_canonical_state(
+        &tx,
+        &repository_id(root),
+        &session,
+        &user_message.id,
+        context.retrieval_query.state_vocabulary_revision,
+        &persisted_state,
+        &persisted_patch,
+        &now_string(),
+    )?;
     tx.execute(
         "UPDATE chat_sessions SET updated_at=?2 WHERE id=?1",
         params![session, now_string()],
@@ -4020,6 +4086,10 @@ fn persist_exchange_with_metadata_and_semantic_inner(
     .map_err(|error| format!("更新会话时间失败：{error}"))?;
     tx.commit()
         .map_err(|error| format!("提交会话保存事务失败：{error}"))?;
+    log::info!(
+        "feature=canonical_state_persistence stage=save_complete operation_id={} persisted=true",
+        context.request_id
+    );
     Ok(AskResult {
         request_id: context.request_id.clone(),
         session_id: session,
